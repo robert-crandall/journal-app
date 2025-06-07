@@ -139,6 +139,63 @@
 			</div>
 		</div>
 
+		<!-- Location Preferences -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title text-xl mb-4">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+					</svg>
+					Location Context
+				</h2>
+				<p class="text-base-content/70 mb-4">Help us generate more relevant tasks based on your location and local weather</p>
+				
+				<div class="grid md:grid-cols-2 gap-4">
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">Location Description</span>
+						</label>
+						<input 
+							type="text" 
+							placeholder="e.g., Seattle area, NYC, San Francisco"
+							class="input input-bordered w-full"
+							value={preferences.locationDescription || ''}
+							on:input={(e) => preferences.locationDescription = e.target.value}
+							on:blur={() => savePreference('locationDescription', preferences.locationDescription || '')}
+						/>
+						<label class="label">
+							<span class="label-text-alt">A general description of your area for context</span>
+						</label>
+					</div>
+					
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">Zip Code</span>
+						</label>
+						<input 
+							type="text" 
+							placeholder="e.g., 98101"
+							class="input input-bordered w-full"
+							value={preferences.zipCode || ''}
+							on:input={(e) => preferences.zipCode = e.target.value}
+							on:blur={() => savePreference('zipCode', preferences.zipCode || '')}
+						/>
+						<label class="label">
+							<span class="label-text-alt">For weather-based task suggestions (optional)</span>
+						</label>
+					</div>
+				</div>
+
+				<div class="alert alert-info mt-4">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					</svg>
+					<span class="text-sm">Your location helps us suggest outdoor activities on nice days, indoor activities during bad weather, and consider weekend vs. weekday schedules.</span>
+				</div>
+			</div>
+		</div>
+
 		<!-- User Attributes -->
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
