@@ -187,6 +187,35 @@ export const journalsApi = {
 		return apiRequest(`/journals/${id}`, {
 			method: 'DELETE'
 		});
+	},
+
+	// GPT-powered journal endpoints
+	async start(journal: { content: string; date?: string }) {
+		return apiRequest('/journals/start', {
+			method: 'POST',
+			body: JSON.stringify(journal)
+		});
+	},
+
+	async getFollowup(id: string) {
+		return apiRequest(`/journals/${id}/followup`);
+	},
+
+	async addFollowupResponse(id: string, response: string) {
+		return apiRequest(`/journals/${id}/followup`, {
+			method: 'POST',
+			body: JSON.stringify({ response })
+		});
+	},
+
+	async submit(id: string) {
+		return apiRequest(`/journals/${id}/submit`, {
+			method: 'POST'
+		});
+	},
+
+	async get(id: string) {
+		return apiRequest(`/journals/${id}`);
 	}
 };
 

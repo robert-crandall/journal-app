@@ -273,13 +273,13 @@ export const completeTaskSchema = z.object({
 
 export const createJournalSchema = z.object({
   content: z.string().min(1),
-  date: z.string().datetime().optional(),
+  date: z.string().date().optional(),
 });
 
 // New schemas for journal conversation flow
 export const startJournalSchema = z.object({
   content: z.string().min(1),
-  date: z.string().datetime().optional(),
+  date: z.string().date().optional(),
 });
 
 export const followupResponseSchema = z.object({
