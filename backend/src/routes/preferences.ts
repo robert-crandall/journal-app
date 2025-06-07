@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { attributes, type User } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { preferences, type User, type Preference } from '../db/schema';
+import { eq } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
@@ -19,16 +19,24 @@ app.get('/', jwtMiddleware, userMiddleware, async (c) => {
   try {
     const userPreferences = await db
       .select()
-      .from(attributes)
-      .where(eq(attributes.userId, user.id));
+      .from(preferences)
+      .where(eq(preferences.userId, user.id))
+      .limit(1);
 
-    // Convert to key-value object
-    const preferences = userPreferences.reduce((acc, attr) => {
-      acc[attr.key] = attr.value;
-      return acc;
-    }, {} as Record<string, string>);
+    if (userPreferences.length === 0) {
+      // Return default preferences if none exist
+      return c.json({ 
+        success: true, 
+        preferences: {
+          theme: 'light'
+        }
+      });
+    }
 
-    return c.json({ success: true, preferences });
+    // Convert preferences record to a simple object (excluding metadata)
+    const { userId, createdAt, updatedAt, ...prefs } = userPreferences[0];
+    
+    return c.json({ success: true, preferences: prefs });
   } catch (error) {
     console.error('Error fetching preferences:', error);
     return c.json({ error: 'Failed to fetch preferences' }, 500);
@@ -45,30 +53,48 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
     return c.json({ error: 'Value is required' }, 400);
   }
 
+  // Validate that the key is a valid preference field
+  const validKeys = ['theme'];
+  if (!validKeys.includes(key)) {
+    return c.json({ error: `Invalid preference key: ${key}` }, 400);
+  }
+
   try {
-    // Check if preference already exists
+    // Check if preferences record exists for this user
     const existing = await db
       .select()
-      .from(attributes)
-      .where(and(eq(attributes.userId, user.id), eq(attributes.key, key)))
+      .from(preferences)
+      .where(eq(preferences.userId, user.id))
       .limit(1);
 
     if (existing.length > 0) {
-      // Update existing preference
+      // Update existing preferences
+      const updateData: Partial<Preference> = {
+        updatedAt: new Date()
+      };
+      
+      // Dynamically set the preference field
+      if (key === 'theme') {
+        updateData.theme = value;
+      }
+
       await db
-        .update(attributes)
-        .set({ 
-          value, 
-          updatedAt: new Date() 
-        })
-        .where(and(eq(attributes.userId, user.id), eq(attributes.key, key)));
+        .update(preferences)
+        .set(updateData)
+        .where(eq(preferences.userId, user.id));
     } else {
-      // Create new preference
-      await db.insert(attributes).values({
+      // Create new preferences record
+      const newPrefs: any = {
         userId: user.id,
-        key,
-        value,
-      });
+        theme: 'light', // default value
+      };
+      
+      // Set the specific preference
+      if (key === 'theme') {
+        newPrefs.theme = value;
+      }
+
+      await db.insert(preferences).values(newPrefs);
     }
 
     return c.json({ success: true, message: 'Preference updated' });
@@ -81,41 +107,50 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
 // Set multiple preferences
 app.put('/', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
-  const { preferences } = await c.req.json();
+  const { preferences: prefsData } = await c.req.json();
 
-  if (!preferences || typeof preferences !== 'object') {
+  if (!prefsData || typeof prefsData !== 'object') {
     return c.json({ error: 'Preferences object is required' }, 400);
   }
 
+  const validKeys = ['theme'];
+  
+  // Validate all keys
+  for (const key of Object.keys(prefsData)) {
+    if (!validKeys.includes(key)) {
+      return c.json({ error: `Invalid preference key: ${key}` }, 400);
+    }
+  }
+
   try {
-    // Process each preference
-    for (const [key, value] of Object.entries(preferences)) {
-      if (typeof value !== 'string') continue;
+    // Check if preferences record exists for this user
+    const existing = await db
+      .select()
+      .from(preferences)
+      .where(eq(preferences.userId, user.id))
+      .limit(1);
 
-      // Check if preference already exists
-      const existing = await db
-        .select()
-        .from(attributes)
-        .where(and(eq(attributes.userId, user.id), eq(attributes.key, key)))
-        .limit(1);
+    if (existing.length > 0) {
+      // Update existing preferences
+      const updateData: Partial<Preference> = {
+        updatedAt: new Date()
+      };
+      
+      // Set each preference field
+      if (prefsData.theme !== undefined) updateData.theme = prefsData.theme;
 
-      if (existing.length > 0) {
-        // Update existing preference
-        await db
-          .update(attributes)
-          .set({ 
-            value, 
-            updatedAt: new Date() 
-          })
-          .where(and(eq(attributes.userId, user.id), eq(attributes.key, key)));
-      } else {
-        // Create new preference
-        await db.insert(attributes).values({
-          userId: user.id,
-          key,
-          value,
-        });
-      }
+      await db
+        .update(preferences)
+        .set(updateData)
+        .where(eq(preferences.userId, user.id));
+    } else {
+      // Create new preferences record
+      const newPrefs: any = {
+        userId: user.id,
+        theme: prefsData.theme || 'light',
+      };
+
+      await db.insert(preferences).values(newPrefs);
     }
 
     return c.json({ success: true, message: 'Preferences updated' });
@@ -125,20 +160,35 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
   }
 });
 
-// Delete a preference
+// Delete a preference (reset to default)
 app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   const key = c.req.param('key');
 
-  try {
-    await db
-      .delete(attributes)
-      .where(and(eq(attributes.userId, user.id), eq(attributes.key, key)));
+  const validKeys = ['theme'];
+  if (!validKeys.includes(key)) {
+    return c.json({ error: `Invalid preference key: ${key}` }, 400);
+  }
 
-    return c.json({ success: true, message: 'Preference deleted' });
+  try {
+    // Reset the preference to its default value
+    const updateData: Partial<Preference> = {
+      updatedAt: new Date()
+    };
+    
+    if (key === 'theme') {
+      updateData.theme = 'light'; // default theme
+    }
+
+    await db
+      .update(preferences)
+      .set(updateData)
+      .where(eq(preferences.userId, user.id));
+
+    return c.json({ success: true, message: 'Preference reset to default' });
   } catch (error) {
-    console.error('Error deleting preference:', error);
-    return c.json({ error: 'Failed to delete preference' }, 500);
+    console.error('Error resetting preference:', error);
+    return c.json({ error: 'Failed to reset preference' }, 500);
   }
 });
 

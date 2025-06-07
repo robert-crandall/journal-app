@@ -2,7 +2,6 @@
 	import { auth } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	
 	let email = '';
 	let password = '';
@@ -45,11 +44,6 @@
 <svelte:head>
 	<title>Login - Life Quest</title>
 </svelte:head>
-
-<!-- Theme picker for login page -->
-<div class="absolute top-4 right-4 z-10">
-	<ThemePicker />
-</div>
 
 <div class="hero min-h-screen bg-base-200">
 	<div class="hero-content flex-col lg:flex-row-reverse">
