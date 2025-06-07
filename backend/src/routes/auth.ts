@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import { zValidator } from '@hono/zod-validator';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, loginSchema, registerSchema, type User } from '../db/schema';
+import { users, stats, statTemplates, loginSchema, registerSchema, type User } from '../db/schema';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
@@ -14,6 +14,47 @@ type Variables = JwtVariables & {
 };
 
 const auth = new Hono<{ Variables: Variables }>();
+
+// Helper function to populate default stats for new users
+async function populateDefaultStatsForUser(userId: string) {
+  // Define stat configurations (same as in stats.ts)
+  const statConfigs: Record<string, { category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy'; emoji: string; color: string; description: string }> = {
+    // BODY
+    'Strength': { category: 'body', emoji: '💪', color: 'red', description: 'Physical health, energy, resilience, and capacity to take physical action' },
+    'Dexterity': { category: 'body', emoji: '🤸', color: 'orange', description: 'Agility, coordination, body control, and adaptability under pressure' },
+    'Vitality': { category: 'body', emoji: '⚡', color: 'yellow', description: 'Your overall life force: sleep, mood, stress regulation, libido, sense of aliveness' },
+    
+    // MIND
+    'Intellect': { category: 'mind', emoji: '🧠', color: 'blue', description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity' },
+    'Wisdom': { category: 'mind', emoji: '🦉', color: 'indigo', description: 'Emotional intelligence, reflection, insight, and making grounded decisions' },
+    'Discipline': { category: 'mind', emoji: '🎯', color: 'purple', description: 'Habits, follow-through, structure, and resistance to impulse or distraction' },
+    
+    // CONNECTION
+    'Charisma': { category: 'connection', emoji: '✨', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
+    'Intimacy': { category: 'connection', emoji: '💝', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
+    'Courage': { category: 'connection', emoji: '🦁', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
+    'Craft': { category: 'connection', emoji: '🔨', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' }
+  };
+  
+  // Create ALL stats for the new user (not just from a template)
+  for (const [statName, config] of Object.entries(statConfigs)) {
+    try {
+      await db.insert(stats).values({
+        userId: userId,
+        name: statName,
+        description: config.description,
+        emoji: config.emoji,
+        color: config.color,
+        category: config.category,
+        enabled: true,
+        systemDefault: true,
+        value: 0
+      });
+    } catch (error) {
+      console.error(`Failed to create default stat ${statName} for user ${userId}:`, error);
+    }
+  }
+}
 
 // Register
 auth.post('/register', zValidator('json', registerSchema), async (c) => {
@@ -37,6 +78,14 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
     type: 'user',
     isFamily: false,
   }).returning();
+  
+  // Populate default stats for the new user
+  try {
+    await populateDefaultStatsForUser(newUser.id);
+  } catch (error) {
+    console.error('Failed to populate default stats for new user:', error);
+    // Continue with registration even if stat population fails
+  }
   
   // Generate JWT token
   const token = await generateToken(newUser.id);
