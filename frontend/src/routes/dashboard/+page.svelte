@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/stores/auth';
-	import { tasksApi, statsApi, journalsApi } from '$lib/api';
+	import { tasksApi, statsApi, journalsApi, userApi } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
+	import { findClassByName } from '$lib/data/classes';
 	
 	// Helper function to get icon component
 	function getIconComponent(iconName: string) {
@@ -22,6 +23,7 @@
 	let dailyTasks: any[] = [];
 	let stats: any[] = [];
 	let recentJournals: any[] = [];
+	let userData: any = null;
 	let loading = true;
 	let showTaskFeedback = '';
 	let taskFeedbackData = {
@@ -39,17 +41,19 @@
 		
 		async function loadData() {
 			try {
-				const [tasksData, dailyTasksData, statsData, journalsData] = await Promise.all([
+				const [tasksData, dailyTasksData, statsData, journalsData, userResponse] = await Promise.all([
 					tasksApi.getAll(),
 					tasksApi.getDailyTasks(),
 					statsApi.getAll(),
-					journalsApi.getAll()
+					journalsApi.getAll(),
+					userApi.getMe()
 				]);
 				
 				tasks = tasksData.tasks.filter((task: any) => !task.completedAt && task.origin !== 'gpt').slice(0, 5);
 				dailyTasks = dailyTasksData.tasks || [];
 				stats = statsData.slice(0, 4);
 				recentJournals = journalsData.journals.slice(0, 3);
+				userData = userResponse.user;
 			} catch (error) {
 				console.error('Failed to load dashboard data:', error);
 			} finally {
@@ -274,8 +278,64 @@
 					</div>
 				</div>
 
-				<!-- Stats -->
+				<!-- Right Column -->
 				<div>
+					<!-- Character Profile -->
+					{#if userData?.className}
+						{@const classDef = findClassByName(userData.className)}
+						<div class="card bg-base-100 shadow-xl mb-6">
+							<div class="card-body">
+								<div class="flex justify-between items-center">
+									<h2 class="card-title">🎭 Character Profile</h2>
+									<a href="/settings" class="btn btn-sm btn-ghost">Edit</a>
+								</div>
+								
+								<div class="space-y-3">
+									<div>
+										<h3 class="font-semibold text-primary">{userData.className}</h3>
+										{#if userData.classDescription}
+											<p class="text-sm text-base-content/70 italic">"{userData.classDescription}"</p>
+										{/if}
+									</div>
+									
+									{#if classDef && classDef.recommended_stats.length > 0}
+										<div>
+											<h4 class="text-sm font-medium text-base-content/80 mb-2">
+												Recommended Stats for a {userData.className}:
+											</h4>
+											<div class="flex flex-wrap gap-1 mb-3">
+												{#each classDef.recommended_stats as statName}
+													{@const hasThisStat = stats.some(s => s.name === statName)}
+													<span class="badge badge-sm {hasThisStat ? 'badge-primary' : 'badge-outline'}">
+														{statName}
+														{#if hasThisStat}✓{/if}
+													</span>
+												{/each}
+											</div>
+										</div>
+									{/if}
+									
+									{#if stats.length > 0}
+										<div>
+											<h4 class="text-sm font-medium text-base-content/80 mb-2">
+												Your Active Stats:
+											</h4>
+											<div class="text-sm text-base-content/70">
+												{#each stats.slice(0, 3) as stat, i}
+													{stat.name} (Lvl {stat.level}){#if i < Math.min(2, stats.length - 1)}, {/if}
+												{/each}
+												{#if stats.length > 3}
+													, and {stats.length - 3} more
+												{/if}
+											</div>
+										</div>
+									{/if}
+								</div>
+							</div>
+						</div>
+					{/if}
+
+					<!-- Stats -->
 					<div class="card bg-base-100 shadow-xl mb-6">
 						<div class="card-body">
 							<div class="flex justify-between items-center">
