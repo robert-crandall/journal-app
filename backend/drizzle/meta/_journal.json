@@ -29,6 +29,13 @@
       "when": 1749259451080,
       "tag": "0003_thick_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749263202344,
+      "tag": "0004_luxuriant_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

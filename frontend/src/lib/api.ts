@@ -202,14 +202,14 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}`);
 	},
 	
-	async create(stat: { name: string; description?: string; emoji?: string; color?: string; value?: number }) {
+	async create(stat: { name: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
 		return apiRequest('/stats', {
 			method: 'POST',
 			body: JSON.stringify(stat)
 		});
 	},
 	
-	async update(id: string, stat: { name: string; description?: string; emoji?: string; color?: string; value?: number }) {
+	async update(id: string, stat: { name?: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(stat)
@@ -226,6 +226,16 @@ export const statsApi = {
 	async delete(id: string) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'DELETE'
+		});
+	},
+	
+	async getTemplates() {
+		return apiRequest('/stats/templates');
+	},
+	
+	async applyTemplate(templateId: string) {
+		return apiRequest(`/stats/templates/${templateId}/apply`, {
+			method: 'POST'
 		});
 	}
 };

@@ -50,7 +50,20 @@ export const stats = pgTable('stats', {
   description: text('description'),
   emoji: text('emoji'),
   color: text('color'),
+  category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }),
+  enabled: boolean('enabled').notNull().default(true),
+  systemDefault: boolean('system_default').notNull().default(false),
   value: integer('value').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Stat templates for quick setup
+export const statTemplates = pgTable('stat_templates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  recommendedStats: jsonb('recommended_stats').$type<string[]>().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -147,6 +160,8 @@ export const statsRelations = relations(stats, ({ one, many }) => ({
   tasks: many(tasks),
 }));
 
+export const statTemplatesRelations = relations(statTemplates, ({ }) => ({}));
+
 export const tasksRelations = relations(tasks, ({ one }) => ({
   user: one(users, { fields: [tasks.userId], references: [users.id] }),
   focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
@@ -179,6 +194,8 @@ export const insertFocusSchema = createInsertSchema(focuses);
 export const selectFocusSchema = createSelectSchema(focuses);
 export const insertStatSchema = createInsertSchema(stats);
 export const selectStatSchema = createSelectSchema(stats);
+export const insertStatTemplateSchema = createInsertSchema(statTemplates);
+export const selectStatTemplateSchema = createSelectSchema(statTemplates);
 export const insertTaskSchema = createInsertSchema(tasks);
 export const selectTaskSchema = createSelectSchema(tasks);
 export const insertJournalSchema = createInsertSchema(journals);
@@ -252,6 +269,9 @@ export const createStatSchema = z.object({
   description: z.string().optional(),
   emoji: z.string().optional(),
   color: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
+  enabled: z.boolean().optional(),
+  systemDefault: z.boolean().optional(),
 });
 
 export const updateStatSchema = z.object({
@@ -259,7 +279,13 @@ export const updateStatSchema = z.object({
   description: z.string().optional(),
   emoji: z.string().optional(),
   color: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
+  enabled: z.boolean().optional(),
   value: z.number().int().min(0).max(99).optional(),
+});
+
+export const applyTemplateSchema = z.object({
+  templateId: z.string().uuid(),
 });
 
 // Type exports
@@ -271,6 +297,8 @@ export type Focus = typeof focuses.$inferSelect;
 export type NewFocus = typeof focuses.$inferInsert;
 export type Stat = typeof stats.$inferSelect;
 export type NewStat = typeof stats.$inferInsert;
+export type StatTemplate = typeof statTemplates.$inferSelect;
+export type NewStatTemplate = typeof statTemplates.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Journal = typeof journals.$inferSelect;
