@@ -17,16 +17,11 @@
 		name: '',
 		description: '',
 		icon: '',
-		color: 'blue',
 		category: 'body' as 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy',
 		enabled: true
 	};
 
-	const colorOptions = [
-		'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald',
-		'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple',
-		'fuchsia', 'pink', 'rose'
-	];
+
 
 	const categoryOptions = [
 		{ value: 'body', label: 'Body', description: 'Physical health, energy, and resilience' },
@@ -126,7 +121,6 @@
 				name: statDef.name,
 				description: statDef.description,
 				icon: statDef.icon || '',
-				color: statDef.color || 'blue',
 				category: statDef.category,
 				enabled: true
 			};
@@ -138,7 +132,6 @@
 			name: '',
 			description: '',
 			icon: '',
-			color: 'blue',
 			category: 'body',
 			enabled: true
 		};
@@ -379,7 +372,7 @@
 									</div>
 									<div class="w-full bg-gray-200 rounded-full h-3">
 										<div 
-											class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
+											class="bg-primary h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
 											style="width: {getProgressWidth(stat)}%"
 										></div>
 									</div>
@@ -420,7 +413,7 @@
 											{/if}
 										</div>
 										<button 
-											class="btn btn-xs btn-outline btn-{stat.color}"
+											class="btn btn-xs btn-outline"
 											on:click={() => startEdit(stat)}
 										>
 											Edit
@@ -602,21 +595,6 @@
 						{/each}
 					</select>
 				</div>
-			</div>
-
-			<div class="form-control mb-4">
-				<label class="label" for="color">
-					<span class="label-text">Color</span>
-				</label>
-				<select 
-					id="color"
-					class="select select-bordered" 
-					bind:value={formData.color}
-				>
-					{#each colorOptions as color}
-						<option value={color}>{color}</option>
-					{/each}
-				</select>
 			</div>
 
 			<div class="form-control mb-6">

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { focusesApi, statsApi } from '$lib/api';
-	import { FOCUS_LIBRARY, EXTENDED_FOCUS_LIBRARY, type FocusTemplate } from '$lib/focusLibrary';
+	import { EXTENDED_FOCUS_LIBRARY, type FocusTemplate } from '$lib/focusLibrary';
 	import * as icons from 'lucide-svelte';
 	
 	let focuses: any[] = [];
@@ -56,7 +56,6 @@
 		name: '',
 		description: '',
 		icon: '',
-		color: '',
 		dayOfWeek: '',
 		sampleActivities: [] as string[],
 		statId: undefined as string | undefined,
@@ -113,7 +112,6 @@
 			name: '',
 			description: '',
 			icon: '',
-			color: '',
 			dayOfWeek: '',
 			sampleActivities: [],
 			statId: undefined,
@@ -128,7 +126,6 @@
 			name: focus.name,
 			description: focus.description || '',
 			icon: focus.icon || '',
-			color: focus.color || '',
 			dayOfWeek: focus.dayOfWeek || '',
 			sampleActivities: focus.sampleActivities || [],
 			statId: focus.statId || undefined,
@@ -200,7 +197,6 @@
 			name: template.name,
 			description: template.description,
 			icon: template.icon_id,
-			color: template.color,
 			dayOfWeek: template.suggested_day,
 			sampleActivities: [...template.sample_activities],
 			statId: matchingStat?.id,
@@ -263,7 +259,7 @@
 									<div class="text-lg mb-1">
 										<svelte:component this={getIconComponent(dayFocus.icon)} class="w-6 h-6 mx-auto" />
 									</div>
-									<div class="text-sm font-medium" style={dayFocus.color ? `color: ${dayFocus.color}` : ''}>{dayFocus.name}</div>
+									<div class="text-sm font-medium">{dayFocus.name}</div>
 								{:else}
 									<div class="text-base-content/30 text-sm">No focus</div>
 								{/if}
@@ -282,7 +278,7 @@
 							<div class="flex-1">
 								<div class="flex items-center gap-2">
 									<svelte:component this={getIconComponent(focus.icon)} class="w-6 h-6" />
-									<h3 class="card-title text-xl" style={focus.color ? `color: ${focus.color}` : ''}>{focus.name}</h3>
+									<h3 class="card-title text-xl">{focus.name}</h3>
 								</div>
 								{#if focus.description}
 									<p class="text-base-content/70 mt-2">{focus.description}</p>
@@ -432,26 +428,6 @@
 								<svelte:component this={getIconComponent(focusFormData.icon)} class="w-5 h-5" />
 							</div>
 						{/if}
-					</div>
-					
-					<div class="form-control">
-						<label class="label" for="focusColor">
-							<span class="label-text">Color</span>
-						</label>
-						<select 
-							id="focusColor"
-							class="select select-bordered" 
-							bind:value={focusFormData.color}
-						>
-							<option value="">Default</option>
-							<option value="red">Red</option>
-							<option value="blue">Blue</option>
-							<option value="green">Green</option>
-							<option value="yellow">Yellow</option>
-							<option value="purple">Purple</option>
-							<option value="pink">Pink</option>
-							<option value="orange">Orange</option>
-						</select>
 					</div>
 				</div>
 				
@@ -610,7 +586,7 @@
 					<button type="button" class="card bg-base-200 hover:bg-base-300 cursor-pointer transition-colors text-left" onclick={() => selectTemplate(template)}>
 						<div class="card-body p-4">
 							<div class="flex items-center gap-3 mb-2">
-								<div class="w-8 h-8 rounded-full bg-{template.color}-500 flex items-center justify-center">
+								<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
 									<svelte:component this={getIconComponent(template.icon_id)} class="w-4 h-4 text-white" />
 								</div>
 								<h4 class="font-semibold">{template.name}</h4>

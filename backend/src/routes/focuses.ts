@@ -36,14 +36,13 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create focus
 focusesRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
+  const { name, description, icon, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [focus] = await db.insert(focuses).values({
     userId: user.id,
     name,
     description,
     icon,
-    color,
     dayOfWeek,
     sampleActivities,
     statId,
@@ -76,14 +75,13 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 focusesRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
-  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
+  const { name, description, icon, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [updatedFocus] = await db.update(focuses)
     .set({
       name,
       description,
       icon,
-      color,
       dayOfWeek,
       sampleActivities,
       statId,
