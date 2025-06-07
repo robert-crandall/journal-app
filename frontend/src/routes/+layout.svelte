@@ -5,7 +5,6 @@
 	import { theme } from '$lib/stores/theme';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import ThemePicker from '$lib/components/ThemePicker.svelte';
 
 	let { children } = $props();
 
@@ -45,10 +44,6 @@
 		</div>
 	{:else if !$auth.user && !isAuthPage}
 		<div class="hero min-h-screen bg-base-200">
-			<!-- Theme picker for non-authenticated users -->
-			<div class="absolute top-4 right-4 z-10">
-				<ThemePicker />
-			</div>
 			<div class="hero-content text-center">
 				<div class="max-w-md">
 					<h1 class="text-5xl font-bold">Life Quest</h1>
@@ -82,7 +77,7 @@
 						<li><a href="/potions">Potions</a></li>
 					</ul>
 				</div>
-				<a href="/dashboard" class="btn btn-ghost text-xl">🧭 Life Quest</a>
+				<a href="/dashboard" class="btn btn-ghost text-xl">Life Quest</a>
 			</div>
 			<div class="navbar-center hidden lg:flex">
 				<ul class="menu menu-horizontal px-1">
@@ -96,7 +91,6 @@
 				</ul>
 			</div>
 			<div class="navbar-end">
-				<ThemePicker />
 				<div class="dropdown dropdown-end">
 					<button class="btn btn-ghost btn-circle avatar">
 						<div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
@@ -107,6 +101,7 @@
 						<li class="menu-title">
 							<span>{$auth.user?.name}</span>
 						</li>
+						<li><a href="/settings">Settings</a></li>
 						<li><button onclick={handleLogout}>Logout</button></li>
 					</ul>
 				</div>

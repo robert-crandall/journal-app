@@ -56,14 +56,14 @@ function createThemeStore() {
 				await preferencesApi.set('theme', theme);
 			} catch (error) {
 				console.warn('Failed to sync theme to backend:', error);
-				// Continue with local storage fallback
+				// Continue with local storage fallback for offline support
 			}
 		}
 	}
 
 	function applyTheme(theme: Theme) {
 		if (browser) {
-			// Update localStorage
+			// Update localStorage for offline support
 			localStorage.setItem('theme', theme);
 			
 			// Update HTML data-theme attribute
