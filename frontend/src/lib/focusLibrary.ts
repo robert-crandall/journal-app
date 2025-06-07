@@ -145,15 +145,38 @@ export const EXTENDED_FOCUS_LIBRARY: FocusTemplate[] = [
 
 // Helper function to get a focus template by name
 export function getFocusTemplate(name: string): FocusTemplate | undefined {
-	return EXTENDED_FOCUS_LIBRARY.find(template => template.name === name);
+	for (const template of EXTENDED_FOCUS_LIBRARY) {
+		if (template.name === name) {
+			return template;
+		}
+	}
+	return undefined;
 }
 
 // Helper function to get all unique suggested stats
 export function getSuggestedStats(): string[] {
-	return Array.from(new Set(EXTENDED_FOCUS_LIBRARY.map(focus => focus.suggested_stat)));
+	const stats: string[] = [];
+	const seen: { [key: string]: boolean } = {};
+	
+	for (const focus of EXTENDED_FOCUS_LIBRARY) {
+		if (!seen[focus.suggested_stat]) {
+			stats.push(focus.suggested_stat);
+			seen[focus.suggested_stat] = true;
+		}
+	}
+	
+	return stats;
 }
 
 // Helper function to get focus templates by suggested day
 export function getFocusTemplatesByDay(day: string): FocusTemplate[] {
-	return EXTENDED_FOCUS_LIBRARY.filter(template => template.suggested_day === day);
+	const templates: FocusTemplate[] = [];
+	
+	for (const template of EXTENDED_FOCUS_LIBRARY) {
+		if (template.suggested_day === day) {
+			templates.push(template);
+		}
+	}
+	
+	return templates;
 }
