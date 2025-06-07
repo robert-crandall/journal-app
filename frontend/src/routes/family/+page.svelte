@@ -1,18 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { familyApi } from '$lib/api';
+	import AttributeManager from '$lib/components/AttributeManager.svelte';
 	
 	let familyMembers: any[] = [];
 	let loading = true;
 	let showCreateForm = false;
 	let editingMember: any = null;
-	let selectedMember: any = null;
-	let showAttributeForm = false;
 	
 	// Form data
 	let memberName = '';
-	let attributeKey = '';
-	let attributeValue = '';
 	
 	onMount(async () => {
 		await loadFamilyMembers();
@@ -69,25 +66,13 @@
 		}
 	}
 	
-	function openAttributeForm(member: any) {
-		selectedMember = member;
-		attributeKey = '';
-		attributeValue = '';
-		showAttributeForm = true;
-	}
-	
-	async function handleAttributeSubmit(event: Event) {
-		event.preventDefault();
+	async function handleAddAttribute(memberId: string, key: string, value: string) {
 		try {
-			await familyApi.addAttribute(selectedMember.id, {
-				key: attributeKey,
-				value: attributeValue
-			});
-			
-			showAttributeForm = false;
-			await loadFamilyMembers();
+			await familyApi.addAttribute(memberId, { key, value });
+			await loadFamilyMembers(); // Reload to get updated attributes
 		} catch (error) {
 			console.error('Failed to add attribute:', error);
+			throw error; // Re-throw to let AttributeManager handle the error
 		}
 	}
 </script>
@@ -122,34 +107,24 @@
 						<div class="flex justify-between items-start mb-4">
 							<h3 class="card-title text-xl">{member.name}</h3>
 							<div class="dropdown dropdown-end">
-								<button class="btn btn-ghost btn-sm">
+								<button class="btn btn-ghost btn-sm" aria-label="Member options">
 									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zM12 13a1 1 0 110-2 1 1 0 010 2zM12 20a1 1 0 110-2 1 1 0 010 2z" />
 									</svg>
 								</button>
 								<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
 									<li><button onclick={() => openEditForm(member)}>Edit Name</button></li>
-									<li><button onclick={() => openAttributeForm(member)}>Add Attribute</button></li>
 									<li><button onclick={() => deleteMember(member.id)} class="text-error">Delete</button></li>
 								</ul>
 							</div>
 						</div>
 						
-						{#if member.attributes && member.attributes.length > 0}
-							<div class="space-y-2">
-								<h4 class="font-semibold text-sm">Attributes</h4>
-								<div class="space-y-1">
-									{#each member.attributes as attribute}
-										<div class="bg-base-200 rounded p-2 text-sm">
-											<span class="font-medium">{attribute.key}:</span>
-											<span class="ml-1">{attribute.value}</span>
-										</div>
-									{/each}
-								</div>
-							</div>
-						{:else}
-							<p class="text-base-content/50 text-sm">No attributes yet</p>
-						{/if}
+						<AttributeManager 
+							attributes={member.attributes || []}
+							onAddAttribute={(key, value) => handleAddAttribute(member.id, key, value)}
+							title="Family Member Attributes"
+							emptyMessage="No attributes yet - add sections like Values, Interests, or Skills"
+						/>
 					</div>
 				</div>
 			{/each}
@@ -192,56 +167,6 @@
 					</button>
 					<button type="submit" class="btn btn-primary">
 						{editingMember ? 'Update' : 'Add'}
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-{/if}
-
-<!-- Add Attribute Modal -->
-{#if showAttributeForm}
-	<div class="modal modal-open">
-		<div class="modal-box">
-			<h3 class="font-bold text-lg mb-4">
-				Add Attribute to {selectedMember?.name}
-			</h3>
-			
-			<form onsubmit={handleAttributeSubmit} class="space-y-4">
-				<div class="form-control">
-					<label class="label" for="attributeKey">
-						<span class="label-text">Attribute Name *</span>
-					</label>
-					<input 
-						id="attributeKey"
-						type="text" 
-						class="input input-bordered" 
-						bind:value={attributeKey}
-						placeholder="e.g., Age, Grade, School, etc."
-						required
-					/>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="attributeValue">
-						<span class="label-text">Value *</span>
-					</label>
-					<input 
-						id="attributeValue"
-						type="text" 
-						class="input input-bordered" 
-						bind:value={attributeValue}
-						placeholder="e.g., 8, 3rd Grade, Lincoln Elementary, etc."
-						required
-					/>
-				</div>
-				
-				<div class="modal-action">
-					<button type="button" class="btn" onclick={() => showAttributeForm = false}>
-						Cancel
-					</button>
-					<button type="submit" class="btn btn-primary">
-						Add Attribute
 					</button>
 				</div>
 			</form>
