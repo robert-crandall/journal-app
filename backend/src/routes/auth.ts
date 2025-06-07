@@ -4,7 +4,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, stats, loginSchema, registerSchema, type User } from '../db/schema';
+import { users, stats, focuses, loginSchema, registerSchema, type User } from '../db/schema';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
@@ -28,12 +28,14 @@ async function populateDefaultStatsForUser(userId: string) {
     'Intellect': { category: 'mind', emoji: '🧠', color: 'blue', description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity' },
     'Wisdom': { category: 'mind', emoji: '🦉', color: 'indigo', description: 'Emotional intelligence, reflection, insight, and making grounded decisions' },
     'Discipline': { category: 'mind', emoji: '🎯', color: 'purple', description: 'Habits, follow-through, structure, and resistance to impulse or distraction' },
+    'Clarity': { category: 'mind', emoji: '💎', color: 'cyan', description: 'Mental focus, clear thinking, and ability to see situations objectively' },
     
     // CONNECTION
     'Charisma': { category: 'connection', emoji: '✨', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
     'Intimacy': { category: 'connection', emoji: '💝', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
     'Courage': { category: 'connection', emoji: '🦁', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
     'Craft': { category: 'connection', emoji: '🔨', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' },
+    'Presence': { category: 'connection', emoji: '🌸', color: 'pink', description: 'Full attention and awareness in relationships and interactions' },
     
     // SHADOW
     'Avoidance': { category: 'shadow', emoji: '🌫️', color: 'slate', description: 'Tendency to withdraw, procrastinate, or numb out when overwhelmed' },
@@ -74,6 +76,107 @@ async function populateDefaultStatsForUser(userId: string) {
   }
 }
 
+// Helper function to populate default focuses for new users
+async function populateDefaultFocusesForUser(userId: string) {
+  // Get the user's stats to find the IDs we need to reference
+  const userStats = await db.query.stats.findMany({
+    where: eq(stats.userId, userId)
+  });
+  
+  // Create a map for easy stat ID lookup
+  const statIdMap: Record<string, string> = {};
+  userStats.forEach(stat => {
+    statIdMap[stat.name] = stat.id;
+  });
+
+  // Define default focus configurations
+  const focusConfigs = [
+    {
+      name: 'Anchor',
+      description: 'Begin the week grounded in movement and emotional clarity',
+      emoji: '⚓',
+      color: 'blue',
+      dayOfWeek: 'Monday' as const,
+      statName: 'Vitality',
+      sampleActivities: ['Morning walk or run', 'Breathing exercises', 'Stretching routine', 'Cold shower']
+    },
+    {
+      name: 'Creative Fire',
+      description: 'Build or express something uniquely yours',
+      emoji: '🔥',
+      color: 'orange',
+      dayOfWeek: 'Tuesday' as const,
+      statName: 'Intellect',
+      sampleActivities: ['Writing or journaling', 'Art or music creation', 'Problem-solving project', 'Learning new skill']
+    },
+    {
+      name: 'Reset',
+      description: 'Get into nature, unplug, breathe — let the nervous system soften',
+      emoji: '🌿',
+      color: 'green',
+      dayOfWeek: 'Wednesday' as const,
+      statName: 'Stillness',
+      sampleActivities: ['Nature walk', 'Meditation', 'Digital detox time', 'Gentle yoga']
+    },
+    {
+      name: 'Bridge',
+      description: 'Deepen a connection with someone you care about (or with yourself)',
+      emoji: '🌉',
+      color: 'purple',
+      dayOfWeek: 'Thursday' as const,
+      statName: 'Presence',
+      sampleActivities: ['Quality time with loved ones', 'Deep conversation', 'Active listening practice', 'Self-reflection']
+    },
+    {
+      name: 'Power',
+      description: 'Channel energy into physical intensity and embodied release',
+      emoji: '💥',
+      color: 'red',
+      dayOfWeek: 'Friday' as const,
+      statName: 'Strength',
+      sampleActivities: ['Intense workout', 'Martial arts', 'Heavy lifting', 'Dance or movement']
+    },
+    {
+      name: 'Forge',
+      description: 'Fix, tinker, or build something real with your hands (and maybe your kids)',
+      emoji: '🔨',
+      color: 'amber',
+      dayOfWeek: 'Saturday' as const,
+      statName: 'Stewardship',
+      sampleActivities: ['Home improvement', 'Crafting project', 'Gardening', 'Repair something broken']
+    },
+    {
+      name: 'Mirror',
+      description: 'Reflect, journal, visualize — prepare emotionally for what\'s next',
+      emoji: '🪞',
+      color: 'indigo',
+      dayOfWeek: 'Sunday' as const,
+      statName: 'Clarity',
+      sampleActivities: ['Weekly review', 'Goal setting', 'Visualization', 'Journaling session']
+    }
+  ];
+
+  // Create all default focuses for the new user
+  for (const focusConfig of focusConfigs) {
+    try {
+      const statId = statIdMap[focusConfig.statName];
+      
+      await db.insert(focuses).values({
+        userId: userId,
+        name: focusConfig.name,
+        description: focusConfig.description,
+        emoji: focusConfig.emoji,
+        color: focusConfig.color,
+        dayOfWeek: focusConfig.dayOfWeek,
+        statId: statId || null, // Use null if stat not found
+        sampleActivities: focusConfig.sampleActivities
+      });
+    } catch (error) {
+      console.error(`Failed to create default focus ${focusConfig.name} for user ${userId}:`, error);
+    }
+  }
+}
+
 // Register
 auth.post('/register', zValidator('json', registerSchema), async (c) => {
   const { email, password, name } = c.req.valid('json');
@@ -103,6 +206,14 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
   } catch (error) {
     console.error('Failed to populate default stats for new user:', error);
     // Continue with registration even if stat population fails
+  }
+  
+  // Populate default focuses for the new user
+  try {
+    await populateDefaultFocusesForUser(newUser.id);
+  } catch (error) {
+    console.error('Failed to populate default focuses for new user:', error);
+    // Continue with registration even if focus population fails
   }
   
   // Generate JWT token

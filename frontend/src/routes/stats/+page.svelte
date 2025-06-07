@@ -117,6 +117,21 @@
 		}
 	}
 
+	async function restoreDefaults() {
+		if (!confirm('This will add any missing default stats to your collection. Are you sure?')) {
+			return;
+		}
+		
+		try {
+			const result = await statsApi.restoreDefaults();
+			await loadStats();
+			error = '';
+			alert(`Successfully restored ${result.createdCount} default stats!`);
+		} catch (err: any) {
+			error = err.message;
+		}
+	}
+
 	function getProgressWidth(value: number) {
 		return Math.min(100, Math.max(0, (value / 99) * 100));
 	}
@@ -144,6 +159,12 @@
 	<div class="flex justify-between items-center mb-6">
 		<h1 class="text-3xl font-bold">Character Stats</h1>
 		<div class="flex gap-2">
+			<button 
+				class="btn btn-outline"
+				on:click={restoreDefaults}
+			>
+				🔄 Restore Defaults
+			</button>
 			<button 
 				class="btn btn-primary"
 				on:click={() => showCreateForm = true}
@@ -296,6 +317,12 @@
 			</div>
 		{/each}
 	{/if}
+
+	<div class="mt-4">
+		<button class="btn btn-secondary" on:click={restoreDefaults}>
+			Restore Default Stats
+		</button>
+	</div>
 </div>
 
 <!-- Create/Edit Modal -->

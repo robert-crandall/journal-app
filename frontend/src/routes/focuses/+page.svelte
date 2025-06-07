@@ -143,6 +143,21 @@
 			console.error('Failed to create level:', error);
 		}
 	}
+	
+	async function restoreDefaults() {
+		if (!confirm('This will add any missing default weekly focuses to your collection. Are you sure?')) {
+			return;
+		}
+		
+		try {
+			const result = await focusesApi.restoreDefaults();
+			await loadFocuses();
+			alert(`Successfully restored ${result.createdCount} default focuses!`);
+		} catch (error: any) {
+			console.error('Failed to restore defaults:', error);
+			alert('Failed to restore default focuses: ' + error.message);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -155,12 +170,20 @@
 			<h1 class="text-3xl font-bold">Focus Areas</h1>
 			<p class="text-base-content/70">Manage your growth areas and their levels</p>
 		</div>
-		<button class="btn btn-primary" onclick={openCreateForm}>
-			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
-			New Focus Area
-		</button>
+		<div class="flex gap-2">
+			<button class="btn btn-outline" onclick={restoreDefaults}>
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+				</svg>
+				Restore Defaults
+			</button>
+			<button class="btn btn-primary" onclick={openCreateForm}>
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+				</svg>
+				New Focus Area
+			</button>
+		</div>
 	</div>
 
 	{#if loading}

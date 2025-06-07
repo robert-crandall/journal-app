@@ -95,6 +95,12 @@ export const focusesApi = {
 			method: 'POST',
 			body: JSON.stringify(level)
 		});
+	},
+	
+	async restoreDefaults() {
+		return apiRequest('/focuses/restore-defaults', {
+			method: 'POST'
+		});
 	}
 };
 
@@ -226,6 +232,12 @@ export const statsApi = {
 	async delete(id: string) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'DELETE'
+		});
+	},
+	
+	async restoreDefaults() {
+		return apiRequest('/stats/restore-defaults', {
+			method: 'POST'
 		});
 	}
 };
