@@ -22,6 +22,6 @@
 	<title>Life Quest - Personal Growth RPG</title>
 </svelte:head>
 
-<div class="flex items-center justify-center min-h-screen">
-	<span class="loading loading-spinner loading-lg"></span>
+<div class="flex items-center justify-center min-h-screen bg-theme-bg">
+	<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
 </div>
