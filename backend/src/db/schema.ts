@@ -127,7 +127,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   attributes: many(attributes),
   focuses: many(focuses),
   stats: many(stats),
-  tasks: many(tasks),
+  tasks: many(tasks, { relationName: "user" }),
+  familyTasks: many(tasks, { relationName: "familyMember" }),
   journals: many(journals),
   potions: many(potions),
   sessions: many(sessions),
@@ -151,10 +152,10 @@ export const statsRelations = relations(stats, ({ one, many }) => ({
 }));
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
-  user: one(users, { fields: [tasks.userId], references: [users.id] }),
+  user: one(users, { fields: [tasks.userId], references: [users.id], relationName: "user" }),
   focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
   stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
-  familyMember: one(users, { fields: [tasks.familyMemberId], references: [users.id] }),
+  familyMember: one(users, { fields: [tasks.familyMemberId], references: [users.id], relationName: "familyMember" }),
 }));
 
 export const journalsRelations = relations(journals, ({ one }) => ({
