@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { statsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
 
 	let stats: any[] = [];
 	let loading = true;
@@ -12,7 +13,7 @@
 	let formData = {
 		name: '',
 		description: '',
-		emoji: '',
+		icon: '',
 		color: 'blue',
 		category: 'body' as 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy',
 		enabled: true,
@@ -34,6 +35,44 @@
 		{ value: 'legacy', label: 'Legacy', description: 'Impact on others and long-term contributions' }
 	];
 
+	// Available Lucide icons for stats
+	const availableIcons = [
+		'dumbbell', 'move', 'heart-pulse', 'battery', 'brain', 'book-open', 'check-circle', 'target',
+		'megaphone', 'handshake', 'shield', 'hammer', 'radar', 'arrow-left', 'zap', 'flame', 'ban',
+		'compass', 'moon', 'infinity', 'lightbulb', 'users', 'tree-deciduous', 'archive'
+	];
+
+	// Icon display function
+	function getIconComponent(iconName: string) {
+		const iconMap: Record<string, any> = {
+			'dumbbell': icons.Dumbbell,
+			'move': icons.Move,
+			'heart-pulse': icons.HeartPulse,
+			'battery': icons.Battery,
+			'brain': icons.Brain,
+			'book-open': icons.BookOpen,
+			'check-circle': icons.CheckCircle,
+			'target': icons.Target,
+			'megaphone': icons.Megaphone,
+			'handshake': icons.Handshake,
+			'shield': icons.Shield,
+			'hammer': icons.Hammer,
+			'radar': icons.Radar,
+			'arrow-left': icons.ArrowLeft,
+			'zap': icons.Zap,
+			'flame': icons.Flame,
+			'ban': icons.Ban,
+			'compass': icons.Compass,
+			'moon': icons.Moon,
+			'infinity': icons.Infinity,
+			'lightbulb': icons.Lightbulb,
+			'users': icons.Users,
+			'tree-deciduous': icons.TreeDeciduous,
+			'archive': icons.Archive
+		};
+		return iconMap[iconName] || icons.Circle;
+	}
+
 	onMount(async () => {
 		await loadStats();
 	});
@@ -53,7 +92,7 @@
 		formData = {
 			name: '',
 			description: '',
-			emoji: '',
+			icon: '',
 			color: 'blue',
 			category: 'body',
 			enabled: true,
@@ -227,8 +266,14 @@
 								{/if}
 								<div class="flex justify-between items-start mb-4">
 									<div class="flex items-center gap-2">
-										{#if stat.emoji}
-											<span class="text-2xl {!stat.enabled ? 'grayscale' : ''}">{stat.emoji}</span>
+										{#if stat.icon}
+											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+												<svelte:component this={getIconComponent(stat.icon)} size={24} />
+											</div>
+										{:else}
+											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+												<svelte:component this={icons.Circle} size={24} />
+											</div>
 										{/if}
 										<h2 class="card-title text-lg {!stat.enabled ? 'text-gray-500' : ''}">{stat.name}</h2>
 										{#if stat.systemDefault}
@@ -360,16 +405,27 @@
 
 			<div class="grid grid-cols-2 gap-4 mb-4">
 				<div class="form-control">
-					<label class="label" for="emoji">
-						<span class="label-text">Emoji</span>
+					<label class="label" for="icon">
+						<span class="label-text">Icon</span>
 					</label>
-					<input 
-						type="text" 
-						id="emoji"
-						class="input input-bordered" 
-						bind:value={formData.emoji}
-						placeholder="🧠"
-					/>
+					<select 
+						id="icon"
+						class="select select-bordered" 
+						bind:value={formData.icon}
+					>
+						<option value="">Select an icon...</option>
+						{#each availableIcons as iconName}
+							<option value={iconName}>
+								{iconName}
+							</option>
+						{/each}
+					</select>
+					{#if formData.icon}
+						<div class="mt-2 flex items-center gap-2">
+							<span class="text-sm text-gray-600">Preview:</span>
+							<svelte:component this={getIconComponent(formData.icon)} size={20} />
+						</div>
+					{/if}
 				</div>
 
 				<div class="form-control">
@@ -427,6 +483,32 @@
 							bind:checked={formData.enabled}
 						/>
 					</label>
+				</div>
+			</div>
+
+			<div class="form-control mb-4">
+				<label class="label" for="icon">
+					<span class="label-text">Icon</span>
+				</label>
+				<div class="flex flex-wrap gap-2">
+					{#each availableIcons as iconName}
+						<div class="form-control w-10 h-10" title={iconName}>
+							<label class="cursor-pointer">
+								<input 
+									type="radio" 
+									name="icon" 
+									class="hidden" 
+									bind:group={formData.icon}
+									value={iconName}
+								/>
+								<div class="w-full h-full flex items-center justify-center rounded-lg border transition-all duration-200 
+									{formData.icon === iconName ? 'border-blue-500' : 'border-gray-300'}
+								">
+									{svelteIcon(iconName)}
+								</div>
+							</label>
+						</div>
+					{/each}
 				</div>
 			</div>
 

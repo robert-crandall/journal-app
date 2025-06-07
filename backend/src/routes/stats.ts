@@ -136,42 +136,42 @@ app.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c) => {
   
   try {
     // Define default stat configurations
-    const statConfigs: Record<string, { category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy'; emoji: string; color: string; description: string }> = {
+    const statConfigs: Record<string, { category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy'; icon: string; color: string; description: string }> = {
       // BODY
-      'Strength': { category: 'body', emoji: '💪', color: 'red', description: 'Physical health, energy, resilience, and capacity to take physical action' },
-      'Dexterity': { category: 'body', emoji: '🤸', color: 'orange', description: 'Agility, coordination, body control, and adaptability under pressure' },
-      'Vitality': { category: 'body', emoji: '⚡', color: 'yellow', description: 'Your overall life force: sleep, mood, stress regulation, libido, sense of aliveness' },
+      'Strength': { category: 'body', icon: 'dumbbell', color: 'red', description: 'Physical health, energy, resilience, and capacity to take physical action' },
+      'Dexterity': { category: 'body', icon: 'move', color: 'orange', description: 'Agility, coordination, body control, and adaptability under pressure' },
+      'Vitality': { category: 'body', icon: 'heart-pulse', color: 'yellow', description: 'Your overall life force: sleep, mood, stress regulation, libido, sense of aliveness' },
       
       // MIND
-      'Intellect': { category: 'mind', emoji: '🧠', color: 'blue', description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity' },
-      'Wisdom': { category: 'mind', emoji: '🦉', color: 'indigo', description: 'Emotional intelligence, reflection, insight, and making grounded decisions' },
-      'Discipline': { category: 'mind', emoji: '🎯', color: 'purple', description: 'Habits, follow-through, structure, and resistance to impulse or distraction' },
-      'Clarity': { category: 'mind', emoji: '💎', color: 'cyan', description: 'Mental focus, clear thinking, and ability to see situations objectively' },
+      'Intellect': { category: 'mind', icon: 'brain', color: 'blue', description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity' },
+      'Wisdom': { category: 'mind', icon: 'book-open', color: 'indigo', description: 'Emotional intelligence, reflection, insight, and making grounded decisions' },
+      'Discipline': { category: 'mind', icon: 'check-circle', color: 'purple', description: 'Habits, follow-through, structure, and resistance to impulse or distraction' },
+      'Clarity': { category: 'mind', icon: 'target', color: 'cyan', description: 'Mental focus, clear thinking, and ability to see situations objectively' },
       
       // CONNECTION
-      'Charisma': { category: 'connection', emoji: '✨', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
-      'Intimacy': { category: 'connection', emoji: '💝', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
-      'Courage': { category: 'connection', emoji: '🦁', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
-      'Craft': { category: 'connection', emoji: '🔨', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' },
-      'Presence': { category: 'connection', emoji: '🌸', color: 'pink', description: 'Full attention and awareness in relationships and interactions' },
+      'Charisma': { category: 'connection', icon: 'megaphone', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
+      'Intimacy': { category: 'connection', icon: 'handshake', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
+      'Courage': { category: 'connection', icon: 'shield', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
+      'Craft': { category: 'connection', icon: 'hammer', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' },
+      'Presence': { category: 'connection', icon: 'radar', color: 'pink', description: 'Full attention and awareness in relationships and interactions' },
       
       // SHADOW
-      'Avoidance': { category: 'shadow', emoji: '🌫️', color: 'slate', description: 'Tendency to withdraw, procrastinate, or numb out when overwhelmed' },
-      'Reactivity': { category: 'shadow', emoji: '⚡', color: 'red', description: 'Emotional impulsiveness or defensiveness in response to stress' },
-      'Burnout': { category: 'shadow', emoji: '🔥', color: 'orange', description: 'Energy depletion due to overcommitment or misaligned effort' },
-      'Disconnection': { category: 'shadow', emoji: '🔌', color: 'gray', description: 'Feeling emotionally cut off from yourself or others' },
+      'Avoidance': { category: 'shadow', icon: 'arrow-left', color: 'slate', description: 'Tendency to withdraw, procrastinate, or numb out when overwhelmed' },
+      'Reactivity': { category: 'shadow', icon: 'zap', color: 'red', description: 'Emotional impulsiveness or defensiveness in response to stress' },
+      'Burnout': { category: 'shadow', icon: 'flame', color: 'orange', description: 'Energy depletion due to overcommitment or misaligned effort' },
+      'Disconnection': { category: 'shadow', icon: 'ban', color: 'gray', description: 'Feeling emotionally cut off from yourself or others' },
       
       // SPIRIT
-      'Alignment': { category: 'spirit', emoji: '🎯', color: 'violet', description: 'Living in accordance with personal values and truth' },
-      'Stillness': { category: 'spirit', emoji: '🧘', color: 'blue', description: 'Capacity for presence, meditation, and quiet awareness' },
-      'Faith': { category: 'spirit', emoji: '🙏', color: 'cyan', description: 'Trust in process, purpose, or something greater than oneself' },
-      'Meaning': { category: 'spirit', emoji: '🌟', color: 'yellow', description: 'Clarity about your "why," purpose, or role in life\'s story' },
+      'Alignment': { category: 'spirit', icon: 'compass', color: 'violet', description: 'Living in accordance with personal values and truth' },
+      'Stillness': { category: 'spirit', icon: 'moon', color: 'blue', description: 'Capacity for presence, meditation, and quiet awareness' },
+      'Faith': { category: 'spirit', icon: 'infinity', color: 'cyan', description: 'Trust in process, purpose, or something greater than oneself' },
+      'Meaning': { category: 'spirit', icon: 'lightbulb', color: 'yellow', description: 'Clarity about your "why," purpose, or role in life\'s story' },
       
       // LEGACY
-      'Mentorship': { category: 'legacy', emoji: '👥', color: 'green', description: 'Efforts to guide, teach, or support others (especially children)' },
-      'Stewardship': { category: 'legacy', emoji: '🌱', color: 'emerald', description: 'Care for your environment, projects, or community over time' },
-      'Creatorship': { category: 'legacy', emoji: '🛠️', color: 'purple', description: 'Building things that outlive you (music, code, systems, rituals)' },
-      'Lineage': { category: 'legacy', emoji: '🌳', color: 'lime', description: 'Honoring ancestry, traditions, or shaping generational values' }
+      'Mentorship': { category: 'legacy', icon: 'users', color: 'green', description: 'Efforts to guide, teach, or support others (especially children)' },
+      'Stewardship': { category: 'legacy', icon: 'tree-deciduous', color: 'emerald', description: 'Care for your environment, projects, or community over time' },
+      'Creatorship': { category: 'legacy', icon: 'hammer', color: 'purple', description: 'Building things that outlive you (music, code, systems, rituals)' },
+      'Lineage': { category: 'legacy', icon: 'archive', color: 'lime', description: 'Honoring ancestry, traditions, or shaping generational values' }
     };
 
     // Get existing stats to avoid duplicates
@@ -190,7 +190,7 @@ app.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c) => {
             userId: user.id,
             name: statName,
             description: config.description,
-            emoji: config.emoji,
+            icon: config.icon,
             color: config.color,
             category: config.category,
             enabled: true,

@@ -36,13 +36,13 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create focus
 focusesRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, description, emoji, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
+  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [focus] = await db.insert(focuses).values({
     userId: user.id,
     name,
     description,
-    emoji,
+    icon,
     color,
     dayOfWeek,
     sampleActivities,
@@ -76,13 +76,13 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 focusesRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
-  const { name, description, emoji, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
+  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [updatedFocus] = await db.update(focuses)
     .set({
       name,
       description,
-      emoji,
+      icon,
       color,
       dayOfWeek,
       sampleActivities,
@@ -186,7 +186,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Anchor',
         description: 'Begin the week grounded in movement and emotional clarity',
-        emoji: '⚓',
+        icon: 'anchor',
         color: 'blue',
         dayOfWeek: 'Monday' as const,
         statName: 'Vitality',
@@ -195,7 +195,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Creative Fire',
         description: 'Build or express something uniquely yours',
-        emoji: '🔥',
+        icon: 'paintbrush',
         color: 'orange',
         dayOfWeek: 'Tuesday' as const,
         statName: 'Intellect',
@@ -204,7 +204,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Reset',
         description: 'Get into nature, unplug, breathe — let the nervous system soften',
-        emoji: '🌿',
+        icon: 'wind',
         color: 'green',
         dayOfWeek: 'Wednesday' as const,
         statName: 'Stillness',
@@ -213,7 +213,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Bridge',
         description: 'Deepen a connection with someone you care about (or with yourself)',
-        emoji: '🌉',
+        icon: 'handshake',
         color: 'purple',
         dayOfWeek: 'Thursday' as const,
         statName: 'Presence',
@@ -222,7 +222,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Power',
         description: 'Channel energy into physical intensity and embodied release',
-        emoji: '💥',
+        icon: 'bolt',
         color: 'red',
         dayOfWeek: 'Friday' as const,
         statName: 'Strength',
@@ -231,7 +231,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Forge',
         description: 'Fix, tinker, or build something real with your hands (and maybe your kids)',
-        emoji: '🔨',
+        icon: 'hammer',
         color: 'amber',
         dayOfWeek: 'Saturday' as const,
         statName: 'Stewardship',
@@ -240,7 +240,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
       {
         name: 'Mirror',
         description: 'Reflect, journal, visualize — prepare emotionally for what\'s next',
-        emoji: '🪞',
+        icon: 'mirror',
         color: 'indigo',
         dayOfWeek: 'Sunday' as const,
         statName: 'Clarity',
@@ -271,7 +271,7 @@ focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c)
             userId: user.id,
             name: focusConfig.name,
             description: focusConfig.description,
-            emoji: focusConfig.emoji,
+            icon: focusConfig.icon,
             color: focusConfig.color,
             dayOfWeek: focusConfig.dayOfWeek,
             statId: statId || null, // Use null if stat not found

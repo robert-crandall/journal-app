@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { focusesApi, statsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
 	
 	let focuses: any[] = [];
 	let stats: any[] = [];
@@ -10,11 +11,48 @@
 	let editingFocus: any = null;
 	let selectedFocus: any = null;
 	
+	// Helper function to get icon component
+	function getIconComponent(iconName: string) {
+		if (!iconName) return icons.Target;
+		
+		// Convert kebab-case to PascalCase for Lucide components
+		const componentName = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
+		
+		return icons[componentName] || icons.Target;
+	}
+
+	// Icon mapping for Lucide icons
+	const iconOptions = [
+		{ name: 'target', label: 'Target' },
+		{ name: 'heart', label: 'Health' },
+		{ name: 'dumbbell', label: 'Fitness' },
+		{ name: 'brain', label: 'Learning' },
+		{ name: 'briefcase', label: 'Career' },
+		{ name: 'users', label: 'Family' },
+		{ name: 'palette', label: 'Creativity' },
+		{ name: 'dollar-sign', label: 'Finance' },
+		{ name: 'home', label: 'Home' },
+		{ name: 'book', label: 'Reading' },
+		{ name: 'gamepad-2', label: 'Hobbies' },
+		{ name: 'plane', label: 'Travel' },
+		{ name: 'leaf', label: 'Environment' },
+		{ name: 'smile', label: 'Wellness' },
+		{ name: 'zap', label: 'Energy' },
+		{ name: 'trophy', label: 'Achievement' },
+		{ name: 'star', label: 'Goals' },
+		{ name: 'mountain', label: 'Adventure' },
+		{ name: 'music', label: 'Music' },
+		{ name: 'camera', label: 'Photography' }
+	];
+
 	// Form data
 	let focusFormData = {
 		name: '',
 		description: '',
-		emoji: '',
+		icon: '',
 		color: '',
 		dayOfWeek: '',
 		sampleActivities: [] as string[],
@@ -71,7 +109,7 @@
 		focusFormData = {
 			name: '',
 			description: '',
-			emoji: '',
+			icon: '',
 			color: '',
 			dayOfWeek: '',
 			sampleActivities: [],
@@ -86,7 +124,7 @@
 		focusFormData = {
 			name: focus.name,
 			description: focus.description || '',
-			emoji: focus.emoji || '',
+			icon: focus.icon || '',
 			color: focus.color || '',
 			dayOfWeek: focus.dayOfWeek || '',
 			sampleActivities: focus.sampleActivities || [],
@@ -202,7 +240,9 @@
 							<div class="text-center p-3 rounded-lg {dayFocus ? 'bg-primary/10 border border-primary/20' : 'bg-base-200/50'}">
 								<div class="text-xs font-medium text-base-content/60 mb-1">{day.slice(0, 3)}</div>
 								{#if dayFocus}
-									<div class="text-lg mb-1">{dayFocus.emoji || '📍'}</div>
+									<div class="text-lg mb-1">
+										<svelte:component this={getIconComponent(dayFocus.icon)} class="w-6 h-6 mx-auto" />
+									</div>
 									<div class="text-sm font-medium" style={dayFocus.color ? `color: ${dayFocus.color}` : ''}>{dayFocus.name}</div>
 								{:else}
 									<div class="text-base-content/30 text-sm">No focus</div>
@@ -221,9 +261,7 @@
 						<div class="flex justify-between items-start mb-4">
 							<div class="flex-1">
 								<div class="flex items-center gap-2">
-									{#if focus.emoji}
-										<span class="text-2xl">{focus.emoji}</span>
-									{/if}
+									<svelte:component this={getIconComponent(focus.icon)} class="w-6 h-6" />
 									<h3 class="card-title text-xl" style={focus.color ? `color: ${focus.color}` : ''}>{focus.name}</h3>
 								</div>
 								{#if focus.description}
@@ -237,7 +275,7 @@
 									{/if}
 									{#if focus.stat}
 										<span class="badge badge-primary badge-sm">
-											{focus.stat.emoji ? `${focus.stat.emoji} ` : ''}
+											<svelte:component this={getIconComponent(focus.stat.icon)} class="w-3 h-3 mr-1" />
 											Stat: {focus.stat.name} ({focus.stat.value})
 										</span>
 									{/if}
@@ -352,17 +390,25 @@
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div class="form-control">
-						<label class="label" for="focusEmoji">
-							<span class="label-text">Emoji</span>
+						<label class="label" for="focusIcon">
+							<span class="label-text">Icon</span>
 						</label>
-						<input 
-							id="focusEmoji"
-							type="text" 
-							class="input input-bordered" 
-							bind:value={focusFormData.emoji}
-							placeholder="🔥 🧠 💪"
-							maxlength="2"
-						/>
+						<select 
+							id="focusIcon"
+							class="select select-bordered" 
+							bind:value={focusFormData.icon}
+						>
+							<option value="">Select an icon...</option>
+							{#each iconOptions as iconOption}
+								<option value={iconOption.name}>{iconOption.label}</option>
+							{/each}
+						</select>
+						{#if focusFormData.icon}
+							<div class="mt-2 p-2 bg-base-200 rounded-lg flex items-center gap-2">
+								<span class="text-xs text-base-content/70">Preview:</span>
+								<svelte:component this={getIconComponent(focusFormData.icon)} class="w-5 h-5" />
+							</div>
+						{/if}
 					</div>
 					
 					<div class="form-control">
@@ -458,7 +504,7 @@
 						<option value={undefined}>No stat linked</option>
 						{#each stats as stat}
 							<option value={stat.id}>
-								{stat.emoji ? `${stat.emoji} ` : ''}{stat.name}
+								{stat.name}
 							</option>
 						{/each}
 					</select>
