@@ -88,16 +88,6 @@
 				<span class="loading loading-spinner loading-lg"></span>
 			</div>
 		{:else}
-			<!-- Welcome Section -->
-			<div class="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg mb-8">
-				<div class="hero-content text-center py-8">
-					<div class="max-w-md">
-						<h1 class="text-4xl font-bold">Welcome back, {$auth.user?.name}!</h1>
-						<p class="py-4">Ready to level up your life today?</p>
-					</div>
-				</div>
-			</div>
-
 			<!-- Dashboard Grid -->
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<!-- Active Tasks -->
