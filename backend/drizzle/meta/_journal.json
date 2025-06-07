@@ -71,6 +71,13 @@
       "when": 1749299496015,
       "tag": "0009_perpetual_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1749306167507,
+      "tag": "0010_oval_jack_power",
+      "breakpoints": true
     }
   ]
 }

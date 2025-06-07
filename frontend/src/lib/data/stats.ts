@@ -6,7 +6,6 @@ export interface StatDefinition {
   category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy';
   description: string;
   icon?: string;
-  color?: string;
 }
 
 export const STAT_LIBRARY: StatDefinition[] = [
@@ -15,22 +14,19 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Strength',
     category: 'body',
     description: 'Physical health, energy, resilience, and capacity to take physical action',
-    icon: 'dumbbell',
-    color: 'red'
+    icon: 'dumbbell'
   },
   {
     name: 'Dexterity',
     category: 'body',
     description: 'Agility, coordination, body control, and adaptability under pressure',
-    icon: 'move',
-    color: 'orange'
+    icon: 'move'
   },
   {
     name: 'Vitality',
     category: 'body',
     description: 'Your overall life force: sleep, mood, stress regulation, libido, sense of aliveness',
-    icon: 'heart-pulse',
-    color: 'yellow'
+    icon: 'heart-pulse'
   },
 
   // MIND
@@ -38,29 +34,25 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Intellect',
     category: 'mind',
     description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity',
-    icon: 'brain',
-    color: 'blue'
+    icon: 'brain'
   },
   {
     name: 'Wisdom',
     category: 'mind',
     description: 'Emotional intelligence, reflection, insight, and making grounded decisions',
-    icon: 'book-open',
-    color: 'indigo'
+    icon: 'book-open'
   },
   {
     name: 'Discipline',
     category: 'mind',
     description: 'Habits, follow-through, structure, and resistance to impulse or distraction',
-    icon: 'check-circle',
-    color: 'purple'
+    icon: 'check-circle'
   },
   {
     name: 'Clarity',
     category: 'mind',
     description: 'Mental focus, clear thinking, and ability to see situations objectively',
-    icon: 'target',
-    color: 'cyan'
+    icon: 'target'
   },
 
   // CONNECTION
@@ -68,29 +60,25 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Charisma',
     category: 'connection',
     description: 'Confidence, emotional presence, social engagement, and ability to influence others',
-    icon: 'megaphone',
-    color: 'pink'
+    icon: 'megaphone'
   },
   {
     name: 'Intimacy',
     category: 'connection',
     description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)',
-    icon: 'handshake',
-    color: 'rose'
+    icon: 'handshake'
   },
   {
     name: 'Courage',
     category: 'connection',
     description: 'Willingness to confront hard truths, speak up, or act in uncertainty',
-    icon: 'shield',
-    color: 'amber'
+    icon: 'shield'
   },
   {
     name: 'Craft',
     category: 'connection',
     description: 'Practical skill-building: making, fixing, building — external proof of internal mastery',
-    icon: 'hammer',
-    color: 'emerald'
+    icon: 'hammer'
   },
 
   // SHADOW
@@ -98,36 +86,31 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Resistance',
     category: 'shadow',
     description: 'Procrastination, avoidance patterns, or refusing necessary change',
-    icon: 'radar',
-    color: 'gray'
+    icon: 'radar'
   },
   {
     name: 'Regression',
     category: 'shadow',
     description: 'Falling back into old patterns when stressed or triggered',
-    icon: 'arrow-left',
-    color: 'slate'
+    icon: 'arrow-left'
   },
   {
     name: 'Burnout',
     category: 'shadow',
     description: 'Overextension, depletion, or pushing beyond sustainable limits',
-    icon: 'zap',
-    color: 'zinc'
+    icon: 'zap'
   },
   {
     name: 'Rage',
     category: 'shadow',
     description: 'Explosive anger, chronic irritability, or destructive emotional patterns',
-    icon: 'flame',
-    color: 'red'
+    icon: 'flame'
   },
   {
     name: 'Isolation',
     category: 'shadow',
     description: 'Withdrawing from connection, avoiding intimacy, or chronic loneliness',
-    icon: 'ban',
-    color: 'stone'
+    icon: 'ban'
   },
 
   // SPIRIT
@@ -135,29 +118,25 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Dharma',
     category: 'spirit',
     description: 'Sense of purpose, calling, or alignment with your unique path in life',
-    icon: 'compass',
-    color: 'violet'
+    icon: 'compass'
   },
   {
     name: 'Shadow Integration',
     category: 'spirit',
     description: 'Working with difficult emotions, triggers, or unconscious patterns',
-    icon: 'moon',
-    color: 'indigo'
+    icon: 'moon'
   },
   {
     name: 'Transcendence',
     category: 'spirit',
     description: 'Perspective beyond the ego: gratitude, acceptance, or spiritual connection',
-    icon: 'infinity',
-    color: 'purple'
+    icon: 'infinity'
   },
   {
     name: 'Intuition',
     category: 'spirit',
     description: 'Trusting inner knowing, gut feelings, or non-rational wisdom',
-    icon: 'lightbulb',
-    color: 'yellow'
+    icon: 'lightbulb'
   },
 
   // LEGACY
@@ -165,29 +144,25 @@ export const STAT_LIBRARY: StatDefinition[] = [
     name: 'Community',
     category: 'legacy',
     description: 'Building meaningful relationships, networks, or belonging in groups',
-    icon: 'users',
-    color: 'blue'
+    icon: 'users'
   },
   {
     name: 'Stewardship',
     category: 'legacy',
     description: 'Care for your environment, projects, or community over time',
-    icon: 'tree-deciduous',
-    color: 'emerald'
+    icon: 'tree-deciduous'
   },
   {
     name: 'Creatorship',
     category: 'legacy',
     description: 'Building things that outlive you (music, code, systems, rituals)',
-    icon: 'hammer',
-    color: 'purple'
+    icon: 'hammer'
   },
   {
     name: 'Lineage',
     category: 'legacy',
     description: 'Honoring ancestry, traditions, or shaping generational values',
-    icon: 'archive',
-    color: 'lime'
+    icon: 'archive'
   }
 ];
 

@@ -126,12 +126,6 @@ export const focusesApi = {
 			method: 'POST',
 			body: JSON.stringify(level)
 		});
-	},
-	
-	async restoreDefaults() {
-		return apiRequest('/focuses/restore-defaults', {
-			method: 'POST'
-		});
 	}
 };
 

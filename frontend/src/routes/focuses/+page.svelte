@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { focusesApi, statsApi } from '$lib/api';
+	import { EXTENDED_FOCUS_LIBRARY, type FocusTemplate } from '$lib/focusLibrary';
 	import * as icons from 'lucide-svelte';
 	
 	let focuses: any[] = [];
@@ -10,6 +11,8 @@
 	let showLevelForm = false;
 	let editingFocus: any = null;
 	let selectedFocus: any = null;
+	let showFocusLibrary = false;
+	let selectedTemplate: FocusTemplate | null = null;
 	
 	// Helper function to get icon component
 	function getIconComponent(iconName: string) {
@@ -53,7 +56,6 @@
 		name: '',
 		description: '',
 		icon: '',
-		color: '',
 		dayOfWeek: '',
 		sampleActivities: [] as string[],
 		statId: undefined as string | undefined,
@@ -87,7 +89,7 @@
 	async function loadStats() {
 		try {
 			const response = await statsApi.getAll();
-			stats = response.stats;
+			stats = response;
 		} catch (error) {
 			console.error('Failed to load stats:', error);
 		}
@@ -110,7 +112,6 @@
 			name: '',
 			description: '',
 			icon: '',
-			color: '',
 			dayOfWeek: '',
 			sampleActivities: [],
 			statId: undefined,
@@ -125,7 +126,6 @@
 			name: focus.name,
 			description: focus.description || '',
 			icon: focus.icon || '',
-			color: focus.color || '',
 			dayOfWeek: focus.dayOfWeek || '',
 			sampleActivities: focus.sampleActivities || [],
 			statId: focus.statId || undefined,
@@ -181,21 +181,37 @@
 			console.error('Failed to create level:', error);
 		}
 	}
-	
-	async function restoreDefaults() {
-		if (!confirm('This will add any missing default weekly focuses to your collection. Are you sure?')) {
-			return;
-		}
-		
-		try {
-			const result = await focusesApi.restoreDefaults();
-			await loadFocuses();
-			alert(`Successfully restored ${result.createdCount} default focuses!`);
-		} catch (error: any) {
-			console.error('Failed to restore defaults:', error);
-			alert('Failed to restore default focuses: ' + error.message);
-		}
+
+	function openFocusLibrary() {
+		showFocusLibrary = true;
+		selectedTemplate = null;
 	}
+
+	async function selectTemplate(template: FocusTemplate) {
+		selectedTemplate = template;
+		// Find the matching stat
+		const matchingStat = stats?.find(stat => stat.name === template.suggested_stat);
+		
+		// Auto-fill form with template data
+		focusFormData = {
+			name: template.name,
+			description: template.description,
+			icon: template.icon_id,
+			dayOfWeek: template.suggested_day,
+			sampleActivities: [...template.sample_activities],
+			statId: matchingStat?.id,
+			gptContext: undefined
+		};
+		
+		showFocusLibrary = false;
+		showCreateForm = true;
+	}
+
+	function openCreateFormFromLibrary() {
+		editingFocus = null;
+		showFocusLibrary = true;
+	}
+
 </script>
 
 <svelte:head>
@@ -209,17 +225,17 @@
 			<p class="text-base-content/70">Manage your growth areas and their levels</p>
 		</div>
 		<div class="flex gap-2">
-			<button class="btn btn-outline" onclick={restoreDefaults}>
+			<button class="btn btn-outline" onclick={openCreateFormFromLibrary}>
 				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
 				</svg>
-				Restore Defaults
+				From Library
 			</button>
 			<button class="btn btn-primary" onclick={openCreateForm}>
 				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 				</svg>
-				New Focus Area
+				Custom Focus
 			</button>
 		</div>
 	</div>
@@ -243,7 +259,7 @@
 									<div class="text-lg mb-1">
 										<svelte:component this={getIconComponent(dayFocus.icon)} class="w-6 h-6 mx-auto" />
 									</div>
-									<div class="text-sm font-medium" style={dayFocus.color ? `color: ${dayFocus.color}` : ''}>{dayFocus.name}</div>
+									<div class="text-sm font-medium">{dayFocus.name}</div>
 								{:else}
 									<div class="text-base-content/30 text-sm">No focus</div>
 								{/if}
@@ -262,7 +278,7 @@
 							<div class="flex-1">
 								<div class="flex items-center gap-2">
 									<svelte:component this={getIconComponent(focus.icon)} class="w-6 h-6" />
-									<h3 class="card-title text-xl" style={focus.color ? `color: ${focus.color}` : ''}>{focus.name}</h3>
+									<h3 class="card-title text-xl">{focus.name}</h3>
 								</div>
 								{#if focus.description}
 									<p class="text-base-content/70 mt-2">{focus.description}</p>
@@ -358,6 +374,9 @@
 		<div class="modal-box">
 			<h3 class="font-bold text-lg mb-4">
 				{editingFocus ? 'Edit Focus Area' : 'Create New Focus Area'}
+				{#if selectedTemplate && !editingFocus}
+					<span class="badge badge-outline ml-2">From Library: {selectedTemplate.name}</span>
+				{/if}
 			</h3>
 			
 			<form onsubmit={handleSubmit} class="space-y-4">
@@ -409,26 +428,6 @@
 								<svelte:component this={getIconComponent(focusFormData.icon)} class="w-5 h-5" />
 							</div>
 						{/if}
-					</div>
-					
-					<div class="form-control">
-						<label class="label" for="focusColor">
-							<span class="label-text">Color</span>
-						</label>
-						<select 
-							id="focusColor"
-							class="select select-bordered" 
-							bind:value={focusFormData.color}
-						>
-							<option value="">Default</option>
-							<option value="red">Red</option>
-							<option value="blue">Blue</option>
-							<option value="green">Green</option>
-							<option value="yellow">Yellow</option>
-							<option value="purple">Purple</option>
-							<option value="pink">Pink</option>
-							<option value="orange">Orange</option>
-						</select>
 					</div>
 				</div>
 				
@@ -571,6 +570,45 @@
 					</button>
 				</div>
 			</form>
+		</div>
+	</div>
+{/if}
+
+<!-- Focus Library Modal -->
+{#if showFocusLibrary}
+	<div class="modal modal-open">
+		<div class="modal-box max-w-4xl">
+			<h3 class="text-lg font-bold mb-4">Choose a Focus from Library</h3>
+			<p class="text-base-content/70 mb-6">Select a suggested focus area to get started, or close this to create a custom one.</p>
+			
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+				{#each EXTENDED_FOCUS_LIBRARY as template}
+					<button type="button" class="card bg-base-200 hover:bg-base-300 cursor-pointer transition-colors text-left" onclick={() => selectTemplate(template)}>
+						<div class="card-body p-4">
+							<div class="flex items-center gap-3 mb-2">
+								<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+									<svelte:component this={getIconComponent(template.icon_id)} class="w-4 h-4 text-white" />
+								</div>
+								<h4 class="font-semibold">{template.name}</h4>
+							</div>
+							<p class="text-sm text-base-content/70 mb-2">{template.description}</p>
+							<div class="flex gap-2 text-xs">
+								<span class="badge badge-outline">{template.suggested_day}</span>
+								<span class="badge badge-outline">{template.suggested_stat}</span>
+							</div>
+						</div>
+					</button>
+				{/each}
+			</div>
+			
+			<div class="modal-action">
+				<button type="button" class="btn" onclick={() => showFocusLibrary = false}>
+					Cancel
+				</button>
+				<button type="button" class="btn btn-outline" onclick={() => { showFocusLibrary = false; openCreateForm(); }}>
+					Create Custom Instead
+				</button>
+			</div>
 		</div>
 	</div>
 {/if}
