@@ -5,11 +5,13 @@
 	import { preferencesApi, userApi } from '$lib/api';
 	import { onMount } from 'svelte';
 	import AttributeManager from '$lib/components/AttributeManager.svelte';
+	import ClassSelector from '$lib/components/ClassSelector.svelte';
 
 	let preferences: Record<string, string> = {};
 	let loading = false;
 	let saveMessage = '';
 	let userAttributes: Array<{ id: string; key: string; value: string }> = [];
+	let userData: any = null;
 
 	onMount(async () => {
 		await loadPreferences();
@@ -31,6 +33,7 @@
 	async function loadUserData() {
 		try {
 			const response = await userApi.getMe();
+			userData = response.user;
 			userAttributes = response.user.attributes || [];
 		} catch (error) {
 			console.error('Failed to load user data:', error);
@@ -61,6 +64,18 @@
 		} catch (error) {
 			console.error('Failed to add user attribute:', error);
 			throw error; // Re-throw to let AttributeManager handle the error
+		}
+	}
+
+	async function handleClassUpdate(className: string, classDescription: string) {
+		try {
+			await userApi.updateProfile({ className, classDescription });
+			userData.className = className;
+			userData.classDescription = classDescription;
+			showSaveMessage('Class information updated');
+		} catch (error) {
+			console.error('Failed to update class information:', error);
+			showSaveMessage('Failed to update class information', true);
 		}
 	}
 
@@ -141,6 +156,31 @@
 					title="My Attributes"
 					emptyMessage="Start building your personal profile with values, interests, skills, or any other attributes that define you"
 				/>
+			</div>
+		</div>
+
+		<!-- RPG Class Section -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title text-xl mb-4">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3"></path>
+					</svg>
+					Character Class
+				</h2>
+				<p class="text-base-content/70 mb-4">Define your RPG-style character class and backstory to enrich your identity</p>
+				
+				{#if userData}
+					<ClassSelector
+						className={userData.className || ''}
+						classDescription={userData.classDescription || ''}
+						onUpdate={handleClassUpdate}
+					/>
+				{:else}
+					<div class="flex justify-center p-4">
+						<span class="loading loading-spinner loading-md"></span>
+					</div>
+				{/if}
 			</div>
 		</div>
 

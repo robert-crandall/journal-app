@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
+import { z } from 'zod';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
 import { users, attributes, stats, focuses, loginSchema, registerSchema, createAttributeSchema, type User } from '../db/schema';
@@ -303,6 +304,28 @@ auth.post('/me/attributes', jwtMiddleware, userMiddleware, zValidator('json', cr
   }).returning();
   
   return c.json({ attribute });
+});
+
+// Update user profile (including class fields)
+auth.put('/me', jwtMiddleware, userMiddleware, zValidator('json', z.object({
+  name: z.string().min(1).optional(),
+  className: z.string().optional(),
+  classDescription: z.string().optional(),
+})), async (c) => {
+  const user = c.get('user') as User;
+  const updateData = c.req.valid('json');
+  
+  const [updatedUser] = await db.update(users)
+    .set({ ...updateData, updatedAt: new Date() })
+    .where(eq(users.id, user.id))
+    .returning();
+  
+  if (!updatedUser) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+  
+  const { password: _, ...userWithoutPassword } = updatedUser;
+  return c.json({ user: userWithoutPassword });
 });
 
 export default auth;
