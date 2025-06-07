@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, boolean, uuid, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, date, timestamp, integer, boolean, uuid, jsonb } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -12,8 +12,8 @@ export const users = pgTable('users', {
   type: text('type', { enum: ['user', 'family'] }).notNull().default('user'),
   isFamily: boolean('is_family').notNull().default(false),
   gptContext: jsonb('gpt_context'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Attributes for both users and family members
@@ -22,8 +22,8 @@ export const attributes = pgTable('attributes', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   key: text('key').notNull(),
   value: text('value').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Focus areas for personal development
@@ -34,8 +34,8 @@ export const focuses = pgTable('focuses', {
   name: text('name').notNull(),
   description: text('description'),
   gptContext: jsonb('gpt_context'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Character stats for personal growth tracking
@@ -47,8 +47,8 @@ export const stats = pgTable('stats', {
   emoji: text('emoji'),
   color: text('color'),
   value: integer('value').notNull().default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Tasks
@@ -60,12 +60,12 @@ export const tasks = pgTable('tasks', {
   familyMemberId: uuid('family_member_id').references(() => users.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   description: text('description'),
-  dueDate: timestamp('due_date'),
+  dueDate: date('due_date'),
   origin: text('origin', { enum: ['user', 'gpt', 'system'] }).notNull().default('user'),
-  completedAt: timestamp('completed_at'),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
   completionSummary: text('completion_summary'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Journal entries
@@ -75,9 +75,9 @@ export const journals = pgTable('journals', {
   content: text('content').notNull(),
   gptSummary: text('gpt_summary'),
   tags: jsonb('tags').$type<string[]>(),
-  date: timestamp('date').notNull().defaultNow(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  date: date('date').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // A/B Testing Potions
@@ -86,12 +86,12 @@ export const potions = pgTable('potions', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   hypothesis: text('hypothesis'),
-  startDate: timestamp('start_date').notNull(),
-  endDate: timestamp('end_date'),
+  startDate: date('start_date',).notNull(),
+  endDate: date('end_date').notNull(),
   isActive: boolean('is_active').notNull().default(true),
   gptAnalysis: text('gpt_analysis'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Sessions for authentication
@@ -99,12 +99,24 @@ export const sessions = pgTable('sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   token: text('token').notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// User preferences - one column per preference for structured storage
+export const preferences = pgTable('preferences', {
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull().unique(),
+  theme: text('theme').notNull().default('light'),
+  // Future preferences can be added as new columns:
+  // language: text('language').default('en'),
+  // notifications: boolean('notifications').default(true),
+  // timezone: text('timezone'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   attributes: many(attributes),
   focuses: many(focuses),
   stats: many(stats),
@@ -112,6 +124,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   journals: many(journals),
   potions: many(potions),
   sessions: many(sessions),
+  preferences: one(preferences, { fields: [users.id], references: [preferences.userId] }),
 }));
 
 export const attributesRelations = relations(attributes, ({ one }) => ({
@@ -149,6 +162,10 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
+export const preferencesRelations = relations(preferences, ({ one }) => ({
+  user: one(users, { fields: [preferences.userId], references: [users.id] }),
+}));
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
@@ -166,6 +183,8 @@ export const insertPotionSchema = createInsertSchema(potions);
 export const selectPotionSchema = createSelectSchema(potions);
 export const insertSessionSchema = createInsertSchema(sessions);
 export const selectSessionSchema = createSelectSchema(sessions);
+export const insertPreferenceSchema = createInsertSchema(preferences);
+export const selectPreferenceSchema = createSelectSchema(preferences);
 
 // Custom validation schemas
 export const loginSchema = z.object({
@@ -252,3 +271,5 @@ export type Potion = typeof potions.$inferSelect;
 export type NewPotion = typeof potions.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+export type Preference = typeof preferences.$inferSelect;
+export type NewPreference = typeof preferences.$inferInsert;
