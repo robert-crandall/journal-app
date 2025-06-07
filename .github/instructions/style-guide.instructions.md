@@ -2,114 +2,111 @@
 applyTo: "**/*.{svelte,html,css}"
 ---
 
-## 🧭 Preferred Design Style Guide
+# Design Style Guide
 
-### 🎯 Core UX Principles
+## Core UX Principles
 
-* **Responsive with subtle animation**
-  Prioritize immediate visual feedback. Use smooth transitions only when they reinforce orientation or flow — never for novelty.
+* **Responsive with purposeful animation**
+  Prioritize immediate visual feedback. Use smooth transitions only when they enhance usability and user orientation — avoid decorative animations.
 
-* **Emotionally grounded tone**
-  Avoid exaggerated, cheerleader-style language. Aim for sincere, affirming prompts that build trust and reflection.
+* **Professional tone**
+  Use clear, direct language that builds confidence. Avoid overly casual or enthusiastic messaging. Messaging should be informative and supportive without being patronizing.
 
 * **Structured clarity**
-  Favor clarity over cleverness. Use layout, typography, and grouping to make interactions self-evident. Clutter is avoided, but warmth is welcome.
+  Prioritize clarity over cleverness. Use layout, typography, and visual hierarchy to make interactions self-evident. Minimize cognitive load while maintaining visual interest.
 
-* **Scaffolded depth**
-  Interfaces should scale in complexity without becoming overwhelming. Show essential information first, with the option to dive deeper.
-
----
-
-## ⚙️ Interaction Rules
-
-### ✅ Must-Haves
-
-* State updates (e.g., checkboxes, progress bars) must be instant
-* GPT or backend-generated content should integrate seamlessly without requiring reload
-* Submission states should be clear: success/failure indicators with optional micro-animation or copy like “Saved ✓”
-
-### ⚠️ Cautious Use
-
-* Animations should reinforce interaction or state change, not delight
-* Progress affirmation should reflect effort (“+100 XP in Strength”), not emotion (“You crushed it!”)
-* Make large UI blocks clickable where it makes sense (e.g. a stat card, a todo item)
+* **Progressive disclosure**
+  Interfaces should present information hierarchically. Show essential information first, with clear pathways to access additional detail when needed.
 
 ---
 
-## 🎨 Visual Design System
+## Interaction Requirements
 
-### 🧱 Layout
+### Required Elements
 
-* **Grid-based structure** with `gap`, `space`, and `container` classes
-* Use **card-based UI blocks**:
+* State updates (checkboxes, progress indicators, form submissions) must provide immediate feedback
+* Dynamic content should integrate seamlessly without requiring page refreshes
+* Submission states must be clearly communicated with appropriate status indicators
+* Loading states should be informative and unobtrusive
 
-  * Rounded corners (`rounded-lg`)
-  * Subtle elevation (`shadow-md`)
-  * Padding (`p-4`, `p-6`)
-* Use **left-side visual anchors**:
+### Design Constraints
 
-  * Semantic `border-l-4` to represent context (e.g., stat type, emotion, urgency)
-* Use responsive stacking with `sm:flex`, `lg:grid-cols-*`, etc.
-
-### 🪄 Feedback + Animation
-
-* Use DaisyUI’s status classes (`alert-success`, `alert-warning`, `loading`, `toast`) when possible
-* Add transitions to hover/focus states (`transition`, `hover:*`, `focus:*`)
-* Optional animated “Saved ✓” messages or loading indicators are encouraged when meaningful
-
-### 🧭 Theming
-
-* Use **semantic color tokens** (`primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`) instead of hardcoded color classes
-* Match section tone to intent:
-
-  * Primary section → `border-l-4 border-primary`
-  * Reflective section → `text-neutral`, `prose`
-  * Stats/progress → `progress`, `badge`, `indicator`
+* Animations should serve a functional purpose — indicating state changes, directing attention, or improving perceived performance
+* Progress indicators should reflect actual progress or achievement rather than emotional encouragement
+* Interactive elements should have clear affordances — if something looks clickable, it should be clickable
 
 ---
 
-## 🔡 Typography
+## Visual Design System
 
-* **Hierarchical and legible**:
+### Layout Structure
 
-  * Titles: `text-2xl font-bold` or larger
+* **Grid-based design** using consistent spacing with `gap`, `space`, and `container` classes
+* **Card-based components** with standardized styling:
+  * Consistent border radius (`rounded-lg`)
+  * Appropriate elevation (`shadow-md`)
+  * Uniform padding (`p-4`, `p-6`)
+* **Visual hierarchy** through left-border accents:
+  * Semantic `border-l-4` to indicate content type, priority, or context
+* **Responsive design** with breakpoint-aware layouts (`sm:flex`, `lg:grid-cols-*`)
+
+### Interactive Feedback
+
+* Utilize DaisyUI's built-in status classes (`alert-success`, `alert-warning`, `loading`, `toast`)
+* Apply smooth transitions for state changes (`transition`, `hover:*`, `focus:*`)
+* Implement clear confirmation messages and loading indicators where appropriate
+
+### Color System
+
+* **Semantic theming** using design tokens (`primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`)
+* **Context-appropriate styling**:
+  * Primary content: `border-l-4 border-primary`
+  * Reflective content: `text-neutral`, `prose`
+  * Data visualization: `progress`, `badge`, `indicator`
+
+---
+
+## Typography
+
+* **Hierarchical text structure**:
+  * Page titles: `text-2xl font-bold` or larger
   * Section headers: `text-xl font-semibold`
-  * Body: `text-sm text-base-content/secondary`
-  * Quotes/affirmations: `italic`, `text-opacity-70`
-* **Use DaisyUI prose classes** (`prose`, `prose-sm`) for user-generated or rich text
-* Support readability with spacing (`mb-2`, `mt-4`) and chunking (`space-y-*`)
+  * Body text: `text-sm text-base-content/secondary`
+  * Supplementary text: `italic`, `text-opacity-70`
+* **Content formatting** using DaisyUI prose classes (`prose`, `prose-sm`) for user-generated content
+* **Consistent spacing** with appropriate margins (`mb-2`, `mt-4`) and content grouping (`space-y-*`)
 
 ---
 
-## 🧩 Components and Patterns
+## Component Patterns
 
-* **Stat Cards**:
+* **Information Cards**:
 
   ```html
   <div class="card shadow-md border-l-4 border-accent">
     <div class="card-body">
-      <h2 class="card-title">Physical Health</h2>
-      <p class="text-sm italic opacity-70">"Level 1 - Keep pushing forward!"</p>
+      <h2 class="card-title">Health Metrics</h2>
+      <p class="text-sm italic opacity-70">Progress tracking</p>
       <progress class="progress w-full" value="42" max="100"></progress>
     </div>
   </div>
   ```
 
-* **Interactive Blocks**:
+* **Navigation Elements**:
 
   ```html
   <a href="/journal" class="block hover:bg-base-200 transition p-4 rounded-lg">
-    <h3 class="font-semibold">Write Your Journal</h3>
-    <p class="text-sm opacity-70">Reflect on your day in a few sentences.</p>
+    <h3 class="font-semibold">Journal Entry</h3>
+    <p class="text-sm opacity-70">Record your daily reflections</p>
   </a>
   ```
 
-* **Badges & Levels**:
-  Use DaisyUI’s `badge`, `badge-accent`, or `badge-neutral` to communicate status, XP, or levels.
+* **Status Indicators**:
+  Use DaisyUI's `badge`, `badge-accent`, or `badge-neutral` for status communication and progress tracking.
 
 ---
 
-## 🔁 State Management & Sync
+## State Management
 
 * **Optimistic updates** preferred: reflect user actions immediately
 * Use `stores` or `signals` for syncing state across components
@@ -117,10 +114,10 @@ applyTo: "**/*.{svelte,html,css}"
 
 ---
 
-## ✅ Summary for Reuse
+## Implementation Checklist
 
-* [x] Semantically themed UI using DaisyUI color tokens and layout utilities
-* [x] Structured, card-based design with left-border tone indicators
-* [x] Responsive grids and spacing for clarity
-* [x] Typography with readable hierarchy and gentle variation
-* [x] Interaction rules grounded in emotional neutrality and feedback clarity
+* [ ] Consistent theming using DaisyUI color tokens and layout utilities
+* [ ] Card-based design with contextual left-border indicators
+* [ ] Responsive grids and consistent spacing
+* [ ] Clear typography hierarchy and readable content structure
+* [ ] Professional interaction patterns with appropriate feedback mechanisms
