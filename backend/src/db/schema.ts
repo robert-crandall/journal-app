@@ -68,9 +68,16 @@ export const tasks = pgTable('tasks', {
   title: text('title').notNull(),
   description: text('description'),
   dueDate: date('due_date'),
+  taskDate: date('task_date'), // Date when task was assigned (for daily tasks)
+  source: text('source', { enum: ['primary', 'connection'] }), // GPT task type
+  linkedStatIds: jsonb('linked_stat_ids').$type<string[]>(), // Multiple stats for XP
+  linkedFamilyMemberIds: jsonb('linked_family_member_ids').$type<string[]>(), // Multiple family members
   origin: text('origin', { enum: ['user', 'gpt', 'system'] }).notNull().default('user'),
+  status: text('status', { enum: ['pending', 'complete', 'skipped', 'failed'] }).notNull().default('pending'),
   completedAt: timestamp('completed_at', { withTimezone: true }),
   completionSummary: text('completion_summary'),
+  feedback: text('feedback'), // User feedback on task completion
+  emotionTag: text('emotion_tag'), // User emotion after task completion
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -210,13 +217,20 @@ export const createTaskSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   dueDate: z.string().datetime().optional(),
+  taskDate: z.string().datetime().optional(),
+  source: z.enum(['primary', 'connection']).optional(),
+  linkedStatIds: z.array(z.string().uuid()).optional(),
+  linkedFamilyMemberIds: z.array(z.string().uuid()).optional(),
   focusId: z.string().uuid().optional(),
   statId: z.string().uuid().optional(),
   familyMemberId: z.string().uuid().optional(),
 });
 
 export const completeTaskSchema = z.object({
+  status: z.enum(['complete', 'skipped', 'failed']),
   completionSummary: z.string().optional(),
+  feedback: z.string().optional(),
+  emotionTag: z.string().optional(),
 });
 
 export const createJournalSchema = z.object({

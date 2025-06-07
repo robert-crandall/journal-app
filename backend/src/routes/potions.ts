@@ -35,7 +35,7 @@ potionsRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', create
     title,
     hypothesis,
     startDate: startDate,
-    endDate: endDate || null,
+    endDate: endDate || new Date().toISOString().split('T')[0], // Default to today if not provided
   }).returning();
   
   return c.json({ potion });
@@ -68,7 +68,7 @@ potionsRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', crea
       title,
       hypothesis,
       startDate: startDate,
-      endDate: endDate || null,
+      endDate: endDate || startDate, // Default to startDate if not provided
       updatedAt: new Date(),
     })
     .where(and(eq(potions.id, potionId), eq(potions.userId, user.id)))

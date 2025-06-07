@@ -64,7 +64,7 @@ journalsRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', cre
   const [updatedJournal] = await db.update(journals)
     .set({
       content,
-      date: date ? new Date(date) : undefined,
+      date: date ? date : undefined,
       updatedAt: new Date(),
     })
     .where(and(eq(journals.id, journalId), eq(journals.userId, user.id)))

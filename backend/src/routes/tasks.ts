@@ -3,8 +3,9 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { tasks, stats, focuses, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
+import { tasks, stats, focuses, users, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
+import { generateDailyTasks, getTodaysFocus, type TaskGenerationContext } from '../utils/gptTaskGenerator';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -30,20 +31,139 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
   return c.json({ tasks: userTasks });
 });
 
+// Get or generate today's tasks
+tasksRouter.get('/daily', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user');
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Check if today's tasks already exist
+  const existingTasks = await db.query.tasks.findMany({
+    where: and(
+      eq(tasks.userId, user.id),
+      eq(tasks.taskDate, today),
+      eq(tasks.origin, 'gpt')
+    ),
+    with: {
+      focus: true,
+      stat: true,
+      familyMember: true,
+    },
+  });
+  
+  // If tasks exist, return them
+  if (existingTasks.length > 0) {
+    return c.json({ tasks: existingTasks });
+  }
+  
+  // Otherwise, generate new tasks
+  try {
+    // Get user context
+    const [userFocuses, userStats, familyMembers] = await Promise.all([
+      db.query.focuses.findMany({
+        where: eq(focuses.userId, user.id),
+        with: { stat: true },
+      }),
+      db.query.stats.findMany({
+        where: eq(stats.userId, user.id),
+      }),
+      db.query.users.findMany({
+        where: and(eq(users.type, 'family'), eq(users.isFamily, true)),
+      }),
+    ]);
+    
+    // Get today's focus
+    const todaysFocus = getTodaysFocus(userFocuses);
+    
+    // Generate tasks using GPT
+    const context: TaskGenerationContext = {
+      user,
+      todaysFocus,
+      userStats,
+      familyMembers,
+      // TODO: Add recent tasks and feedback for better context
+    };
+    
+    const generatedTasks = await generateDailyTasks(context);
+    
+    // Save generated tasks to database
+    const tasksToInsert = [
+      {
+        userId: user.id,
+        title: generatedTasks.primaryTask.title,
+        description: generatedTasks.primaryTask.description,
+        taskDate: today,
+        source: generatedTasks.primaryTask.source,
+        linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
+        linkedFamilyMemberIds: generatedTasks.primaryTask.linkedFamilyMemberIds || [],
+        origin: 'gpt' as const,
+        status: 'pending' as const,
+      },
+      {
+        userId: user.id,
+        title: generatedTasks.connectionTask.title,
+        description: generatedTasks.connectionTask.description,
+        taskDate: today,
+        source: generatedTasks.connectionTask.source,
+        linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
+        linkedFamilyMemberIds: generatedTasks.connectionTask.linkedFamilyMemberIds || [],
+        origin: 'gpt' as const,
+        status: 'pending' as const,
+      },
+    ];
+    
+    const newTasks = await db.insert(tasks).values(tasksToInsert).returning();
+    
+    // Fetch the tasks with relations
+    const savedTasks = await db.query.tasks.findMany({
+      where: and(
+        eq(tasks.userId, user.id),
+        eq(tasks.taskDate, today),
+        eq(tasks.origin, 'gpt')
+      ),
+      with: {
+        focus: true,
+        stat: true,
+        familyMember: true,
+      },
+    });
+    
+    return c.json({ tasks: savedTasks });
+  } catch (error) {
+    console.error('Failed to generate daily tasks:', error);
+    return c.json({ error: 'Failed to generate daily tasks' }, 500);
+  }
+});
+
 // Create task
 tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTaskSchema), async (c) => {
   const user = c.get('user') as User;
-  const { title, description, dueDate, focusId, statId, familyMemberId } = c.req.valid('json');
+  const { 
+    title, 
+    description, 
+    dueDate, 
+    taskDate,
+    source,
+    linkedStatIds,
+    linkedFamilyMemberIds,
+    focusId, 
+    statId, 
+    familyMemberId 
+  } = c.req.valid('json');
   
   const [task] = await db.insert(tasks).values({
     userId: user.id,
     title,
     description,
     dueDate: dueDate || null,
+    taskDate: taskDate || null,
+    source,
+    linkedStatIds: linkedStatIds || [],
+    linkedFamilyMemberIds: linkedFamilyMemberIds || [],
     focusId,
     statId,
     familyMemberId,
     origin: 'user',
+    status: 'pending',
   }).returning();
   
   return c.json({ task });
@@ -74,13 +194,28 @@ tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createTaskSchema), async (c) => {
   const user = c.get('user') as User;
   const taskId = c.req.param('id');
-  const { title, description, dueDate, focusId, statId, familyMemberId } = c.req.valid('json');
+  const { 
+    title, 
+    description, 
+    dueDate,
+    taskDate,
+    source,
+    linkedStatIds,
+    linkedFamilyMemberIds,
+    focusId, 
+    statId, 
+    familyMemberId 
+  } = c.req.valid('json');
   
   const [updatedTask] = await db.update(tasks)
     .set({
       title,
       description,
       dueDate: dueDate || null,
+      taskDate: taskDate || null,
+      source,
+      linkedStatIds: linkedStatIds || [],
+      linkedFamilyMemberIds: linkedFamilyMemberIds || [],
       focusId,
       statId,
       familyMemberId,
@@ -96,16 +231,19 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
   return c.json({ task: updatedTask });
 });
 
-// Complete task
+// Complete task (now supports status, feedback, emotion)
 tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('json', completeTaskSchema), async (c) => {
   const user = c.get('user') as User;
   const taskId = c.req.param('id');
-  const { completionSummary } = c.req.valid('json');
+  const { status, completionSummary, feedback, emotionTag } = c.req.valid('json');
   
   const [completedTask] = await db.update(tasks)
     .set({
-      completedAt: new Date(),
+      status,
+      completedAt: status === 'complete' ? new Date() : null,
       completionSummary,
+      feedback,
+      emotionTag,
       updatedAt: new Date(),
     })
     .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
@@ -115,36 +253,46 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
     return c.json({ error: 'Task not found' }, 404);
   }
   
-  // Award XP to linked stat(s)
-  let statIdsToAward = [];
-  
-  // If task has a direct stat link
-  if (completedTask.statId) {
-    statIdsToAward.push(completedTask.statId);
-  }
-  
-  // If task has a focus that's linked to a stat
-  if (completedTask.focusId) {
-    const taskWithFocus = await db.query.tasks.findFirst({
-      where: eq(tasks.id, completedTask.id),
-      with: {
-        focus: true
-      }
-    });
+  // Only award XP if task was marked as complete
+  if (status === 'complete') {
+    let statIdsToAward: string[] = [];
     
-    if (taskWithFocus?.focus?.statId) {
-      statIdsToAward.push(taskWithFocus.focus.statId);
+    // Collect stat IDs from linkedStatIds array (new primary method)
+    if (completedTask.linkedStatIds && Array.isArray(completedTask.linkedStatIds)) {
+      statIdsToAward = [...completedTask.linkedStatIds];
     }
-  }
-  
-  // Award 25 XP to each linked stat
-  for (const statId of statIdsToAward) {
-    await db.update(stats)
-      .set({
-        xp: sql`${stats.xp} + 25`,
-        updatedAt: new Date(),
-      })
-      .where(eq(stats.id, statId));
+    
+    // Also include legacy single stat ID for backward compatibility
+    if (completedTask.statId) {
+      statIdsToAward.push(completedTask.statId);
+    }
+    
+    // Include stat from focus if exists (legacy)
+    if (completedTask.focusId) {
+      const taskWithFocus = await db.query.tasks.findFirst({
+        where: eq(tasks.id, completedTask.id),
+        with: {
+          focus: true
+        }
+      });
+      
+      if (taskWithFocus?.focus?.statId) {
+        statIdsToAward.push(taskWithFocus.focus.statId);
+      }
+    }
+    
+    // Remove duplicates
+    statIdsToAward = Array.from(new Set(statIdsToAward));
+    
+    // Award 25 XP to each linked stat
+    for (const statId of statIdsToAward) {
+      await db.update(stats)
+        .set({
+          xp: sql`${stats.xp} + 25`,
+          updatedAt: new Date(),
+        })
+        .where(eq(stats.id, statId));
+    }
   }
   
   return c.json({ task: completedTask });
