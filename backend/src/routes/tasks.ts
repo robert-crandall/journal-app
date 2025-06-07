@@ -56,8 +56,7 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     linkedStatIds,
     linkedFamilyMemberIds,
     focusId, 
-    statId, 
-    familyMemberId 
+    statId
   } = c.req.valid('json');
   
   const [task] = await db.insert(tasks).values({
@@ -71,7 +70,6 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     linkedFamilyMemberIds: linkedFamilyMemberIds || [],
     focusId,
     statId,
-    familyMemberId,
     origin: 'user',
     status: 'pending',
   }).returning();
@@ -113,8 +111,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
     linkedStatIds,
     linkedFamilyMemberIds,
     focusId, 
-    statId, 
-    familyMemberId 
+    statId
   } = c.req.valid('json');
   
   const [updatedTask] = await db.update(tasks)
@@ -128,7 +125,6 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
       linkedFamilyMemberIds: linkedFamilyMemberIds || [],
       focusId,
       statId,
-      familyMemberId,
       updatedAt: new Date(),
     })
     .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
@@ -145,7 +141,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
 tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('json', completeTaskSchema), async (c) => {
   const user = c.get('user') as User;
   const taskId = c.req.param('id');
-  const { status, completionSummary, feedback, emotionTag, moodScore } = c.req.valid('json');
+  const { status, feedback, emotionTag, moodScore } = c.req.valid('json');
   
   // Get active potions to link this task completion
   const activePotionIds = await getActivePotions(user.id);
@@ -155,7 +151,6 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
     .set({
       status,
       completedAt: status === 'complete' ? new Date() : null,
-      completionSummary,
       feedback,
       emotionTag,
       moodScore,

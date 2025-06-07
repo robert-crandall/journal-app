@@ -49,8 +49,7 @@ export const tasksApi = {
 		linkedStatIds?: string[];
 		linkedFamilyMemberIds?: string[];
 		focusId?: string; 
-		statId?: string; 
-		familyMemberId?: string 
+		statId?: string;
 	}) {
 		return apiRequest('/tasks', {
 			method: 'POST',
@@ -67,8 +66,7 @@ export const tasksApi = {
 		linkedStatIds?: string[];
 		linkedFamilyMemberIds?: string[];
 		focusId?: string; 
-		statId?: string; 
-		familyMemberId?: string 
+		statId?: string;
 	}) {
 		return apiRequest(`/tasks/${id}`, {
 			method: 'PUT',
@@ -78,7 +76,6 @@ export const tasksApi = {
 	
 	async complete(id: string, options?: { 
 		status: 'complete' | 'skipped' | 'failed';
-		completionSummary?: string;
 		feedback?: string;
 		emotionTag?: string;
 		moodScore?: number;
