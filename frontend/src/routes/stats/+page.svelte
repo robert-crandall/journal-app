@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { statsApi } from '$lib/api';
+	import { statsApi, userApi } from '$lib/api';
 	import * as icons from 'lucide-svelte';
+	import { STAT_LIBRARY, findStatByName, getStatsByCategory } from '$lib/data/stats';
+	import { findClassByName } from '$lib/data/classes';
 
 	let stats: any[] = [];
+	let userData: any = null;
 	let loading = true;
 	let error = '';
 	let showCreateForm = false;
@@ -73,7 +76,7 @@
 	}
 
 	onMount(async () => {
-		await loadStats();
+		await Promise.all([loadStats(), loadUserData()]);
 	});
 
 	async function loadStats() {
@@ -84,6 +87,49 @@
 			error = err.message;
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function loadUserData() {
+		try {
+			const response = await userApi.getMe();
+			userData = response.user;
+		} catch (err: any) {
+			console.error('Failed to load user data:', err);
+		}
+	}
+
+	// Get class recommendations for current user
+	function getClassRecommendations() {
+		if (!userData?.className) return [];
+		const classDef = findClassByName(userData.className);
+		return classDef?.recommended_stats || [];
+	}
+
+	// Check if a stat is recommended for current class
+	function isStatRecommended(statName: string) {
+		return getClassRecommendations().includes(statName);
+	}
+
+	// Get stats that are recommended but not yet added
+	function getRecommendedStats() {
+		const recommended = getClassRecommendations();
+		const existingStatNames = stats.map(s => s.name);
+		return recommended.filter(name => !existingStatNames.includes(name));
+	}
+
+	// Add a stat from the library
+	function addStatFromLibrary(statName: string) {
+		const statDef = findStatByName(statName);
+		if (statDef) {
+			formData = {
+				name: statDef.name,
+				description: statDef.description,
+				icon: statDef.icon || '',
+				color: statDef.color || 'blue',
+				category: statDef.category,
+				enabled: true
+			};
 		}
 	}
 
@@ -412,6 +458,85 @@
 			<h3 class="font-bold text-lg mb-4">
 				{editingStat ? 'Edit Stat' : 'Create New Stat'}
 			</h3>
+			
+			<!-- Class Recommendations (only show for new stats) -->
+			{#if !editingStat && userData?.className}
+				{@const classDef = findClassByName(userData.className)}
+				{@const recommendedStats = getRecommendedStats()}
+				
+				{#if classDef && recommendedStats.length > 0}
+					<div class="bg-base-200 rounded-lg p-4 mb-4">
+						<h4 class="font-medium text-base mb-2 flex items-center gap-2">
+							<span class="text-lg">🎭</span>
+							Recommended for {userData.className}
+						</h4>
+						<p class="text-sm text-base-content/70 mb-3">
+							These stats complement your class. Click to add one:
+						</p>
+						<div class="flex flex-wrap gap-2">
+							{#each recommendedStats as statName}
+								{@const statDef = findStatByName(statName)}
+								{#if statDef}
+									<button
+										type="button"
+										class="btn btn-sm btn-outline btn-primary"
+										on:click={() => addStatFromLibrary(statName)}
+									>
+										{statName}
+									</button>
+								{/if}
+							{/each}
+						</div>
+					</div>
+				{/if}
+			{/if}
+			
+			<!-- Stat Library Browser (only for new stats) -->
+			{#if !editingStat}
+				<div class="collapse collapse-arrow bg-base-100 border border-base-300 mb-4">
+					<input type="checkbox" />
+					<div class="collapse-title text-sm font-medium">
+						📚 Browse Stat Library
+					</div>
+					<div class="collapse-content">
+						<div class="space-y-3">
+							{#each Object.entries(getStatsByCategory()) as [category, categoryStats]}
+								<div>
+									<h5 class="font-medium text-sm mb-2 capitalize">{category}</h5>
+									<div class="grid grid-cols-1 gap-2">
+										{#each categoryStats as stat}
+											{@const isAlreadyAdded = stats.some(s => s.name === stat.name)}
+											<button
+												type="button"
+												class="btn btn-sm btn-outline text-left justify-start {isAlreadyAdded ? 'btn-disabled' : ''}"
+												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
+												disabled={isAlreadyAdded}
+											>
+												<div class="flex-1 min-w-0">
+													<div class="flex items-center gap-2">
+														<span class="font-medium">{stat.name}</span>
+														{#if isStatRecommended(stat.name)}
+															<span class="badge badge-primary badge-xs">Recommended</span>
+														{/if}
+														{#if isAlreadyAdded}
+															<span class="badge badge-ghost badge-xs">Added</span>
+														{/if}
+													</div>
+													<div class="text-xs text-left opacity-70 truncate">
+														{stat.description}
+													</div>
+												</div>
+											</button>
+										{/each}
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
+				
+				<div class="divider text-sm">Or create a custom stat</div>
+			{/if}
 			
 			<div class="form-control mb-4">
 				<label class="label" for="name">
