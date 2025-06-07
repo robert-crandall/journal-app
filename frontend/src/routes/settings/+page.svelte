@@ -161,8 +161,8 @@
 							placeholder="e.g., Seattle area, NYC, San Francisco"
 							class="input input-bordered w-full"
 							value={preferences.locationDescription || ''}
-							on:input={(e) => preferences.locationDescription = e.target.value}
-							on:blur={() => savePreference('locationDescription', preferences.locationDescription || '')}
+							oninput={(e) => preferences.locationDescription = e.target.value}
+							onblur={() => savePreference('locationDescription', preferences.locationDescription || '')}
 						/>
 						<label class="label">
 							<span class="label-text-alt">A general description of your area for context</span>
@@ -178,8 +178,8 @@
 							placeholder="e.g., 98101"
 							class="input input-bordered w-full"
 							value={preferences.zipCode || ''}
-							on:input={(e) => preferences.zipCode = e.target.value}
-							on:blur={() => savePreference('zipCode', preferences.zipCode || '')}
+							oninput={(e) => preferences.zipCode = e.target.value}
+							onblur={() => savePreference('zipCode', preferences.zipCode || '')}
 						/>
 						<label class="label">
 							<span class="label-text-alt">For weather-based task suggestions (optional)</span>
