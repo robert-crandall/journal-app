@@ -67,8 +67,8 @@ async function populateDefaultStatsForUser(userId: string) {
         color: config.color,
         category: config.category,
         enabled: true,
-        systemDefault: true,
-        value: 0
+        xp: 0,
+        level: 1
       });
     } catch (error) {
       console.error(`Failed to create default stat ${statName} for user ${userId}:`, error);

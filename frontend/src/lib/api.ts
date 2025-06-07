@@ -70,14 +70,14 @@ export const focusesApi = {
 		return apiRequest('/focuses');
 	},
 	
-	async create(focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
+	async create(focus: { name: string; description?: string; icon?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest('/focuses', {
 			method: 'POST',
 			body: JSON.stringify(focus)
 		});
 	},
 	
-	async update(id: string, focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
+	async update(id: string, focus: { name: string; description?: string; icon?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest(`/focuses/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(focus)
@@ -208,14 +208,14 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}`);
 	},
 	
-	async create(stat: { name: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
+	async create(stat: { name: string; description?: string; icon?: string; color?: string; category?: string; enabled?: boolean }) {
 		return apiRequest('/stats', {
 			method: 'POST',
 			body: JSON.stringify(stat)
 		});
 	},
 	
-	async update(id: string, stat: { name?: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
+	async update(id: string, stat: { name?: string; description?: string; icon?: string; color?: string; category?: string; enabled?: boolean; xp?: number; level?: number }) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(stat)
@@ -226,6 +226,19 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}/increment`, {
 			method: 'POST',
 			body: JSON.stringify({ amount })
+		});
+	},
+	
+	async addXp(id: string, amount = 25) {
+		return apiRequest(`/stats/${id}/add-xp`, {
+			method: 'POST',
+			body: JSON.stringify({ amount })
+		});
+	},
+	
+	async levelUp(id: string) {
+		return apiRequest(`/stats/${id}/level-up`, {
+			method: 'POST'
 		});
 	},
 	

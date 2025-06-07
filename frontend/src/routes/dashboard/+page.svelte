@@ -164,15 +164,18 @@
 												<h3 class="font-medium">{stat.name}</h3>
 											</div>
 											<div class="flex justify-between items-center mb-2">
-												<span class="text-sm text-base-content/60">Level {stat.value}</span>
-												<span class="text-xs text-base-content/60">{stat.value}/99</span>
+												<span class="text-sm text-base-content/60">Level {stat.level}</span>
+												<span class="text-xs text-base-content/60">{stat.xp} XP</span>
 											</div>
 											<div class="w-full bg-gray-200 rounded-full h-2">
 												<div 
 													class="bg-{stat.color}-500 h-2 rounded-full transition-all duration-300"
-													style="width: {Math.min(100, Math.max(0, (stat.value / 99) * 100))}%"
+													style="width: {Math.min(100, Math.max(0, (stat.xp - ((stat.level - 1) * 100)) / 100 * 100))}%"
 												></div>
 											</div>
+											{#if stat.xp > (stat.level - 1) * 100}
+												<div class="text-xs text-green-600 mt-1">Ready to level up!</div>
+											{/if}
 										</div>
 									{/each}
 								</div>
