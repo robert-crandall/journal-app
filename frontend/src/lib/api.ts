@@ -81,6 +81,7 @@ export const tasksApi = {
 		completionSummary?: string;
 		feedback?: string;
 		emotionTag?: string;
+		moodScore?: number;
 	}) {
 		return apiRequest(`/tasks/${id}/complete`, {
 			method: 'POST',
@@ -248,6 +249,22 @@ export const potionsApi = {
 	async delete(id: string) {
 		return apiRequest(`/potions/${id}`, {
 			method: 'DELETE'
+		});
+	},
+	
+	async analyze(id: string) {
+		return apiRequest(`/potions/${id}/analyze`, {
+			method: 'POST'
+		});
+	},
+	
+	async getAnalysis(id: string) {
+		return apiRequest(`/potions/${id}/analysis`);
+	},
+	
+	async analyzeAll() {
+		return apiRequest('/potions/analyze-all', {
+			method: 'POST'
 		});
 	}
 };

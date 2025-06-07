@@ -133,6 +133,61 @@
 				return 'badge-primary';
 		}
 	}
+	
+	// Analysis functionality
+	let analyzing = false;
+	let potionAnalyses: Record<string, any> = {};
+	
+	async function analyzePotion(potionId: string) {
+		try {
+			analyzing = true;
+			const result = await potionsApi.analyze(potionId);
+			potionAnalyses[potionId] = result.analysis;
+		} catch (error) {
+			console.error('Failed to analyze potion:', error);
+		} finally {
+			analyzing = false;
+		}
+	}
+	
+	async function loadPotionAnalysis(potionId: string) {
+		try {
+			const result = await potionsApi.getAnalysis(potionId);
+			if (result.analysis) {
+				potionAnalyses[potionId] = result.analysis;
+			}
+		} catch (error) {
+			console.error('Failed to load analysis:', error);
+		}
+	}
+	
+	function getEffectivenessIcon(effectiveness: string) {
+		switch (effectiveness) {
+			case 'likely_effective':
+				return '🧪✅';
+			case 'mixed_results':
+				return '🧪❓';
+			case 'likely_ineffective':
+				return '🧪❌';
+			case 'insufficient_data':
+			default:
+				return '🧪⏳';
+		}
+	}
+	
+	function getEffectivenessText(effectiveness: string) {
+		switch (effectiveness) {
+			case 'likely_effective':
+				return 'Likely Effective';
+			case 'mixed_results':
+				return 'Mixed Results';
+			case 'likely_ineffective':
+				return 'Likely Ineffective';
+			case 'insufficient_data':
+			default:
+				return 'Insufficient Data';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -145,12 +200,26 @@
 			<h1 class="text-3xl font-bold">Potions</h1>
 			<p class="text-base-content/70">Personal experiments and habit trials</p>
 		</div>
-		<button class="btn btn-primary" onclick={openCreateForm}>
-			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
-			New Experiment
-		</button>
+		<div class="flex gap-2">
+			<button 
+				class="btn btn-outline btn-sm" 
+				onclick={() => potionsApi.analyzeAll().then(() => loadPotions())}
+				disabled={analyzing}
+			>
+				{#if analyzing}
+					<span class="loading loading-spinner loading-sm"></span>
+				{:else}
+					🔍
+				{/if}
+				Analyze All
+			</button>
+			<button class="btn btn-primary" onclick={openCreateForm}>
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+				</svg>
+				New Experiment
+			</button>
+		</div>
 	</div>
 
 	{#if loading}
@@ -182,6 +251,9 @@
 									</svg>
 								</button>
 								<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+									<li><button onclick={() => analyzePotion(potion.id)}>Analyze Effectiveness</button></li>
+									<li><button onclick={() => loadPotionAnalysis(potion.id)}>View Analysis</button></li>
+									<li class="divider"></li>
 									<li><button onclick={() => openEditForm(potion)}>Edit</button></li>
 									{#if status === 'active'}
 										<li><button onclick={() => endPotion(potion.id)}>End Experiment</button></li>
@@ -195,6 +267,23 @@
 							<div class="mb-4">
 								<h4 class="font-semibold text-sm mb-1">Hypothesis</h4>
 								<p class="text-sm text-base-content/70">{potion.hypothesis}</p>
+							</div>
+						{/if}
+						
+						<!-- Analysis Results -->
+						{#if potionAnalyses[potion.id]}
+							{@const analysis = potionAnalyses[potion.id]}
+							<div class="mb-4 p-3 bg-base-200 rounded-lg">
+								<div class="flex items-center gap-2 mb-2">
+									<span class="text-lg">{getEffectivenessIcon(analysis.effectiveness)}</span>
+									<h4 class="font-semibold text-sm">{getEffectivenessText(analysis.effectiveness)}</h4>
+								</div>
+								<p class="text-xs text-base-content/70 mb-2">{analysis.summary}</p>
+								{#if analysis.recommendations}
+									<div class="text-xs">
+										<strong>Recommendation:</strong> {analysis.recommendations}
+									</div>
+								{/if}
 							</div>
 						{/if}
 						
