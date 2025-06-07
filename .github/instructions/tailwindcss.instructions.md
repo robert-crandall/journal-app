@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{svelte,html,css}"
+applyTo: "**/*.{svelte,html,css,ts,js}"
 ---
 
 # Tailwind CSS 4 Styling Guidelines

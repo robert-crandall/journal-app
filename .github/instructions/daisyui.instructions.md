@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{svelte,html,css}"
+applyTo: "**/*.{svelte,html,css,ts,js}"
 ---
 
 # daisyUI 5 Component Guidelines

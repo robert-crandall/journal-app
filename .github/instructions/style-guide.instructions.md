@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.{svelte,ts,js,html,css}"
+---
+
 ## 🧭 Preferred Design Style Guide
 
 ### 🎯 Core UX Principles
@@ -94,7 +98,6 @@
 
 * **Grid-based** using `gap-*`, `space-y-*`, `container`
 * **Cards**: `bg-white rounded-md shadow-md p-4` or `p-6`
-* Use **left borders** (`border-l-4`) for emphasis or semantic grouping
 
 ### Theming
 
