@@ -141,14 +141,14 @@ export const familyApi = {
 		return apiRequest('/family');
 	},
 	
-	async create(member: { name: string }) {
+	async create(member: { name: string; className?: string; classDescription?: string }) {
 		return apiRequest('/family', {
 			method: 'POST',
 			body: JSON.stringify(member)
 		});
 	},
 	
-	async update(id: string, member: { name: string }) {
+	async update(id: string, member: { name: string; className?: string; classDescription?: string }) {
 		return apiRequest(`/family/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(member)
@@ -317,6 +317,13 @@ export const preferencesApi = {
 export const userApi = {
 	async getMe() {
 		return apiRequest('/auth/me');
+	},
+	
+	async updateProfile(data: { name?: string; className?: string; classDescription?: string }) {
+		return apiRequest('/auth/me', {
+			method: 'PUT',
+			body: JSON.stringify(data)
+		});
 	},
 	
 	async addAttribute(attribute: { key: string; value: string }) {

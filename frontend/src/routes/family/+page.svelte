@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { familyApi } from '$lib/api';
 	import AttributeManager from '$lib/components/AttributeManager.svelte';
+	import ClassSelector from '$lib/components/ClassSelector.svelte';
 	
 	let familyMembers: any[] = [];
 	let loading = true;
@@ -10,6 +11,8 @@
 	
 	// Form data
 	let memberName = '';
+	let memberClassName = '';
+	let memberClassDescription = '';
 	
 	onMount(async () => {
 		await loadFamilyMembers();
@@ -29,12 +32,16 @@
 	
 	function openCreateForm() {
 		memberName = '';
+		memberClassName = '';
+		memberClassDescription = '';
 		editingMember = null;
 		showCreateForm = true;
 	}
 	
 	function openEditForm(member: any) {
 		memberName = member.name;
+		memberClassName = member.className || '';
+		memberClassDescription = member.classDescription || '';
 		editingMember = member;
 		showCreateForm = true;
 	}
@@ -42,10 +49,16 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		try {
+			const memberData = { 
+				name: memberName,
+				className: memberClassName || undefined,
+				classDescription: memberClassDescription || undefined
+			};
+			
 			if (editingMember) {
-				await familyApi.update(editingMember.id, { name: memberName });
+				await familyApi.update(editingMember.id, memberData);
 			} else {
-				await familyApi.create({ name: memberName });
+				await familyApi.create(memberData);
 			}
 			
 			showCreateForm = false;
@@ -74,6 +87,11 @@
 			console.error('Failed to add attribute:', error);
 			throw error; // Re-throw to let AttributeManager handle the error
 		}
+	}
+
+	function handleClassUpdate(className: string, classDescription: string) {
+		memberClassName = className;
+		memberClassDescription = classDescription;
 	}
 </script>
 
@@ -105,7 +123,18 @@
 				<div class="card bg-base-100 shadow-sm">
 					<div class="card-body">
 						<div class="flex justify-between items-start mb-4">
-							<h3 class="card-title text-xl">{member.name}</h3>
+							<div>
+								<h3 class="card-title text-xl">{member.name}</h3>
+								{#if member.className}
+									<div class="flex items-center gap-2 mt-1">
+										<span class="text-lg">🎭</span>
+										<span class="text-sm font-medium text-primary">{member.className}</span>
+									</div>
+									{#if member.classDescription}
+										<p class="text-xs text-base-content/70 mt-1 italic">"{member.classDescription}"</p>
+									{/if}
+								{/if}
+							</div>
 							<div class="dropdown dropdown-end">
 								<button class="btn btn-ghost btn-sm" aria-label="Member options">
 									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +142,7 @@
 									</svg>
 								</button>
 								<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-									<li><button onclick={() => openEditForm(member)}>Edit Name</button></li>
+									<li><button onclick={() => openEditForm(member)}>Edit Profile</button></li>
 									<li><button onclick={() => deleteMember(member.id)} class="text-error">Delete</button></li>
 								</ul>
 							</div>
@@ -160,6 +189,12 @@
 						required
 					/>
 				</div>
+				
+				<ClassSelector 
+					bind:className={memberClassName}
+					bind:classDescription={memberClassDescription}
+					onUpdate={handleClassUpdate}
+				/>
 				
 				<div class="modal-action">
 					<button type="button" class="btn" onclick={() => showCreateForm = false}>

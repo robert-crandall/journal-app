@@ -30,10 +30,12 @@ family.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create family member
 family.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name } = c.req.valid('json');
+  const { name, className, classDescription } = c.req.valid('json');
   
   const [familyMember] = await db.insert(users).values({
     name,
+    className,
+    classDescription,
     type: 'family',
     isFamily: true,
   }).returning();
@@ -64,10 +66,10 @@ family.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 family.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
-  const { name } = c.req.valid('json');
+  const { name, className, classDescription } = c.req.valid('json');
   
   const [updatedFamilyMember] = await db.update(users)
-    .set({ name, updatedAt: new Date() })
+    .set({ name, className, classDescription, updatedAt: new Date() })
     .where(and(eq(users.id, familyMemberId), eq(users.type, 'family')))
     .returning();
   

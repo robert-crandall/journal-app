@@ -11,6 +11,8 @@ export const users = pgTable('users', {
   name: text('name').notNull(),
   type: text('type', { enum: ['user', 'family'] }).notNull().default('user'),
   isFamily: boolean('is_family').notNull().default(false),
+  className: text('class_name'),
+  classDescription: text('class_description'),
   gptContext: jsonb('gpt_context'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -251,6 +253,8 @@ export const createFocusSchema = z.object({
 
 export const createFamilyMemberSchema = z.object({
   name: z.string().min(1),
+  className: z.string().optional(),
+  classDescription: z.string().optional(),
 });
 
 export const createPotionSchema = z.object({
