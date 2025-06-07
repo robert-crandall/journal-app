@@ -36,24 +36,55 @@ export const tasksApi = {
 		return apiRequest('/tasks');
 	},
 	
-	async create(task: { title: string; description?: string; dueDate?: string; focusId?: string; levelId?: string; familyMemberId?: string }) {
+	async getDailyTasks() {
+		return apiRequest('/tasks/daily');
+	},
+	
+	async create(task: { 
+		title: string; 
+		description?: string; 
+		dueDate?: string; 
+		taskDate?: string;
+		source?: 'primary' | 'connection';
+		linkedStatIds?: string[];
+		linkedFamilyMemberIds?: string[];
+		focusId?: string; 
+		statId?: string; 
+		familyMemberId?: string 
+	}) {
 		return apiRequest('/tasks', {
 			method: 'POST',
 			body: JSON.stringify(task)
 		});
 	},
 	
-	async update(id: string, task: { title: string; description?: string; dueDate?: string; focusId?: string; levelId?: string; familyMemberId?: string }) {
+	async update(id: string, task: { 
+		title: string; 
+		description?: string; 
+		dueDate?: string; 
+		taskDate?: string;
+		source?: 'primary' | 'connection';
+		linkedStatIds?: string[];
+		linkedFamilyMemberIds?: string[];
+		focusId?: string; 
+		statId?: string; 
+		familyMemberId?: string 
+	}) {
 		return apiRequest(`/tasks/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(task)
 		});
 	},
 	
-	async complete(id: string, completionSummary?: string) {
+	async complete(id: string, options?: { 
+		status: 'complete' | 'skipped' | 'failed';
+		completionSummary?: string;
+		feedback?: string;
+		emotionTag?: string;
+	}) {
 		return apiRequest(`/tasks/${id}/complete`, {
 			method: 'POST',
-			body: JSON.stringify({ completionSummary })
+			body: JSON.stringify(options || { status: 'complete' })
 		});
 	},
 	
