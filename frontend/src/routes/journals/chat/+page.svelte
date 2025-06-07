@@ -8,7 +8,6 @@
 
 	let journal: any = null;
 	let loading = true;
-	let showResults = false;
 	let completionResults: any = null;
 
 	const journalId = $page.url.searchParams.get('id');
@@ -39,7 +38,7 @@
 
 	function handleJournalCompleted(event: CustomEvent) {
 		completionResults = event.detail;
-		showResults = true;
+		goto('/journals');
 	}
 
 	function goBack() {
@@ -84,82 +83,6 @@
 			<div class="loading loading-spinner loading-lg"></div>
 		</div>
 	{:else}
-		<!-- Results Modal -->
-		{#if showResults && completionResults}
-			<div class="modal modal-open">
-				<div class="modal-box max-w-2xl">
-					<h3 class="font-bold text-lg mb-4">Journal Session Complete! 🎉</h3>
-					
-					<!-- Summary -->
-					{#if completionResults.summary}
-						<div class="mb-6">
-							<h4 class="font-semibold mb-2 flex items-center gap-2">
-								<Calendar size={16} />
-								Summary
-							</h4>
-							<div class="bg-base-200 p-4 rounded-lg">
-								<p class="text-sm">{completionResults.summary}</p>
-							</div>
-						</div>
-					{/if}
-
-					<!-- Extracted Tags -->
-					{#if completionResults.extractedTags && completionResults.extractedTags.length > 0}
-						<div class="mb-6">
-							<h4 class="font-semibold mb-2 flex items-center gap-2">
-								<Tag size={16} />
-								Tags Found
-							</h4>
-							<div class="flex flex-wrap gap-2">
-								{#each completionResults.extractedTags as tag}
-									<span class="badge badge-primary">{tag.name}</span>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					<!-- Suggested Attributes -->
-					{#if completionResults.suggestedAttributes && completionResults.suggestedAttributes.length > 0}
-						<div class="mb-6">
-							<h4 class="font-semibold mb-2 flex items-center gap-2">
-								<User size={16} />
-								New Insights
-							</h4>
-							<div class="space-y-2">
-								{#each completionResults.suggestedAttributes as attr}
-									<div class="bg-base-200 p-3 rounded-lg">
-										<div class="font-medium text-sm">{attr.key}</div>
-										<div class="text-xs opacity-70">{attr.value}</div>
-									</div>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					<div class="modal-action">
-						<button 
-							on:click={() => showResults = false} 
-							class="btn btn-ghost"
-						>
-							Close
-						</button>
-						<button 
-							on:click={startNewSession} 
-							class="btn btn-primary"
-						>
-							Start New Session
-						</button>
-						<button 
-							on:click={goBack} 
-							class="btn btn-outline"
-						>
-							View All Journals
-						</button>
-					</div>
-				</div>
-			</div>
-		{/if}
-
 		<!-- Chat Interface -->
 		<div class="h-[calc(100vh-12rem)]">
 			<JournalChat 
