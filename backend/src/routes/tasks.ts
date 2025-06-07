@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { tasks, stats, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
+import { tasks, stats, focuses, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
 // Define the variables type for this route
@@ -39,7 +39,7 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     userId: user.id,
     title,
     description,
-    dueDate: dueDate ? new Date(dueDate) : null,
+    dueDate: dueDate || null,
     focusId,
     statId,
     familyMemberId,
@@ -80,7 +80,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
     .set({
       title,
       description,
-      dueDate: dueDate ? new Date(dueDate) : null,
+      dueDate: dueDate || null,
       focusId,
       statId,
       familyMemberId,
@@ -115,14 +115,36 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
     return c.json({ error: 'Task not found' }, 404);
   }
   
-  // If task has a stat, increment its value
+  // Award XP to linked stat(s)
+  let statIdsToAward = [];
+  
+  // If task has a direct stat link
   if (completedTask.statId) {
+    statIdsToAward.push(completedTask.statId);
+  }
+  
+  // If task has a focus that's linked to a stat
+  if (completedTask.focusId) {
+    const taskWithFocus = await db.query.tasks.findFirst({
+      where: eq(tasks.id, completedTask.id),
+      with: {
+        focus: true
+      }
+    });
+    
+    if (taskWithFocus?.focus?.statId) {
+      statIdsToAward.push(taskWithFocus.focus.statId);
+    }
+  }
+  
+  // Award 25 XP to each linked stat
+  for (const statId of statIdsToAward) {
     await db.update(stats)
       .set({
-        value: sql`${stats.value} + 1`,
+        xp: sql`${stats.xp} + 25`,
         updatedAt: new Date(),
       })
-      .where(eq(stats.id, completedTask.statId));
+      .where(eq(stats.id, statId));
   }
   
   return c.json({ task: completedTask });

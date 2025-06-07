@@ -16,8 +16,7 @@
 		icon: '',
 		color: 'blue',
 		category: 'body' as 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy',
-		enabled: true,
-		value: 0
+		enabled: true
 	};
 
 	const colorOptions = [
@@ -95,8 +94,7 @@
 			icon: '',
 			color: 'blue',
 			category: 'body',
-			enabled: true,
-			value: 0
+			enabled: true
 		};
 		showCreateForm = false;
 		editingStat = null;
@@ -131,6 +129,33 @@
 		}
 	}
 
+	async function levelUpStat(statId: string) {
+		try {
+			await statsApi.levelUp(statId);
+			await loadStats();
+		} catch (err: any) {
+			error = err.message;
+		}
+	}
+
+	function getProgressWidth(stat: any) {
+		// Progress based on XP towards next level
+		const currentLevelXp = (stat.level - 1) * 100;
+		const nextLevelXp = stat.level * 100;
+		const progressXp = stat.xp - currentLevelXp;
+		const levelXpRange = nextLevelXp - currentLevelXp;
+		return Math.min(100, Math.max(0, (progressXp / levelXpRange) * 100));
+	}
+
+	function canLevelUp(stat: any) {
+		return stat.xp > (stat.level - 1) * 100;
+	}
+
+	function getXpToNextLevel(stat: any) {
+		const nextLevelXp = stat.level * 100;
+		return Math.max(0, nextLevelXp + 1 - stat.xp);
+	}
+
 	async function toggleStatEnabled(stat: any) {
 		try {
 			await statsApi.update(stat.id, { enabled: !stat.enabled });
@@ -140,12 +165,7 @@
 		}
 	}
 
-	async function deleteStat(statId: string, isSystemDefault: boolean) {
-		if (isSystemDefault) {
-			error = 'Cannot delete system default stats. You can disable them instead.';
-			return;
-		}
-		
+	async function deleteStat(statId: string) {
 		if (confirm('Are you sure you want to delete this stat?')) {
 			try {
 				await statsApi.delete(statId);
@@ -171,9 +191,7 @@
 		}
 	}
 
-	function getProgressWidth(value: number) {
-		return Math.min(100, Math.max(0, (value / 99) * 100));
-	}
+
 
 	function groupStatsByCategory(stats: any[]) {
 		const grouped: Record<string, any[]> = {};
@@ -294,11 +312,10 @@
 											</li>
 											<li>
 												<button 
-													on:click={() => deleteStat(stat.id, stat.systemDefault)} 
-													class="text-error {stat.systemDefault ? 'opacity-50' : ''}"
-													disabled={stat.systemDefault}
+													on:click={() => deleteStat(stat.id)} 
+													class="text-error"
 												>
-													Delete {stat.systemDefault ? '(Protected)' : ''}
+													Delete
 												</button>
 											</li>
 										</ul>
@@ -311,32 +328,50 @@
 
 								<div class="mb-4">
 									<div class="flex justify-between items-center mb-2">
-										<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : ''}">Level {stat.value}</span>
-										<span class="text-xs text-gray-500">{stat.value}/99</span>
+										<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : ''}">Level {stat.level}</span>
+										<span class="text-xs text-gray-500">{stat.xp} XP</span>
 									</div>
 									<div class="w-full bg-gray-200 rounded-full h-3">
 										<div 
 											class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
-											style="width: {getProgressWidth(stat.value)}%"
+											style="width: {getProgressWidth(stat)}%"
 										></div>
 									</div>
+									{#if canLevelUp(stat)}
+										<div class="text-xs text-green-600 mt-1">
+											Ready to level up! 🎉
+										</div>
+									{:else}
+										<div class="text-xs text-gray-500 mt-1">
+											{getXpToNextLevel(stat)} XP to level {stat.level + 1}
+										</div>
+									{/if}
 								</div>
 
 								{#if stat.enabled}
 									<div class="card-actions justify-between">
 										<div class="flex gap-1">
-											<button 
-												class="btn btn-xs btn-outline"
-												on:click={() => incrementStat(stat.id, 1)}
-											>
-												+1
-											</button>
-											<button 
-												class="btn btn-xs btn-outline"
-												on:click={() => incrementStat(stat.id, 5)}
-											>
-												+5
-											</button>
+											{#if canLevelUp(stat)}
+												<button 
+													class="btn btn-xs btn-success"
+													on:click={() => levelUpStat(stat.id)}
+												>
+													Level Up! 🎉
+												</button>
+											{:else}
+												<button 
+													class="btn btn-xs btn-outline"
+													on:click={() => incrementStat(stat.id, 1)}
+												>
+													+25 XP
+												</button>
+												<button 
+													class="btn btn-xs btn-outline"
+													on:click={() => incrementStat(stat.id, 5)}
+												>
+													+125 XP
+												</button>
+											{/if}
 										</div>
 										<button 
 											class="btn btn-xs btn-outline btn-{stat.color}"
@@ -459,31 +494,15 @@
 				</select>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4 mb-6">
-				<div class="form-control">
-					<label class="label" for="value">
-						<span class="label-text">Initial Value</span>
-					</label>
+			<div class="form-control mb-6">
+				<label class="label cursor-pointer">
+					<span class="label-text">Enabled</span>
 					<input 
-						type="number" 
-						id="value"
-						class="input input-bordered" 
-						bind:value={formData.value}
-						min="0"
-						max="99"
+						type="checkbox" 
+						class="checkbox" 
+						bind:checked={formData.enabled}
 					/>
-				</div>
-
-				<div class="form-control">
-					<label class="label cursor-pointer">
-						<span class="label-text">Enabled</span>
-						<input 
-							type="checkbox" 
-							class="checkbox" 
-							bind:checked={formData.enabled}
-						/>
-					</label>
-				</div>
+				</label>
 			</div>
 
 			<div class="form-control mb-4">
@@ -504,7 +523,7 @@
 								<div class="w-full h-full flex items-center justify-center rounded-lg border transition-all duration-200 
 									{formData.icon === iconName ? 'border-blue-500' : 'border-gray-300'}
 								">
-									{svelteIcon(iconName)}
+									<svelte:component this={getIconComponent(iconName)} size={16} />
 								</div>
 							</label>
 						</div>

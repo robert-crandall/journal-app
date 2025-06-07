@@ -52,8 +52,8 @@ export const stats = pgTable('stats', {
   color: text('color'),
   category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }),
   enabled: boolean('enabled').notNull().default(true),
-  systemDefault: boolean('system_default').notNull().default(false),
-  value: integer('value').notNull().default(0),
+  xp: integer('xp').notNull().default(0),
+  level: integer('level').notNull().default(1),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -258,7 +258,6 @@ export const createStatSchema = z.object({
   color: z.string().optional(),
   category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
   enabled: z.boolean().optional(),
-  systemDefault: z.boolean().optional(),
 });
 
 export const updateStatSchema = z.object({
@@ -268,7 +267,8 @@ export const updateStatSchema = z.object({
   color: z.string().optional(),
   category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
   enabled: z.boolean().optional(),
-  value: z.number().int().min(0).max(99).optional(),
+  xp: z.number().int().min(0).optional(),
+  level: z.number().int().min(1).optional(),
 });
 
 // Type exports

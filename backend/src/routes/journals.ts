@@ -33,7 +33,7 @@ journalsRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', creat
   const [journal] = await db.insert(journals).values({
     userId: user.id,
     content,
-    date: date ? new Date(date) : new Date(),
+    date: date || new Date().toISOString().split('T')[0],
   }).returning();
   
   return c.json({ journal });
