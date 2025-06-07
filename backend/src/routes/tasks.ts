@@ -5,7 +5,7 @@ import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
 import { tasks, stats, focuses, users, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
-import { generateDailyTasks, getTodaysFocus, type TaskGenerationContext } from '../utils/gptTaskGenerator';
+import { generateDailyTasks, getTodaysFocus, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -34,103 +34,13 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Get or generate today's tasks
 tasksRouter.get('/daily', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
   
-  // Check if today's tasks already exist
-  const existingTasks = await db.query.tasks.findMany({
-    where: and(
-      eq(tasks.userId, user.id),
-      eq(tasks.taskDate, today),
-      eq(tasks.origin, 'gpt')
-    ),
-    with: {
-      focus: true,
-      stat: true,
-      familyMember: true,
-    },
-  });
-  
-  // If tasks exist, return them
-  if (existingTasks.length > 0) {
-    return c.json({ tasks: existingTasks });
-  }
-  
-  // Otherwise, generate new tasks
   try {
-    // Get user context
-    const [userFocuses, userStats, familyMembers] = await Promise.all([
-      db.query.focuses.findMany({
-        where: eq(focuses.userId, user.id),
-        with: { stat: true },
-      }),
-      db.query.stats.findMany({
-        where: eq(stats.userId, user.id),
-      }),
-      db.query.users.findMany({
-        where: and(eq(users.type, 'family'), eq(users.isFamily, true)),
-      }),
-    ]);
-    
-    // Get today's focus
-    const todaysFocus = getTodaysFocus(userFocuses);
-    
-    // Generate tasks using GPT
-    const context: TaskGenerationContext = {
-      user,
-      todaysFocus,
-      userStats,
-      familyMembers,
-      // TODO: Add recent tasks and feedback for better context
-    };
-    
-    const generatedTasks = await generateDailyTasks(context);
-    
-    // Save generated tasks to database
-    const tasksToInsert = [
-      {
-        userId: user.id,
-        title: generatedTasks.primaryTask.title,
-        description: generatedTasks.primaryTask.description,
-        taskDate: today,
-        source: generatedTasks.primaryTask.source,
-        linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
-        linkedFamilyMemberIds: generatedTasks.primaryTask.linkedFamilyMemberIds || [],
-        origin: 'gpt' as const,
-        status: 'pending' as const,
-      },
-      {
-        userId: user.id,
-        title: generatedTasks.connectionTask.title,
-        description: generatedTasks.connectionTask.description,
-        taskDate: today,
-        source: generatedTasks.connectionTask.source,
-        linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
-        linkedFamilyMemberIds: generatedTasks.connectionTask.linkedFamilyMemberIds || [],
-        origin: 'gpt' as const,
-        status: 'pending' as const,
-      },
-    ];
-    
-    const newTasks = await db.insert(tasks).values(tasksToInsert).returning();
-    
-    // Fetch the tasks with relations
-    const savedTasks = await db.query.tasks.findMany({
-      where: and(
-        eq(tasks.userId, user.id),
-        eq(tasks.taskDate, today),
-        eq(tasks.origin, 'gpt')
-      ),
-      with: {
-        focus: true,
-        stat: true,
-        familyMember: true,
-      },
-    });
-    
-    return c.json({ tasks: savedTasks });
+    const todaysTasks = await getOrGenerateTodaysTask(user.id);
+    return c.json({ tasks: todaysTasks });
   } catch (error) {
-    console.error('Failed to generate daily tasks:', error);
-    return c.json({ error: 'Failed to generate daily tasks' }, 500);
+    console.error('Failed to get or generate daily tasks:', error);
+    return c.json({ error: 'Failed to get or generate daily tasks' }, 500);
   }
 });
 

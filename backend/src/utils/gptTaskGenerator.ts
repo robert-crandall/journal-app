@@ -1,11 +1,22 @@
-import { type User, type Focus, type Stat } from '../db/schema';
+import { db } from '../db';
+import { tasks, stats, focuses, users } from '../db/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import { type User, type Focus, type Stat, type Task } from '../db/schema';
+import OpenAI from 'openai';
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+});
+
+const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 
 export interface TaskGenerationContext {
   user: User;
   todaysFocus?: Focus;
   userStats: Stat[];
   familyMembers: User[];
-  recentTasks?: any[];
+  recentTasks?: Task[];
   recentFeedback?: string[];
 }
 
@@ -23,10 +34,184 @@ export interface GeneratedTaskSet {
 }
 
 /**
- * Mock GPT task generator for MVP
- * In production, this would call OpenAI's API with user context
+ * Generate daily tasks using OpenAI GPT
+ * Creates personalized tasks based on user context and feedback
  */
 export async function generateDailyTasks(context: TaskGenerationContext): Promise<GeneratedTaskSet> {
+  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback } = context;
+
+  // If OpenAI API key is not configured, fall back to mock implementation
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('OpenAI API key not configured, using mock task generation');
+    return generateMockTasks(context);
+  }
+
+  try {
+    const prompt = buildGPTPrompt(context);
+    
+    const completion = await openai.chat.completions.create({
+      model: openAiModel,
+      messages: [
+        {
+          role: "system",
+          content: "You are a personal development coach that generates meaningful daily tasks. You understand personal growth, family relationships, and emotional intelligence. Always respond with valid JSON matching the requested structure."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('No response from OpenAI');
+    }
+
+    // Parse the JSON response
+    const parsedResponse = JSON.parse(response);
+    
+    // Validate the response structure
+    if (!parsedResponse.primaryTask || !parsedResponse.connectionTask) {
+      throw new Error('Invalid response structure from OpenAI');
+    }
+
+    return {
+      primaryTask: {
+        title: parsedResponse.primaryTask.title,
+        description: parsedResponse.primaryTask.description,
+        source: 'primary',
+        linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
+        linkedFamilyMemberIds: parsedResponse.primaryTask.linkedFamilyMemberIds,
+      },
+      connectionTask: {
+        title: parsedResponse.connectionTask.title,
+        description: parsedResponse.connectionTask.description,
+        source: 'connection',
+        linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
+        linkedFamilyMemberIds: parsedResponse.connectionTask.linkedFamilyMemberIds,
+      },
+    };
+  } catch (error) {
+    console.error('Error generating tasks with OpenAI:', error);
+    // Fall back to mock implementation on error
+    return generateMockTasks(context);
+  }
+}
+
+/**
+ * Build a comprehensive prompt for GPT task generation
+ */
+function buildGPTPrompt(context: TaskGenerationContext): string {
+  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback } = context;
+  
+  let prompt = `Generate two personalized daily tasks for ${user.name}:\n\n`;
+
+  // User context
+  prompt += `## User Profile\n`;
+  prompt += `Name: ${user.name}\n`;
+  if (user.gptContext) {
+    prompt += `Context: ${JSON.stringify(user.gptContext)}\n`;
+  }
+
+  // Today's focus
+  if (todaysFocus) {
+    prompt += `\n## Today's Focus: ${todaysFocus.name}\n`;
+    prompt += `Description: ${todaysFocus.description || 'No description provided'}\n`;
+    if (todaysFocus.sampleActivities?.length) {
+      prompt += `Sample Activities: ${todaysFocus.sampleActivities.join(', ')}\n`;
+    }
+  }
+
+  // User stats for XP assignment
+  prompt += `\n## User Stats (for XP assignment)\n`;
+  userStats.forEach(stat => {
+    prompt += `- ${stat.name} (${stat.category}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
+  });
+
+  // Family members
+  if (familyMembers.length > 0) {
+    prompt += `\n## Family Members\n`;
+    familyMembers.forEach(member => {
+      prompt += `- ${member.name}`;
+      if (member.gptContext) {
+        prompt += ` - ${JSON.stringify(member.gptContext)}`;
+      }
+      prompt += `\n`;
+    });
+  }
+
+  // Recent task history and feedback
+  if (recentTasks?.length) {
+    prompt += `\n## Recent Task History\n`;
+    recentTasks.slice(-5).forEach(task => {
+      prompt += `- "${task.title}" (${task.status})`;
+      if (task.feedback) {
+        prompt += ` - Feedback: ${task.feedback}`;
+      }
+      if (task.emotionTag) {
+        prompt += ` - Emotion: ${task.emotionTag}`;
+      }
+      prompt += `\n`;
+    });
+  }
+
+  if (recentFeedback?.length) {
+    prompt += `\n## Recent User Feedback\n`;
+    recentFeedback.forEach(feedback => {
+      prompt += `- ${feedback}\n`;
+    });
+  }
+
+  // Task generation instructions
+  prompt += `\n## Task Generation Requirements\n`;
+  prompt += `Generate exactly TWO tasks:\n\n`;
+  
+  prompt += `1. **Primary Task**: Aligned with today's focus "${todaysFocus?.name || 'personal growth'}"\n`;
+  prompt += `   - Should be meaningful and actionable\n`;
+  prompt += `   - Take 15-45 minutes to complete\n`;
+  prompt += `   - Help advance the user's growth in the focus area\n`;
+  
+  prompt += `\n2. **Connection Task**: Focus on relationships and emotional well-being\n`;
+  if (familyMembers.length > 0) {
+    prompt += `   - Should involve one of the family members OR self-connection\n`;
+    prompt += `   - Rotate between family members to ensure balanced attention\n`;
+  } else {
+    prompt += `   - Should focus on self-connection, mindfulness, or reaching out to friends\n`;
+  }
+  prompt += `   - Emphasize quality time and emotional presence\n`;
+
+  prompt += `\n## Response Format\n`;
+  prompt += `Respond with ONLY valid JSON in this exact structure:\n`;
+  prompt += `{
+  "primaryTask": {
+    "title": "Short, actionable title (max 60 chars)",
+    "description": "Detailed guidance and context (2-3 sentences)",
+    "linkedStatIds": ["stat_id1", "stat_id2"],
+    "linkedFamilyMemberIds": ["family_member_id"] // optional, only if task involves family
+  },
+  "connectionTask": {
+    "title": "Short, actionable title (max 60 chars)", 
+    "description": "Detailed guidance and context (2-3 sentences)",
+    "linkedStatIds": ["stat_id1"],
+    "linkedFamilyMemberIds": ["family_member_id"] // optional, only if task involves family
+  }
+}\n`;
+
+  prompt += `\nUse actual stat IDs from the list above. For connection tasks, prefer stats in categories: connection, spirit, mind.`;
+  if (familyMembers.length > 0) {
+    prompt += ` When including family members, use their actual IDs: ${familyMembers.map(m => `${m.name}(${m.id})`).join(', ')}.`;
+  }
+
+  return prompt;
+}
+
+/**
+ * Fallback mock task generator (same as original implementation)
+ */
+function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
   const { user, todaysFocus, userStats, familyMembers } = context;
 
   // Mock primary task based on today's focus
@@ -74,4 +259,128 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
 export function getTodaysFocus(focuses: Focus[]): Focus | undefined {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   return focuses.find(focus => focus.dayOfWeek === today);
+}
+
+/**
+ * Get or generate today's tasks for a user
+ * This is the main function that implements the persistence logic
+ */
+export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Check if today's tasks already exist
+  const existingTasks = await db.query.tasks.findMany({
+    where: and(
+      eq(tasks.userId, userId),
+      eq(tasks.taskDate, today),
+      eq(tasks.origin, 'gpt')
+    ),
+    with: {
+      focus: true,
+      stat: true,
+      familyMember: true,
+    },
+  });
+  
+  // If tasks exist, return them
+  if (existingTasks.length > 0) {
+    return existingTasks;
+  }
+  
+  // Otherwise, generate new tasks
+  try {
+    // Get user and context
+    const [user, userFocuses, userStats, familyMembers, recentTasks] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(users.id, userId),
+      }),
+      db.query.focuses.findMany({
+        where: eq(focuses.userId, userId),
+        with: { stat: true },
+      }),
+      db.query.stats.findMany({
+        where: eq(stats.userId, userId),
+      }),
+      db.query.users.findMany({
+        where: and(eq(users.type, 'family'), eq(users.isFamily, true)),
+      }),
+      db.query.tasks.findMany({
+        where: eq(tasks.userId, userId),
+        orderBy: [desc(tasks.createdAt)],
+        limit: 10,
+      }),
+    ]);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Get today's focus
+    const todaysFocus = getTodaysFocus(userFocuses);
+    
+    // Collect recent feedback from completed tasks
+    const recentFeedback = recentTasks
+      .filter(task => task.feedback)
+      .map(task => task.feedback!)
+      .slice(0, 5);
+    
+    // Generate tasks using GPT
+    const context: TaskGenerationContext = {
+      user,
+      todaysFocus,
+      userStats,
+      familyMembers,
+      recentTasks,
+      recentFeedback,
+    };
+    
+    const generatedTasks = await generateDailyTasks(context);
+    
+    // Save generated tasks to database
+    const tasksToInsert = [
+      {
+        userId: user.id,
+        title: generatedTasks.primaryTask.title,
+        description: generatedTasks.primaryTask.description,
+        taskDate: today,
+        source: generatedTasks.primaryTask.source,
+        linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
+        linkedFamilyMemberIds: generatedTasks.primaryTask.linkedFamilyMemberIds || [],
+        origin: 'gpt' as const,
+        status: 'pending' as const,
+      },
+      {
+        userId: user.id,
+        title: generatedTasks.connectionTask.title,
+        description: generatedTasks.connectionTask.description,
+        taskDate: today,
+        source: generatedTasks.connectionTask.source,
+        linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
+        linkedFamilyMemberIds: generatedTasks.connectionTask.linkedFamilyMemberIds || [],
+        origin: 'gpt' as const,
+        status: 'pending' as const,
+      },
+    ];
+    
+    await db.insert(tasks).values(tasksToInsert);
+    
+    // Fetch the tasks with relations
+    const savedTasks = await db.query.tasks.findMany({
+      where: and(
+        eq(tasks.userId, userId),
+        eq(tasks.taskDate, today),
+        eq(tasks.origin, 'gpt')
+      ),
+      with: {
+        focus: true,
+        stat: true,
+        familyMember: true,
+      },
+    });
+    
+    return savedTasks;
+  } catch (error) {
+    console.error('Failed to generate daily tasks:', error);
+    throw error;
+  }
 }
