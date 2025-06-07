@@ -1,45 +1,24 @@
 <script lang="ts">
+	import { CLASS_LIBRARY, getClassesByType, findClassByName } from '$lib/data/classes';
+	
 	export let className = '';
 	export let classDescription = '';
 	export let onUpdate: (className: string, classDescription: string) => void = () => {};
 
-	// Predefined class suggestions grouped by type
-	const classSuggestions = {
-		Combat: ['Fighter', 'Warrior', 'Paladin', 'Barbarian', 'Ranger'],
-		Mystic: ['Wizard', 'Sorcerer', 'Warlock', 'Druid', 'Cleric'],
-		Support: ['Bard', 'Healer', 'Support', 'Guardian', 'Protector'],
-		Stealth: ['Rogue', 'Assassin', 'Scout', 'Thief', 'Spy'],
-		Other: ['Monk', 'Artificer', 'Scholar', 'Merchant', 'Wanderer']
-	};
+	// Use the new class library
+	const classSuggestions = getClassesByType();
 
-	// Sample descriptions for classes
-	const sampleDescriptions: Record<string, string> = {
-		'Monk': 'A quiet thinker who moves through the world with graceful intent',
-		'Fighter': 'A bold warrior who faces challenges head-on with strength and courage',
-		'Wizard': 'A seeker of knowledge who finds power in understanding and wisdom',
-		'Bard': 'A charismatic storyteller who connects people through art and emotion',
-		'Rogue': 'A clever problem-solver who finds creative paths through obstacles',
-		'Druid': 'A nature-connected soul who finds balance and harmony in all things',
-		'Paladin': 'A principled defender who stands for justice and protection of others',
-		'Barbarian': 'A fierce spirit who embraces raw emotion and authentic expression',
-		'Ranger': 'An independent explorer who thrives in freedom and adventure',
-		'Sorcerer': 'An intuitive creator who channels natural talent and inspiration',
-		'Warlock': 'A determined seeker who pursues power through focus and will',
-		'Cleric': 'A devoted healer who serves others with compassion and faith',
-		'Healer': 'A caring nurturer who brings comfort and restoration to others',
-		'Guardian': 'A loyal protector who shields loved ones from harm',
-		'Artificer': 'A skilled craftsperson who creates solutions with hands and mind',
-		'Scholar': 'A dedicated learner who pursues truth and understanding',
-		'Merchant': 'A resourceful trader who builds connections and opportunities',
-		'Wanderer': 'A free spirit who finds meaning in the journey itself'
-	};
+	// Get class definitions from the library
+	function getClassDefinition(name: string) {
+		return findClassByName(name);
+	}
 
 	let isCustomClass = false;
 	let customClassName = '';
 
 	$: {
 		// Check if current className is custom (not in predefined list)
-		const allClasses = Object.values(classSuggestions).flat();
+		const allClasses = Object.values(classSuggestions).flat().map(c => c.class_name);
 		
 		// Handle custom class selection
 		if (className === '__custom__') {
@@ -56,9 +35,10 @@
 
 	function selectClass(selectedClass: string) {
 		className = selectedClass;
-		// Auto-fill sample description if available and current description is empty
-		if (!classDescription && sampleDescriptions[selectedClass]) {
-			classDescription = sampleDescriptions[selectedClass];
+		// Auto-fill description from class library if available and current description is empty
+		const classDef = getClassDefinition(selectedClass);
+		if (!classDescription && classDef) {
+			classDescription = classDef.description;
 		}
 		isCustomClass = false;
 		customClassName = '';
@@ -119,7 +99,7 @@
 				{#each Object.entries(classSuggestions) as [category, classes]}
 					<optgroup label={category}>
 						{#each classes as classOption}
-							<option value={classOption}>{classOption}</option>
+							<option value={classOption.class_name}>{classOption.class_name}</option>
 						{/each}
 					</optgroup>
 				{/each}
@@ -159,12 +139,18 @@
 				oninput={updateDescription}
 			></textarea>
 			
-			{#if sampleDescriptions[className] && classDescription !== sampleDescriptions[className]}
+			{#if getClassDefinition(className) && classDescription !== getClassDefinition(className)?.description}
 				<div class="label">
 					<span class="label-text-alt">
 						<button 
 							class="link link-primary text-xs"
-							onclick={() => { classDescription = sampleDescriptions[className]; updateDescription(); }}
+							onclick={() => { 
+								const classDef = getClassDefinition(className);
+								if (classDef) {
+									classDescription = classDef.description; 
+									updateDescription(); 
+								}
+							}}
 						>
 							Use sample description for {className}
 						</button>
@@ -176,6 +162,7 @@
 
 	<!-- Preview -->
 	{#if className && className !== '__custom__'}
+		{@const classDef = getClassDefinition(className)}
 		<div class="bg-base-200 rounded-lg p-4">
 			<h4 class="font-semibold text-base mb-2 flex items-center">
 				<span class="text-lg mr-2">🎭</span>
@@ -189,6 +176,18 @@
 					<p class="text-sm text-base-content/80 italic">"{classDescription}"</p>
 				{:else}
 					<p class="text-xs text-base-content/50">Add a description to complete your character profile</p>
+				{/if}
+				
+				<!-- Recommended Stats -->
+				{#if classDef && classDef.recommended_stats.length > 0}
+					<div class="mt-3 pt-3 border-t border-base-300">
+						<h5 class="text-sm font-medium text-base-content/80 mb-2">Recommended Stats:</h5>
+						<div class="flex flex-wrap gap-1">
+							{#each classDef.recommended_stats as statName}
+								<span class="badge badge-outline badge-sm">{statName}</span>
+							{/each}
+						</div>
+					</div>
 				{/if}
 			</div>
 		</div>
