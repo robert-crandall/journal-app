@@ -94,8 +94,7 @@
 			icon: '',
 			color: 'blue',
 			category: 'body',
-			enabled: true,
-			value: 0
+			enabled: true
 		};
 		showCreateForm = false;
 		editingStat = null;
@@ -495,31 +494,15 @@
 				</select>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4 mb-6">
-				<div class="form-control">
-					<label class="label" for="value">
-						<span class="label-text">Initial Value</span>
-					</label>
+			<div class="form-control mb-6">
+				<label class="label cursor-pointer">
+					<span class="label-text">Enabled</span>
 					<input 
-						type="number" 
-						id="value"
-						class="input input-bordered" 
-						bind:value={formData.value}
-						min="0"
-						max="99"
+						type="checkbox" 
+						class="checkbox" 
+						bind:checked={formData.enabled}
 					/>
-				</div>
-
-				<div class="form-control">
-					<label class="label cursor-pointer">
-						<span class="label-text">Enabled</span>
-						<input 
-							type="checkbox" 
-							class="checkbox" 
-							bind:checked={formData.enabled}
-						/>
-					</label>
-				</div>
+				</label>
 			</div>
 
 			<div class="form-control mb-4">
@@ -540,7 +523,7 @@
 								<div class="w-full h-full flex items-center justify-center rounded-lg border transition-all duration-200 
 									{formData.icon === iconName ? 'border-blue-500' : 'border-gray-300'}
 								">
-									{svelteIcon(iconName)}
+									<svelte:component this={getIconComponent(iconName)} size={16} />
 								</div>
 							</label>
 						</div>
