@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { tasks, stats, focuses, users, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
+import { tasks, stats, focuses, users, potions, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { generateDailyTasks, getTodaysFocus, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
 
@@ -23,7 +23,6 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
-      familyMember: true,
     },
     orderBy: [desc(tasks.createdAt)],
   });
@@ -56,8 +55,7 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     linkedStatIds,
     linkedFamilyMemberIds,
     focusId, 
-    statId, 
-    familyMemberId 
+    statId
   } = c.req.valid('json');
   
   const [task] = await db.insert(tasks).values({
@@ -71,7 +69,6 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     linkedFamilyMemberIds: linkedFamilyMemberIds || [],
     focusId,
     statId,
-    familyMemberId,
     origin: 'user',
     status: 'pending',
   }).returning();
@@ -89,7 +86,6 @@ tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
-      familyMember: true,
     },
   });
   
@@ -113,8 +109,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
     linkedStatIds,
     linkedFamilyMemberIds,
     focusId, 
-    statId, 
-    familyMemberId 
+    statId
   } = c.req.valid('json');
   
   const [updatedTask] = await db.update(tasks)
@@ -128,7 +123,6 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
       linkedFamilyMemberIds: linkedFamilyMemberIds || [],
       focusId,
       statId,
-      familyMemberId,
       updatedAt: new Date(),
     })
     .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
@@ -141,19 +135,24 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
   return c.json({ task: updatedTask });
 });
 
-// Complete task (now supports status, feedback, emotion)
+// Complete task (now supports status, feedback, emotion, and mood score)
 tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('json', completeTaskSchema), async (c) => {
   const user = c.get('user') as User;
   const taskId = c.req.param('id');
-  const { status, completionSummary, feedback, emotionTag } = c.req.valid('json');
+  const { status, feedback, emotionTag, moodScore } = c.req.valid('json');
+  
+  // Get active potions to link this task completion
+  const activePotionIds = await getActivePotions(user.id);
+  const potionId = activePotionIds.length > 0 ? activePotionIds[0] : null; // Link to first active potion if any
   
   const [completedTask] = await db.update(tasks)
     .set({
       status,
       completedAt: status === 'complete' ? new Date() : null,
-      completionSummary,
       feedback,
       emotionTag,
+      moodScore,
+      potionId: potionId,
       updatedAt: new Date(),
     })
     .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
@@ -223,5 +222,21 @@ tasksRouter.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
   
   return c.json({ message: 'Task deleted successfully' });
 });
+
+// Helper function to get active potions for a user
+async function getActivePotions(userId: string): Promise<string[]> {
+  const today = new Date().toISOString().split('T')[0];
+  
+  const activePotions = await db.query.potions.findMany({
+    where: and(
+      eq(potions.userId, userId),
+      eq(potions.isActive, true),
+      lte(potions.startDate, today),
+      gte(potions.endDate, today)
+    ),
+  });
+  
+  return activePotions.map(potion => potion.id);
+}
 
 export default tasksRouter;

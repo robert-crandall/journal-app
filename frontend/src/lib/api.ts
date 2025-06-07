@@ -49,8 +49,7 @@ export const tasksApi = {
 		linkedStatIds?: string[];
 		linkedFamilyMemberIds?: string[];
 		focusId?: string; 
-		statId?: string; 
-		familyMemberId?: string 
+		statId?: string;
 	}) {
 		return apiRequest('/tasks', {
 			method: 'POST',
@@ -67,8 +66,7 @@ export const tasksApi = {
 		linkedStatIds?: string[];
 		linkedFamilyMemberIds?: string[];
 		focusId?: string; 
-		statId?: string; 
-		familyMemberId?: string 
+		statId?: string;
 	}) {
 		return apiRequest(`/tasks/${id}`, {
 			method: 'PUT',
@@ -78,9 +76,9 @@ export const tasksApi = {
 	
 	async complete(id: string, options?: { 
 		status: 'complete' | 'skipped' | 'failed';
-		completionSummary?: string;
 		feedback?: string;
 		emotionTag?: string;
+		moodScore?: number;
 	}) {
 		return apiRequest(`/tasks/${id}/complete`, {
 			method: 'POST',
@@ -248,6 +246,22 @@ export const potionsApi = {
 	async delete(id: string) {
 		return apiRequest(`/potions/${id}`, {
 			method: 'DELETE'
+		});
+	},
+	
+	async analyze(id: string) {
+		return apiRequest(`/potions/${id}/analyze`, {
+			method: 'POST'
+		});
+	},
+	
+	async getAnalysis(id: string) {
+		return apiRequest(`/potions/${id}/analysis`);
+	},
+	
+	async analyzeAll() {
+		return apiRequest('/potions/analyze-all', {
+			method: 'POST'
 		});
 	}
 };

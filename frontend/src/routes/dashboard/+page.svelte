@@ -28,7 +28,8 @@
 	let showTaskFeedback = '';
 	let taskFeedbackData = {
 		feedback: '',
-		emotionTag: ''
+		emotionTag: '',
+		moodScore: 0 // 1-5 mood/energy rating for A/B testing
 	};
 	
 	onMount(() => {
@@ -116,12 +117,13 @@
 			await tasksApi.complete(taskId, {
 				status: 'complete',
 				feedback: taskFeedbackData.feedback,
-				emotionTag: taskFeedbackData.emotionTag
+				emotionTag: taskFeedbackData.emotionTag,
+				moodScore: taskFeedbackData.moodScore > 0 ? taskFeedbackData.moodScore : undefined
 			});
 			
 			// Reset feedback form
 			showTaskFeedback = '';
-			taskFeedbackData = { feedback: '', emotionTag: '' };
+			taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
 			
 			// Refresh daily tasks and stats
 			await refreshDailyTasks();
@@ -146,7 +148,7 @@
 
 	function cancelTaskFeedback() {
 		showTaskFeedback = '';
-		taskFeedbackData = { feedback: '', emotionTag: '' };
+		taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
 	}
 </script>
 
@@ -440,6 +442,40 @@
 						<option value="tired">😴 Tired</option>
 						<option value="neutral">😐 Neutral</option>
 					</select>
+				</div>
+				
+				<div>
+					<label class="label" for="mood-score">
+						<span class="label-text">How was your energy/mood level? (optional)</span>
+					</label>
+					<div class="flex items-center gap-3">
+						<span class="text-sm text-base-content/60">Low</span>
+						<div class="flex gap-2">
+							{#each [1, 2, 3, 4, 5] as score}
+								<label class="cursor-pointer">
+									<input 
+										type="radio" 
+										name="mood-score"
+										bind:group={taskFeedbackData.moodScore}
+										value={score} 
+										class="radio radio-primary radio-sm"
+									>
+									<span class="ml-1 text-sm">{score}</span>
+								</label>
+							{/each}
+							<label class="cursor-pointer ml-2">
+								<input 
+									type="radio" 
+									name="mood-score"
+									bind:group={taskFeedbackData.moodScore}
+									value={0} 
+									class="radio radio-sm"
+								>
+								<span class="ml-1 text-sm text-base-content/60">Skip</span>
+							</label>
+						</div>
+						<span class="text-sm text-base-content/60">High</span>
+					</div>
 				</div>
 				
 				<div>

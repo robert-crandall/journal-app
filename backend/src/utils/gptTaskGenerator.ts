@@ -26,6 +26,8 @@ export interface GeneratedTask {
   title: string;
   description: string;
   source: 'primary' | 'connection';
+  focusId?: string;
+  statId?: string;
   linkedStatIds: string[];
   linkedFamilyMemberIds?: string[];
 }
@@ -85,6 +87,8 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         title: parsedResponse.primaryTask.title,
         description: parsedResponse.primaryTask.description,
         source: 'primary',
+        focusId: context.todaysFocus?.id,
+        statId: parsedResponse.primaryTask.linkedStatIds?.[0] || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
         linkedFamilyMemberIds: parsedResponse.primaryTask.linkedFamilyMemberIds,
       },
@@ -92,6 +96,8 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         title: parsedResponse.connectionTask.title,
         description: parsedResponse.connectionTask.description,
         source: 'connection',
+        focusId: context.todaysFocus?.id,
+        statId: parsedResponse.connectionTask.linkedStatIds?.[0] || context.userStats.find(s => s.category === 'connection')?.id || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
         linkedFamilyMemberIds: parsedResponse.connectionTask.linkedFamilyMemberIds,
       },
@@ -158,7 +164,7 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
   // User stats for XP assignment
   prompt += `\n## User Stats (for XP assignment)\n`;
   userStats.forEach(stat => {
-    prompt += `- ${stat.name} (${stat.category}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
+    prompt += `- ${stat.name} (${stat.category}) (id: ${stat.id}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
   });
 
   // Family members
@@ -253,6 +259,8 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
       ? `Today's focus is ${todaysFocus.name}. ${todaysFocus.description} Take 30 minutes to work on something that advances this area of your life.`
       : `Spend 30 minutes working on personal development. Choose something that challenges you and moves you forward.`,
     source: 'primary',
+    focusId: todaysFocus?.id,
+    statId: todaysFocus?.statId || userStats[0]?.id,
     linkedStatIds: todaysFocus?.statId ? [todaysFocus.statId] : userStats.slice(0, 1).map(s => s.id),
   };
 
@@ -260,6 +268,9 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
   const randomFamilyMember = familyMembers.length > 0 
     ? familyMembers[Math.floor(Math.random() * familyMembers.length)]
     : null;
+
+  const connectionStats = userStats.filter(s => s.category === 'connection' || s.category === 'spirit');
+  const connectionStatForTask = connectionStats[0] || userStats[0];
 
   const connectionTask: GeneratedTask = {
     title: randomFamilyMember 
@@ -269,11 +280,9 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
       ? `Spend focused, quality time with ${randomFamilyMember.name}. Put away distractions and be fully present. Ask them about something they're excited about or curious about.`
       : `Take 15 minutes for mindful self-connection. This could be meditation, journaling, or simply sitting quietly and checking in with how you're feeling.`,
     source: 'connection',
-    linkedStatIds: userStats
-      .filter(s => s.category === 'connection')
-      .slice(0, 1)
-      .map(s => s.id)
-      .concat(userStats.filter(s => s.category === 'spirit').slice(0, 1).map(s => s.id)),
+    focusId: todaysFocus?.id,
+    statId: connectionStatForTask?.id,
+    linkedStatIds: connectionStats.slice(0, 2).map(s => s.id),
     linkedFamilyMemberIds: randomFamilyMember ? [randomFamilyMember.id] : undefined,
   };
 
@@ -308,7 +317,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     with: {
       focus: true,
       stat: true,
-      familyMember: true,
     },
   });
   
@@ -380,6 +388,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     const tasksToInsert = [
       {
         userId: user.id,
+        focusId: generatedTasks.primaryTask.focusId,
+        statId: generatedTasks.primaryTask.statId,
         title: generatedTasks.primaryTask.title,
         description: generatedTasks.primaryTask.description,
         taskDate: today,
@@ -391,6 +401,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       },
       {
         userId: user.id,
+        focusId: generatedTasks.connectionTask.focusId,
+        statId: generatedTasks.connectionTask.statId,
         title: generatedTasks.connectionTask.title,
         description: generatedTasks.connectionTask.description,
         taskDate: today,
@@ -414,7 +426,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       with: {
         focus: true,
         stat: true,
-        familyMember: true,
       },
     });
     

@@ -64,7 +64,7 @@ export const tasks = pgTable('tasks', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }),
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
-  familyMemberId: uuid('family_member_id').references(() => users.id, { onDelete: 'set null' }),
+  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   title: text('title').notNull(),
   description: text('description'),
   dueDate: date('due_date'),
@@ -75,9 +75,9 @@ export const tasks = pgTable('tasks', {
   origin: text('origin', { enum: ['user', 'gpt', 'system'] }).notNull().default('user'),
   status: text('status', { enum: ['pending', 'complete', 'skipped', 'failed'] }).notNull().default('pending'),
   completedAt: timestamp('completed_at', { withTimezone: true }),
-  completionSummary: text('completion_summary'),
   feedback: text('feedback'), // User feedback on task completion
   emotionTag: text('emotion_tag'), // User emotion after task completion
+  moodScore: integer('mood_score'), // Optional 1-5 mood/energy rating for A/B testing
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -86,8 +86,11 @@ export const tasks = pgTable('tasks', {
 export const journals = pgTable('journals', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   content: text('content').notNull(),
   gptSummary: text('gpt_summary'),
+  sentimentScore: integer('sentiment_score'), // 1-5 sentiment rating from GPT analysis
+  moodTags: jsonb('mood_tags').$type<string[]>(), // GPT-extracted mood tags (e.g., "calm", "anxious", "energized")
   tags: jsonb('tags').$type<string[]>(), // Keep for backward compatibility
   date: date('date').notNull().defaultNow(),
   // New fields for conversation threading
@@ -160,7 +163,6 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   focuses: many(focuses),
   stats: many(stats),
   tasks: many(tasks, { relationName: "user" }),
-  familyTasks: many(tasks, { relationName: "familyMember" }),
   journals: many(journals),
   tags: many(tags),
   potions: many(potions),
@@ -188,12 +190,10 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
   user: one(users, { fields: [tasks.userId], references: [users.id], relationName: "user" }),
   focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
   stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
-  familyMember: one(users, { fields: [tasks.familyMemberId], references: [users.id], relationName: "familyMember" }),
 }));
 
-export const journalsRelations = relations(journals, ({ one, many }) => ({
+export const journalsRelations = relations(journals, ({ one }) => ({
   user: one(users, { fields: [journals.userId], references: [users.id] }),
-  tagAssociations: many(tagAssociations),
 }));
 
 export const tagsRelations = relations(tags, ({ one, many }) => ({
@@ -263,14 +263,13 @@ export const createTaskSchema = z.object({
   linkedFamilyMemberIds: z.array(z.string().uuid()).optional(),
   focusId: z.string().uuid().optional(),
   statId: z.string().uuid().optional(),
-  familyMemberId: z.string().uuid().optional(),
 });
 
 export const completeTaskSchema = z.object({
   status: z.enum(['complete', 'skipped', 'failed']),
-  completionSummary: z.string().optional(),
   feedback: z.string().optional(),
   emotionTag: z.string().optional(),
+  moodScore: z.number().int().min(1).max(5).optional(), // Optional 1-5 mood rating
 });
 
 export const createJournalSchema = z.object({

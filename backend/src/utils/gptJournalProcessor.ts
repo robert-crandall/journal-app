@@ -33,6 +33,8 @@ export interface GPTJournalSummary {
   summary: string;
   extractedTags: string[];
   suggestedAttributes: Array<{ key: string; value: string }>;
+  sentimentScore: number; // 1-5 sentiment rating
+  moodTags: string[]; // mood tags like "calm", "anxious", "energized"
 }
 
 /**
@@ -163,7 +165,9 @@ function buildSummaryPrompt(context: JournalProcessingContext): string {
   prompt += `\nTASK:\n`;
   prompt += `1. Write a cohesive summary in ${user.name}'s voice that captures the key insights and experiences\n`;
   prompt += `2. Extract 2-5 relevant tags (prefer existing tags when appropriate)\n`;
-  prompt += `3. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes)\n\n`;
+  prompt += `3. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes)\n`;
+  prompt += `4. Analyze overall emotional sentiment on a scale of 1-5 (1=very negative, 3=neutral, 5=very positive)\n`;
+  prompt += `5. Extract 1-3 mood tags that capture the emotional tone (e.g., "calm", "anxious", "energized", "content", "frustrated", "excited", "peaceful", "stressed")\n\n`;
   
   prompt += `RESPONSE FORMAT (JSON):\n`;
   prompt += `{\n`;
@@ -172,7 +176,9 @@ function buildSummaryPrompt(context: JournalProcessingContext): string {
   prompt += `  "suggestedAttributes": [\n`;
   prompt += `    {"key": "category", "value": "specific insight"},\n`;
   prompt += `    {"key": "preference", "value": "discovered preference"}\n`;
-  prompt += `  ]\n`;
+  prompt += `  ],\n`;
+  prompt += `  "sentimentScore": 4,\n`;
+  prompt += `  "moodTags": ["energized", "content"]\n`;
   prompt += `}\n\n`;
   
   prompt += `Return only the JSON response:`;
@@ -197,6 +203,8 @@ function parseGPTSummaryResponse(response: string, context: JournalProcessingCon
       summary: parsed.summary || 'Summary could not be generated.',
       extractedTags: Array.isArray(parsed.extractedTags) ? parsed.extractedTags : [],
       suggestedAttributes: Array.isArray(parsed.suggestedAttributes) ? parsed.suggestedAttributes : [],
+      sentimentScore: typeof parsed.sentimentScore === 'number' ? Math.max(1, Math.min(5, parsed.sentimentScore)) : 3,
+      moodTags: Array.isArray(parsed.moodTags) ? parsed.moodTags : [],
     };
   } catch (error) {
     console.error('Error parsing GPT summary response:', error);
@@ -239,5 +247,7 @@ function generateMockSummary(context: JournalProcessingContext): GPTJournalSumma
     summary: `Today I reflected on ${userContent.slice(0, 200)}...`,
     extractedTags: ['reflection', 'personal-growth'],
     suggestedAttributes: [],
+    sentimentScore: 3, // Neutral sentiment for mock
+    moodTags: ['reflective'], // Default mood tag for mock
   };
 }
