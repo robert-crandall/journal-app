@@ -1,8 +1,9 @@
 import { db } from '../db';
-import { tasks, stats, focuses, users } from '../db/schema';
+import { tasks, stats, focuses, users, preferences } from '../db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { type User, type Focus, type Stat, type Task } from '../db/schema';
 import OpenAI from 'openai';
+import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -18,6 +19,7 @@ export interface TaskGenerationContext {
   familyMembers: User[];
   recentTasks?: Task[];
   recentFeedback?: string[];
+  environmentalContext?: EnvironmentalContext;
 }
 
 export interface GeneratedTask {
@@ -105,9 +107,37 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
  * Build a comprehensive prompt for GPT task generation
  */
 function buildGPTPrompt(context: TaskGenerationContext): string {
-  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback } = context;
+  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback, environmentalContext } = context;
   
   let prompt = `Generate two personalized daily tasks for ${user.name}:\n\n`;
+
+  // Environmental context for better task relevance
+  if (environmentalContext) {
+    prompt += `## Environmental Context\n`;
+    prompt += `Day: ${environmentalContext.dayOfWeek}\n`;
+    prompt += `Month: ${environmentalContext.month} (${environmentalContext.season})\n`;
+    
+    if (environmentalContext.locationDescription) {
+      prompt += `Location: ${environmentalContext.locationDescription}\n`;
+    }
+    
+    if (environmentalContext.weather) {
+      prompt += `Weather: ${environmentalContext.weather.summary}\n`;
+    }
+    
+    // Add contextual hints based on environment
+    if (environmentalContext.dayOfWeek === 'Saturday' || environmentalContext.dayOfWeek === 'Sunday') {
+      prompt += `Note: It's a weekend, so the user likely has more free time and flexibility.\n`;
+    }
+    
+    if (environmentalContext.weather?.condition.includes('sunny') || environmentalContext.weather?.condition.includes('clear')) {
+      prompt += `Note: Good weather for outdoor activities.\n`;
+    } else if (environmentalContext.weather?.condition.includes('rain') || environmentalContext.weather?.condition.includes('storm')) {
+      prompt += `Note: Indoor activities may be more suitable today.\n`;
+    }
+    
+    prompt += `\n`;
+  }
 
   // User context
   prompt += `## User Profile\n`;
@@ -290,7 +320,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
   // Otherwise, generate new tasks
   try {
     // Get user and context
-    const [user, userFocuses, userStats, familyMembers, recentTasks] = await Promise.all([
+    const [user, userFocuses, userStats, familyMembers, recentTasks, userPreferences] = await Promise.all([
       db.query.users.findFirst({
         where: eq(users.id, userId),
       }),
@@ -309,11 +339,20 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         orderBy: [desc(tasks.createdAt)],
         limit: 10,
       }),
+      db.query.preferences.findFirst({
+        where: eq(preferences.userId, userId),
+      }),
     ]);
 
     if (!user) {
       throw new Error('User not found');
     }
+    
+    // Get environmental context
+    const environmentalContext = await getEnvironmentalContext(
+      userPreferences?.locationDescription || undefined,
+      userPreferences?.zipCode || undefined
+    );
     
     // Get today's focus
     const todaysFocus = getTodaysFocus(userFocuses);
@@ -332,6 +371,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       familyMembers,
       recentTasks,
       recentFeedback,
+      environmentalContext,
     };
     
     const generatedTasks = await generateDailyTasks(context);

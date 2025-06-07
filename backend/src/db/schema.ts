@@ -144,9 +144,11 @@ export const sessions = pgTable('sessions', {
 export const preferences = pgTable('preferences', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull().unique(),
   theme: text('theme').notNull().default('light'),
+  locationDescription: text('location_description'), // e.g., "Seattle area"
+  zipCode: text('zip_code'), // for weather API calls
   // Future preferences can be added as new columns:
   // language: text('language').default('en'),
-  // notifications: boolean('notifications').default(true),
+  // notifications: boolean('notifications').default(true'),
   // timezone: text('timezone'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
