@@ -51,4 +51,4 @@ Apply these guidelines when using daisyUI 5 components in HTML and Svelte files.
 - Ensure keyboard navigation works with components
 - Test with screen readers
 
-Reference the daisyUI documentation file for complete component and class information.
+For complete component reference and detailed API information, see [daisyUI documentation](../references/daisyui-llms.md).

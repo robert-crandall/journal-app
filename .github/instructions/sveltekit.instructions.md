@@ -45,4 +45,4 @@ Apply these guidelines when working with SvelteKit components and TypeScript fil
 - Use `bind:this` sparingly
 - Lazy load heavy components when possible
 
-Reference the SvelteKit documentation file for detailed API information.
+For complete SvelteKit API reference and detailed documentation, see [SvelteKit documentation](../references/sveltekit-llms.md).

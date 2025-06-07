@@ -44,4 +44,4 @@ Apply these guidelines when working with HTML, Svelte components, and CSS files.
 - Follow daisyUI naming conventions for semantic components
 - Use theme variables for consistent color schemes
 
-Reference the Tailwind CSS 4 documentation file for detailed utility information.
+For complete Tailwind CSS utility reference and detailed documentation, see [Tailwind CSS documentation](../references/tailwindcss-llms.md) and [Tailwind CSS 4 documentation](../references/tailwindcss4-llms.md).

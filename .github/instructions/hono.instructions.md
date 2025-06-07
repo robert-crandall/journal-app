@@ -50,4 +50,4 @@ Apply these guidelines when working with Hono backend TypeScript files.
 - Optimize database queries
 - Use compression middleware
 
-Reference the Hono documentation file for detailed API information.
+For complete Hono API reference and detailed documentation, see [Hono documentation](../references/hono-llms.md).
