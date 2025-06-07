@@ -227,16 +227,6 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}`, {
 			method: 'DELETE'
 		});
-	},
-	
-	async getTemplates() {
-		return apiRequest('/stats/templates');
-	},
-	
-	async applyTemplate(templateId: string) {
-		return apiRequest(`/stats/templates/${templateId}/apply`, {
-			method: 'POST'
-		});
 	}
 };
 

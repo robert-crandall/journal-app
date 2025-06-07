@@ -3,11 +3,9 @@
 	import { statsApi } from '$lib/api';
 
 	let stats: any[] = [];
-	let templates: any[] = [];
 	let loading = true;
 	let error = '';
 	let showCreateForm = false;
-	let showTemplateSelector = false;
 	let editingStat: any = null;
 
 	// Form state
@@ -38,7 +36,6 @@
 
 	onMount(async () => {
 		await loadStats();
-		await loadTemplates();
 	});
 
 	async function loadStats() {
@@ -49,14 +46,6 @@
 			error = err.message;
 		} finally {
 			loading = false;
-		}
-	}
-
-	async function loadTemplates() {
-		try {
-			templates = await statsApi.getTemplates();
-		} catch (err: any) {
-			console.error('Failed to load templates:', err);
 		}
 	}
 
@@ -128,16 +117,6 @@
 		}
 	}
 
-	async function applyTemplate(templateId: string) {
-		try {
-			await statsApi.applyTemplate(templateId);
-			showTemplateSelector = false;
-			await loadStats();
-		} catch (err: any) {
-			error = err.message;
-		}
-	}
-
 	function getProgressWidth(value: number) {
 		return Math.min(100, Math.max(0, (value / 99) * 100));
 	}
@@ -166,12 +145,6 @@
 		<h1 class="text-3xl font-bold">Character Stats</h1>
 		<div class="flex gap-2">
 			<button 
-				class="btn btn-outline"
-				on:click={() => showTemplateSelector = true}
-			>
-				📋 Apply Template
-			</button>
-			<button 
 				class="btn btn-primary"
 				on:click={() => showCreateForm = true}
 			>
@@ -196,16 +169,10 @@
 			<p class="text-lg text-gray-500 mb-4">No stats yet</p>
 			<div class="flex justify-center gap-4">
 				<button 
-					class="btn btn-outline"
-					on:click={() => showTemplateSelector = true}
-				>
-					Start with a Template
-				</button>
-				<button 
 					class="btn btn-primary"
 					on:click={() => showCreateForm = true}
 				>
-					Create Custom Stat
+					Create Your First Stat
 				</button>
 			</div>
 		</div>
@@ -318,37 +285,6 @@
 		{/each}
 	{/if}
 </div>
-
-<!-- Template Selector Modal -->
-{#if showTemplateSelector}
-	<div class="modal modal-open">
-		<div class="modal-box max-w-4xl">
-			<h3 class="font-bold text-lg mb-4">Choose a Character Build</h3>
-			<p class="mb-6 text-gray-600">Select a template to quickly set up stats that work well together:</p>
-			
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-				{#each templates as template}
-					<div class="card bg-base-100 border border-base-300 hover:border-primary cursor-pointer transition-colors"
-						 on:click={() => applyTemplate(template.id)}>
-						<div class="card-body">
-							<h4 class="card-title text-lg">{template.name}</h4>
-							<p class="text-sm text-gray-600 mb-4">{template.description}</p>
-							<div class="flex flex-wrap gap-1">
-								{#each template.recommendedStats as statName}
-									<span class="badge badge-outline badge-sm">{statName}</span>
-								{/each}
-							</div>
-						</div>
-					</div>
-				{/each}
-			</div>
-
-			<div class="modal-action">
-				<button class="btn" on:click={() => showTemplateSelector = false}>Cancel</button>
-			</div>
-		</div>
-	</div>
-{/if}
 
 <!-- Create/Edit Modal -->
 {#if showCreateForm}

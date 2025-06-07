@@ -4,7 +4,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, stats, statTemplates, loginSchema, registerSchema, type User } from '../db/schema';
+import { users, stats, loginSchema, registerSchema, type User } from '../db/schema';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
