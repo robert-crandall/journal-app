@@ -26,12 +26,12 @@
 	];
 
 	const categoryOptions = [
-		{ value: 'body', label: 'Body', description: 'Physical health and vitality' },
-		{ value: 'mind', label: 'Mind', description: 'Mental clarity and wisdom' },
-		{ value: 'connection', label: 'Connection', description: 'Social and emotional bonds' },
-		{ value: 'shadow', label: 'Shadow', description: 'Hidden aspects and growth' },
-		{ value: 'spirit', label: 'Spirit', description: 'Purpose and transcendence' },
-		{ value: 'legacy', label: 'Legacy', description: 'Long-term impact and contribution' }
+		{ value: 'body', label: 'Body', description: 'Physical health, energy, and resilience' },
+		{ value: 'mind', label: 'Mind', description: 'Mental clarity, wisdom, and intellectual growth' },
+		{ value: 'connection', label: 'Connection', description: 'Social bonds, emotional presence, and relationships' },
+		{ value: 'shadow', label: 'Shadow', description: 'Patterns that drain or sabotage - track for healing' },
+		{ value: 'spirit', label: 'Spirit', description: 'Inner alignment, intuition, and existential clarity' },
+		{ value: 'legacy', label: 'Legacy', description: 'Impact on others and long-term contributions' }
 	];
 
 	onMount(async () => {
@@ -187,11 +187,11 @@
 					{:else if category === 'connection'}
 						💝 Connection
 					{:else if category === 'shadow'}
-						🌙 Shadow
+						�️ Shadow
 					{:else if category === 'spirit'}
-						✨ Spirit
+						🌟 Spirit
 					{:else if category === 'legacy'}
-						🏛️ Legacy
+						� Legacy
 					{:else}
 						📊 {category}
 					{/if}
@@ -199,14 +199,17 @@
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{#each categoryStats as stat}
-						<div class="card bg-base-100 shadow-xl border border-base-300 {!stat.enabled ? 'opacity-50' : ''}">
+						<div class="card bg-base-100 shadow-xl border border-base-300 {!stat.enabled ? 'opacity-60 bg-gray-50' : ''}">
 							<div class="card-body">
+								{#if !stat.enabled}
+									<div class="badge badge-ghost badge-sm mb-2">Disabled</div>
+								{/if}
 								<div class="flex justify-between items-start mb-4">
 									<div class="flex items-center gap-2">
 										{#if stat.emoji}
-											<span class="text-2xl">{stat.emoji}</span>
+											<span class="text-2xl {!stat.enabled ? 'grayscale' : ''}">{stat.emoji}</span>
 										{/if}
-										<h2 class="card-title text-lg">{stat.name}</h2>
+										<h2 class="card-title text-lg {!stat.enabled ? 'text-gray-500' : ''}">{stat.name}</h2>
 										{#if stat.systemDefault}
 											<span class="badge badge-xs badge-primary" title="System Default">SYS</span>
 										{/if}
@@ -220,7 +223,7 @@
 											<li><button on:click={() => startEdit(stat)}>Edit</button></li>
 											<li>
 												<button on:click={() => toggleStatEnabled(stat)}>
-													{stat.enabled ? 'Disable' : 'Enable'}
+													{stat.enabled ? 'Disable' : 'Re-enable'} Stat
 												</button>
 											</li>
 											<li>
@@ -237,17 +240,17 @@
 								</div>
 
 								{#if stat.description}
-									<p class="text-sm text-gray-600 mb-4">{stat.description}</p>
+									<p class="text-sm {stat.enabled ? 'text-gray-600' : 'text-gray-400'} mb-4">{stat.description}</p>
 								{/if}
 
 								<div class="mb-4">
 									<div class="flex justify-between items-center mb-2">
-										<span class="text-sm font-medium">Level {stat.value}</span>
+										<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : ''}">Level {stat.value}</span>
 										<span class="text-xs text-gray-500">{stat.value}/99</span>
 									</div>
 									<div class="w-full bg-gray-200 rounded-full h-3">
 										<div 
-											class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300"
+											class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
 											style="width: {getProgressWidth(stat.value)}%"
 										></div>
 									</div>
@@ -274,6 +277,15 @@
 											on:click={() => startEdit(stat)}
 										>
 											Edit
+										</button>
+									</div>
+								{:else}
+									<div class="card-actions justify-center">
+										<button 
+											class="btn btn-sm btn-outline btn-primary"
+											on:click={() => toggleStatEnabled(stat)}
+										>
+											Re-enable Stat
 										</button>
 									</div>
 								{/if}

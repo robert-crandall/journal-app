@@ -17,7 +17,7 @@ app.get('/', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   
   const userStats = await db.select().from(stats)
-    .where(and(eq(stats.userId, user.id), eq(stats.enabled, true)))
+    .where(eq(stats.userId, user.id))
     .orderBy(stats.name);
   
   return c.json(userStats);

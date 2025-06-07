@@ -33,7 +33,25 @@ async function populateDefaultStatsForUser(userId: string) {
     'Charisma': { category: 'connection', emoji: '✨', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
     'Intimacy': { category: 'connection', emoji: '💝', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
     'Courage': { category: 'connection', emoji: '🦁', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
-    'Craft': { category: 'connection', emoji: '🔨', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' }
+    'Craft': { category: 'connection', emoji: '🔨', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' },
+    
+    // SHADOW
+    'Avoidance': { category: 'shadow', emoji: '🌫️', color: 'slate', description: 'Tendency to withdraw, procrastinate, or numb out when overwhelmed' },
+    'Reactivity': { category: 'shadow', emoji: '⚡', color: 'red', description: 'Emotional impulsiveness or defensiveness in response to stress' },
+    'Burnout': { category: 'shadow', emoji: '🔥', color: 'orange', description: 'Energy depletion due to overcommitment or misaligned effort' },
+    'Disconnection': { category: 'shadow', emoji: '🔌', color: 'gray', description: 'Feeling emotionally cut off from yourself or others' },
+    
+    // SPIRIT
+    'Alignment': { category: 'spirit', emoji: '🎯', color: 'violet', description: 'Living in accordance with personal values and truth' },
+    'Stillness': { category: 'spirit', emoji: '🧘', color: 'blue', description: 'Capacity for presence, meditation, and quiet awareness' },
+    'Faith': { category: 'spirit', emoji: '🙏', color: 'cyan', description: 'Trust in process, purpose, or something greater than oneself' },
+    'Meaning': { category: 'spirit', emoji: '🌟', color: 'yellow', description: 'Clarity about your "why," purpose, or role in life\'s story' },
+    
+    // LEGACY
+    'Mentorship': { category: 'legacy', emoji: '👥', color: 'green', description: 'Efforts to guide, teach, or support others (especially children)' },
+    'Stewardship': { category: 'legacy', emoji: '🌱', color: 'emerald', description: 'Care for your environment, projects, or community over time' },
+    'Creatorship': { category: 'legacy', emoji: '🛠️', color: 'purple', description: 'Building things that outlive you (music, code, systems, rituals)' },
+    'Lineage': { category: 'legacy', emoji: '🌳', color: 'lime', description: 'Honoring ancestry, traditions, or shaping generational values' }
   };
   
   // Create ALL stats for the new user (not just from a template)
