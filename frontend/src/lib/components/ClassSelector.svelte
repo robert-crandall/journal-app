@@ -148,7 +148,7 @@
 	{#if className && className !== '__custom__'}
 		<div class="form-control">
 			<label class="label" for="class-description">
-				<span class="label-text">Class backstory or description</span>
+				<span class="label-text">Backstory</span>
 				<span class="label-text-alt">Optional</span>
 			</label>
 			<textarea
