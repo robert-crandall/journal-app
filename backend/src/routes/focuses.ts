@@ -26,7 +26,7 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
   const userFocuses = await db.query.focuses.findMany({
     where: eq(focuses.userId, user.id),
     with: {
-      stats: true,
+      stat: true,
     },
   });
   
@@ -36,12 +36,17 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create focus
 focusesRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, description, gptContext } = c.req.valid('json');
+  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [focus] = await db.insert(focuses).values({
     userId: user.id,
     name,
     description,
+    icon,
+    color,
+    dayOfWeek,
+    sampleActivities,
+    statId,
     gptContext,
   }).returning();
   
@@ -56,7 +61,7 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const focus = await db.query.focuses.findFirst({
     where: and(eq(focuses.id, focusId), eq(focuses.userId, user.id)),
     with: {
-      stats: true,
+      stat: true,
     },
   });
   
@@ -71,12 +76,17 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 focusesRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
-  const { name, description, gptContext } = c.req.valid('json');
+  const { name, description, icon, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [updatedFocus] = await db.update(focuses)
     .set({
       name,
       description,
+      icon,
+      color,
+      dayOfWeek,
+      sampleActivities,
+      statId,
       gptContext,
       updatedAt: new Date(),
     })
@@ -122,10 +132,15 @@ focusesRouter.post('/:id/stats', jwtMiddleware, userMiddleware, zValidator('json
   }
   
   const [stat] = await db.insert(stats).values({
-    focusId,
+    userId: user.id,
     name,
     description,
   }).returning();
+  
+  // Link the focus to this stat
+  await db.update(focuses)
+    .set({ statId: stat.id })
+    .where(and(eq(focuses.id, focusId), eq(focuses.userId, user.id)));
   
   return c.json({ stat });
 });
@@ -135,20 +150,146 @@ focusesRouter.get('/:id/stats', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
   
-  // Verify focus exists and belongs to user
-  const focus = await db.query.focuses.findFirst({
+  // Get the focus with its associated stat
+  const focusWithStat = await db.query.focuses.findFirst({
     where: and(eq(focuses.id, focusId), eq(focuses.userId, user.id)),
+    with: {
+      stat: true,
+    },
   });
   
-  if (!focus) {
+  if (!focusWithStat) {
     return c.json({ error: 'Focus not found' }, 404);
   }
   
-  const focusStats = await db.query.stats.findMany({
-    where: eq(stats.focusId, focusId),
-  });
+  return c.json({ stats: focusWithStat.stat ? [focusWithStat.stat] : [] });
+});
+
+// Restore default focuses endpoint
+focusesRouter.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user') as User;
   
-  return c.json({ stats: focusStats });
+  try {
+    // Get the user's stats to find the IDs we need to reference
+    const userStats = await db.query.stats.findMany({
+      where: eq(stats.userId, user.id)
+    });
+    
+    // Create a map for easy stat ID lookup
+    const statIdMap: Record<string, string> = {};
+    userStats.forEach(stat => {
+      statIdMap[stat.name] = stat.id;
+    });
+
+    // Define default focus configurations
+    const focusConfigs = [
+      {
+        name: 'Anchor',
+        description: 'Begin the week grounded in movement and emotional clarity',
+        icon: 'anchor',
+        color: 'blue',
+        dayOfWeek: 'Monday' as const,
+        statName: 'Vitality',
+        sampleActivities: ['Morning walk or run', 'Breathing exercises', 'Stretching routine', 'Cold shower']
+      },
+      {
+        name: 'Creative Fire',
+        description: 'Build or express something uniquely yours',
+        icon: 'paintbrush',
+        color: 'orange',
+        dayOfWeek: 'Tuesday' as const,
+        statName: 'Intellect',
+        sampleActivities: ['Writing or journaling', 'Art or music creation', 'Problem-solving project', 'Learning new skill']
+      },
+      {
+        name: 'Reset',
+        description: 'Get into nature, unplug, breathe — let the nervous system soften',
+        icon: 'wind',
+        color: 'green',
+        dayOfWeek: 'Wednesday' as const,
+        statName: 'Stillness',
+        sampleActivities: ['Nature walk', 'Meditation', 'Digital detox time', 'Gentle yoga']
+      },
+      {
+        name: 'Bridge',
+        description: 'Deepen a connection with someone you care about (or with yourself)',
+        icon: 'handshake',
+        color: 'purple',
+        dayOfWeek: 'Thursday' as const,
+        statName: 'Presence',
+        sampleActivities: ['Quality time with loved ones', 'Deep conversation', 'Active listening practice', 'Self-reflection']
+      },
+      {
+        name: 'Power',
+        description: 'Channel energy into physical intensity and embodied release',
+        icon: 'bolt',
+        color: 'red',
+        dayOfWeek: 'Friday' as const,
+        statName: 'Strength',
+        sampleActivities: ['Intense workout', 'Martial arts', 'Heavy lifting', 'Dance or movement']
+      },
+      {
+        name: 'Forge',
+        description: 'Fix, tinker, or build something real with your hands (and maybe your kids)',
+        icon: 'hammer',
+        color: 'amber',
+        dayOfWeek: 'Saturday' as const,
+        statName: 'Stewardship',
+        sampleActivities: ['Home improvement', 'Crafting project', 'Gardening', 'Repair something broken']
+      },
+      {
+        name: 'Mirror',
+        description: 'Reflect, journal, visualize — prepare emotionally for what\'s next',
+        icon: 'mirror',
+        color: 'indigo',
+        dayOfWeek: 'Sunday' as const,
+        statName: 'Clarity',
+        sampleActivities: ['Weekly review', 'Goal setting', 'Visualization', 'Journaling session']
+      }
+    ];
+
+    // Get existing focuses to avoid duplicates (check by name and dayOfWeek combination)
+    const existingFocuses = await db.query.focuses.findMany({
+      where: eq(focuses.userId, user.id)
+    });
+    
+    const existingKeys = new Set(
+      existingFocuses.map(focus => `${focus.name}-${focus.dayOfWeek}`)
+    );
+    
+    let createdCount = 0;
+
+    // Create missing default focuses
+    for (const focusConfig of focusConfigs) {
+      const key = `${focusConfig.name}-${focusConfig.dayOfWeek}`;
+      
+      if (!existingKeys.has(key)) {
+        try {
+          const statId = statIdMap[focusConfig.statName];
+          
+          await db.insert(focuses).values({
+            userId: user.id,
+            name: focusConfig.name,
+            description: focusConfig.description,
+            icon: focusConfig.icon,
+            color: focusConfig.color,
+            dayOfWeek: focusConfig.dayOfWeek,
+            statId: statId || null, // Use null if stat not found
+            sampleActivities: focusConfig.sampleActivities
+          });
+          createdCount++;
+        } catch (error) {
+          console.error(`Failed to create default focus ${focusConfig.name} for user ${user.id}:`, error);
+        }
+      }
+    }
+    
+    return c.json({ message: `Restored ${createdCount} default focuses`, createdCount });
+    
+  } catch (error) {
+    console.error('Failed to restore default focuses:', error);
+    return c.json({ error: 'Failed to restore default focuses' }, 500);
+  }
 });
 
 export default focusesRouter;

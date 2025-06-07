@@ -1,0 +1,1 @@
+DROP TABLE "stat_templates" CASCADE;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { statsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
 
 	let stats: any[] = [];
 	let loading = true;
@@ -12,8 +13,10 @@
 	let formData = {
 		name: '',
 		description: '',
-		emoji: '',
+		icon: '',
 		color: 'blue',
+		category: 'body' as 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy',
+		enabled: true,
 		value: 0
 	};
 
@@ -22,6 +25,53 @@
 		'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple',
 		'fuchsia', 'pink', 'rose'
 	];
+
+	const categoryOptions = [
+		{ value: 'body', label: 'Body', description: 'Physical health, energy, and resilience' },
+		{ value: 'mind', label: 'Mind', description: 'Mental clarity, wisdom, and intellectual growth' },
+		{ value: 'connection', label: 'Connection', description: 'Social bonds, emotional presence, and relationships' },
+		{ value: 'shadow', label: 'Shadow', description: 'Patterns that drain or sabotage - track for healing' },
+		{ value: 'spirit', label: 'Spirit', description: 'Inner alignment, intuition, and existential clarity' },
+		{ value: 'legacy', label: 'Legacy', description: 'Impact on others and long-term contributions' }
+	];
+
+	// Available Lucide icons for stats
+	const availableIcons = [
+		'dumbbell', 'move', 'heart-pulse', 'battery', 'brain', 'book-open', 'check-circle', 'target',
+		'megaphone', 'handshake', 'shield', 'hammer', 'radar', 'arrow-left', 'zap', 'flame', 'ban',
+		'compass', 'moon', 'infinity', 'lightbulb', 'users', 'tree-deciduous', 'archive'
+	];
+
+	// Icon display function
+	function getIconComponent(iconName: string) {
+		const iconMap: Record<string, any> = {
+			'dumbbell': icons.Dumbbell,
+			'move': icons.Move,
+			'heart-pulse': icons.HeartPulse,
+			'battery': icons.Battery,
+			'brain': icons.Brain,
+			'book-open': icons.BookOpen,
+			'check-circle': icons.CheckCircle,
+			'target': icons.Target,
+			'megaphone': icons.Megaphone,
+			'handshake': icons.Handshake,
+			'shield': icons.Shield,
+			'hammer': icons.Hammer,
+			'radar': icons.Radar,
+			'arrow-left': icons.ArrowLeft,
+			'zap': icons.Zap,
+			'flame': icons.Flame,
+			'ban': icons.Ban,
+			'compass': icons.Compass,
+			'moon': icons.Moon,
+			'infinity': icons.Infinity,
+			'lightbulb': icons.Lightbulb,
+			'users': icons.Users,
+			'tree-deciduous': icons.TreeDeciduous,
+			'archive': icons.Archive
+		};
+		return iconMap[iconName] || icons.Circle;
+	}
 
 	onMount(async () => {
 		await loadStats();
@@ -42,8 +92,10 @@
 		formData = {
 			name: '',
 			description: '',
-			emoji: '',
+			icon: '',
 			color: 'blue',
+			category: 'body',
+			enabled: true,
 			value: 0
 		};
 		showCreateForm = false;
@@ -79,7 +131,21 @@
 		}
 	}
 
-	async function deleteStat(statId: string) {
+	async function toggleStatEnabled(stat: any) {
+		try {
+			await statsApi.update(stat.id, { enabled: !stat.enabled });
+			await loadStats();
+		} catch (err: any) {
+			error = err.message;
+		}
+	}
+
+	async function deleteStat(statId: string, isSystemDefault: boolean) {
+		if (isSystemDefault) {
+			error = 'Cannot delete system default stats. You can disable them instead.';
+			return;
+		}
+		
 		if (confirm('Are you sure you want to delete this stat?')) {
 			try {
 				await statsApi.delete(statId);
@@ -90,9 +156,38 @@
 		}
 	}
 
+	async function restoreDefaults() {
+		if (!confirm('This will add any missing default stats to your collection. Are you sure?')) {
+			return;
+		}
+		
+		try {
+			const result = await statsApi.restoreDefaults();
+			await loadStats();
+			error = '';
+			alert(`Successfully restored ${result.createdCount} default stats!`);
+		} catch (err: any) {
+			error = err.message;
+		}
+	}
+
 	function getProgressWidth(value: number) {
 		return Math.min(100, Math.max(0, (value / 99) * 100));
 	}
+
+	function groupStatsByCategory(stats: any[]) {
+		const grouped: Record<string, any[]> = {};
+		stats.forEach(stat => {
+			const category = stat.category || 'uncategorized';
+			if (!grouped[category]) {
+				grouped[category] = [];
+			}
+			grouped[category].push(stat);
+		});
+		return grouped;
+	}
+
+	$: groupedStats = groupStatsByCategory(stats);
 </script>
 
 <svelte:head>
@@ -101,18 +196,27 @@
 
 <div class="container mx-auto p-6">
 	<div class="flex justify-between items-center mb-6">
-		<h1 class="text-3xl font-bold">Stats</h1>
-		<button 
-			class="btn btn-primary"
-			on:click={() => showCreateForm = true}
-		>
-			+ New Stat
-		</button>
+		<h1 class="text-3xl font-bold">Character Stats</h1>
+		<div class="flex gap-2">
+			<button 
+				class="btn btn-outline"
+				on:click={restoreDefaults}
+			>
+				🔄 Restore Defaults
+			</button>
+			<button 
+				class="btn btn-primary"
+				on:click={() => showCreateForm = true}
+			>
+				+ New Stat
+			</button>
+		</div>
 	</div>
 
 	{#if error}
 		<div class="alert alert-error mb-4">
-			{error}
+			<span>{error}</span>
+			<button class="btn btn-sm btn-ghost" on:click={() => error = ''}>✕</button>
 		</div>
 	{/if}
 
@@ -123,81 +227,147 @@
 	{:else if stats.length === 0}
 		<div class="text-center py-12">
 			<p class="text-lg text-gray-500 mb-4">No stats yet</p>
-			<button 
-				class="btn btn-primary"
-				on:click={() => showCreateForm = true}
-			>
-				Create your first stat
-			</button>
+			<div class="flex justify-center gap-4">
+				<button 
+					class="btn btn-primary"
+					on:click={() => showCreateForm = true}
+				>
+					Create Your First Stat
+				</button>
+			</div>
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-			{#each stats as stat}
-				<div class="card bg-base-100 shadow-xl border border-base-300">
-					<div class="card-body">
-						<div class="flex justify-between items-start mb-4">
-							<div class="flex items-center gap-2">
-								{#if stat.emoji}
-									<span class="text-2xl">{stat.emoji}</span>
+		{#each Object.entries(groupedStats) as [category, categoryStats]}
+			<div class="mb-8">
+				<h2 class="text-xl font-semibold mb-4 capitalize flex items-center gap-2">
+					{#if category === 'body'}
+						💪 Body
+					{:else if category === 'mind'}
+						🧠 Mind
+					{:else if category === 'connection'}
+						💝 Connection
+					{:else if category === 'shadow'}
+						�️ Shadow
+					{:else if category === 'spirit'}
+						🌟 Spirit
+					{:else if category === 'legacy'}
+						� Legacy
+					{:else}
+						📊 {category}
+					{/if}
+				</h2>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{#each categoryStats as stat}
+						<div class="card bg-base-100 shadow-xl border border-base-300 {!stat.enabled ? 'opacity-60 bg-gray-50' : ''}">
+							<div class="card-body">
+								{#if !stat.enabled}
+									<div class="badge badge-ghost badge-sm mb-2">Disabled</div>
 								{/if}
-								<h2 class="card-title text-lg">{stat.name}</h2>
-							</div>
-							<div class="dropdown dropdown-end">
-								<div tabindex="0" role="button" class="btn btn-ghost btn-sm">
-									⋮
+								<div class="flex justify-between items-start mb-4">
+									<div class="flex items-center gap-2">
+										{#if stat.icon}
+											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+												<svelte:component this={getIconComponent(stat.icon)} size={24} />
+											</div>
+										{:else}
+											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+												<svelte:component this={icons.Circle} size={24} />
+											</div>
+										{/if}
+										<h2 class="card-title text-lg {!stat.enabled ? 'text-gray-500' : ''}">{stat.name}</h2>
+										{#if stat.systemDefault}
+											<span class="badge badge-xs badge-primary" title="System Default">SYS</span>
+										{/if}
+									</div>
+									<div class="dropdown dropdown-end">
+										<div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+											⋮
+										</div>
+										<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+										<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow">
+											<li><button on:click={() => startEdit(stat)}>Edit</button></li>
+											<li>
+												<button on:click={() => toggleStatEnabled(stat)}>
+													{stat.enabled ? 'Disable' : 'Re-enable'} Stat
+												</button>
+											</li>
+											<li>
+												<button 
+													on:click={() => deleteStat(stat.id, stat.systemDefault)} 
+													class="text-error {stat.systemDefault ? 'opacity-50' : ''}"
+													disabled={stat.systemDefault}
+												>
+													Delete {stat.systemDefault ? '(Protected)' : ''}
+												</button>
+											</li>
+										</ul>
+									</div>
 								</div>
-								<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-								<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
-									<li><button on:click={() => startEdit(stat)}>Edit</button></li>
-									<li><button on:click={() => deleteStat(stat.id)} class="text-error">Delete</button></li>
-								</ul>
+
+								{#if stat.description}
+									<p class="text-sm {stat.enabled ? 'text-gray-600' : 'text-gray-400'} mb-4">{stat.description}</p>
+								{/if}
+
+								<div class="mb-4">
+									<div class="flex justify-between items-center mb-2">
+										<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : ''}">Level {stat.value}</span>
+										<span class="text-xs text-gray-500">{stat.value}/99</span>
+									</div>
+									<div class="w-full bg-gray-200 rounded-full h-3">
+										<div 
+											class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
+											style="width: {getProgressWidth(stat.value)}%"
+										></div>
+									</div>
+								</div>
+
+								{#if stat.enabled}
+									<div class="card-actions justify-between">
+										<div class="flex gap-1">
+											<button 
+												class="btn btn-xs btn-outline"
+												on:click={() => incrementStat(stat.id, 1)}
+											>
+												+1
+											</button>
+											<button 
+												class="btn btn-xs btn-outline"
+												on:click={() => incrementStat(stat.id, 5)}
+											>
+												+5
+											</button>
+										</div>
+										<button 
+											class="btn btn-xs btn-outline btn-{stat.color}"
+											on:click={() => startEdit(stat)}
+										>
+											Edit
+										</button>
+									</div>
+								{:else}
+									<div class="card-actions justify-center">
+										<button 
+											class="btn btn-sm btn-outline btn-primary"
+											on:click={() => toggleStatEnabled(stat)}
+										>
+											Re-enable Stat
+										</button>
+									</div>
+								{/if}
 							</div>
 						</div>
-
-						{#if stat.description}
-							<p class="text-sm text-gray-600 mb-4">{stat.description}</p>
-						{/if}
-
-						<div class="mb-4">
-							<div class="flex justify-between items-center mb-2">
-								<span class="text-sm font-medium">Level {stat.value}</span>
-								<span class="text-xs text-gray-500">{stat.value}/99</span>
-							</div>
-							<div class="w-full bg-gray-200 rounded-full h-3">
-								<div 
-									class="bg-{stat.color}-500 h-3 rounded-full transition-all duration-300"
-									style="width: {getProgressWidth(stat.value)}%"
-								></div>
-							</div>
-						</div>
-
-						<div class="card-actions justify-between">
-							<div class="flex gap-1">
-								<button 
-									class="btn btn-xs btn-outline"
-									on:click={() => incrementStat(stat.id, 1)}
-								>
-									+1
-								</button>
-								<button 
-									class="btn btn-xs btn-outline"
-									on:click={() => incrementStat(stat.id, 5)}
-								>
-									+5
-								</button>
-							</div>
-							<button 
-								class="btn btn-xs btn-outline btn-{stat.color}"
-								on:click={() => startEdit(stat)}
-							>
-								Edit
-							</button>
-						</div>
-					</div>
+					{/each}
 				</div>
-			{/each}
-		</div>
+			</div>
+		{/each}
 	{/if}
+
+	<div class="mt-4">
+		<button class="btn btn-secondary" on:click={restoreDefaults}>
+			Restore Default Stats
+		</button>
+	</div>
 </div>
 
 <!-- Create/Edit Modal -->
@@ -233,17 +403,45 @@
 				></textarea>
 			</div>
 
-			<div class="form-control mb-4">
-				<label class="label" for="emoji">
-					<span class="label-text">Emoji</span>
-				</label>
-				<input 
-					type="text" 
-					id="emoji"
-					class="input input-bordered" 
-					bind:value={formData.emoji}
-					placeholder="🧠"
-				/>
+			<div class="grid grid-cols-2 gap-4 mb-4">
+				<div class="form-control">
+					<label class="label" for="icon">
+						<span class="label-text">Icon</span>
+					</label>
+					<select 
+						id="icon"
+						class="select select-bordered" 
+						bind:value={formData.icon}
+					>
+						<option value="">Select an icon...</option>
+						{#each availableIcons as iconName}
+							<option value={iconName}>
+								{iconName}
+							</option>
+						{/each}
+					</select>
+					{#if formData.icon}
+						<div class="mt-2 flex items-center gap-2">
+							<span class="text-sm text-gray-600">Preview:</span>
+							<svelte:component this={getIconComponent(formData.icon)} size={20} />
+						</div>
+					{/if}
+				</div>
+
+				<div class="form-control">
+					<label class="label" for="category">
+						<span class="label-text">Category</span>
+					</label>
+					<select 
+						id="category"
+						class="select select-bordered" 
+						bind:value={formData.category}
+					>
+						{#each categoryOptions as option}
+							<option value={option.value}>{option.label}</option>
+						{/each}
+					</select>
+				</div>
 			</div>
 
 			<div class="form-control mb-4">
@@ -261,18 +459,57 @@
 				</select>
 			</div>
 
-			<div class="form-control mb-6">
-				<label class="label" for="value">
-					<span class="label-text">Initial Value</span>
+			<div class="grid grid-cols-2 gap-4 mb-6">
+				<div class="form-control">
+					<label class="label" for="value">
+						<span class="label-text">Initial Value</span>
+					</label>
+					<input 
+						type="number" 
+						id="value"
+						class="input input-bordered" 
+						bind:value={formData.value}
+						min="0"
+						max="99"
+					/>
+				</div>
+
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">Enabled</span>
+						<input 
+							type="checkbox" 
+							class="checkbox" 
+							bind:checked={formData.enabled}
+						/>
+					</label>
+				</div>
+			</div>
+
+			<div class="form-control mb-4">
+				<label class="label" for="icon">
+					<span class="label-text">Icon</span>
 				</label>
-				<input 
-					type="number" 
-					id="value"
-					class="input input-bordered" 
-					bind:value={formData.value}
-					min="0"
-					max="99"
-				/>
+				<div class="flex flex-wrap gap-2">
+					{#each availableIcons as iconName}
+						<div class="form-control w-10 h-10" title={iconName}>
+							<label class="cursor-pointer">
+								<input 
+									type="radio" 
+									name="icon" 
+									class="hidden" 
+									bind:group={formData.icon}
+									value={iconName}
+								/>
+								<div class="w-full h-full flex items-center justify-center rounded-lg border transition-all duration-200 
+									{formData.icon === iconName ? 'border-blue-500' : 'border-gray-300'}
+								">
+									{svelteIcon(iconName)}
+								</div>
+							</label>
+						</div>
+					{/each}
+				</div>
 			</div>
 
 			<div class="modal-action">

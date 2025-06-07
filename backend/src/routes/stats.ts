@@ -84,13 +84,22 @@ app.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const id = c.req.param('id');
   const user = c.get('user');
   
+  // Check if stat is system default
+  const stat = await db.select().from(stats)
+    .where(and(eq(stats.id, id), eq(stats.userId, user.id)))
+    .limit(1);
+    
+  if (stat.length === 0) {
+    return c.json({ error: 'Stat not found' }, 404);
+  }
+  
+  if (stat[0].systemDefault) {
+    return c.json({ error: 'Cannot delete system default stats. You can disable them instead.' }, 400);
+  }
+  
   const deletedStat = await db.delete(stats)
     .where(and(eq(stats.id, id), eq(stats.userId, user.id)))
     .returning();
-  
-  if (deletedStat.length === 0) {
-    return c.json({ error: 'Stat not found' }, 404);
-  }
   
   return c.json({ message: 'Stat deleted successfully' });
 });
@@ -119,6 +128,88 @@ app.post('/:id/increment', jwtMiddleware, userMiddleware, async (c) => {
     .returning();
   
   return c.json(updatedStat[0]);
+});
+
+// Restore default stats endpoint
+app.post('/restore-defaults', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  try {
+    // Define default stat configurations
+    const statConfigs: Record<string, { category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy'; icon: string; color: string; description: string }> = {
+      // BODY
+      'Strength': { category: 'body', icon: 'dumbbell', color: 'red', description: 'Physical health, energy, resilience, and capacity to take physical action' },
+      'Dexterity': { category: 'body', icon: 'move', color: 'orange', description: 'Agility, coordination, body control, and adaptability under pressure' },
+      'Vitality': { category: 'body', icon: 'heart-pulse', color: 'yellow', description: 'Your overall life force: sleep, mood, stress regulation, libido, sense of aliveness' },
+      
+      // MIND
+      'Intellect': { category: 'mind', icon: 'brain', color: 'blue', description: 'Creative problem-solving, mental clarity, strategic thinking, and curiosity' },
+      'Wisdom': { category: 'mind', icon: 'book-open', color: 'indigo', description: 'Emotional intelligence, reflection, insight, and making grounded decisions' },
+      'Discipline': { category: 'mind', icon: 'check-circle', color: 'purple', description: 'Habits, follow-through, structure, and resistance to impulse or distraction' },
+      'Clarity': { category: 'mind', icon: 'target', color: 'cyan', description: 'Mental focus, clear thinking, and ability to see situations objectively' },
+      
+      // CONNECTION
+      'Charisma': { category: 'connection', icon: 'megaphone', color: 'pink', description: 'Confidence, emotional presence, social engagement, and ability to influence others' },
+      'Intimacy': { category: 'connection', icon: 'handshake', color: 'rose', description: 'Capacity for closeness, emotional openness, and authentic connection (with self or others)' },
+      'Courage': { category: 'connection', icon: 'shield', color: 'amber', description: 'Willingness to confront hard truths, speak up, or act in uncertainty' },
+      'Craft': { category: 'connection', icon: 'hammer', color: 'emerald', description: 'Practical skill-building: making, fixing, building — external proof of internal mastery' },
+      'Presence': { category: 'connection', icon: 'radar', color: 'pink', description: 'Full attention and awareness in relationships and interactions' },
+      
+      // SHADOW
+      'Avoidance': { category: 'shadow', icon: 'arrow-left', color: 'slate', description: 'Tendency to withdraw, procrastinate, or numb out when overwhelmed' },
+      'Reactivity': { category: 'shadow', icon: 'zap', color: 'red', description: 'Emotional impulsiveness or defensiveness in response to stress' },
+      'Burnout': { category: 'shadow', icon: 'flame', color: 'orange', description: 'Energy depletion due to overcommitment or misaligned effort' },
+      'Disconnection': { category: 'shadow', icon: 'ban', color: 'gray', description: 'Feeling emotionally cut off from yourself or others' },
+      
+      // SPIRIT
+      'Alignment': { category: 'spirit', icon: 'compass', color: 'violet', description: 'Living in accordance with personal values and truth' },
+      'Stillness': { category: 'spirit', icon: 'moon', color: 'blue', description: 'Capacity for presence, meditation, and quiet awareness' },
+      'Faith': { category: 'spirit', icon: 'infinity', color: 'cyan', description: 'Trust in process, purpose, or something greater than oneself' },
+      'Meaning': { category: 'spirit', icon: 'lightbulb', color: 'yellow', description: 'Clarity about your "why," purpose, or role in life\'s story' },
+      
+      // LEGACY
+      'Mentorship': { category: 'legacy', icon: 'users', color: 'green', description: 'Efforts to guide, teach, or support others (especially children)' },
+      'Stewardship': { category: 'legacy', icon: 'tree-deciduous', color: 'emerald', description: 'Care for your environment, projects, or community over time' },
+      'Creatorship': { category: 'legacy', icon: 'hammer', color: 'purple', description: 'Building things that outlive you (music, code, systems, rituals)' },
+      'Lineage': { category: 'legacy', icon: 'archive', color: 'lime', description: 'Honoring ancestry, traditions, or shaping generational values' }
+    };
+
+    // Get existing stats to avoid duplicates
+    const existingStats = await db.select().from(stats)
+      .where(eq(stats.userId, user.id));
+    
+    const existingStatNames = new Set(existingStats.map(stat => stat.name));
+    
+    let createdCount = 0;
+    
+    // Create missing default stats
+    for (const [statName, config] of Object.entries(statConfigs)) {
+      if (!existingStatNames.has(statName)) {
+        try {
+          await db.insert(stats).values({
+            userId: user.id,
+            name: statName,
+            description: config.description,
+            icon: config.icon,
+            color: config.color,
+            category: config.category,
+            enabled: true,
+            systemDefault: true,
+            value: 0
+          });
+          createdCount++;
+        } catch (error) {
+          console.error(`Failed to create default stat ${statName} for user ${user.id}:`, error);
+        }
+      }
+    }
+    
+    return c.json({ message: `Restored ${createdCount} default stats`, createdCount });
+    
+  } catch (error) {
+    console.error('Failed to restore default stats:', error);
+    return c.json({ error: 'Failed to restore default stats' }, 500);
+  }
 });
 
 export default app;

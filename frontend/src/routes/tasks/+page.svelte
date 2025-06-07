@@ -1,6 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { tasksApi, familyApi, focusesApi, statsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
+	
+	// Helper function to get icon component
+	function getIconComponent(iconName: string) {
+		if (!iconName) return icons.Target;
+		
+		// Convert kebab-case to PascalCase for Lucide components
+		const componentName = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
+		
+		return icons[componentName] || icons.Target;
+	}
 	
 	let tasks: any[] = [];
 	let familyMembers: any[] = [];
@@ -178,8 +192,8 @@
 										</div>
 									{/if}
 									{#if task.stat?.name}
-										<div class="badge badge-info badge-outline">
-											{task.stat.emoji ? `${task.stat.emoji} ` : ''}
+										<div class="badge badge-info badge-outline flex items-center gap-1">
+											<svelte:component this={getIconComponent(task.stat.icon)} class="w-3 h-3" />
 											Stat: {task.stat.name}
 										</div>
 									{/if}
@@ -314,7 +328,7 @@
 						<option value="">Select stat (optional)</option>
 						{#each stats as stat}
 							<option value={stat.id}>
-								{stat.emoji ? `${stat.emoji} ` : ''}{stat.name} ({stat.value})
+								{stat.name} ({stat.value})
 							</option>
 						{/each}
 					</select>

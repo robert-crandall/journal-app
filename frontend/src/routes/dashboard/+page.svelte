@@ -3,6 +3,20 @@
 	import { auth } from '$lib/stores/auth';
 	import { tasksApi, statsApi, journalsApi } from '$lib/api';
 	import { goto } from '$app/navigation';
+	import * as icons from 'lucide-svelte';
+	
+	// Helper function to get icon component
+	function getIconComponent(iconName: string) {
+		if (!iconName) return icons.Target;
+		
+		// Convert kebab-case to PascalCase for Lucide components
+		const componentName = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
+		
+		return icons[componentName] || icons.Target;
+	}
 	
 	let tasks: any[] = [];
 	let stats: any[] = [];
@@ -146,9 +160,7 @@
 									{#each stats as stat}
 										<div class="p-3 bg-base-200 rounded-lg">
 											<div class="flex items-center gap-2 mb-2">
-												{#if stat.emoji}
-													<span class="text-lg">{stat.emoji}</span>
-												{/if}
+												<svelte:component this={getIconComponent(stat.icon)} class="w-5 h-5" />
 												<h3 class="font-medium">{stat.name}</h3>
 											</div>
 											<div class="flex justify-between items-center mb-2">

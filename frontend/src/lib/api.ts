@@ -70,14 +70,14 @@ export const focusesApi = {
 		return apiRequest('/focuses');
 	},
 	
-	async create(focus: { name: string; description?: string; gptContext?: any }) {
+	async create(focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest('/focuses', {
 			method: 'POST',
 			body: JSON.stringify(focus)
 		});
 	},
 	
-	async update(id: string, focus: { name: string; description?: string; gptContext?: any }) {
+	async update(id: string, focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest(`/focuses/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(focus)
@@ -94,6 +94,12 @@ export const focusesApi = {
 		return apiRequest(`/focuses/${focusId}/levels`, {
 			method: 'POST',
 			body: JSON.stringify(level)
+		});
+	},
+	
+	async restoreDefaults() {
+		return apiRequest('/focuses/restore-defaults', {
+			method: 'POST'
 		});
 	}
 };
@@ -202,14 +208,14 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}`);
 	},
 	
-	async create(stat: { name: string; description?: string; emoji?: string; color?: string; value?: number }) {
+	async create(stat: { name: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
 		return apiRequest('/stats', {
 			method: 'POST',
 			body: JSON.stringify(stat)
 		});
 	},
 	
-	async update(id: string, stat: { name: string; description?: string; emoji?: string; color?: string; value?: number }) {
+	async update(id: string, stat: { name?: string; description?: string; emoji?: string; color?: string; category?: string; enabled?: boolean; value?: number }) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(stat)
@@ -226,6 +232,12 @@ export const statsApi = {
 	async delete(id: string) {
 		return apiRequest(`/stats/${id}`, {
 			method: 'DELETE'
+		});
+	},
+	
+	async restoreDefaults() {
+		return apiRequest('/stats/restore-defaults', {
+			method: 'POST'
 		});
 	}
 };

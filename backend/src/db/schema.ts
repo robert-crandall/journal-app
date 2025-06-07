@@ -33,6 +33,10 @@ export const focuses = pgTable('focuses', {
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   description: text('description'),
+  icon: text('icon'),
+  color: text('color'),
+  dayOfWeek: text('day_of_week', { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }),
+  sampleActivities: jsonb('sample_activities').$type<string[]>(),
   gptContext: jsonb('gpt_context'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -44,8 +48,11 @@ export const stats = pgTable('stats', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  emoji: text('emoji'),
+  icon: text('icon'),
   color: text('color'),
+  category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }),
+  enabled: boolean('enabled').notNull().default(true),
+  systemDefault: boolean('system_default').notNull().default(false),
   value: integer('value').notNull().default(0),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -219,6 +226,10 @@ export const createJournalSchema = z.object({
 export const createFocusSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
+  icon: z.string().optional(),
+  color: z.string().optional(),
+  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
+  sampleActivities: z.array(z.string()).optional(),
   statId: z.string().uuid().optional(),
   gptContext: z.any().optional(),
 });
@@ -242,15 +253,20 @@ export const createAttributeSchema = z.object({
 export const createStatSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  emoji: z.string().optional(),
+  icon: z.string().optional(),
   color: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
+  enabled: z.boolean().optional(),
+  systemDefault: z.boolean().optional(),
 });
 
 export const updateStatSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
-  emoji: z.string().optional(),
+  icon: z.string().optional(),
   color: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
+  enabled: z.boolean().optional(),
   value: z.number().int().min(0).max(99).optional(),
 });
 

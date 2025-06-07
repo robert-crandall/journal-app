@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { focusesApi, statsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
 	
 	let focuses: any[] = [];
 	let stats: any[] = [];
@@ -10,18 +11,73 @@
 	let editingFocus: any = null;
 	let selectedFocus: any = null;
 	
+	// Helper function to get icon component
+	function getIconComponent(iconName: string) {
+		if (!iconName) return icons.Target;
+		
+		// Convert kebab-case to PascalCase for Lucide components
+		const componentName = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
+		
+		return icons[componentName] || icons.Target;
+	}
+
+	// Icon mapping for Lucide icons
+	const iconOptions = [
+		{ name: 'target', label: 'Target' },
+		{ name: 'heart', label: 'Health' },
+		{ name: 'dumbbell', label: 'Fitness' },
+		{ name: 'brain', label: 'Learning' },
+		{ name: 'briefcase', label: 'Career' },
+		{ name: 'users', label: 'Family' },
+		{ name: 'palette', label: 'Creativity' },
+		{ name: 'dollar-sign', label: 'Finance' },
+		{ name: 'home', label: 'Home' },
+		{ name: 'book', label: 'Reading' },
+		{ name: 'gamepad-2', label: 'Hobbies' },
+		{ name: 'plane', label: 'Travel' },
+		{ name: 'leaf', label: 'Environment' },
+		{ name: 'smile', label: 'Wellness' },
+		{ name: 'zap', label: 'Energy' },
+		{ name: 'trophy', label: 'Achievement' },
+		{ name: 'star', label: 'Goals' },
+		{ name: 'mountain', label: 'Adventure' },
+		{ name: 'music', label: 'Music' },
+		{ name: 'camera', label: 'Photography' }
+	];
+
 	// Form data
 	let focusFormData = {
 		name: '',
 		description: '',
-		gptContext: null,
-		statId: null
+		icon: '',
+		color: '',
+		dayOfWeek: '',
+		sampleActivities: [] as string[],
+		statId: undefined as string | undefined,
+		gptContext: undefined as any
 	};
 	
 	let levelFormData = {
 		name: '',
 		description: ''
 	};
+	
+	// Helper for sample activities
+	let newActivity = '';
+	
+	function addActivity() {
+		if (newActivity.trim()) {
+			focusFormData.sampleActivities = [...focusFormData.sampleActivities, newActivity.trim()];
+			newActivity = '';
+		}
+	}
+	
+	function removeActivity(index: number) {
+		focusFormData.sampleActivities = focusFormData.sampleActivities.filter((_, i) => i !== index);
+	}
 	
 	onMount(async () => {
 		await loadFocuses();
@@ -53,8 +109,12 @@
 		focusFormData = {
 			name: '',
 			description: '',
-			gptContext: null,
-			statId: null
+			icon: '',
+			color: '',
+			dayOfWeek: '',
+			sampleActivities: [],
+			statId: undefined,
+			gptContext: undefined
 		};
 		editingFocus = null;
 		showCreateForm = true;
@@ -64,8 +124,12 @@
 		focusFormData = {
 			name: focus.name,
 			description: focus.description || '',
-			gptContext: focus.gptContext,
-			statId: focus.statId || null
+			icon: focus.icon || '',
+			color: focus.color || '',
+			dayOfWeek: focus.dayOfWeek || '',
+			sampleActivities: focus.sampleActivities || [],
+			statId: focus.statId || undefined,
+			gptContext: focus.gptContext
 		};
 		editingFocus = focus;
 		showCreateForm = true;
@@ -117,6 +181,21 @@
 			console.error('Failed to create level:', error);
 		}
 	}
+	
+	async function restoreDefaults() {
+		if (!confirm('This will add any missing default weekly focuses to your collection. Are you sure?')) {
+			return;
+		}
+		
+		try {
+			const result = await focusesApi.restoreDefaults();
+			await loadFocuses();
+			alert(`Successfully restored ${result.createdCount} default focuses!`);
+		} catch (error: any) {
+			console.error('Failed to restore defaults:', error);
+			alert('Failed to restore default focuses: ' + error.message);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -129,12 +208,20 @@
 			<h1 class="text-3xl font-bold">Focus Areas</h1>
 			<p class="text-base-content/70">Manage your growth areas and their levels</p>
 		</div>
-		<button class="btn btn-primary" onclick={openCreateForm}>
-			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
-			New Focus Area
-		</button>
+		<div class="flex gap-2">
+			<button class="btn btn-outline" onclick={restoreDefaults}>
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+				</svg>
+				Restore Defaults
+			</button>
+			<button class="btn btn-primary" onclick={openCreateForm}>
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+				</svg>
+				New Focus Area
+			</button>
+		</div>
 	</div>
 
 	{#if loading}
@@ -142,22 +229,65 @@
 			<span class="loading loading-spinner loading-lg"></span>
 		</div>
 	{:else}
+		<!-- Weekly Focus View -->
+		{#if focuses.some(focus => focus.dayOfWeek)}
+			<div class="card bg-base-100 shadow-sm mb-6">
+				<div class="card-body">
+					<h2 class="card-title mb-4">📅 Weekly Focus Schedule</h2>
+					<div class="grid grid-cols-7 gap-2">
+						{#each ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as day}
+							{@const dayFocus = focuses.find(focus => focus.dayOfWeek === day)}
+							<div class="text-center p-3 rounded-lg {dayFocus ? 'bg-primary/10 border border-primary/20' : 'bg-base-200/50'}">
+								<div class="text-xs font-medium text-base-content/60 mb-1">{day.slice(0, 3)}</div>
+								{#if dayFocus}
+									<div class="text-lg mb-1">
+										<svelte:component this={getIconComponent(dayFocus.icon)} class="w-6 h-6 mx-auto" />
+									</div>
+									<div class="text-sm font-medium" style={dayFocus.color ? `color: ${dayFocus.color}` : ''}>{dayFocus.name}</div>
+								{:else}
+									<div class="text-base-content/30 text-sm">No focus</div>
+								{/if}
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
+		
 		<div class="grid gap-6">
 			{#each focuses as focus}
 				<div class="card bg-base-100 shadow-sm">
 					<div class="card-body">
 						<div class="flex justify-between items-start mb-4">
 							<div class="flex-1">
-								<h3 class="card-title text-xl">{focus.name}</h3>
+								<div class="flex items-center gap-2">
+									<svelte:component this={getIconComponent(focus.icon)} class="w-6 h-6" />
+									<h3 class="card-title text-xl" style={focus.color ? `color: ${focus.color}` : ''}>{focus.name}</h3>
+								</div>
 								{#if focus.description}
 									<p class="text-base-content/70 mt-2">{focus.description}</p>
 								{/if}
-								{#if focus.stat}
-									<div class="mt-2">
+								<div class="flex flex-wrap gap-2 mt-2">
+									{#if focus.dayOfWeek}
+										<span class="badge badge-outline badge-sm">
+											📅 {focus.dayOfWeek}
+										</span>
+									{/if}
+									{#if focus.stat}
 										<span class="badge badge-primary badge-sm">
-											{focus.stat.emoji ? `${focus.stat.emoji} ` : ''}
+											<svelte:component this={getIconComponent(focus.stat.icon)} class="w-3 h-3 mr-1" />
 											Stat: {focus.stat.name} ({focus.stat.value})
 										</span>
+									{/if}
+								</div>
+								{#if focus.sampleActivities && focus.sampleActivities.length > 0}
+									<div class="mt-3">
+										<p class="text-sm font-medium text-base-content/80 mb-1">Sample Activities:</p>
+										<div class="flex flex-wrap gap-1">
+											{#each focus.sampleActivities as activity}
+												<span class="badge badge-ghost badge-xs">{activity}</span>
+											{/each}
+										</div>
 									</div>
 								{/if}
 							</div>
@@ -258,6 +388,110 @@
 					></textarea>
 				</div>
 				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="form-control">
+						<label class="label" for="focusIcon">
+							<span class="label-text">Icon</span>
+						</label>
+						<select 
+							id="focusIcon"
+							class="select select-bordered" 
+							bind:value={focusFormData.icon}
+						>
+							<option value="">Select an icon...</option>
+							{#each iconOptions as iconOption}
+								<option value={iconOption.name}>{iconOption.label}</option>
+							{/each}
+						</select>
+						{#if focusFormData.icon}
+							<div class="mt-2 p-2 bg-base-200 rounded-lg flex items-center gap-2">
+								<span class="text-xs text-base-content/70">Preview:</span>
+								<svelte:component this={getIconComponent(focusFormData.icon)} class="w-5 h-5" />
+							</div>
+						{/if}
+					</div>
+					
+					<div class="form-control">
+						<label class="label" for="focusColor">
+							<span class="label-text">Color</span>
+						</label>
+						<select 
+							id="focusColor"
+							class="select select-bordered" 
+							bind:value={focusFormData.color}
+						>
+							<option value="">Default</option>
+							<option value="red">Red</option>
+							<option value="blue">Blue</option>
+							<option value="green">Green</option>
+							<option value="yellow">Yellow</option>
+							<option value="purple">Purple</option>
+							<option value="pink">Pink</option>
+							<option value="orange">Orange</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-control">
+					<label class="label" for="focusDayOfWeek">
+						<span class="label-text">Day of Week</span>
+					</label>
+					<select 
+						id="focusDayOfWeek"
+						class="select select-bordered" 
+						bind:value={focusFormData.dayOfWeek}
+					>
+						<option value="">No specific day</option>
+						<option value="Monday">Monday</option>
+						<option value="Tuesday">Tuesday</option>
+						<option value="Wednesday">Wednesday</option>
+						<option value="Thursday">Thursday</option>
+						<option value="Friday">Friday</option>
+						<option value="Saturday">Saturday</option>
+						<option value="Sunday">Sunday</option>
+					</select>
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Sample Activities</span>
+					</label>
+					<div class="space-y-2">
+						<div class="flex gap-2">
+							<input 
+								type="text" 
+								class="input input-bordered flex-1" 
+								bind:value={newActivity}
+								placeholder="e.g., Go for a run, Read a book"
+								onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())}
+							/>
+							<button 
+								type="button" 
+								class="btn btn-outline btn-sm" 
+								onclick={addActivity}
+							>
+								Add
+							</button>
+						</div>
+						{#if focusFormData.sampleActivities.length > 0}
+							<div class="flex flex-wrap gap-2">
+								{#each focusFormData.sampleActivities as activity, index}
+									<div class="badge badge-outline gap-2">
+										{activity}
+										<button 
+											type="button" 
+											class="text-error hover:text-error-focus"
+											onclick={() => removeActivity(index)}
+										>
+											×
+										</button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				</div>
+				
 				<div class="form-control">
 					<label class="label" for="focusStat">
 						<span class="label-text">Linked Stat (Optional)</span>
@@ -267,10 +501,10 @@
 						class="select select-bordered" 
 						bind:value={focusFormData.statId}
 					>
-						<option value={null}>No stat linked</option>
+						<option value={undefined}>No stat linked</option>
 						{#each stats as stat}
 							<option value={stat.id}>
-								{stat.emoji ? `${stat.emoji} ` : ''}{stat.name}
+								{stat.name}
 							</option>
 						{/each}
 					</select>
