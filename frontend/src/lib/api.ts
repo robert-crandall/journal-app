@@ -212,6 +212,13 @@ export const journalsApi = {
 		});
 	},
 
+	async completeDay(id: string, data: { dayMemory?: string; dayRating?: number }) {
+		return apiRequest(`/journals/${id}/complete-day`, {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	},
+
 	async get(id: string) {
 		return apiRequest(`/journals/${id}`);
 	}

@@ -98,6 +98,9 @@ export const journals = pgTable('journals', {
   conversationHistory: jsonb('conversation_history').$type<Array<{role: 'user' | 'assistant', content: string, timestamp: string}>>().default([]),
   followupCount: integer('followup_count').notNull().default(0),
   maxFollowups: integer('max_followups').notNull().default(3),
+  // Remember day prompt fields
+  dayMemory: text('day_memory'), // What the user wants to remember from the day
+  dayRating: integer('day_rating'), // 1-5 rating of the day (energy, mood, productivity)
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -289,6 +292,11 @@ export const followupResponseSchema = z.object({
 
 export const submitJournalSchema = z.object({
   // No additional data needed - journal is submitted as-is
+});
+
+export const completeJournalDaySchema = z.object({
+  dayMemory: z.string().optional(),
+  dayRating: z.number().int().min(1).max(5).optional(),
 });
 
 export const createFocusSchema = z.object({

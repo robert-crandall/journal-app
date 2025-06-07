@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { journals, tags, tagAssociations, attributes, potions, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, type User } from '../db/schema';
+import { journals, tags, tagAssociations, attributes, potions, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, completeJournalDaySchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { generateFollowupQuestion, processJournalSubmission, type ConversationMessage } from '../utils/gptJournalProcessor';
 
@@ -368,5 +368,40 @@ async function processSuggestedAttributes(userId: string, suggestedAttributes: A
   
   return processedAttributes;
 }
+
+// Complete journal day with memory and rating
+journalsRouter.post('/:id/complete-day', jwtMiddleware, userMiddleware, zValidator('json', completeJournalDaySchema), async (c) => {
+  const user = c.get('user') as User;
+  const journalId = c.req.param('id');
+  const { dayMemory, dayRating } = c.req.valid('json');
+  
+  // Get the journal and verify ownership
+  const journal = await db.query.journals.findFirst({
+    where: and(eq(journals.id, journalId), eq(journals.userId, user.id)),
+  });
+  
+  if (!journal) {
+    return c.json({ error: 'Journal not found' }, 404);
+  }
+  
+  if (journal.status !== 'completed') {
+    return c.json({ error: 'Journal must be completed before adding day completion data' }, 400);
+  }
+  
+  // Update journal with day completion data
+  const [updatedJournal] = await db.update(journals)
+    .set({
+      dayMemory,
+      dayRating,
+      updatedAt: new Date(),
+    })
+    .where(eq(journals.id, journalId))
+    .returning();
+  
+  return c.json({
+    journal: updatedJournal,
+    message: 'Day completion data saved successfully'
+  });
+});
 
 export default journalsRouter;

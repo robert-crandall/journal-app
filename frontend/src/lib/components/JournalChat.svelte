@@ -17,11 +17,15 @@
 	let messages: Message[] = [];
 	let currentInput = '';
 	let isLoading = false;
-	let journalStatus: 'new' | 'in_progress' | 'completed' = 'new';
+	let journalStatus: 'new' | 'in_progress' | 'completed' | 'day_completion' | 'fully_completed' = 'new';
 	let currentJournalId: string | null = journalId;
 	let followupCount = 0;
 	let maxFollowups = 3;
 	let canSubmit = false;
+	
+	// Day completion fields
+	let dayMemory = '';
+	let dayRating: number | null = null;
 
 	// Initialize with existing journal if provided
 	if (existingJournal) {
@@ -31,6 +35,15 @@
 		followupCount = existingJournal.followupCount || 0;
 		maxFollowups = existingJournal.maxFollowups || 3;
 		canSubmit = journalStatus === 'in_progress' && messages.length > 0;
+		
+		// Initialize day completion data if it exists
+		dayMemory = existingJournal.dayMemory || '';
+		dayRating = existingJournal.dayRating || null;
+		
+		// If journal is completed and has day completion data, set status to fully_completed
+		if (journalStatus === 'completed' && (existingJournal.dayMemory || existingJournal.dayRating)) {
+			journalStatus = 'fully_completed';
+		}
 	}
 
 	async function startJournal() {
@@ -129,7 +142,7 @@
 		try {
 			const response = await journalsApi.submit(currentJournalId);
 			
-			journalStatus = 'completed';
+			journalStatus = 'day_completion';
 			
 			// Add the summary as an assistant message
 			if (response.summary) {
@@ -140,17 +153,36 @@
 				}];
 			}
 
-			// Dispatch event to parent component
-			dispatch('journalCompleted', {
-				journal: response.journal,
-				summary: response.summary,
-				extractedTags: response.extractedTags,
-				suggestedAttributes: response.suggestedAttributes
-			});
-
 		} catch (error) {
 			console.error('Failed to submit journal:', error);
 			alert('Failed to submit journal. Please try again.');
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	async function completeDayReflection() {
+		if (!currentJournalId) return;
+
+		isLoading = true;
+		try {
+			const response = await journalsApi.completeDay(currentJournalId, {
+				dayMemory: dayMemory.trim() || undefined,
+				dayRating: dayRating || undefined
+			});
+			
+			journalStatus = 'fully_completed';
+			
+			// Dispatch final completion event to parent component
+			dispatch('journalCompleted', {
+				journal: response.journal,
+				dayMemory: dayMemory.trim() || null,
+				dayRating: dayRating
+			});
+
+		} catch (error) {
+			console.error('Failed to complete day reflection:', error);
+			alert('Failed to save day reflection. Please try again.');
 		} finally {
 			isLoading = false;
 		}
@@ -184,10 +216,14 @@
 				AI Journal Session
 			</h2>
 			<div class="flex items-center gap-2">
-				{#if journalStatus === 'completed'}
+				{#if journalStatus === 'fully_completed'}
 					<div class="badge badge-success gap-1">
 						<CheckCircle size={12} />
 						Completed
+					</div>
+				{:else if journalStatus === 'day_completion'}
+					<div class="badge badge-warning gap-1">
+						Day Reflection
 					</div>
 				{:else if journalStatus === 'in_progress'}
 					<div class="badge badge-primary">
@@ -258,7 +294,86 @@
 	</div>
 
 	<!-- Input Area -->
-	{#if journalStatus !== 'completed'}
+	{#if journalStatus === 'day_completion'}
+		<div class="bg-base-200 p-4 rounded-b-lg border-t">
+			<div class="space-y-4">
+				<div class="text-center">
+					<h3 class="text-lg font-medium mb-2">Day Reflection</h3>
+					<p class="text-sm text-base-content/70">Before we finish, let's capture a few more details about your day.</p>
+				</div>
+				
+				<div class="space-y-4">
+					<!-- Day Memory -->
+					<div>
+						<label class="label" for="day-memory">
+							<span class="label-text">Is there anything you want to remember from today?</span>
+							<span class="label-text-alt text-xs opacity-60">(Optional)</span>
+						</label>
+						<textarea
+							id="day-memory"
+							bind:value={dayMemory}
+							placeholder="Something special, a moment of gratitude, or just something you don't want to forget..."
+							class="textarea textarea-bordered w-full"
+							rows="3"
+							disabled={isLoading}
+						></textarea>
+						<div class="label">
+							<span class="label-text-alt text-xs opacity-60">This won't be analyzed or used for tagging - it's just for you.</span>
+						</div>
+					</div>
+					
+					<!-- Day Rating -->
+					<div>
+						<label class="label" for="day-rating">
+							<span class="label-text">How would you rate your day overall? (1-5)</span>
+							<span class="label-text-alt text-xs opacity-60">(Optional)</span>
+						</label>
+						<div class="flex items-center gap-2" id="day-rating" role="group" aria-label="Day rating from 1 to 5">
+							{#each [1, 2, 3, 4, 5] as rating}
+								<button
+									on:click={() => dayRating = rating}
+									class="btn btn-sm {dayRating === rating ? 'btn-primary' : 'btn-outline'}"
+									disabled={isLoading}
+									aria-label="Rate day as {rating}"
+								>
+									{rating}
+								</button>
+							{/each}
+							{#if dayRating !== null}
+								<button
+									on:click={() => dayRating = null}
+									class="btn btn-sm btn-ghost"
+									disabled={isLoading}
+									aria-label="Clear rating"
+								>
+									Clear
+								</button>
+							{/if}
+						</div>
+						<div class="label">
+							<span class="label-text-alt text-xs opacity-60">Consider your energy, mood, and productivity</span>
+						</div>
+					</div>
+					
+					<!-- Completion buttons -->
+					<div class="flex gap-2 justify-end">
+						<button
+							on:click={completeDayReflection}
+							disabled={isLoading}
+							class="btn btn-primary"
+						>
+							{#if isLoading}
+								<Loader2 size={16} class="animate-spin" />
+							{:else}
+								<CheckCircle size={16} />
+							{/if}
+							Complete Journal
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{:else if journalStatus !== 'fully_completed'}
 		<div class="bg-base-200 p-4 rounded-b-lg border-t">
 			<div class="flex gap-2">
 				<div class="flex-1">
