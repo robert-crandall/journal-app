@@ -155,7 +155,7 @@
 					</div>
 
 					<div class="space-y-2">
-						{#each groupedAttributes[key].filter(v => v.trim()) as value}
+						{#each (groupedAttributes[key] || []).filter(v => v.trim()) as value}
 							<div class="bg-base-200 rounded px-3 py-2 text-sm">
 								<span class="text-base-content">- {value}</span>
 							</div>
