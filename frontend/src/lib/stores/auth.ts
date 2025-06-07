@@ -8,6 +8,7 @@ export interface User {
 	type: 'user' | 'family';
 	isFamily: boolean;
 	gptContext?: any;
+	attributes?: Array<{ id: string; key: string; value: string }>;
 	createdAt: string;
 	updatedAt: string;
 }

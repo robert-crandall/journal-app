@@ -268,3 +268,17 @@ export const preferencesApi = {
 		});
 	}
 };
+
+// User API
+export const userApi = {
+	async getMe() {
+		return apiRequest('/auth/me');
+	},
+	
+	async addAttribute(attribute: { key: string; value: string }) {
+		return apiRequest('/auth/me/attributes', {
+			method: 'POST',
+			body: JSON.stringify(attribute)
+		});
+	}
+};

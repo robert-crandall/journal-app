@@ -4,7 +4,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, stats, focuses, loginSchema, registerSchema, type User } from '../db/schema';
+import { users, attributes, stats, focuses, loginSchema, registerSchema, createAttributeSchema, type User } from '../db/schema';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
@@ -274,8 +274,35 @@ auth.post('/logout', async (c) => {
 // Get current user - protected route
 auth.get('/me', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
-  const { password: _, ...userWithoutPassword } = user;
+  
+  // Get user with attributes
+  const userWithAttributes = await db.query.users.findFirst({
+    where: eq(users.id, user.id),
+    with: {
+      attributes: true,
+    },
+  });
+  
+  if (!userWithAttributes) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+  
+  const { password: _, ...userWithoutPassword } = userWithAttributes;
   return c.json({ user: userWithoutPassword });
+});
+
+// Add attribute to current user
+auth.post('/me/attributes', jwtMiddleware, userMiddleware, zValidator('json', createAttributeSchema), async (c) => {
+  const user = c.get('user') as User;
+  const { key, value } = c.req.valid('json');
+  
+  const [attribute] = await db.insert(attributes).values({
+    userId: user.id,
+    key,
+    value,
+  }).returning();
+  
+  return c.json({ attribute });
 });
 
 export default auth;

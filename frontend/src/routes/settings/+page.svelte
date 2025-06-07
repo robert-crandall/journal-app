@@ -2,15 +2,18 @@
 	import { theme, availableThemes } from '$lib/stores/theme';
 	import type { Theme } from '$lib/stores/theme';
 	import { auth } from '$lib/stores/auth';
-	import { preferencesApi } from '$lib/api';
+	import { preferencesApi, userApi } from '$lib/api';
 	import { onMount } from 'svelte';
+	import AttributeManager from '$lib/components/AttributeManager.svelte';
 
 	let preferences: Record<string, string> = {};
 	let loading = false;
 	let saveMessage = '';
+	let userAttributes: Array<{ id: string; key: string; value: string }> = [];
 
 	onMount(async () => {
 		await loadPreferences();
+		await loadUserData();
 	});
 
 	async function loadPreferences() {
@@ -22,6 +25,15 @@
 			console.error('Failed to load preferences:', error);
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function loadUserData() {
+		try {
+			const response = await userApi.getMe();
+			userAttributes = response.user.attributes || [];
+		} catch (error) {
+			console.error('Failed to load user data:', error);
 		}
 	}
 
@@ -40,6 +52,16 @@
 		const isAuthenticated = $auth.user !== null;
 		await theme.setTheme(selectedTheme, isAuthenticated);
 		await savePreference('theme', selectedTheme);
+	}
+
+	async function handleAddUserAttribute(key: string, value: string) {
+		try {
+			await userApi.addAttribute({ key, value });
+			await loadUserData(); // Reload to get updated attributes
+		} catch (error) {
+			console.error('Failed to add user attribute:', error);
+			throw error; // Re-throw to let AttributeManager handle the error
+		}
 	}
 
 	function showSaveMessage(message: string, isError = false) {
@@ -99,6 +121,26 @@
 						</button>
 					{/each}
 				</div>
+			</div>
+		</div>
+
+		<!-- User Attributes -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title text-xl mb-4">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+					</svg>
+					Personal Attributes
+				</h2>
+				<p class="text-base-content/70 mb-4">Define your values, interests, skills, and other personal attributes</p>
+				
+				<AttributeManager 
+					attributes={userAttributes}
+					onAddAttribute={handleAddUserAttribute}
+					title="My Attributes"
+					emptyMessage="Start building your personal profile with values, interests, skills, or any other attributes that define you"
+				/>
 			</div>
 		</div>
 
