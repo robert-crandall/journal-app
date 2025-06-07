@@ -228,7 +228,7 @@ journalsRouter.post('/:id/followup', jwtMiddleware, userMiddleware, zValidator('
 });
 
 // Submit journal for GPT processing
-journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, zValidator('json', submitJournalSchema), async (c) => {
+journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const journalId = c.req.param('id');
   
