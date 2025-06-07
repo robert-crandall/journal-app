@@ -253,16 +253,16 @@
 
 <div class="container mx-auto p-6">
 	<div class="flex justify-between items-center mb-6">
-		<h1 class="text-3xl font-bold">Character Stats</h1>
+		<h1 class="text-3xl font-bold text-theme">Character Stats</h1>
 		<div class="flex gap-2">
 			<button 
-				class="btn btn-outline"
+				class="px-4 py-2 border border-theme-primary text-theme-primary rounded-md hover:bg-theme-primary hover:text-white transition-colors"
 				on:click={restoreDefaults}
 			>
 				🔄 Restore Defaults
 			</button>
 			<button 
-				class="btn btn-primary"
+				class="px-4 py-2 bg-theme-primary text-white rounded-md hover:bg-theme-primary-dark transition-colors"
 				on:click={() => showCreateForm = true}
 			>
 				+ New Stat
@@ -271,22 +271,22 @@
 	</div>
 
 	{#if error}
-		<div class="alert alert-error mb-4">
+		<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4 flex items-center justify-between">
 			<span>{error}</span>
-			<button class="btn btn-sm btn-ghost" on:click={() => error = ''}>✕</button>
+			<button class="text-red-500 hover:text-red-700 transition-colors" on:click={() => error = ''}>✕</button>
 		</div>
 	{/if}
 
 	{#if loading}
 		<div class="flex justify-center">
-			<span class="loading loading-spinner loading-lg"></span>
+			<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
 		</div>
 	{:else if stats.length === 0}
 		<div class="text-center py-12">
-			<p class="text-lg text-gray-500 mb-4">No stats yet</p>
+			<p class="text-lg text-theme-muted mb-4">No stats yet</p>
 			<div class="flex justify-center gap-4">
 				<button 
-					class="btn btn-primary"
+					class="px-4 py-2 bg-theme-primary text-white rounded-md hover:bg-theme-primary-dark transition-colors"
 					on:click={() => showCreateForm = true}
 				>
 					Create Your First Stat
@@ -296,7 +296,7 @@
 	{:else}
 		{#each Object.entries(groupedStats) as [category, categoryStats]}
 			<div class="mb-8">
-				<h2 class="text-xl font-semibold mb-4 capitalize flex items-center gap-2">
+				<h2 class="text-xl font-semibold mb-4 capitalize flex items-center gap-2 text-theme">
 					{#if category === 'body'}
 						💪 Body
 					{:else if category === 'mind'}
@@ -304,11 +304,11 @@
 					{:else if category === 'connection'}
 						💝 Connection
 					{:else if category === 'shadow'}
-						�️ Shadow
+						🌑 Shadow
 					{:else if category === 'spirit'}
 						🌟 Spirit
 					{:else if category === 'legacy'}
-						� Legacy
+						🏛️ Legacy
 					{:else}
 						📊 {category}
 					{/if}
@@ -316,120 +316,110 @@
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{#each categoryStats as stat}
-						<div class="card bg-base-100 shadow-xl border border-base-300 {!stat.enabled ? 'opacity-60 bg-gray-50' : ''}">
-							<div class="card-body">
-								{#if !stat.enabled}
-									<div class="badge badge-ghost badge-sm mb-2">Disabled</div>
-								{/if}
-								<div class="flex justify-between items-start mb-4">
-									<div class="flex items-center gap-2">
-										{#if stat.icon}
-											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
-												<svelte:component this={getIconComponent(stat.icon)} size={24} />
-											</div>
-										{:else}
-											<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
-												<svelte:component this={icons.Circle} size={24} />
-											</div>
-										{/if}
-										<h2 class="card-title text-lg {!stat.enabled ? 'text-gray-500' : ''}">{stat.name}</h2>
-										{#if stat.systemDefault}
-											<span class="badge badge-xs badge-primary" title="System Default">SYS</span>
-										{/if}
-									</div>
-									<div class="dropdown dropdown-end">
-										<div tabindex="0" role="button" class="btn btn-ghost btn-sm">
-											⋮
-										</div>
-										<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-										<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow">
-											<li><button on:click={() => startEdit(stat)}>Edit</button></li>
-											<li>
-												<button on:click={() => toggleStatEnabled(stat)}>
-													{stat.enabled ? 'Disable' : 'Re-enable'} Stat
-												</button>
-											</li>
-											<li>
-												<button 
-													on:click={() => deleteStat(stat.id)} 
-													class="text-error"
-												>
-													Delete
-												</button>
-											</li>
-										</ul>
-									</div>
-								</div>
-
-								{#if stat.description}
-									<p class="text-sm {stat.enabled ? 'text-gray-600' : 'text-gray-400'} mb-4">{stat.description}</p>
-								{/if}
-
-								<div class="mb-4">
-									<div class="flex justify-between items-center mb-2">
-										<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : ''}">Level {stat.level}</span>
-										<span class="text-xs text-gray-500">{stat.xp} XP</span>
-									</div>
-									<div class="w-full bg-gray-200 rounded-full h-3">
-										<div 
-											class="bg-primary h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
-											style="width: {getProgressWidth(stat)}%"
-										></div>
-									</div>
-									{#if canLevelUp(stat)}
-										<div class="text-xs text-green-600 mt-1">
-											Ready to level up! 🎉
+						<div class="bg-theme border border-theme rounded-lg shadow-md p-6 {!stat.enabled ? 'opacity-60' : ''}">
+							{#if !stat.enabled}
+								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-2">Disabled</span>
+							{/if}
+							<div class="flex justify-between items-start mb-4">
+								<div class="flex items-center gap-2">
+									{#if stat.icon}
+										<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+											<svelte:component this={getIconComponent(stat.icon)} size={24} />
 										</div>
 									{:else}
-										<div class="text-xs text-gray-500 mt-1">
-											{getXpToNextLevel(stat)} XP to level {stat.level + 1}
+										<div class="text-2xl {!stat.enabled ? 'grayscale' : ''}">
+											<svelte:component this={icons.Circle} size={24} />
 										</div>
 									{/if}
+									<h2 class="text-lg font-semibold {!stat.enabled ? 'text-theme-muted' : 'text-theme'}">{stat.name}</h2>
+									{#if stat.systemDefault}
+										<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-primary text-white" title="System Default">SYS</span>
+									{/if}
 								</div>
-
-								{#if stat.enabled}
-									<div class="card-actions justify-between">
-										<div class="flex gap-1">
-											{#if canLevelUp(stat)}
-												<button 
-													class="btn btn-xs btn-success"
-													on:click={() => levelUpStat(stat.id)}
-												>
-													Level Up! 🎉
-												</button>
-											{:else}
-												<button 
-													class="btn btn-xs btn-outline"
-													on:click={() => incrementStat(stat.id, 1)}
-												>
-													+25 XP
-												</button>
-												<button 
-													class="btn btn-xs btn-outline"
-													on:click={() => incrementStat(stat.id, 5)}
-												>
-													+125 XP
-												</button>
-											{/if}
-										</div>
-										<button 
-											class="btn btn-xs btn-outline"
-											on:click={() => startEdit(stat)}
-										>
-											Edit
+								<div class="relative">
+									<button class="text-theme-muted hover:text-theme p-1 rounded transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden')">
+										⋮
+									</button>
+									<div class="hidden absolute right-0 mt-2 w-48 bg-theme border border-theme rounded-md shadow-lg z-10">
+										<button class="block w-full text-left px-4 py-2 text-sm text-theme hover:bg-theme-secondary transition-colors" on:click={() => startEdit(stat)}>Edit</button>
+										<button class="block w-full text-left px-4 py-2 text-sm text-theme hover:bg-theme-secondary transition-colors" on:click={() => toggleStatEnabled(stat)}>
+											{stat.enabled ? 'Disable' : 'Re-enable'} Stat
+										</button>
+										<button class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-theme-secondary transition-colors" on:click={() => deleteStat(stat.id)}>
+											Delete
 										</button>
 									</div>
+								</div>
+							</div>
+
+							{#if stat.description}
+								<p class="text-sm {stat.enabled ? 'text-theme-muted' : 'text-gray-400'} mb-4">{stat.description}</p>
+							{/if}
+
+							<div class="mb-4">
+								<div class="flex justify-between items-center mb-2">
+									<span class="text-sm font-medium {!stat.enabled ? 'text-gray-400' : 'text-theme'}">Level {stat.level}</span>
+									<span class="text-xs text-theme-muted">{stat.xp} XP</span>
+								</div>
+								<div class="w-full bg-gray-200 rounded-full h-3">
+									<div 
+										class="bg-theme-primary h-3 rounded-full transition-all duration-300 {!stat.enabled ? 'opacity-40' : ''}"
+										style="width: {getProgressWidth(stat)}%"
+									></div>
+								</div>
+								{#if canLevelUp(stat)}
+									<div class="text-xs text-green-600 mt-1">
+										Ready to level up! 🎉
+									</div>
 								{:else}
-									<div class="card-actions justify-center">
-										<button 
-											class="btn btn-sm btn-outline btn-primary"
-											on:click={() => toggleStatEnabled(stat)}
-										>
-											Re-enable Stat
-										</button>
+									<div class="text-xs text-theme-muted mt-1">
+										{getXpToNextLevel(stat)} XP to level {stat.level + 1}
 									</div>
 								{/if}
 							</div>
+
+							{#if stat.enabled}
+								<div class="flex justify-between items-center">
+									<div class="flex gap-1">
+										{#if canLevelUp(stat)}
+											<button 
+												class="px-2 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
+												on:click={() => levelUpStat(stat.id)}
+											>
+												Level Up! 🎉
+											</button>
+										{:else}
+											<button 
+												class="px-2 py-1 border border-theme-primary text-theme-primary text-xs rounded-md hover:bg-theme-primary hover:text-white transition-colors"
+												on:click={() => incrementStat(stat.id, 1)}
+											>
+												+25 XP
+											</button>
+											<button 
+												class="px-2 py-1 border border-theme-primary text-theme-primary text-xs rounded-md hover:bg-theme-primary hover:text-white transition-colors"
+												on:click={() => incrementStat(stat.id, 5)}
+											>
+												+125 XP
+											</button>
+										{/if}
+									</div>
+									<button 
+										class="px-2 py-1 border border-theme-primary text-theme-primary text-xs rounded-md hover:bg-theme-primary hover:text-white transition-colors"
+										on:click={() => startEdit(stat)}
+									>
+										Edit
+									</button>
+								</div>
+							{:else}
+								<div class="flex justify-center">
+									<button 
+										class="px-4 py-2 border border-theme-primary text-theme-primary rounded-md hover:bg-theme-primary hover:text-white transition-colors"
+										on:click={() => toggleStatEnabled(stat)}
+									>
+										Re-enable Stat
+									</button>
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>
@@ -438,7 +428,7 @@
 	{/if}
 
 	<div class="mt-4">
-		<button class="btn btn-secondary" on:click={restoreDefaults}>
+		<button class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors" on:click={restoreDefaults}>
 			Restore Default Stats
 		</button>
 	</div>
@@ -446,9 +436,9 @@
 
 <!-- Create/Edit Modal -->
 {#if showCreateForm}
-	<div class="modal modal-open">
-		<form class="modal-box" on:submit|preventDefault={handleSubmit}>
-			<h3 class="font-bold text-lg mb-4">
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+		<form class="bg-theme rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6" on:submit|preventDefault={handleSubmit}>
+			<h3 class="font-bold text-lg mb-4 text-theme">
 				{editingStat ? 'Edit Stat' : 'Create New Stat'}
 			</h3>
 			
@@ -458,12 +448,12 @@
 				{@const recommendedStats = getRecommendedStats()}
 				
 				{#if classDef && recommendedStats.length > 0}
-					<div class="bg-base-200 rounded-lg p-4 mb-4">
-						<h4 class="font-medium text-base mb-2 flex items-center gap-2">
+					<div class="bg-theme-secondary rounded-lg p-4 mb-4">
+						<h4 class="font-medium text-base mb-2 flex items-center gap-2 text-theme">
 							<span class="text-lg">🎭</span>
 							Recommended for {userData.className}
 						</h4>
-						<p class="text-sm text-base-content/70 mb-3">
+						<p class="text-sm text-theme-muted mb-3">
 							These stats complement your class. Click to add one:
 						</p>
 						<div class="flex flex-wrap gap-2">
@@ -472,7 +462,7 @@
 								{#if statDef}
 									<button
 										type="button"
-										class="btn btn-sm btn-outline btn-primary"
+										class="px-3 py-1 border border-theme-primary text-theme-primary rounded-md text-sm hover:bg-theme-primary hover:text-white transition-colors"
 										on:click={() => addStatFromLibrary(statName)}
 									>
 										{statName}
@@ -486,84 +476,90 @@
 			
 			<!-- Stat Library Browser (only for new stats) -->
 			{#if !editingStat}
-				<div class="collapse collapse-arrow bg-base-100 border border-base-300 mb-4">
-					<input type="checkbox" />
-					<div class="collapse-title text-sm font-medium">
-						📚 Browse Stat Library
-					</div>
-					<div class="collapse-content">
-						<div class="space-y-3">
-							{#each Object.entries(getStatsByCategory()) as [category, categoryStats]}
-								<div>
-									<h5 class="font-medium text-sm mb-2 capitalize">{category}</h5>
-									<div class="grid grid-cols-1 gap-2">
-										{#each categoryStats as stat}
-											{@const isAlreadyAdded = stats.some(s => s.name === stat.name)}
-											<button
-												type="button"
-												class="btn btn-sm btn-outline text-left justify-start {isAlreadyAdded ? 'btn-disabled' : ''}"
-												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
-												disabled={isAlreadyAdded}
-											>
-												<div class="flex-1 min-w-0">
-													<div class="flex items-center gap-2">
-														<span class="font-medium">{stat.name}</span>
-														{#if isStatRecommended(stat.name)}
-															<span class="badge badge-primary badge-xs">Recommended</span>
-														{/if}
-														{#if isAlreadyAdded}
-															<span class="badge badge-ghost badge-xs">Added</span>
-														{/if}
+				<div class="border border-theme rounded-lg mb-4">
+					<details class="group">
+						<summary class="px-4 py-3 cursor-pointer text-sm font-medium text-theme hover:bg-theme-secondary transition-colors">
+							📚 Browse Stat Library
+						</summary>
+						<div class="px-4 pb-4">
+							<div class="space-y-3">
+								{#each Object.entries(getStatsByCategory()) as [category, categoryStats]}
+									<div>
+										<h5 class="font-medium text-sm mb-2 capitalize text-theme">{category}</h5>
+										<div class="grid grid-cols-1 gap-2">
+											{#each categoryStats as stat}
+												{@const isAlreadyAdded = stats.some(s => s.name === stat.name)}
+												<button
+													type="button"
+													class="px-3 py-2 border border-theme rounded-md text-left text-sm hover:bg-theme-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed {isAlreadyAdded ? 'bg-gray-100' : ''}"
+													on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
+													disabled={isAlreadyAdded}
+												>
+													<div class="flex-1 min-w-0">
+														<div class="flex items-center gap-2">
+															<span class="font-medium text-theme">{stat.name}</span>
+															{#if isStatRecommended(stat.name)}
+																<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-primary text-white">Recommended</span>
+															{/if}
+															{#if isAlreadyAdded}
+																<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Added</span>
+															{/if}
+														</div>
+														<div class="text-xs text-theme-muted truncate">
+															{stat.description}
+														</div>
 													</div>
-													<div class="text-xs text-left opacity-70 truncate">
-														{stat.description}
-													</div>
-												</div>
-											</button>
-										{/each}
+												</button>
+											{/each}
+										</div>
 									</div>
-								</div>
-							{/each}
+								{/each}
+							</div>
 						</div>
-					</div>
+					</details>
 				</div>
 				
-				<div class="divider text-sm">Or create a custom stat</div>
+				<div class="flex items-center my-4">
+					<div class="flex-1 border-t border-theme"></div>
+					<span class="px-3 text-sm text-theme-muted">Or create a custom stat</span>
+					<div class="flex-1 border-t border-theme"></div>
+				</div>
 			{/if}
 			
-			<div class="form-control mb-4">
-				<label class="label" for="name">
-					<span class="label-text">Name</span>
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-theme mb-2" for="name">
+					Name
 				</label>
 				<input 
 					type="text" 
 					id="name"
-					class="input input-bordered" 
+					class="w-full px-3 py-2 border border-theme rounded-md bg-theme text-theme placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary" 
 					bind:value={formData.name}
 					required
 				/>
 			</div>
 
-			<div class="form-control mb-4">
-				<label class="label" for="description">
-					<span class="label-text">Description</span>
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-theme mb-2" for="description">
+					Description
 				</label>
 				<textarea 
 					id="description"
-					class="textarea textarea-bordered" 
+					class="w-full px-3 py-2 border border-theme rounded-md bg-theme text-theme placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary resize-none" 
 					bind:value={formData.description}
 					placeholder="What this stat represents..."
+					rows="3"
 				></textarea>
 			</div>
 
 			<div class="grid grid-cols-2 gap-4 mb-4">
-				<div class="form-control">
-					<label class="label" for="icon">
-						<span class="label-text">Icon</span>
+				<div>
+					<label class="block text-sm font-medium text-theme mb-2" for="icon">
+						Icon
 					</label>
 					<select 
 						id="icon"
-						class="select select-bordered" 
+						class="w-full px-3 py-2 border border-theme rounded-md bg-theme text-theme focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary" 
 						bind:value={formData.icon}
 					>
 						<option value="">Select an icon...</option>
@@ -575,19 +571,19 @@
 					</select>
 					{#if formData.icon}
 						<div class="mt-2 flex items-center gap-2">
-							<span class="text-sm text-gray-600">Preview:</span>
+							<span class="text-sm text-theme-muted">Preview:</span>
 							<svelte:component this={getIconComponent(formData.icon)} size={20} />
 						</div>
 					{/if}
 				</div>
 
-				<div class="form-control">
-					<label class="label" for="category">
-						<span class="label-text">Category</span>
+				<div>
+					<label class="block text-sm font-medium text-theme mb-2" for="category">
+						Category
 					</label>
 					<select 
 						id="category"
-						class="select select-bordered" 
+						class="w-full px-3 py-2 border border-theme rounded-md bg-theme text-theme focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary" 
 						bind:value={formData.category}
 					>
 						{#each categoryOptions as option}

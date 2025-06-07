@@ -144,11 +144,11 @@
 <div class="container mx-auto p-6">
 	<div class="flex justify-between items-center mb-6">
 		<div>
-			<h1 class="text-3xl font-bold">Tasks</h1>
-			<p class="text-base-content/70">Manage your quests and objectives</p>
+			<h1 class="text-3xl font-bold text-theme-text">Tasks</h1>
+			<p class="text-theme-text/70">Manage your quests and objectives</p>
 		</div>
-		<button class="btn btn-primary" onclick={openCreateForm}>
-			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<button class="bg-theme-primary text-white px-4 py-2 rounded-md font-medium hover:bg-theme-primary/90 transition-colors flex items-center gap-2" onclick={openCreateForm}>
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 			</svg>
 			New Task
@@ -157,72 +157,70 @@
 
 	{#if loading}
 		<div class="flex justify-center p-8">
-			<span class="loading loading-spinner loading-lg"></span>
+			<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
 		</div>
 	{:else}
 		<div class="grid gap-4">
 			{#each tasks as task}
-				<div class="card bg-base-100 shadow-sm">
-					<div class="card-body">
-						<div class="flex justify-between items-start">
-							<div class="flex-1">
-								<h3 class="card-title text-lg">{task.title}</h3>
-								{#if task.description}
-									<p class="text-base-content/70 mt-2">{task.description}</p>
+				<div class="bg-theme-card border border-theme-border rounded-md shadow-sm p-6">
+					<div class="flex justify-between items-start">
+						<div class="flex-1">
+							<h3 class="text-lg font-semibold text-theme-text">{task.title}</h3>
+							{#if task.description}
+								<p class="text-theme-text/70 mt-2">{task.description}</p>
+							{/if}
+							<div class="flex flex-wrap gap-2 mt-3">
+								{#if task.dueDate}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-accent/10 text-theme-accent border border-theme-accent/20">
+										Due: {formatDate(task.dueDate)}
+									</span>
 								{/if}
-								<div class="flex flex-wrap gap-2 mt-3">
-									{#if task.dueDate}
-										<div class="badge badge-outline">
-											Due: {formatDate(task.dueDate)}
-										</div>
-									{/if}
-									{#if task.focus?.name}
-										<div class="badge badge-primary badge-outline">
-											{task.focus.name}
-										</div>
-									{/if}
-									{#if task.level?.name}
-										<div class="badge badge-secondary badge-outline">
-											{task.level.name}
-										</div>
-									{/if}
-									{#if task.familyMember?.name}
-										<div class="badge badge-accent badge-outline">
-											{task.familyMember.name}
-										</div>
-									{/if}
-									{#if task.stat?.name}
-										<div class="badge badge-info badge-outline flex items-center gap-1">
-											<svelte:component this={getIconComponent(task.stat.icon)} class="w-3 h-3" />
-											Stat: {task.stat.name}
-										</div>
-									{/if}
-								</div>
-							</div>
-							<div class="flex gap-2 ml-4">
-								{#if !task.completedAt}
-									<button 
-										class="btn btn-sm btn-success" 
-										onclick={() => completeTask(task.id)}
-									>
-										Complete
-									</button>
-								{:else}
-									<div class="badge badge-success">Completed</div>
+								{#if task.focus?.name}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-primary/10 text-theme-primary border border-theme-primary/20">
+										{task.focus.name}
+									</span>
 								{/if}
-								<button 
-									class="btn btn-sm btn-ghost" 
-									onclick={() => openEditForm(task)}
-								>
-									Edit
-								</button>
-								<button 
-									class="btn btn-sm btn-error btn-outline" 
-									onclick={() => deleteTask(task.id)}
-								>
-									Delete
-								</button>
+								{#if task.level?.name}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-secondary/10 text-theme-secondary border border-theme-secondary/20">
+										{task.level.name}
+									</span>
+								{/if}
+								{#if task.familyMember?.name}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-accent/10 text-theme-accent border border-theme-accent/20">
+										{task.familyMember.name}
+									</span>
+								{/if}
+								{#if task.stat?.name}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 gap-1">
+										<svelte:component this={getIconComponent(task.stat.icon)} class="w-3 h-3" />
+										Stat: {task.stat.name}
+									</span>
+								{/if}
 							</div>
+						</div>
+						<div class="flex gap-2 ml-4">
+							{#if !task.completedAt}
+								<button 
+									class="bg-green-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-green-700 transition-colors" 
+									onclick={() => completeTask(task.id)}
+								>
+									Complete
+								</button>
+							{:else}
+								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+							{/if}
+							<button 
+								class="bg-theme-card text-theme-text border border-theme-border px-3 py-1.5 rounded-md text-sm font-medium hover:bg-theme-accent/10 transition-colors" 
+								onclick={() => openEditForm(task)}
+							>
+								Edit
+							</button>
+							<button 
+								class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30" 
+								onclick={() => deleteTask(task.id)}
+							>
+								Delete
+							</button>
 						</div>
 					</div>
 				</div>
@@ -230,8 +228,8 @@
 			
 			{#if tasks.length === 0}
 				<div class="text-center py-12">
-					<p class="text-lg text-base-content/70">No tasks yet</p>
-					<p class="text-base-content/50">Create your first quest to get started!</p>
+					<p class="text-lg text-theme-text/70">No tasks yet</p>
+					<p class="text-theme-text/50">Create your first quest to get started!</p>
 				</div>
 			{/if}
 		</div>
@@ -240,112 +238,114 @@
 
 <!-- Create/Edit Task Modal -->
 {#if showCreateForm}
-	<div class="modal modal-open">
-		<div class="modal-box">
-			<h3 class="font-bold text-lg mb-4">
-				{editingTask ? 'Edit Task' : 'Create New Task'}
-			</h3>
-			
-			<form onsubmit={handleSubmit} class="space-y-4">
-				<div class="form-control">
-					<label class="label" for="title">
-						<span class="label-text">Title *</span>
-					</label>
-					<input 
-						id="title"
-						type="text" 
-						class="input input-bordered" 
-						bind:value={formData.title}
-						required
-					/>
-				</div>
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+		<div class="bg-theme-card border border-theme-border rounded-md shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+			<div class="p-6">
+				<h3 class="font-bold text-lg mb-4 text-theme-text">
+					{editingTask ? 'Edit Task' : 'Create New Task'}
+				</h3>
 				
-				<div class="form-control">
-					<label class="label" for="description">
-						<span class="label-text">Description</span>
-					</label>
-					<textarea 
-						id="description"
-						class="textarea textarea-bordered" 
-						bind:value={formData.description}
-						rows="3"
-					></textarea>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="dueDate">
-						<span class="label-text">Due Date</span>
-					</label>
-					<input 
-						id="dueDate"
-						type="date" 
-						class="input input-bordered" 
-						bind:value={formData.dueDate}
-					/>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="familyMemberId">
-						<span class="label-text">Family Member</span>
-					</label>
-					<select 
-						id="familyMemberId"
-						class="select select-bordered" 
-						bind:value={formData.familyMemberId}
-					>
-						<option value="">Select family member (optional)</option>
-						{#each familyMembers as member}
-							<option value={member.id}>{member.name}</option>
-						{/each}
-					</select>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="focusId">
-						<span class="label-text">Focus Area</span>
-					</label>
-					<select 
-						id="focusId"
-						class="select select-bordered" 
-						bind:value={formData.focusId}
-					>
-						<option value="">Select focus (optional)</option>
-						{#each focuses as focus}
-							<option value={focus.id}>{focus.name}</option>
-						{/each}
-					</select>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="statId">
-						<span class="label-text">Linked Stat</span>
-					</label>
-					<select 
-						id="statId"
-						class="select select-bordered" 
-						bind:value={formData.statId}
-					>
-						<option value="">Select stat (optional)</option>
-						{#each stats as stat}
-							<option value={stat.id}>
-								{stat.name} ({stat.value})
-							</option>
-						{/each}
-					</select>
-					<div class="text-xs text-base-content/60 mt-1">
-						Completing this task will increment the selected stat
+				<form onsubmit={handleSubmit} class="space-y-4">
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="title">
+							Title *
+						</label>
+						<input 
+							id="title"
+							type="text" 
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.title}
+							required
+						/>
 					</div>
-				</div>
-				
-				<div class="modal-action">
-					<button type="button" class="btn" onclick={() => showCreateForm = false}>
-						Cancel
-					</button>
-					<button type="submit" class="btn btn-primary">
-						{editingTask ? 'Update' : 'Create'}
-					</button>
-				</div>
-			</form>
+					
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="description">
+							Description
+						</label>
+						<textarea 
+							id="description"
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.description}
+							rows="3"
+						></textarea>
+					</div>
+					
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="dueDate">
+							Due Date
+						</label>
+						<input 
+							id="dueDate"
+							type="date" 
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.dueDate}
+						/>
+					</div>
+					
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="familyMemberId">
+							Family Member
+						</label>
+						<select 
+							id="familyMemberId"
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.familyMemberId}
+						>
+							<option value="">Select family member (optional)</option>
+							{#each familyMembers as member}
+								<option value={member.id}>{member.name}</option>
+							{/each}
+						</select>
+					</div>
+					
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="focusId">
+							Focus Area
+						</label>
+						<select 
+							id="focusId"
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.focusId}
+						>
+							<option value="">Select focus (optional)</option>
+							{#each focuses as focus}
+								<option value={focus.id}>{focus.name}</option>
+							{/each}
+						</select>
+					</div>
+					
+					<div>
+						<label class="block text-sm font-medium text-theme-text mb-2" for="statId">
+							Linked Stat
+						</label>
+						<select 
+							id="statId"
+							class="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-input text-theme-text focus:outline-none focus:ring-2 focus:ring-theme-primary focus:border-theme-primary transition-colors" 
+							bind:value={formData.statId}
+						>
+							<option value="">Select stat (optional)</option>
+							{#each stats as stat}
+								<option value={stat.id}>
+									{stat.name} ({stat.value})
+								</option>
+							{/each}
+						</select>
+						<div class="text-xs text-theme-text/60 mt-1">
+							Completing this task will increment the selected stat
+						</div>
+					</div>
+					
+					<div class="flex justify-end gap-3 pt-4 border-t border-theme-border">
+						<button type="button" class="bg-theme-card text-theme-text border border-theme-border px-4 py-2 rounded-md font-medium hover:bg-theme-accent/10 transition-colors" onclick={() => showCreateForm = false}>
+							Cancel
+						</button>
+						<button type="submit" class="bg-theme-primary text-white px-4 py-2 rounded-md font-medium hover:bg-theme-primary/90 transition-colors">
+							{editingTask ? 'Update' : 'Create'}
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 {/if}
