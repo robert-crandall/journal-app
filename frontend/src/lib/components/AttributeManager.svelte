@@ -9,7 +9,9 @@
 	let newValueInputs: Record<string, string> = {};
 	let addingValueFor: string | null = null;
 
-	// Group attributes by key
+	// Group attributes by key and track virtual keys
+	let virtualKeys: Record<string, boolean> = {};
+	
 	$: groupedAttributes = attributes.reduce((groups, attr) => {
 		if (!groups[attr.key]) {
 			groups[attr.key] = [];
@@ -18,8 +20,8 @@
 		return groups;
 	}, {} as Record<string, string[]>);
 
-	// Get unique keys
-	$: keys = Object.keys(groupedAttributes).sort();
+	// Get unique keys (including virtual ones)
+	$: keys = [...new Set([...Object.keys(groupedAttributes), ...Object.keys(virtualKeys)])].sort();
 
 	function startNewKey() {
 		newKeyMode = true;
@@ -35,8 +37,10 @@
 		if (!newKey.trim()) return;
 		
 		try {
-			// Add a placeholder value to create the key
-			await onAddAttribute(newKey.trim(), '');
+			// Create a virtual key that will show up in the UI
+			virtualKeys[newKey.trim()] = true;
+			addingValueFor = newKey.trim();
+			newValueInputs[newKey.trim()] = '';
 			newKeyMode = false;
 			newKey = '';
 		} catch (error) {
@@ -52,6 +56,10 @@
 	function cancelAddValue(key: string) {
 		addingValueFor = null;
 		delete newValueInputs[key];
+		// If this was a virtual key with no values, remove it
+		if (virtualKeys[key] && (!groupedAttributes[key] || groupedAttributes[key].length === 0)) {
+			delete virtualKeys[key];
+		}
 	}
 
 	async function addValue(key: string) {
@@ -68,6 +76,8 @@
 			await onAddAttribute(key, value);
 			addingValueFor = null;
 			delete newValueInputs[key];
+			// Remove from virtual keys since it now exists in the database
+			delete virtualKeys[key];
 		} catch (error) {
 			console.error('Failed to add value:', error);
 		}
@@ -116,7 +126,6 @@
 					placeholder="Enter section name (e.g., Values, Interests, Skills)"
 					bind:value={newKey}
 					onkeydown={handleKeyKeydown}
-					autofocus
 				/>
 				<button class="btn btn-primary btn-sm" onclick={addNewKey}>Add</button>
 				<button class="btn btn-ghost btn-sm" onclick={cancelNewKey}>Cancel</button>
@@ -146,12 +155,10 @@
 					</div>
 
 					<div class="space-y-2">
-						{#each groupedAttributes[key] as value}
-							{#if value.trim()}
-								<div class="bg-base-200 rounded px-3 py-2 text-sm">
-									<span class="text-base-content">- {value}</span>
-								</div>
-							{/if}
+						{#each groupedAttributes[key].filter(v => v.trim()) as value}
+							<div class="bg-base-200 rounded px-3 py-2 text-sm">
+								<span class="text-base-content">- {value}</span>
+							</div>
 						{/each}
 
 						{#if addingValueFor === key}
@@ -162,14 +169,13 @@
 									placeholder="Enter new value"
 									bind:value={newValueInputs[key]}
 									onkeydown={(e) => handleValueKeydown(e, key)}
-									autofocus
 								/>
 								<button class="btn btn-primary btn-xs" onclick={() => addValue(key)}>Add</button>
 								<button class="btn btn-ghost btn-xs" onclick={() => cancelAddValue(key)}>Cancel</button>
 							</div>
 						{/if}
 
-						{#if groupedAttributes[key].filter(v => v.trim()).length === 0}
+						{#if !groupedAttributes[key] || groupedAttributes[key].filter(v => v.trim()).length === 0}
 							<p class="text-base-content/50 text-sm italic">No values yet - click Add to get started</p>
 						{/if}
 					</div>
