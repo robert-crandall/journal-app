@@ -82,16 +82,39 @@ export const tasks = pgTable('tasks', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Journal entries
+// Journal entries with threading support
 export const journals = pgTable('journals', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   content: text('content').notNull(),
   gptSummary: text('gpt_summary'),
-  tags: jsonb('tags').$type<string[]>(),
+  tags: jsonb('tags').$type<string[]>(), // Keep for backward compatibility
   date: date('date').notNull().defaultNow(),
+  // New fields for conversation threading
+  status: text('status', { enum: ['draft', 'in_progress', 'completed'] }).notNull().default('draft'),
+  conversationHistory: jsonb('conversation_history').$type<Array<{role: 'user' | 'assistant', content: string, timestamp: string}>>().default([]),
+  followupCount: integer('followup_count').notNull().default(0),
+  maxFollowups: integer('max_followups').notNull().default(3),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Tags table for structured tag management
+export const tags = pgTable('tags', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Tag associations for journals and tasks
+export const tagAssociations = pgTable('tag_associations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tagId: uuid('tag_id').references(() => tags.id, { onDelete: 'cascade' }).notNull(),
+  entityType: text('entity_type', { enum: ['journal', 'task'] }).notNull(),
+  entityId: uuid('entity_id').notNull(), // References either journals.id or tasks.id
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // A/B Testing Potions
@@ -137,6 +160,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   tasks: many(tasks, { relationName: "user" }),
   familyTasks: many(tasks, { relationName: "familyMember" }),
   journals: many(journals),
+  tags: many(tags),
   potions: many(potions),
   sessions: many(sessions),
   preferences: one(preferences, { fields: [users.id], references: [preferences.userId] }),
@@ -165,8 +189,18 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
   familyMember: one(users, { fields: [tasks.familyMemberId], references: [users.id], relationName: "familyMember" }),
 }));
 
-export const journalsRelations = relations(journals, ({ one }) => ({
+export const journalsRelations = relations(journals, ({ one, many }) => ({
   user: one(users, { fields: [journals.userId], references: [users.id] }),
+  tagAssociations: many(tagAssociations),
+}));
+
+export const tagsRelations = relations(tags, ({ one, many }) => ({
+  user: one(users, { fields: [tags.userId], references: [users.id] }),
+  associations: many(tagAssociations),
+}));
+
+export const tagAssociationsRelations = relations(tagAssociations, ({ one }) => ({
+  tag: one(tags, { fields: [tagAssociations.tagId], references: [tags.id] }),
 }));
 
 export const potionsRelations = relations(potions, ({ one }) => ({
@@ -194,6 +228,10 @@ export const insertTaskSchema = createInsertSchema(tasks);
 export const selectTaskSchema = createSelectSchema(tasks);
 export const insertJournalSchema = createInsertSchema(journals);
 export const selectJournalSchema = createSelectSchema(journals);
+export const insertTagSchema = createInsertSchema(tags);
+export const selectTagSchema = createSelectSchema(tags);
+export const insertTagAssociationSchema = createInsertSchema(tagAssociations);
+export const selectTagAssociationSchema = createSelectSchema(tagAssociations);
 export const insertPotionSchema = createInsertSchema(potions);
 export const selectPotionSchema = createSelectSchema(potions);
 export const insertSessionSchema = createInsertSchema(sessions);
@@ -235,7 +273,21 @@ export const completeTaskSchema = z.object({
 
 export const createJournalSchema = z.object({
   content: z.string().min(1),
-  date: z.string().datetime().optional(),
+  date: z.string().date().optional(),
+});
+
+// New schemas for journal conversation flow
+export const startJournalSchema = z.object({
+  content: z.string().min(1),
+  date: z.string().date().optional(),
+});
+
+export const followupResponseSchema = z.object({
+  response: z.string().min(1),
+});
+
+export const submitJournalSchema = z.object({
+  // No additional data needed - journal is submitted as-is
 });
 
 export const createFocusSchema = z.object({
@@ -297,6 +349,10 @@ export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Journal = typeof journals.$inferSelect;
 export type NewJournal = typeof journals.$inferInsert;
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+export type TagAssociation = typeof tagAssociations.$inferSelect;
+export type NewTagAssociation = typeof tagAssociations.$inferInsert;
 export type Potion = typeof potions.$inferSelect;
 export type NewPotion = typeof potions.$inferInsert;
 export type Session = typeof sessions.$inferSelect;

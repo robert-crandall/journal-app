@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { journalsApi } from '$lib/api';
+	import { Bot, Plus, MessageCircle, Calendar, Clock, CheckCircle, Play } from 'lucide-svelte';
 	
 	let journals: any[] = [];
 	let loading = true;
@@ -29,6 +31,14 @@
 		} finally {
 			loading = false;
 		}
+	}
+	
+	function startAIChat() {
+		goto('/journals/chat');
+	}
+
+	function continueAIChat(journalId: string) {
+		goto(`/journals/chat?id=${journalId}`);
 	}
 	
 	function openCreateForm() {
@@ -98,6 +108,22 @@
 		if (content.length <= maxLength) return content;
 		return content.substring(0, maxLength) + '...';
 	}
+
+	function getJournalTypeInfo(journal: any) {
+		if (journal.status) {
+			return {
+				isAI: true,
+				status: journal.status,
+				followupCount: journal.followupCount || 0,
+				maxFollowups: journal.maxFollowups || 3
+			};
+		}
+		return { isAI: false };
+	}
+
+	// Separate AI and traditional journals
+	$: aiJournals = journals.filter(j => j.status);
+	$: traditionalJournals = journals.filter(j => !j.status);
 </script>
 
 <svelte:head>
@@ -110,12 +136,16 @@
 			<h1 class="text-3xl font-bold">Journal</h1>
 			<p class="text-base-content/70">Reflect on your journey and growth</p>
 		</div>
-		<button class="btn btn-primary" onclick={openCreateForm}>
-			<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-			</svg>
-			New Entry
-		</button>
+		<div class="flex gap-2">
+			<button class="btn btn-primary" onclick={startAIChat}>
+				<Bot class="w-5 h-5 mr-2" />
+				AI Chat Session
+			</button>
+			<button class="btn btn-outline" onclick={openCreateForm}>
+				<Plus class="w-5 h-5 mr-2" />
+				Quick Entry
+			</button>
+		</div>
 	</div>
 
 	{#if loading}
@@ -123,63 +153,170 @@
 			<span class="loading loading-spinner loading-lg"></span>
 		</div>
 	{:else}
-		<div class="space-y-6">
-			{#each journals as journal}
-				<div class="card bg-base-100 shadow-sm">
-					<div class="card-body">
-						<div class="flex justify-between items-start mb-4">
-							<div class="flex-1">
-								<div class="flex items-center gap-3 mb-2">
-									<h3 class="text-lg font-semibold">
-										{formatDate(journal.date)}
-									</h3>
-									<div class="badge badge-outline text-xs">
-										{formatDateTime(journal.createdAt)}
+		<!-- AI Journal Sessions -->
+		{#if aiJournals.length > 0}
+			<div class="mb-8">
+				<h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+					<Bot size={20} />
+					AI Chat Sessions
+				</h2>
+				<div class="grid gap-4">
+					{#each aiJournals as journal}
+						{@const typeInfo = getJournalTypeInfo(journal)}
+						<div class="card bg-base-100 shadow-sm border-l-4 {
+							typeInfo.status === 'completed' ? 'border-l-success' : 
+							typeInfo.status === 'in_progress' ? 'border-l-primary' : 'border-l-warning'
+						}">
+							<div class="card-body p-4">
+								<div class="flex justify-between items-start">
+									<div class="flex-1">
+										<div class="flex items-center gap-3 mb-2">
+											<h3 class="font-semibold">
+												{formatDate(journal.date)}
+											</h3>
+											<div class="badge {
+												typeInfo.status === 'completed' ? 'badge-success' : 
+												typeInfo.status === 'in_progress' ? 'badge-primary' : 'badge-warning'
+											} gap-1">
+												{#if typeInfo.status === 'completed'}
+													<CheckCircle size={12} />
+													Completed
+												{:else if typeInfo.status === 'in_progress'}
+													<MessageCircle size={12} />
+													In Progress ({typeInfo.followupCount}/{typeInfo.maxFollowups})
+												{:else}
+													<Play size={12} />
+													New
+												{/if}
+											</div>
+											<div class="badge badge-outline text-xs">
+												<Clock size={10} class="mr-1" />
+												{formatDateTime(journal.createdAt)}
+											</div>
+										</div>
+										<div class="prose max-w-none">
+											<p class="text-sm text-base-content/80 whitespace-pre-wrap">
+												{truncateContent(journal.content, 150)}
+											</p>
+										</div>
+										{#if journal.gptSummary}
+											<div class="mt-3 p-3 bg-base-200 rounded-lg">
+												<p class="text-xs font-medium mb-1">AI Summary:</p>
+												<p class="text-xs text-base-content/70">
+													{truncateContent(journal.gptSummary, 100)}
+												</p>
+											</div>
+										{/if}
+									</div>
+									<div class="flex gap-2 ml-4">
+										{#if typeInfo.status !== 'completed'}
+											<button 
+												class="btn btn-sm btn-primary" 
+												onclick={() => continueAIChat(journal.id)}
+											>
+												Continue
+											</button>
+										{:else}
+											<button 
+												class="btn btn-sm btn-ghost" 
+												onclick={() => continueAIChat(journal.id)}
+											>
+												View
+											</button>
+										{/if}
+										<button 
+											class="btn btn-sm btn-error btn-outline" 
+											onclick={() => deleteJournal(journal.id)}
+											aria-label="Delete journal entry"
+										>
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+											</svg>
+										</button>
 									</div>
 								</div>
-								<div class="prose max-w-none">
-									<p class="whitespace-pre-wrap text-base-content/80">
-										{truncateContent(journal.content)}
-									</p>
-								</div>
-							</div>
-							<div class="flex gap-2 ml-4">
-								<button 
-									class="btn btn-sm btn-ghost" 
-									onclick={() => openEditForm(journal)}
-									aria-label="Edit journal entry"
-								>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-									</svg>
-								</button>
-								<button 
-									class="btn btn-sm btn-error btn-outline" 
-									onclick={() => deleteJournal(journal.id)}
-									aria-label="Delete journal entry"
-								>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-									</svg>
-								</button>
 							</div>
 						</div>
-					</div>
+					{/each}
 				</div>
-			{/each}
-			
-			{#if journals.length === 0}
-				<div class="text-center py-12">
-					<div class="mb-4">
-						<svg class="w-16 h-16 mx-auto text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-						</svg>
-					</div>
-					<p class="text-lg text-base-content/70">No journal entries yet</p>
-					<p class="text-base-content/50">Start your reflection journey by writing your first entry!</p>
+			</div>
+		{/if}
+
+		<!-- Traditional Journal Entries -->
+		{#if traditionalJournals.length > 0}
+			<div class="mb-8">
+				<h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+					<Calendar size={20} />
+					Quick Entries
+				</h2>
+				<div class="space-y-4">
+					{#each traditionalJournals as journal}
+						<div class="card bg-base-100 shadow-sm">
+							<div class="card-body p-4">
+								<div class="flex justify-between items-start">
+									<div class="flex-1">
+										<div class="flex items-center gap-3 mb-2">
+											<h3 class="font-semibold">
+												{formatDate(journal.date)}
+											</h3>
+											<div class="badge badge-outline text-xs">
+												<Clock size={10} class="mr-1" />
+												{formatDateTime(journal.createdAt)}
+											</div>
+										</div>
+										<div class="prose max-w-none">
+											<p class="text-sm text-base-content/80 whitespace-pre-wrap">
+												{truncateContent(journal.content)}
+											</p>
+										</div>
+									</div>
+									<div class="flex gap-2 ml-4">
+										<button 
+											class="btn btn-sm btn-ghost" 
+											onclick={() => openEditForm(journal)}
+											aria-label="Edit journal entry"
+										>
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+											</svg>
+										</button>
+										<button 
+											class="btn btn-sm btn-error btn-outline" 
+											onclick={() => deleteJournal(journal.id)}
+											aria-label="Delete journal entry"
+										>
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+											</svg>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					{/each}
 				</div>
-			{/if}
-		</div>
+			</div>
+		{/if}
+		
+		{#if journals.length === 0}
+			<div class="text-center py-12">
+				<div class="mb-6">
+					<Bot class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
+					<p class="text-lg text-base-content/70 mb-2">No journal entries yet</p>
+					<p class="text-base-content/50 mb-6">Start your reflection journey!</p>
+				</div>
+				<div class="flex gap-4 justify-center">
+					<button class="btn btn-primary" onclick={startAIChat}>
+						<Bot class="w-5 h-5 mr-2" />
+						Start AI Chat Session
+					</button>
+					<button class="btn btn-outline" onclick={openCreateForm}>
+						<Plus class="w-5 h-5 mr-2" />
+						Write Quick Entry
+					</button>
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 

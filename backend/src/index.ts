@@ -19,6 +19,7 @@ import journals from './routes/journals';
 import potions from './routes/potions';
 import stats from './routes/stats';
 import preferences from './routes/preferences';
+import tags from './routes/tags';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -43,5 +44,6 @@ app.route('/api/journals', journals);
 app.route('/api/potions', potions);
 app.route('/api/stats', stats);
 app.route('/api/preferences', preferences);
+app.route('/api/tags', tags);
 
 export default app;
