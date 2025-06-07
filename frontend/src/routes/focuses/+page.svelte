@@ -168,6 +168,29 @@
 			<span class="loading loading-spinner loading-lg"></span>
 		</div>
 	{:else}
+		<!-- Weekly Focus View -->
+		{#if focuses.some(focus => focus.dayOfWeek)}
+			<div class="card bg-base-100 shadow-sm mb-6">
+				<div class="card-body">
+					<h2 class="card-title mb-4">📅 Weekly Focus Schedule</h2>
+					<div class="grid grid-cols-7 gap-2">
+						{#each ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as day}
+							{@const dayFocus = focuses.find(focus => focus.dayOfWeek === day)}
+							<div class="text-center p-3 rounded-lg {dayFocus ? 'bg-primary/10 border border-primary/20' : 'bg-base-200/50'}">
+								<div class="text-xs font-medium text-base-content/60 mb-1">{day.slice(0, 3)}</div>
+								{#if dayFocus}
+									<div class="text-lg mb-1">{dayFocus.emoji || '📍'}</div>
+									<div class="text-sm font-medium" style={dayFocus.color ? `color: ${dayFocus.color}` : ''}>{dayFocus.name}</div>
+								{:else}
+									<div class="text-base-content/30 text-sm">No focus</div>
+								{/if}
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
+		
 		<div class="grid gap-6">
 			{#each focuses as focus}
 				<div class="card bg-base-100 shadow-sm">
