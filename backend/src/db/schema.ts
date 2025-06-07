@@ -65,6 +65,7 @@ export const tasks = pgTable('tasks', {
   focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }),
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   familyMemberId: uuid('family_member_id').references(() => users.id, { onDelete: 'set null' }),
+  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   title: text('title').notNull(),
   description: text('description'),
   dueDate: date('due_date'),
@@ -78,6 +79,7 @@ export const tasks = pgTable('tasks', {
   completionSummary: text('completion_summary'),
   feedback: text('feedback'), // User feedback on task completion
   emotionTag: text('emotion_tag'), // User emotion after task completion
+  moodScore: integer('mood_score'), // Optional 1-5 mood/energy rating for A/B testing
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -86,8 +88,11 @@ export const tasks = pgTable('tasks', {
 export const journals = pgTable('journals', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   content: text('content').notNull(),
   gptSummary: text('gpt_summary'),
+  sentimentScore: integer('sentiment_score'), // 1-5 sentiment rating from GPT analysis
+  moodTags: jsonb('mood_tags').$type<string[]>(), // GPT-extracted mood tags (e.g., "calm", "anxious", "energized")
   tags: jsonb('tags').$type<string[]>(), // Keep for backward compatibility
   date: date('date').notNull().defaultNow(),
   // New fields for conversation threading
@@ -271,6 +276,7 @@ export const completeTaskSchema = z.object({
   completionSummary: z.string().optional(),
   feedback: z.string().optional(),
   emotionTag: z.string().optional(),
+  moodScore: z.number().int().min(1).max(5).optional(), // Optional 1-5 mood rating
 });
 
 export const createJournalSchema = z.object({

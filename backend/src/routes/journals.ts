@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { journals, tags, tagAssociations, attributes, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, type User } from '../db/schema';
+import { journals, tags, tagAssociations, attributes, potions, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { generateFollowupQuestion, processJournalSubmission, type ConversationMessage } from '../utils/gptJournalProcessor';
 
@@ -262,11 +262,18 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
     existingTags,
   });
   
-  // Update journal with GPT summary and mark as completed
+  // Get active potions to link this journal entry
+  const activePotionIds = await getActivePotions(user.id);
+  const potionId = activePotionIds.length > 0 ? activePotionIds[0] : null; // Link to first active potion if any
+  
+  // Update journal with GPT summary, sentiment data, and mark as completed
   const [updatedJournal] = await db.update(journals)
     .set({
       status: 'completed',
       gptSummary: gptSummary.summary,
+      sentimentScore: gptSummary.sentimentScore,
+      moodTags: gptSummary.moodTags,
+      potionId: potionId,
       updatedAt: new Date(),
     })
     .where(eq(journals.id, journalId))
@@ -285,6 +292,22 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
     suggestedAttributes: processedAttributes,
   });
 });
+
+// Helper function to get active potions for a user
+async function getActivePotions(userId: string): Promise<string[]> {
+  const today = new Date().toISOString().split('T')[0];
+  
+  const activePotions = await db.query.potions.findMany({
+    where: and(
+      eq(potions.userId, userId),
+      eq(potions.isActive, true),
+      lte(potions.startDate, today),
+      gte(potions.endDate, today)
+    ),
+  });
+  
+  return activePotions.map(potion => potion.id);
+}
 
 // Helper function to process extracted tags
 async function processExtractedTags(userId: string, tagNames: string[], journalId: string) {

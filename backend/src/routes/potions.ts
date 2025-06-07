@@ -5,6 +5,7 @@ import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
 import { potions, createPotionSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
+import { analyzePotionEffectiveness, runWeeklyPotionAnalysis } from '../utils/potionAnalysis';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -116,6 +117,86 @@ potionsRouter.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
   }
   
   return c.json({ message: 'Potion deleted successfully' });
+});
+
+// Analyze a specific potion's effectiveness
+potionsRouter.post('/:id/analyze', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  const potionId = c.req.param('id');
+  
+  // Verify the potion belongs to the user
+  const potion = await db.query.potions.findFirst({
+    where: and(eq(potions.id, potionId), eq(potions.userId, user.id)),
+  });
+  
+  if (!potion) {
+    return c.json({ error: 'Potion not found' }, 404);
+  }
+  
+  try {
+    const analysis = await analyzePotionEffectiveness(potionId);
+    
+    // Store the analysis in the potion record
+    await db.update(potions)
+      .set({
+        gptAnalysis: JSON.stringify(analysis),
+        updatedAt: new Date(),
+      })
+      .where(eq(potions.id, potionId));
+    
+    return c.json({ analysis });
+  } catch (error) {
+    console.error('Failed to analyze potion:', error);
+    return c.json({ error: 'Failed to analyze potion effectiveness' }, 500);
+  }
+});
+
+// Get analysis for a specific potion
+potionsRouter.get('/:id/analysis', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  const potionId = c.req.param('id');
+  
+  const potion = await db.query.potions.findFirst({
+    where: and(eq(potions.id, potionId), eq(potions.userId, user.id)),
+  });
+  
+  if (!potion) {
+    return c.json({ error: 'Potion not found' }, 404);
+  }
+  
+  let analysis = null;
+  if (potion.gptAnalysis) {
+    try {
+      analysis = JSON.parse(potion.gptAnalysis);
+    } catch (error) {
+      console.error('Error parsing stored analysis:', error);
+    }
+  }
+  
+  return c.json({ 
+    potion: {
+      id: potion.id,
+      title: potion.title,
+      hypothesis: potion.hypothesis,
+      startDate: potion.startDate,
+      endDate: potion.endDate,
+      isActive: potion.isActive,
+    },
+    analysis 
+  });
+});
+
+// Run weekly analysis for all user's active potions
+potionsRouter.post('/analyze-all', jwtMiddleware, userMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  
+  try {
+    const analyses = await runWeeklyPotionAnalysis(user.id);
+    return c.json({ analyses });
+  } catch (error) {
+    console.error('Failed to run weekly analysis:', error);
+    return c.json({ error: 'Failed to run weekly potion analysis' }, 500);
+  }
 });
 
 export default potionsRouter;
