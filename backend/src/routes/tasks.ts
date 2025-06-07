@@ -23,7 +23,6 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
-      familyMember: true,
     },
     orderBy: [desc(tasks.createdAt)],
   });
@@ -87,7 +86,6 @@ tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
-      familyMember: true,
     },
   });
   
