@@ -1,123 +1,131 @@
----
-applyTo: "**/*.{svelte,html,css}"
----
+## 🧭 Preferred Design Style Guide
 
-# Design Style Guide
+### 🎯 Core UX Principles
 
-## Core UX Principles
+* **Immediate, meaningful feedback**
+  All interactions should confirm user intent quickly and clearly — using subtle animation and concise messaging.
+  *“Feedback should be timely, visible, and obvious without being loud.”*
 
-* **Responsive with purposeful animation**
-  Prioritize immediate visual feedback. Use smooth transitions only when they enhance usability and user orientation — avoid decorative animations.
+* **Emotionally grounded tone**
+  Use calm, affirming language. Avoid exaggerated praise; instead, acknowledge effort, progress, or clarity.
+  *“Encourage the user, don’t cheerlead them.”*
 
-* **Professional tone**
-  Use clear, direct language that builds confidence. Avoid overly casual or enthusiastic messaging. Messaging should be informative and supportive without being patronizing.
+* **Structured clarity with warmth**
+  Prioritize chunked, scannable content. Visual warmth comes from spacing, rhythm, and consistent hierarchy — not decoration.
+  *“The interface should feel thoughtful, not busy.”*
 
-* **Structured clarity**
-  Prioritize clarity over cleverness. Use layout, typography, and visual hierarchy to make interactions self-evident. Minimize cognitive load while maintaining visual interest.
-
-* **Progressive disclosure**
-  Interfaces should present information hierarchically. Show essential information first, with clear pathways to access additional detail when needed.
-
----
-
-## Interaction Requirements
-
-### Required Elements
-
-* State updates (checkboxes, progress indicators, form submissions) must provide immediate feedback
-* Dynamic content should integrate seamlessly without requiring page refreshes
-* Submission states must be clearly communicated with appropriate status indicators
-* Loading states should be informative and unobtrusive
-
-### Design Constraints
-
-* Animations should serve a functional purpose — indicating state changes, directing attention, or improving perceived performance
-* Progress indicators should reflect actual progress or achievement rather than emotional encouragement
-* Interactive elements should have clear affordances — if something looks clickable, it should be clickable
+* **Depth-friendly scaffolding**
+  Support both quick interactions and deeper exploration. Present essential information first, with options to explore more.
+  *“Support both the quick glance and the slow dive.”*
 
 ---
 
-## Visual Design System
+## ⚙️ Interaction Rules
 
-### Layout Structure
+### ✅ Must-Haves
 
-* **Grid-based design** using consistent spacing with `gap`, `space`, and `container` classes
-* **Card-based components** with standardized styling:
-  * Consistent border radius (`rounded-lg`)
-  * Appropriate elevation (`shadow-md`)
-  * Uniform padding (`p-4`, `p-6`)
-* **Visual hierarchy** through left-border accents:
-  * Semantic `border-l-4` to indicate content type, priority, or context
-* **Responsive design** with breakpoint-aware layouts (`sm:flex`, `lg:grid-cols-*`)
+* All interactive elements should **update state immediately**
+* Dynamically generated content should integrate seamlessly without requiring manual refresh
+* Submission states are clearly communicated with subtle visual cues (e.g., “Saved ✓”)
 
-### Interactive Feedback
+### ⚠️ Use With Care
 
-* Utilize DaisyUI's built-in status classes (`alert-success`, `alert-warning`, `loading`, `toast`)
-* Apply smooth transitions for state changes (`transition`, `hover:*`, `focus:*`)
-* Implement clear confirmation messages and loading indicators where appropriate
-
-### Color System
-
-* **Semantic theming** using design tokens (`primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`)
-* **Context-appropriate styling**:
-  * Primary content: `border-l-4 border-primary`
-  * Reflective content: `text-neutral`, `prose`
-  * Data visualization: `progress`, `badge`, `indicator`
+* Animation should only reinforce **structure or state change**
+* Reinforce progress with simple confirmation — avoid emotionally charged language
+* Make the largest logically interactive element clickable (e.g., a card or row)
 
 ---
 
-## Typography
+## 🧭 Navigation
 
-* **Hierarchical text structure**:
-  * Page titles: `text-2xl font-bold` or larger
-  * Section headers: `text-xl font-semibold`
-  * Body text: `text-sm text-base-content/secondary`
-  * Supplementary text: `italic`, `text-opacity-70`
-* **Content formatting** using DaisyUI prose classes (`prose`, `prose-sm`) for user-generated content
-* **Consistent spacing** with appropriate margins (`mb-2`, `mt-4`) and content grouping (`space-y-*`)
+### Structure
 
----
+* **Mobile-first layout**
+* **Hamburger menu on the top left** for small screens
+* **Expanded horizontal nav** on larger screens (`md` and up)
+* Include **branding/title** on the left and navigation items spaced apart
 
-## Component Patterns
+### Behavior
 
-* **Information Cards**:
+* Navigation should:
 
-  ```html
-  <div class="card shadow-md border-l-4 border-accent">
-    <div class="card-body">
-      <h2 class="card-title">Health Metrics</h2>
-      <p class="text-sm italic opacity-70">Progress tracking</p>
-      <progress class="progress w-full" value="42" max="100"></progress>
-    </div>
+  * Be accessible and keyboard navigable
+  * Collapse/expand responsively
+  * Show active section (underline or font-weight)
+  * Avoid over-nesting
+
+### Sample Markup Pattern
+
+```html
+<header class="bg-white shadow-md border-b">
+  <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Mobile: Hamburger on left -->
+    <button class="md:hidden" aria-label="Open menu">
+      <!-- Icon SVG here -->
+    </button>
+
+    <!-- Brand -->
+    <a href="/" class="text-lg font-semibold">App Name</a>
+
+    <!-- Menu (hidden on mobile) -->
+    <ul class="hidden md:flex space-x-6 text-sm font-medium">
+      <li><a href="/" class="hover:text-theme">Home</a></li>
+      <li><a href="/features" class="hover:text-theme">Features</a></li>
+      <li><a href="/pricing" class="hover:text-theme">Pricing</a></li>
+      <li><a href="/settings" class="hover:text-theme">Settings</a></li>
+    </ul>
+  </nav>
+
+  <!-- Mobile menu (controlled by toggle state) -->
+  <div class="md:hidden px-4 pb-4 space-y-2">
+    <a href="/" class="block text-sm">Home</a>
+    <a href="/features" class="block text-sm">Features</a>
+    <a href="/pricing" class="block text-sm">Pricing</a>
+    <a href="/settings" class="block text-sm">Settings</a>
   </div>
-  ```
-
-* **Navigation Elements**:
-
-  ```html
-  <a href="/journal" class="block hover:bg-base-200 transition p-4 rounded-lg">
-    <h3 class="font-semibold">Journal Entry</h3>
-    <p class="text-sm opacity-70">Record your daily reflections</p>
-  </a>
-  ```
-
-* **Status Indicators**:
-  Use DaisyUI's `badge`, `badge-accent`, or `badge-neutral` for status communication and progress tracking.
+</header>
+```
 
 ---
 
-## State Management
+## 🎨 Visual Design System
 
-* **Optimistic updates** preferred: reflect user actions immediately
-* Use `stores` or `signals` for syncing state across components
-* Autosave whenever possible. Avoid "Save to apply" patterns unless necessary
+### Layout
+
+* **Grid-based** using `gap-*`, `space-y-*`, `container`
+* **Cards**: `bg-white rounded-md shadow-md p-4` or `p-6`
+* Use **left borders** (`border-l-4`) for emphasis or semantic grouping
+
+### Theming
+
+* Use **semantic colors** (e.g., `theme`, `neutral`, `info`)
+* Keep contrast clean, not loud
+* Match tone across elements (e.g., button, badge, heading in the same section)
 
 ---
 
-## Implementation Checklist
+## 🔠 Typography
 
-* [ ] Consistent theming using DaisyUI color tokens and layout utilities
-* [ ] Card-based design with contextual left-border indicators
-* [ ] Responsive grids and consistent spacing
-* [ ] Clear typography hierarchy and readable content structure
-* [ ] Professional interaction patterns with appropriate feedback mechanisms
+* **Hierarchy with weight + size**:
+
+  * Page title: `text-3xl font-bold`
+  * Section: `text-xl font-semibold`
+  * Body: `text-sm text-gray-600`
+  * Emphasis: `italic`, `opacity-70`
+* Use `prose` for structured, longform, or user-generated content
+
+---
+
+## 🧩 Components & Patterns
+
+* Reusable blocks: cards, progress, badges, buttons
+* Prefer `rounded-md`, `shadow-md`, and generous padding
+* Components should be responsive, accessible, and visually clickable
+
+---
+
+## 🔁 State Behavior
+
+* Use optimistic updates
+* Show `"Saved ✓"`, `"Updated"` clearly and gently
+* Handle errors with clarity, not alarm
