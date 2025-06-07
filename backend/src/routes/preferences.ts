@@ -28,7 +28,9 @@ app.get('/', jwtMiddleware, userMiddleware, async (c) => {
       return c.json({ 
         success: true, 
         preferences: {
-          theme: 'light'
+          theme: 'light',
+          locationDescription: null,
+          zipCode: null
         }
       });
     }
@@ -54,7 +56,7 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
   }
 
   // Validate that the key is a valid preference field
-  const validKeys = ['theme'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -76,6 +78,10 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
       // Dynamically set the preference field
       if (key === 'theme') {
         updateData.theme = value;
+      } else if (key === 'locationDescription') {
+        updateData.locationDescription = value;
+      } else if (key === 'zipCode') {
+        updateData.zipCode = value;
       }
 
       await db
@@ -92,6 +98,10 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
       // Set the specific preference
       if (key === 'theme') {
         newPrefs.theme = value;
+      } else if (key === 'locationDescription') {
+        newPrefs.locationDescription = value;
+      } else if (key === 'zipCode') {
+        newPrefs.zipCode = value;
       }
 
       await db.insert(preferences).values(newPrefs);
@@ -113,7 +123,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
     return c.json({ error: 'Preferences object is required' }, 400);
   }
 
-  const validKeys = ['theme'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode'];
   
   // Validate all keys
   for (const key of Object.keys(prefsData)) {
@@ -138,6 +148,8 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
       
       // Set each preference field
       if (prefsData.theme !== undefined) updateData.theme = prefsData.theme;
+      if (prefsData.locationDescription !== undefined) updateData.locationDescription = prefsData.locationDescription;
+      if (prefsData.zipCode !== undefined) updateData.zipCode = prefsData.zipCode;
 
       await db
         .update(preferences)
@@ -148,6 +160,8 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
       const newPrefs: any = {
         userId: user.id,
         theme: prefsData.theme || 'light',
+        locationDescription: prefsData.locationDescription || null,
+        zipCode: prefsData.zipCode || null,
       };
 
       await db.insert(preferences).values(newPrefs);
@@ -165,7 +179,7 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   const key = c.req.param('key');
 
-  const validKeys = ['theme'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -178,6 +192,10 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
     
     if (key === 'theme') {
       updateData.theme = 'light'; // default theme
+    } else if (key === 'locationDescription') {
+      updateData.locationDescription = null; // clear location
+    } else if (key === 'zipCode') {
+      updateData.zipCode = null; // clear zip code
     }
 
     await db
