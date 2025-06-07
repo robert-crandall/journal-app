@@ -60,3 +60,7 @@ This is a personal journaling application built with SvelteKit (frontend) and Ho
 - Validate all user inputs
 - Implement proper CORS handling
 - Follow security best practices for sensitive data
+
+## Instruction files
+
+- Use `.github/instructions/` for project-specific guidelines
