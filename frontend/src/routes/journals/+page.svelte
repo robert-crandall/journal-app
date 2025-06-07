@@ -189,10 +189,6 @@
 													New
 												{/if}
 											</div>
-											<div class="badge badge-outline text-xs">
-												<Clock size={10} class="mr-1" />
-												{formatDateTime(journal.createdAt)}
-											</div>
 										</div>
 										<div class="prose max-w-none">
 											<p class="text-sm text-base-content/80 whitespace-pre-wrap">
@@ -259,10 +255,6 @@
 											<h3 class="font-semibold">
 												{formatDate(journal.date)}
 											</h3>
-											<div class="badge badge-outline text-xs">
-												<Clock size={10} class="mr-1" />
-												{formatDateTime(journal.createdAt)}
-											</div>
 										</div>
 										<div class="prose max-w-none">
 											<p class="text-sm text-base-content/80 whitespace-pre-wrap">
