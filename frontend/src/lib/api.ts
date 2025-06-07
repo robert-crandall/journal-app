@@ -70,14 +70,14 @@ export const focusesApi = {
 		return apiRequest('/focuses');
 	},
 	
-	async create(focus: { name: string; description?: string; gptContext?: any }) {
+	async create(focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest('/focuses', {
 			method: 'POST',
 			body: JSON.stringify(focus)
 		});
 	},
 	
-	async update(id: string, focus: { name: string; description?: string; gptContext?: any }) {
+	async update(id: string, focus: { name: string; description?: string; emoji?: string; color?: string; dayOfWeek?: string; sampleActivities?: string[]; statId?: string; gptContext?: any }) {
 		return apiRequest(`/focuses/${id}`, {
 			method: 'PUT',
 			body: JSON.stringify(focus)

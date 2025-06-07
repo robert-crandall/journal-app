@@ -33,6 +33,10 @@ export const focuses = pgTable('focuses', {
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   description: text('description'),
+  emoji: text('emoji'),
+  color: text('color'),
+  dayOfWeek: text('day_of_week', { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }),
+  sampleActivities: jsonb('sample_activities').$type<string[]>(),
   gptContext: jsonb('gpt_context'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -219,6 +223,10 @@ export const createJournalSchema = z.object({
 export const createFocusSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
+  emoji: z.string().optional(),
+  color: z.string().optional(),
+  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
+  sampleActivities: z.array(z.string()).optional(),
   statId: z.string().uuid().optional(),
   gptContext: z.any().optional(),
 });

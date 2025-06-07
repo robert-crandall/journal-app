@@ -119,7 +119,7 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
   if (completedTask.statId) {
     await db.update(stats)
       .set({
-        currentValue: sql`${stats.currentValue} + 1`,
+        value: sql`${stats.value} + 1`,
         updatedAt: new Date(),
       })
       .where(eq(stats.id, completedTask.statId));

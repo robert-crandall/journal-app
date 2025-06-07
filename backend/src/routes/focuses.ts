@@ -26,7 +26,7 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
   const userFocuses = await db.query.focuses.findMany({
     where: eq(focuses.userId, user.id),
     with: {
-      stats: true,
+      stat: true,
     },
   });
   
@@ -36,12 +36,17 @@ focusesRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create focus
 focusesRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, description, gptContext } = c.req.valid('json');
+  const { name, description, emoji, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [focus] = await db.insert(focuses).values({
     userId: user.id,
     name,
     description,
+    emoji,
+    color,
+    dayOfWeek,
+    sampleActivities,
+    statId,
     gptContext,
   }).returning();
   
@@ -56,7 +61,7 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const focus = await db.query.focuses.findFirst({
     where: and(eq(focuses.id, focusId), eq(focuses.userId, user.id)),
     with: {
-      stats: true,
+      stat: true,
     },
   });
   
@@ -71,12 +76,17 @@ focusesRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 focusesRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFocusSchema), async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
-  const { name, description, gptContext } = c.req.valid('json');
+  const { name, description, emoji, color, dayOfWeek, sampleActivities, statId, gptContext } = c.req.valid('json');
   
   const [updatedFocus] = await db.update(focuses)
     .set({
       name,
       description,
+      emoji,
+      color,
+      dayOfWeek,
+      sampleActivities,
+      statId,
       gptContext,
       updatedAt: new Date(),
     })
@@ -122,10 +132,15 @@ focusesRouter.post('/:id/stats', jwtMiddleware, userMiddleware, zValidator('json
   }
   
   const [stat] = await db.insert(stats).values({
-    focusId,
+    userId: user.id,
     name,
     description,
   }).returning();
+  
+  // Link the focus to this stat
+  await db.update(focuses)
+    .set({ statId: stat.id })
+    .where(and(eq(focuses.id, focusId), eq(focuses.userId, user.id)));
   
   return c.json({ stat });
 });
@@ -135,20 +150,19 @@ focusesRouter.get('/:id/stats', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const focusId = c.req.param('id');
   
-  // Verify focus exists and belongs to user
-  const focus = await db.query.focuses.findFirst({
+  // Get the focus with its associated stat
+  const focusWithStat = await db.query.focuses.findFirst({
     where: and(eq(focuses.id, focusId), eq(focuses.userId, user.id)),
+    with: {
+      stat: true,
+    },
   });
   
-  if (!focus) {
+  if (!focusWithStat) {
     return c.json({ error: 'Focus not found' }, 404);
   }
   
-  const focusStats = await db.query.stats.findMany({
-    where: eq(stats.focusId, focusId),
-  });
-  
-  return c.json({ stats: focusStats });
+  return c.json({ stats: focusWithStat.stat ? [focusWithStat.stat] : [] });
 });
 
 export default focusesRouter;

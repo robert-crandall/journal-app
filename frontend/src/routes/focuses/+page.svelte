@@ -14,14 +14,32 @@
 	let focusFormData = {
 		name: '',
 		description: '',
-		gptContext: null,
-		statId: null
+		emoji: '',
+		color: '',
+		dayOfWeek: '',
+		sampleActivities: [] as string[],
+		statId: undefined as string | undefined,
+		gptContext: undefined as any
 	};
 	
 	let levelFormData = {
 		name: '',
 		description: ''
 	};
+	
+	// Helper for sample activities
+	let newActivity = '';
+	
+	function addActivity() {
+		if (newActivity.trim()) {
+			focusFormData.sampleActivities = [...focusFormData.sampleActivities, newActivity.trim()];
+			newActivity = '';
+		}
+	}
+	
+	function removeActivity(index: number) {
+		focusFormData.sampleActivities = focusFormData.sampleActivities.filter((_, i) => i !== index);
+	}
 	
 	onMount(async () => {
 		await loadFocuses();
@@ -53,8 +71,12 @@
 		focusFormData = {
 			name: '',
 			description: '',
-			gptContext: null,
-			statId: null
+			emoji: '',
+			color: '',
+			dayOfWeek: '',
+			sampleActivities: [],
+			statId: undefined,
+			gptContext: undefined
 		};
 		editingFocus = null;
 		showCreateForm = true;
@@ -64,8 +86,12 @@
 		focusFormData = {
 			name: focus.name,
 			description: focus.description || '',
-			gptContext: focus.gptContext,
-			statId: focus.statId || null
+			emoji: focus.emoji || '',
+			color: focus.color || '',
+			dayOfWeek: focus.dayOfWeek || '',
+			sampleActivities: focus.sampleActivities || [],
+			statId: focus.statId || undefined,
+			gptContext: focus.gptContext
 		};
 		editingFocus = focus;
 		showCreateForm = true;
@@ -148,16 +174,36 @@
 					<div class="card-body">
 						<div class="flex justify-between items-start mb-4">
 							<div class="flex-1">
-								<h3 class="card-title text-xl">{focus.name}</h3>
+								<div class="flex items-center gap-2">
+									{#if focus.emoji}
+										<span class="text-2xl">{focus.emoji}</span>
+									{/if}
+									<h3 class="card-title text-xl" style={focus.color ? `color: ${focus.color}` : ''}>{focus.name}</h3>
+								</div>
 								{#if focus.description}
 									<p class="text-base-content/70 mt-2">{focus.description}</p>
 								{/if}
-								{#if focus.stat}
-									<div class="mt-2">
+								<div class="flex flex-wrap gap-2 mt-2">
+									{#if focus.dayOfWeek}
+										<span class="badge badge-outline badge-sm">
+											📅 {focus.dayOfWeek}
+										</span>
+									{/if}
+									{#if focus.stat}
 										<span class="badge badge-primary badge-sm">
 											{focus.stat.emoji ? `${focus.stat.emoji} ` : ''}
 											Stat: {focus.stat.name} ({focus.stat.value})
 										</span>
+									{/if}
+								</div>
+								{#if focus.sampleActivities && focus.sampleActivities.length > 0}
+									<div class="mt-3">
+										<p class="text-sm font-medium text-base-content/80 mb-1">Sample Activities:</p>
+										<div class="flex flex-wrap gap-1">
+											{#each focus.sampleActivities as activity}
+												<span class="badge badge-ghost badge-xs">{activity}</span>
+											{/each}
+										</div>
 									</div>
 								{/if}
 							</div>
@@ -258,6 +304,102 @@
 					></textarea>
 				</div>
 				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="form-control">
+						<label class="label" for="focusEmoji">
+							<span class="label-text">Emoji</span>
+						</label>
+						<input 
+							id="focusEmoji"
+							type="text" 
+							class="input input-bordered" 
+							bind:value={focusFormData.emoji}
+							placeholder="🔥 🧠 💪"
+							maxlength="2"
+						/>
+					</div>
+					
+					<div class="form-control">
+						<label class="label" for="focusColor">
+							<span class="label-text">Color</span>
+						</label>
+						<select 
+							id="focusColor"
+							class="select select-bordered" 
+							bind:value={focusFormData.color}
+						>
+							<option value="">Default</option>
+							<option value="red">Red</option>
+							<option value="blue">Blue</option>
+							<option value="green">Green</option>
+							<option value="yellow">Yellow</option>
+							<option value="purple">Purple</option>
+							<option value="pink">Pink</option>
+							<option value="orange">Orange</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-control">
+					<label class="label" for="focusDayOfWeek">
+						<span class="label-text">Day of Week</span>
+					</label>
+					<select 
+						id="focusDayOfWeek"
+						class="select select-bordered" 
+						bind:value={focusFormData.dayOfWeek}
+					>
+						<option value="">No specific day</option>
+						<option value="Monday">Monday</option>
+						<option value="Tuesday">Tuesday</option>
+						<option value="Wednesday">Wednesday</option>
+						<option value="Thursday">Thursday</option>
+						<option value="Friday">Friday</option>
+						<option value="Saturday">Saturday</option>
+						<option value="Sunday">Sunday</option>
+					</select>
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Sample Activities</span>
+					</label>
+					<div class="space-y-2">
+						<div class="flex gap-2">
+							<input 
+								type="text" 
+								class="input input-bordered flex-1" 
+								bind:value={newActivity}
+								placeholder="e.g., Go for a run, Read a book"
+								onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())}
+							/>
+							<button 
+								type="button" 
+								class="btn btn-outline btn-sm" 
+								onclick={addActivity}
+							>
+								Add
+							</button>
+						</div>
+						{#if focusFormData.sampleActivities.length > 0}
+							<div class="flex flex-wrap gap-2">
+								{#each focusFormData.sampleActivities as activity, index}
+									<div class="badge badge-outline gap-2">
+										{activity}
+										<button 
+											type="button" 
+											class="text-error hover:text-error-focus"
+											onclick={() => removeActivity(index)}
+										>
+											×
+										</button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				</div>
+				
 				<div class="form-control">
 					<label class="label" for="focusStat">
 						<span class="label-text">Linked Stat (Optional)</span>
@@ -267,7 +409,7 @@
 						class="select select-bordered" 
 						bind:value={focusFormData.statId}
 					>
-						<option value={null}>No stat linked</option>
+						<option value={undefined}>No stat linked</option>
 						{#each stats as stat}
 							<option value={stat.id}>
 								{stat.emoji ? `${stat.emoji} ` : ''}{stat.name}
