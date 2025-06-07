@@ -164,7 +164,7 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
   // User stats for XP assignment
   prompt += `\n## User Stats (for XP assignment)\n`;
   userStats.forEach(stat => {
-    prompt += `- ${stat.name} (${stat.category}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
+    prompt += `- ${stat.name} (${stat.category}) (id: ${stat.id}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
   });
 
   // Family members
@@ -271,7 +271,6 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
 
   const connectionStats = userStats.filter(s => s.category === 'connection' || s.category === 'spirit');
   const connectionStatForTask = connectionStats[0] || userStats[0];
-  console.log('Connection stats:', connectionStats);
 
   const connectionTask: GeneratedTask = {
     title: randomFamilyMember 
