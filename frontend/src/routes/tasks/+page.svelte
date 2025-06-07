@@ -3,6 +3,19 @@
 	import { tasksApi, familyApi, focusesApi, statsApi } from '$lib/api';
 	import * as icons from 'lucide-svelte';
 	
+	// Helper function to get icon component
+	function getIconComponent(iconName: string) {
+		if (!iconName) return icons.Target;
+		
+		// Convert kebab-case to PascalCase for Lucide components
+		const componentName = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join('');
+		
+		return icons[componentName] || icons.Target;
+	}
+	
 	let tasks: any[] = [];
 	let familyMembers: any[] = [];
 	let focuses: any[] = [];
@@ -180,9 +193,7 @@
 									{/if}
 									{#if task.stat?.name}
 										<div class="badge badge-info badge-outline flex items-center gap-1">
-											{#if task.stat.icon && icons[task.stat.icon]}
-												<svelte:component this={icons[task.stat.icon]} class="w-3 h-3" />
-											{/if}
+											<svelte:component this={getIconComponent(task.stat.icon)} class="w-3 h-3" />
 											Stat: {task.stat.name}
 										</div>
 									{/if}
