@@ -5,7 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, attributes, stats, focuses, loginSchema, registerSchema, createAttributeSchema, type User } from '../db/schema';
+import { users, attributes, stats, loginSchema, registerSchema, createAttributeSchema, type User } from '../db/schema';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
@@ -77,104 +77,7 @@ async function populateDefaultStatsForUser(userId: string) {
   }
 }
 
-// Helper function to populate default focuses for new users
-async function populateDefaultFocusesForUser(userId: string) {
-  // Get the user's stats to find the IDs we need to reference
-  const userStats = await db.query.stats.findMany({
-    where: eq(stats.userId, userId)
-  });
-  
-  // Create a map for easy stat ID lookup
-  const statIdMap: Record<string, string> = {};
-  userStats.forEach(stat => {
-    statIdMap[stat.name] = stat.id;
-  });    // Define default focus configurations
-    const focusConfigs = [
-      {
-        name: 'Anchor',
-        description: 'Begin the week grounded in movement and emotional clarity',
-        icon: 'anchor',
-        color: 'blue',
-        dayOfWeek: 'Monday' as const,
-        statName: 'Vitality',
-        sampleActivities: ['Morning walk or run', 'Breathing exercises', 'Stretching routine', 'Cold shower']
-      },
-      {
-        name: 'Creative Fire',
-        description: 'Build or express something uniquely yours',
-        icon: 'paintbrush',
-        color: 'orange',
-        dayOfWeek: 'Tuesday' as const,
-        statName: 'Intellect',
-        sampleActivities: ['Writing or journaling', 'Art or music creation', 'Problem-solving project', 'Learning new skill']
-      },
-      {
-        name: 'Reset',
-        description: 'Get into nature, unplug, breathe — let the nervous system soften',
-        icon: 'wind',
-        color: 'green',
-        dayOfWeek: 'Wednesday' as const,
-        statName: 'Stillness',
-        sampleActivities: ['Nature walk', 'Meditation', 'Digital detox time', 'Gentle yoga']
-      },
-      {
-        name: 'Bridge',
-        description: 'Deepen a connection with someone you care about (or with yourself)',
-        icon: 'handshake',
-        color: 'purple',
-        dayOfWeek: 'Thursday' as const,
-        statName: 'Presence',
-        sampleActivities: ['Quality time with loved ones', 'Deep conversation', 'Active listening practice', 'Self-reflection']
-      },
-      {
-        name: 'Power',
-        description: 'Channel energy into physical intensity and embodied release',
-        icon: 'bolt',
-        color: 'red',
-        dayOfWeek: 'Friday' as const,
-        statName: 'Strength',
-        sampleActivities: ['Intense workout', 'Martial arts', 'Heavy lifting', 'Dance or movement']
-      },
-      {
-        name: 'Forge',
-        description: 'Fix, tinker, or build something real with your hands (and maybe your kids)',
-        icon: 'hammer',
-        color: 'amber',
-        dayOfWeek: 'Saturday' as const,
-        statName: 'Stewardship',
-        sampleActivities: ['Home improvement', 'Crafting project', 'Gardening', 'Repair something broken']
-      },
-      {
-        name: 'Mirror',
-        description: 'Reflect, journal, visualize — prepare emotionally for what\'s next',
-        icon: 'mirror',
-        color: 'indigo',
-        dayOfWeek: 'Sunday' as const,
-        statName: 'Clarity',
-        sampleActivities: ['Weekly review', 'Goal setting', 'Visualization', 'Journaling session']
-      }
-    ];
 
-  // Create all default focuses for the new user
-  for (const focusConfig of focusConfigs) {
-    try {
-      const statId = statIdMap[focusConfig.statName];
-      
-      await db.insert(focuses).values({
-        userId: userId,
-        name: focusConfig.name,
-        description: focusConfig.description,
-        icon: focusConfig.icon,
-        color: focusConfig.color,
-        dayOfWeek: focusConfig.dayOfWeek,
-        statId: statId || null, // Use null if stat not found
-        sampleActivities: focusConfig.sampleActivities
-      });
-    } catch (error) {
-      console.error(`Failed to create default focus ${focusConfig.name} for user ${userId}:`, error);
-    }
-  }
-}
 
 // Register
 auth.post('/register', zValidator('json', registerSchema), async (c) => {
@@ -207,13 +110,7 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
     // Continue with registration even if stat population fails
   }
   
-  // Populate default focuses for the new user
-  try {
-    await populateDefaultFocusesForUser(newUser.id);
-  } catch (error) {
-    console.error('Failed to populate default focuses for new user:', error);
-    // Continue with registration even if focus population fails
-  }
+
   
   // Generate JWT token
   const token = await generateToken(newUser.id);
