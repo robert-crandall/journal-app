@@ -90,7 +90,7 @@
 	async function loadStats() {
 		try {
 			const response = await statsApi.getAll();
-			stats = response.stats;
+			stats = response;
 		} catch (error) {
 			console.error('Failed to load stats:', error);
 		}
@@ -190,8 +190,10 @@
 		selectedTemplate = null;
 	}
 
-	function selectTemplate(template: FocusTemplate) {
+	async function selectTemplate(template: FocusTemplate) {
 		selectedTemplate = template;
+		// Find the matching stat
+		const matchingStat = stats?.find(stat => stat.name === template.suggested_stat);
 		
 		// Auto-fill form with template data
 		focusFormData = {
@@ -201,7 +203,7 @@
 			color: template.color,
 			dayOfWeek: template.suggested_day,
 			sampleActivities: [...template.sample_activities],
-			statId: stats.find(stat => stat.name === template.suggested_stat)?.id,
+			statId: matchingStat?.id,
 			gptContext: undefined
 		};
 		
