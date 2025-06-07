@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Cleans the database by dropping and recreating it.
+set -e
+
+export $(cat .env | grep DATABASE_URL | xargs)
+
+# Parse DB name from DATABASE_URL
+DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+).*|\1|')
+
+# Replace the database name in the URL with 'postgres'
+PG_URL_POSTGRES=$(echo "$DATABASE_URL" | sed -E "s|/$DB_NAME(\?.*)?$|/postgres\1|")
+
+
+# Backup existing database
+pg_dump "$DATABASE_URL" > backups/pre_apply_backup.sql
+
+# Terminate all connections to the target DB
+psql "$DATABASE_URL" -f db/schema.sql
