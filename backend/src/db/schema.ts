@@ -310,8 +310,8 @@ export const createFamilyMemberSchema = z.object({
 export const createPotionSchema = z.object({
   title: z.string().min(1),
   hypothesis: z.string().optional(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().date(),
+  endDate: z.string().date().optional(),
 });
 
 export const createAttributeSchema = z.object({
