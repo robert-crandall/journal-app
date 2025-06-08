@@ -31,7 +31,9 @@ export interface GPTFollowupResponse {
 }
 
 export interface GPTJournalSummary {
-  summary: string;
+  title: string; // Short, user-voiced title (5-10 words)
+  summary: string; // Narrative-style summary in user's voice
+  condensed: string; // Brief synopsis (1-2 sentences)
   extractedTags: string[];
   suggestedAttributes: Array<{ key: string; value: string }>;
   sentimentScore: number; // 1-5 sentiment rating
@@ -164,15 +166,19 @@ function buildSummaryPrompt(context: JournalProcessingContext): string {
   }
   
   prompt += `\nTASK:\n`;
-  prompt += `1. Write a cohesive summary in ${user.name}'s voice that captures the key insights and experiences\n`;
-  prompt += `2. Extract 2-5 relevant tags (prefer existing tags when appropriate)\n`;
-  prompt += `3. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes). Extract only **persistent personality traits**, values, or behavioral tendencies. Ignore temporary emotions, states, or context-specific conditions (e.g., tired, bored, overwhelmed today)\n`;
-  prompt += `4. Analyze overall emotional sentiment on a scale of 1-5 (1=very negative, 3=neutral, 5=very positive)\n`;
-  prompt += `5. Extract 1-3 mood tags that capture the emotional tone (e.g., "calm", "anxious", "energized", "content", "frustrated", "excited", "peaceful", "stressed")\n\n`;
+  prompt += `1. Generate a short, user-voiced title (5-10 words, sentence case) that captures the core idea. Avoid RPG references (class, stat, etc.)\n`;
+  prompt += `2. Write a cohesive narrative-style summary in ${user.name}'s voice that captures the key insights and experiences. Remove GPT prompts and preserve the user's tone and nuance. Write as if the user authored the full entry.\n`;
+  prompt += `3. Create a brief synopsis (1-2 sentences max) that is straightforward and factual, suitable for previews\n`;
+  prompt += `4. Extract 2-5 relevant tags (prefer existing tags when appropriate - use fuzzy matching for similar tags)\n`;
+  prompt += `5. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes). Extract only **persistent personality traits**, values, or behavioral tendencies. Ignore temporary emotions, states, or context-specific conditions (e.g., tired, bored, overwhelmed today)\n`;
+  prompt += `6. Analyze overall emotional sentiment on a scale of 1-5 (1=very negative, 3=neutral, 5=very positive)\n`;
+  prompt += `7. Extract 1-3 mood tags that capture the emotional tone (e.g., "calm", "anxious", "energized", "content", "frustrated", "excited", "peaceful", "stressed")\n\n`;
   
   prompt += `RESPONSE FORMAT (JSON):\n`;
   prompt += `{\n`;
-  prompt += `  "summary": "A cohesive journal summary written in first person...",\n`;
+  prompt += `  "title": "Short descriptive title capturing the core idea",\n`;
+  prompt += `  "summary": "A cohesive narrative-style journal summary written in first person...",\n`;
+  prompt += `  "condensed": "Brief 1-2 sentence synopsis for previews",\n`;
   prompt += `  "extractedTags": ["tag1", "tag2", "tag3"],\n`;
   prompt += `  "suggestedAttributes": [\n`;
   prompt += `    {"key": "category", "value": "specific insight"},\n`;
@@ -201,7 +207,9 @@ function parseGPTSummaryResponse(response: string, context: JournalProcessingCon
     const parsed = JSON.parse(jsonMatch[0]);
     
     return {
+      title: parsed.title || 'Journal Entry',
       summary: parsed.summary || 'Summary could not be generated.',
+      condensed: parsed.condensed || 'Brief summary not available.',
       extractedTags: Array.isArray(parsed.extractedTags) ? parsed.extractedTags : [],
       suggestedAttributes: Array.isArray(parsed.suggestedAttributes) ? parsed.suggestedAttributes : [],
       sentimentScore: typeof parsed.sentimentScore === 'number' ? Math.max(1, Math.min(5, parsed.sentimentScore)) : 3,
@@ -245,7 +253,9 @@ function generateMockSummary(context: JournalProcessingContext): GPTJournalSumma
     .join(' ');
   
   return {
+    title: 'Today\'s reflection',
     summary: `Today I reflected on ${userContent.slice(0, 200)}...`,
+    condensed: 'Reflected on personal experiences and growth.',
     extractedTags: ['reflection', 'personal-growth'],
     suggestedAttributes: [],
     sentimentScore: 3, // Neutral sentiment for mock

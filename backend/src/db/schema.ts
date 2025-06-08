@@ -103,7 +103,9 @@ export const journals = pgTable('journals', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   content: text('content').notNull(),
-  gptSummary: text('gpt_summary'),
+  title: text('title'), // GPT-generated title for the journal entry
+  gptSummary: text('gpt_summary'), // GPT-generated narrative-style summary
+  condensed: text('condensed'), // GPT-generated brief synopsis (1-2 sentences)
   sentimentScore: integer('sentiment_score'), // 1-5 sentiment rating from GPT analysis
   moodTags: jsonb('mood_tags').$type<string[]>(), // GPT-extracted mood tags (e.g., "calm", "anxious", "energized")
   tags: jsonb('tags').$type<string[]>(), // Keep for backward compatibility
