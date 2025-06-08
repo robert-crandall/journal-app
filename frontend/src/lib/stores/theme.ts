@@ -38,12 +38,12 @@ export const availableThemes = [
 	{ name: 'Sunset', value: 'sunset' }
 ] as const;
 
-export type Theme = typeof availableThemes[number]['value'];
+export type Theme = (typeof availableThemes)[number]['value'];
 
 function createThemeStore() {
 	// Get initial theme from localStorage or default to 'light'
 	let initialTheme: Theme = 'light';
-	
+
 	if (browser) {
 		initialTheme = (localStorage.getItem('theme') as Theme) || 'light';
 	}
@@ -65,7 +65,7 @@ function createThemeStore() {
 		if (browser) {
 			// Update localStorage for offline support
 			localStorage.setItem('theme', theme);
-			
+
 			// Update HTML data-theme attribute
 			document.documentElement.setAttribute('data-theme', theme);
 		}
@@ -76,7 +76,7 @@ function createThemeStore() {
 		setTheme: async (theme: Theme, isAuthenticated = false) => {
 			applyTheme(theme);
 			set(theme);
-			
+
 			// Sync to backend if user is authenticated
 			await syncThemeToBackend(theme, isAuthenticated);
 		},
@@ -89,22 +89,22 @@ function createThemeStore() {
 					try {
 						const response = await preferencesApi.getAll();
 						const savedTheme = response.preferences?.theme as Theme;
-						
-						if (savedTheme && availableThemes.some(t => t.value === savedTheme)) {
+
+						if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
 							themeToUse = savedTheme;
 						}
 					} catch (error) {
 						console.warn('Failed to load theme from backend, using local storage:', error);
 						// Fall back to local storage
 						const localTheme = localStorage.getItem('theme') as Theme;
-						if (localTheme && availableThemes.some(t => t.value === localTheme)) {
+						if (localTheme && availableThemes.some((t) => t.value === localTheme)) {
 							themeToUse = localTheme;
 						}
 					}
 				} else {
 					// Use local storage for non-authenticated users
 					const savedTheme = localStorage.getItem('theme') as Theme;
-					if (savedTheme && availableThemes.some(t => t.value === savedTheme)) {
+					if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
 						themeToUse = savedTheme;
 					} else {
 						// Use system preference if no saved theme

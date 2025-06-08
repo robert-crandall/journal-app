@@ -165,7 +165,7 @@ function buildSummaryPrompt(context: JournalProcessingContext): string {
   prompt += `\nTASK:\n`;
   prompt += `1. Write a cohesive summary in ${user.name}'s voice that captures the key insights and experiences\n`;
   prompt += `2. Extract 2-5 relevant tags (prefer existing tags when appropriate)\n`;
-  prompt += `3. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes)\n`;
+  prompt += `3. Suggest 0-2 new user attributes based on insights (avoid duplicating existing attributes). Extract only **persistent personality traits**, values, or behavioral tendencies. Ignore temporary emotions, states, or context-specific conditions (e.g., tired, bored, overwhelmed today)\n`;
   prompt += `4. Analyze overall emotional sentiment on a scale of 1-5 (1=very negative, 3=neutral, 5=very positive)\n`;
   prompt += `5. Extract 1-3 mood tags that capture the emotional tone (e.g., "calm", "anxious", "energized", "content", "frustrated", "excited", "peaceful", "stressed")\n\n`;
   

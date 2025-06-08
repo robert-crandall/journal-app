@@ -11,14 +11,17 @@
 
 	// Group attributes by key and track virtual keys
 	let virtualKeys: Record<string, boolean> = {};
-	
-	$: groupedAttributes = attributes.reduce((groups, attr) => {
-		if (!groups[attr.key]) {
-			groups[attr.key] = [];
-		}
-		groups[attr.key].push(attr.value);
-		return groups;
-	}, {} as Record<string, string[]>);
+
+	$: groupedAttributes = attributes.reduce(
+		(groups, attr) => {
+			if (!groups[attr.key]) {
+				groups[attr.key] = [];
+			}
+			groups[attr.key].push(attr.value);
+			return groups;
+		},
+		{} as Record<string, string[]>
+	);
 
 	// Get unique keys (including virtual ones)
 	$: keys = [...new Set([...Object.keys(groupedAttributes), ...Object.keys(virtualKeys)])].sort();
@@ -35,7 +38,7 @@
 
 	async function addNewKey() {
 		if (!newKey.trim()) return;
-		
+
 		try {
 			// Create a virtual key that will show up in the UI
 			virtualKeys[newKey.trim()] = true;
@@ -103,14 +106,10 @@
 </script>
 
 <div class="space-y-4">
-	<div class="flex justify-between items-center">
+	<div class="flex items-center justify-between">
 		<h3 class="text-lg font-semibold">{title}</h3>
-		<button 
-			class="btn btn-sm btn-primary" 
-			onclick={startNewKey}
-			disabled={newKeyMode}
-		>
-			<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<button class="btn btn-sm btn-primary" onclick={startNewKey} disabled={newKeyMode}>
+			<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 			</svg>
 			Add Section
@@ -136,26 +135,31 @@
 	{#if keys.length > 0}
 		<div class="space-y-4">
 			{#each keys as key}
-				<div class="bg-base-100 border border-base-300 rounded-lg p-4">
-					<div class="flex justify-between items-center mb-3">
-						<h4 class="font-semibold text-base flex items-center">
-							<span class="text-lg mr-2">🏷️</span>
+				<div class="bg-base-100 border-base-300 rounded-lg border p-4">
+					<div class="mb-3 flex items-center justify-between">
+						<h4 class="flex items-center text-base font-semibold">
+							<span class="mr-2 text-lg">🏷️</span>
 							{key}
 						</h4>
-						<button 
+						<button
 							class="btn btn-xs btn-ghost"
 							onclick={() => startAddValue(key)}
 							disabled={addingValueFor === key}
 						>
-							<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+							<svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 4v16m8-8H4"
+								/>
 							</svg>
 							Add
 						</button>
 					</div>
 
 					<div class="space-y-2">
-						{#each (groupedAttributes[key] || []).filter(v => v.trim()) as value}
+						{#each (groupedAttributes[key] || []).filter((v) => v.trim()) as value}
 							<div class="bg-base-200 rounded px-3 py-2 text-sm">
 								<span class="text-base-content">- {value}</span>
 							</div>
@@ -171,23 +175,32 @@
 									onkeydown={(e) => handleValueKeydown(e, key)}
 								/>
 								<button class="btn btn-primary btn-xs" onclick={() => addValue(key)}>Add</button>
-								<button class="btn btn-ghost btn-xs" onclick={() => cancelAddValue(key)}>Cancel</button>
+								<button class="btn btn-ghost btn-xs" onclick={() => cancelAddValue(key)}
+									>Cancel</button
+								>
 							</div>
 						{/if}
 
-						{#if !groupedAttributes[key] || groupedAttributes[key].filter(v => v.trim()).length === 0}
-							<p class="text-base-content/50 text-sm italic">No values yet - click Add to get started</p>
+						{#if !groupedAttributes[key] || groupedAttributes[key].filter( (v) => v.trim() ).length === 0}
+							<p class="text-base-content/50 text-sm italic">
+								No values yet - click Add to get started
+							</p>
 						{/if}
 					</div>
 				</div>
 			{/each}
 		</div>
 	{:else}
-		<div class="text-center py-8">
+		<div class="py-8 text-center">
 			<p class="text-base-content/70 mb-4">{emptyMessage}</p>
 			<button class="btn btn-primary" onclick={startNewKey}>
-				<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+				<svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 4v16m8-8H4"
+					/>
 				</svg>
 				Create Your First Section
 			</button>
