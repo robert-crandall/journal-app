@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { tasks, stats, focuses, users, preferences } from '../db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, lt } from 'drizzle-orm';
 import { type User, type Focus, type Stat, type Task, type Preference } from '../db/schema';
 import OpenAI from 'openai';
 import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
@@ -322,6 +322,48 @@ export function getTodaysFocus(focuses: Focus[]): Focus | undefined {
 }
 
 /**
+ * Mark old GPT tasks as skipped
+ * Any GPT-generated tasks for yesterday or older that are not completed will be marked as skipped
+ */
+export async function markOldGptTasksAsSkipped(userId: string): Promise<void> {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  try {
+    // Find GPT tasks that are older than today and still pending
+    const oldPendingTasks = await db.query.tasks.findMany({
+      where: and(
+        eq(tasks.userId, userId),
+        eq(tasks.origin, 'gpt'),
+        eq(tasks.status, 'pending'),
+        lt(tasks.taskDate, today)
+      ),
+    });
+
+    if (oldPendingTasks.length > 0) {
+      // Update all found tasks to 'skipped' status
+      const taskIds = oldPendingTasks.map(task => task.id);
+      
+      await db.update(tasks)
+        .set({
+          status: 'skipped',
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(tasks.userId, userId),
+          eq(tasks.origin, 'gpt'),
+          eq(tasks.status, 'pending'),
+          lt(tasks.taskDate, today)
+        ));
+
+      console.log(`Marked ${oldPendingTasks.length} old GPT tasks as skipped for user ${userId}`);
+    }
+  } catch (error) {
+    console.error('Failed to mark old GPT tasks as skipped:', error);
+    // Don't throw - this is cleanup logic and shouldn't break task generation
+  }
+}
+
+/**
  * Get or generate today's tasks for a user
  * This is the main function that implements the persistence logic
  */
@@ -437,6 +479,9 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     ];
     
     await db.insert(tasks).values(tasksToInsert);
+    
+    // Clean up old GPT tasks by marking them as skipped
+    await markOldGptTasksAsSkipped(userId);
     
     // Fetch the tasks with relations
     const savedTasks = await db.query.tasks.findMany({
