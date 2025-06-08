@@ -101,16 +101,6 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
     isFamily: false,
   }).returning();
   
-  // Populate default stats for the new user
-  try {
-    await populateDefaultStatsForUser(newUser.id);
-  } catch (error) {
-    console.error('Failed to populate default stats for new user:', error);
-    // Continue with registration even if stat population fails
-  }
-  
-
-  
   // Generate JWT token
   const token = await generateToken(newUser.id);
   
