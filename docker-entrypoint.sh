@@ -23,9 +23,9 @@ until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
 done
 
 # Run database migrations
-echo "TODO: Running database migrations..."
+echo "Running database migrations..."
 cd /app/backend
-# bun run db:migrate
+bun run db:migrate
 
 # Start the combined backend + frontend server
 echo "Starting combined server (backend + static frontend)..."
