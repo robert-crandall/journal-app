@@ -8,14 +8,17 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		// Using static adapter for deployment without a server
+		// Using static adapter for PWA deployment
 		adapter: adapter({
 			pages: 'build',
 			assets: 'build',
 			fallback: 'index.html',
 			precompress: false,
 			strict: true
-		})
+		}),
+		serviceWorker: {
+			register: false // We'll register manually for better control
+		}
 	}
 };
 

@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
+	import { pwaManager } from '$lib/pwa';
 
 	let { children } = $props();
 	let mobileMenuOpen = $state(false);
@@ -14,6 +15,9 @@
 
 	onMount(() => {
 		auth.init();
+		
+		// Initialize PWA manager (registers service worker)
+		// This happens automatically when the module is imported
 		
 		// Watch for auth state changes and reinitialize theme
 		const unsubscribe = auth.subscribe(async (authState) => {
