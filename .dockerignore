@@ -1,0 +1,74 @@
+# Dependency directories
+node_modules/
+*/node_modules/
+
+# Build outputs
+frontend/build/
+frontend/.svelte-kit/
+backend/dist/
+
+# Development files
+**/.env*
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+**/*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Temporary folders
+tmp/
+temp/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Docker files (to avoid recursive copying)
+Dockerfile*
+.dockerignore
+
+# Development scripts
+bin/
+scripts/
+
+# Documentation
+README.md
+*/README.md
+requirements/
+
+# Lock files (will be copied explicitly)
+bun.lock
+*/bun.lock
+package-lock.json
+*/package-lock.json
+yarn.lock
+*/yarn.lock
