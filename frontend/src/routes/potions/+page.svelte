@@ -2,14 +2,14 @@
 	import { onMount } from 'svelte';
 	import { potionsApi } from '$lib/api';
 	import * as icons from 'lucide-svelte';
-	
+
 	let potions: any[] = [];
 	let loading = true;
 	let error = '';
 	let showCreateForm = false;
 	let editingPotion: any = null;
 	let openDropdownId: string | null = null;
-	
+
 	// Form data
 	let formData = {
 		title: '',
@@ -17,13 +17,13 @@
 		startDate: '',
 		endDate: ''
 	};
-	
+
 	onMount(async () => {
 		await loadPotions();
 		// Set today's date as default start date
 		formData.startDate = new Date().toISOString().split('T')[0];
 	});
-	
+
 	async function loadPotions() {
 		try {
 			loading = true;
@@ -36,7 +36,7 @@
 			loading = false;
 		}
 	}
-	
+
 	function openCreateForm() {
 		formData = {
 			title: '',
@@ -47,7 +47,7 @@
 		editingPotion = null;
 		showCreateForm = true;
 	}
-	
+
 	function openEditForm(potion: any) {
 		formData = {
 			title: potion.title,
@@ -79,7 +79,7 @@
 			closeDropdown();
 		}
 	}
-	
+
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		try {
@@ -89,20 +89,20 @@
 				startDate: formData.startDate,
 				endDate: formData.endDate || undefined
 			};
-			
+
 			if (editingPotion) {
 				await potionsApi.update(editingPotion.id, potionData);
 			} else {
 				await potionsApi.create(potionData);
 			}
-			
+
 			showCreateForm = false;
 			await loadPotions();
 		} catch (err: any) {
 			error = err.message || 'Failed to save potion';
 		}
 	}
-	
+
 	async function endPotion(potionId: string) {
 		if (confirm('Are you sure you want to end this experiment? This action cannot be undone.')) {
 			try {
@@ -114,7 +114,7 @@
 			}
 		}
 	}
-	
+
 	async function deletePotion(potionId: string) {
 		if (confirm('Are you sure you want to delete this experiment?')) {
 			try {
@@ -126,11 +126,11 @@
 			}
 		}
 	}
-	
+
 	function formatDate(dateString: string) {
 		return new Date(dateString).toLocaleDateString();
 	}
-	
+
 	function getDaysSince(startDate: string) {
 		const start = new Date(startDate);
 		const now = new Date();
@@ -138,7 +138,7 @@
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 		return diffDays;
 	}
-	
+
 	function getStatus(potion: any) {
 		if (potion.endDate) {
 			return 'completed';
@@ -160,11 +160,11 @@
 				return 'text-blue-700 bg-blue-100 border-blue-200';
 		}
 	}
-	
+
 	// Analysis functionality
 	let analyzing = false;
 	let potionAnalyses: Record<string, any> = {};
-	
+
 	async function analyzePotion(potionId: string) {
 		try {
 			analyzing = true;
@@ -189,7 +189,7 @@
 			analyzing = false;
 		}
 	}
-	
+
 	async function loadPotionAnalysis(potionId: string) {
 		try {
 			const result = await potionsApi.getAnalysis(potionId);
@@ -201,7 +201,7 @@
 			error = err.message || 'Failed to load analysis';
 		}
 	}
-	
+
 	function getEffectivenessIcon(effectiveness: string) {
 		switch (effectiveness) {
 			case 'likely_effective':
@@ -229,7 +229,7 @@
 				return 'text-neutral-600';
 		}
 	}
-	
+
 	function getEffectivenessText(effectiveness: string) {
 		switch (effectiveness) {
 			case 'likely_effective':
@@ -245,9 +245,9 @@
 	}
 
 	// Derived stats
-	$: activePotions = potions.filter(p => !p.endDate);
-	$: completedPotions = potions.filter(p => p.endDate);
-	$: overduePotions = potions.filter(p => getStatus(p) === 'overdue');
+	$: activePotions = potions.filter((p) => !p.endDate);
+	$: completedPotions = potions.filter((p) => p.endDate);
+	$: overduePotions = potions.filter((p) => getStatus(p) === 'overdue');
 	$: totalPotions = potions.length;
 </script>
 
@@ -257,13 +257,17 @@
 
 {#if showCreateForm}
 	<!-- Create/Edit Potion Modal - Atlassian Style -->
-	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
-		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+	<div
+		class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-12 backdrop-blur-sm"
+	>
+		<div
+			class="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-neutral-800"
+		>
 			<!-- Modal Header -->
-			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+			<div class="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
 							<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
 						</div>
 						<h3 class="text-lg font-semibold text-neutral-900">
@@ -272,26 +276,30 @@
 					</div>
 					<button
 						on:click={closeCreateForm}
-						class="w-8 h-8 rounded-lg hover:bg-neutral-200 flex items-center justify-center transition-colors"
+						class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-200"
 					>
 						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
 					</button>
 				</div>
 			</div>
-			
+
 			<!-- Modal Body -->
-			<div class="px-6 py-6 overflow-y-auto max-h-[calc(85vh-140px)]">
+			<div class="max-h-[calc(85vh-140px)] overflow-y-auto px-6 py-6">
 				{#if error}
-					<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+					<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
 						<div class="flex items-start space-x-3">
-							<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+							<svelte:component
+								this={icons.AlertTriangle}
+								size={16}
+								class="mt-0.5 flex-shrink-0 text-red-500"
+							/>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-red-900">Error</p>
-								<p class="text-sm text-red-700 mt-1">{error}</p>
+								<p class="mt-1 text-sm text-red-700">{error}</p>
 							</div>
 							<button
-								on:click={() => error = ''}
-								class="text-red-400 hover:text-red-600 transition-colors"
+								on:click={() => (error = '')}
+								class="text-red-400 transition-colors hover:text-red-600"
 							>
 								<svelte:component this={icons.X} size={14} />
 							</button>
@@ -301,71 +309,71 @@
 
 				<form on:submit={handleSubmit} class="space-y-6">
 					<div>
-						<label for="potionTitle" class="block text-sm font-medium text-neutral-900 mb-2">
+						<label for="potionTitle" class="mb-2 block text-sm font-medium text-neutral-900">
 							Title <span class="text-red-500">*</span>
 						</label>
-						<input 
+						<input
 							id="potionTitle"
-							type="text" 
+							type="text"
 							bind:value={formData.title}
 							placeholder="e.g., Morning meditation, No social media, Cold showers"
 							required
-							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+							class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						/>
 					</div>
-					
+
 					<div>
-						<label for="potionHypothesis" class="block text-sm font-medium text-neutral-900 mb-2">
+						<label for="potionHypothesis" class="mb-2 block text-sm font-medium text-neutral-900">
 							Hypothesis
 						</label>
-						<p class="text-xs text-neutral-600 mb-2">What do you expect to happen?</p>
-						<textarea 
+						<p class="mb-2 text-xs text-neutral-600">What do you expect to happen?</p>
+						<textarea
 							id="potionHypothesis"
 							bind:value={formData.hypothesis}
 							placeholder="If I do X for Y days, then I expect Z to happen because..."
 							rows="4"
-							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+							class="w-full resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						></textarea>
 					</div>
-					
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<label for="potionStartDate" class="block text-sm font-medium text-neutral-900 mb-2">
+							<label for="potionStartDate" class="mb-2 block text-sm font-medium text-neutral-900">
 								Start Date <span class="text-red-500">*</span>
 							</label>
-							<input 
+							<input
 								id="potionStartDate"
-								type="date" 
+								type="date"
 								bind:value={formData.startDate}
 								required
-								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
-						
+
 						<div>
-							<label for="potionEndDate" class="block text-sm font-medium text-neutral-900 mb-2">
+							<label for="potionEndDate" class="mb-2 block text-sm font-medium text-neutral-900">
 								Planned End Date
 							</label>
-							<input 
+							<input
 								id="potionEndDate"
-								type="date" 
+								type="date"
 								bind:value={formData.endDate}
-								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
 					</div>
-					
-					<div class="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-						<button 
-							type="button" 
+
+					<div class="flex justify-end space-x-3 border-t border-neutral-200 pt-4">
+						<button
+							type="button"
 							on:click={closeCreateForm}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:bg-neutral-800"
 						>
 							Cancel
 						</button>
-						<button 
+						<button
 							type="submit"
-							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+							class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
 						>
 							{editingPotion ? 'Update experiment' : 'Start experiment'}
 						</button>
@@ -376,30 +384,32 @@
 	</div>
 {:else}
 	<!-- Main Potions Page - Atlassian Style -->
-	<div class="max-w-7xl mx-auto px-6 py-8" on:click={handleOutsideClick}>
+	<div class="mx-auto max-w-7xl px-6 py-8" on:click={handleOutsideClick}>
 		<!-- Header -->
 		<div class="mb-8">
-			<div class="flex items-center justify-between mb-6">
+			<div class="mb-6 flex items-center justify-between">
 				<div>
 					<h1 class="text-2xl font-bold text-neutral-900">Potions</h1>
-					<p class="text-neutral-600 mt-1">Personal experiments and habit trials</p>
+					<p class="mt-1 text-neutral-600">Personal experiments and habit trials</p>
 				</div>
 				<div class="flex items-center space-x-3">
-					<button 
+					<button
 						on:click={analyzeAll}
 						disabled={analyzing}
-						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						class="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-800"
 					>
 						{#if analyzing}
-							<div class="animate-spin rounded-full h-4 w-4 border-2 border-neutral-300 border-t-blue-600 mr-2"></div>
+							<div
+								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+							></div>
 						{:else}
 							<svelte:component this={icons.Search} size={16} class="mr-2" />
 						{/if}
 						Analyze All
 					</button>
-					<button 
+					<button
 						on:click={openCreateForm}
-						class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+						class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
 					>
 						<svelte:component this={icons.Plus} size={16} class="mr-2" />
 						New Experiment
@@ -408,16 +418,20 @@
 			</div>
 
 			{#if error}
-				<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+				<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-start space-x-3">
-						<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+						<svelte:component
+							this={icons.AlertTriangle}
+							size={16}
+							class="mt-0.5 flex-shrink-0 text-red-500"
+						/>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-red-900">Error</p>
-							<p class="text-sm text-red-700 mt-1">{error}</p>
+							<p class="mt-1 text-sm text-red-700">{error}</p>
 						</div>
 						<button
-							on:click={() => error = ''}
-							class="text-red-400 hover:text-red-600 transition-colors"
+							on:click={() => (error = '')}
+							class="text-red-400 transition-colors hover:text-red-600"
 						>
 							<svelte:component this={icons.X} size={14} />
 						</button>
@@ -427,10 +441,10 @@
 
 			<!-- Quick Stats -->
 			{#if totalPotions > 0}
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
+				<div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
 								<svelte:component this={icons.Activity} size={16} class="text-blue-600" />
 							</div>
 							<div>
@@ -439,9 +453,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
+					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
 								<svelte:component this={icons.CheckCircle} size={16} class="text-green-600" />
 							</div>
 							<div>
@@ -450,9 +464,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
+					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
 								<svelte:component this={icons.Clock} size={16} class="text-orange-600" />
 							</div>
 							<div>
@@ -461,9 +475,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
+					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
 								<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
 							</div>
 							<div>
@@ -479,18 +493,24 @@
 		<!-- Potions Grid -->
 		{#if loading}
 			<div class="flex items-center justify-center py-12">
-				<div class="animate-spin rounded-full h-8 w-8 border-2 border-neutral-300 border-t-blue-600"></div>
+				<div
+					class="h-8 w-8 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+				></div>
 			</div>
 		{:else if totalPotions === 0}
-			<div class="text-center py-12">
-				<div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+			<div class="py-12 text-center">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100"
+				>
 					<svelte:component this={icons.Beaker} size={24} class="text-purple-600" />
 				</div>
-				<h3 class="text-lg font-semibold text-neutral-900 mb-2">No experiments yet</h3>
-				<p class="text-neutral-600 mb-6">Start your first personal experiment to track habits or test hypotheses!</p>
-				<button 
+				<h3 class="mb-2 text-lg font-semibold text-neutral-900">No experiments yet</h3>
+				<p class="mb-6 text-neutral-600">
+					Start your first personal experiment to track habits or test hypotheses!
+				</p>
+				<button
 					on:click={openCreateForm}
-					class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+					class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
 				>
 					<svelte:component this={icons.Plus} size={16} class="mr-2" />
 					Start Your First Experiment
@@ -500,14 +520,24 @@
 			<div class="space-y-4">
 				{#each potions as potion}
 					{@const status = getStatus(potion)}
-					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+					<div
+						class="rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-md dark:bg-neutral-800"
+					>
 						<!-- Header Row -->
-						<div class="flex items-start justify-between mb-4">
+						<div class="mb-4 flex items-start justify-between">
 							<div class="flex-1">
-								<div class="flex items-center space-x-3 mb-2">
+								<div class="mb-2 flex items-center space-x-3">
 									<h3 class="text-lg font-semibold text-neutral-900">{potion.title}</h3>
-									<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {getStatusColor(status)}">
-										{status === 'active' ? 'Active' : status === 'completed' ? 'Completed' : 'Overdue'}
+									<span
+										class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {getStatusColor(
+											status
+										)}"
+									>
+										{status === 'active'
+											? 'Active'
+											: status === 'completed'
+												? 'Completed'
+												: 'Overdue'}
 									</span>
 								</div>
 								<div class="flex items-center space-x-4 text-sm text-neutral-600">
@@ -520,38 +550,40 @@
 									{/if}
 								</div>
 							</div>
-							
+
 							<!-- Actions Dropdown -->
 							<div class="dropdown-container relative">
-								<button 
+								<button
 									on:click={() => toggleDropdown(potion.id)}
-									class="w-8 h-8 rounded-lg hover:bg-neutral-100 flex items-center justify-center transition-colors"
+									class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-100"
 								>
 									<svelte:component this={icons.MoreVertical} size={16} class="text-neutral-500" />
 								</button>
-								
+
 								{#if openDropdownId === potion.id}
-									<div class="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg shadow-lg z-10">
+									<div
+										class="absolute top-full right-0 z-10 mt-1 w-48 rounded-lg border border-neutral-200 bg-white shadow-lg dark:bg-neutral-800"
+									>
 										<div class="py-1">
 											<button
 												on:click={() => analyzePotion(potion.id)}
 												disabled={analyzing}
-												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
 											>
 												<svelte:component this={icons.Search} size={14} />
 												<span>Analyze Effectiveness</span>
 											</button>
 											<button
 												on:click={() => loadPotionAnalysis(potion.id)}
-												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
 											>
 												<svelte:component this={icons.BarChart3} size={14} />
 												<span>View Analysis</span>
 											</button>
-											<div class="border-t border-neutral-200 my-1"></div>
+											<div class="my-1 border-t border-neutral-200"></div>
 											<button
 												on:click={() => openEditForm(potion)}
-												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
 											>
 												<svelte:component this={icons.Edit2} size={14} />
 												<span>Edit</span>
@@ -559,16 +591,16 @@
 											{#if status === 'active'}
 												<button
 													on:click={() => endPotion(potion.id)}
-													class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+													class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
 												>
 													<svelte:component this={icons.StopCircle} size={14} />
 													<span>End Experiment</span>
 												</button>
 											{/if}
-											<div class="border-t border-neutral-200 my-1"></div>
+											<div class="my-1 border-t border-neutral-200"></div>
 											<button
 												on:click={() => deletePotion(potion.id)}
-												class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
 											>
 												<svelte:component this={icons.Trash2} size={14} />
 												<span>Delete</span>
@@ -578,33 +610,34 @@
 								{/if}
 							</div>
 						</div>
-						
+
 						<!-- Hypothesis -->
 						{#if potion.hypothesis}
-							<div class="mb-4 p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
-								<h4 class="text-sm font-medium text-neutral-900 mb-1">Hypothesis</h4>
+							<div class="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+								<h4 class="mb-1 text-sm font-medium text-neutral-900">Hypothesis</h4>
 								<p class="text-sm text-neutral-700">{potion.hypothesis}</p>
 							</div>
 						{/if}
-						
+
 						<!-- Analysis Results -->
 						{#if potionAnalyses[potion.id]}
 							{@const analysis = potionAnalyses[potion.id]}
-							<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-								<div class="flex items-center space-x-2 mb-3">
-									<svelte:component 
-										this={getEffectivenessIcon(analysis.effectiveness)} 
-										size={16} 
-										class={getEffectivenessColor(analysis.effectiveness)} 
+							<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+								<div class="mb-3 flex items-center space-x-2">
+									<svelte:component
+										this={getEffectivenessIcon(analysis.effectiveness)}
+										size={16}
+										class={getEffectivenessColor(analysis.effectiveness)}
 									/>
 									<h4 class="text-sm font-semibold text-neutral-900">
 										{getEffectivenessText(analysis.effectiveness)}
 									</h4>
 								</div>
-								<p class="text-sm text-neutral-700 mb-2">{analysis.summary}</p>
+								<p class="mb-2 text-sm text-neutral-700">{analysis.summary}</p>
 								{#if analysis.recommendations}
 									<div class="text-xs text-neutral-600">
-										<span class="font-medium">Recommendation:</span> {analysis.recommendations}
+										<span class="font-medium">Recommendation:</span>
+										{analysis.recommendations}
 									</div>
 								{/if}
 							</div>

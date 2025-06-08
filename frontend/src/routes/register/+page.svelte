@@ -3,14 +3,14 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as icons from 'lucide-svelte';
-	
+
 	let name = '';
 	let email = '';
 	let password = '';
 	let confirmPassword = '';
 	let loading = false;
 	let error = '';
-	
+
 	onMount(() => {
 		// Redirect if already logged in
 		const unsubscribe = auth.subscribe((state) => {
@@ -18,34 +18,34 @@
 				goto('/dashboard');
 			}
 		});
-		
+
 		return unsubscribe;
 	});
-	
+
 	async function handleRegister(event: Event) {
 		event.preventDefault();
 		if (!name || !email || !password || !confirmPassword) {
 			error = 'Please fill in all fields';
 			return;
 		}
-		
+
 		if (password !== confirmPassword) {
 			error = 'Passwords do not match';
 			return;
 		}
-		
+
 		if (password.length < 6) {
 			error = 'Password must be at least 6 characters';
 			return;
 		}
-		
+
 		loading = true;
 		error = '';
-		
+
 		const result = await auth.register(email, password, name);
-		
+
 		loading = false;
-		
+
 		if (result.success) {
 			goto('/dashboard');
 		} else {
@@ -59,32 +59,41 @@
 	<meta name="description" content="Create your account and begin your personal growth journey" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 flex items-center justify-center p-4">
+<div
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4 dark:from-blue-950 dark:to-purple-950"
+>
 	<div class="w-full max-w-md">
 		<!-- Header -->
-		<div class="text-center mb-8">
-			<div class="w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+		<div class="mb-8 text-center">
+			<div
+				class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 dark:bg-blue-500"
+			>
 				<svelte:component this={icons.Zap} size={32} class="text-white" />
 			</div>
-			<h1 class="text-3xl font-bold text-neutral-900 dark:text-white mb-2">Start your quest</h1>
+			<h1 class="mb-2 text-3xl font-bold text-neutral-900 dark:text-white">Start your quest</h1>
 			<p class="text-neutral-600 dark:text-neutral-300">
 				Transform your personal growth with RPG-style mechanics and AI insights
 			</p>
 		</div>
 
 		<!-- Registration Form -->
-		<div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-8">
+		<div
+			class="rounded-xl border border-neutral-200 bg-white p-8 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+		>
 			<form on:submit={handleRegister} class="space-y-6">
 				<!-- Name Field -->
 				<div>
-					<label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+					<label
+						for="name"
+						class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+					>
 						Full name
 					</label>
 					<input
 						id="name"
 						type="text"
 						placeholder="Enter your full name"
-						class="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-colors"
+						class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
 						bind:value={name}
 						required
 						autocomplete="name"
@@ -93,14 +102,17 @@
 
 				<!-- Email Field -->
 				<div>
-					<label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+					<label
+						for="email"
+						class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+					>
 						Email address
 					</label>
 					<input
 						id="email"
 						type="email"
 						placeholder="Enter your email"
-						class="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-colors"
+						class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
 						bind:value={email}
 						required
 						autocomplete="email"
@@ -109,14 +121,17 @@
 
 				<!-- Password Field -->
 				<div>
-					<label for="password" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+					<label
+						for="password"
+						class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+					>
 						Password
 					</label>
 					<input
 						id="password"
 						type="password"
 						placeholder="Create a password (min 6 characters)"
-						class="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-colors"
+						class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
 						bind:value={password}
 						required
 						autocomplete="new-password"
@@ -125,39 +140,50 @@
 
 				<!-- Confirm Password Field -->
 				<div>
-					<label for="confirmPassword" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+					<label
+						for="confirmPassword"
+						class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+					>
 						Confirm password
 					</label>
 					<input
 						id="confirmPassword"
 						type="password"
 						placeholder="Confirm your password"
-						class="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-900 dark:text-white bg-white dark:bg-neutral-700 placeholder-neutral-400 dark:placeholder-neutral-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-colors"
+						class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
 						bind:value={confirmPassword}
 						required
 						autocomplete="new-password"
 					/>
 				</div>
-				
+
 				<!-- Error Alert -->
 				{#if error}
-					<div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+					<div
+						class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/30"
+					>
 						<div class="flex items-center space-x-2">
-							<svelte:component this={icons.AlertCircle} size={16} class="text-red-500 dark:text-red-400" />
+							<svelte:component
+								this={icons.AlertCircle}
+								size={16}
+								class="text-red-500 dark:text-red-400"
+							/>
 							<span class="text-sm text-red-700 dark:text-red-300">{error}</span>
 						</div>
 					</div>
 				{/if}
-				
+
 				<!-- Submit Button -->
-				<button 
+				<button
 					type="submit"
 					disabled={loading}
-					class="w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="w-full rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-neutral-800"
 				>
 					{#if loading}
 						<div class="flex items-center justify-center space-x-2">
-							<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+							<div
+								class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+							></div>
 							<span>Creating account...</span>
 						</div>
 					{:else}
@@ -172,7 +198,7 @@
 					<div class="w-full border-t border-neutral-200 dark:border-neutral-700"></div>
 				</div>
 				<div class="relative flex justify-center text-sm">
-					<span class="px-2 bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+					<span class="bg-white px-2 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
 						Already have an account?
 					</span>
 				</div>
@@ -180,9 +206,9 @@
 
 			<!-- Sign In Link -->
 			<div class="text-center">
-				<a 
-					href="/login" 
-					class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
+				<a
+					href="/login"
+					class="text-sm font-medium text-blue-600 transition-colors hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
 				>
 					Sign in to your account
 				</a>

@@ -777,9 +777,7 @@
 									</div>
 									<div>
 										<h2 class="text-xl font-bold text-neutral-900">Anytime Tasks</h2>
-										<p class="text-sm text-neutral-500">
-											Quick actions you can complete anytime
-										</p>
+										<p class="text-sm text-neutral-500">Quick actions you can complete anytime</p>
 									</div>
 								</div>
 								<a
@@ -799,24 +797,31 @@
 										onclick={() => executeAdhocTask(adhocTask.id)}
 										class="group flex items-start gap-4 rounded-lg border border-neutral-200 p-4 text-left transition-all hover:border-purple-300 hover:bg-purple-50 hover:shadow-md"
 									>
-										<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 group-hover:bg-purple-200">
+										<div
+											class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 group-hover:bg-purple-200"
+										>
 											{#if adhocTask.iconId}
-												<svelte:component this={getIconComponent(adhocTask.iconId)} class="h-6 w-6 text-purple-600" />
+												<svelte:component
+													this={getIconComponent(adhocTask.iconId)}
+													class="h-6 w-6 text-purple-600"
+												/>
 											{:else}
 												<svelte:component this={icons.Target} class="h-6 w-6 text-purple-600" />
 											{/if}
 										</div>
-										<div class="flex-1 min-w-0">
+										<div class="min-w-0 flex-1">
 											<h3 class="font-semibold text-neutral-900 group-hover:text-purple-900">
 												{adhocTask.name}
 											</h3>
 											{#if adhocTask.description}
-												<p class="mt-1 text-sm text-neutral-600 line-clamp-2">
+												<p class="mt-1 line-clamp-2 text-sm text-neutral-600">
 													{adhocTask.description}
 												</p>
 											{/if}
 											<div class="mt-2 flex items-center gap-2">
-												<span class="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+												<span
+													class="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
+												>
 													{adhocTask.linkedStat.name}
 												</span>
 												<span class="text-xs font-medium text-purple-600">
@@ -827,7 +832,7 @@
 									</button>
 								{/each}
 							</div>
-							
+
 							{#if adhocTasks.length > 6}
 								<div class="mt-4 text-center">
 									<a
