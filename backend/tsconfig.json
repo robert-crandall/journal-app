@@ -4,6 +4,19 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
-  }
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "ESNext"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

@@ -35,19 +35,77 @@
 
 	// Category options
 	const categoryOptions = [
-		{ value: 'body', label: 'Body', description: 'Physical health, fitness, and energy', icon: '💪', color: 'border-red-500' },
-		{ value: 'mind', label: 'Mind', description: 'Mental clarity, wisdom, and intellectual growth', icon: '🧠', color: 'border-blue-500' },
-		{ value: 'connection', label: 'Connection', description: 'Social bonds, emotional presence, and relationships', icon: '💝', color: 'border-pink-500' },
-		{ value: 'shadow', label: 'Shadow', description: 'Patterns that drain or sabotage - track for healing', icon: '🌑', color: 'border-purple-500' },
-		{ value: 'spirit', label: 'Spirit', description: 'Inner alignment, intuition, and existential clarity', icon: '🌟', color: 'border-yellow-500' },
-		{ value: 'legacy', label: 'Legacy', description: 'Impact on others and long-term contributions', icon: '🏛️', color: 'border-green-500' }
+		{
+			value: 'body',
+			label: 'Body',
+			description: 'Physical health, fitness, and energy',
+			icon: '💪',
+			color: 'border-red-500'
+		},
+		{
+			value: 'mind',
+			label: 'Mind',
+			description: 'Mental clarity, wisdom, and intellectual growth',
+			icon: '🧠',
+			color: 'border-blue-500'
+		},
+		{
+			value: 'connection',
+			label: 'Connection',
+			description: 'Social bonds, emotional presence, and relationships',
+			icon: '💝',
+			color: 'border-pink-500'
+		},
+		{
+			value: 'shadow',
+			label: 'Shadow',
+			description: 'Patterns that drain or sabotage - track for healing',
+			icon: '🌑',
+			color: 'border-purple-500'
+		},
+		{
+			value: 'spirit',
+			label: 'Spirit',
+			description: 'Inner alignment, intuition, and existential clarity',
+			icon: '🌟',
+			color: 'border-yellow-500'
+		},
+		{
+			value: 'legacy',
+			label: 'Legacy',
+			description: 'Impact on others and long-term contributions',
+			icon: '🏛️',
+			color: 'border-green-500'
+		}
 	];
 
 	// Available Lucide icons for tasks
 	const availableIcons = [
-		'target', 'zap', 'heart', 'star', 'coffee', 'book', 'dumbbell', 'leaf', 'sun', 'moon',
-		'music', 'camera', 'pen-tool', 'compass', 'flame', 'droplet', 'mountain', 'trees',
-		'flower', 'rainbow', 'cloud', 'lightning', 'snowflake', 'sunrise', 'sunset'
+		'target',
+		'zap',
+		'heart',
+		'star',
+		'coffee',
+		'book',
+		'dumbbell',
+		'leaf',
+		'sun',
+		'moon',
+		'music',
+		'camera',
+		'pen-tool',
+		'compass',
+		'flame',
+		'droplet',
+		'mountain',
+		'trees',
+		'flower',
+		'rainbow',
+		'cloud',
+		'lightning',
+		'snowflake',
+		'sunrise',
+		'sunset'
 	];
 
 	onMount(() => {
@@ -139,7 +197,7 @@
 
 		try {
 			await adhocTasksApi.delete(taskId);
-			
+
 			// Refresh ad hoc tasks
 			const adhocTasksData = await adhocTasksApi.getAll();
 			adhocTasks = adhocTasksData.adhocTasks || [];
@@ -163,7 +221,7 @@
 	}
 
 	function getCategoryInfo(category: string) {
-		return categoryOptions.find(opt => opt.value === category) || categoryOptions[0];
+		return categoryOptions.find((opt) => opt.value === category) || categoryOptions[0];
 	}
 </script>
 
@@ -175,7 +233,9 @@
 	{#if loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="text-center">
-				<div class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+				<div
+					class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+				></div>
 				<p class="text-sm text-neutral-600">Loading your anytime tasks...</p>
 			</div>
 		</div>
@@ -219,16 +279,19 @@
 			{#if adhocTasks.length === 0}
 				<!-- Empty State -->
 				<div class="rounded-xl border border-neutral-200 bg-white p-12 text-center">
-					<div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-purple-100">
+					<div
+						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-purple-100"
+					>
 						<svelte:component this={icons.Zap} class="h-10 w-10 text-purple-600" />
 					</div>
 					<h2 class="mb-3 text-2xl font-bold text-neutral-900">Build Your Task Library</h2>
-					<p class="mb-8 max-w-md mx-auto leading-relaxed text-neutral-600">
-						Create quick actions you can complete anytime to earn XP and build momentum. Perfect for habits like workouts, reading, or meditation.
+					<p class="mx-auto mb-8 max-w-md leading-relaxed text-neutral-600">
+						Create quick actions you can complete anytime to earn XP and build momentum. Perfect for
+						habits like workouts, reading, or meditation.
 					</p>
 					<button
 						onclick={openCreateForm}
-						class="flex items-center gap-2 rounded-lg bg-purple-600 px-8 py-4 font-semibold text-white transition-colors hover:bg-purple-700 mx-auto"
+						class="mx-auto flex items-center gap-2 rounded-lg bg-purple-600 px-8 py-4 font-semibold text-white transition-colors hover:bg-purple-700"
 					>
 						<svelte:component this={icons.Plus} class="h-5 w-5" />
 						Create Your First Task
@@ -239,31 +302,37 @@
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each adhocTasks as task}
 						{@const categoryInfo = getCategoryInfo(task.category)}
-						<div class="group rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+						<div
+							class="group rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+						>
 							<!-- Task Header -->
 							<div class="mb-4 flex items-start justify-between">
 								<div class="flex items-center gap-3">
 									<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
 										{#if task.iconId}
-											<svelte:component this={getIconComponent(task.iconId)} class="h-6 w-6 text-purple-600" />
+											<svelte:component
+												this={getIconComponent(task.iconId)}
+												class="h-6 w-6 text-purple-600"
+											/>
 										{:else}
 											<svelte:component this={icons.Target} class="h-6 w-6 text-purple-600" />
 										{/if}
 									</div>
-									<div class="flex-1 min-w-0">
-										<h3 class="font-semibold text-neutral-900 truncate">{task.name}</h3>
-										<div class="flex items-center gap-2 mt-1">
+									<div class="min-w-0 flex-1">
+										<h3 class="truncate font-semibold text-neutral-900">{task.name}</h3>
+										<div class="mt-1 flex items-center gap-2">
 											<span class="text-xs font-medium text-purple-600">
 												+{task.xpValue} XP
 											</span>
 											<span class="text-xs text-neutral-500">•</span>
 											<span class="text-xs text-neutral-600">
-												{categoryInfo.icon} {categoryInfo.label}
+												{categoryInfo.icon}
+												{categoryInfo.label}
 											</span>
 										</div>
 									</div>
 								</div>
-								<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+								<div class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
 									<button
 										onclick={() => openEditForm(task)}
 										class="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"
@@ -283,7 +352,7 @@
 
 							<!-- Description -->
 							{#if task.description}
-								<p class="mb-4 text-sm text-neutral-600 line-clamp-2">
+								<p class="mb-4 line-clamp-2 text-sm text-neutral-600">
 									{task.description}
 								</p>
 							{/if}
@@ -328,7 +397,9 @@
 								{editingTask ? 'Edit Anytime Task' : 'Create New Anytime Task'}
 							</h2>
 							<p class="mt-1 text-sm text-purple-100">
-								{editingTask ? 'Update your task details' : 'Add a new quick action to your library'}
+								{editingTask
+									? 'Update your task details'
+									: 'Add a new quick action to your library'}
 							</p>
 						</div>
 					</div>
@@ -421,7 +492,8 @@
 								>
 									{#each categoryOptions as option}
 										<option value={option.value}>
-											{option.icon} {option.label} - {option.description}
+											{option.icon}
+											{option.label} - {option.description}
 										</option>
 									{/each}
 								</select>
@@ -481,7 +553,11 @@
 					>
 						Cancel
 					</button>
-					<button type="submit" class="rounded-lg bg-purple-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-purple-700" onclick={handleSubmit}>
+					<button
+						type="submit"
+						class="rounded-lg bg-purple-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-purple-700"
+						onclick={handleSubmit}
+					>
 						{editingTask ? 'Update Task' : 'Create Task'}
 					</button>
 				</div>

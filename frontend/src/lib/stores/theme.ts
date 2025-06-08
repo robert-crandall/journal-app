@@ -14,7 +14,7 @@ export type Theme = (typeof availableThemes)[number]['value'];
 function createThemeStore() {
 	// Get initial theme from localStorage or default to 'auto'
 	let initialTheme: Theme = 'auto';
-	
+
 	if (browser) {
 		initialTheme = (localStorage.getItem('theme') as Theme) || 'auto';
 	}
@@ -36,9 +36,9 @@ function createThemeStore() {
 		if (browser) {
 			// Update localStorage for offline support
 			localStorage.setItem('theme', theme);
-			
+
 			const html = document.documentElement;
-			
+
 			// Handle Tailwind dark mode classes
 			if (theme === 'dark') {
 				html.classList.add('dark');
