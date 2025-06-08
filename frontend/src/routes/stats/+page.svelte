@@ -4,6 +4,7 @@
 	import * as icons from 'lucide-svelte';
 	import { STAT_LIBRARY, findStatByName, getStatsByCategory } from '$lib/data/stats';
 	import { findClassByName } from '$lib/data/classes';
+	import IconPicker from '$lib/components/IconPicker.svelte';
 
 	let stats: any[] = [];
 	let userData: any = null;
@@ -67,7 +68,7 @@
 	];
 
 	// Available Lucide icons for stats
-	const availableIcons = [
+	const availableIconsList = [
 		'dumbbell',
 		'move',
 		'heart-pulse',
@@ -93,6 +94,16 @@
 		'tree-deciduous',
 		'archive'
 	];
+
+	// Convert to format expected by IconPicker
+	const availableIcons = availableIconsList.map(iconName => {
+		// Create friendly labels from icon names
+		const label = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
+		return { name: iconName, label };
+	});
 
 	// Icon display function
 	function getIconComponent(iconName: string) {
@@ -816,15 +827,11 @@
 
 						<div>
 							<label class="mb-2 block text-sm font-medium text-gray-700"> Icon </label>
-							<select
-								class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-								bind:value={formData.icon}
-							>
-								<option value="">Select an icon...</option>
-								{#each availableIcons as iconName}
-									<option value={iconName}>{iconName}</option>
-								{/each}
-							</select>
+							<IconPicker 
+								bind:selectedIcon={formData.icon}
+								availableIcons={availableIcons}
+								showPreview={false}
+							/>
 							{#if formData.icon}
 								<div class="mt-2 flex items-center gap-2">
 									<span class="text-sm text-gray-600 dark:text-neutral-300">Preview:</span>

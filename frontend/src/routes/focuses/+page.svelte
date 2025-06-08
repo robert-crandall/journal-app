@@ -3,6 +3,7 @@
 	import { focusesApi, statsApi } from '$lib/api';
 	import { EXTENDED_FOCUS_LIBRARY, type FocusTemplate } from '$lib/focusLibrary';
 	import * as icons from 'lucide-svelte';
+	import IconPicker from '$lib/components/IconPicker.svelte';
 
 	let focuses: any[] = [];
 	let stats: any[] = [];
@@ -330,16 +331,11 @@
 								<label for="focusIcon" class="mb-2 block text-sm font-medium text-neutral-900">
 									Icon
 								</label>
-								<select
-									id="focusIcon"
-									bind:value={focusFormData.icon}
-									class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-								>
-									<option value="">Choose an icon...</option>
-									{#each iconOptions as iconOption}
-										<option value={iconOption.name}>{iconOption.label}</option>
-									{/each}
-								</select>
+								<IconPicker 
+									bind:selectedIcon={focusFormData.icon}
+									availableIcons={iconOptions}
+									showPreview={false}
+								/>
 							</div>
 
 							<div>
