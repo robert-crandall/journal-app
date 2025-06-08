@@ -125,6 +125,15 @@
 								</div>
 							</a>
 							<a 
+								href="/adhoc-tasks" 
+								class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {$page.route.id === '/adhoc-tasks' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700'}"
+							>
+								<div class="flex items-center space-x-2">
+									<svelte:component this={icons.Zap} size={16} />
+									<span>Anytime</span>
+								</div>
+							</a>
+							<a 
 								href="/journals" 
 								class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {$page.route.id === '/journals' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700'}"
 							>
@@ -265,6 +274,16 @@
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.CheckSquare} size={16} />
 									<span>Tasks</span>
+								</div>
+							</a>
+							<a 
+								href="/adhoc-tasks" 
+								on:click={closeMobileMenu}
+								class="block px-3 py-2 text-sm font-medium rounded-lg transition-colors {$page.route.id === '/adhoc-tasks' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700'}"
+							>
+								<div class="flex items-center space-x-3">
+									<svelte:component this={icons.Zap} size={16} />
+									<span>Anytime</span>
 								</div>
 							</a>
 							<a 

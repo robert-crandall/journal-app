@@ -311,6 +311,68 @@ export const potionsApi = {
 	}
 };
 
+// Ad Hoc Tasks API
+export const adhocTasksApi = {
+	async getAll() {
+		return apiRequest('/adhoc-tasks');
+	},
+
+	async get(id: string) {
+		return apiRequest(`/adhoc-tasks/${id}`);
+	},
+
+	async create(adhocTask: {
+		name: string;
+		description?: string;
+		linkedStatId: string;
+		xpValue?: number;
+		iconId?: string;
+		category: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy';
+	}) {
+		return apiRequest('/adhoc-tasks', {
+			method: 'POST',
+			body: JSON.stringify(adhocTask)
+		});
+	},
+
+	async update(
+		id: string,
+		adhocTask: {
+			name?: string;
+			description?: string;
+			linkedStatId?: string;
+			xpValue?: number;
+			iconId?: string;
+			category?: 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy';
+		}
+	) {
+		return apiRequest(`/adhoc-tasks/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify(adhocTask)
+		});
+	},
+
+	async execute(
+		id: string,
+		options?: {
+			feedback?: string;
+			emotionTag?: string;
+			moodScore?: number;
+		}
+	) {
+		return apiRequest(`/adhoc-tasks/${id}/execute`, {
+			method: 'POST',
+			body: JSON.stringify(options || {})
+		});
+	},
+
+	async delete(id: string) {
+		return apiRequest(`/adhoc-tasks/${id}`, {
+			method: 'DELETE'
+		});
+	}
+};
+
 // Stats API
 export const statsApi = {
 	async getAll() {

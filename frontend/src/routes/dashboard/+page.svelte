@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/stores/auth';
-	import { tasksApi, statsApi, journalsApi, userApi } from '$lib/api';
+	import { tasksApi, statsApi, journalsApi, userApi, adhocTasksApi } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
 
@@ -20,6 +20,7 @@
 
 	let tasks: any[] = [];
 	let dailyTasks: any[] = [];
+	let adhocTasks: any[] = [];
 	let stats: any[] = [];
 	let recentJournals: any[] = [];
 	let userData: any = null;
@@ -45,10 +46,11 @@
 
 		async function loadData() {
 			try {
-				const [tasksData, dailyTasksData, statsData, journalsData, userResponse] =
+				const [tasksData, dailyTasksData, adhocTasksData, statsData, journalsData, userResponse] =
 					await Promise.all([
 						tasksApi.getAll(),
 						tasksApi.getDailyTasks(),
+						adhocTasksApi.getAll(),
 						statsApi.getAll(),
 						journalsApi.getAll(),
 						userApi.getMe()
@@ -58,6 +60,7 @@
 					.filter((task: any) => !task.completedAt && task.origin !== 'gpt')
 					.slice(0, 5);
 				dailyTasks = dailyTasksData.tasks || [];
+				adhocTasks = adhocTasksData.adhocTasks || [];
 				stats = statsData.slice(0, 4);
 				recentJournals = journalsData.journals.slice(0, 3);
 				userData = userResponse.user;
@@ -120,20 +123,27 @@
 
 	async function submitTaskFeedback(taskId: string) {
 		try {
-			await tasksApi.complete(taskId, {
-				status: 'complete',
-				feedback: taskFeedbackData.feedback,
-				emotionTag: taskFeedbackData.emotionTag,
-				moodScore: taskFeedbackData.moodScore > 0 ? taskFeedbackData.moodScore : undefined
-			});
+			// Check if this is an ad hoc task
+			if (taskId.endsWith('_adhoc')) {
+				const adhocTaskId = taskId.replace('_adhoc', '');
+				await submitAdhocTaskExecution(adhocTaskId);
+			} else {
+				// Regular task completion
+				await tasksApi.complete(taskId, {
+					status: 'complete',
+					feedback: taskFeedbackData.feedback,
+					emotionTag: taskFeedbackData.emotionTag,
+					moodScore: taskFeedbackData.moodScore > 0 ? taskFeedbackData.moodScore : undefined
+				});
 
-			// Reset feedback form
-			showTaskFeedback = '';
-			taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
+				// Reset feedback form
+				showTaskFeedback = '';
+				taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
 
-			// Refresh daily tasks and stats
-			await refreshDailyTasks();
-			showSaveMessage('Task completed ✓');
+				// Refresh daily tasks and stats
+				await refreshDailyTasks();
+				showSaveMessage('Task completed ✓');
+			}
 		} catch (error) {
 			console.error('Failed to submit task feedback:', error);
 		}
@@ -153,11 +163,40 @@
 		}
 	}
 
+	async function executeAdhocTask(adhocTaskId: string) {
+		try {
+			// Show feedback form for ad hoc task execution
+			showTaskFeedback = adhocTaskId + '_adhoc';
+		} catch (error) {
+			console.error('Failed to execute ad hoc task:', error);
+		}
+	}
+
+	async function submitAdhocTaskExecution(adhocTaskId: string) {
+		try {
+			const result = await adhocTasksApi.execute(adhocTaskId, {
+				feedback: taskFeedbackData.feedback || undefined,
+				emotionTag: taskFeedbackData.emotionTag || undefined,
+				moodScore: taskFeedbackData.moodScore || undefined
+			});
+
+			// Refresh stats
+			const statsData = await statsApi.getAll();
+			stats = statsData.slice(0, 4);
+
+			// Reset form and close modal
+			cancelTaskFeedback();
+
+			showSaveMessage(`${result.stat.name} +${result.xpAwarded} XP ✓`);
+		} catch (error) {
+			console.error('Failed to execute ad hoc task:', error);
+		}
+	}
+
 	async function createJournal() {
 		try {
 			await journalsApi.create({
-				content: journalContent,
-				mood: journalMood || undefined
+				content: journalContent
 			});
 
 			// Reset form and close modal
@@ -725,6 +764,85 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Anytime Tasks Section -->
+			{#if adhocTasks.length > 0}
+				<section class="mt-8">
+					<div class="rounded-xl border border-neutral-200 bg-white shadow-sm">
+						<div class="border-b border-neutral-100 p-6">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-3">
+									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+										<svelte:component this={icons.Zap} class="h-5 w-5 text-purple-600" />
+									</div>
+									<div>
+										<h2 class="text-xl font-bold text-neutral-900">Anytime Tasks</h2>
+										<p class="text-sm text-neutral-500">
+											Quick actions you can complete anytime
+										</p>
+									</div>
+								</div>
+								<a
+									href="/adhoc-tasks"
+									class="flex items-center gap-1 text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
+								>
+									Manage Library
+									<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
+								</a>
+							</div>
+						</div>
+
+						<div class="p-6">
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+								{#each adhocTasks.slice(0, 6) as adhocTask}
+									<button
+										onclick={() => executeAdhocTask(adhocTask.id)}
+										class="group flex items-start gap-4 rounded-lg border border-neutral-200 p-4 text-left transition-all hover:border-purple-300 hover:bg-purple-50 hover:shadow-md"
+									>
+										<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 group-hover:bg-purple-200">
+											{#if adhocTask.iconId}
+												<svelte:component this={getIconComponent(adhocTask.iconId)} class="h-6 w-6 text-purple-600" />
+											{:else}
+												<svelte:component this={icons.Target} class="h-6 w-6 text-purple-600" />
+											{/if}
+										</div>
+										<div class="flex-1 min-w-0">
+											<h3 class="font-semibold text-neutral-900 group-hover:text-purple-900">
+												{adhocTask.name}
+											</h3>
+											{#if adhocTask.description}
+												<p class="mt-1 text-sm text-neutral-600 line-clamp-2">
+													{adhocTask.description}
+												</p>
+											{/if}
+											<div class="mt-2 flex items-center gap-2">
+												<span class="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+													{adhocTask.linkedStat.name}
+												</span>
+												<span class="text-xs font-medium text-purple-600">
+													+{adhocTask.xpValue} XP
+												</span>
+											</div>
+										</div>
+									</button>
+								{/each}
+							</div>
+							
+							{#if adhocTasks.length > 6}
+								<div class="mt-4 text-center">
+									<a
+										href="/adhoc-tasks"
+										class="inline-flex items-center gap-1 text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
+									>
+										View All {adhocTasks.length} Tasks
+										<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
+									</a>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</section>
+			{/if}
 		</main>
 	{/if}
 </div>
@@ -817,7 +935,9 @@
 		<div class="w-full max-w-md rounded-lg bg-white shadow-xl">
 			<div class="border-b border-neutral-200 p-6">
 				<div class="flex items-center justify-between">
-					<h3 class="text-xl font-semibold text-neutral-800">Task Feedback</h3>
+					<h3 class="text-xl font-semibold text-neutral-800">
+						{showTaskFeedback.endsWith('_adhoc') ? 'Complete Anytime Task' : 'Task Feedback'}
+					</h3>
 					<button
 						onclick={cancelTaskFeedback}
 						class="text-neutral-400 transition-colors hover:text-neutral-600"
@@ -896,7 +1016,7 @@
 						onclick={() => submitTaskFeedback(showTaskFeedback)}
 						class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
 					>
-						Complete Task
+						{showTaskFeedback.endsWith('_adhoc') ? 'Complete & Earn XP' : 'Complete Task'}
 					</button>
 				</div>
 			</div>

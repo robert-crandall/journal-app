@@ -58,6 +58,20 @@ export const stats = pgTable('stats', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Ad Hoc Tasks Library - user-defined reusable tasks
+export const adhocTasks = pgTable('adhoc_tasks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
+  linkedStatId: uuid('linked_stat_id').references(() => stats.id, { onDelete: 'set null' }).notNull(),
+  xpValue: integer('xp_value').notNull().default(25),
+  iconId: text('icon_id'),
+  category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Tasks
 export const tasks = pgTable('tasks', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -65,6 +79,7 @@ export const tasks = pgTable('tasks', {
   focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }),
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
+  adhocTaskId: uuid('adhoc_task_id').references(() => adhocTasks.id, { onDelete: 'set null' }), // Links to ad hoc task if created from library
   title: text('title').notNull(),
   description: text('description'),
   dueDate: date('due_date'),
@@ -72,7 +87,7 @@ export const tasks = pgTable('tasks', {
   source: text('source', { enum: ['primary', 'connection'] }), // GPT task type
   linkedStatIds: jsonb('linked_stat_ids').$type<string[]>(), // Multiple stats for XP
   linkedFamilyMemberIds: jsonb('linked_family_member_ids').$type<string[]>(), // Multiple family members
-  origin: text('origin', { enum: ['user', 'gpt', 'system'] }).notNull().default('user'),
+  origin: text('origin', { enum: ['user', 'gpt', 'system', 'adhoc'] }).notNull().default('user'),
   status: text('status', { enum: ['pending', 'complete', 'skipped', 'failed'] }).notNull().default('pending'),
   completedAt: timestamp('completed_at', { withTimezone: true }),
   feedback: text('feedback'), // User feedback on task completion
@@ -167,6 +182,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   focuses: many(focuses),
   stats: many(stats),
   tasks: many(tasks, { relationName: "user" }),
+  adhocTasks: many(adhocTasks),
   journals: many(journals),
   tags: many(tags),
   potions: many(potions),
@@ -188,12 +204,20 @@ export const statsRelations = relations(stats, ({ one, many }) => ({
   user: one(users, { fields: [stats.userId], references: [users.id] }),
   focuses: many(focuses),
   tasks: many(tasks),
+  adhocTasks: many(adhocTasks),
 }));
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
   user: one(users, { fields: [tasks.userId], references: [users.id], relationName: "user" }),
   focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
   stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
+  adhocTask: one(adhocTasks, { fields: [tasks.adhocTaskId], references: [adhocTasks.id] }),
+}));
+
+export const adhocTasksRelations = relations(adhocTasks, ({ one, many }) => ({
+  user: one(users, { fields: [adhocTasks.userId], references: [users.id] }),
+  linkedStat: one(stats, { fields: [adhocTasks.linkedStatId], references: [stats.id] }),
+  tasks: many(tasks),
 }));
 
 export const journalsRelations = relations(journals, ({ one }) => ({
@@ -232,6 +256,8 @@ export const insertStatSchema = createInsertSchema(stats);
 export const selectStatSchema = createSelectSchema(stats);
 export const insertTaskSchema = createInsertSchema(tasks);
 export const selectTaskSchema = createSelectSchema(tasks);
+export const insertAdhocTaskSchema = createInsertSchema(adhocTasks);
+export const selectAdhocTaskSchema = createSelectSchema(adhocTasks);
 export const insertJournalSchema = createInsertSchema(journals);
 export const selectJournalSchema = createSelectSchema(journals);
 export const insertTagSchema = createInsertSchema(tags);
@@ -267,6 +293,30 @@ export const createTaskSchema = z.object({
   linkedFamilyMemberIds: z.array(z.string().uuid()).optional(),
   focusId: z.string().uuid().optional(),
   statId: z.string().uuid().optional(),
+});
+
+export const createAdhocTaskSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  linkedStatId: z.string().uuid(),
+  xpValue: z.number().int().min(1).max(100).default(25),
+  iconId: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']),
+});
+
+export const updateAdhocTaskSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  linkedStatId: z.string().uuid().optional(),
+  xpValue: z.number().int().min(1).max(100).optional(),
+  iconId: z.string().optional(),
+  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
+});
+
+export const executeAdhocTaskSchema = z.object({
+  feedback: z.string().optional(),
+  emotionTag: z.string().optional(),
+  moodScore: z.number().int().min(1).max(5).optional(),
 });
 
 export const completeTaskSchema = z.object({
@@ -357,6 +407,8 @@ export type Stat = typeof stats.$inferSelect;
 export type NewStat = typeof stats.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
+export type AdhocTask = typeof adhocTasks.$inferSelect;
+export type NewAdhocTask = typeof adhocTasks.$inferInsert;
 export type Journal = typeof journals.$inferSelect;
 export type NewJournal = typeof journals.$inferInsert;
 export type Tag = typeof tags.$inferSelect;
