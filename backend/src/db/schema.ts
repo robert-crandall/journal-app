@@ -152,6 +152,7 @@ export const preferences = pgTable('preferences', {
   theme: text('theme').notNull().default('light'),
   locationDescription: text('location_description'), // e.g., "Seattle area"
   zipCode: text('zip_code'), // for weather API calls
+  rpgFlavorEnabled: boolean('rpg_flavor_enabled').notNull().default(false), // Enable RPG flavor in task descriptions
   // Future preferences can be added as new columns:
   // language: text('language').default('en'),
   // notifications: boolean('notifications').default(true'),

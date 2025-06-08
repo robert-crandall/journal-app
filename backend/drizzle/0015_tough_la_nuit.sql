@@ -1,0 +1,1 @@
+ALTER TABLE "preferences" ADD COLUMN "rpg_flavor_enabled" boolean DEFAULT false NOT NULL;
