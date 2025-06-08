@@ -1,49 +1,90 @@
-import 'dotenv/config';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
-import type { JwtVariables } from 'hono/jwt';
-import type { User } from './db/schema';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { prettyJSON } from "hono/pretty-json";
+import { serveStatic } from "hono/bun";
 
-// Define app variables type
-type Variables = JwtVariables & {
-  user: User;
-};
+// Load environment variables only in development
+if (process.env.NODE_ENV !== "production") {
+  try {
+    require("dotenv").config();
+  } catch (error) {
+    // dotenv is a dev dependency, ignore in production
+  }
+}
 
-// Routes
-import auth from './routes/auth';
-import family from './routes/family';
-import tasks from './routes/tasks';
-import focuses from './routes/focuses';
-import journals from './routes/journals';
-import potions from './routes/potions';
-import stats from './routes/stats';
-import preferences from './routes/preferences';
-import tags from './routes/tags';
+// Import routes
+import userRoutes from "./routes/users";
+import messageRoutes from "./routes/messages";
+import notificationRoutes from "./routes/notifications";
+import cronRoutes from "./routes/cron";
+import docsRoutes from "./routes/docs";
+import processingRoutes from "./routes/processing";
 
-const app = new Hono<{ Variables: Variables }>();
+// Create Hono application
+const app = new Hono();
 
 // Middleware
-app.use('*', logger());
-app.use('*', cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173'],
-  credentials: true,
-}));
+app.use("*", cors());
+// Only enable detailed logging in development
+if (process.env.NODE_ENV !== "production") {
+  app.use("*", logger());
+}
+app.use("*", prettyJSON());
 
-// Health check
-app.get('/', (c) => {
-  return c.json({ message: 'Life Quest API is running!' });
+// API Routes (more specific routes first)
+app.route("/api/users", userRoutes);
+app.route("/api/messages", messageRoutes);
+app.route("/api/notifications", notificationRoutes);
+app.route("/api/processing", processingRoutes);
+app.route("/cron", cronRoutes);
+app.route("/docs", docsRoutes);
+
+// Health check endpoint for API monitoring
+app.get("/api/health", (c) => {
+  return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// API routes
-app.route('/api/auth', auth);
-app.route('/api/family', family);
-app.route('/api/tasks', tasks);
-app.route('/api/focuses', focuses);
-app.route('/api/journals', journals);
-app.route('/api/potions', potions);
-app.route('/api/stats', stats);
-app.route('/api/preferences', preferences);
-app.route('/api/tags', tags);
+// Serve static files - but exclude API routes using a custom condition
+app.use("*", async (c, next) => {
+  const path = c.req.path;
+  
+  // Skip static serving for API routes
+  if (path.startsWith("/api/") || path.startsWith("/cron") || path.startsWith("/docs")) {
+    await next();
+    return;
+  }
+  
+  // For non-API routes, try to serve static files first
+  return serveStatic({ root: "./frontend-build" })(c, next);
+});
 
-export default app;
+// Fallback for client-side routing (SPA) - serve index.html for non-API routes
+app.get("*", async (c) => {
+  const path = c.req.path;
+  
+  // This should only be reached for non-API routes that don't have static files
+  try {
+    const file = Bun.file("./frontend-build/index.html");
+    const content = await file.text();
+    return c.html(content);
+  } catch (error) {
+    console.error("Error serving index.html:", error);
+    return c.json({ error: "Frontend not found" }, 404);
+  }
+});
+
+// Error handling
+app.onError((err, c) => {
+  console.error("Unhandled error:", err);
+  return c.json({ error: "Internal Server Error" }, 500);
+});
+
+// Start the server when running in Bun
+const port = parseInt(Bun.env.PORT || "8000", 10);
+console.log(`Server is running on port ${port}`);
+
+export default {
+  port,
+  fetch: app.fetch
+};
