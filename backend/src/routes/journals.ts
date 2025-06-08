@@ -270,7 +270,9 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
   const [updatedJournal] = await db.update(journals)
     .set({
       status: 'completed',
+      title: gptSummary.title,
       gptSummary: gptSummary.summary,
+      condensed: gptSummary.condensed,
       sentimentScore: gptSummary.sentimentScore,
       moodTags: gptSummary.moodTags,
       potionId: potionId,
@@ -287,7 +289,9 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
   
   return c.json({
     journal: updatedJournal,
+    title: gptSummary.title,
     summary: gptSummary.summary,
+    condensed: gptSummary.condensed,
     extractedTags: processedTags,
     suggestedAttributes: processedAttributes,
   });
@@ -309,21 +313,33 @@ async function getActivePotions(userId: string): Promise<string[]> {
   return activePotions.map(potion => potion.id);
 }
 
-// Helper function to process extracted tags
+// Helper function to process extracted tags with fuzzy matching
 async function processExtractedTags(userId: string, tagNames: string[], journalId: string) {
   const processedTags = [];
   
   for (const tagName of tagNames) {
-    // Check if tag already exists for this user
+    const normalizedTagName = tagName.toLowerCase().trim();
+    
+    // Check if tag already exists exactly
     let existingTag = await db.query.tags.findFirst({
-      where: and(eq(tags.userId, userId), eq(tags.name, tagName.toLowerCase())),
+      where: and(eq(tags.userId, userId), eq(tags.name, normalizedTagName)),
     });
     
-    // Create tag if it doesn't exist
+    // If no exact match, try fuzzy matching
+    if (!existingTag) {
+      const userTags = await db.query.tags.findMany({
+        where: eq(tags.userId, userId),
+      });
+      
+      // Find the best fuzzy match
+      existingTag = findBestTagMatch(normalizedTagName, userTags);
+    }
+    
+    // Create tag if no suitable match found
     if (!existingTag) {
       const [newTag] = await db.insert(tags).values({
         userId,
-        name: tagName.toLowerCase(),
+        name: normalizedTagName,
       }).returning();
       existingTag = newTag;
     }
@@ -339,6 +355,83 @@ async function processExtractedTags(userId: string, tagNames: string[], journalI
   }
   
   return processedTags;
+}
+
+/**
+ * Find the best fuzzy match for a tag name among existing tags
+ * Uses simple string similarity matching
+ */
+function findBestTagMatch(targetTag: string, existingTags: Array<{ id: string; name: string; userId: string; createdAt: Date; updatedAt: Date }>): typeof existingTags[0] | undefined {
+  let bestMatch = undefined;
+  let bestScore = 0;
+  const minSimilarityThreshold = 0.6; // 60% similarity required for better matching
+  
+  for (const tag of existingTags) {
+    const similarity = calculateStringSimilarity(targetTag, tag.name);
+    if (similarity > bestScore && similarity >= minSimilarityThreshold) {
+      bestScore = similarity;
+      bestMatch = tag;
+    }
+  }
+  
+  return bestMatch;
+}
+
+/**
+ * Calculate string similarity using a combination of approaches
+ * Returns a value between 0 and 1 (1 being identical)
+ */
+function calculateStringSimilarity(str1: string, str2: string): number {
+  const s1 = str1.toLowerCase().trim();
+  const s2 = str2.toLowerCase().trim();
+  
+  // Exact match
+  if (s1 === s2) return 1;
+  
+  // Check if one string contains the other as a word (substring match)
+  if (s1.includes(s2) || s2.includes(s1)) {
+    const shorter = s1.length < s2.length ? s1 : s2;
+    const longer = s1.length >= s2.length ? s1 : s2;
+    // More generous scoring for substring matches, minimum 0.7 for any substring match
+    return Math.max((shorter.length / longer.length) * 0.9, 0.7);
+  }
+  
+  // Word-based matching - split by spaces and check for word overlap
+  const words1 = s1.split(/\s+/);
+  const words2 = s2.split(/\s+/);
+  
+  // If both are single words, use character-based similarity
+  if (words1.length === 1 && words2.length === 1) {
+    return calculateCharacterSimilarity(s1, s2);
+  }
+  
+  // Calculate word overlap
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+  const wordIntersection = new Set([...set1].filter(x => set2.has(x)));
+  const wordUnion = new Set([...set1, ...set2]);
+  
+  const wordSimilarity = wordIntersection.size / wordUnion.size;
+  
+  // If we have word matches, return higher score
+  if (wordSimilarity > 0) {
+    return Math.min(wordSimilarity * 1.2, 0.95); // Boost word matches but cap at 0.95
+  }
+  
+  // Fall back to character similarity
+  return calculateCharacterSimilarity(s1, s2);
+}
+
+/**
+ * Calculate character-based similarity using Jaccard similarity
+ */
+function calculateCharacterSimilarity(str1: string, str2: string): number {
+  const set1 = new Set(str1.split(''));
+  const set2 = new Set(str2.split(''));
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  
+  return intersection.size / union.size;
 }
 
 // Helper function to process suggested attributes
