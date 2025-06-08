@@ -221,113 +221,116 @@
 </svelte:head>
 
 {#if showCreatePage}
-	<!-- Create/Edit Focus Page -->
-	<div class="min-h-screen bg-gray-50">
-		<div class="bg-white border-b border-gray-200">
-			<div class="max-w-4xl mx-auto px-6 py-4">
+	<!-- Create/Edit Focus Modal - Atlassian Style -->
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
+		<div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+			<!-- Modal Header -->
+			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
-					<div class="flex items-center space-x-4">
-						<button
-							on:click={closeCreatePage}
-							class="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-md hover:bg-gray-100"
-						>
-							<svelte:component this={icons.ArrowLeft} size={20} />
-						</button>
-						<div>
-							<h1 class="text-xl font-semibold text-gray-900">
-								{editingFocus ? 'Edit Focus Area' : 'Create Focus Area'}
-							</h1>
-							{#if selectedTemplate}
-								<p class="text-sm text-gray-600">Based on template: {selectedTemplate.name}</p>
-							{/if}
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+							<svelte:component this={icons.Target} size={16} class="text-blue-600" />
 						</div>
+						<h2 class="text-lg font-semibold text-neutral-900">
+							{editingFocus ? 'Edit focus area' : 'Create focus area'}
+						</h2>
 					</div>
+					<button
+						on:click={closeCreatePage}
+						class="w-8 h-8 rounded-lg hover:bg-neutral-200 flex items-center justify-center transition-colors"
+					>
+						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+					</button>
 				</div>
 			</div>
-		</div>
 
-		<div class="max-w-2xl mx-auto px-6 py-8">
-			{#if error}
-				<div class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
-					<div class="flex">
-						<svelte:component this={icons.AlertCircle} class="h-5 w-5 text-red-400" />
-						<div class="ml-3">
-							<p class="text-sm text-red-700">{error}</p>
+			<!-- Modal Body -->
+			<div class="px-6 py-6 overflow-y-auto max-h-[calc(85vh-140px)]">
+				{#if error}
+					<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+						<div class="flex items-start space-x-3">
+							<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+							<div class="flex-1">
+								<p class="text-sm font-medium text-red-900">Error</p>
+								<p class="text-sm text-red-700 mt-1">{error}</p>
+							</div>
+							<button
+								on:click={() => error = ''}
+								class="text-red-400 hover:text-red-600 transition-colors"
+							>
+								<svelte:component this={icons.X} size={14} />
+							</button>
 						</div>
-						<button
-							on:click={() => error = ''}
-							class="ml-auto text-red-400 hover:text-red-600"
-						>
-							<svelte:component this={icons.X} size={16} />
-						</button>
 					</div>
-				</div>
-			{/if}
+				{/if}
 
-			<form on:submit={handleSubmit} class="space-y-6">
-				<!-- Basic Information -->
-				<div class="bg-white rounded-md shadow-md p-6">
-					<h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-					
+				{#if selectedTemplate}
+					<div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+						<div class="flex items-start space-x-3">
+							<svelte:component this={icons.BookOpen} size={16} class="text-blue-600 mt-0.5 flex-shrink-0" />
+							<div>
+								<p class="text-sm font-medium text-blue-900">Using template: {selectedTemplate.name}</p>
+								<p class="text-xs text-blue-700 mt-1">You can modify any of these fields before creating</p>
+							</div>
+						</div>
+					</div>
+				{/if}
+
+				<form on:submit={handleSubmit} class="space-y-6">
+					<!-- Basic Details -->
 					<div class="space-y-4">
 						<div>
-							<label for="focusName" class="block text-sm font-medium text-gray-700 mb-1">
-								Focus Name <span class="text-red-500">*</span>
+							<label for="focusName" class="block text-sm font-medium text-neutral-900 mb-2">
+								Name <span class="text-red-500">*</span>
 							</label>
 							<input
 								id="focusName"
 								type="text"
 								bind:value={focusFormData.name}
-								placeholder="e.g., Fitness, Learning, Parenting"
+								placeholder="e.g., Fitness, Learning, Creative Projects"
 								required
-								class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
 							/>
 						</div>
 
 						<div>
-							<label for="focusDescription" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="focusDescription" class="block text-sm font-medium text-neutral-900 mb-2">
 								Description
 							</label>
 							<textarea
 								id="focusDescription"
 								bind:value={focusFormData.description}
-								placeholder="Describe what this focus area is about..."
+								placeholder="What is this focus area about? What goals or activities does it include?"
 								rows="3"
-								class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
 							></textarea>
 						</div>
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
-								<label for="focusIcon" class="block text-sm font-medium text-gray-700 mb-1">
+								<label for="focusIcon" class="block text-sm font-medium text-neutral-900 mb-2">
 									Icon
 								</label>
 								<select
 									id="focusIcon"
 									bind:value={focusFormData.icon}
-									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
 								>
-									<option value="">Select an icon...</option>
+									<option value="">Choose an icon...</option>
 									{#each iconOptions as iconOption}
 										<option value={iconOption.name}>{iconOption.label}</option>
 									{/each}
 								</select>
-								{#if focusFormData.icon}
-									<div class="mt-2 flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
-										<span class="text-sm text-gray-600">Preview:</span>
-										<svelte:component this={getIconComponent(focusFormData.icon)} size={16} class="text-blue-600" />
-									</div>
-								{/if}
 							</div>
 
 							<div>
-								<label for="focusDayOfWeek" class="block text-sm font-medium text-gray-700 mb-1">
-									Scheduled Day
+								<label for="focusDayOfWeek" class="block text-sm font-medium text-neutral-900 mb-2">
+									Scheduled day
 								</label>
 								<select
 									id="focusDayOfWeek"
 									bind:value={focusFormData.dayOfWeek}
-									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
 								>
 									<option value="">No specific day</option>
 									<option value="Monday">Monday</option>
@@ -340,207 +343,257 @@
 								</select>
 							</div>
 						</div>
-					</div>
-				</div>
 
-				<!-- Sample Activities -->
-				<div class="bg-white rounded-md shadow-md p-6">
-					<h2 class="text-lg font-semibold text-gray-900 mb-4">Sample Activities</h2>
-					
+						{#if focusFormData.icon}
+							<div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg">
+								<span class="text-sm font-medium text-neutral-700">Preview:</span>
+								<div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+									<svelte:component this={getIconComponent(focusFormData.icon)} size={14} class="text-blue-600" />
+								</div>
+								<span class="text-sm text-neutral-600">{iconOptions.find(opt => opt.name === focusFormData.icon)?.label}</span>
+							</div>
+						{/if}
+					</div>
+
+					<!-- Sample Activities -->
 					<div class="space-y-4">
+						<div>
+							<h3 class="text-sm font-medium text-neutral-900 mb-2">Sample Activities</h3>
+							<p class="text-xs text-neutral-600 mb-3">Add examples of activities that fit this focus area</p>
+						</div>
+						
 						<div class="flex space-x-2">
 							<input
 								type="text"
 								bind:value={newActivity}
-								placeholder="e.g., Go for a run, Read a book"
+								placeholder="e.g., Morning jog, Read 30 pages, Practice guitar"
 								on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())}
-								class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
 							/>
 							<button
 								type="button"
 								on:click={addActivity}
-								class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+								disabled={!newActivity.trim()}
+								class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 							>
 								Add
 							</button>
 						</div>
 
 						{#if focusFormData.sampleActivities.length > 0}
-							<div class="space-y-2">
+							<div class="space-y-2 max-h-32 overflow-y-auto">
 								{#each focusFormData.sampleActivities as activity, index}
-									<div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-										<span class="text-sm text-gray-700">{activity}</span>
+									<div class="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+										<span class="text-sm text-neutral-900">{activity}</span>
 										<button
 											type="button"
 											on:click={() => removeActivity(index)}
-											class="text-red-500 hover:text-red-700 transition-colors"
+											class="text-neutral-400 hover:text-red-600 focus:outline-none transition-colors p-1"
 										>
-											<svelte:component this={icons.X} size={16} />
+											<svelte:component this={icons.X} size={14} />
 										</button>
 									</div>
 								{/each}
 							</div>
+						{:else}
+							<div class="text-center py-6 text-neutral-500 border border-dashed border-neutral-300 rounded-lg">
+								<svelte:component this={icons.Plus} size={20} class="mx-auto mb-2 opacity-50" />
+								<p class="text-sm">No activities added yet</p>
+							</div>
 						{/if}
 					</div>
-				</div>
 
-				<!-- Link to Stat -->
-				<div class="bg-white rounded-md shadow-md p-6">
-					<h2 class="text-lg font-semibold text-gray-900 mb-4">Link to Stat</h2>
-					
-					<div>
-						<label for="focusStat" class="block text-sm font-medium text-gray-700 mb-1">
-							Linked Stat (Optional)
-						</label>
-						<select
-							id="focusStat"
-							bind:value={focusFormData.statId}
-							class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-						>
-							<option value={undefined}>No stat linked</option>
-							{#each stats as stat}
-								<option value={stat.id}>{stat.name}</option>
-							{/each}
-						</select>
-						<p class="mt-1 text-sm text-gray-600">
-							Link this focus to a stat to track progress when completing related tasks
-						</p>
+					<!-- Link to Stat -->
+					<div class="space-y-4">
+						<div>
+							<h3 class="text-sm font-medium text-neutral-900 mb-2">Link to Stat</h3>
+							<p class="text-xs text-neutral-600 mb-3">Connect this focus to a character stat for automatic progress tracking</p>
+						</div>
+						
+						<div>
+							<label for="focusStat" class="block text-sm font-medium text-neutral-700 mb-2">
+								Linked stat
+							</label>
+							<select
+								id="focusStat"
+								bind:value={focusFormData.statId}
+								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+							>
+								<option value={undefined}>No stat linked</option>
+								{#each stats as stat}
+									<option value={stat.id}>{stat.name}</option>
+								{/each}
+							</select>
+						</div>
 					</div>
-				</div>
 
-				<!-- Actions -->
-				<div class="flex justify-end space-x-3 pt-6">
-					<button
-						type="button"
-						on:click={closeCreatePage}
-						class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-					>
-						Cancel
-					</button>
-					<button
-						type="submit"
-						class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
-					>
-						{editingFocus ? 'Update Focus' : 'Create Focus'}
-					</button>
-				</div>
-			</form>
+					<!-- Actions -->
+					<div class="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+						<button
+							type="button"
+							on:click={closeCreatePage}
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+						>
+							{editingFocus ? 'Update focus' : 'Create focus'}
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 {:else}
-	<!-- Main Focus Areas Page -->
-	<div class="max-w-6xl mx-auto px-6 py-8">
+	<!-- Main Focus Areas Page - Atlassian Style -->
+	<div class="max-w-7xl mx-auto px-6 py-8">
 		<!-- Header -->
 		<div class="mb-8">
-			<div class="flex items-center justify-between mb-4">
+			<div class="flex items-center justify-between mb-6">
 				<div>
-					<h1 class="text-3xl font-bold text-gray-900">Focus Areas</h1>
-					<p class="text-gray-600 mt-1">Organize your growth areas and track progress through levels</p>
+					<h1 class="text-2xl font-bold text-neutral-900">Focus Areas</h1>
+					<p class="text-neutral-600 mt-1">Organize your growth areas and track progress through levels</p>
 				</div>
-				<div class="flex space-x-3">
+				<div class="flex items-center space-x-3">
 					<button
 						on:click={() => showFocusLibrary = true}
-						class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center space-x-2"
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 					>
-						<svelte:component this={icons.Library} size={16} />
-						<span>Browse Library</span>
+						<svelte:component this={icons.Library} size={16} class="mr-2" />
+						Browse library
 					</button>
 					<button
 						on:click={openCreatePage}
-						class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
 					>
-						<svelte:component this={icons.Plus} size={16} />
-						<span>New Focus</span>
+						<svelte:component this={icons.Plus} size={16} class="mr-2" />
+						Create focus
 					</button>
 				</div>
 			</div>
 
 			{#if error}
-				<div class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
-					<div class="flex">
-						<svelte:component this={icons.AlertCircle} class="h-5 w-5 text-red-400" />
-						<div class="ml-3">
-							<p class="text-sm text-red-700">{error}</p>
+				<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+					<div class="flex items-start space-x-3">
+						<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+						<div class="flex-1">
+							<p class="text-sm font-medium text-red-900">Error</p>
+							<p class="text-sm text-red-700 mt-1">{error}</p>
 						</div>
 						<button
 							on:click={() => error = ''}
-							class="ml-auto text-red-400 hover:text-red-600"
+							class="text-red-400 hover:text-red-600 transition-colors"
 						>
-							<svelte:component this={icons.X} size={16} />
+							<svelte:component this={icons.X} size={14} />
 						</button>
 					</div>
 				</div>
 			{/if}
 
-			<!-- Quick Insights -->
+			<!-- Quick Stats -->
 			{#if focuses.length > 0}
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-					<div class="bg-white rounded-md shadow-md p-4 border-l-4 border-blue-500">
-						<div class="text-2xl font-bold text-gray-900">{totalFocuses}</div>
-						<div class="text-sm text-gray-600">Total Focus Areas</div>
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Target} size={16} class="text-blue-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{totalFocuses}</div>
+								<div class="text-xs text-neutral-600">Total focuses</div>
+							</div>
+						</div>
 					</div>
-					<div class="bg-white rounded-md shadow-md p-4 border-l-4 border-green-500">
-						<div class="text-2xl font-bold text-gray-900">{focusesWithLevels}</div>
-						<div class="text-sm text-gray-600">With Levels</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.TrendingUp} size={16} class="text-green-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{focusesWithLevels}</div>
+								<div class="text-xs text-neutral-600">With levels</div>
+							</div>
+						</div>
 					</div>
-					<div class="bg-white rounded-md shadow-md p-4 border-l-4 border-purple-500">
-						<div class="text-2xl font-bold text-gray-900">{weeklyFocuses}</div>
-						<div class="text-sm text-gray-600">Scheduled Weekly</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Calendar} size={16} class="text-purple-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{weeklyFocuses}</div>
+								<div class="text-xs text-neutral-600">Scheduled</div>
+							</div>
+						</div>
 					</div>
-					<div class="bg-white rounded-md shadow-md p-4 border-l-4 border-orange-500">
-						<div class="text-2xl font-bold text-gray-900">{linkedToStats}</div>
-						<div class="text-sm text-gray-600">Linked to Stats</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Link} size={16} class="text-orange-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{linkedToStats}</div>
+								<div class="text-xs text-neutral-600">Linked to stats</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			{/if}
 		</div>
 
 		{#if loading}
-			<div class="flex justify-center py-12">
-				<div class="flex items-center space-x-2 text-gray-500">
-					<div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-					<span>Loading focus areas...</span>
+			<div class="flex justify-center py-16">
+				<div class="flex items-center space-x-3 text-neutral-500">
+					<div class="animate-spin rounded-full h-5 w-5 border-2 border-neutral-300 border-t-blue-600"></div>
+					<span class="text-sm">Loading focus areas...</span>
 				</div>
 			</div>
 		{:else if focuses.length === 0}
-			<div class="text-center py-12">
-				<div class="bg-white rounded-md shadow-md p-8">
-					<svelte:component this={icons.Target} size={48} class="mx-auto text-gray-400 mb-4" />
-					<h3 class="text-lg font-medium text-gray-900 mb-2">No focus areas yet</h3>
-					<p class="text-gray-600 mb-6">Create your first focus area to start organizing your growth journey</p>
+			<div class="text-center py-16">
+				<div class="bg-white border border-neutral-200 rounded-lg p-12 max-w-md mx-auto">
+					<div class="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
+						<svelte:component this={icons.Target} size={24} class="text-neutral-400" />
+					</div>
+					<h3 class="text-lg font-semibold text-neutral-900 mb-2">No focus areas yet</h3>
+					<p class="text-neutral-600 mb-6 text-sm">Create your first focus area to start organizing your growth journey</p>
 					<div class="flex justify-center space-x-3">
 						<button
 							on:click={() => showFocusLibrary = true}
-							class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
-							Browse Templates
+							Browse library
 						</button>
 						<button
 							on:click={openCreatePage}
-							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
 						>
-							Create Custom Focus
+							Create custom focus
 						</button>
 					</div>
 				</div>
 			</div>
 		{:else}
-			<!-- Weekly Schedule View -->
+			<!-- Weekly Schedule -->
 			{#if weeklyFocuses > 0}
-				<div class="bg-white rounded-md shadow-md p-6 mb-8">
-					<h2 class="text-xl font-semibold text-gray-900 mb-4">Weekly Focus Schedule</h2>
-					<div class="grid grid-cols-7 gap-2">
+				<div class="bg-white border border-neutral-200 rounded-lg p-6 mb-8">
+					<h2 class="text-lg font-semibold text-neutral-900 mb-4">Weekly Schedule</h2>
+					<div class="grid grid-cols-7 gap-3">
 						{#each ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as day}
 							{@const dayFocus = focuses.find(focus => focus.dayOfWeek === day)}
-							<div class="text-center p-3 rounded-md transition-colors {dayFocus ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200'}">
-								<div class="text-xs font-medium text-gray-600 mb-2">{day.slice(0, 3)}</div>
+							<div class="text-center p-3 rounded-lg border transition-colors {dayFocus ? 'bg-blue-50 border-blue-200' : 'bg-neutral-50 border-neutral-200'}">
+								<div class="text-xs font-medium text-neutral-600 mb-2">{day.slice(0, 3)}</div>
 								{#if dayFocus}
 									<div class="mb-2">
-										<svelte:component this={getIconComponent(dayFocus.icon)} size={20} class="mx-auto text-blue-600" />
+										<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto">
+											<svelte:component this={getIconComponent(dayFocus.icon)} size={16} class="text-blue-600" />
+										</div>
 									</div>
-									<div class="text-sm font-medium text-gray-900">{dayFocus.name}</div>
+									<div class="text-xs font-medium text-neutral-900">{dayFocus.name}</div>
 								{:else}
-									<div class="text-gray-400 text-sm py-4">—</div>
+									<div class="text-neutral-400 text-xs py-6">—</div>
 								{/if}
 							</div>
 						{/each}
@@ -548,24 +601,27 @@
 				</div>
 			{/if}
 
-			<!-- Focus Areas Grid -->
-			<div class="space-y-6">
+			<!-- Focus Areas List -->
+			<div class="space-y-4">
 				{#each focuses as focus}
-					<div class="bg-white rounded-md shadow-md p-6">
-						<div class="flex items-start justify-between mb-4">
+					<div class="bg-white border border-neutral-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+						<div class="flex items-start justify-between">
 							<div class="flex-1">
-								<div class="flex items-center space-x-3 mb-2">
-									<div class="p-2 bg-blue-50 rounded-md">
+								<!-- Header -->
+								<div class="flex items-center space-x-3 mb-3">
+									<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
 										<svelte:component this={getIconComponent(focus.icon)} size={20} class="text-blue-600" />
 									</div>
-									<h3 class="text-xl font-semibold text-gray-900">{focus.name}</h3>
+									<div>
+										<h3 class="text-lg font-semibold text-neutral-900">{focus.name}</h3>
+										{#if focus.description}
+											<p class="text-sm text-neutral-600 mt-1">{focus.description}</p>
+										{/if}
+									</div>
 								</div>
-								
-								{#if focus.description}
-									<p class="text-gray-600 mb-3">{focus.description}</p>
-								{/if}
 
-								<div class="flex flex-wrap gap-2 mb-3">
+								<!-- Metadata -->
+								<div class="flex flex-wrap gap-2 mb-4">
 									{#if focus.dayOfWeek}
 										<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-700">
 											<svelte:component this={icons.Calendar} size={12} class="mr-1" />
@@ -575,83 +631,91 @@
 									{#if focus.stat}
 										<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
 											<svelte:component this={getIconComponent(focus.stat.icon)} size={12} class="mr-1" />
-											{focus.stat.name} (Level {focus.stat.level})
+											{focus.stat.name}
+										</span>
+									{/if}
+									{#if focus.levels && focus.levels.length > 0}
+										<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
+											<svelte:component this={icons.TrendingUp} size={12} class="mr-1" />
+											{focus.levels.length} level{focus.levels.length !== 1 ? 's' : ''}
 										</span>
 									{/if}
 								</div>
 
+								<!-- Sample Activities -->
 								{#if focus.sampleActivities && focus.sampleActivities.length > 0}
 									<div class="mb-4">
-										<p class="text-sm font-medium text-gray-700 mb-2">Sample Activities:</p>
+										<p class="text-sm font-medium text-neutral-700 mb-2">Sample activities:</p>
 										<div class="flex flex-wrap gap-1">
 											{#each focus.sampleActivities.slice(0, 3) as activity}
-												<span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700">
+												<span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-neutral-100 text-neutral-700">
 													{activity}
 												</span>
 											{/each}
 											{#if focus.sampleActivities.length > 3}
-												<span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-500">
+												<span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-neutral-100 text-neutral-500">
 													+{focus.sampleActivities.length - 3} more
 												</span>
 											{/if}
 										</div>
 									</div>
 								{/if}
+
+								<!-- Levels -->
+								{#if focus.levels && focus.levels.length > 0}
+									<div class="border-t border-neutral-200 pt-4">
+										<h4 class="text-sm font-medium text-neutral-700 mb-3">Levels</h4>
+										<div class="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+											{#each focus.levels as level}
+												<div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+													<h5 class="font-medium text-sm text-neutral-900">{level.name}</h5>
+													{#if level.description}
+														<p class="text-xs text-neutral-600 mt-1">{level.description}</p>
+													{/if}
+												</div>
+											{/each}
+										</div>
+									</div>
+								{:else}
+									<div class="border-t border-neutral-200 pt-4">
+										<div class="text-center py-3">
+											<p class="text-sm text-neutral-500 mb-2">No levels created yet</p>
+											<button
+												on:click={() => openLevelForm(focus)}
+												class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+											>
+												Add your first level
+											</button>
+										</div>
+									</div>
+								{/if}
 							</div>
 
-							<div class="flex items-center space-x-2 ml-4">
+							<!-- Actions -->
+							<div class="flex items-center space-x-1 ml-4">
 								<button
 									on:click={() => openLevelForm(focus)}
-									class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+									class="w-8 h-8 rounded-lg hover:bg-neutral-100 flex items-center justify-center transition-colors"
 									title="Add Level"
 								>
-									<svelte:component this={icons.Plus} size={16} />
+									<svelte:component this={icons.Plus} size={16} class="text-neutral-500" />
 								</button>
 								<button
 									on:click={() => openEditPage(focus)}
-									class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+									class="w-8 h-8 rounded-lg hover:bg-neutral-100 flex items-center justify-center transition-colors"
 									title="Edit Focus"
 								>
-									<svelte:component this={icons.Edit2} size={16} />
+									<svelte:component this={icons.Edit2} size={16} class="text-neutral-500" />
 								</button>
 								<button
 									on:click={() => deleteFocus(focus.id)}
-									class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+									class="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors"
 									title="Delete Focus"
 								>
-									<svelte:component this={icons.Trash2} size={16} />
+									<svelte:component this={icons.Trash2} size={16} class="text-red-500" />
 								</button>
 							</div>
 						</div>
-
-						<!-- Levels -->
-						{#if focus.levels && focus.levels.length > 0}
-							<div class="border-t border-gray-200 pt-4">
-								<h4 class="text-sm font-medium text-gray-700 mb-3">Levels ({focus.levels.length})</h4>
-								<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-									{#each focus.levels as level}
-										<div class="p-3 bg-gray-50 rounded-md border-l-4 border-blue-500">
-											<h5 class="font-medium text-sm text-gray-900">{level.name}</h5>
-											{#if level.description}
-												<p class="text-xs text-gray-600 mt-1">{level.description}</p>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							</div>
-						{:else}
-							<div class="border-t border-gray-200 pt-4">
-								<div class="text-center py-4">
-									<p class="text-sm text-gray-500 mb-2">No levels created yet</p>
-									<button
-										on:click={() => openLevelForm(focus)}
-										class="text-sm text-blue-600 hover:text-blue-700 font-medium"
-									>
-										Add your first level
-									</button>
-								</div>
-							</div>
-						{/if}
 					</div>
 				{/each}
 			</div>
@@ -659,19 +723,36 @@
 	</div>
 {/if}
 
-<!-- Level Creation Modal -->
+<!-- Level Creation Modal - Atlassian Style -->
 {#if showLevelForm}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-		<div class="bg-white rounded-md shadow-lg max-w-md w-full">
-			<div class="p-6">
-				<h3 class="text-lg font-semibold text-gray-900 mb-4">
-					Add Level to {selectedFocus?.name}
-				</h3>
-				
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+		<div class="bg-white rounded-lg shadow-2xl max-w-md w-full">
+			<!-- Modal Header -->
+			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+							<svelte:component this={icons.TrendingUp} size={16} class="text-green-600" />
+						</div>
+						<h3 class="text-lg font-semibold text-neutral-900">
+							Add level to {selectedFocus?.name}
+						</h3>
+					</div>
+					<button
+						on:click={() => showLevelForm = false}
+						class="w-8 h-8 rounded-lg hover:bg-neutral-200 flex items-center justify-center transition-colors"
+					>
+						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+					</button>
+				</div>
+			</div>
+			
+			<!-- Modal Body -->
+			<div class="px-6 py-6">
 				<form on:submit={handleLevelSubmit} class="space-y-4">
 					<div>
-						<label for="levelName" class="block text-sm font-medium text-gray-700 mb-1">
-							Level Name <span class="text-red-500">*</span>
+						<label for="levelName" class="block text-sm font-medium text-neutral-900 mb-2">
+							Level name <span class="text-red-500">*</span>
 						</label>
 						<input
 							id="levelName"
@@ -679,12 +760,12 @@
 							bind:value={levelFormData.name}
 							placeholder="e.g., Beginner, Intermediate, Advanced"
 							required
-							class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
 						/>
 					</div>
 					
 					<div>
-						<label for="levelDescription" class="block text-sm font-medium text-gray-700 mb-1">
+						<label for="levelDescription" class="block text-sm font-medium text-neutral-900 mb-2">
 							Description
 						</label>
 						<textarea
@@ -692,23 +773,23 @@
 							bind:value={levelFormData.description}
 							placeholder="Describe what this level represents..."
 							rows="3"
-							class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
 						></textarea>
 					</div>
 					
-					<div class="flex justify-end space-x-3 pt-4">
+					<div class="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
 						<button
 							type="button"
 							on:click={() => showLevelForm = false}
-							class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
-							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
 						>
-							Add Level
+							Add level
 						</button>
 					</div>
 				</form>
@@ -717,30 +798,47 @@
 	</div>
 {/if}
 
-<!-- Focus Library Modal -->
+<!-- Focus Library Modal - Atlassian Style -->
 {#if showFocusLibrary}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-		<div class="bg-white rounded-md shadow-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
-			<div class="p-6 border-b border-gray-200">
-				<h3 class="text-lg font-semibold text-gray-900">Choose a Focus from Library</h3>
-				<p class="text-gray-600 mt-1">Select a suggested focus area to get started, or create a custom one.</p>
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+		<div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden">
+			<!-- Modal Header -->
+			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+							<svelte:component this={icons.Library} size={16} class="text-purple-600" />
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-neutral-900">Choose from library</h3>
+							<p class="text-sm text-neutral-600">Select a template to get started quickly</p>
+						</div>
+					</div>
+					<button
+						on:click={() => showFocusLibrary = false}
+						class="w-8 h-8 rounded-lg hover:bg-neutral-200 flex items-center justify-center transition-colors"
+					>
+						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+					</button>
+				</div>
 			</div>
 			
-			<div class="p-6 overflow-y-auto max-h-96">
+			<!-- Modal Body -->
+			<div class="px-6 py-6 overflow-y-auto max-h-[calc(85vh-140px)]">
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{#each EXTENDED_FOCUS_LIBRARY as template}
 						<button
 							type="button"
 							on:click={() => selectTemplate(template)}
-							class="text-left p-4 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-md transition-colors"
+							class="text-left p-4 bg-white border border-neutral-200 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-all group"
 						>
 							<div class="flex items-center space-x-3 mb-3">
-								<div class="p-2 bg-blue-100 rounded-md">
+								<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
 									<svelte:component this={getIconComponent(template.icon_id)} size={16} class="text-blue-600" />
 								</div>
-								<h4 class="font-medium text-gray-900">{template.name}</h4>
+								<h4 class="font-medium text-neutral-900">{template.name}</h4>
 							</div>
-							<p class="text-sm text-gray-600 mb-3">{template.description}</p>
+							<p class="text-sm text-neutral-600 mb-3 line-clamp-2">{template.description}</p>
 							<div class="flex flex-wrap gap-2">
 								<span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-purple-100 text-purple-700">
 									{template.suggested_day}
@@ -754,20 +852,21 @@
 				</div>
 			</div>
 			
-			<div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+			<!-- Modal Footer -->
+			<div class="px-6 py-4 border-t border-neutral-200 bg-neutral-50 flex justify-end space-x-3">
 				<button
 					type="button"
 					on:click={() => showFocusLibrary = false}
-					class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+					class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 				>
 					Cancel
 				</button>
 				<button
 					type="button"
 					on:click={() => { showFocusLibrary = false; openCreatePage(); }}
-					class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
+					class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
 				>
-					Create Custom Instead
+					Create custom instead
 				</button>
 			</div>
 		</div>
