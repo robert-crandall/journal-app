@@ -144,7 +144,7 @@
 	{/if}
 
 	<!-- Tabs Navigation -->
-	<div class="bg-white border border-neutral-200 rounded-lg mb-6">
+	<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg mb-6">
 		<div class="border-b border-neutral-200">
 			<nav class="flex space-x-8 px-6" role="tablist">
 				<button
@@ -226,7 +226,7 @@
 								<!-- Theme Preview -->
 								<div class="flex space-x-1 mb-2">
 									{#if themeOption.value === 'light'}
-										<div class="w-4 h-4 bg-white border border-neutral-200 rounded"></div>
+										<div class="w-4 h-4 bg-white dark:bg-neutral-800 border border-neutral-200 rounded"></div>
 										<div class="w-4 h-4 bg-blue-500 rounded"></div>
 										<div class="w-4 h-4 bg-neutral-300 rounded"></div>
 									{:else if themeOption.value === 'dark'}

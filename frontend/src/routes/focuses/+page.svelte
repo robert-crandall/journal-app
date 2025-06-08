@@ -223,7 +223,7 @@
 {#if showCreatePage}
 	<!-- Create/Edit Focus Modal - Atlassian Style -->
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
-		<div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
 			<!-- Modal Header -->
 			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
@@ -432,7 +432,7 @@
 						<button
 							type="button"
 							on:click={closeCreatePage}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Cancel
 						</button>
@@ -460,7 +460,7 @@
 				<div class="flex items-center space-x-3">
 					<button
 						on:click={() => showFocusLibrary = true}
-						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 					>
 						<svelte:component this={icons.Library} size={16} class="mr-2" />
 						Browse library
@@ -496,7 +496,7 @@
 			<!-- Quick Stats -->
 			{#if focuses.length > 0}
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Target} size={16} class="text-blue-600" />
@@ -507,7 +507,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.TrendingUp} size={16} class="text-green-600" />
@@ -518,7 +518,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Calendar} size={16} class="text-purple-600" />
@@ -529,7 +529,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Link} size={16} class="text-orange-600" />
@@ -553,7 +553,7 @@
 			</div>
 		{:else if focuses.length === 0}
 			<div class="text-center py-16">
-				<div class="bg-white border border-neutral-200 rounded-lg p-12 max-w-md mx-auto">
+				<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-12 max-w-md mx-auto">
 					<div class="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
 						<svelte:component this={icons.Target} size={24} class="text-neutral-400" />
 					</div>
@@ -562,7 +562,7 @@
 					<div class="flex justify-center space-x-3">
 						<button
 							on:click={() => showFocusLibrary = true}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Browse library
 						</button>
@@ -578,7 +578,7 @@
 		{:else}
 			<!-- Weekly Schedule -->
 			{#if weeklyFocuses > 0}
-				<div class="bg-white border border-neutral-200 rounded-lg p-6 mb-8">
+				<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-6 mb-8">
 					<h2 class="text-lg font-semibold text-neutral-900 mb-4">Weekly Schedule</h2>
 					<div class="grid grid-cols-7 gap-3">
 						{#each ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as day}
@@ -604,7 +604,7 @@
 			<!-- Focus Areas List -->
 			<div class="space-y-4">
 				{#each focuses as focus}
-					<div class="bg-white border border-neutral-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
 						<div class="flex items-start justify-between">
 							<div class="flex-1">
 								<!-- Header -->
@@ -726,7 +726,7 @@
 <!-- Level Creation Modal - Atlassian Style -->
 {#if showLevelForm}
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-		<div class="bg-white rounded-lg shadow-2xl max-w-md w-full">
+		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-md w-full">
 			<!-- Modal Header -->
 			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
@@ -781,7 +781,7 @@
 						<button
 							type="button"
 							on:click={() => showLevelForm = false}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Cancel
 						</button>
@@ -801,7 +801,7 @@
 <!-- Focus Library Modal - Atlassian Style -->
 {#if showFocusLibrary}
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-		<div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden">
+		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden">
 			<!-- Modal Header -->
 			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
@@ -830,7 +830,7 @@
 						<button
 							type="button"
 							on:click={() => selectTemplate(template)}
-							class="text-left p-4 bg-white border border-neutral-200 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-all group"
+							class="text-left p-4 bg-white dark:bg-neutral-800 border border-neutral-200 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-all group"
 						>
 							<div class="flex items-center space-x-3 mb-3">
 								<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
@@ -857,7 +857,7 @@
 				<button
 					type="button"
 					on:click={() => showFocusLibrary = false}
-					class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+					class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 				>
 					Cancel
 				</button>

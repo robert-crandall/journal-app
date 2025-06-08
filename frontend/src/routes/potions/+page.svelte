@@ -258,7 +258,7 @@
 {#if showCreateForm}
 	<!-- Create/Edit Potion Modal - Atlassian Style -->
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
-		<div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
 			<!-- Modal Header -->
 			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
@@ -359,7 +359,7 @@
 						<button 
 							type="button" 
 							on:click={closeCreateForm}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Cancel
 						</button>
@@ -388,7 +388,7 @@
 					<button 
 						on:click={analyzeAll}
 						disabled={analyzing}
-						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{#if analyzing}
 							<div class="animate-spin rounded-full h-4 w-4 border-2 border-neutral-300 border-t-blue-600 mr-2"></div>
@@ -428,7 +428,7 @@
 			<!-- Quick Stats -->
 			{#if totalPotions > 0}
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Activity} size={16} class="text-blue-600" />
@@ -439,7 +439,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.CheckCircle} size={16} class="text-green-600" />
@@ -450,7 +450,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Clock} size={16} class="text-orange-600" />
@@ -461,7 +461,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
@@ -500,7 +500,7 @@
 			<div class="space-y-4">
 				{#each potions as potion}
 					{@const status = getStatus(potion)}
-					<div class="bg-white border border-neutral-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-6 hover:shadow-md transition-shadow">
 						<!-- Header Row -->
 						<div class="flex items-start justify-between mb-4">
 							<div class="flex-1">
@@ -531,7 +531,7 @@
 								</button>
 								
 								{#if openDropdownId === potion.id}
-									<div class="absolute right-0 top-full mt-1 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
+									<div class="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg shadow-lg z-10">
 										<div class="py-1">
 											<button
 												on:click={() => analyzePotion(potion.id)}

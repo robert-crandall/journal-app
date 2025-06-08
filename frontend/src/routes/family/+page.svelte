@@ -131,7 +131,7 @@
 {#if showCreateForm}
 	<!-- Create/Edit Member Modal - Atlassian Style -->
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
-		<div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+		<div class="bg-white dark:bg-neutral-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
 			<!-- Modal Header -->
 			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
 				<div class="flex items-center justify-between">
@@ -359,7 +359,7 @@
 						<button 
 							type="button" 
 							on:click={closeCreateForm}
-							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white dark:bg-neutral-800 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
 						>
 							Cancel
 						</button>
@@ -414,7 +414,7 @@
 			<!-- Quick Stats -->
 			{#if familyMembers.length > 0}
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Users} size={16} class="text-blue-600" />
@@ -425,7 +425,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Crown} size={16} class="text-purple-600" />
@@ -436,7 +436,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-4">
 						<div class="flex items-center space-x-3">
 							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
 								<svelte:component this={icons.Tags} size={16} class="text-green-600" />
@@ -460,7 +460,7 @@
 			</div>
 		{:else if familyMembers.length === 0}
 			<div class="text-center py-16">
-				<div class="bg-white border border-neutral-200 rounded-lg p-12 max-w-md mx-auto">
+				<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-12 max-w-md mx-auto">
 					<div class="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
 						<svelte:component this={icons.Users} size={24} class="text-neutral-400" />
 					</div>
@@ -478,7 +478,7 @@
 			<!-- Family Members Grid -->
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{#each familyMembers as member}
-					<div class="bg-white border border-neutral-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+					<div class="bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
 						<!-- Member Header -->
 						<div class="flex items-start justify-between mb-4">
 							<div class="flex-1">
@@ -511,7 +511,7 @@
 									<svelte:component this={icons.MoreVertical} size={16} class="text-neutral-500 group-hover:text-neutral-700" />
 								</button>
 								{#if openDropdownId === member.id}
-									<div class="absolute right-0 mt-1 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
+									<div class="absolute right-0 mt-1 w-48 bg-white dark:bg-neutral-800 border border-neutral-200 rounded-lg shadow-lg z-10">
 										<button
 											on:click={() => {
 												openEditForm(member);
