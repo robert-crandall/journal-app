@@ -364,7 +364,7 @@ async function processExtractedTags(userId: string, tagNames: string[], journalI
 function findBestTagMatch(targetTag: string, existingTags: Array<{ id: string; name: string; userId: string; createdAt: Date; updatedAt: Date }>): typeof existingTags[0] | undefined {
   let bestMatch = undefined;
   let bestScore = 0;
-  const minSimilarityThreshold = 0.7; // 70% similarity required
+  const minSimilarityThreshold = 0.6; // 60% similarity required for better matching
   
   for (const tag of existingTags) {
     const similarity = calculateStringSimilarity(targetTag, tag.name);
@@ -378,24 +378,56 @@ function findBestTagMatch(targetTag: string, existingTags: Array<{ id: string; n
 }
 
 /**
- * Calculate string similarity using a simple approach
+ * Calculate string similarity using a combination of approaches
  * Returns a value between 0 and 1 (1 being identical)
  */
 function calculateStringSimilarity(str1: string, str2: string): number {
-  const s1 = str1.toLowerCase();
-  const s2 = str2.toLowerCase();
+  const s1 = str1.toLowerCase().trim();
+  const s2 = str2.toLowerCase().trim();
   
   // Exact match
   if (s1 === s2) return 1;
   
-  // Check if one string contains the other
+  // Check if one string contains the other as a word (substring match)
   if (s1.includes(s2) || s2.includes(s1)) {
-    return Math.max(s2.length / s1.length, s1.length / s2.length) * 0.9;
+    const shorter = s1.length < s2.length ? s1 : s2;
+    const longer = s1.length >= s2.length ? s1 : s2;
+    // More generous scoring for substring matches, minimum 0.7 for any substring match
+    return Math.max((shorter.length / longer.length) * 0.9, 0.7);
   }
   
-  // Calculate Jaccard similarity using character sets
-  const set1 = new Set(s1.split(''));
-  const set2 = new Set(s2.split(''));
+  // Word-based matching - split by spaces and check for word overlap
+  const words1 = s1.split(/\s+/);
+  const words2 = s2.split(/\s+/);
+  
+  // If both are single words, use character-based similarity
+  if (words1.length === 1 && words2.length === 1) {
+    return calculateCharacterSimilarity(s1, s2);
+  }
+  
+  // Calculate word overlap
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+  const wordIntersection = new Set([...set1].filter(x => set2.has(x)));
+  const wordUnion = new Set([...set1, ...set2]);
+  
+  const wordSimilarity = wordIntersection.size / wordUnion.size;
+  
+  // If we have word matches, return higher score
+  if (wordSimilarity > 0) {
+    return Math.min(wordSimilarity * 1.2, 0.95); // Boost word matches but cap at 0.95
+  }
+  
+  // Fall back to character similarity
+  return calculateCharacterSimilarity(s1, s2);
+}
+
+/**
+ * Calculate character-based similarity using Jaccard similarity
+ */
+function calculateCharacterSimilarity(str1: string, str2: string): number {
+  const set1 = new Set(str1.split(''));
+  const set2 = new Set(str2.split(''));
   const intersection = new Set([...set1].filter(x => set2.has(x)));
   const union = new Set([...set1, ...set2]);
   
