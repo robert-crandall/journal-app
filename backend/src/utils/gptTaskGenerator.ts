@@ -1,7 +1,7 @@
 import { db } from '../db';
 import { tasks, stats, focuses, users, preferences } from '../db/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { type User, type Focus, type Stat, type Task } from '../db/schema';
+import { type User, type Focus, type Stat, type Task, type Preference } from '../db/schema';
 import OpenAI from 'openai';
 import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
 
@@ -20,6 +20,7 @@ export interface TaskGenerationContext {
   recentTasks?: Task[];
   recentFeedback?: string[];
   environmentalContext?: EnvironmentalContext;
+  userPreferences?: Preference;
 }
 
 export interface GeneratedTask {
@@ -113,7 +114,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
  * Build a comprehensive prompt for GPT task generation
  */
 function buildGPTPrompt(context: TaskGenerationContext): string {
-  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback, environmentalContext } = context;
+  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback, environmentalContext, userPreferences } = context;
   
   let prompt = `Generate two personalized daily tasks for ${user.name}:\n\n`;
 
@@ -152,6 +153,19 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     prompt += `Context: ${JSON.stringify(user.gptContext)}\n`;
   }
 
+  // RPG Class information (for flavor when enabled)
+  if (userPreferences?.rpgFlavorEnabled && user.className) {
+    prompt += `\n## Character Class & Backstory\n`;
+    prompt += `Class: ${user.className}\n`;
+    if (user.classDescription) {
+      prompt += `Backstory: ${user.classDescription}\n`;
+    }
+    // Increase flavor frequency on weekends
+    const isWeekend = environmentalContext?.dayOfWeek === 'Saturday' || environmentalContext?.dayOfWeek === 'Sunday';
+    const flavorFrequency = isWeekend ? '40-50%' : '20-30%';
+    prompt += `Note: Occasionally (about ${flavorFrequency} of the time) use light fantasy flavoring in task descriptions based on the user's class. For example: "As a ${user.className}, you must..." Keep the core task practical and unchanged.\n`;
+  }
+
   // Today's focus
   if (todaysFocus) {
     prompt += `\n## Today's Focus: ${todaysFocus.name}\n`;
@@ -174,6 +188,13 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
       prompt += `- ${member.name}`;
       if (member.gptContext) {
         prompt += ` - ${JSON.stringify(member.gptContext)}`;
+      }
+      // Include family member class info for collaborative tasks when RPG flavor is enabled
+      if (userPreferences?.rpgFlavorEnabled && member.className) {
+        prompt += ` - Class: ${member.className}`;
+        if (member.classDescription) {
+          prompt += ` (${member.classDescription})`;
+        }
       }
       prompt += `\n`;
     });
@@ -380,6 +401,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       recentTasks,
       recentFeedback,
       environmentalContext,
+      userPreferences,
     };
     
     const generatedTasks = await generateDailyTasks(context);

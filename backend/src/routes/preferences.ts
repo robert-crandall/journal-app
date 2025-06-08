@@ -30,7 +30,8 @@ app.get('/', jwtMiddleware, userMiddleware, async (c) => {
         preferences: {
           theme: 'light',
           locationDescription: null,
-          zipCode: null
+          zipCode: null,
+          rpgFlavorEnabled: false
         }
       });
     }
@@ -56,7 +57,7 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
   }
 
   // Validate that the key is a valid preference field
-  const validKeys = ['theme', 'locationDescription', 'zipCode'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -82,6 +83,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
         updateData.locationDescription = value;
       } else if (key === 'zipCode') {
         updateData.zipCode = value;
+      } else if (key === 'rpgFlavorEnabled') {
+        updateData.rpgFlavorEnabled = value;
       }
 
       await db
@@ -102,6 +105,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
         newPrefs.locationDescription = value;
       } else if (key === 'zipCode') {
         newPrefs.zipCode = value;
+      } else if (key === 'rpgFlavorEnabled') {
+        newPrefs.rpgFlavorEnabled = value;
       }
 
       await db.insert(preferences).values(newPrefs);
@@ -123,7 +128,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
     return c.json({ error: 'Preferences object is required' }, 400);
   }
 
-  const validKeys = ['theme', 'locationDescription', 'zipCode'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
   
   // Validate all keys
   for (const key of Object.keys(prefsData)) {
@@ -150,6 +155,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
       if (prefsData.theme !== undefined) updateData.theme = prefsData.theme;
       if (prefsData.locationDescription !== undefined) updateData.locationDescription = prefsData.locationDescription;
       if (prefsData.zipCode !== undefined) updateData.zipCode = prefsData.zipCode;
+      if (prefsData.rpgFlavorEnabled !== undefined) updateData.rpgFlavorEnabled = prefsData.rpgFlavorEnabled;
 
       await db
         .update(preferences)
@@ -162,6 +168,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
         theme: prefsData.theme || 'light',
         locationDescription: prefsData.locationDescription || null,
         zipCode: prefsData.zipCode || null,
+        rpgFlavorEnabled: prefsData.rpgFlavorEnabled || false,
       };
 
       await db.insert(preferences).values(newPrefs);
@@ -179,7 +186,7 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   const key = c.req.param('key');
 
-  const validKeys = ['theme', 'locationDescription', 'zipCode'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -196,6 +203,8 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
       updateData.locationDescription = null; // clear location
     } else if (key === 'zipCode') {
       updateData.zipCode = null; // clear zip code
+    } else if (key === 'rpgFlavorEnabled') {
+      updateData.rpgFlavorEnabled = false; // default to disabled
     }
 
     await db
