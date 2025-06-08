@@ -54,7 +54,6 @@ function createThemeStore() {
 				}
 			}
 		}
-		}
 	}
 
 	// Listen for system theme changes when in auto mode
