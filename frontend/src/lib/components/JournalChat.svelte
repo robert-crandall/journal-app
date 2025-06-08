@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { journalsApi } from '$lib/api';
-	import { User, Bot, Send, CheckCircle, Loader2 } from 'lucide-svelte';
+	import { User, Bot, Send, CheckCircle, Loader2, Sparkles } from 'lucide-svelte';
 
 	export let journalId: string | null = null;
 	export let existingJournal: any = null;
@@ -207,86 +207,120 @@
 	}
 </script>
 
-<div class="flex flex-col h-full max-w-4xl mx-auto">
+<div class="flex flex-col h-full">
 	<!-- Chat Header -->
-	<div class="bg-base-200 p-4 rounded-t-lg border-b">
+	<div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-blue-100">
 		<div class="flex items-center justify-between">
-			<h2 class="text-lg font-semibold flex items-center gap-2">
-				<Bot size={20} />
-				AI Journal Session
-			</h2>
+			<div class="flex items-center gap-3">
+				<div class="p-2 bg-blue-100 rounded-lg">
+					<Bot class="w-5 h-5 text-blue-600" />
+				</div>
+				<h2 class="text-xl font-semibold text-neutral-900">AI Journal Session</h2>
+			</div>
 			<div class="flex items-center gap-2">
 				{#if journalStatus === 'fully_completed'}
-					<div class="badge badge-success gap-1">
-						<CheckCircle size={12} />
+					<div class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+						<CheckCircle class="w-4 h-4" />
 						Completed
 					</div>
 				{:else if journalStatus === 'day_completion'}
-					<div class="badge badge-warning gap-1">
+					<div class="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
+						<Bot class="w-4 h-4" />
 						Day Reflection
 					</div>
 				{:else if journalStatus === 'in_progress'}
-					<div class="badge badge-primary">
+					<div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+						<div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
 						In Progress ({followupCount}/{maxFollowups} follow-ups)
 					</div>
 				{:else}
-					<div class="badge badge-ghost">New Session</div>
+					<div class="inline-flex items-center gap-1 px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm font-medium">
+						<Bot class="w-4 h-4" />
+						New Session
+					</div>
 				{/if}
 			</div>
 		</div>
 	</div>
 
 	<!-- Chat Messages -->
-	<div class="flex-1 overflow-y-auto p-4 space-y-4 bg-base-100">
+	<div class="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
 		{#if messages.length === 0 && journalStatus === 'new'}
-			<div class="text-center py-8 text-base-content/60">
-				<Bot size={48} class="mx-auto mb-4 opacity-50" />
-				<p class="text-lg mb-2">Start your journal session</p>
-				<p class="text-sm">Share what's on your mind, and I'll help you explore your thoughts with thoughtful questions.</p>
+			<div class="text-center py-12">
+				<div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+					<Bot class="w-10 h-10 text-blue-600" />
+				</div>
+				<h3 class="text-2xl font-bold text-neutral-900 mb-3">Start Your Journal Session</h3>
+				<p class="text-neutral-600 max-w-md mx-auto leading-relaxed">
+					Share what's on your mind, and I'll help you explore your thoughts with thoughtful questions and insights.
+				</p>
 			</div>
 		{/if}
 
 		{#each messages as message (message.timestamp)}
-			<div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
-				<div class="chat-image avatar">
-					<div class="w-10 rounded-full bg-{message.role === 'user' ? 'primary' : 'secondary'} flex items-center justify-center">
+			<div class="flex gap-4 {message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
+				<!-- Avatar -->
+				<div class="flex-shrink-0">
+					<div class="w-10 h-10 rounded-full {message.role === 'user' ? 'bg-purple-100' : 'bg-blue-100'} flex items-center justify-center">
 						{#if message.role === 'user'}
-							<User size={16} class="text-primary-content" />
+							<User class="w-5 h-5 text-purple-600" />
 						{:else}
-							<Bot size={16} class="text-secondary-content" />
+							<Bot class="w-5 h-5 text-blue-600" />
 						{/if}
 					</div>
 				</div>
-				<div class="chat-header">
-					{message.role === 'user' ? 'You' : 'AI Assistant'}
-					<time class="text-xs opacity-50 ml-1">
-						{formatTimestamp(message.timestamp)}
-					</time>
-				</div>
-				<div class="chat-bubble {message.role === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'}">
-					{#if message.content.includes('**Journal Summary:**')}
-						{@html message.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}
-					{:else}
-						{message.content}
-					{/if}
+				
+				<!-- Message Content -->
+				<div class="flex-1 max-w-3xl">
+					<div class="flex items-center gap-2 mb-2 {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+						<span class="text-sm font-medium text-neutral-900">
+							{message.role === 'user' ? 'You' : 'AI Assistant'}
+						</span>
+						<time class="text-xs text-neutral-500">
+							{formatTimestamp(message.timestamp)}
+						</time>
+					</div>
+					<div class="p-4 rounded-lg {message.role === 'user' 
+						? 'bg-purple-600 text-white ml-8' 
+						: 'bg-neutral-50 text-neutral-900 mr-8'
+					} shadow-sm">
+						{#if message.content.includes('**Journal Summary:**')}
+							<div class="prose max-w-none {message.role === 'user' ? 'prose-invert' : ''}">
+								{@html message.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}
+							</div>
+						{:else}
+							<div class="whitespace-pre-wrap leading-relaxed">
+								{message.content}
+							</div>
+						{/if}
+					</div>
 				</div>
 			</div>
 		{/each}
 
 		{#if isLoading}
-			<div class="chat chat-start">
-				<div class="chat-image avatar">
-					<div class="w-10 rounded-full bg-secondary flex items-center justify-center">
-						<Loader2 size={16} class="text-secondary-content animate-spin" />
+			<div class="flex gap-4">
+				<!-- Avatar -->
+				<div class="flex-shrink-0">
+					<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+						<Loader2 class="w-5 h-5 text-blue-600 animate-spin" />
 					</div>
 				</div>
-				<div class="chat-header">
-					AI Assistant
-				</div>
-				<div class="chat-bubble chat-bubble-secondary">
-					<div class="flex items-center gap-2">
-						<span class="loading loading-dots loading-sm"></span>
-						Thinking...
+				
+				<!-- Message Content -->
+				<div class="flex-1 max-w-3xl">
+					<div class="flex items-center gap-2 mb-2">
+						<span class="text-sm font-medium text-neutral-900">AI Assistant</span>
+					</div>
+					<div class="p-4 rounded-lg bg-neutral-50 text-neutral-900 mr-8 shadow-sm">
+						<div class="flex items-center gap-3">
+							<div class="flex gap-1">
+								<div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+								<div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+								<div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+							</div>
+							<span class="text-neutral-600">Thinking...</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -295,44 +329,51 @@
 
 	<!-- Input Area -->
 	{#if journalStatus === 'day_completion'}
-		<div class="bg-base-200 p-4 rounded-b-lg border-t">
-			<div class="space-y-4">
+		<div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 border-t border-amber-100">
+			<div class="max-w-3xl mx-auto space-y-6">
 				<div class="text-center">
-					<h3 class="text-lg font-medium mb-2">Day Reflection</h3>
-					<p class="text-sm text-base-content/70">Before we finish, let's capture a few more details about your day.</p>
+					<div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+						<Sparkles class="w-8 h-8 text-amber-600" />
+					</div>
+					<h3 class="text-xl font-semibold text-neutral-900 mb-2">Day Reflection</h3>
+					<p class="text-neutral-600">Before we finish, let's capture a few more details about your day.</p>
 				</div>
 				
-				<div class="space-y-4">
+				<div class="space-y-6">
 					<!-- Day Memory -->
-					<div>
-						<label class="label" for="day-memory">
-							<span class="label-text">Is there anything you want to remember from today?</span>
-							<span class="label-text-alt text-xs opacity-60">(Optional)</span>
+					<div class="space-y-3">
+						<label for="day-memory" class="block text-sm font-medium text-neutral-900">
+							Is there anything you want to remember from today?
+							<span class="text-neutral-500 font-normal ml-1">(Optional)</span>
 						</label>
 						<textarea
 							id="day-memory"
 							bind:value={dayMemory}
 							placeholder="Something special, a moment of gratitude, or just something you don't want to forget..."
-							class="textarea textarea-bordered w-full"
-							rows="3"
+							class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white shadow-sm resize-none"
+							rows="4"
 							disabled={isLoading}
 						></textarea>
-						<div class="label">
-							<span class="label-text-alt text-xs opacity-60">This won't be analyzed or used for tagging - it's just for you.</span>
-						</div>
+						<p class="text-xs text-neutral-500">
+							This won't be analyzed or used for tagging - it's just for you.
+						</p>
 					</div>
 					
 					<!-- Day Rating -->
-					<div>
-						<label class="label" for="day-rating">
-							<span class="label-text">How would you rate your day overall? (1-5)</span>
-							<span class="label-text-alt text-xs opacity-60">(Optional)</span>
+					<div class="space-y-3">
+						<label class="block text-sm font-medium text-neutral-900">
+							How would you rate your day overall? (1-5)
+							<span class="text-neutral-500 font-normal ml-1">(Optional)</span>
 						</label>
-						<div class="flex items-center gap-2" id="day-rating" role="group" aria-label="Day rating from 1 to 5">
+						<div class="flex items-center gap-3">
 							{#each [1, 2, 3, 4, 5] as rating}
 								<button
-									on:click={() => dayRating = rating}
-									class="btn btn-sm {dayRating === rating ? 'btn-primary' : 'btn-outline'}"
+									onclick={() => dayRating = rating}
+									class="w-12 h-12 rounded-lg border-2 transition-all duration-200 font-semibold {
+										dayRating === rating 
+											? 'border-amber-500 bg-amber-500 text-white shadow-lg scale-105' 
+											: 'border-neutral-300 bg-white text-neutral-700 hover:border-amber-300 hover:bg-amber-50'
+									}"
 									disabled={isLoading}
 									aria-label="Rate day as {rating}"
 								>
@@ -341,8 +382,8 @@
 							{/each}
 							{#if dayRating !== null}
 								<button
-									on:click={() => dayRating = null}
-									class="btn btn-sm btn-ghost"
+									onclick={() => dayRating = null}
+									class="px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
 									disabled={isLoading}
 									aria-label="Clear rating"
 								>
@@ -350,105 +391,110 @@
 								</button>
 							{/if}
 						</div>
-						<div class="label">
-							<span class="label-text-alt text-xs opacity-60">Consider your energy, mood, and productivity</span>
-						</div>
+						<p class="text-xs text-neutral-500">
+							Consider your energy, mood, and productivity
+						</p>
 					</div>
 					
 					<!-- Completion buttons -->
-					<div class="flex gap-2 justify-end">
+					<div class="flex justify-end pt-4 border-t border-amber-200">
 						<button
-							on:click={completeDayReflection}
+							onclick={completeDayReflection}
 							disabled={isLoading}
-							class="btn btn-primary"
+							class="btn-primary flex items-center gap-2"
 						>
 							{#if isLoading}
-								<Loader2 size={16} class="animate-spin" />
+								<Loader2 class="w-5 h-5 animate-spin" />
+								Saving...
 							{:else}
-								<CheckCircle size={16} />
+								<CheckCircle class="w-5 h-5" />
+								Complete Journal
 							{/if}
-							Complete Journal
 						</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	{:else if journalStatus !== 'fully_completed'}
-		<div class="bg-base-200 p-4 rounded-b-lg border-t">
-			<div class="flex gap-2">
-				<div class="flex-1">
-					<textarea
-						bind:value={currentInput}
-						on:keydown={handleKeydown}
-						placeholder={journalStatus === 'new' 
-							? "What's on your mind today? Share your thoughts..." 
-							: "Share your response..."}
-						class="textarea textarea-bordered w-full resize-none"
-						rows="3"
-						disabled={isLoading}
-					></textarea>
-				</div>
-				<div class="flex flex-col gap-2">
-					{#if journalStatus === 'new'}
-						<button
-							on:click={startJournal}
-							disabled={!currentInput.trim() || isLoading}
-							class="btn btn-primary"
-						>
-							{#if isLoading}
-								<Loader2 size={16} class="animate-spin" />
-							{:else}
-								<Send size={16} />
-							{/if}
-							Start
-						</button>
-					{:else if journalStatus === 'in_progress'}
-						<button
-							on:click={sendFollowupResponse}
-							disabled={!currentInput.trim() || isLoading}
-							class="btn btn-primary btn-sm"
-						>
-							{#if isLoading}
-								<Loader2 size={16} class="animate-spin" />
-							{:else}
-								<Send size={16} />
-							{/if}
-							Send
-						</button>
-						{#if canSubmit && followupCount >= maxFollowups}
+		<div class="bg-neutral-50 p-6 border-t border-neutral-200">
+			<div class="max-w-3xl mx-auto">
+				<div class="flex gap-4">
+					<div class="flex-1">
+						<textarea
+							bind:value={currentInput}
+							onkeydown={handleKeydown}
+							placeholder={journalStatus === 'new' 
+								? "What's on your mind today? Share your thoughts, feelings, or experiences..." 
+								: "Share your response to continue the conversation..."}
+							class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm resize-none"
+							rows="4"
+							disabled={isLoading}
+						></textarea>
+					</div>
+					<div class="flex flex-col gap-3">
+						{#if journalStatus === 'new'}
 							<button
-								on:click={submitJournal}
-								disabled={isLoading}
-								class="btn btn-success btn-sm"
+								onclick={startJournal}
+								disabled={!currentInput.trim() || isLoading}
+								class="btn-primary flex items-center gap-2 px-6 py-3"
 							>
 								{#if isLoading}
-									<Loader2 size={16} class="animate-spin" />
+									<Loader2 class="w-5 h-5 animate-spin" />
 								{:else}
-									<CheckCircle size={16} />
+									<Send class="w-5 h-5" />
 								{/if}
-								Finish
+								Start Session
 							</button>
-						{:else if canSubmit}
+						{:else if journalStatus === 'in_progress'}
 							<button
-								on:click={submitJournal}
-								disabled={isLoading}
-								class="btn btn-ghost btn-sm"
+								onclick={sendFollowupResponse}
+								disabled={!currentInput.trim() || isLoading}
+								class="btn-primary flex items-center gap-2 px-4 py-2"
 							>
-								Finish Early
+								{#if isLoading}
+									<Loader2 class="w-4 h-4 animate-spin" />
+								{:else}
+									<Send class="w-4 h-4" />
+								{/if}
+								Send
 							</button>
+							{#if canSubmit && followupCount >= maxFollowups}
+								<button
+									onclick={submitJournal}
+									disabled={isLoading}
+									class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2 font-medium"
+								>
+									{#if isLoading}
+										<Loader2 class="w-4 h-4 animate-spin" />
+									{:else}
+										<CheckCircle class="w-4 h-4" />
+									{/if}
+									Finish Session
+								</button>
+							{:else if canSubmit}
+								<button
+									onclick={submitJournal}
+									disabled={isLoading}
+									class="px-4 py-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors font-medium"
+								>
+									Finish Early
+								</button>
+							{/if}
 						{/if}
-					{/if}
+					</div>
 				</div>
+				
+				{#if journalStatus === 'in_progress'}
+					<div class="text-sm text-neutral-600 mt-4 flex items-center justify-between">
+						<span>Press Enter to send, Shift+Enter for new line</span>
+						{#if followupCount < maxFollowups}
+							<span class="text-blue-600 font-medium">
+								{maxFollowups - followupCount} follow-up question{maxFollowups - followupCount !== 1 ? 's' : ''} remaining
+							</span>
+						{/if}
+					</div>
+				{/if}
 			</div>
-			
-			{#if journalStatus === 'in_progress'}
-				<div class="text-xs text-base-content/60 mt-2">
-					Press Enter to send, Shift+Enter for new line
-					{#if followupCount < maxFollowups}
-						• {maxFollowups - followupCount} follow-up question{maxFollowups - followupCount !== 1 ? 's' : ''} remaining
-					{/if}
-				</div>
-			{/if}
 		</div>
 	{/if}
 </div>
