@@ -2,41 +2,83 @@
 applyTo: "**/*.{svelte,ts,js,html,css}"
 ---
 
-## 🧭 Preferred Design Style Guide
+## 🧭 Design Style Guide
 
-### 🎯 Core UX Principles
+**For apps focused on clarity, reflection, and responsive depth**
 
-* **Immediate, meaningful feedback**
-  All interactions should confirm user intent quickly and clearly — using subtle animation and concise messaging.
-  *“Feedback should be timely, visible, and obvious without being loud.”*
+### ✨ Design System Origins
 
-* **Emotionally grounded tone**
-  Use calm, affirming language. Avoid exaggerated praise; instead, acknowledge effort, progress, or clarity.
-  *“Encourage the user, don’t cheerlead them.”*
+This design style draws inspiration from:
 
-* **Structured clarity with warmth**
-  Prioritize chunked, scannable content. Visual warmth comes from spacing, rhythm, and consistent hierarchy — not decoration.
-  *“The interface should feel thoughtful, not busy.”*
-
-* **Depth-friendly scaffolding**
-  Support both quick interactions and deeper exploration. Present essential information first, with options to explore more.
-  *“Support both the quick glance and the slow dive.”*
+* **Material 3**: spacing rhythm, responsive scaling, accessible touch targets
+* **Atlassian Design System**: calm emotional tone, semantic use of color, strong information hierarchy
+* **Personal Philosophy**: structure over flair, meaning over gamification, space to reflect or act
 
 ---
 
-## ⚙️ Interaction Rules
+## 🎯 Core Principles
 
-### ✅ Must-Haves
+### 1. **Clarity First**
 
-* All interactive elements should **update state immediately**
-* Dynamically generated content should integrate seamlessly without requiring manual refresh
-* Submission states are clearly communicated with subtle visual cues (e.g., “Saved ✓”)
+Design prioritizes clarity over cleverness. Layouts are readable at a glance. Font sizes, spacing, and visual hierarchy do the heavy lifting.
+*“If you had to squint, it wouldn’t work.”*
 
-### ⚠️ Use With Care
+### 2. **Emotionally Neutral + Affirming**
 
-* Animation should only reinforce **structure or state change**
-* Reinforce progress with simple confirmation — avoid emotionally charged language
-* Make the largest logically interactive element clickable (e.g., a card or row)
+Avoids exaggerated praise or "delight-first" interactions. Language affirms effort, respects autonomy, and invites participation.
+*“Progress feels like validation, not manipulation.”*
+
+### 3. **Responsive by Default**
+
+Layouts should be mobile-first, accessible, and adapt fluidly to all screen sizes. Transitions reinforce state change, not flash.
+*“Responsive means intuitive, not just flexible.”*
+
+### 4. **Progressive Depth**
+
+Every element should be meaningful on first glance, but offer more when explored. Support both simple interactions and deeper engagement.
+*“You can graze or dive — both are supported.”*
+
+---
+
+## 🎨 Visual Language
+
+### Color Strategy
+
+* Use **semantic tokens**, not fixed colors: `primary`, `neutral`, `accent`, `success`, etc.
+* Color should:
+
+  * Indicate status or intent
+  * Unify related components
+  * Never overwhelm
+* Avoid hardcoded themes — support light/dark theming gracefully
+
+### Spacing + Rhythm
+
+* Vertical spacing should feel **generous but purposeful**
+
+  * e.g., `space-y-4` between stacked blocks
+* Use `p-4` or `p-6` for block content; avoid over-tight components
+* Support **breathing room** without isolating content
+
+### Corners, Shadows, Borders
+
+* Use `rounded-md` for most elements
+* Prefer `shadow-md` for elevation over thick borders
+* Use `border-l-4` or soft dividers to **anchor sections** semantically
+* Do not over-round, over-shadow, or over-outline
+
+---
+
+## 🔠 Typography
+
+* **Hierarchical, not decorative**
+
+  * Page titles: `text-3xl font-bold`
+  * Section titles: `text-xl font-semibold`
+  * Paragraphs: `text-sm text-gray-600`
+  * Emphasis: `italic`, `opacity-70`
+* Use `prose` classes for longer text blocks or structured content
+* Emojis and icons should **support**, not replace, meaning
 
 ---
 
@@ -44,91 +86,62 @@ applyTo: "**/*.{svelte,ts,js,html,css}"
 
 ### Structure
 
-* **Mobile-first layout**
-* **Hamburger menu on the top left** for small screens
-* **Expanded horizontal nav** on larger screens (`md` and up)
-* Include **branding/title** on the left and navigation items spaced apart
+* **Mobile-first** layout
+* Hamburger menu on **top-left** for small screens
+* Expand to horizontal nav on medium+ screens
+* Include:
+
+  * Brand or title (left-aligned)
+  * Navigation links (right-aligned or hidden in drawer)
+  * Optional CTA or user menu (e.g. avatar dropdown)
 
 ### Behavior
 
-* Navigation should:
-
-  * Be accessible and keyboard navigable
-  * Collapse/expand responsively
-  * Show active section (underline or font-weight)
-  * Avoid over-nesting
-
-### Sample Markup Pattern
-
-```html
-<header class="bg-white shadow-md border-b">
-  <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
-    <!-- Mobile: Hamburger on left -->
-    <button class="md:hidden" aria-label="Open menu">
-      <!-- Icon SVG here -->
-    </button>
-
-    <!-- Brand -->
-    <a href="/" class="text-lg font-semibold">App Name</a>
-
-    <!-- Menu (hidden on mobile) -->
-    <ul class="hidden md:flex space-x-6 text-sm font-medium">
-      <li><a href="/" class="hover:text-theme">Home</a></li>
-      <li><a href="/features" class="hover:text-theme">Features</a></li>
-      <li><a href="/pricing" class="hover:text-theme">Pricing</a></li>
-      <li><a href="/settings" class="hover:text-theme">Settings</a></li>
-    </ul>
-  </nav>
-
-  <!-- Mobile menu (controlled by toggle state) -->
-  <div class="md:hidden px-4 pb-4 space-y-2">
-    <a href="/" class="block text-sm">Home</a>
-    <a href="/features" class="block text-sm">Features</a>
-    <a href="/pricing" class="block text-sm">Pricing</a>
-    <a href="/settings" class="block text-sm">Settings</a>
-  </div>
-</header>
-```
+* Uses subtle transitions (`transition-opacity`, `transition-transform`)
+* Current route should be visually highlighted with font weight or underline
 
 ---
 
-## 🎨 Visual Design System
+## 🧩 Component Patterns
 
-### Layout
+### Cards
 
-* **Grid-based** using `gap-*`, `space-y-*`, `container`
-* **Cards**: `bg-white rounded-md shadow-md p-4` or `p-6`
+* `bg-white rounded-md shadow-md p-6`
+* Use `border-l-4` for context markers (e.g., type, status, category)
 
-### Theming
+### Buttons
 
-* Use **semantic colors** (e.g., `theme`, `neutral`, `info`)
-* Keep contrast clean, not loud
-* Match tone across elements (e.g., button, badge, heading in the same section)
+* Size: `text-sm`, `px-3 py-1.5`
+* Shape: `rounded-md`
+* Use theme-based backgrounds and hover transitions
+* Avoid outlines unless needed for accessibility
 
----
+### Progress
 
-## 🔠 Typography
+* Horizontal bars with background + filled indicator (`h-2 rounded-full`)
+* Percentages or XP alongside bar
 
-* **Hierarchy with weight + size**:
+### Lists
 
-  * Page title: `text-3xl font-bold`
-  * Section: `text-xl font-semibold`
-  * Body: `text-sm text-gray-600`
-  * Emphasis: `italic`, `opacity-70`
-* Use `prose` for structured, longform, or user-generated content
-
----
-
-## 🧩 Components & Patterns
-
-* Reusable blocks: cards, progress, badges, buttons
-* Prefer `rounded-md`, `shadow-md`, and generous padding
-* Components should be responsive, accessible, and visually clickable
+* Use vertical spacing and dividers (`divide-y`) for clarity
+* Avoid bullets unless necessary — spacing and font should carry structure
 
 ---
 
-## 🔁 State Behavior
+## 🔁 State Management Patterns
 
-* Use optimistic updates
-* Show `"Saved ✓"`, `"Updated"` clearly and gently
-* Handle errors with clarity, not alarm
+* **Optimistic UI updates**: actions reflect immediately
+* Use soft success cues (e.g. fade-in “Saved ✓”) after auto-save or submission
+* Errors should be calm but visible (`text-red-500`, never blinking or modal)
+* Avoid persistent save buttons when auto-saving is clearer
+
+---
+
+## 🧠 Interaction Philosophy
+
+* Every interaction should have **a visible consequence**
+* Avoid modal overload — use modals only for decisions or blocking steps
+* Whole-card interactivity is preferred when the card represents an actionable object
+* Hover/focus effects should be subtle, not dramatic
+
+---

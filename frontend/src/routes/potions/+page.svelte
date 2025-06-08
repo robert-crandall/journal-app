@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { potionsApi } from '$lib/api';
+	import * as icons from 'lucide-svelte';
 	
 	let potions: any[] = [];
 	let loading = true;
+	let error = '';
 	let showCreateForm = false;
 	let editingPotion: any = null;
+	let openDropdownId: string | null = null;
 	
 	// Form data
 	let formData = {
@@ -24,10 +27,11 @@
 	async function loadPotions() {
 		try {
 			loading = true;
+			error = '';
 			const response = await potionsApi.getAll();
 			potions = response.potions;
-		} catch (error) {
-			console.error('Failed to load potions:', error);
+		} catch (err: any) {
+			error = err.message || 'Failed to load potions';
 		} finally {
 			loading = false;
 		}
@@ -54,6 +58,27 @@
 		editingPotion = potion;
 		showCreateForm = true;
 	}
+
+	function closeCreateForm() {
+		showCreateForm = false;
+		editingPotion = null;
+	}
+
+	function toggleDropdown(potionId: string) {
+		openDropdownId = openDropdownId === potionId ? null : potionId;
+	}
+
+	function closeDropdown() {
+		openDropdownId = null;
+	}
+
+	// Close dropdown when clicking outside
+	function handleOutsideClick(event: MouseEvent) {
+		const target = event.target as Element;
+		if (openDropdownId && !target.closest('.dropdown-container')) {
+			closeDropdown();
+		}
+	}
 	
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -73,8 +98,8 @@
 			
 			showCreateForm = false;
 			await loadPotions();
-		} catch (error) {
-			console.error('Failed to save potion:', error);
+		} catch (err: any) {
+			error = err.message || 'Failed to save potion';
 		}
 	}
 	
@@ -83,8 +108,9 @@
 			try {
 				await potionsApi.end(potionId);
 				await loadPotions();
-			} catch (error) {
-				console.error('Failed to end potion:', error);
+				closeDropdown();
+			} catch (err: any) {
+				error = err.message || 'Failed to end potion';
 			}
 		}
 	}
@@ -94,8 +120,9 @@
 			try {
 				await potionsApi.delete(potionId);
 				await loadPotions();
-			} catch (error) {
-				console.error('Failed to delete potion:', error);
+				closeDropdown();
+			} catch (err: any) {
+				error = err.message || 'Failed to delete potion';
 			}
 		}
 	}
@@ -121,16 +148,16 @@
 		}
 		return 'active';
 	}
-	
-	function getStatusBadge(status: string) {
+
+	function getStatusColor(status: string) {
 		switch (status) {
 			case 'completed':
-				return 'badge-success';
+				return 'text-green-700 bg-green-100 border-green-200';
 			case 'overdue':
-				return 'badge-warning';
+				return 'text-orange-700 bg-orange-100 border-orange-200';
 			case 'active':
 			default:
-				return 'badge-primary';
+				return 'text-blue-700 bg-blue-100 border-blue-200';
 		}
 	}
 	
@@ -143,8 +170,21 @@
 			analyzing = true;
 			const result = await potionsApi.analyze(potionId);
 			potionAnalyses[potionId] = result.analysis;
-		} catch (error) {
-			console.error('Failed to analyze potion:', error);
+			closeDropdown();
+		} catch (err: any) {
+			error = err.message || 'Failed to analyze potion';
+		} finally {
+			analyzing = false;
+		}
+	}
+
+	async function analyzeAll() {
+		try {
+			analyzing = true;
+			await potionsApi.analyzeAll();
+			await loadPotions();
+		} catch (err: any) {
+			error = err.message || 'Failed to analyze all potions';
 		} finally {
 			analyzing = false;
 		}
@@ -156,22 +196,37 @@
 			if (result.analysis) {
 				potionAnalyses[potionId] = result.analysis;
 			}
-		} catch (error) {
-			console.error('Failed to load analysis:', error);
+			closeDropdown();
+		} catch (err: any) {
+			error = err.message || 'Failed to load analysis';
 		}
 	}
 	
 	function getEffectivenessIcon(effectiveness: string) {
 		switch (effectiveness) {
 			case 'likely_effective':
-				return '🧪✅';
+				return icons.CheckCircle;
 			case 'mixed_results':
-				return '🧪❓';
+				return icons.HelpCircle;
 			case 'likely_ineffective':
-				return '🧪❌';
+				return icons.XCircle;
 			case 'insufficient_data':
 			default:
-				return '🧪⏳';
+				return icons.Clock;
+		}
+	}
+
+	function getEffectivenessColor(effectiveness: string) {
+		switch (effectiveness) {
+			case 'likely_effective':
+				return 'text-green-600';
+			case 'mixed_results':
+				return 'text-yellow-600';
+			case 'likely_ineffective':
+				return 'text-red-600';
+			case 'insufficient_data':
+			default:
+				return 'text-neutral-600';
 		}
 	}
 	
@@ -188,214 +243,375 @@
 				return 'Insufficient Data';
 		}
 	}
+
+	// Derived stats
+	$: activePotions = potions.filter(p => !p.endDate);
+	$: completedPotions = potions.filter(p => p.endDate);
+	$: overduePotions = potions.filter(p => getStatus(p) === 'overdue');
+	$: totalPotions = potions.length;
 </script>
 
 <svelte:head>
-	<title>Potions - Life Quest</title>
+	<title>Potions - LifeQuest</title>
 </svelte:head>
 
-<div class="container mx-auto p-6">
-	<div class="flex justify-between items-center mb-6">
-		<div>
-			<h1 class="text-3xl font-bold">Potions</h1>
-			<p class="text-base-content/70">Personal experiments and habit trials</p>
-		</div>
-		<div class="flex gap-2">
-			<button 
-				class="btn btn-outline btn-sm" 
-				onclick={() => potionsApi.analyzeAll().then(() => loadPotions())}
-				disabled={analyzing}
-			>
-				{#if analyzing}
-					<span class="loading loading-spinner loading-sm"></span>
-				{:else}
-					🔍
+{#if showCreateForm}
+	<!-- Create/Edit Potion Modal - Atlassian Style -->
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 z-50 overflow-y-auto pt-12">
+		<div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden">
+			<!-- Modal Header -->
+			<div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+							<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
+						</div>
+						<h3 class="text-lg font-semibold text-neutral-900">
+							{editingPotion ? 'Edit experiment' : 'New experiment'}
+						</h3>
+					</div>
+					<button
+						on:click={closeCreateForm}
+						class="w-8 h-8 rounded-lg hover:bg-neutral-200 flex items-center justify-center transition-colors"
+					>
+						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+					</button>
+				</div>
+			</div>
+			
+			<!-- Modal Body -->
+			<div class="px-6 py-6 overflow-y-auto max-h-[calc(85vh-140px)]">
+				{#if error}
+					<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+						<div class="flex items-start space-x-3">
+							<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+							<div class="flex-1">
+								<p class="text-sm font-medium text-red-900">Error</p>
+								<p class="text-sm text-red-700 mt-1">{error}</p>
+							</div>
+							<button
+								on:click={() => error = ''}
+								class="text-red-400 hover:text-red-600 transition-colors"
+							>
+								<svelte:component this={icons.X} size={14} />
+							</button>
+						</div>
+					</div>
 				{/if}
-				Analyze All
-			</button>
-			<button class="btn btn-primary" onclick={openCreateForm}>
-				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-				</svg>
-				New Experiment
-			</button>
+
+				<form on:submit={handleSubmit} class="space-y-6">
+					<div>
+						<label for="potionTitle" class="block text-sm font-medium text-neutral-900 mb-2">
+							Title <span class="text-red-500">*</span>
+						</label>
+						<input 
+							id="potionTitle"
+							type="text" 
+							bind:value={formData.title}
+							placeholder="e.g., Morning meditation, No social media, Cold showers"
+							required
+							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+						/>
+					</div>
+					
+					<div>
+						<label for="potionHypothesis" class="block text-sm font-medium text-neutral-900 mb-2">
+							Hypothesis
+						</label>
+						<p class="text-xs text-neutral-600 mb-2">What do you expect to happen?</p>
+						<textarea 
+							id="potionHypothesis"
+							bind:value={formData.hypothesis}
+							placeholder="If I do X for Y days, then I expect Z to happen because..."
+							rows="4"
+							class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+						></textarea>
+					</div>
+					
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label for="potionStartDate" class="block text-sm font-medium text-neutral-900 mb-2">
+								Start Date <span class="text-red-500">*</span>
+							</label>
+							<input 
+								id="potionStartDate"
+								type="date" 
+								bind:value={formData.startDate}
+								required
+								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+							/>
+						</div>
+						
+						<div>
+							<label for="potionEndDate" class="block text-sm font-medium text-neutral-900 mb-2">
+								Planned End Date
+							</label>
+							<input 
+								id="potionEndDate"
+								type="date" 
+								bind:value={formData.endDate}
+								class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+							/>
+						</div>
+					</div>
+					
+					<div class="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+						<button 
+							type="button" 
+							on:click={closeCreateForm}
+							class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+						>
+							Cancel
+						</button>
+						<button 
+							type="submit"
+							class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+						>
+							{editingPotion ? 'Update experiment' : 'Start experiment'}
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
+{:else}
+	<!-- Main Potions Page - Atlassian Style -->
+	<div class="max-w-7xl mx-auto px-6 py-8" on:click={handleOutsideClick}>
+		<!-- Header -->
+		<div class="mb-8">
+			<div class="flex items-center justify-between mb-6">
+				<div>
+					<h1 class="text-2xl font-bold text-neutral-900">Potions</h1>
+					<p class="text-neutral-600 mt-1">Personal experiments and habit trials</p>
+				</div>
+				<div class="flex items-center space-x-3">
+					<button 
+						on:click={analyzeAll}
+						disabled={analyzing}
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{#if analyzing}
+							<div class="animate-spin rounded-full h-4 w-4 border-2 border-neutral-300 border-t-blue-600 mr-2"></div>
+						{:else}
+							<svelte:component this={icons.Search} size={16} class="mr-2" />
+						{/if}
+						Analyze All
+					</button>
+					<button 
+						on:click={openCreateForm}
+						class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+					>
+						<svelte:component this={icons.Plus} size={16} class="mr-2" />
+						New Experiment
+					</button>
+				</div>
+			</div>
 
-	{#if loading}
-		<div class="flex justify-center p-8">
-			<span class="loading loading-spinner loading-lg"></span>
+			{#if error}
+				<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+					<div class="flex items-start space-x-3">
+						<svelte:component this={icons.AlertTriangle} size={16} class="text-red-500 mt-0.5 flex-shrink-0" />
+						<div class="flex-1">
+							<p class="text-sm font-medium text-red-900">Error</p>
+							<p class="text-sm text-red-700 mt-1">{error}</p>
+						</div>
+						<button
+							on:click={() => error = ''}
+							class="text-red-400 hover:text-red-600 transition-colors"
+						>
+							<svelte:component this={icons.X} size={14} />
+						</button>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Quick Stats -->
+			{#if totalPotions > 0}
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Activity} size={16} class="text-blue-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{activePotions.length}</div>
+								<div class="text-xs text-neutral-600">Active</div>
+							</div>
+						</div>
+					</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.CheckCircle} size={16} class="text-green-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{completedPotions.length}</div>
+								<div class="text-xs text-neutral-600">Completed</div>
+							</div>
+						</div>
+					</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Clock} size={16} class="text-orange-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{overduePotions.length}</div>
+								<div class="text-xs text-neutral-600">Overdue</div>
+							</div>
+						</div>
+					</div>
+					<div class="bg-white border border-neutral-200 rounded-lg p-4">
+						<div class="flex items-center space-x-3">
+							<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+								<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
+							</div>
+							<div>
+								<div class="text-lg font-semibold text-neutral-900">{totalPotions}</div>
+								<div class="text-xs text-neutral-600">Total experiments</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
-	{:else}
-		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-			{#each potions as potion}
-				{@const status = getStatus(potion)}
-				<div class="card bg-base-100 shadow-sm">
-					<div class="card-body">
-						<div class="flex justify-between items-start mb-4">
+
+		<!-- Potions Grid -->
+		{#if loading}
+			<div class="flex items-center justify-center py-12">
+				<div class="animate-spin rounded-full h-8 w-8 border-2 border-neutral-300 border-t-blue-600"></div>
+			</div>
+		{:else if totalPotions === 0}
+			<div class="text-center py-12">
+				<div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+					<svelte:component this={icons.Beaker} size={24} class="text-purple-600" />
+				</div>
+				<h3 class="text-lg font-semibold text-neutral-900 mb-2">No experiments yet</h3>
+				<p class="text-neutral-600 mb-6">Start your first personal experiment to track habits or test hypotheses!</p>
+				<button 
+					on:click={openCreateForm}
+					class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors"
+				>
+					<svelte:component this={icons.Plus} size={16} class="mr-2" />
+					Start Your First Experiment
+				</button>
+			</div>
+		{:else}
+			<div class="space-y-4">
+				{#each potions as potion}
+					{@const status = getStatus(potion)}
+					<div class="bg-white border border-neutral-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+						<!-- Header Row -->
+						<div class="flex items-start justify-between mb-4">
 							<div class="flex-1">
-								<h3 class="card-title text-lg">{potion.title}</h3>
-								<div class="flex items-center gap-2 mt-2">
-									<div class="badge {getStatusBadge(status)} badge-sm">
-										{status.charAt(0).toUpperCase() + status.slice(1)}
-									</div>
-									<span class="text-xs text-base-content/60">
-										Day {getDaysSince(potion.startDate)}
+								<div class="flex items-center space-x-3 mb-2">
+									<h3 class="text-lg font-semibold text-neutral-900">{potion.title}</h3>
+									<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {getStatusColor(status)}">
+										{status === 'active' ? 'Active' : status === 'completed' ? 'Completed' : 'Overdue'}
 									</span>
 								</div>
-							</div>
-							<div class="dropdown dropdown-end">
-								<button class="btn btn-ghost btn-sm" aria-label="Potion options">
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zM12 13a1 1 0 110-2 1 1 0 010 2zM12 20a1 1 0 110-2 1 1 0 010 2z" />
-									</svg>
-								</button>
-								<ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-									<li><button onclick={() => analyzePotion(potion.id)}>Analyze Effectiveness</button></li>
-									<li><button onclick={() => loadPotionAnalysis(potion.id)}>View Analysis</button></li>
-									<li class="divider"></li>
-									<li><button onclick={() => openEditForm(potion)}>Edit</button></li>
-									{#if status === 'active'}
-										<li><button onclick={() => endPotion(potion.id)}>End Experiment</button></li>
+								<div class="flex items-center space-x-4 text-sm text-neutral-600">
+									<span>Day {getDaysSince(potion.startDate)}</span>
+									<span>Started {formatDate(potion.startDate)}</span>
+									{#if potion.endDate}
+										<span>Ended {formatDate(potion.endDate)}</span>
+									{:else if potion.plannedEndDate}
+										<span>Planned end {formatDate(potion.plannedEndDate)}</span>
 									{/if}
-									<li><button onclick={() => deletePotion(potion.id)} class="text-error">Delete</button></li>
-								</ul>
+								</div>
+							</div>
+							
+							<!-- Actions Dropdown -->
+							<div class="dropdown-container relative">
+								<button 
+									on:click={() => toggleDropdown(potion.id)}
+									class="w-8 h-8 rounded-lg hover:bg-neutral-100 flex items-center justify-center transition-colors"
+								>
+									<svelte:component this={icons.MoreVertical} size={16} class="text-neutral-500" />
+								</button>
+								
+								{#if openDropdownId === potion.id}
+									<div class="absolute right-0 top-full mt-1 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
+										<div class="py-1">
+											<button
+												on:click={() => analyzePotion(potion.id)}
+												disabled={analyzing}
+												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+											>
+												<svelte:component this={icons.Search} size={14} />
+												<span>Analyze Effectiveness</span>
+											</button>
+											<button
+												on:click={() => loadPotionAnalysis(potion.id)}
+												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+											>
+												<svelte:component this={icons.BarChart3} size={14} />
+												<span>View Analysis</span>
+											</button>
+											<div class="border-t border-neutral-200 my-1"></div>
+											<button
+												on:click={() => openEditForm(potion)}
+												class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+											>
+												<svelte:component this={icons.Edit2} size={14} />
+												<span>Edit</span>
+											</button>
+											{#if status === 'active'}
+												<button
+													on:click={() => endPotion(potion.id)}
+													class="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center space-x-2"
+												>
+													<svelte:component this={icons.StopCircle} size={14} />
+													<span>End Experiment</span>
+												</button>
+											{/if}
+											<div class="border-t border-neutral-200 my-1"></div>
+											<button
+												on:click={() => deletePotion(potion.id)}
+												class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+											>
+												<svelte:component this={icons.Trash2} size={14} />
+												<span>Delete</span>
+											</button>
+										</div>
+									</div>
+								{/if}
 							</div>
 						</div>
 						
+						<!-- Hypothesis -->
 						{#if potion.hypothesis}
-							<div class="mb-4">
-								<h4 class="font-semibold text-sm mb-1">Hypothesis</h4>
-								<p class="text-sm text-base-content/70">{potion.hypothesis}</p>
+							<div class="mb-4 p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
+								<h4 class="text-sm font-medium text-neutral-900 mb-1">Hypothesis</h4>
+								<p class="text-sm text-neutral-700">{potion.hypothesis}</p>
 							</div>
 						{/if}
 						
 						<!-- Analysis Results -->
 						{#if potionAnalyses[potion.id]}
 							{@const analysis = potionAnalyses[potion.id]}
-							<div class="mb-4 p-3 bg-base-200 rounded-lg">
-								<div class="flex items-center gap-2 mb-2">
-									<span class="text-lg">{getEffectivenessIcon(analysis.effectiveness)}</span>
-									<h4 class="font-semibold text-sm">{getEffectivenessText(analysis.effectiveness)}</h4>
+							<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+								<div class="flex items-center space-x-2 mb-3">
+									<svelte:component 
+										this={getEffectivenessIcon(analysis.effectiveness)} 
+										size={16} 
+										class={getEffectivenessColor(analysis.effectiveness)} 
+									/>
+									<h4 class="text-sm font-semibold text-neutral-900">
+										{getEffectivenessText(analysis.effectiveness)}
+									</h4>
 								</div>
-								<p class="text-xs text-base-content/70 mb-2">{analysis.summary}</p>
+								<p class="text-sm text-neutral-700 mb-2">{analysis.summary}</p>
 								{#if analysis.recommendations}
-									<div class="text-xs">
-										<strong>Recommendation:</strong> {analysis.recommendations}
+									<div class="text-xs text-neutral-600">
+										<span class="font-medium">Recommendation:</span> {analysis.recommendations}
 									</div>
 								{/if}
 							</div>
 						{/if}
-						
-						<div class="space-y-2 text-sm">
-							<div class="flex justify-between">
-								<span class="text-base-content/60">Started:</span>
-								<span>{formatDate(potion.startDate)}</span>
-							</div>
-							{#if potion.endDate}
-								<div class="flex justify-between">
-									<span class="text-base-content/60">Ended:</span>
-									<span>{formatDate(potion.endDate)}</span>
-								</div>
-							{:else if potion.plannedEndDate}
-								<div class="flex justify-between">
-									<span class="text-base-content/60">Planned End:</span>
-									<span>{formatDate(potion.plannedEndDate)}</span>
-								</div>
-							{/if}
-						</div>
 					</div>
-				</div>
-			{/each}
-			
-			{#if potions.length === 0}
-				<div class="col-span-full text-center py-12">
-					<div class="mb-4">
-						<svg class="w-16 h-16 mx-auto text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-						</svg>
-					</div>
-					<p class="text-lg text-base-content/70">No experiments yet</p>
-					<p class="text-base-content/50">Start your first personal experiment to track habits or test hypotheses!</p>
-				</div>
-			{/if}
-		</div>
-	{/if}
-</div>
-
-<!-- Create/Edit Potion Modal -->
-{#if showCreateForm}
-	<div class="modal modal-open">
-		<div class="modal-box">
-			<h3 class="font-bold text-lg mb-4">
-				{editingPotion ? 'Edit Experiment' : 'New Experiment'}
-			</h3>
-			
-			<form onsubmit={handleSubmit} class="space-y-4">
-				<div class="form-control">
-					<label class="label" for="potionTitle">
-						<span class="label-text">Title *</span>
-					</label>
-					<input 
-						id="potionTitle"
-						type="text" 
-						class="input input-bordered" 
-						bind:value={formData.title}
-						placeholder="e.g., Morning meditation, No social media, Cold showers"
-						required
-					/>
-				</div>
-				
-				<div class="form-control">
-					<label class="label" for="potionHypothesis">
-						<span class="label-text">Hypothesis</span>
-						<span class="label-text-alt">What do you expect to happen?</span>
-					</label>
-					<textarea 
-						id="potionHypothesis"
-						class="textarea textarea-bordered" 
-						bind:value={formData.hypothesis}
-						placeholder="If I do X for Y days, then I expect Z to happen because..."
-						rows="3"
-					></textarea>
-				</div>
-				
-				<div class="grid grid-cols-2 gap-4">
-					<div class="form-control">
-						<label class="label" for="potionStartDate">
-							<span class="label-text">Start Date *</span>
-						</label>
-						<input 
-							id="potionStartDate"
-							type="date" 
-							class="input input-bordered" 
-							bind:value={formData.startDate}
-							required
-						/>
-					</div>
-					
-					<div class="form-control">
-						<label class="label" for="potionEndDate">
-							<span class="label-text">Planned End Date</span>
-						</label>
-						<input 
-							id="potionEndDate"
-							type="date" 
-							class="input input-bordered" 
-							bind:value={formData.endDate}
-						/>
-					</div>
-				</div>
-				
-				<div class="modal-action">
-					<button type="button" class="btn" onclick={() => showCreateForm = false}>
-						Cancel
-					</button>
-					<button type="submit" class="btn btn-primary">
-						{editingPotion ? 'Update' : 'Start Experiment'}
-					</button>
-				</div>
-			</form>
-		</div>
+				{/each}
+			</div>
+		{/if}
 	</div>
 {/if}

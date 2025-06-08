@@ -1,19 +1,2 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
-@plugin 'daisyui' {
-  themes: light --default, dark --prefersdark, cupcake, bumblebee, emerald, corporate, synthwave, retro, cyberpunk, valentine, halloween, garden, forest, aqua, lofi, pastel, fantasy, wireframe, black, luxury, dracula, cmyk, autumn, business, acid, lemonade, night, coffee, winter, dim, nord, sunset;
-}
-
-/* Custom overrides to match style guide - less rounded inputs */
-.textarea {
-  border-radius: 0.25rem !important;
-}
-
-.input {
-  border-radius: 0.25rem !important;
-}
-
-/* Enhanced card borders for better visual definition */
-.card {
-  border-top-width: 2px !important;
-}

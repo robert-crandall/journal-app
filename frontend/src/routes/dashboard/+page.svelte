@@ -1,641 +1,816 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { auth } from '$lib/stores/auth';
-	import { tasksApi, statsApi, journalsApi, userApi } from '$lib/api';
-	import { goto } from '$app/navigation';
-	import * as icons from 'lucide-svelte';
-	import { findClassByName } from '$lib/data/classes';
-	
-	// Helper function to get icon component
-	function getIconComponent(iconName: string) {
-		if (!iconName) return icons.Target;
-		
-		// Convert kebab-case to PascalCase for Lucide components
-		const componentName = iconName
-			.split('-')
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-			.join('');
-		
-		return (icons as any)[componentName] || icons.Target;
-	}
-	
-	let tasks: any[] = [];
-	let dailyTasks: any[] = [];
-	let stats: any[] = [];
-	let recentJournals: any[] = [];
-	let userData: any = null;
-	let loading = true;
-	let showTaskFeedback = '';
-	let taskFeedbackData = {
-		feedback: '',
-		emotionTag: '',
-		moodScore: 0
-	};
-	
-	onMount(() => {
-		// Redirect if not logged in
-		const unsubscribe = auth.subscribe((state) => {
-			if (!state.user && !state.loading) {
-				goto('/login');
-			}
-		});
-		
-		async function loadData() {
-			try {
-				const [tasksData, dailyTasksData, statsData, journalsData, userResponse] = await Promise.all([
-					tasksApi.getAll(),
-					tasksApi.getDailyTasks(),
-					statsApi.getAll(),
-					journalsApi.getAll(),
-					userApi.getMe()
-				]);
-				
-				tasks = tasksData.tasks.filter((task: any) => !task.completedAt && task.origin !== 'gpt').slice(0, 5);
-				dailyTasks = dailyTasksData.tasks || [];
-				stats = statsData.slice(0, 4);
-				recentJournals = journalsData.journals.slice(0, 3);
-				userData = userResponse.user;
-			} catch (error) {
-				console.error('Failed to load dashboard data:', error);
-			} finally {
-				loading = false;
-			}
-		}
-		
-		loadData();
-		
-		return unsubscribe;
-	});
-	
-	async function completeTask(taskId: string) {
-		try {
-			// Find the task to get its stat info before completing
-			const taskToComplete = tasks.find(t => t.id === taskId);
-			
-			await tasksApi.complete(taskId, { status: 'complete' });
-			// Refresh tasks
-			const tasksData = await tasksApi.getAll();
-			tasks = tasksData.tasks.filter((task: any) => !task.completedAt && task.origin !== 'gpt').slice(0, 5);
-			
-			// If the task has a stat, increment it
-			if (taskToComplete?.stat) {
-				await statsApi.increment(taskToComplete.stat.id, 1);
-				// Refresh stats
-				const statsData = await statsApi.getAll();
-				stats = statsData.slice(0, 4);
-			}
-		} catch (error) {
-			console.error('Failed to complete task:', error);
-		}
-	}
+  import { onMount } from 'svelte';
+  import { auth } from '$lib/stores/auth';
+  import { tasksApi, statsApi, journalsApi, userApi } from '$lib/api';
+  import { goto } from '$app/navigation';
+  import * as icons from 'lucide-svelte';
+  
+  // Helper function to get icon component
+  function getIconComponent(iconName: string) {
+    if (!iconName) return icons.Target;
+    
+    // Convert kebab-case to PascalCase for Lucide components
+    const componentName = iconName
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+    
+    return (icons as any)[componentName] || icons.Target;
+  }
+  
+  let tasks: any[] = [];
+  let dailyTasks: any[] = [];
+  let stats: any[] = [];
+  let recentJournals: any[] = [];
+  let userData: any = null;
+  let loading = true;
+  let showTaskFeedback = '';
+  let showJournalModal = false;
+  let journalContent = '';
+  let journalMood = '';
+  let taskFeedbackData = {
+    feedback: '',
+    emotionTag: '',
+    moodScore: 0
+  };
+  let saveMessage = '';
+  
+  onMount(() => {
+    // Redirect if not logged in
+    const unsubscribe = auth.subscribe((state) => {
+      if (!state.user && !state.loading) {
+        goto('/login');
+      }
+    });
+    
+    async function loadData() {
+      try {
+        const [tasksData, dailyTasksData, statsData, journalsData, userResponse] = await Promise.all([
+          tasksApi.getAll(),
+          tasksApi.getDailyTasks(),
+          statsApi.getAll(),
+          journalsApi.getAll(),
+          userApi.getMe()
+        ]);
+        
+        tasks = tasksData.tasks.filter((task: any) => !task.completedAt && task.origin !== 'gpt').slice(0, 5);
+        dailyTasks = dailyTasksData.tasks || [];
+        stats = statsData.slice(0, 4);
+        recentJournals = journalsData.journals.slice(0, 3);
+        userData = userResponse.user;
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      } finally {
+        loading = false;
+      }
+    }
+    
+    loadData();
+    
+    return unsubscribe;
+  });
+  
+  async function completeTask(taskId: string) {
+    try {
+      // Find the task to get its stat info before completing
+      const taskToComplete = tasks.find(t => t.id === taskId);
+      
+      await tasksApi.complete(taskId, { status: 'complete' });
+      // Refresh tasks
+      const tasksData = await tasksApi.getAll();
+      tasks = tasksData.tasks.filter((task: any) => !task.completedAt && task.origin !== 'gpt').slice(0, 5);
+      
+      // If the task has a stat, increment it
+      if (taskToComplete?.stat) {
+        await statsApi.increment(taskToComplete.stat.id, 1);
+        // Refresh stats
+        const statsData = await statsApi.getAll();
+        stats = statsData.slice(0, 4);
+      }
+      
+      showSaveMessage('Task completed ✓');
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+    }
+  }
 
-	async function completeDailyTask(taskId: string, status: 'complete' | 'skipped' | 'failed') {
-		try {
-			if (status === 'complete') {
-				// Show feedback form for completed tasks
-				showTaskFeedback = taskId;
-				return;
-			}
-			
-			// For skipped/failed, complete immediately
-			await tasksApi.complete(taskId, { status });
-			
-			// Refresh daily tasks and stats
-			await refreshDailyTasks();
-		} catch (error) {
-			console.error('Failed to complete daily task:', error);
-		}
-	}
+  async function completeDailyTask(taskId: string, status: 'complete' | 'skipped' | 'failed') {
+    try {
+      if (status === 'complete') {
+        // Show feedback form for completed tasks
+        showTaskFeedback = taskId;
+        return;
+      }
+      
+      // For skipped/failed, complete immediately
+      await tasksApi.complete(taskId, { status });
+      
+      // Refresh daily tasks and stats
+      await refreshDailyTasks();
+      showSaveMessage(`Task ${status} ✓`);
+    } catch (error) {
+      console.error('Failed to complete daily task:', error);
+    }
+  }
 
-	async function submitTaskFeedback(taskId: string) {
-		try {
-			await tasksApi.complete(taskId, {
-				status: 'complete',
-				feedback: taskFeedbackData.feedback,
-				emotionTag: taskFeedbackData.emotionTag,
-				moodScore: taskFeedbackData.moodScore > 0 ? taskFeedbackData.moodScore : undefined
-			});
-			
-			// Reset feedback form
-			showTaskFeedback = '';
-			taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
-			
-			// Refresh daily tasks and stats
-			await refreshDailyTasks();
-		} catch (error) {
-			console.error('Failed to submit task feedback:', error);
-		}
-	}
+  async function submitTaskFeedback(taskId: string) {
+    try {
+      await tasksApi.complete(taskId, {
+        status: 'complete',
+        feedback: taskFeedbackData.feedback,
+        emotionTag: taskFeedbackData.emotionTag,
+        moodScore: taskFeedbackData.moodScore > 0 ? taskFeedbackData.moodScore : undefined
+      });
+      
+      // Reset feedback form
+      showTaskFeedback = '';
+      taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
+      
+      // Refresh daily tasks and stats
+      await refreshDailyTasks();
+      showSaveMessage('Task completed ✓');
+    } catch (error) {
+      console.error('Failed to submit task feedback:', error);
+    }
+  }
 
-	async function refreshDailyTasks() {
-		try {
-			const [dailyTasksData, statsData] = await Promise.all([
-				tasksApi.getDailyTasks(),
-				statsApi.getAll()
-			]);
-			
-			dailyTasks = dailyTasksData.tasks || [];
-			stats = statsData.slice(0, 4);
-		} catch (error) {
-			console.error('Failed to refresh data:', error);
-		}
-	}
+  async function refreshDailyTasks() {
+    try {
+      const [dailyTasksData, statsData] = await Promise.all([
+        tasksApi.getDailyTasks(),
+        statsApi.getAll()
+      ]);
+      
+      dailyTasks = dailyTasksData.tasks || [];
+      stats = statsData.slice(0, 4);
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  }
 
-	function cancelTaskFeedback() {
-		showTaskFeedback = '';
-		taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
-	}
+  async function createJournal() {
+    try {
+      await journalsApi.create({
+        content: journalContent,
+        mood: journalMood || undefined
+      });
+      
+      // Reset form and close modal
+      journalContent = '';
+      journalMood = '';
+      showJournalModal = false;
+      
+      // Refresh journals
+      const journalsData = await journalsApi.getAll();
+      recentJournals = journalsData.journals.slice(0, 3);
+      
+      showSaveMessage('Journal entry created ✓');
+    } catch (error) {
+      console.error('Failed to create journal entry:', error);
+    }
+  }
+
+  function cancelTaskFeedback() {
+    showTaskFeedback = '';
+    taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
+  }
+  
+  function showSaveMessage(message: string) {
+    saveMessage = message;
+    setTimeout(() => saveMessage = '', 3000);
+  }
+
+  function closeModal(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      showTaskFeedback = '';
+      showJournalModal = false;
+      taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
+      journalContent = '';
+      journalMood = '';
+    }
+  }
 </script>
 
 <svelte:head>
-	<title>Dashboard - Life Quest</title>
+  <title>Dashboard</title>
 </svelte:head>
 
-{#if loading}
-	<div class="min-h-screen flex items-center justify-center bg-base-100">
-		<div class="text-center space-y-4">
-			<span class="loading loading-spinner loading-lg text-primary"></span>
-			<p class="text-base-content/70">Loading your dashboard...</p>
-		</div>
-	</div>
-{:else}
-	<!-- Main Container -->
-	<div class="min-h-screen bg-base-100">
-		<!-- Header Section -->
-		<header class="bg-base-200 border-b border-base-300">
-			<div class="container mx-auto px-4 py-6">
-				<div class="flex flex-col sm:flex-row items-start justify-between gap-4">
-					<div class="space-y-2">
-						<h1 class="text-3xl font-bold text-base-content">
-							Welcome back, {userData?.name || 'User'}
-						</h1>
-						<p class="text-base-content/70 text-sm">
-							{#if userData?.className}
-								Focus area: <span class="font-semibold text-primary">{userData.className}</span>
-							{:else}
-								Ready to continue your personal development journey?
-							{/if}
-						</p>
-					</div>
-					
-					{#if userData?.className}
-						<div class="card bg-base-100 shadow-md border border-primary/20 card-compact">
-							<div class="card-body text-center">
-								<h3 class="font-semibold text-primary text-sm">{userData.className}</h3>
-								{#if userData.classDescription}
-									<p class="text-xs text-base-content/70">{userData.classDescription}</p>
-								{/if}
-								<div class="card-actions">
-									<a href="/settings" class="btn btn-ghost btn-xs">Edit Profile</a>
-								</div>
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
-		</header>
+<div class="min-h-screen bg-neutral-50">
+  {#if loading}
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center space-y-4">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-sm text-neutral-600">Loading your command center...</p>
+      </div>
+    </div>
+  {:else}
+    <!-- Save Message -->
+    {#if saveMessage}
+      <div class="fixed top-6 right-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg transition-opacity z-50 flex items-center gap-2">
+        <svelte:component this={icons.CheckCircle} class="w-4 h-4" />
+        {saveMessage}
+      </div>
+    {/if}
 
-		<!-- Main Content -->
-		<main class="container mx-auto px-4 py-6">
-			<!-- Daily Focus Section -->
-			{#if dailyTasks.length > 0}
-				<section class="mb-6">
-					<div class="card bg-base-100 shadow-lg border-l-4 border-primary border-t-2 border-t-primary/20">
-						<div class="card-body">
-							<div class="flex items-center gap-3 mb-4">
-								<svelte:component this={icons.Target} class="w-5 h-5 text-primary" />
-								<div>
-									<h2 class="card-title text-xl">Today's Focus</h2>
-									<p class="text-sm text-base-content/60">Your personalized daily objectives</p>
-								</div>
-							</div>
-							
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-								{#each dailyTasks as task}
-									<div class="card bg-base-100 shadow-lg border-l-4 border-{task.source === 'primary' ? 'primary' : 'secondary'} border-t-2 border-t-{task.source === 'primary' ? 'primary' : 'secondary'}/20">
-										<div class="card-body card-compact">
-											<div class="flex items-center justify-between mb-2">
-												<span class="badge badge-{task.source === 'primary' ? 'primary' : 'secondary'} badge-sm">
-													{task.source === 'primary' ? 'Primary' : 'Connection'}
-												</span>
-												{#if task.status !== 'pending'}
-													<span class="badge badge-{task.status === 'complete' ? 'success' : task.status === 'skipped' ? 'warning' : 'error'} badge-sm">
-														{task.status === 'complete' ? 'Complete ✓' : task.status === 'skipped' ? 'Skipped' : 'Failed'}
-													</span>
-												{/if}
-											</div>
-											
-											<h3 class="font-semibold text-sm mb-2">{task.title}</h3>
-											<p class="text-xs text-base-content/70 mb-3">{task.description}</p>
-											
-											{#if task.status === 'pending'}
-												<div class="card-actions">
-													<button 
-														class="btn btn-success btn-sm flex-1"
-														onclick={() => completeDailyTask(task.id, 'complete')}
-													>
-														Complete
-													</button>
-													<button 
-														class="btn btn-warning btn-sm btn-outline"
-														onclick={() => completeDailyTask(task.id, 'skipped')}
-														title="Skip this task"
-													>
-														Skip
-													</button>
-													<button 
-														class="btn btn-error btn-sm btn-outline"
-														onclick={() => completeDailyTask(task.id, 'failed')}
-														title="Mark as failed"
-													>
-														Failed
-													</button>
-												</div>
-											{:else if task.feedback || task.emotionTag}
-												<div class="bg-base-200 rounded p-3 text-xs">
-													{#if task.feedback}
-														<p class="text-base-content/80 mb-1"><strong>Notes:</strong> {task.feedback}</p>
-													{/if}
-													{#if task.emotionTag}
-														<p class="text-base-content/80"><strong>Status:</strong> {task.emotionTag}</p>
-													{/if}
-												</div>
-											{/if}
-										</div>
-									</div>
-								{/each}
-							</div>
-						</div>
-					</div>
-				</section>
-			{:else}
-				<section class="mb-6">
-					<div class="card bg-base-100 shadow-lg border-l-4 border-warning border-t-2 border-t-warning/20">
-						<div class="card-body text-center">
-							<svelte:component this={icons.Target} class="w-12 h-12 text-warning mx-auto mb-4" />
-							<h2 class="card-title justify-center mb-2">Ready for Today's Focus?</h2>
-							<p class="text-base-content/70 mb-4">Create some intentional objectives to support your development.</p>
-							<button 
-								class="btn btn-primary"
-								onclick={() => refreshDailyTasks()}
-							>
-								Generate Daily Focus
-							</button>
-						</div>
-					</div>
-				</section>
-			{/if}
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-8">
+      
+      <!-- Welcome Hero Section -->
+      <section class="text-center space-y-4">
+        <div class="flex items-center justify-center gap-4 mb-2">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+            {(userData?.name || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div class="text-left">
+            <h1 class="text-4xl font-bold text-neutral-900">
+              Welcome back, {userData?.name || 'User'}! 👋
+            </h1>
+            <p class="text-lg text-neutral-600 mt-1">
+              {#if userData?.className}
+                Ready to focus on <span class="font-semibold text-blue-700">{userData.className}</span> today?
+              {:else}
+                Ready to make today count?
+              {/if}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Quick Overview Stats -->
+        <div class="flex justify-center gap-8 text-center">
+          <div class="space-y-1">
+            <div class="text-3xl font-bold text-blue-600">{dailyTasks.filter(t => !t.completedAt).length}</div>
+            <div class="text-sm text-neutral-600">Priority Tasks</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-3xl font-bold text-green-600">{tasks.length}</div>
+            <div class="text-sm text-neutral-600">Active Goals</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-3xl font-bold text-purple-600">{stats.reduce((sum, stat) => sum + stat.level, 0)}</div>
+            <div class="text-sm text-neutral-600">Total Levels</div>
+          </div>
+        </div>
+      </section>
 
-			<!-- Main Dashboard Grid -->
-			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				<!-- Left Column - Tasks -->
-				<div class="lg:col-span-2 space-y-6">
-					<!-- Active Tasks -->
-					<section class="card bg-base-100 shadow-lg border-l-4 border-secondary border-t-2 border-t-secondary/20">
-						<div class="card-body">
-							<div class="flex items-center justify-between mb-4">
-								<div class="flex items-center gap-3">
-									<svelte:component this={icons.CheckSquare} class="w-5 h-5 text-secondary" />
-									<div>
-										<h2 class="card-title text-xl">Active Tasks</h2>
-										<p class="text-sm text-base-content/60">Your current goals and commitments</p>
-									</div>
-								</div>
-								<a href="/tasks" class="btn btn-secondary btn-sm gap-2">
-									<svelte:component this={icons.Settings} class="w-4 h-4" />
-									Manage
-								</a>
-							</div>
-							
-							{#if tasks.length === 0}
-								<div class="text-center py-8">
-									<svelte:component this={icons.Target} class="w-12 h-12 text-base-content/40 mx-auto mb-4" />
-									<h3 class="text-lg font-semibold mb-2">No active tasks yet</h3>
-									<p class="text-base-content/60 mb-4">When you're ready, create some meaningful goals to work toward.</p>
-									<a href="/tasks" class="btn btn-outline gap-2">
-										<svelte:component this={icons.Plus} class="w-4 h-4" />
-										Create First Task
-									</a>
-								</div>
-							{:else}
-								<div class="space-y-3">
-									{#each tasks as task}
-										<div class="card bg-base-200 hover:shadow-lg transition-shadow border-l-4 border-accent border-t border-t-base-300">
-											<div class="card-body card-compact">
-												<div class="flex items-center justify-between">
-													<div class="flex-1">
-														<h3 class="font-semibold text-base-content">{task.title}</h3>
-														{#if task.description}
-															<p class="text-sm text-base-content/70 mt-1">{task.description}</p>
-														{/if}
-														<div class="flex gap-2 mt-2">
-															{#if task.focus}
-																<span class="badge badge-primary badge-sm">{task.focus.name}</span>
-															{/if}
-															{#if task.stat}
-																<span class="badge badge-info badge-sm">+{task.stat.name}</span>
-															{/if}
-														</div>
-													</div>
-													<div class="card-actions">
-														<button
-															class="btn btn-success btn-sm gap-1"
-															onclick={() => completeTask(task.id)}
-														>
-															<svelte:component this={icons.Check} class="w-4 h-4" />
-															Complete
-														</button>
-														<a href="/tasks" class="btn btn-ghost btn-sm btn-square">
-															<svelte:component this={icons.ExternalLink} class="w-4 h-4" />
-														</a>
-													</div>
-												</div>
-											</div>
-										</div>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</section>
+      <!-- Today's Priority -->
+      {#if dailyTasks.filter(t => !t.completedAt).length > 0}
+        <section class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-neutral-900 flex items-center justify-center gap-2 mb-2">
+              <svelte:component this={icons.Zap} class="w-7 h-7 text-yellow-500" />
+              Today's Priority
+            </h2>
+            <p class="text-neutral-600">Focus on what matters most right now</p>
+          </div>
+          
+          <!-- Featured Priority Task -->
+          {#each dailyTasks.filter(t => !t.completedAt).slice(0, 1) as task}
+            <div class="bg-white rounded-xl border-2 border-blue-200 p-6 mb-6 shadow-sm">
+              <div class="text-center mb-4">
+                <h3 class="text-xl font-bold text-neutral-900 mb-2">{task.title}</h3>
+                {#if task.description}
+                  <p class="text-neutral-600 leading-relaxed">{task.description}</p>
+                {/if}
+                
+                <div class="flex justify-center gap-3 mt-4">
+                  {#if task.focus}
+                    <span class="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full font-medium">
+                      <svelte:component this={icons.Focus} class="w-4 h-4 inline mr-1" />
+                      {task.focus.name}
+                    </span>
+                  {/if}
+                  {#if task.stat}
+                    <span class="bg-purple-100 text-purple-700 text-sm px-3 py-1 rounded-full font-medium">
+                      <svelte:component this={icons.TrendingUp} class="w-4 h-4 inline mr-1" />
+                      +{task.stat.name}
+                    </span>
+                  {/if}
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex gap-3 justify-center">
+                <button
+                  onclick={() => completeDailyTask(task.id, 'complete')}
+                  class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105 flex items-center gap-2 shadow-lg"
+                >
+                  <svelte:component this={icons.Check} class="w-5 h-5" />
+                  Complete
+                </button>
+                <button
+                  onclick={() => completeDailyTask(task.id, 'skipped')}
+                  class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2"
+                >
+                  <svelte:component this={icons.Clock} class="w-4 h-4" />
+                  Skip for Now
+                </button>
+                <button
+                  onclick={() => completeDailyTask(task.id, 'failed')}
+                  class="bg-neutral-500 hover:bg-neutral-600 text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2"
+                >
+                  <svelte:component this={icons.X} class="w-4 h-4" />
+                  Can't Do Today
+                </button>
+              </div>
+            </div>
+          {/each}
+          
+          <!-- Remaining Priority Tasks Preview -->
+          {#if dailyTasks.filter(t => !t.completedAt).length > 1}
+            <div class="text-center">
+              <p class="text-sm text-neutral-600 mb-3">
+                {dailyTasks.filter(t => !t.completedAt).length - 1} more priority task{dailyTasks.filter(t => !t.completedAt).length > 2 ? 's' : ''} waiting
+              </p>
+              <div class="flex gap-2 justify-center">
+                {#each dailyTasks.filter(t => !t.completedAt).slice(1, 4) as task}
+                  <div class="bg-white rounded-lg px-4 py-2 text-sm text-neutral-700 border border-blue-200">
+                    {task.title.length > 20 ? task.title.substring(0, 20) + '...' : task.title}
+                  </div>
+                {/each}
+                {#if dailyTasks.filter(t => !t.completedAt).length > 4}
+                  <div class="bg-neutral-100 rounded-lg px-4 py-2 text-sm text-neutral-500">
+                    +{dailyTasks.filter(t => !t.completedAt).length - 4} more
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {/if}
+        </section>
+      {:else}
+        <!-- All Priority Tasks Complete -->
+        <section class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-200 text-center">
+          <div class="w-20 h-20 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <svelte:component this={icons.Trophy} class="w-10 h-10 text-green-600" />
+          </div>
+          <h2 class="text-2xl font-bold text-green-900 mb-2">🎉 All Priorities Complete!</h2>
+          <p class="text-green-700 mb-6">You've conquered today's most important tasks. What's next?</p>
+          <div class="flex gap-4 justify-center">
+            <button
+              onclick={() => showJournalModal = true}
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+            >
+              <svelte:component this={icons.Edit3} class="w-4 h-4" />
+              Reflect & Journal
+            </button>
+            <a
+              href="/tasks"
+              class="bg-white border-2 border-green-300 text-green-700 hover:bg-green-50 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+            >
+              <svelte:component this={icons.Plus} class="w-4 h-4" />
+              Set New Goals
+            </a>
+          </div>
+        </section>
+      {/if}
 
-					<!-- Performance Metrics -->
-					<section class="card bg-base-100 shadow-lg border-l-4 border-info border-t-2 border-t-info/20">
-						<div class="card-body">
-							<div class="flex items-center justify-between mb-4">
-								<div class="flex items-center gap-3">
-									<svelte:component this={icons.BarChart3} class="w-5 h-5 text-info" />
-									<div>
-										<h2 class="card-title text-xl">Performance Metrics</h2>
-										<p class="text-sm text-base-content/60">Your growing strengths and abilities</p>
-									</div>
-								</div>
-								<a href="/stats" class="btn btn-info btn-sm gap-2">
-									<svelte:component this={icons.TrendingUp} class="w-4 h-4" />
-									View All
-								</a>
-							</div>
-							
-							{#if stats.length === 0}
-								<div class="text-center py-6">
-									<svelte:component this={icons.TrendingUp} class="w-10 h-10 text-base-content/40 mx-auto mb-3" />
-									<h3 class="font-semibold mb-2">No metrics yet</h3>
-									<p class="text-base-content/60 mb-4">Create some metrics to track your growth areas.</p>
-									<a href="/stats" class="btn btn-outline btn-sm gap-2">
-										<svelte:component this={icons.Plus} class="w-4 h-4" />
-										Create Metrics
-									</a>
-								</div>
-							{:else}
-								<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-									{#each stats as stat}
-										<div class="card bg-base-200 border-l-4 border-{stat.color || 'neutral'} shadow-lg border-t-2 border-t-{stat.color || 'neutral'}/20">
-											<div class="card-body card-compact">
-												<div class="flex items-center gap-3 mb-3">
-													<svelte:component this={getIconComponent(stat.icon)} class="w-5 h-5 text-{stat.color || 'neutral'}" />
-													<div class="flex-1">
-														<h3 class="font-semibold text-sm">{stat.name}</h3>
-														<div class="flex justify-between text-xs text-base-content/60">
-															<span>Level {stat.level}</span>
-															<span>{stat.xp} points</span>
-														</div>
-													</div>
-												</div>
-												
-												<div class="w-full bg-base-300 rounded-full h-2 overflow-hidden">
-													<div 
-														class="bg-{stat.color || 'primary'} h-2 rounded-full transition-all duration-500"
-														style="width: {Math.min(100, Math.max(0, (stat.xp - ((stat.level - 1) * 100)) / 100 * 100))}%"
-													></div>
-												</div>
-												
-												{#if stat.xp >= stat.level * 100}
-													<div class="text-xs text-success mt-2 flex items-center gap-1">
-														<svelte:component this={icons.Award} class="w-3 h-3" />
-														Ready to advance!
-													</div>
-												{:else}
-													<div class="text-xs text-base-content/60 mt-2">
-														{stat.level * 100 - stat.xp} points to next level
-													</div>
-												{/if}
-											</div>
-										</div>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</section>
-				</div>
+      <!-- Dashboard Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column: Active Goals & Progress -->
+        <div class="lg:col-span-2 space-y-8">
+          
+          <!-- Active Goals -->
+          <div class="bg-white rounded-xl shadow-sm border border-neutral-200">
+            <div class="p-6 border-b border-neutral-100">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svelte:component this={icons.Target} class="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-neutral-900">Active Goals</h2>
+                    <p class="text-sm text-neutral-500">{tasks.length} goal{tasks.length !== 1 ? 's' : ''} in progress</p>
+                  </div>
+                </div>
+                <a 
+                  href="/tasks" 
+                  class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1 transition-colors"
+                >
+                  Manage Goals
+                  <svelte:component this={icons.ArrowRight} class="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+            
+            <div class="p-6">
+              {#if tasks.length === 0}
+                <div class="text-center py-12 space-y-4">
+                  <div class="w-16 h-16 bg-neutral-100 rounded-xl mx-auto flex items-center justify-center">
+                    <svelte:component this={icons.Target} class="w-8 h-8 text-neutral-400" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-neutral-900">Ready to grow?</h3>
+                    <p class="text-sm text-neutral-600">Set your first goal to start building momentum</p>
+                  </div>
+                  <a 
+                    href="/tasks" 
+                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    <svelte:component this={icons.Plus} class="w-4 h-4" />
+                    Create First Goal
+                  </a>
+                </div>
+              {:else}
+                <div class="space-y-4">
+                  {#each tasks as task}
+                    <div class="border border-neutral-200 rounded-lg p-4 hover:border-blue-200 hover:shadow-md transition-all group">
+                      <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1 space-y-2">
+                          <h4 class="font-semibold text-neutral-900 group-hover:text-blue-700 transition-colors">{task.title}</h4>
+                          {#if task.description}
+                            <p class="text-sm text-neutral-600 leading-relaxed">{task.description}</p>
+                          {/if}
+                          <div class="flex flex-wrap gap-2">
+                            {#if task.focus}
+                              <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium">
+                                {task.focus.name}
+                              </span>
+                            {/if}
+                            {#if task.stat}
+                              <span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-md font-medium">
+                                +{task.stat.name}
+                              </span>
+                            {/if}
+                          </div>
+                        </div>
+                        <button
+                          onclick={() => completeTask(task.id)}
+                          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 flex items-center gap-2 shadow-sm"
+                        >
+                          <svelte:component this={icons.Check} class="w-4 h-4" />
+                          Done
+                        </button>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          </div>
 
-				<!-- Right Column - Journal & Quick Actions -->
-				<div class="space-y-6">
-					<!-- Quick Actions -->
-					<section class="card bg-gradient-to-br from-accent/10 to-primary/10 shadow-lg border border-accent/30 border-t-2 border-t-accent/30">
-						<div class="card-body">
-							<h2 class="card-title text-accent mb-4 flex items-center gap-2">
-								<svelte:component this={icons.Zap} class="w-5 h-5" />
-								Quick Actions
-							</h2>
-							<div class="grid grid-cols-2 gap-3">
-								<a href="/journals" class="btn btn-accent btn-sm gap-2 flex-col h-16 p-2">
-									<svelte:component this={icons.BookOpen} class="w-5 h-5" />
-									<span class="text-xs">Journal</span>
-								</a>
-								<a href="/tasks" class="btn btn-secondary btn-sm gap-2 flex-col h-16 p-2">
-									<svelte:component this={icons.Plus} class="w-5 h-5" />
-									<span class="text-xs">Add Task</span>
-								</a>
-								<a href="/stats" class="btn btn-info btn-sm gap-2 flex-col h-16 p-2">
-									<svelte:component this={icons.BarChart3} class="w-5 h-5" />
-									<span class="text-xs">Metrics</span>
-								</a>
-								<a href="/potions" class="btn btn-warning btn-sm gap-2 flex-col h-16 p-2">
-									<svelte:component this={icons.Lightbulb} class="w-5 h-5" />
-									<span class="text-xs">Insights</span>
-								</a>
-							</div>
-						</div>
-					</section>
+          <!-- Your Progress -->
+          <div class="bg-white rounded-xl shadow-sm border border-neutral-200">
+            <div class="p-6 border-b border-neutral-100">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svelte:component this={icons.TrendingUp} class="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-neutral-900">Your Progress</h2>
+                    <p class="text-sm text-neutral-500">Track your growth journey</p>
+                  </div>
+                </div>
+                <a 
+                  href="/stats" 
+                  class="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center gap-1 transition-colors"
+                >
+                  View Details
+                  <svelte:component this={icons.ArrowRight} class="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+            
+            <div class="p-6">
+              {#if stats.length === 0}
+                <div class="text-center py-8 space-y-4">
+                  <div class="w-16 h-16 bg-neutral-100 rounded-xl mx-auto flex items-center justify-center">
+                    <svelte:component this={icons.TrendingUp} class="w-8 h-8 text-neutral-400" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-neutral-900">Start tracking your growth</h3>
+                    <p class="text-sm text-neutral-600">Create stats to measure progress in different areas</p>
+                  </div>
+                  <a 
+                    href="/stats" 
+                    class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    <svelte:component this={icons.Plus} class="w-4 h-4" />
+                    Create Stats
+                  </a>
+                </div>
+              {:else}
+                <div class="grid gap-4 sm:grid-cols-2">
+                  {#each stats as stat}
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+                      <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <svelte:component this={getIconComponent(stat.icon)} class="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div class="flex-1">
+                          <h4 class="font-bold text-neutral-900">{stat.name}</h4>
+                          <p class="text-sm text-neutral-600">Level {stat.level}</p>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-xl font-bold text-purple-600">{stat.level}</div>
+                        </div>
+                      </div>
+                      
+                      <!-- Mini Progress Bar -->
+                      <div class="space-y-1">
+                        <div class="bg-neutral-200 h-2 rounded-full overflow-hidden">
+                          <div 
+                            class="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
+                            style="width: {Math.min(100, Math.max(0, (stat.xp - ((stat.level - 1) * 100)) / 100 * 100))}%;"
+                          ></div>
+                        </div>
+                        <p class="text-xs text-neutral-500">
+                          {Math.min(100, Math.max(0, (stat.xp - ((stat.level - 1) * 100)) / 100 * 100)).toFixed(0)}% to Level {stat.level + 1}
+                        </p>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
 
-					<!-- Recent Journal Entries -->
-					<section class="card bg-base-100 shadow-lg border-l-4 border-accent border-t-2 border-t-accent/20">
-						<div class="card-body">
-							<div class="flex items-center justify-between mb-4">
-								<div class="flex items-center gap-3">
-									<svelte:component this={icons.FileText} class="w-5 h-5 text-accent" />
-									<div>
-										<h2 class="card-title text-lg">Recent Reflections</h2>
-										<p class="text-sm text-base-content/60">Your journal entries</p>
-									</div>
-								</div>
-								<a href="/journals" class="btn btn-accent btn-sm gap-2">
-									<svelte:component this={icons.Edit3} class="w-4 h-4" />
-									Write
-								</a>
-							</div>
-							
-							{#if recentJournals.length === 0}
-								<div class="text-center py-6">
-									<svelte:component this={icons.Edit3} class="w-10 h-10 text-base-content/40 mx-auto mb-3" />
-									<h3 class="font-semibold mb-2">Start journaling</h3>
-									<p class="text-base-content/60 mb-4 text-sm">Reflect on your thoughts, experiences, and progress.</p>
-									<a href="/journals" class="btn btn-outline btn-sm gap-2">
-										<svelte:component this={icons.Edit3} class="w-4 h-4" />
-										Write First Entry
-									</a>
-								</div>
-							{:else}
-								<div class="space-y-3">
-									{#each recentJournals as journal}
-										<div class="card bg-base-200 hover:shadow-lg transition-shadow border-l-4 border-accent/50 border-t-2 border-t-accent/20">
-											<div class="card-body card-compact">
-												<p class="text-sm text-base-content/80 line-clamp-3 mb-2">{journal.content}</p>
-												<div class="flex justify-between items-center text-xs text-base-content/60">
-													<span>{new Date(journal.date).toLocaleDateString('en-US', { 
-														weekday: 'short', 
-														month: 'short', 
-														day: 'numeric' 
-													})}</span>
-													{#if journal.mood}
-														<span class="badge badge-ghost badge-xs">{journal.mood}</span>
-													{/if}
-												</div>
-											</div>
-										</div>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</section>
+        <!-- Right Column: Journal & Quick Actions -->
+        <div class="space-y-8">
+          
+          <!-- Recent Journal Entries -->
+          <div class="bg-white rounded-xl shadow-sm border border-neutral-200">
+            <div class="p-6 border-b border-neutral-100">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <svelte:component this={icons.Edit3} class="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-neutral-900">Journal</h2>
+                    <p class="text-sm text-neutral-500">Your recent thoughts</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onclick={() => showJournalModal = true}
+                class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                <svelte:component this={icons.Edit3} class="w-4 h-4" />
+                Write New Entry
+              </button>
+            </div>
+            
+            <div class="p-6">
+              {#if recentJournals.length === 0}
+                <div class="text-center py-8 space-y-4">
+                  <div class="w-16 h-16 bg-neutral-100 rounded-xl mx-auto flex items-center justify-center">
+                    <svelte:component this={icons.Edit3} class="w-8 h-8 text-neutral-400" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-neutral-900">Start journaling</h3>
+                    <p class="text-sm text-neutral-600">Capture your thoughts and reflections</p>
+                  </div>
+                </div>
+              {:else}
+                <div class="space-y-4">
+                  {#each recentJournals as journal}
+                    <div class="border border-neutral-200 rounded-lg p-4 hover:border-amber-200 hover:shadow-sm transition-all">
+                      <p class="text-sm text-neutral-900 mb-3 leading-relaxed">
+                        {journal.content.length > 100 ? journal.content.substring(0, 100) + '...' : journal.content}
+                      </p>
+                      <div class="flex justify-between items-center">
+                        <span class="text-xs text-neutral-500">
+                          {new Date(journal.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                        {#if journal.mood}
+                          <span class="bg-amber-50 text-amber-700 text-xs px-2 py-1 rounded-full font-medium">
+                            {journal.mood}
+                          </span>
+                        {/if}
+                      </div>
+                    </div>
+                  {/each}
+                  <div class="text-center pt-2">
+                    <a 
+                      href="/journals" 
+                      class="text-amber-600 hover:text-amber-700 text-sm font-medium flex items-center justify-center gap-1 transition-colors"
+                    >
+                      View All Entries
+                      <svelte:component this={icons.ArrowRight} class="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </div>
 
-					<!-- Focus Area Information -->
-					{#if userData?.className}
-						{@const classDef = findClassByName(userData.className)}
-						{#if classDef && classDef.recommended_stats.length > 0}
-							<section class="card bg-gradient-to-br from-primary/5 to-secondary/5 shadow-lg border border-primary/20 border-t-2 border-t-primary/20">
-								<div class="card-body">
-									<h2 class="card-title text-primary mb-3 flex items-center gap-2 text-lg">
-										<svelte:component this={icons.Target} class="w-5 h-5" />
-										Development Focus
-									</h2>
-									<p class="text-sm text-base-content/70 mb-4">
-										Recommended areas for your <span class="font-semibold text-primary">{userData.className}</span> focus:
-									</p>
-									<div class="flex flex-wrap gap-2">
-										{#each classDef.recommended_stats as statName}
-											{@const hasThisStat = stats.some(s => s.name === statName)}
-											<span class="badge {hasThisStat ? 'badge-primary' : 'badge-outline'} badge-sm gap-1">
-												{statName}
-												{#if hasThisStat}<svelte:component this={icons.Check} class="w-3 h-3" />{/if}
-											</span>
-										{/each}
-									</div>
-									{#if stats.length > 0}
-										<div class="mt-4 text-xs text-base-content/60">
-											<p><span class="font-semibold">Your active metrics:</span> 
-											{stats.slice(0, 3).map(s => `${s.name} (Lv${s.level})`).join(', ')}
-											{#if stats.length > 3} and {stats.length - 3} more{/if}</p>
-										</div>
-									{/if}
-								</div>
-							</section>
-						{/if}
-					{/if}
-				</div>
-			</div>
-		</main>
-	</div>
+          <!-- Quick Navigation -->
+          <div class="bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4 text-center">Quick Actions</h3>
+            <div class="space-y-3">
+              <a 
+                href="/tasks" 
+                class="flex items-center gap-3 p-3 bg-white hover:bg-blue-50 rounded-lg transition-colors border border-neutral-200 hover:border-blue-200"
+              >
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svelte:component this={icons.Plus} class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-neutral-900">Create Goal</div>
+                  <div class="text-sm text-neutral-600">Set new objectives</div>
+                </div>
+              </a>
+              <a 
+                href="/focuses" 
+                class="flex items-center gap-3 p-3 bg-white hover:bg-indigo-50 rounded-lg transition-colors border border-neutral-200 hover:border-indigo-200"
+              >
+                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <svelte:component this={icons.Focus} class="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-neutral-900">Focus Areas</div>
+                  <div class="text-sm text-neutral-600">Manage priorities</div>
+                </div>
+              </a>
+              <a 
+                href="/settings" 
+                class="flex items-center gap-3 p-3 bg-white hover:bg-neutral-50 rounded-lg transition-colors border border-neutral-200"
+              >
+                <div class="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
+                  <svelte:component this={icons.Settings} class="w-5 h-5 text-neutral-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-neutral-900">Settings</div>
+                  <div class="text-sm text-neutral-600">Customize profile</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  {/if}
+</div>
+<!-- Journal Entry Modal -->
+{#if showJournalModal}
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    onclick={closeModal}
+  >
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg">
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-t-xl border-b border-neutral-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <svelte:component this={icons.Edit3} class="w-5 h-5 text-amber-600" />
+            </div>
+            <h3 class="text-xl font-bold text-neutral-900">New Journal Entry</h3>
+          </div>
+          <button 
+            onclick={() => showJournalModal = false}
+            class="text-neutral-400 hover:text-neutral-600 transition-colors p-1"
+          >
+            <svelte:component this={icons.X} class="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-neutral-800 mb-3">
+            What's on your mind today?
+          </label>
+          <textarea
+            bind:value={journalContent}
+            placeholder="Share your thoughts, reflections, or experiences..."
+            class="w-full min-h-40 p-4 border border-neutral-300 rounded-lg text-sm leading-relaxed resize-y focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none transition-all"
+          ></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-neutral-800 mb-3">
+            How are you feeling? <span class="text-sm text-neutral-500 font-normal">(optional)</span>
+          </label>
+          <select
+            bind:value={journalMood}
+            class="w-full p-3 border border-neutral-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none transition-all"
+          >
+            <option value="">Select your mood</option>
+            <option value="happy">😊 Happy</option>
+            <option value="grateful">🙏 Grateful</option>
+            <option value="excited">🤗 Excited</option>
+            <option value="calm">😌 Calm</option>
+            <option value="reflective">🤔 Reflective</option>
+            <option value="anxious">😰 Anxious</option>
+            <option value="frustrated">😤 Frustrated</option>
+            <option value="tired">😴 Tired</option>
+          </select>
+        </div>
+        
+        <div class="flex gap-3 justify-end pt-4 border-t border-neutral-200">
+          <button 
+            onclick={() => showJournalModal = false}
+            class="border border-neutral-300 text-neutral-700 text-sm px-6 py-3 rounded-lg font-medium hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            onclick={createJournal}
+            disabled={!journalContent.trim()}
+            class="bg-amber-600 hover:bg-amber-700 disabled:bg-neutral-300 disabled:cursor-not-allowed text-white text-sm px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+          >
+            <svelte:component this={icons.Save} class="w-4 h-4" />
+            Save Entry
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 {/if}
 
 <!-- Task Feedback Modal -->
 {#if showTaskFeedback}
-	<dialog class="modal modal-open" role="dialog" aria-modal="true">
-		<div class="modal-box" role="document">
-			<div class="text-center mb-6">
-				<svelte:component this={icons.CheckCircle} class="w-12 h-12 text-success mx-auto mb-2" />
-				<h3 class="text-xl font-bold">Task Completed ✓</h3>
-				<p class="text-base-content/70">How did completing this task feel?</p>
-			</div>
-			
-			<div class="space-y-4">
-				<div>
-					<label class="label" for="emotion-select">
-						<span class="label-text font-medium">What emotion did this bring up?</span>
-					</label>
-					<select 
-						id="emotion-select"
-						bind:value={taskFeedbackData.emotionTag} 
-						class="select select-bordered w-full focus:select-primary"
-					>
-						<option value="">Choose how you felt (optional)</option>
-						<option value="joy">Joyful & Happy</option>
-						<option value="accomplished">Accomplished & Proud</option>
-						<option value="peaceful">Peaceful & Calm</option>
-						<option value="energized">Energized & Motivated</option>
-						<option value="connected">Connected & Loved</option>
-						<option value="frustrated">Frustrated or Annoyed</option>
-						<option value="tired">Tired or Drained</option>
-						<option value="neutral">Neutral or Unchanged</option>
-					</select>
-				</div>
-				
-				<div>
-					<label class="label" for="mood-score">
-						<span class="label-text font-medium">How was your energy level?</span>
-					</label>
-					<div class="flex items-center justify-between gap-3 py-2">
-						<span class="text-sm text-base-content/60">Low</span>
-						<div class="flex gap-3">
-							{#each [1, 2, 3, 4, 5] as score}
-								<label class="cursor-pointer hover:scale-110 transition-transform">
-									<input 
-										type="radio" 
-										name="mood-score"
-										bind:group={taskFeedbackData.moodScore}
-										value={score} 
-										class="radio radio-primary"
-									>
-								</label>
-							{/each}
-							<label class="cursor-pointer ml-2">
-								<input 
-									type="radio" 
-									name="mood-score"
-									bind:group={taskFeedbackData.moodScore}
-									value={0} 
-									class="radio radio-sm"
-								>
-								<span class="ml-1 text-xs text-base-content/60">Skip</span>
-							</label>
-						</div>
-						<span class="text-sm text-base-content/60">High</span>
-					</div>
-				</div>
-				
-				<div>
-					<label class="label" for="feedback-textarea">
-						<span class="label-text font-medium">Any reflections to capture?</span>
-					</label>
-					<textarea 
-						id="feedback-textarea"
-						bind:value={taskFeedbackData.feedback}
-						class="textarea textarea-bordered w-full focus:textarea-primary" 
-						placeholder="What worked well? What was challenging? How do you feel about your progress?"
-						rows="3"
-					></textarea>
-				</div>
-			</div>
-			
-			<div class="modal-action">
-				<button class="btn btn-ghost" onclick={cancelTaskFeedback}>
-					Skip for now
-				</button>
-				<button class="btn btn-primary gap-2" onclick={() => submitTaskFeedback(showTaskFeedback)}>
-					<svelte:component this={icons.Save} class="w-4 h-4" />
-					Save Reflection
-				</button>
-			</div>
-		</div>
-		<div class="modal-backdrop" onclick={cancelTaskFeedback}></div>
-	</dialog>
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    onclick={closeModal}
+  >
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+      <div class="border-b border-neutral-200 p-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-neutral-800">Task Feedback</h3>
+          <button 
+            onclick={cancelTaskFeedback}
+            class="text-neutral-400 hover:text-neutral-600 transition-colors"
+          >
+            <svelte:component this={icons.X} class="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+      
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-neutral-800 mb-2">
+            How did it go? <span class="text-sm text-neutral-600 font-normal italic">(optional)</span>
+          </label>
+          <textarea
+            bind:value={taskFeedbackData.feedback}
+            placeholder="Reflect on your experience..."
+            class="w-full min-h-20 p-3 border border-neutral-300 rounded-lg text-sm leading-relaxed resize-y focus:border-blue-500 focus:outline-none transition-colors"
+          ></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-neutral-800 mb-2">
+            Emotion Tag <span class="text-sm text-neutral-600 font-normal italic">(optional)</span>
+          </label>
+          <select
+            bind:value={taskFeedbackData.emotionTag}
+            class="w-full p-3 border border-neutral-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none transition-colors"
+          >
+            <option value="">Select an emotion</option>
+            <option value="accomplished">Accomplished</option>
+            <option value="energized">Energized</option>
+            <option value="focused">Focused</option>
+            <option value="challenged">Challenged</option>
+            <option value="frustrated">Frustrated</option>
+            <option value="overwhelmed">Overwhelmed</option>
+            <option value="peaceful">Peaceful</option>
+            <option value="motivated">Motivated</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-neutral-800 mb-2">
+            Mood Score (1-10) <span class="text-sm text-neutral-600 font-normal italic">(optional)</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="10"
+            bind:value={taskFeedbackData.moodScore}
+            class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+          />
+          <div class="flex justify-between text-xs text-neutral-600 mt-1">
+            <span>None</span>
+            <span>Great (10)</span>
+          </div>
+          {#if taskFeedbackData.moodScore > 0}
+            <p class="text-center text-sm text-neutral-700 mt-2">Score: {taskFeedbackData.moodScore}</p>
+          {/if}
+        </div>
+        
+        <div class="flex gap-3 justify-end pt-4">
+          <button 
+            onclick={cancelTaskFeedback}
+            class="border border-neutral-300 text-neutral-700 text-sm px-4 py-2 rounded-lg font-medium hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            onclick={() => submitTaskFeedback(showTaskFeedback)}
+            class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Complete Task
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 {/if}

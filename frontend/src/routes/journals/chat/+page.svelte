@@ -4,7 +4,7 @@
 	import { page } from '$app/stores';
 	import { journalsApi } from '$lib/api';
 	import JournalChat from '$lib/components/JournalChat.svelte';
-	import { ArrowLeft, Calendar, Tag, User, TrendingUp } from 'lucide-svelte';
+	import { ArrowLeft, Bot, MessageCircle, Calendar, Sparkles } from 'lucide-svelte';
 
 	let journal: any = null;
 	let loading = true;
@@ -51,45 +51,69 @@
 </script>
 
 <svelte:head>
-	<title>AI Journal Chat</title>
+	<title>AI Journal Chat - Life Quest</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-6 max-w-6xl">
-	<!-- Header -->
-	<div class="flex items-center justify-between mb-6">
-		<div class="flex items-center gap-4">
-			<button on:click={goBack} class="btn btn-ghost btn-circle">
-				<ArrowLeft size={20} />
-			</button>
-			<div>
-				<h1 class="text-2xl font-bold">
-					{journal ? 'Continue Journal Session' : 'New AI Journal Session'}
-				</h1>
-				<p class="text-base-content/70">
-					{journal ? `Started on ${new Date(journal.date).toLocaleDateString()}` : 'Have a conversation with AI about your thoughts'}
-				</p>
+<div class="min-h-screen bg-neutral-25">
+	<!-- Hero Header -->
+	<div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+		<div class="container mx-auto px-6 py-8">
+			<div class="max-w-4xl">
+				<div class="flex items-center gap-4 mb-4">
+					<button 
+						onclick={goBack} 
+						class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+					>
+						<ArrowLeft class="w-6 h-6" />
+					</button>
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+							<Bot class="w-8 h-8" />
+						</div>
+						<div>
+							<h1 class="text-3xl font-bold mb-2">
+								{journal ? 'Continue Journal Session' : 'New AI Journal Session'}
+							</h1>
+							<p class="text-blue-100 text-lg">
+								{journal ? `Started on ${new Date(journal.date).toLocaleDateString()}` : 'Have a guided conversation with AI about your thoughts and experiences'}
+							</p>
+						</div>
+					</div>
+				</div>
+				
+				{#if !journal}
+					<div class="flex items-center gap-4 mt-6">
+						<button 
+							onclick={goBack} 
+							class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-colors border border-white/20 text-white"
+						>
+							<ArrowLeft class="w-4 h-4 inline mr-2" />
+							View All Journals
+						</button>
+					</div>
+				{/if}
 			</div>
 		</div>
-		
-		{#if !journal}
-			<button on:click={goBack} class="btn btn-outline">
-				View All Journals
-			</button>
-		{/if}
 	</div>
 
-	{#if loading}
-		<div class="flex items-center justify-center py-12">
-			<div class="loading loading-spinner loading-lg"></div>
-		</div>
-	{:else}
-		<!-- Chat Interface -->
-		<div class="h-[calc(100vh-12rem)]">
-			<JournalChat 
-				journalId={journalId}
-				existingJournal={journal}
-				on:journalCompleted={handleJournalCompleted}
-			/>
-		</div>
-	{/if}
+	<!-- Content -->
+	<div class="container mx-auto px-6 py-8 max-w-6xl">
+		{#if loading}
+			<div class="flex items-center justify-center py-20">
+				<div class="flex flex-col items-center gap-4">
+					<div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent"></div>
+					<p class="text-neutral-600 font-medium">Loading your journal session...</p>
+				</div>
+			</div>
+		{:else}
+			<!-- Chat Interface -->
+			<div class="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden" style="height: calc(100vh - 200px);">
+				<JournalChat 
+					journalId={journalId}
+					existingJournal={journal}
+					on:journalCompleted={handleJournalCompleted}
+				/>
+			</div>
+		{/if}
+	</div>
 </div>
