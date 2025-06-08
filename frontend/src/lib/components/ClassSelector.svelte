@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { CLASS_LIBRARY, getClassesByType, findClassByName } from '$lib/data/classes';
-	
+
 	export let className = '';
 	export let classDescription = '';
 	export let onUpdate: (className: string, classDescription: string) => void = () => {};
@@ -18,8 +18,10 @@
 
 	$: {
 		// Check if current className is custom (not in predefined list)
-		const allClasses = Object.values(classSuggestions).flat().map(c => c.class_name);
-		
+		const allClasses = Object.values(classSuggestions)
+			.flat()
+			.map((c) => c.class_name);
+
 		// Handle custom class selection
 		if (className === '__custom__') {
 			isCustomClass = true;
@@ -70,12 +72,17 @@
 </script>
 
 <div class="space-y-4">
-	<div class="flex justify-between items-center">
+	<div class="flex items-center justify-between">
 		<h3 class="text-lg font-semibold">RPG Class</h3>
 		{#if className}
 			<button class="btn btn-ghost btn-sm" onclick={clearClass}>
-				<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+				<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M6 18L18 6M6 6l12 12"
+					/>
 				</svg>
 				Clear
 			</button>
@@ -87,7 +94,7 @@
 		<label class="label" for="class-select">
 			<span class="label-text">Choose your character class</span>
 		</label>
-		
+
 		{#if !isCustomClass}
 			<select
 				id="class-select"
@@ -114,7 +121,14 @@
 					bind:value={customClassName}
 					oninput={updateCustomClass}
 				/>
-				<button class="btn btn-ghost" onclick={() => { isCustomClass = false; className = ''; onUpdate('', classDescription); }}>
+				<button
+					class="btn btn-ghost"
+					onclick={() => {
+						isCustomClass = false;
+						className = '';
+						onUpdate('', classDescription);
+					}}
+				>
 					Back to List
 				</button>
 			</div>
@@ -138,17 +152,17 @@
 				bind:value={classDescription}
 				oninput={updateDescription}
 			></textarea>
-			
+
 			{#if getClassDefinition(className) && classDescription !== getClassDefinition(className)?.description}
 				<div class="label">
 					<span class="label-text-alt">
-						<button 
+						<button
 							class="link link-primary text-xs"
-							onclick={() => { 
+							onclick={() => {
 								const classDef = getClassDefinition(className);
 								if (classDef) {
-									classDescription = classDef.description; 
-									updateDescription(); 
+									classDescription = classDef.description;
+									updateDescription();
 								}
 							}}
 						>
@@ -164,24 +178,26 @@
 	{#if className && className !== '__custom__'}
 		{@const classDef = getClassDefinition(className)}
 		<div class="bg-base-200 rounded-lg p-4">
-			<h4 class="font-semibold text-base mb-2 flex items-center">
-				<span class="text-lg mr-2">🎭</span>
+			<h4 class="mb-2 flex items-center text-base font-semibold">
+				<span class="mr-2 text-lg">🎭</span>
 				Class Preview
 			</h4>
 			<div class="space-y-2">
 				<div class="flex items-center gap-2">
-					<span class="font-medium text-primary">{className}</span>
+					<span class="text-primary font-medium">{className}</span>
 				</div>
 				{#if classDescription}
-					<p class="text-sm text-base-content/80 italic">"{classDescription}"</p>
+					<p class="text-base-content/80 text-sm italic">"{classDescription}"</p>
 				{:else}
-					<p class="text-xs text-base-content/50">Add a description to complete your character profile</p>
+					<p class="text-base-content/50 text-xs">
+						Add a description to complete your character profile
+					</p>
 				{/if}
-				
+
 				<!-- Recommended Stats -->
 				{#if classDef && classDef.recommended_stats.length > 0}
-					<div class="mt-3 pt-3 border-t border-base-300">
-						<h5 class="text-sm font-medium text-base-content/80 mb-2">Recommended Stats:</h5>
+					<div class="border-base-300 mt-3 border-t pt-3">
+						<h5 class="text-base-content/80 mb-2 text-sm font-medium">Recommended Stats:</h5>
 						<div class="flex flex-wrap gap-1">
 							{#each classDef.recommended_stats as statName}
 								<span class="badge badge-outline badge-sm">{statName}</span>

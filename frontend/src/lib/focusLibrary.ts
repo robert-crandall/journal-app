@@ -15,7 +15,12 @@ export const FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Monday',
 		icon_id: 'anchor',
 		suggested_stat: 'Vitality',
-		sample_activities: ['Morning walk or run', 'Breathing exercises', 'Stretching routine', 'Cold shower']
+		sample_activities: [
+			'Morning walk or run',
+			'Breathing exercises',
+			'Stretching routine',
+			'Cold shower'
+		]
 	},
 	{
 		name: 'Creative Fire',
@@ -23,7 +28,12 @@ export const FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Tuesday',
 		icon_id: 'paintbrush',
 		suggested_stat: 'Intellect',
-		sample_activities: ['Writing or journaling', 'Art or music creation', 'Problem-solving project', 'Learning new skill']
+		sample_activities: [
+			'Writing or journaling',
+			'Art or music creation',
+			'Problem-solving project',
+			'Learning new skill'
+		]
 	},
 	{
 		name: 'Reset',
@@ -39,7 +49,12 @@ export const FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Thursday',
 		icon_id: 'handshake',
 		suggested_stat: 'Presence',
-		sample_activities: ['Quality time with loved ones', 'Deep conversation', 'Active listening practice', 'Self-reflection']
+		sample_activities: [
+			'Quality time with loved ones',
+			'Deep conversation',
+			'Active listening practice',
+			'Self-reflection'
+		]
 	},
 	{
 		name: 'Power',
@@ -55,11 +70,16 @@ export const FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Saturday',
 		icon_id: 'hammer',
 		suggested_stat: 'Stewardship',
-		sample_activities: ['Home improvement', 'Crafting project', 'Gardening', 'Repair something broken']
+		sample_activities: [
+			'Home improvement',
+			'Crafting project',
+			'Gardening',
+			'Repair something broken'
+		]
 	},
 	{
 		name: 'Mirror',
-		description: 'Reflect, journal, visualize — prepare emotionally for what\'s next',
+		description: "Reflect, journal, visualize — prepare emotionally for what's next",
 		suggested_day: 'Sunday',
 		icon_id: 'mirror',
 		suggested_stat: 'Clarity',
@@ -92,7 +112,12 @@ export const EXTENDED_FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Wednesday',
 		icon_id: 'heart',
 		suggested_stat: 'Compassion',
-		sample_activities: ['Self-care routine', 'Help a friend', 'Tend to plants', 'Cook nourishing meal']
+		sample_activities: [
+			'Self-care routine',
+			'Help a friend',
+			'Tend to plants',
+			'Cook nourishing meal'
+		]
 	},
 	{
 		name: 'Adventure',
@@ -100,7 +125,12 @@ export const EXTENDED_FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Thursday',
 		icon_id: 'mountain',
 		suggested_stat: 'Courage',
-		sample_activities: ['Try new activity', 'Take calculated risk', 'Explore outdoors', 'Challenge yourself']
+		sample_activities: [
+			'Try new activity',
+			'Take calculated risk',
+			'Explore outdoors',
+			'Challenge yourself'
+		]
 	},
 	{
 		name: 'Celebrate',
@@ -108,7 +138,12 @@ export const EXTENDED_FOCUS_LIBRARY: FocusTemplate[] = [
 		suggested_day: 'Friday',
 		icon_id: 'sun',
 		suggested_stat: 'Joy',
-		sample_activities: ['Acknowledge wins', 'Express gratitude', 'Celebrate with others', 'Dance or play']
+		sample_activities: [
+			'Acknowledge wins',
+			'Express gratitude',
+			'Celebrate with others',
+			'Dance or play'
+		]
 	},
 	{
 		name: 'Restore',
@@ -142,26 +177,26 @@ export function getFocusTemplate(name: string): FocusTemplate | undefined {
 export function getSuggestedStats(): string[] {
 	const stats: string[] = [];
 	const seen: { [key: string]: boolean } = {};
-	
+
 	for (const focus of EXTENDED_FOCUS_LIBRARY) {
 		if (!seen[focus.suggested_stat]) {
 			stats.push(focus.suggested_stat);
 			seen[focus.suggested_stat] = true;
 		}
 	}
-	
+
 	return stats;
 }
 
 // Helper function to get focus templates by suggested day
 export function getFocusTemplatesByDay(day: string): FocusTemplate[] {
 	const templates: FocusTemplate[] = [];
-	
+
 	for (const template of EXTENDED_FOCUS_LIBRARY) {
 		if (template.suggested_day === day) {
 			templates.push(template);
 		}
 	}
-	
+
 	return templates;
 }

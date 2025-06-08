@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/stores/auth';
-	
+
 	onMount(() => {
 		const unsubscribe = auth.subscribe((state) => {
 			if (!state.loading) {
@@ -13,7 +13,7 @@
 				}
 			}
 		});
-		
+
 		return unsubscribe;
 	});
 </script>
@@ -22,6 +22,6 @@
 	<title>Life Quest - Personal Growth RPG</title>
 </svelte:head>
 
-<div class="flex items-center justify-center min-h-screen">
+<div class="flex min-h-screen items-center justify-center">
 	<span class="loading loading-spinner loading-lg"></span>
 </div>

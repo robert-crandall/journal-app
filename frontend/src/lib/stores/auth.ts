@@ -28,17 +28,17 @@ function createAuthStore() {
 
 	return {
 		subscribe,
-		
+
 		async init() {
 			if (!browser) return;
-			
-			update(state => ({ ...state, loading: true }));
-			
+
+			update((state) => ({ ...state, loading: true }));
+
 			try {
 				const response = await fetch('/api/auth/me', {
 					credentials: 'include'
 				});
-				
+
 				if (response.ok) {
 					const data = await response.json();
 					set({ user: data.user, loading: false, error: null });
@@ -49,10 +49,10 @@ function createAuthStore() {
 				set({ user: null, loading: false, error: 'Failed to initialize auth' });
 			}
 		},
-		
+
 		async login(email: string, password: string) {
-			update(state => ({ ...state, loading: true, error: null }));
-			
+			update((state) => ({ ...state, loading: true, error: null }));
+
 			try {
 				const response = await fetch('/api/auth/login', {
 					method: 'POST',
@@ -62,9 +62,9 @@ function createAuthStore() {
 					credentials: 'include',
 					body: JSON.stringify({ email, password })
 				});
-				
+
 				const data = await response.json();
-				
+
 				if (response.ok) {
 					set({ user: data.user, loading: false, error: null });
 					return { success: true };
@@ -78,10 +78,10 @@ function createAuthStore() {
 				return { success: false, error: errorMessage };
 			}
 		},
-		
+
 		async register(email: string, password: string, name: string) {
-			update(state => ({ ...state, loading: true, error: null }));
-			
+			update((state) => ({ ...state, loading: true, error: null }));
+
 			try {
 				const response = await fetch('/api/auth/register', {
 					method: 'POST',
@@ -91,9 +91,9 @@ function createAuthStore() {
 					credentials: 'include',
 					body: JSON.stringify({ email, password, name })
 				});
-				
+
 				const data = await response.json();
-				
+
 				if (response.ok) {
 					set({ user: data.user, loading: false, error: null });
 					return { success: true };
@@ -107,10 +107,10 @@ function createAuthStore() {
 				return { success: false, error: errorMessage };
 			}
 		},
-		
+
 		async logout() {
-			update(state => ({ ...state, loading: true }));
-			
+			update((state) => ({ ...state, loading: true }));
+
 			try {
 				await fetch('/api/auth/logout', {
 					method: 'POST',
@@ -119,7 +119,7 @@ function createAuthStore() {
 			} catch (error) {
 				console.error('Logout error:', error);
 			}
-			
+
 			set({ user: null, loading: false, error: null });
 		}
 	};

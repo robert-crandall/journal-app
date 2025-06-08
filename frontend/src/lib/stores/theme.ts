@@ -9,7 +9,7 @@ export const availableThemes = [
 	{ name: 'Auto', value: 'auto' }
 ] as const;
 
-export type Theme = typeof availableThemes[number]['value'];
+export type Theme = (typeof availableThemes)[number]['value'];
 
 function createThemeStore() {
 	// Get initial theme from localStorage or default to 'auto'
@@ -73,7 +73,7 @@ function createThemeStore() {
 			currentTheme = theme;
 			applyTheme(theme);
 			set(theme);
-			
+
 			// Sync to backend if user is authenticated
 			await syncThemeToBackend(theme, isAuthenticated);
 		},
@@ -86,22 +86,22 @@ function createThemeStore() {
 					try {
 						const response = await preferencesApi.getAll();
 						const savedTheme = response.preferences?.theme as Theme;
-						
-						if (savedTheme && availableThemes.some(t => t.value === savedTheme)) {
+
+						if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
 							themeToUse = savedTheme;
 						}
 					} catch (error) {
 						console.warn('Failed to load theme from backend, using local storage:', error);
 						// Fall back to local storage
 						const localTheme = localStorage.getItem('theme') as Theme;
-						if (localTheme && availableThemes.some(t => t.value === localTheme)) {
+						if (localTheme && availableThemes.some((t) => t.value === localTheme)) {
 							themeToUse = localTheme;
 						}
 					}
 				} else {
 					// Use local storage for non-authenticated users
 					const savedTheme = localStorage.getItem('theme') as Theme;
-					if (savedTheme && availableThemes.some(t => t.value === savedTheme)) {
+					if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
 						themeToUse = savedTheme;
 					}
 				}
