@@ -30,4 +30,4 @@ cd /app/backend
 # Start the combined backend + frontend server
 echo "Starting combined server (backend + static frontend)..."
 cd /app/backend
-exec bun run main.ts
+exec bun run src/index.ts
