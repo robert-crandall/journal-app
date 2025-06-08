@@ -16,6 +16,7 @@ type Variables = JwtVariables & {
 import auth from './routes/auth';
 import family from './routes/family';
 import tasks from './routes/tasks';
+import adhocTasks from './routes/adhocTasks';
 import focuses from './routes/focuses';
 import journals from './routes/journals';
 import potions from './routes/potions';
@@ -38,6 +39,7 @@ app.use("*", prettyJSON());
 app.route('/api/auth', auth);
 app.route('/api/family', family);
 app.route('/api/tasks', tasks);
+app.route('/api/adhoc-tasks', adhocTasks);
 app.route('/api/focuses', focuses);
 app.route('/api/journals', journals);
 app.route('/api/potions', potions);

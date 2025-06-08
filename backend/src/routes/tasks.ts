@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { tasks, stats, focuses, users, potions, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
+import { tasks, stats, focuses, users, potions, adhocTasks, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { generateDailyTasks, getTodaysFocus, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
 
@@ -165,39 +165,52 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
   // Only award XP if task was marked as complete
   if (status === 'complete') {
     let statIdsToAward: string[] = [];
+    let xpToAward = 25; // Default XP value
     
-    // Collect stat IDs from linkedStatIds array (new primary method)
-    if (completedTask.linkedStatIds && Array.isArray(completedTask.linkedStatIds)) {
-      statIdsToAward = [...completedTask.linkedStatIds];
-    }
-    
-    // Also include legacy single stat ID for backward compatibility
-    if (completedTask.statId) {
-      statIdsToAward.push(completedTask.statId);
-    }
-    
-    // Include stat from focus if exists (legacy)
-    if (completedTask.focusId) {
-      const taskWithFocus = await db.query.tasks.findFirst({
-        where: eq(tasks.id, completedTask.id),
-        with: {
-          focus: true
-        }
+    // If this task was created from an ad hoc task, use its custom XP value
+    if (completedTask.adhocTaskId) {
+      const adhocTask = await db.query.adhocTasks.findFirst({
+        where: eq(adhocTasks.id, completedTask.adhocTaskId),
       });
+      if (adhocTask) {
+        xpToAward = adhocTask.xpValue;
+        statIdsToAward.push(adhocTask.linkedStatId);
+      }
+    } else {
+      // Use existing logic for regular tasks
+      // Collect stat IDs from linkedStatIds array (new primary method)
+      if (completedTask.linkedStatIds && Array.isArray(completedTask.linkedStatIds)) {
+        statIdsToAward = [...completedTask.linkedStatIds];
+      }
       
-      if (taskWithFocus?.focus?.statId) {
-        statIdsToAward.push(taskWithFocus.focus.statId);
+      // Also include legacy single stat ID for backward compatibility
+      if (completedTask.statId) {
+        statIdsToAward.push(completedTask.statId);
+      }
+      
+      // Include stat from focus if exists (legacy)
+      if (completedTask.focusId) {
+        const taskWithFocus = await db.query.tasks.findFirst({
+          where: eq(tasks.id, completedTask.id),
+          with: {
+            focus: true
+          }
+        });
+        
+        if (taskWithFocus?.focus?.statId) {
+          statIdsToAward.push(taskWithFocus.focus.statId);
+        }
       }
     }
     
     // Remove duplicates
     statIdsToAward = Array.from(new Set(statIdsToAward));
     
-    // Award 25 XP to each linked stat
+    // Award XP to each linked stat
     for (const statId of statIdsToAward) {
       await db.update(stats)
         .set({
-          xp: sql`${stats.xp} + 25`,
+          xp: sql`${stats.xp} + ${xpToAward}`,
           updatedAt: new Date(),
         })
         .where(eq(stats.id, statId));
