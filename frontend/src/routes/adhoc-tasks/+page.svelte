@@ -4,6 +4,7 @@
 	import { adhocTasksApi, statsApi } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
+	import IconPicker from '$lib/components/IconPicker.svelte';
 
 	// Helper function to get icon component
 	function getIconComponent(iconName: string) {
@@ -80,7 +81,7 @@
 	];
 
 	// Available Lucide icons for tasks
-	const availableIcons = [
+	const availableIconsList = [
 		'target',
 		'zap',
 		'heart',
@@ -107,6 +108,16 @@
 		'sunrise',
 		'sunset'
 	];
+
+	// Convert to format expected by IconPicker
+	const availableIcons = availableIconsList.map(iconName => {
+		// Create friendly labels from icon names
+		const label = iconName
+			.split('-')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
+		return { name: iconName, label };
+	});
 
 	onMount(() => {
 		const unsubscribe = auth.subscribe((state) => {
@@ -527,16 +538,11 @@
 								<label for="iconId" class="block text-sm font-medium text-neutral-900">
 									Icon
 								</label>
-								<select
-									id="iconId"
-									bind:value={formData.iconId}
-									class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-								>
-									<option value="">Choose an icon...</option>
-									{#each availableIcons as iconName}
-										<option value={iconName}>{iconName}</option>
-									{/each}
-								</select>
+								<IconPicker 
+									bind:selectedIcon={formData.iconId}
+									availableIcons={availableIcons}
+									showPreview={false}
+								/>
 							</div>
 						</div>
 					</div>
