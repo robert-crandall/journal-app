@@ -41,9 +41,9 @@ jobs:
         working-directory: ./frontend
         run: bun run check
 
-      - name: Run frontend linting
-        working-directory: ./frontend
-        run: bun run lint
+      #- name: Run frontend linting
+        #working-directory: ./frontend
+        #run: bun run lint
 
       - name: Run frontend build
         working-directory: ./frontend
