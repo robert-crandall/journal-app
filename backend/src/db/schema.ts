@@ -37,21 +37,6 @@ export const attributes = pgTable('attributes', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Focus areas for personal development
-export const focuses = pgTable('focuses', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
-  name: text('name').notNull(),
-  description: text('description'),
-  icon: text('icon'),
-  dayOfWeek: text('day_of_week', { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }),
-  sampleActivities: jsonb('sample_activities').$type<string[]>(),
-  gptContext: jsonb('gpt_context'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
 // Character stats for personal growth tracking
 export const stats = pgTable('stats', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -63,6 +48,8 @@ export const stats = pgTable('stats', {
   enabled: boolean('enabled').notNull().default(true),
   xp: integer('xp').notNull().default(0),
   level: integer('level').notNull().default(1),
+  dayOfWeek: text('day_of_week', { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }),
+  sampleTasks: jsonb('sample_tasks').$type<string[]>(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -85,7 +72,6 @@ export const adhocTasks = pgTable('adhoc_tasks', {
 export const tasks = pgTable('tasks', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }),
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   adhocTaskId: uuid('adhoc_task_id').references(() => adhocTasks.id, { onDelete: 'set null' }), // Links to ad hoc task if created from library
@@ -190,7 +176,6 @@ export const preferences = pgTable('preferences', {
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   familyMembers: many(family),
-  focuses: many(focuses),
   stats: many(stats),
   tasks: many(tasks, { relationName: "user" }),
   adhocTasks: many(adhocTasks),
@@ -210,22 +195,14 @@ export const attributesRelations = relations(attributes, ({ one }) => ({
   // Note: Polymorphic relations are handled manually in queries
 }));
 
-export const focusesRelations = relations(focuses, ({ one, many }) => ({
-  user: one(users, { fields: [focuses.userId], references: [users.id] }),
-  stat: one(stats, { fields: [focuses.statId], references: [stats.id] }),
-  tasks: many(tasks),
-}));
-
 export const statsRelations = relations(stats, ({ one, many }) => ({
   user: one(users, { fields: [stats.userId], references: [users.id] }),
-  focuses: many(focuses),
   tasks: many(tasks),
   adhocTasks: many(adhocTasks),
 }));
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
   user: one(users, { fields: [tasks.userId], references: [users.id], relationName: "user" }),
-  focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
   stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
   adhocTask: one(adhocTasks, { fields: [tasks.adhocTaskId], references: [adhocTasks.id] }),
   family: one(family, { fields: [tasks.familyId], references: [family.id] }),
@@ -269,8 +246,6 @@ export const insertFamilySchema = createInsertSchema(family);
 export const selectFamilySchema = createSelectSchema(family);
 export const insertAttributeSchema = createInsertSchema(attributes);
 export const selectAttributeSchema = createSelectSchema(attributes);
-export const insertFocusSchema = createInsertSchema(focuses);
-export const selectFocusSchema = createSelectSchema(focuses);
 export const insertStatSchema = createInsertSchema(stats);
 export const selectStatSchema = createSelectSchema(stats);
 export const insertTaskSchema = createInsertSchema(tasks);
@@ -310,7 +285,6 @@ export const createTaskSchema = z.object({
   source: z.enum(['primary', 'connection']).optional(),
   linkedStatIds: z.array(z.string().uuid()).optional(),
   familyId: z.string().uuid().optional(),
-  focusId: z.string().uuid().optional(),
   statId: z.string().uuid().optional(),
 });
 
@@ -369,16 +343,6 @@ export const completeJournalDaySchema = z.object({
   dayRating: z.number().int().min(1).max(5).optional(),
 });
 
-export const createFocusSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
-  sampleActivities: z.array(z.string()).optional(),
-  statId: z.string().uuid().optional(),
-  gptContext: z.any().optional(),
-});
-
 export const createFamilyMemberSchema = z.object({
   name: z.string().min(1),
   age: z.number().int().min(0).optional(),
@@ -404,6 +368,8 @@ export const createStatSchema = z.object({
   icon: z.string().optional(),
   category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
   enabled: z.boolean().optional(),
+  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
+  sampleTasks: z.array(z.string()).optional(),
 });
 
 export const updateStatSchema = z.object({
@@ -414,6 +380,8 @@ export const updateStatSchema = z.object({
   enabled: z.boolean().optional(),
   xp: z.number().int().min(0).optional(),
   level: z.number().int().min(1).optional(),
+  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
+  sampleTasks: z.array(z.string()).optional(),
 });
 
 // Type exports
@@ -423,8 +391,6 @@ export type Family = typeof family.$inferSelect;
 export type NewFamily = typeof family.$inferInsert;
 export type Attribute = typeof attributes.$inferSelect;
 export type NewAttribute = typeof attributes.$inferInsert;
-export type Focus = typeof focuses.$inferSelect;
-export type NewFocus = typeof focuses.$inferInsert;
 export type Stat = typeof stats.$inferSelect;
 export type NewStat = typeof stats.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
