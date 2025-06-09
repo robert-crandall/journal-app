@@ -2,10 +2,9 @@
  * API client for journal app
  * Handles communication with Hono backend
  */
-
-const API_BASE_URL = typeof window !== 'undefined' 
-  ? window.location.origin.replace('3000', '3001')
-  : 'http://localhost:3001'
+  const API_BASE_URL = typeof window !== 'undefined'
+    ? window.location.origin.replace('3000', '8000')
+    : 'http://localhost:8000'
 
 // Authentication interfaces
 export interface AuthUser {
@@ -200,12 +199,12 @@ class ApiClient {
 
   // Get all journal entries
   async getJournalEntries(): Promise<JournalEntry[]> {
-    return this.request<JournalEntry[]>('/api/journal/entries')
+    return this.request<JournalEntry[]>('/api/journal/list')
   }
 
   // Get a specific journal entry
   async getJournalEntry(id: string): Promise<JournalEntry> {
-    return this.request<JournalEntry>(`/api/journal/entries/${id}`)
+    return this.request<JournalEntry>(`/api/journal/entry/${id}`)
   }
 
   // Update a journal entry
@@ -213,7 +212,7 @@ class ApiClient {
     id: string,
     updates: Partial<Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<JournalEntry> {
-    return this.request<JournalEntry>(`/api/journal/entries/${id}`, {
+    return this.request<JournalEntry>(`/api/journal/entry/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(updates),
     })
@@ -221,7 +220,7 @@ class ApiClient {
 
   // Delete a journal entry
   async deleteJournalEntry(id: string): Promise<void> {
-    await this.request(`/api/journal/entries/${id}`, {
+    await this.request(`/api/journal/entry/${id}`, {
       method: 'DELETE',
     })
   }
