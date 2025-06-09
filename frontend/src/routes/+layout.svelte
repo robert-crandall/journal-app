@@ -5,19 +5,37 @@
 	import { theme } from '$lib/stores/theme';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { updated } from '$app/state';
+	import { beforeNavigate } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
-	import { pwaManager } from '$lib/pwa';
 
 	let { children } = $props();
 	let mobileMenuOpen = $state(false);
 	let moreDropdownOpen = $state(false);
 	let userDropdownOpen = $state(false);
 
+	// Handle automatic updates when a new version is detected
+	beforeNavigate(({ willUnload, to }) => {
+		if (updated.current && !willUnload && to?.url) {
+			// Force a full page navigation to apply the update
+			location.href = to.url.href;
+		}
+	});
+
 	onMount(() => {
 		auth.init();
 
-		// Initialize PWA manager (registers service worker)
-		// This happens automatically when the module is imported
+		// Watch for automatic updates - reload when a new version is detected
+		const checkForUpdates = () => {
+			if (updated.current) {
+				console.log('New version detected, reloading...');
+				// Reload the page to apply the update
+				location.reload();
+			}
+		};
+
+		// Check for updates periodically in case navigation doesn't happen
+		const updateInterval = setInterval(checkForUpdates, 5000);
 
 		// Watch for auth state changes and reinitialize theme
 		const unsubscribe = auth.subscribe(async (authState) => {
@@ -27,7 +45,10 @@
 			}
 		});
 
-		return unsubscribe;
+		return () => {
+			clearInterval(updateInterval);
+			unsubscribe();
+		};
 	});
 
 	async function handleLogout() {
