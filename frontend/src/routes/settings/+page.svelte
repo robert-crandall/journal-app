@@ -13,6 +13,26 @@
 		{ name: 'Auto', value: 'auto', description: 'Follows your system preference' }
 	];
 
+	// Timezone options (common timezones)
+	const timezoneOptions = [
+		{ label: 'Eastern Time (ET)', value: 'America/New_York' },
+		{ label: 'Central Time (CT)', value: 'America/Chicago' },
+		{ label: 'Mountain Time (MT)', value: 'America/Denver' },
+		{ label: 'Pacific Time (PT)', value: 'America/Los_Angeles' },
+		{ label: 'Alaska Time (AKT)', value: 'America/Anchorage' },
+		{ label: 'Hawaii Time (HST)', value: 'Pacific/Honolulu' },
+		{ label: 'Greenwich Mean Time (GMT)', value: 'Europe/London' },
+		{ label: 'Central European Time (CET)', value: 'Europe/Paris' },
+		{ label: 'Eastern European Time (EET)', value: 'Europe/Helsinki' },
+		{ label: 'Moscow Time (MSK)', value: 'Europe/Moscow' },
+		{ label: 'India Standard Time (IST)', value: 'Asia/Kolkata' },
+		{ label: 'China Standard Time (CST)', value: 'Asia/Shanghai' },
+		{ label: 'Japan Standard Time (JST)', value: 'Asia/Tokyo' },
+		{ label: 'Australian Eastern Time (AET)', value: 'Australia/Sydney' },
+		{ label: 'Australian Central Time (ACT)', value: 'Australia/Adelaide' },
+		{ label: 'Australian Western Time (AWT)', value: 'Australia/Perth' },
+	];
+
 	let preferences: Record<string, string> = {};
 	let loading = false;
 	let saveMessage = '';
@@ -69,6 +89,10 @@
 		const isAuthenticated = $auth.user !== null;
 		await theme.setTheme(selectedTheme as any, isAuthenticated);
 		await savePreference('theme', selectedTheme);
+	}
+
+	async function selectTimezone(selectedTimezone: string) {
+		await savePreference('timezone', selectedTimezone);
 	}
 
 	async function handleAddUserAttribute(key: string, value: string) {
@@ -288,6 +312,36 @@
 						{/each}
 					</div>
 
+					<!-- Timezone Settings -->
+					<div class="space-y-4">
+						<div>
+							<h3 class="mb-2 text-lg font-semibold text-neutral-900">Timezone</h3>
+							<p class="mb-4 text-sm text-neutral-600">
+								Choose your timezone for accurate date calculations and task scheduling
+							</p>
+						</div>
+
+						<div>
+							<label for="timezone" class="block text-sm font-medium text-neutral-700 mb-2">
+								Your timezone
+							</label>
+							<select
+								id="timezone"
+								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								bind:value={preferences.timezone}
+								on:change={(e) => selectTimezone((e.target as HTMLSelectElement).value)}
+							>
+								<option value="">Select timezone...</option>
+								{#each timezoneOptions as tz}
+									<option value={tz.value}>{tz.label}</option>
+								{/each}
+							</select>
+							<p class="mt-1 text-xs text-neutral-500">
+								This affects when daily tasks are generated and journal dates are calculated
+							</p>
+						</div>
+					</div>
+
 					<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
@@ -296,10 +350,11 @@
 								class="mt-0.5 flex-shrink-0 text-blue-600"
 							/>
 							<div>
-								<p class="text-sm font-medium text-blue-900">About themes</p>
+								<p class="text-sm font-medium text-blue-900">About preferences</p>
 								<p class="mt-1 text-sm text-blue-700">
 									Auto theme will switch between light and dark modes based on your system
-									preference. You can always override this setting manually.
+									preference. Your timezone setting ensures daily tasks are generated at the right time 
+									and journal dates match your local calendar.
 								</p>
 							</div>
 						</div>

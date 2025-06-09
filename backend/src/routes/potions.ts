@@ -3,9 +3,10 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { potions, createPotionSchema, type User } from '../db/schema';
+import { potions, preferences, createPotionSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { analyzePotionEffectiveness, runWeeklyPotionAnalysis } from '../utils/potionAnalysis';
+import { getTodayInTimezone } from '../utils/timezone';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -31,12 +32,17 @@ potionsRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', create
   const user = c.get('user') as User;
   const { title, hypothesis, startDate, endDate } = c.req.valid('json');
   
+  // Get user's timezone preference for default end date
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, user.id),
+  });
+  
   const [potion] = await db.insert(potions).values({
     userId: user.id,
     title,
     hypothesis,
     startDate: startDate,
-    endDate: endDate || new Date().toISOString().split('T')[0], // Default to today if not provided
+    endDate: endDate || getTodayInTimezone(userPreferences?.timezone), // Default to today if not provided
   }).returning();
   
   return c.json({ potion });
@@ -87,10 +93,15 @@ potionsRouter.post('/:id/end', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const potionId = c.req.param('id');
   
+  // Get user's timezone preference for end date
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, user.id),
+  });
+  
   const [endedPotion] = await db.update(potions)
     .set({
       isActive: false,
-      endDate: new Date().toISOString().split('T')[0],
+      endDate: getTodayInTimezone(userPreferences?.timezone),
       updatedAt: new Date(),
     })
     .where(and(eq(potions.id, potionId), eq(potions.userId, user.id)))
