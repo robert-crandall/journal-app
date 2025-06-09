@@ -1,0 +1,169 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { format } from 'date-fns';
+	import api, { type JournalEntry } from '$lib/api.js';
+	import { auth } from '$lib/auth.js';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import Alert from '$lib/components/Alert.svelte';
+
+	let recentEntries = $state<JournalEntry[]>([]);
+	let isLoading = $state(true);
+	let error = $state('');
+
+	onMount(async () => {
+		try {
+			// Fetch recent entries
+			recentEntries = await api.getJournalEntries({ limit: 5 });
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to load entries';
+		} finally {
+			isLoading = false;
+		}
+	});
+
+	function formatDate(dateString: string) {
+		return format(new Date(dateString), 'MMM d, yyyy');
+	}
+
+	function formatTime(dateString: string) {
+		return format(new Date(dateString), 'h:mm a');
+	}
+
+	function clearError() {
+		error = '';
+	}
+</script>
+
+<svelte:head>
+	<title>Dashboard - Journal</title>
+</svelte:head>
+
+<div class="space-y-6">
+	<!-- Header -->
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-3xl font-bold text-base-content">
+				Welcome back, {$auth.user?.name || 'there'}!
+			</h1>
+			<p class="text-base-content/70 mt-1">
+				{format(new Date(), 'EEEE, MMMM d, yyyy')}
+			</p>
+		</div>
+		<a href="/journal/new" class="btn btn-primary">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+			</svg>
+			New Entry
+		</a>
+	</div>
+
+	{#if error}
+		<Alert message={error} type="error" onDismiss={clearError} />
+	{/if}
+
+	<!-- Quick Stats -->
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+		<div class="stat bg-base-100 rounded-lg shadow">
+			<div class="stat-figure text-primary">
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+				</svg>
+			</div>
+			<div class="stat-title">Total Entries</div>
+			<div class="stat-value text-primary">{recentEntries.length}</div>
+			<div class="stat-desc">Keep writing!</div>
+		</div>
+
+		<div class="stat bg-base-100 rounded-lg shadow">
+			<div class="stat-figure text-secondary">
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2"></path>
+				</svg>
+			</div>
+			<div class="stat-title">This Week</div>
+			<div class="stat-value text-secondary">0</div>
+			<div class="stat-desc">Stay consistent</div>
+		</div>
+
+		<div class="stat bg-base-100 rounded-lg shadow">
+			<div class="stat-figure text-accent">
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+				</svg>
+			</div>
+			<div class="stat-title">Streak</div>
+			<div class="stat-value text-accent">0</div>
+			<div class="stat-desc">days</div>
+		</div>
+	</div>
+
+	<!-- Recent Entries -->
+	<div class="card bg-base-100 shadow-lg">
+		<div class="card-body">
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="card-title">Recent Entries</h2>
+				<a href="/journal" class="btn btn-ghost btn-sm">
+					View All
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+					</svg>
+				</a>
+			</div>
+
+			{#if isLoading}
+				<div class="flex justify-center py-8">
+					<LoadingSpinner size="md" />
+				</div>
+			{:else if recentEntries.length === 0}
+				<div class="text-center py-8">
+					<svg class="w-12 h-12 mx-auto text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+					</svg>
+					<h3 class="text-lg font-medium text-base-content mt-4">No entries yet</h3>
+					<p class="text-base-content/70 mt-2">Start your journaling journey today!</p>
+					<a href="/journal/new" class="btn btn-primary mt-4">
+						Write Your First Entry
+					</a>
+				</div>
+			{:else}
+				<div class="space-y-3">
+					{#each recentEntries as entry}
+						<div class="border border-base-300 rounded-lg p-4 hover:bg-base-50 transition-colors">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<h3 class="font-medium text-base-content">
+										<a href="/journal/{entry.id}" class="hover:text-primary transition-colors">
+											{entry.title}
+										</a>
+									</h3>
+									<p class="text-base-content/70 text-sm mt-1 line-clamp-2">
+										{entry.content.substring(0, 120)}...
+									</p>
+									<div class="flex items-center gap-4 mt-3 text-xs text-base-content/50">
+										<span>{formatDate(entry.created_at)}</span>
+										<span>{formatTime(entry.created_at)}</span>
+										{#if entry.tags && entry.tags.length > 0}
+											<div class="flex gap-1">
+												{#each entry.tags.slice(0, 3) as tag}
+													<span class="badge badge-sm badge-ghost">{tag}</span>
+												{/each}
+											</div>
+										{/if}
+									</div>
+								</div>
+								{#if entry.mood_score}
+									<div class="ml-4">
+										<div class="badge badge-primary badge-sm">
+											Mood: {entry.mood_score}/10
+										</div>
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				</div>
+			{/if}
+		</div>
+	</div>
+</div>
