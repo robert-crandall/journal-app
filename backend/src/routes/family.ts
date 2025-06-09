@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { users, attributes, createFamilyMemberSchema, createAttributeSchema, type User } from '../db/schema';
+import { family, attributes, createFamilyMemberSchema, createAttributeSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 
 // Define the variables type for this route
@@ -11,66 +11,65 @@ type Variables = JwtVariables & {
   user: User;
 };
 
-const family = new Hono<{ Variables: Variables }>();
+const familyRouter = new Hono<{ Variables: Variables }>();
 
 // Get all family members
-family.get('/', jwtMiddleware, userMiddleware, async (c) => {
+familyRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   
-  const familyMembers = await db.query.users.findMany({
-    where: and(eq(users.type, 'family')),
-    with: {
-      attributes: true,
-    },
+  const familyMembers = await db.query.family.findMany({
+    where: eq(family.userId, user.id),
   });
   
   return c.json({ familyMembers });
 });
 
 // Create family member
-family.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
+familyRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, className, classDescription } = c.req.valid('json');
+  const { name, age, className, description } = c.req.valid('json');
   
-  const [familyMember] = await db.insert(users).values({
+  const [familyMember] = await db.insert(family).values({
+    userId: user.id,
     name,
+    age,
     className,
-    classDescription,
-    type: 'family',
-    isFamily: true,
+    description,
   }).returning();
   
   return c.json({ familyMember });
 });
 
 // Get specific family member
-family.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
+familyRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
   
-  const familyMember = await db.query.users.findFirst({
-    where: and(eq(users.id, familyMemberId), eq(users.type, 'family')),
-    with: {
-      attributes: true,
-    },
+  const familyMember = await db.query.family.findFirst({
+    where: and(eq(family.id, familyMemberId), eq(family.userId, user.id)),
   });
   
   if (!familyMember) {
     return c.json({ error: 'Family member not found' }, 404);
   }
   
-  return c.json({ familyMember });
+  // Get attributes for this family member
+  const familyAttributes = await db.query.attributes.findMany({
+    where: and(eq(attributes.entityType, 'family'), eq(attributes.entityId, familyMemberId)),
+  });
+  
+  return c.json({ familyMember: { ...familyMember, attributes: familyAttributes } });
 });
 
 // Update family member
-family.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
+familyRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
-  const { name, className, classDescription } = c.req.valid('json');
+  const { name, age, className, description } = c.req.valid('json');
   
-  const [updatedFamilyMember] = await db.update(users)
-    .set({ name, className, classDescription, updatedAt: new Date() })
-    .where(and(eq(users.id, familyMemberId), eq(users.type, 'family')))
+  const [updatedFamilyMember] = await db.update(family)
+    .set({ name, age, className, description, updatedAt: new Date() })
+    .where(and(eq(family.id, familyMemberId), eq(family.userId, user.id)))
     .returning();
   
   if (!updatedFamilyMember) {
@@ -81,12 +80,12 @@ family.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFamil
 });
 
 // Delete family member
-family.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
+familyRouter.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
   
-  const [deletedFamilyMember] = await db.delete(users)
-    .where(and(eq(users.id, familyMemberId), eq(users.type, 'family')))
+  const [deletedFamilyMember] = await db.delete(family)
+    .where(and(eq(family.id, familyMemberId), eq(family.userId, user.id)))
     .returning();
   
   if (!deletedFamilyMember) {
@@ -97,14 +96,14 @@ family.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
 });
 
 // Add attribute to family member
-family.post('/:id/attributes', jwtMiddleware, userMiddleware, zValidator('json', createAttributeSchema), async (c) => {
+familyRouter.post('/:id/attributes', jwtMiddleware, userMiddleware, zValidator('json', createAttributeSchema), async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
   const { key, value } = c.req.valid('json');
   
-  // Verify family member exists
-  const familyMember = await db.query.users.findFirst({
-    where: and(eq(users.id, familyMemberId), eq(users.type, 'family')),
+  // Verify family member exists and belongs to user
+  const familyMember = await db.query.family.findFirst({
+    where: and(eq(family.id, familyMemberId), eq(family.userId, user.id)),
   });
   
   if (!familyMember) {
@@ -112,7 +111,8 @@ family.post('/:id/attributes', jwtMiddleware, userMiddleware, zValidator('json',
   }
   
   const [attribute] = await db.insert(attributes).values({
-    userId: familyMemberId,
+    entityType: 'family',
+    entityId: familyMemberId,
     key,
     value,
   }).returning();
@@ -120,4 +120,4 @@ family.post('/:id/attributes', jwtMiddleware, userMiddleware, zValidator('json',
   return c.json({ attribute });
 });
 
-export default family;
+export default familyRouter;

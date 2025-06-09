@@ -3,25 +3,34 @@ import { relations } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
-// Users and Family Members share the same table
+// Users table (no longer includes family members)
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').unique(),
   password: text('password'),
   name: text('name').notNull(),
-  type: text('type', { enum: ['user', 'family'] }).notNull().default('user'),
-  isFamily: boolean('is_family').notNull().default(false),
-  className: text('class_name'),
-  classDescription: text('class_description'),
   gptContext: jsonb('gpt_context'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Attributes for both users and family members
+// Separate family table
+export const family = pgTable('family', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(), // Who's family it is
+  name: text('name').notNull(),
+  age: integer('age'),
+  className: text('class_name'), // Keep existing className field name for compatibility
+  description: text('description'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Attributes for both users and family members using polymorphic relationship
 export const attributes = pgTable('attributes', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  entityType: text('entity_type', { enum: ['user', 'family'] }).notNull(),
+  entityId: uuid('entity_id').notNull(), // References either users.id or family.id
   key: text('key').notNull(),
   value: text('value').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -80,13 +89,13 @@ export const tasks = pgTable('tasks', {
   statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
   potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
   adhocTaskId: uuid('adhoc_task_id').references(() => adhocTasks.id, { onDelete: 'set null' }), // Links to ad hoc task if created from library
+  familyId: uuid('family_id').references(() => family.id, { onDelete: 'set null' }), // Link to specific family member
   title: text('title').notNull(),
   description: text('description'),
   dueDate: date('due_date'),
   taskDate: date('task_date'), // Date when task was assigned (for daily tasks)
   source: text('source', { enum: ['primary', 'connection'] }), // GPT task type
   linkedStatIds: jsonb('linked_stat_ids').$type<string[]>(), // Multiple stats for XP
-  linkedFamilyMemberIds: jsonb('linked_family_member_ids').$type<string[]>(), // Multiple family members
   origin: text('origin', { enum: ['user', 'gpt', 'system', 'adhoc'] }).notNull().default('user'),
   status: text('status', { enum: ['pending', 'complete', 'skipped', 'failed'] }).notNull().default('pending'),
   completedAt: timestamp('completed_at', { withTimezone: true }),
@@ -180,7 +189,7 @@ export const preferences = pgTable('preferences', {
 
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
-  attributes: many(attributes),
+  familyMembers: many(family),
   focuses: many(focuses),
   stats: many(stats),
   tasks: many(tasks, { relationName: "user" }),
@@ -192,8 +201,13 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   preferences: one(preferences, { fields: [users.id], references: [preferences.userId] }),
 }));
 
+export const familyRelations = relations(family, ({ one, many }) => ({
+  user: one(users, { fields: [family.userId], references: [users.id] }),
+  tasks: many(tasks),
+}));
+
 export const attributesRelations = relations(attributes, ({ one }) => ({
-  user: one(users, { fields: [attributes.userId], references: [users.id] }),
+  // Note: Polymorphic relations are handled manually in queries
 }));
 
 export const focusesRelations = relations(focuses, ({ one, many }) => ({
@@ -214,6 +228,7 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
   focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
   stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
   adhocTask: one(adhocTasks, { fields: [tasks.adhocTaskId], references: [adhocTasks.id] }),
+  family: one(family, { fields: [tasks.familyId], references: [family.id] }),
 }));
 
 export const adhocTasksRelations = relations(adhocTasks, ({ one, many }) => ({
@@ -250,6 +265,8 @@ export const preferencesRelations = relations(preferences, ({ one }) => ({
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
+export const insertFamilySchema = createInsertSchema(family);
+export const selectFamilySchema = createSelectSchema(family);
 export const insertAttributeSchema = createInsertSchema(attributes);
 export const selectAttributeSchema = createSelectSchema(attributes);
 export const insertFocusSchema = createInsertSchema(focuses);
@@ -292,7 +309,7 @@ export const createTaskSchema = z.object({
   taskDate: z.string().datetime().optional(),
   source: z.enum(['primary', 'connection']).optional(),
   linkedStatIds: z.array(z.string().uuid()).optional(),
-  linkedFamilyMemberIds: z.array(z.string().uuid()).optional(),
+  familyId: z.string().uuid().optional(),
   focusId: z.string().uuid().optional(),
   statId: z.string().uuid().optional(),
 });
@@ -364,8 +381,9 @@ export const createFocusSchema = z.object({
 
 export const createFamilyMemberSchema = z.object({
   name: z.string().min(1),
+  age: z.number().int().min(0).optional(),
   className: z.string().optional(),
-  classDescription: z.string().optional(),
+  description: z.string().optional(),
 });
 
 export const createPotionSchema = z.object({
@@ -401,6 +419,8 @@ export const updateStatSchema = z.object({
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Family = typeof family.$inferSelect;
+export type NewFamily = typeof family.$inferInsert;
 export type Attribute = typeof attributes.$inferSelect;
 export type NewAttribute = typeof attributes.$inferInsert;
 export type Focus = typeof focuses.$inferSelect;

@@ -23,6 +23,7 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
+      family: true,
     },
     orderBy: [desc(tasks.createdAt)],
   });
@@ -53,7 +54,7 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     taskDate,
     source,
     linkedStatIds,
-    linkedFamilyMemberIds,
+    familyId,
     focusId, 
     statId
   } = c.req.valid('json');
@@ -66,7 +67,7 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     taskDate: taskDate || null,
     source,
     linkedStatIds: linkedStatIds || [],
-    linkedFamilyMemberIds: linkedFamilyMemberIds || [],
+    familyId,
     focusId,
     statId,
     origin: 'user',
@@ -86,6 +87,7 @@ tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
     with: {
       focus: true,
       stat: true,
+      family: true,
     },
   });
   
@@ -107,7 +109,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
     taskDate,
     source,
     linkedStatIds,
-    linkedFamilyMemberIds,
+    familyId,
     focusId, 
     statId
   } = c.req.valid('json');
@@ -120,7 +122,7 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
       taskDate: taskDate || null,
       source,
       linkedStatIds: linkedStatIds || [],
-      linkedFamilyMemberIds: linkedFamilyMemberIds || [],
+      familyId,
       focusId,
       statId,
       updatedAt: new Date(),

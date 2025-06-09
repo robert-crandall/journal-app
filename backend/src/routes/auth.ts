@@ -97,8 +97,6 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
     email,
     password: hashedPassword,
     name,
-    type: 'user',
-    isFamily: false,
   }).returning();
   
   // Generate JWT token
@@ -165,17 +163,19 @@ auth.get('/me', jwtMiddleware, userMiddleware, async (c) => {
   // Get user with attributes
   const userWithAttributes = await db.query.users.findFirst({
     where: eq(users.id, user.id),
-    with: {
-      attributes: true,
-    },
   });
   
   if (!userWithAttributes) {
     return c.json({ error: 'User not found' }, 404);
   }
   
+  // Get user attributes separately
+  const userAttributes = await db.query.attributes.findMany({
+    where: and(eq(attributes.entityType, 'user'), eq(attributes.entityId, user.id)),
+  });
+  
   const { password: _, ...userWithoutPassword } = userWithAttributes;
-  return c.json({ user: userWithoutPassword });
+  return c.json({ user: { ...userWithoutPassword, attributes: userAttributes } });
 });
 
 // Add attribute to current user
@@ -184,7 +184,8 @@ auth.post('/me/attributes', jwtMiddleware, userMiddleware, zValidator('json', cr
   const { key, value } = c.req.valid('json');
   
   const [attribute] = await db.insert(attributes).values({
-    userId: user.id,
+    entityType: 'user',
+    entityId: user.id,
     key,
     value,
   }).returning();
