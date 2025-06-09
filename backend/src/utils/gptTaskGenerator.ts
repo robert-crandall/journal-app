@@ -1,7 +1,7 @@
 import { db } from '../db';
-import { tasks, stats, focuses, users, preferences, family } from '../db/schema';
+import { tasks, stats, users, preferences, family } from '../db/schema';
 import { eq, and, desc, lt } from 'drizzle-orm';
-import { type User, type Focus, type Stat, type Task, type Preference, type Family } from '../db/schema';
+import { type User, type Stat, type Task, type Preference, type Family } from '../db/schema';
 import OpenAI from 'openai';
 import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
 
@@ -14,7 +14,7 @@ const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 
 export interface TaskGenerationContext {
   user: User;
-  todaysFocus?: Focus;
+  todaysStats?: Stat[];
   userStats: Stat[];
   familyMembers: Family[];
   recentTasks?: Task[];
@@ -27,7 +27,6 @@ export interface GeneratedTask {
   title: string;
   description: string;
   source: 'primary' | 'connection';
-  focusId?: string;
   statId?: string;
   linkedStatIds: string[];
   familyId?: string;
@@ -43,7 +42,7 @@ export interface GeneratedTaskSet {
  * Creates personalized tasks based on user context and feedback
  */
 export async function generateDailyTasks(context: TaskGenerationContext): Promise<GeneratedTaskSet> {
-  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback } = context;
+  const { user, todaysStats, userStats, familyMembers, recentTasks, recentFeedback } = context;
 
   // If OpenAI API key is not configured, fall back to mock implementation
   if (!process.env.OPENAI_API_KEY) {
@@ -88,7 +87,6 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         title: parsedResponse.primaryTask.title,
         description: parsedResponse.primaryTask.description,
         source: 'primary',
-        focusId: context.todaysFocus?.id,
         statId: parsedResponse.primaryTask.linkedStatIds?.[0] || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
         familyId: parsedResponse.primaryTask.familyId,
@@ -97,7 +95,6 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         title: parsedResponse.connectionTask.title,
         description: parsedResponse.connectionTask.description,
         source: 'connection',
-        focusId: context.todaysFocus?.id,
         statId: parsedResponse.connectionTask.linkedStatIds?.[0] || context.userStats.find(s => s.category === 'connection')?.id || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
         familyId: parsedResponse.connectionTask.familyId,
@@ -114,7 +111,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
  * Build a comprehensive prompt for GPT task generation
  */
 function buildGPTPrompt(context: TaskGenerationContext): string {
-  const { user, todaysFocus, userStats, familyMembers, recentTasks, recentFeedback, environmentalContext, userPreferences } = context;
+  const { user, todaysStats, userStats, familyMembers, recentTasks, recentFeedback, environmentalContext, userPreferences } = context;
   
   let prompt = `Generate two personalized daily tasks for ${user.name}:\n\n`;
 
@@ -153,15 +150,15 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     prompt += `Context: ${JSON.stringify(user.gptContext)}\n`;
   }
 
-  // RPG Class information (for flavor when enabled) - removed as class info is now in family members
-
-  // Today's focus
-  if (todaysFocus) {
-    prompt += `\n## Today's Focus: ${todaysFocus.name}\n`;
-    prompt += `Description: ${todaysFocus.description || 'No description provided'}\n`;
-    if (todaysFocus.sampleActivities?.length) {
-      prompt += `Sample Activities: ${todaysFocus.sampleActivities.join(', ')}\n`;
-    }
+  // Today's assigned stats
+  if (todaysStats && todaysStats.length > 0) {
+    prompt += `\n## Today's Focus Stats\n`;
+    todaysStats.forEach(stat => {
+      prompt += `- ${stat.name} (${stat.category}): ${stat.description || 'No description'}\n`;
+      if (stat.sampleTasks?.length) {
+        prompt += `  Sample Tasks: ${stat.sampleTasks.join(', ')}\n`;
+      }
+    });
   }
 
   // User stats for XP assignment
@@ -215,10 +212,18 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
   prompt += `\n## Task Generation Requirements\n`;
   prompt += `Generate exactly TWO tasks:\n\n`;
   
-  prompt += `1. **Primary Task**: Aligned with today's focus "${todaysFocus?.name || 'personal growth'}"\n`;
+  const todaysFocusName = todaysStats && todaysStats.length > 0 
+    ? todaysStats.map(s => s.name).join(' and ') 
+    : 'personal growth';
+  
+  prompt += `1. **Primary Task**: Aligned with today's focus "${todaysFocusName}"\n`;
   prompt += `   - Should be meaningful and actionable\n`;
   prompt += `   - Take 15-45 minutes to complete\n`;
   prompt += `   - Help advance the user's growth in the focus area\n`;
+  
+  if (todaysStats && todaysStats.length > 0) {
+    prompt += `   - Use the sample tasks as inspiration when available\n`;
+  }
   
   prompt += `\n2. **Connection Task**: Focus on relationships and emotional well-being\n`;
   if (familyMembers.length > 0) {
@@ -258,20 +263,20 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
  * Fallback mock task generator (same as original implementation)
  */
 function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
-  const { user, todaysFocus, userStats, familyMembers } = context;
+  const { user, todaysStats, userStats, familyMembers } = context;
 
-  // Mock primary task based on today's focus
+  // Mock primary task based on today's stats
+  const primaryStat = todaysStats && todaysStats.length > 0 ? todaysStats[0] : null;
   const primaryTask: GeneratedTask = {
-    title: todaysFocus 
-      ? `Focus on ${todaysFocus.name}: Take one meaningful step`
+    title: primaryStat 
+      ? `Focus on ${primaryStat.name}: Take one meaningful step`
       : `Personal Growth: Complete a challenging task that stretches your abilities`,
-    description: todaysFocus?.description 
-      ? `Today's focus is ${todaysFocus.name}. ${todaysFocus.description} Take 30 minutes to work on something that advances this area of your life.`
+    description: primaryStat?.description 
+      ? `Today's focus is ${primaryStat.name}. ${primaryStat.description} Take 30 minutes to work on something that advances this area of your life.`
       : `Spend 30 minutes working on personal development. Choose something that challenges you and moves you forward.`,
     source: 'primary',
-    focusId: todaysFocus?.id,
-    statId: todaysFocus?.statId || userStats[0]?.id,
-    linkedStatIds: todaysFocus?.statId ? [todaysFocus.statId] : userStats.slice(0, 1).map(s => s.id),
+    statId: primaryStat?.id || userStats[0]?.id,
+    linkedStatIds: primaryStat ? [primaryStat.id] : userStats.slice(0, 1).map(s => s.id),
   };
 
   // Mock connection task that rotates through family members
@@ -290,7 +295,6 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
       ? `Spend focused, quality time with ${randomFamilyMember.name}. Put away distractions and be fully present. Ask them about something they're excited about or curious about.`
       : `Take 15 minutes for mindful self-connection. This could be meditation, journaling, or simply sitting quietly and checking in with how you're feeling.`,
     source: 'connection',
-    focusId: todaysFocus?.id,
     statId: connectionStatForTask?.id,
     linkedStatIds: connectionStats.slice(0, 2).map(s => s.id),
     familyId: randomFamilyMember ? randomFamilyMember.id : undefined,
@@ -303,11 +307,11 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
 }
 
 /**
- * Get today's focus based on day of week
+ * Get today's stats based on day of week
  */
-export function getTodaysFocus(focuses: Focus[]): Focus | undefined {
+export function getTodaysStats(stats: Stat[]): Stat[] {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  return focuses.find(focus => focus.dayOfWeek === today);
+  return stats.filter(stat => stat.dayOfWeek === today);
 }
 
 /**
@@ -367,7 +371,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       eq(tasks.origin, 'gpt')
     ),
     with: {
-      focus: true,
       stat: true,
     },
   });
@@ -380,13 +383,9 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
   // Otherwise, generate new tasks
   try {
     // Get user and context
-    const [user, userFocuses, userStats, familyMembers, recentTasks, userPreferences] = await Promise.all([
+    const [user, userStats, familyMembers, recentTasks, userPreferences] = await Promise.all([
       db.query.users.findFirst({
         where: eq(users.id, userId),
-      }),
-      db.query.focuses.findMany({
-        where: eq(focuses.userId, userId),
-        with: { stat: true },
       }),
       db.query.stats.findMany({
         where: eq(stats.userId, userId),
@@ -414,8 +413,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       userPreferences?.zipCode || undefined
     );
     
-    // Get today's focus
-    const todaysFocus = getTodaysFocus(userFocuses);
+    // Get today's stats
+    const todaysStats = getTodaysStats(userStats);
     
     // Collect recent feedback from completed tasks
     const recentFeedback = recentTasks
@@ -426,7 +425,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     // Generate tasks using GPT
     const context: TaskGenerationContext = {
       user,
-      todaysFocus,
+      todaysStats,
       userStats,
       familyMembers,
       recentTasks,
@@ -441,7 +440,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     const tasksToInsert = [
       {
         userId: user.id,
-        focusId: generatedTasks.primaryTask.focusId,
         statId: generatedTasks.primaryTask.statId,
         title: generatedTasks.primaryTask.title,
         description: generatedTasks.primaryTask.description,
@@ -454,7 +452,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       },
       {
         userId: user.id,
-        focusId: generatedTasks.connectionTask.focusId,
         statId: generatedTasks.connectionTask.statId,
         title: generatedTasks.connectionTask.title,
         description: generatedTasks.connectionTask.description,
@@ -480,7 +477,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         eq(tasks.origin, 'gpt')
       ),
       with: {
-        focus: true,
         stat: true,
       },
     });

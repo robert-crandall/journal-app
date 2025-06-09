@@ -48,7 +48,6 @@ export const tasksApi = {
 		source?: 'primary' | 'connection';
 		linkedStatIds?: string[];
 		linkedFamilyMemberIds?: string[];
-		focusId?: string;
 		statId?: string;
 	}) {
 		return apiRequest('/tasks', {
@@ -67,7 +66,6 @@ export const tasksApi = {
 			source?: 'primary' | 'connection';
 			linkedStatIds?: string[];
 			linkedFamilyMemberIds?: string[];
-			focusId?: string;
 			statId?: string;
 		}
 	) {
@@ -95,61 +93,6 @@ export const tasksApi = {
 	async delete(id: string) {
 		return apiRequest(`/tasks/${id}`, {
 			method: 'DELETE'
-		});
-	}
-};
-
-// Focuses API
-export const focusesApi = {
-	async getAll() {
-		return apiRequest('/focuses');
-	},
-
-	async create(focus: {
-		name: string;
-		description?: string;
-		icon?: string;
-		color?: string;
-		dayOfWeek?: string;
-		sampleActivities?: string[];
-		statId?: string;
-		gptContext?: any;
-	}) {
-		return apiRequest('/focuses', {
-			method: 'POST',
-			body: JSON.stringify(focus)
-		});
-	},
-
-	async update(
-		id: string,
-		focus: {
-			name: string;
-			description?: string;
-			icon?: string;
-			color?: string;
-			dayOfWeek?: string;
-			sampleActivities?: string[];
-			statId?: string;
-			gptContext?: any;
-		}
-	) {
-		return apiRequest(`/focuses/${id}`, {
-			method: 'PUT',
-			body: JSON.stringify(focus)
-		});
-	},
-
-	async delete(id: string) {
-		return apiRequest(`/focuses/${id}`, {
-			method: 'DELETE'
-		});
-	},
-
-	async createLevel(focusId: string, level: { name: string; description?: string }) {
-		return apiRequest(`/focuses/${focusId}/levels`, {
-			method: 'POST',
-			body: JSON.stringify(level)
 		});
 	}
 };
@@ -390,6 +333,8 @@ export const statsApi = {
 		color?: string;
 		category?: string;
 		enabled?: boolean;
+		dayOfWeek?: string;
+		sampleTasks?: string[];
 	}) {
 		return apiRequest('/stats', {
 			method: 'POST',
@@ -408,6 +353,8 @@ export const statsApi = {
 			enabled?: boolean;
 			xp?: number;
 			level?: number;
+			dayOfWeek?: string;
+			sampleTasks?: string[];
 		}
 	) {
 		return apiRequest(`/stats/${id}`, {
