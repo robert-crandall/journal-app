@@ -4,7 +4,7 @@
 This is a personal journaling application built with SvelteKit (frontend) and Hono (backend) using modern web technologies.
 
 ## Architecture
-- **Frontend**: SvelteKit with TypeScript, Tailwind CSS 4, and daisyUI 5
+- **Frontend**: React, SvelteKit with TypeScript, or NextJS. Tailwind CSS 4 for styling
 - **Backend**: Hono with TypeScript, Drizzle ORM, and Postgres
 - **Runtime**: Bun for package management and execution
 
@@ -67,7 +67,6 @@ This is a personal journaling application built with SvelteKit (frontend) and Ho
 
 ### Styling
 - Use Tailwind CSS 4 utilities for styling
-- Leverage daisyUI 5 components when appropriate
 - Follow mobile-first responsive design
 - Maintain consistent spacing and typography
 
