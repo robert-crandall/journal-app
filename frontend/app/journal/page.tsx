@@ -118,11 +118,12 @@ export default function JournalSession() {
     setIsCompiling(true)
     try {
       const response = await api.compileJournal(conversationId)
-      // Redirect to journal entry view or show success message
       console.log('Journal compiled successfully:', response.entry)
-      // TODO: Navigate to journal entry page or show success state
+      // Navigate back to dashboard with success
+      window.location.href = '/?success=journal-saved'
     } catch (error) {
       console.error('Failed to compile journal:', error)
+      alert('Failed to save journal. Please try again.')
     }
     setIsCompiling(false)
   }
@@ -201,23 +202,66 @@ export default function JournalSession() {
 
         {/* Input Area */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-          <div className="flex space-x-3">
-            <Input
-              value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Share your thoughts..."
-              className="flex-1 border-0 focus-visible:ring-0 text-slate-800 placeholder:text-slate-500"
-              disabled={isTyping}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!currentInput.trim() || isTyping}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
+          {!isComplete ? (
+            <div className="flex space-x-3">
+              <Input
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Share your thoughts..."
+                className="flex-1 border-0 focus-visible:ring-0 text-slate-800 placeholder:text-slate-500"
+                disabled={isTyping}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!currentInput.trim() || isTyping}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+              {messages.length > 2 && (
+                <Button
+                  onClick={handleFinishJournal}
+                  disabled={isCompiling}
+                  variant="outline"
+                  className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                >
+                  {isCompiling ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Finish Journal
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-slate-600 mb-4">Your journal session is complete!</p>
+              <Button
+                onClick={handleFinishJournal}
+                disabled={isCompiling}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                {isCompiling ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Saving Journal...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Save Journal Entry
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
