@@ -165,10 +165,10 @@ export const preferences = pgTable('preferences', {
   locationDescription: text('location_description'), // e.g., "Seattle area"
   zipCode: text('zip_code'), // for weather API calls
   rpgFlavorEnabled: boolean('rpg_flavor_enabled').notNull().default(false), // Enable RPG flavor in task descriptions
+  timezone: text('timezone'), // IANA timezone identifier, e.g., "America/New_York"
   // Future preferences can be added as new columns:
   // language: text('language').default('en'),
   // notifications: boolean('notifications').default(true'),
-  // timezone: text('timezone'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

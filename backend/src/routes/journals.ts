@@ -3,9 +3,10 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { journals, tags, tagAssociations, attributes, potions, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, completeJournalDaySchema, type User } from '../db/schema';
+import { journals, tags, tagAssociations, attributes, potions, preferences, createJournalSchema, startJournalSchema, followupResponseSchema, submitJournalSchema, completeJournalDaySchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
 import { generateFollowupQuestion, processJournalSubmission, type ConversationMessage } from '../utils/gptJournalProcessor';
+import { getTodayInTimezone } from '../utils/timezone';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -31,10 +32,15 @@ journalsRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', creat
   const user = c.get('user') as User;
   const { content, date } = c.req.valid('json');
   
+  // Get user's timezone preference for default date
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, user.id),
+  });
+  
   const [journal] = await db.insert(journals).values({
     userId: user.id,
     content,
-    date: date || new Date().toISOString().split('T')[0],
+    date: date || getTodayInTimezone(userPreferences?.timezone),
   }).returning();
   
   return c.json({ journal });
@@ -101,6 +107,11 @@ journalsRouter.post('/start', jwtMiddleware, userMiddleware, zValidator('json', 
   const user = c.get('user') as User;
   const { content, date } = c.req.valid('json');
   
+  // Get user's timezone preference for default date
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, user.id),
+  });
+  
   // Create initial conversation history with user's first message
   const initialMessage: ConversationMessage = {
     role: 'user',
@@ -111,7 +122,7 @@ journalsRouter.post('/start', jwtMiddleware, userMiddleware, zValidator('json', 
   const [journal] = await db.insert(journals).values({
     userId: user.id,
     content,
-    date: date || new Date().toISOString().split('T')[0],
+    date: date || getTodayInTimezone(userPreferences?.timezone),
     status: 'in_progress',
     conversationHistory: [initialMessage],
     followupCount: 0,
@@ -299,7 +310,12 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
 
 // Helper function to get active potions for a user
 async function getActivePotions(userId: string): Promise<string[]> {
-  const today = new Date().toISOString().split('T')[0];
+  // Get user's timezone preference
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, userId),
+  });
+  
+  const today = getTodayInTimezone(userPreferences?.timezone);
   
   const activePotions = await db.query.potions.findMany({
     where: and(

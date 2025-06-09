@@ -31,7 +31,8 @@ app.get('/', jwtMiddleware, userMiddleware, async (c) => {
           theme: 'light',
           locationDescription: null,
           zipCode: null,
-          rpgFlavorEnabled: false
+          rpgFlavorEnabled: false,
+          timezone: null
         }
       });
     }
@@ -57,7 +58,7 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
   }
 
   // Validate that the key is a valid preference field
-  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled', 'timezone'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -85,6 +86,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
         updateData.zipCode = value;
       } else if (key === 'rpgFlavorEnabled') {
         updateData.rpgFlavorEnabled = value;
+      } else if (key === 'timezone') {
+        updateData.timezone = value;
       }
 
       await db
@@ -107,6 +110,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
         newPrefs.zipCode = value;
       } else if (key === 'rpgFlavorEnabled') {
         newPrefs.rpgFlavorEnabled = value;
+      } else if (key === 'timezone') {
+        newPrefs.timezone = value;
       }
 
       await db.insert(preferences).values(newPrefs);
@@ -128,7 +133,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
     return c.json({ error: 'Preferences object is required' }, 400);
   }
 
-  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled', 'timezone'];
   
   // Validate all keys
   for (const key of Object.keys(prefsData)) {
@@ -156,6 +161,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
       if (prefsData.locationDescription !== undefined) updateData.locationDescription = prefsData.locationDescription;
       if (prefsData.zipCode !== undefined) updateData.zipCode = prefsData.zipCode;
       if (prefsData.rpgFlavorEnabled !== undefined) updateData.rpgFlavorEnabled = prefsData.rpgFlavorEnabled;
+      if (prefsData.timezone !== undefined) updateData.timezone = prefsData.timezone;
 
       await db
         .update(preferences)
@@ -169,6 +175,7 @@ app.put('/', jwtMiddleware, userMiddleware, async (c) => {
         locationDescription: prefsData.locationDescription || null,
         zipCode: prefsData.zipCode || null,
         rpgFlavorEnabled: prefsData.rpgFlavorEnabled || false,
+        timezone: prefsData.timezone || null,
       };
 
       await db.insert(preferences).values(newPrefs);
@@ -186,7 +193,7 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
   const user = c.get('user');
   const key = c.req.param('key');
 
-  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled'];
+  const validKeys = ['theme', 'locationDescription', 'zipCode', 'rpgFlavorEnabled', 'timezone'];
   if (!validKeys.includes(key)) {
     return c.json({ error: `Invalid preference key: ${key}` }, 400);
   }
@@ -205,6 +212,8 @@ app.delete('/:key', jwtMiddleware, userMiddleware, async (c) => {
       updateData.zipCode = null; // clear zip code
     } else if (key === 'rpgFlavorEnabled') {
       updateData.rpgFlavorEnabled = false; // default to disabled
+    } else if (key === 'timezone') {
+      updateData.timezone = null; // clear timezone
     }
 
     await db

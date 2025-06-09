@@ -4,6 +4,7 @@ import { eq, and, desc, lt } from 'drizzle-orm';
 import { type User, type Stat, type Task, type Preference, type Family } from '../db/schema';
 import OpenAI from 'openai';
 import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
+import { getTodayInTimezone, getDayOfWeekInTimezone } from './timezone';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -307,10 +308,10 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
 }
 
 /**
- * Get today's stats based on day of week
+ * Get today's stats based on day of week in the user's timezone
  */
-export function getTodaysStats(stats: Stat[]): Stat[] {
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+export function getTodaysStats(stats: Stat[], userTimezone?: string | null): Stat[] {
+  const today = getDayOfWeekInTimezone(userTimezone);
   return stats.filter(stat => stat.dayOfWeek === today);
 }
 
@@ -318,8 +319,8 @@ export function getTodaysStats(stats: Stat[]): Stat[] {
  * Mark old GPT tasks as skipped
  * Any GPT-generated tasks for yesterday or older that are not completed will be marked as skipped
  */
-export async function markOldGptTasksAsSkipped(userId: string): Promise<void> {
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+export async function markOldGptTasksAsSkipped(userId: string, userTimezone?: string | null): Promise<void> {
+  const today = getTodayInTimezone(userTimezone);
   
   try {
     // Find GPT tasks that are older than today and still pending
@@ -361,7 +362,12 @@ export async function markOldGptTasksAsSkipped(userId: string): Promise<void> {
  * This is the main function that implements the persistence logic
  */
 export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  // First, get user preferences to determine timezone
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, userId),
+  });
+  
+  const today = getTodayInTimezone(userPreferences?.timezone);
   
   // Check if today's tasks already exist
   const existingTasks = await db.query.tasks.findMany({
@@ -382,8 +388,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
   
   // Otherwise, generate new tasks
   try {
-    // Get user and context
-    const [user, userStats, familyMembers, recentTasks, userPreferences] = await Promise.all([
+    // Get user and context (we already have userPreferences)
+    const [user, userStats, familyMembers, recentTasks] = await Promise.all([
       db.query.users.findFirst({
         where: eq(users.id, userId),
       }),
@@ -398,9 +404,6 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         orderBy: [desc(tasks.createdAt)],
         limit: 10,
       }),
-      db.query.preferences.findFirst({
-        where: eq(preferences.userId, userId),
-      }),
     ]);
 
     if (!user) {
@@ -413,8 +416,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       userPreferences?.zipCode || undefined
     );
     
-    // Get today's stats
-    const todaysStats = getTodaysStats(userStats);
+    // Get today's stats using user's timezone
+    const todaysStats = getTodaysStats(userStats, userPreferences?.timezone);
     
     // Collect recent feedback from completed tasks
     const recentFeedback = recentTasks
@@ -467,7 +470,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     await db.insert(tasks).values(tasksToInsert);
     
     // Clean up old GPT tasks by marking them as skipped
-    await markOldGptTasksAsSkipped(userId);
+    await markOldGptTasksAsSkipped(userId, userPreferences?.timezone);
     
     // Fetch the tasks with relations
     const savedTasks = await db.query.tasks.findMany({
