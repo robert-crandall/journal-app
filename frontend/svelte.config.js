@@ -17,7 +17,16 @@ const config = {
 			strict: true
 		}),
 		serviceWorker: {
-			register: false // We'll register manually for better control
+			register: true // Let SvelteKit handle service worker registration
+		},
+		// Version management for automatic updates
+		version: {
+			// Use build timestamp for version detection (ensures each build has unique version)
+			name: process.env.NODE_ENV === 'production' 
+				? Date.now().toString() 
+				: 'dev-' + Date.now().toString(),
+			// Poll for updates every 30 seconds in production, 10 seconds in dev
+			pollInterval: process.env.NODE_ENV === 'production' ? 30000 : 10000
 		}
 	}
 };
