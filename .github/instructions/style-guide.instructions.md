@@ -2,146 +2,66 @@
 applyTo: "**/*.{svelte,ts,js,html,css}"
 ---
 
-## 🧭 Design Style Guide
+# 🎨 Style Guide
 
-**For apps focused on clarity, reflection, and responsive depth**
+**For: INTJ, ADHD, PWA-first, Mobile & Desktop Compatible**
 
-### ✨ Design System Origins
-
-This design style draws inspiration from:
-
-* **Material 3**: spacing rhythm, responsive scaling, accessible touch targets
-* **Atlassian Design System**: calm emotional tone, semantic use of color, strong information hierarchy
-* **Personal Philosophy**: structure over flair, meaning over gamification, space to reflect or act
+This guide defines how the app should look and feel. It is optimized for **calm focus**, **zero-friction tasking**, and future **themeability**.
 
 ---
 
-## 🎯 Core Principles
+## 🌍 Platform Philosophy
 
-### 1. **Clarity First**
+* **PWA-first**, but designed to feel like a native iOS app
+* **Responsive** across mobile, tablet, and desktop
+* **INTJ design values**: calm, functional, minimal but not sterile
+* **ADHD-friendly**: instant feedback, reduced mental load, low-friction UI
+* **Future-proofing**:
 
-Design prioritizes clarity over cleverness. Layouts are readable at a glance. Font sizes, spacing, and visual hierarchy do the heavy lifting.
-*“If you had to squint, it wouldn’t work.”*
-
-### 2. **Emotionally Neutral + Affirming**
-
-Avoids exaggerated praise or "delight-first" interactions. Language affirms effort, respects autonomy, and invites participation.
-*“Progress feels like validation, not manipulation.”*
-
-### 3. **Responsive by Default**
-
-Layouts should be mobile-first, accessible, and adapt fluidly to all screen sizes. Transitions reinforce state change, not flash.
-*“Responsive means intuitive, not just flexible.”*
-
-### 4. **Progressive Depth**
-
-Every element should be meaningful on first glance, but offer more when explored. Support both simple interactions and deeper engagement.
-*“You can graze or dive — both are supported.”*
+  * Write **semantic, themeable utility classes** (e.g., `action-button`, `tappable-card`)
+  * Avoid Tailwind color utility classes in markup (`bg-teal-600`) — use class aliases instead (`btn-primary`, `card-shadow`)
 
 ---
 
-## 🎨 Visual Language
+### 📦 Cards
 
-### Color Strategy
+* Use `tappable-card` as base class
+* Prefer stacked layout on mobile, grid/flex on desktop
 
-* Use **semantic tokens**, not fixed colors: `primary`, `neutral`, `accent`, `success`, etc.
-* Color should:
+### 🔘 Buttons
 
-  * Indicate status or intent
-  * Unify related components
-  * Never overwhelm
-* Avoid hardcoded themes — support light/dark theming gracefully
+* Use icons for quick scanning where possible
 
-### Spacing + Rhythm
+### ✍️ Forms
 
-* Vertical spacing should feel **generous but purposeful**
+* Label always above input
+* Vertical, single-column layout
+* Allow “Save Draft” autosave or inline autosaving
+* Keyboard-friendly on mobile
+* Use `form-group`, `input-label`, `form-field` class structure
 
-  * e.g., `space-y-4` between stacked blocks
-* Use `p-4` or `p-6` for block content; avoid over-tight components
-* Support **breathing room** without isolating content
+### 🚫 Modal Avoidance
 
-### Corners, Shadows, Borders
-
-* Use `rounded-md` for most elements
-* Prefer `shadow-md` for elevation over thick borders
-* Use `border-l-4` or soft dividers to **anchor sections** semantically
-* Do not over-round, over-shadow, or over-outline
+* **Avoid modals**: Use `modal` only for critical actions (e.g., delete confirmation)
+* Keep code clean. Do not combine list view and object view in the same component
 
 ---
 
-## 🔠 Typography
+## 🌓 Visual Style
 
-* **Hierarchical, not decorative**
+### 🌚 Dark Mode by Default
 
-  * Page titles: `text-3xl font-bold`
-  * Section titles: `text-xl font-semibold`
-  * Paragraphs: `text-sm text-gray-600`
-  * Emphasis: `italic`, `opacity-70`
-* Use `prose` classes for longer text blocks or structured content
-* Emojis and icons should **support**, not replace, meaning
+* Soft contrast (avoid pure black or pure white)
+* Use semantic colors (`surface-bg`, `text-muted`, `highlight`) for theme switching
 
----
+### 📏 Spacing & Rhythm
 
-## 🧭 Navigation
+* Use multiples of 4px
+* Keep generous whitespace between logical sections
+* Avoid overly dense UIs
 
-### Structure
+### 🎨 Theme Readiness
 
-* **Mobile-first** layout
-* Hamburger menu on **top-left** for small screens
-* Expand to horizontal nav on medium+ screens
-* Include:
-
-  * Brand or title (left-aligned)
-  * Navigation links (right-aligned or hidden in drawer)
-  * Optional CTA or user menu (e.g. avatar dropdown)
-
-### Behavior
-
-* Uses subtle transitions (`transition-opacity`, `transition-transform`)
-* Current route should be visually highlighted with font weight or underline
-
----
-
-## 🧩 Component Patterns
-
-### Cards
-
-* `bg-white rounded-md shadow-md p-6`
-* Use `border-l-4` for context markers (e.g., type, status, category)
-
-### Buttons
-
-* Size: `text-sm`, `px-3 py-1.5`
-* Shape: `rounded-md`
-* Use theme-based backgrounds and hover transitions
-* Avoid outlines unless needed for accessibility
-
-### Progress
-
-* Horizontal bars with background + filled indicator (`h-2 rounded-full`)
-* Percentages or XP alongside bar
-
-### Lists
-
-* Use vertical spacing and dividers (`divide-y`) for clarity
-* Avoid bullets unless necessary — spacing and font should carry structure
-
----
-
-## 🔁 State Management Patterns
-
-* **Optimistic UI updates**: actions reflect immediately
-* Use soft success cues (e.g. fade-in “Saved ✓”) after auto-save or submission
-* Errors should be calm but visible (`text-red-500`, never blinking or modal)
-* Avoid persistent save buttons when auto-saving is clearer
-
----
-
-## 🧠 Interaction Philosophy
-
-* Every interaction should have **a visible consequence**
-* Avoid modal overload — use modals only for decisions or blocking steps
-* Whole-card interactivity is preferred when the card represents an actionable object
-* Hover/focus effects should be subtle, not dramatic
-
----
+* Use descriptive classes (`goal-card`, `task-heading`, `feedback-tag`)
+* All colors, shadows, font sizes should be centralized in theme file
+* Enable easy theme switching in future (e.g., dark, high-contrast, fantasy skin)
