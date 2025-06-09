@@ -206,19 +206,6 @@
 										on:click|stopPropagation
 									>
 										<a
-											href="/focuses"
-											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700 {$page
-												.route.id === '/focuses'
-												? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-												: ''}"
-										>
-											<div class="flex items-center space-x-2">
-												<svelte:component this={icons.Target} size={16} />
-												<span>Focuses</span>
-											</div>
-										</a>
-										<a
 											href="/family"
 											on:click={closeDropdowns}
 											class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700 {$page
@@ -398,19 +385,6 @@
 								>
 									Tools
 								</div>
-								<a
-									href="/focuses"
-									on:click={closeMobileMenu}
-									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
-										.route.id === '/focuses'
-										? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-										: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
-								>
-									<div class="flex items-center space-x-3">
-										<svelte:component this={icons.Target} size={16} />
-										<span>Focuses</span>
-									</div>
-								</a>
 								<a
 									href="/family"
 									on:click={closeMobileMenu}

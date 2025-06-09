@@ -19,7 +19,9 @@
 		description: '',
 		icon: '',
 		category: 'body' as 'body' | 'mind' | 'connection' | 'shadow' | 'spirit' | 'legacy',
-		enabled: true
+		enabled: true,
+		dayOfWeek: '',
+		sampleTasks: [] as string[]
 	};
 
 	const categoryOptions = [
@@ -188,7 +190,9 @@
 				description: statDef.description,
 				icon: statDef.icon || '',
 				category: statDef.category,
-				enabled: true
+				enabled: true,
+				dayOfWeek: '',
+				sampleTasks: []
 			};
 		}
 	}
@@ -199,7 +203,9 @@
 			description: '',
 			icon: '',
 			category: 'body',
-			enabled: true
+			enabled: true,
+			dayOfWeek: '',
+			sampleTasks: []
 		};
 		showCreateForm = false;
 		editingStat = null;
@@ -843,6 +849,69 @@
 								</div>
 							{/if}
 						</div>
+					</div>
+
+					<!-- Day of Week Assignment -->
+					<div>
+						<label class="mb-2 block text-sm font-medium text-gray-700"> 
+							Day of Week (Optional)
+						</label>
+						<select
+							bind:value={formData.dayOfWeek}
+							class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
+						>
+							<option value="">No specific day</option>
+							<option value="Monday">Monday</option>
+							<option value="Tuesday">Tuesday</option>
+							<option value="Wednesday">Wednesday</option>
+							<option value="Thursday">Thursday</option>
+							<option value="Friday">Friday</option>
+							<option value="Saturday">Saturday</option>
+							<option value="Sunday">Sunday</option>
+						</select>
+						<p class="mt-1 text-xs text-gray-500">
+							Assign this stat to a specific day for GPT task generation
+						</p>
+					</div>
+
+					<!-- Sample Tasks -->
+					<div>
+						<label class="mb-2 block text-sm font-medium text-gray-700"> 
+							Sample Tasks (Optional)
+						</label>
+						<div class="space-y-2">
+							{#each formData.sampleTasks as task, index}
+								<div class="flex gap-2">
+									<input
+										type="text"
+										bind:value={formData.sampleTasks[index]}
+										placeholder="Enter a sample task..."
+										class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
+									/>
+									<button
+										type="button"
+										onclick={() => {
+											formData.sampleTasks = formData.sampleTasks.filter((_, i) => i !== index);
+										}}
+										class="rounded-lg border border-red-300 px-3 py-2 text-red-600 hover:bg-red-50"
+									>
+										Remove
+									</button>
+								</div>
+							{/each}
+							<button
+								type="button"
+								onclick={() => {
+									formData.sampleTasks = [...formData.sampleTasks, ''];
+								}}
+								class="rounded-lg border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-50"
+							>
+								+ Add Sample Task
+							</button>
+						</div>
+						<p class="mt-1 text-xs text-gray-500">
+							These tasks will inspire GPT when generating daily tasks for this stat
+						</p>
 					</div>
 
 					<div class="flex items-center">
