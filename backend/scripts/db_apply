@@ -14,5 +14,4 @@ PG_URL_POSTGRES=$(echo "$DATABASE_URL" | sed -E "s|/$DB_NAME(\?.*)?$|/postgres\1
 # Backup existing database
 pg_dump "$DATABASE_URL" > backups/pre_apply_backup.sql
 
-# Terminate all connections to the target DB
 psql "$DATABASE_URL" -f db/schema.sql

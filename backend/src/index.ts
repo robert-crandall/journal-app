@@ -39,7 +39,11 @@ app.notFound((c) => {
   return c.json({ error: 'Not found' }, 404)
 })
 
+const port = parseInt(process.env.PORT || '3000')
+
+console.log(`🚀 Server starting on port ${port}`)
+
 export default {
-  port: process.env.PORT || 3001,
+  port,
   fetch: app.fetch,
 }
