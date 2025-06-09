@@ -3,7 +3,7 @@
 # Simple API test script for development
 # Run this after starting the server to verify endpoints
 
-API_BASE="http://localhost:3001/api"
+API_BASE="http://localhost:8000/api"
 
 echo "🧪 Testing Journal App API..."
 echo ""
