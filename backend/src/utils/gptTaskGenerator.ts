@@ -1,7 +1,7 @@
 import { db } from '../db';
-import { tasks, stats, focuses, users, preferences } from '../db/schema';
+import { tasks, stats, focuses, users, preferences, family } from '../db/schema';
 import { eq, and, desc, lt } from 'drizzle-orm';
-import { type User, type Focus, type Stat, type Task, type Preference } from '../db/schema';
+import { type User, type Focus, type Stat, type Task, type Preference, type Family } from '../db/schema';
 import OpenAI from 'openai';
 import { getEnvironmentalContext, type EnvironmentalContext } from './weatherService';
 
@@ -16,7 +16,7 @@ export interface TaskGenerationContext {
   user: User;
   todaysFocus?: Focus;
   userStats: Stat[];
-  familyMembers: User[];
+  familyMembers: Family[];
   recentTasks?: Task[];
   recentFeedback?: string[];
   environmentalContext?: EnvironmentalContext;
@@ -30,7 +30,7 @@ export interface GeneratedTask {
   focusId?: string;
   statId?: string;
   linkedStatIds: string[];
-  linkedFamilyMemberIds?: string[];
+  familyId?: string;
 }
 
 export interface GeneratedTaskSet {
@@ -91,7 +91,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         focusId: context.todaysFocus?.id,
         statId: parsedResponse.primaryTask.linkedStatIds?.[0] || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
-        linkedFamilyMemberIds: parsedResponse.primaryTask.linkedFamilyMemberIds,
+        familyId: parsedResponse.primaryTask.familyId,
       },
       connectionTask: {
         title: parsedResponse.connectionTask.title,
@@ -100,7 +100,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         focusId: context.todaysFocus?.id,
         statId: parsedResponse.connectionTask.linkedStatIds?.[0] || context.userStats.find(s => s.category === 'connection')?.id || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
-        linkedFamilyMemberIds: parsedResponse.connectionTask.linkedFamilyMemberIds,
+        familyId: parsedResponse.connectionTask.familyId,
       },
     };
   } catch (error) {
@@ -153,18 +153,7 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     prompt += `Context: ${JSON.stringify(user.gptContext)}\n`;
   }
 
-  // RPG Class information (for flavor when enabled)
-  if (userPreferences?.rpgFlavorEnabled && user.className) {
-    prompt += `\n## Character Class & Backstory\n`;
-    prompt += `Class: ${user.className}\n`;
-    if (user.classDescription) {
-      prompt += `Backstory: ${user.classDescription}\n`;
-    }
-    // Increase flavor frequency on weekends
-    const isWeekend = environmentalContext?.dayOfWeek === 'Saturday' || environmentalContext?.dayOfWeek === 'Sunday';
-    const flavorFrequency = isWeekend ? '40-50%' : '20-30%';
-    prompt += `Note: Occasionally (about ${flavorFrequency} of the time) use light fantasy flavoring in task descriptions based on the user's class. For example: "As a ${user.className}, you must..." Keep the core task practical and unchanged.\n`;
-  }
+  // RPG Class information (for flavor when enabled) - removed as class info is now in family members
 
   // Today's focus
   if (todaysFocus) {
@@ -186,14 +175,14 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     prompt += `\n## Family Members\n`;
     familyMembers.forEach(member => {
       prompt += `- ${member.name}`;
-      if (member.gptContext) {
-        prompt += ` - ${JSON.stringify(member.gptContext)}`;
+      if (member.age) {
+        prompt += ` (age ${member.age})`;
       }
       // Include family member class info for collaborative tasks when RPG flavor is enabled
       if (userPreferences?.rpgFlavorEnabled && member.className) {
         prompt += ` - Class: ${member.className}`;
-        if (member.classDescription) {
-          prompt += ` (${member.classDescription})`;
+        if (member.description) {
+          prompt += ` (${member.description})`;
         }
       }
       prompt += `\n`;
@@ -247,13 +236,13 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     "title": "Short, actionable title (max 60 chars)",
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1", "stat_id2"],
-    "linkedFamilyMemberIds": ["family_member_id"] // optional, only if task involves family
+    "familyId": "family_member_id" // optional, only if task involves family
   },
   "connectionTask": {
     "title": "Short, actionable title (max 60 chars)", 
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1"],
-    "linkedFamilyMemberIds": ["family_member_id"] // optional, only if task involves family
+    "familyId": "family_member_id" // optional, only if task involves family
   }
 }\n`;
 
@@ -304,7 +293,7 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
     focusId: todaysFocus?.id,
     statId: connectionStatForTask?.id,
     linkedStatIds: connectionStats.slice(0, 2).map(s => s.id),
-    linkedFamilyMemberIds: randomFamilyMember ? [randomFamilyMember.id] : undefined,
+    familyId: randomFamilyMember ? randomFamilyMember.id : undefined,
   };
 
   return {
@@ -402,8 +391,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       db.query.stats.findMany({
         where: eq(stats.userId, userId),
       }),
-      db.query.users.findMany({
-        where: and(eq(users.type, 'family'), eq(users.isFamily, true)),
+      db.query.family.findMany({
+        where: eq(family.userId, userId),
       }),
       db.query.tasks.findMany({
         where: eq(tasks.userId, userId),
@@ -459,7 +448,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         taskDate: today,
         source: generatedTasks.primaryTask.source,
         linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
-        linkedFamilyMemberIds: generatedTasks.primaryTask.linkedFamilyMemberIds || [],
+        familyId: generatedTasks.primaryTask.familyId,
         origin: 'gpt' as const,
         status: 'pending' as const,
       },
@@ -472,7 +461,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         taskDate: today,
         source: generatedTasks.connectionTask.source,
         linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
-        linkedFamilyMemberIds: generatedTasks.connectionTask.linkedFamilyMemberIds || [],
+        familyId: generatedTasks.connectionTask.familyId,
         origin: 'gpt' as const,
         status: 'pending' as const,
       },

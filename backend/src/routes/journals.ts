@@ -145,7 +145,7 @@ journalsRouter.get('/:id/followup', jwtMiddleware, userMiddleware, async (c) => 
   
   // Get user context for GPT
   const userAttributes = await db.query.attributes.findMany({
-    where: eq(attributes.userId, user.id),
+    where: and(eq(attributes.entityType, 'user'), eq(attributes.entityId, user.id)),
   });
   
   const existingTags = await db.query.tags.findMany({
@@ -247,7 +247,7 @@ journalsRouter.post('/:id/submit', jwtMiddleware, userMiddleware, async (c) => {
   
   // Get user context for GPT processing
   const userAttributes = await db.query.attributes.findMany({
-    where: eq(attributes.userId, user.id),
+    where: and(eq(attributes.entityType, 'user'), eq(attributes.entityId, user.id)),
   });
   
   const existingTags = await db.query.tags.findMany({
@@ -442,7 +442,8 @@ async function processSuggestedAttributes(userId: string, suggestedAttributes: A
     // Check if this exact attribute already exists
     const existingAttribute = await db.query.attributes.findFirst({
       where: and(
-        eq(attributes.userId, userId), 
+        eq(attributes.entityType, 'user'),
+        eq(attributes.entityId, userId), 
         eq(attributes.key, attr.key),
         eq(attributes.value, attr.value)
       ),
@@ -451,7 +452,8 @@ async function processSuggestedAttributes(userId: string, suggestedAttributes: A
     // Only create if it doesn't already exist
     if (!existingAttribute) {
       const [newAttribute] = await db.insert(attributes).values({
-        userId,
+        entityType: 'user',
+        entityId: userId,
         key: attr.key,
         value: attr.value,
       }).returning();
