@@ -438,7 +438,7 @@
 				</p>
 				<button
 					class="mx-auto flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-					on:click={() => (showCreateForm = true)}
+					onclick={() => (showCreateForm = true)}
 				>
 					<icons.Plus size={16} />
 					Create Your First Stat
@@ -511,7 +511,7 @@
 										<div class="relative">
 											<button
 												class="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-neutral-300"
-												on:click={(e) => {
+												onclick={(e) => {
 													e.preventDefault();
 													const dropdown = e.currentTarget.nextElementSibling;
 													dropdown?.classList.toggle('hidden');
@@ -524,14 +524,14 @@
 											>
 												<button
 													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:bg-neutral-900"
-													on:click={() => startEdit(stat)}
+													onclick={() => startEdit(stat)}
 												>
 													<icons.Edit2 size={14} />
 													Edit
 												</button>
 												<button
 													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:bg-neutral-900"
-													on:click={() => toggleStatEnabled(stat)}
+													onclick={() => toggleStatEnabled(stat)}
 												>
 													{#if stat.enabled}
 														<icons.EyeOff size={14} />
@@ -544,7 +544,7 @@
 												<hr class="my-1" />
 												<button
 													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-													on:click={() => deleteStat(stat.id)}
+													onclick={() => deleteStat(stat.id)}
 												>
 													<icons.Trash2 size={14} />
 													Delete
@@ -607,7 +607,7 @@
 												{#if canLevelUp(stat)}
 													<button
 														class="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700"
-														on:click={() => levelUpStat(stat.id)}
+														onclick={() => levelUpStat(stat.id)}
 													>
 														<icons.Star size={12} />
 														Level Up!
@@ -615,13 +615,13 @@
 												{:else}
 													<button
 														class="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
-														on:click={() => incrementStat(stat.id, 1)}
+														onclick={() => incrementStat(stat.id, 1)}
 													>
 														+25 XP
 													</button>
 													<button
 														class="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
-														on:click={() => incrementStat(stat.id, 5)}
+														onclick={() => incrementStat(stat.id, 5)}
 													>
 														+125 XP
 													</button>
@@ -629,7 +629,7 @@
 											</div>
 											<button
 												class="p-1 text-gray-400 hover:text-gray-600 dark:text-neutral-300"
-												on:click={() => startEdit(stat)}
+												onclick={() => startEdit(stat)}
 											>
 												<icons.Settings size={14} />
 											</button>
@@ -638,7 +638,7 @@
 										<div class="flex justify-center">
 											<button
 												class="rounded-md border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-100"
-												on:click={() => toggleStatEnabled(stat)}
+												onclick={() => toggleStatEnabled(stat)}
 											>
 												Re-enable Stat
 											</button>
@@ -670,13 +670,13 @@
 				</h2>
 				<button
 					class="p-1 text-gray-400 hover:text-gray-600 dark:text-neutral-300"
-					on:click={resetForm}
+					onclick={resetForm}
 				>
 					<icons.X size={20} />
 				</button>
 			</div>
 
-			<form on:submit|preventDefault={handleSubmit} class="space-y-6 p-6">
+			<form onsubmit={preventDefault(handleSubmit)} class="space-y-6 p-6">
 				<!-- Class Recommendations (only show for new stats) -->
 				{#if !editingStat && userData?.className}
 					{@const classDef = findClassByName(userData.className)}
@@ -702,7 +702,7 @@
 										<button
 											type="button"
 											class="rounded-md bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200"
-											on:click={() => addStatFromLibrary(statName)}
+											onclick={() => addStatFromLibrary(statName)}
 										>
 											{statName}
 										</button>
@@ -719,7 +719,7 @@
 						<button
 							type="button"
 							class="flex w-full items-center justify-between p-4 text-left"
-							on:click={(e) => {
+							onclick={(e) => {
 								const content = e.currentTarget.nextElementSibling;
 								content?.classList.toggle('hidden');
 							}}
@@ -744,7 +744,7 @@
 												class="w-full rounded-md border border-gray-200 p-3 text-left transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded
 													? 'cursor-not-allowed opacity-50'
 													: ''}"
-												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
+												onclick={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
 												disabled={isAlreadyAdded}
 											>
 												<div class="flex items-center justify-between">
@@ -934,7 +934,7 @@
 					<button
 						type="button"
 						class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:bg-neutral-800 dark:bg-neutral-900"
-						on:click={resetForm}
+						onclick={resetForm}
 					>
 						Cancel
 					</button>
