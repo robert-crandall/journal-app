@@ -340,7 +340,7 @@
 				</div>
 				<button
 					class="flex items-center gap-2 self-start rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 md:self-auto dark:bg-blue-500 dark:hover:bg-blue-600"
-					on:click={() => (showCreateForm = true)}
+					onclick={() => (showCreateForm = true)}
 				>
 					<icons.Plus size={16} />
 					New Stat
@@ -404,7 +404,7 @@
 				<div class="flex items-center">
 					<icons.AlertCircle class="mr-3 text-red-400" size={20} />
 					<p class="text-sm text-red-700">{error}</p>
-					<button class="ml-auto p-1 text-red-400 hover:text-red-600" on:click={() => (error = '')}>
+					<button class="ml-auto p-1 text-red-400 hover:text-red-600" onclick={() => (error = '')}>
 						<icons.X size={16} />
 					</button>
 				</div>
