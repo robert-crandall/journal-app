@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
-	import { BookOpen, BarChart3, Target, User, Menu, X, LogIn, ListChecks } from 'lucide-svelte';
+	import { BookOpen, BarChart3, Target, User, Menu, X, LogIn, ListChecks, Tag } from 'lucide-svelte';
 	
 	let { data, children } = $props();
 	let sidebarOpen = $state(false);
@@ -11,6 +11,7 @@
 		{ name: 'Experiments', href: '/experiments', icon: Target },
 		{ name: 'Tasks', href: '/tasks', icon: ListChecks },
 		{ name: 'Character Stats', href: '/stats', icon: BarChart3 },
+		{ name: 'Tags', href: '/tags', icon: Tag },
 		{ name: 'Profile', href: '/profile', icon: User }
 	];
 	

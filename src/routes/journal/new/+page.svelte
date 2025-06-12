@@ -4,6 +4,7 @@
 	import { Send, Sparkles, Save, ArrowLeft, Award } from 'lucide-svelte';
 	import type { ConversationMessage } from '$lib/types.js';
 	import StatSelector from '$lib/components/stats/StatSelector.svelte';
+	import TagSelector from '$lib/components/tags/TagSelector.svelte';
 	
 	let currentMessage = $state('');
 	let conversation: ConversationMessage[] = $state([]);
@@ -16,6 +17,7 @@
 	
 	// Character stat selection
 	let selectedStats: { id: string; name: string; xpAmount: number }[] = $state([]);
+	let selectedTagIds: string[] = $state([]);
 	let savingStats = $state(false);
 	
 	let messageInput: HTMLTextAreaElement;
@@ -174,6 +176,23 @@
 			
 			if (!processResponse.ok) {
 				throw new Error('Failed to process journal entry');
+			}
+			
+			// Apply tags if any are selected
+			if (selectedTagIds.length > 0) {
+				const tagsResponse = await fetch(`/api/journal/${entryId}/tags`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						tagIds: selectedTagIds
+					})
+				});
+				
+				if (!tagsResponse.ok) {
+					throw new Error('Failed to save tags');
+				}
 			}
 			
 			// Then, if there are selected stats, link them
@@ -357,24 +376,37 @@
 	</div>
 </div>
 
-<!-- Processing Dialog with Character Stat Selection -->
+<!-- Processing Dialog with Character Stat Selection and Tags -->
 {#if showProcessingDialog}
 	<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 		<div class="modal-box max-w-xl">
 			<h3 class="font-bold text-lg mb-4 flex items-center gap-2">
 				<Award size={20} />
-				Assign XP to Character Stats
+				Complete Journal Entry
 			</h3>
 			
 			<div class="py-2 mb-4">
 				<p class="text-base-content/80 text-sm">
-					Link this journal entry to character stats to gain XP and track your growth.
-					Select which areas of personal development this entry relates to.
+					Add tags to organize your journal entries and assign XP to track your personal growth.
 				</p>
 			</div>
 			
-			<div class="border border-base-300 rounded-lg bg-base-200 p-4">
-				<StatSelector bind:selectedStats={selectedStats} />
+			<div class="space-y-6">
+				<!-- Tags Selector -->
+				<div class="border border-base-300 rounded-lg bg-base-200 p-4">
+					<TagSelector bind:selectedTagIds />
+				</div>
+				
+				<!-- Character Stats -->
+				<div class="border border-base-300 rounded-lg bg-base-200 p-4">
+					<div class="mb-3">
+						<h3 class="font-medium flex items-center gap-2">
+							<Award size={16} />
+							Character Stats
+						</h3>
+					</div>
+					<StatSelector bind:selectedStats={selectedStats} />
+				</div>
 			</div>
 			
 			<div class="modal-action">

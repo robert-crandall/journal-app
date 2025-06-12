@@ -1,16 +1,38 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { BookOpen, Plus, Calendar, Tag } from 'lucide-svelte';
+	import { BookOpen, Plus, Calendar, Tag, Search, X, Filter } from 'lucide-svelte';
 	import type { JournalEntryWithTags } from '$lib/types.js';
+	import type { ContentTag } from '$lib/server/db/schema';
 	
 	let entries: JournalEntryWithTags[] = $state([]);
+	let tags: ContentTag[] = $state([]);
+	let selectedTagIds: string[] = $state([]);
+	let searchQuery = $state('');
 	let loading = $state(true);
+	let tagsLoading = $state(true); 
 	let page = $state(1);
 	let hasMore = $state(true);
+	let filterExpanded = $state(false);
 	
 	onMount(async () => {
-		await loadEntries();
+		await Promise.all([loadEntries(), loadTags()]);
 	});
+	
+	async function loadTags() {
+		try {
+			tagsLoading = true;
+			const response = await fetch('/api/tags');
+			
+			if (response.ok) {
+				const data = await response.json();
+				tags = data.tags || [];
+			}
+		} catch (error) {
+			console.error('Error loading tags:', error);
+		} finally {
+			tagsLoading = false;
+		}
+	}
 	
 	async function loadEntries(reset = false) {
 		try {
@@ -65,7 +87,7 @@
 
 <div class="space-y-6">
 	<!-- Header -->
-	<div class="flex items-center justify-between">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 		<div>
 			<h1 class="text-3xl font-bold text-base-content">Journal</h1>
 			<p class="text-base-content/70 mt-1">Your personal reflection space</p>
@@ -74,6 +96,92 @@
 			<Plus size={20} />
 			New Entry
 		</a>
+	</div>
+	
+	<!-- Search & Filter -->
+	<div class="space-y-3">
+		<!-- Search Bar -->
+		<div class="flex items-center gap-2">
+			<div class="relative flex-1">
+				<input
+					type="text"
+					class="input input-bordered w-full pl-10 pr-10"
+					placeholder="Search journal entries..."
+					bind:value={searchQuery}
+				/>
+				<Search size={18} class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50" />
+				{#if searchQuery}
+					<button 
+						class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
+						on:click={() => searchQuery = ''}
+					>
+						<X size={16} />
+					</button>
+				{/if}
+			</div>
+			
+			<button 
+				class="btn btn-outline {filterExpanded ? 'btn-primary' : ''} gap-1"
+				on:click={() => filterExpanded = !filterExpanded}
+			>
+				<Filter size={18} />
+				{#if selectedTagIds.length > 0}
+					<span class="badge badge-sm">{selectedTagIds.length}</span>
+				{/if}
+			</button>
+		</div>
+		
+		<!-- Tags Filters -->
+		{#if filterExpanded}
+			<div class="bg-base-200 p-4 rounded-lg border border-base-300">
+				<div class="mb-2 flex items-center justify-between">
+					<h3 class="font-medium flex items-center gap-2">
+						<Tag size={16} />
+						Filter by Tags
+					</h3>
+					{#if selectedTagIds.length > 0}
+						<button 
+							class="btn btn-sm btn-ghost text-xs"
+							on:click={() => selectedTagIds = []}
+						>
+							Clear All
+						</button>
+					{/if}
+				</div>
+				
+				{#if tagsLoading}
+					<div class="flex justify-center py-4">
+						<span class="loading loading-spinner loading-sm"></span>
+					</div>
+				{:else if tags.length === 0}
+					<div class="text-center py-4 text-sm text-base-content/70">
+						You haven't created any tags yet.
+						<a href="/tags/new" class="link link-primary">Create your first tag</a>
+					</div>
+				{:else}
+					<div class="flex flex-wrap gap-2">
+						{#each tags as tag}
+							<button
+								class="badge {selectedTagIds.includes(tag.id) ? 'badge-primary' : 'badge-outline'} cursor-pointer"
+								on:click={() => {
+									if (selectedTagIds.includes(tag.id)) {
+										selectedTagIds = selectedTagIds.filter(id => id !== tag.id);
+									} else {
+										selectedTagIds = [...selectedTagIds, tag.id];
+									}
+								}}
+							>
+								{tag.name}
+							</button>
+						{/each}
+						<a href="/tags" class="badge badge-ghost badge-sm gap-1">
+							<Plus size={10} />
+							Manage Tags
+						</a>
+					</div>
+				{/if}
+			</div>
+		{/if}
 	</div>
 
 	<!-- Entries List -->
