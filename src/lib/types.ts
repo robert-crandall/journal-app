@@ -54,16 +54,26 @@ export interface TaskCompletionData {
 	completedAt: Date;
 }
 
-export interface CharacterStatWithProgress {
+export interface CharacterStat {
 	id: string;
 	userId: string;
 	name: string;
 	description: string | null;
 	currentXp: number;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt: Date | string;
+	updatedAt: Date | string;
 	level: number;
+	progress: number;
 	xpToNextLevel: number;
+}
+
+export interface CharacterStatWithProgress extends CharacterStat {
+	journalEntries?: {
+		id: string;
+		title: string | null;
+		createdAt: Date | string;
+		xpGained: number;
+	}[];
 }
 
 export interface GPTProcessingResult {

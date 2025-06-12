@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { characterStat, journalCharacterTag, journalEntry as journalEntries } from '$lib/server/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { characterStat, journalCharacterTag, journalEntry } from '$lib/server/db/schema';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { calculateLevel, calculateLevelProgress, calculateXpToNextLevel } from '$lib/utils/xp';
 
 export async function GET({ params, locals }: RequestEvent) {
@@ -32,18 +32,68 @@ export async function GET({ params, locals }: RequestEvent) {
     // Get related journal entries with XP gains
     const journalLinks = await db
       .select({
-        link: journalCharacterTag,
-        journal: {
-          id: journalEntries.id,
-          title: journalEntries.title,
-          createdAt: journalEntries.createdAt
-        }
+        id: journalEntry.id,
+        title: journalEntry.title,
+        createdAt: journalEntry.createdAt,
+        xpGained: journalCharacterTag.xpGained
       })
       .from(journalCharacterTag)
-      .innerJoin(journalEntries, eq(journalCharacterTag.journalId, journalEntries.id))
+      .innerJoin(journalEntry, eq(journalCharacterTag.journalId, journalEntry.id))
       .where(eq(journalCharacterTag.statId, statId))
-      .orderBy(desc(journalEntries.createdAt))
+      .orderBy(desc(journalEntry.createdAt))
       .limit(10);
+      
+    // Get XP history data for chart
+    const xpHistory = await db
+      .select({
+        date: journalEntry.createdAt,
+        xpGained: journalCharacterTag.xpGained
+      })
+      .from(journalCharacterTag)
+      .innerJoin(journalEntry, eq(journalCharacterTag.journalId, journalEntry.id))
+      .where(eq(journalCharacterTag.statId, statId))
+      .orderBy(journalEntry.createdAt);
+    
+    // Transform to cumulative XP over time
+    let cumulativeXp = 0;
+    const xpChartData = xpHistory.map(entry => {
+      cumulativeXp += entry.xpGained;
+      return {
+        date: entry.date,
+        value: cumulativeXp
+      };
+    });
+    
+    // If there's data, ensure we have start and current points
+    if (xpChartData.length > 0) {
+      // Add starting point at 0 XP
+      xpChartData.unshift({
+        date: stat.createdAt,
+        value: 0
+      });
+      
+      // Add current point if the last one isn't today
+      const lastEntry = xpChartData[xpChartData.length - 1];
+      const today = new Date();
+      if (new Date(lastEntry.date).toDateString() !== today.toDateString()) {
+        xpChartData.push({
+          date: today,
+          value: stat.currentXp
+        });
+      }
+    } else {
+      // If no history, just add created date and current
+      xpChartData.push(
+        {
+          date: stat.createdAt,
+          value: 0
+        },
+        {
+          date: new Date(),
+          value: stat.currentXp
+        }
+      );
+    }
 
     // Add level information
     const level = calculateLevel(stat.currentXp);
@@ -57,7 +107,8 @@ export async function GET({ params, locals }: RequestEvent) {
         progress,
         xpToNextLevel
       },
-      journalEntries: journalLinks
+      journalEntries: journalLinks,
+      xpChartData
     });
   } catch (error) {
     console.error('Error fetching stat:', error);

@@ -1,14 +1,15 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
-	import { BookOpen, BarChart3, Target, User, Menu, X } from 'lucide-svelte';
+	import { BookOpen, BarChart3, Target, User, Menu, X, LogIn, ListChecks } from 'lucide-svelte';
 	
-	let { children } = $props();
+	let { data, children } = $props();
 	let sidebarOpen = $state(false);
 	
 	const navigation = [
 		{ name: 'Journal', href: '/journal', icon: BookOpen },
 		{ name: 'Experiments', href: '/experiments', icon: Target },
+		{ name: 'Tasks', href: '/tasks', icon: ListChecks },
 		{ name: 'Character Stats', href: '/stats', icon: BarChart3 },
 		{ name: 'Profile', href: '/profile', icon: User }
 	];
@@ -39,17 +40,24 @@
 			<h1 class="text-lg font-semibold">Journal App</h1>
 		</div>
 		<div class="navbar-end">
-			<div class="dropdown dropdown-end">
-				<div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-					<div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
-						<User size={16} />
+			{#if data.user}
+				<div class="dropdown dropdown-end">
+					<div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+						<div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
+							<User size={16} />
+						</div>
 					</div>
+					<ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 border border-base-300">
+						<li><a href="/profile">Profile</a></li>
+						<li><a href="/auth/logout">Logout</a></li>
+					</ul>
 				</div>
-				<ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 border border-base-300">
-					<li><a href="/profile">Profile</a></li>
-					<li><a href="/auth/logout">Logout</a></li>
-				</ul>
-			</div>
+			{:else}
+				<a href="/auth/login" class="btn btn-ghost btn-sm">
+					<LogIn size={16} class="mr-1" />
+					Login
+				</a>
+			{/if}
 		</div>
 	</div>
 
@@ -86,20 +94,27 @@
 				
 				<!-- User menu for desktop -->
 				<div class="absolute bottom-0 left-0 right-0 p-4 border-t border-base-300 hidden lg:block">
-					<div class="dropdown dropdown-top w-full">
-						<div tabindex="0" role="button" class="btn btn-ghost w-full justify-start">
-							<div class="avatar">
-								<div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
-									<User size={16} />
+					{#if data.user}
+						<div class="dropdown dropdown-top w-full">
+							<div tabindex="0" role="button" class="btn btn-ghost w-full justify-start">
+								<div class="avatar">
+									<div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
+										<User size={16} />
+									</div>
 								</div>
+								<span>{data.user.username}</span>
 							</div>
-							<span>Account</span>
+							<ul tabindex="0" class="menu menu-sm dropdown-content mb-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 border border-base-300">
+								<li><a href="/profile">Profile</a></li>
+								<li><a href="/auth/logout">Logout</a></li>
+							</ul>
 						</div>
-						<ul tabindex="0" class="menu menu-sm dropdown-content mb-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 border border-base-300">
-							<li><a href="/profile">Profile</a></li>
-							<li><a href="/auth/logout">Logout</a></li>
-						</ul>
-					</div>
+					{:else}
+						<a href="/auth/login" class="btn btn-ghost w-full justify-start">
+							<LogIn size={16} class="mr-2" />
+							<span>Login</span>
+						</a>
+					{/if}
 				</div>
 			</div>
 		</aside>
