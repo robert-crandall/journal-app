@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, between } from 'drizzle-orm'
 import { db } from '../db'
 import { 
   journalEntries, 
@@ -340,11 +340,57 @@ export class JournalService {
           eq(journalEntries.id, id),
           eq(journalEntries.userId, userId)
         ))
+        .returning()
 
       return result.length > 0
     } catch (error) {
       console.error('Delete journal entry error:', error)
       return false
+    }
+  }
+
+  static async getEntriesInDateRange(
+    userId: string, 
+    startDate: string, 
+    endDate: string
+  ): Promise<JournalEntry[]> {
+    try {
+      const start = parseDate(startDate)
+      const end = parseDate(endDate)
+
+      return await db.query.journalEntries.findMany({
+        where: and(
+          eq(journalEntries.userId, userId),
+          between(journalEntries.entryDate, start, end)
+        ),
+        orderBy: desc(journalEntries.entryDate)
+      })
+    } catch (error) {
+      console.error('Get entries in date range error:', error)
+      return []
+    }
+  }
+
+  static async getEntriesByExperiment(
+    userId: string, 
+    experimentId: string
+  ): Promise<JournalEntry[]> {
+    try {
+      // Get journal entries that are associated with the experiment
+      const entries = await db
+        .select()
+        .from(journalEntries)
+        .innerJoin(journalExperiments, eq(journalEntries.id, journalExperiments.journalEntryId))
+        .where(and(
+          eq(journalEntries.userId, userId),
+          eq(journalExperiments.experimentId, experimentId)
+        ))
+        .orderBy(desc(journalEntries.entryDate))
+
+      return entries.map(entry => entry.journal_entries)
+    } catch (error) {
+      console.error('Get entries by experiment error:', error)
+      return []
     }
   }
 }

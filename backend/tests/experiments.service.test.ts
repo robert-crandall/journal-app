@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { ExperimentsService } from '../src/services/experiments.service'
-import { cleanDatabase, createTestUser, TEST_USER_2 } from './setup'
+import { AuthService } from '../src/services/auth.service'
+import { cleanDatabase, TEST_USER, TEST_USER_2 } from './setup'
 
 describe('ExperimentsService', () => {
   let userId: string
@@ -8,7 +9,7 @@ describe('ExperimentsService', () => {
   beforeEach(async () => {
     await cleanDatabase()
     
-    const user = await createTestUser()
+    const user = await AuthService.register(TEST_USER)
     userId = (user as any).data.user.id
   })
 
