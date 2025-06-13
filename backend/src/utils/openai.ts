@@ -28,10 +28,6 @@ export interface ExtractedInsights {
 export async function generateFollowUpQuestion(
   messages: ConversationMessage[]
 ): Promise<string> {
-  const conversationHistory = messages.map(msg => 
-    `${msg.role}: ${msg.content}`
-  ).join('\n')
-
   const systemPrompt = `You are a thoughtful journal companion for someone with ADHD and INTJ personality traits. Your role is to ask ONE insightful follow-up question that helps them reflect deeper on their day and extract meaningful patterns.
 
 Key guidelines:
@@ -42,18 +38,22 @@ Key guidelines:
 - Be concise and direct
 - Don't repeat questions they've already answered
 
-If the conversation seems complete (they've shared enough detail and reflection), respond with "CONVERSATION_COMPLETE" instead of a question.
-
-Previous conversation:
-${conversationHistory}`
+If the conversation seems complete (they've shared enough detail and reflection, or they say goodbye, goodnight, or similar), respond with "CONVERSATION_COMPLETE" instead of a question.`
 
   try {
+    // Build the conversation messages array
+    const conversationMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      })),
+      { role: 'user' as const, content: 'Generate a follow-up question or indicate completion.' }
+    ]
+
     const response = await openai.chat.completions.create({
       model: openAiModel,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Generate a follow-up question or indicate completion.' }
-      ],
+      messages: conversationMessages,
       temperature: 0.7,
       max_tokens: 150,
     })
