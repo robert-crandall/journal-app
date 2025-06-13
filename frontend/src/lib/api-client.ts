@@ -83,7 +83,7 @@ class ApiClient {
   async continueConversation(id: string, data: { content: string }) {
     return this.request<{ entry: JournalEntry; followUpQuestion: string | null }>(`/api/journal/${id}/continue`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ message: data.content }),
     })
   }
 
