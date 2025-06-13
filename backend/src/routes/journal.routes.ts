@@ -40,6 +40,18 @@ journal.get('/', async (c) => {
   })
 })
 
+// Get all journal entries for user with tags
+journal.get('/with-tags', async (c) => {
+  const user = getUserFromContext(c)
+  
+  const entries = await JournalService.getByUserIdWithTags(user.userId)
+  
+  return c.json({
+    success: true,
+    data: entries
+  })
+})
+
 // Get journal entry by ID with full details
 journal.get('/:id', async (c) => {
   const user = getUserFromContext(c)
@@ -63,24 +75,32 @@ journal.get('/:id', async (c) => {
 
 // Continue conversation for a journal entry
 journal.post('/:id/continue', zValidator('json', ContinueConversationSchema), async (c) => {
-  const user = getUserFromContext(c)
-  const id = c.req.param('id')
-  const input = c.req.valid('json')
-  
-  if (!isValidUUID(id)) {
-    throw new HTTPException(400, { message: 'Invalid journal entry ID' })
+  try {
+    const user = getUserFromContext(c)
+    const id = c.req.param('id')
+    const input = c.req.valid('json')
+    
+    if (!isValidUUID(id)) {
+      throw new HTTPException(400, { message: 'Invalid journal entry ID' })
+    }
+    
+    const result = await JournalService.continueConversation(id, user.userId, input)
+    
+    if (!result) {
+      throw new HTTPException(400, { message: 'Failed to continue conversation or conversation is already complete' })
+    }
+    
+    return c.json({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    console.error('[Journal Routes] Continue conversation - Error:', error)
+    if (error instanceof HTTPException) {
+      throw error
+    }
+    throw new HTTPException(500, { message: 'Internal server error' })
   }
-  
-  const result = await JournalService.continueConversation(id, user.userId, input)
-  
-  if (!result) {
-    throw new HTTPException(400, { message: 'Failed to continue conversation or conversation is already complete' })
-  }
-  
-  return c.json({
-    success: true,
-    data: result
-  })
 })
 
 // Update journal entry
