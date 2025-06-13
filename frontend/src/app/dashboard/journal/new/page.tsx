@@ -20,14 +20,15 @@ import { Experiment } from '@/types'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { ErrorMessage } from '@/components/ErrorMessage'
 
-const journalEntrySchema = z.object({
-  content: z.string()
+// Zod schema for form validation
+const JournalEntryFormSchema = z.object({
+  initialMessage: z.string()
     .min(10, 'Please write at least 10 characters')
     .max(10000, 'Entry is too long (max 10,000 characters)'),
-  experimentId: z.string().optional(),
+  experimentIds: z.array(z.string().uuid()),
 })
 
-type JournalEntryFormData = z.infer<typeof journalEntrySchema>
+type JournalEntryFormData = z.infer<typeof JournalEntryFormSchema>
 
 export default function NewJournalEntryPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -44,15 +45,16 @@ export default function NewJournalEntryPage() {
     setValue,
     formState: { errors },
   } = useForm<JournalEntryFormData>({
-    resolver: zodResolver(journalEntrySchema),
+    resolver: zodResolver(JournalEntryFormSchema),
+    mode: 'onChange',
     defaultValues: {
-      content: '',
-      experimentId: '',
+      initialMessage: '',
+      experimentIds: [],
     }
   })
 
-  const content = watch('content')
-  const selectedExperimentId = watch('experimentId')
+  const initialMessage = watch('initialMessage')
+  const selectedExperimentIds = watch('experimentIds')
 
   // Load experiments on mount
   useEffect(() => {
@@ -86,8 +88,9 @@ export default function NewJournalEntryPage() {
 
     try {
       const response = await apiClient.createJournalEntry({
-        content: data.content,
-        experimentId: data.experimentId || undefined,
+        entryDate: new Date().toISOString(),
+        initialMessage: data.initialMessage,
+        experimentIds: data.experimentIds,
       })
 
       if (response.success && response.data) {
@@ -104,8 +107,8 @@ export default function NewJournalEntryPage() {
     }
   }
 
-  const selectedExperiment = experiments.find(exp => exp.id === selectedExperimentId)
-  const wordCount = content ? content.trim().split(/\s+/).filter(word => word.length > 0).length : 0
+  const selectedExperiment = experiments.find(exp => selectedExperimentIds.includes(exp.id))
+  const wordCount = initialMessage ? initialMessage.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -155,7 +158,8 @@ export default function NewJournalEntryPage() {
                     <span className="label-text">Choose an active experiment (optional)</span>
                   </label>
                   <select
-                    {...register('experimentId')}
+                    value={selectedExperimentIds[0] || ''}
+                    onChange={(e) => setValue('experimentIds', e.target.value ? [e.target.value] : [])}
                     className="select select-bordered"
                     disabled={isLoading}
                   >
@@ -186,7 +190,7 @@ export default function NewJournalEntryPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setValue('experimentId', '')}
+                  onClick={() => setValue('experimentIds', [])}
                   className="btn btn-sm btn-ghost"
                 >
                   Remove
@@ -203,18 +207,18 @@ export default function NewJournalEntryPage() {
                 </span>
               </label>
               <TextareaAutosize
-                {...register('content')}
+                {...register('initialMessage')}
                 placeholder="Start writing about your day, thoughts, or experiences. The AI will ask follow-up questions to help you reflect deeper..."
                 className={`textarea textarea-bordered w-full resize-none ${
-                  errors.content ? 'textarea-error' : 'focus:textarea-primary'
+                  errors.initialMessage ? 'textarea-error' : 'focus:textarea-primary'
                 }`}
                 minRows={8}
                 maxRows={20}
                 disabled={isCreating}
               />
-              {errors.content && (
+              {errors.initialMessage && (
                 <label className="label">
-                  <span className="label-text-alt text-error">{errors.content.message}</span>
+                  <span className="label-text-alt text-error">{errors.initialMessage.message}</span>
                 </label>
               )}
             </div>
@@ -253,14 +257,14 @@ export default function NewJournalEntryPage() {
           
           <div className="flex items-center space-x-3">
             <div className="text-sm text-base-content/60">
-              {content.length > 0 && (
+              {initialMessage.length > 0 && (
                 <span>Ready to start the conversation</span>
               )}
             </div>
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isCreating || !content.trim()}
+              disabled={isCreating || !initialMessage.trim()}
             >
               {isCreating ? (
                 <LoadingSpinner size="sm" />

@@ -173,12 +173,12 @@ export default function JournalPage() {
                 </div>
                 
                 <p className="text-base-content/80 line-clamp-3 mb-3">
-                  {textUtils.truncate(entry.content, 200)}
+                  {entry.content ? textUtils.truncate(entry.content, 200) : 'No content'}
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-xs text-base-content/60">
-                    <span>{textUtils.countWords(entry.content)} words</span>
+                    <span>{entry.content ? textUtils.countWords(entry.content) : 0} words</span>
                     <span className="mx-2">•</span>
                     <span>{dateUtils.getRelativeTime(entry.createdAt)}</span>
                   </div>

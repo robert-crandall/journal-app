@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -33,19 +33,19 @@ const continueSchema = z.object({
 type ContinueFormData = z.infer<typeof continueSchema>
 
 interface JournalPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function JournalEntryPage({ params }: JournalPageProps) {
+  const resolvedParams = use(params)
   const [entry, setEntry] = useState<JournalEntry | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isContinuing, setIsContinuing] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(null)
-  const [conversationHistory, setConversationHistory] = useState<Array<{
-    type: 'user' | 'ai'
+  const [messages, setMessages] = useState<Array<{
+    role: 'user' | 'assistant'
     content: string
     timestamp: string
   }>>([])
@@ -66,10 +66,13 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
         setIsLoading(true)
         setError(null)
         
-        const response = await apiClient.getJournalEntry(params.id)
+        const response = await apiClient.getJournalEntry(resolvedParams.id)
         if (response.success && response.data) {
           setEntry(response.data)
-          // TODO: Load conversation history from backend if available
+          // Load conversation messages from the entry
+          if (response.data.conversationData?.messages) {
+            setMessages(response.data.conversationData.messages)
+          }
         } else {
           setError(response.error || 'Failed to load journal entry')
         }
@@ -82,12 +85,12 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
     }
 
     loadEntry()
-  }, [params.id])
+  }, [resolvedParams.id])
 
-  const onContinueConversation = async (data: ContinueFormData) => {
+  const onSendMessage = async (data: ContinueFormData) => {
     if (!entry) return
 
-    setIsContinuing(true)
+    setIsSending(true)
     setError(null)
 
     try {
@@ -96,40 +99,23 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
       })
 
       if (response.success && response.data) {
-        // Add user message to conversation
-        const userMessage = {
-          type: 'user' as const,
-          content: data.content,
-          timestamp: new Date().toISOString()
-        }
-        
-        setConversationHistory(prev => [...prev, userMessage])
-        
-        // Update entry with new data
+        // Update the entry with new conversation data
         setEntry(response.data.entry)
         
-        // Set follow-up question if provided
-        if (response.data.followUpQuestion) {
-          setFollowUpQuestion(response.data.followUpQuestion)
-          const aiMessage = {
-            type: 'ai' as const,
-            content: response.data.followUpQuestion,
-            timestamp: new Date().toISOString()
-          }
-          setConversationHistory(prev => [...prev, aiMessage])
-        } else {
-          setFollowUpQuestion(null)
+        // Update messages from the response
+        if (response.data.entry.conversationData?.messages) {
+          setMessages(response.data.entry.conversationData.messages)
         }
         
         reset()
       } else {
-        setError(response.error || 'Failed to continue conversation')
+        setError(response.error || 'Failed to send message')
       }
     } catch (err) {
-      console.error('Error continuing conversation:', err)
-      setError('Unable to continue conversation')
+      console.error('Error sending message:', err)
+      setError('Unable to send message')
     } finally {
-      setIsContinuing(false)
+      setIsSending(false)
     }
   }
 
@@ -169,7 +155,7 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
                 <Calendar className="h-3 w-3 mr-1" />
                 {dateUtils.formatDate(entry.createdAt, 'PPP')}
               </div>
-              <div>{textUtils.countWords(entry.content)} words</div>
+              <div>{entry.content ? textUtils.countWords(entry.content) : 0} words</div>
               <div>{dateUtils.getRelativeTime(entry.createdAt)}</div>
             </div>
           </div>
@@ -196,115 +182,111 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
         </div>
       )}
 
-      {/* Original Entry */}
+      {/* Chat Interface */}
       <div className="card bg-base-100 shadow-lg">
-        <div className="card-body">
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center">
-                <User className="h-4 w-4 text-brand-700" />
-              </div>
+        <div className="card-body p-0">
+          {/* Chat Messages */}
+          <div className="flex flex-col h-[600px]">
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {messages.length === 0 ? (
+                <div className="text-center text-base-content/60 py-12">
+                  <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No conversation yet. The AI will start asking follow-up questions.</p>
+                </div>
+              ) : (
+                messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`flex items-start space-x-3 max-w-[80%] ${
+                        message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                      }`}
+                    >
+                      {/* Avatar */}
+                      <div className="flex-shrink-0">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            message.role === 'user'
+                              ? 'bg-primary text-primary-content'
+                              : 'bg-secondary text-secondary-content'
+                          }`}
+                        >
+                          {message.role === 'user' ? (
+                            <User className="h-4 w-4" />
+                          ) : (
+                            <Bot className="h-4 w-4" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Message Bubble */}
+                      <div
+                        className={`p-4 rounded-2xl ${
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-content rounded-br-md'
+                            : 'bg-base-200 text-base-content rounded-bl-md'
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {message.content}
+                        </p>
+                        <div
+                          className={`text-xs mt-2 opacity-70 ${
+                            message.role === 'user' ? 'text-right' : 'text-left'
+                          }`}
+                        >
+                          {dateUtils.formatDate(message.timestamp, 'p')}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-            <div className="flex-1">
-              <div className="prose prose-sm max-w-none">
-                <p className="whitespace-pre-wrap">{entry.content}</p>
-              </div>
+
+            {/* Input Area */}
+            <div className="border-t border-base-300 p-4">
+              <form onSubmit={handleSubmit(onSendMessage)} className="flex space-x-3">
+                <div className="flex-1">
+                  <TextareaAutosize
+                    {...register('content')}
+                    placeholder="Type your response..."
+                    className={`textarea textarea-bordered w-full resize-none ${
+                      errors.content ? 'textarea-error' : 'focus:textarea-primary'
+                    }`}
+                    minRows={1}
+                    maxRows={4}
+                    disabled={isSending}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSubmit(onSendMessage)()
+                      }
+                    }}
+                  />
+                  {errors.content && (
+                    <div className="text-error text-xs mt-1">{errors.content.message}</div>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-circle"
+                  disabled={isSending}
+                >
+                  {isSending ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </button>
+              </form>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Conversation History */}
-      {conversationHistory.length > 0 && (
-        <div className="space-y-4">
-          {conversationHistory.map((message, index) => (
-            <div key={index} className="card bg-base-100 shadow-sm">
-              <div className="card-body">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.type === 'user' 
-                        ? 'bg-brand-100' 
-                        : 'bg-journal-primary/10'
-                    }`}>
-                      {message.type === 'user' ? (
-                        <User className="h-4 w-4 text-brand-700" />
-                      ) : (
-                        <Bot className="h-4 w-4 text-journal-primary" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="prose prose-sm max-w-none">
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                    <div className="text-xs text-base-content/60 mt-2">
-                      {dateUtils.getRelativeTime(message.timestamp)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Continue Conversation */}
-      {followUpQuestion && (
-        <div className="card bg-gradient-to-r from-journal-primary/5 to-journal-secondary/5 border border-journal-primary/20">
-          <div className="card-body">
-            <div className="flex items-start space-x-3 mb-4">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-journal-primary/10 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-journal-primary" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="prose prose-sm max-w-none">
-                  <p>{followUpQuestion}</p>
-                </div>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit(onContinueConversation)} className="space-y-4">
-              <div className="form-control">
-                <TextareaAutosize
-                  {...register('content')}
-                  placeholder="Share your thoughts..."
-                  className={`textarea textarea-bordered w-full resize-none ${
-                    errors.content ? 'textarea-error' : 'focus:textarea-primary'
-                  }`}
-                  minRows={3}
-                  maxRows={8}
-                  disabled={isContinuing}
-                />
-                {errors.content && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.content.message}</span>
-                  </label>
-                )}
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={isContinuing}
-                >
-                  {isContinuing ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Send Response
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* AI Analysis Results */}
       {entry.summary && (

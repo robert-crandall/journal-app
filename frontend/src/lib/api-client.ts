@@ -65,7 +65,7 @@ class ApiClient {
   }
 
   // Journal methods
-  async createJournalEntry(data: { content: string; experimentId?: string }) {
+  async createJournalEntry(data: { entryDate: string; initialMessage: string; experimentIds?: string[] }) {
     return this.request<JournalEntry>('/api/journal', {
       method: 'POST',
       body: JSON.stringify(data),

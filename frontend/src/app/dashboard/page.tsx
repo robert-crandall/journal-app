@@ -160,7 +160,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-base-content/70 line-clamp-2">
-                      {textUtils.truncate(entry.content, 100)}
+                      {entry.content ? textUtils.truncate(entry.content, 100) : 'No content'}
                     </p>
                   </Link>
                 ))}

@@ -17,9 +17,13 @@ export interface JournalEntry {
   id: string
   userId: string
   title: string | null
-  content: string
   summary: string | null
   synopsis: string | null
+  conversationData: {
+    messages: { role: 'user' | 'assistant'; content: string; timestamp: string }[]
+    isComplete: boolean
+  }
+  entryDate: string
   createdAt: string
   updatedAt: string
 }
