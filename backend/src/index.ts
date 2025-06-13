@@ -1,82 +1,60 @@
-import 'dotenv/config';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
-import type { JwtVariables } from 'hono/jwt';
-import type { User } from './db/schema';
-import { prettyJSON } from 'hono/pretty-json';
-import { serveStatic } from 'hono/bun';
+import 'dotenv/config'
+import { Hono } from 'hono'
+import { serve } from '@hono/node-server'
+import { corsMiddleware, loggerMiddleware, errorHandler } from './middleware/common'
 
-// Define app variables type
-type Variables = JwtVariables & {
-  user: User;
-};
+// Import routes
+import authRoutes from './routes/auth.routes'
+import characterStatsRoutes from './routes/character-stats.routes'
+import experimentsRoutes from './routes/experiments.routes'
+import journalRoutes from './routes/journal.routes'
+import tagsRoutes from './routes/tags.routes'
 
-// Routes
-import auth from './routes/auth';
-import family from './routes/family';
-import tasks from './routes/tasks';
-import adhocTasks from './routes/adhocTasks';
-import journals from './routes/journals';
-import potions from './routes/potions';
-import stats from './routes/stats';
-import preferences from './routes/preferences';
-import tags from './routes/tags';
+const app = new Hono()
 
-const app = new Hono<{ Variables: Variables }>();
+// Global middleware
+app.use('*', corsMiddleware)
+app.use('*', loggerMiddleware)
+app.use('*', errorHandler)
 
-// Middleware
-app.use("*", cors());
+// Health check
+app.get('/', (c) => {
+  return c.json({
+    success: true,
+    message: 'Journal App Backend API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  })
+})
 
-// Only enable detailed logging in development
-// if (process.env.NODE_ENV !== "production") {
-//   app.use("*", logger());
-// }
-app.use("*", prettyJSON());
+app.get('/health', (c) => {
+  return c.json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  })
+})
 
 // API routes
-app.route('/api/auth', auth);
-app.route('/api/family', family);
-app.route('/api/tasks', tasks);
-app.route('/api/adhoc-tasks', adhocTasks);
-app.route('/api/journals', journals);
-app.route('/api/potions', potions);
-app.route('/api/stats', stats);
-app.route('/api/preferences', preferences);
-app.route('/api/tags', tags);
+app.route('/api/auth', authRoutes)
+app.route('/api/character-stats', characterStatsRoutes)
+app.route('/api/experiments', experimentsRoutes)
+app.route('/api/journal', journalRoutes)
+app.route('/api/tags', tagsRoutes)
 
-// Serve static files - but exclude API routes using a custom condition
-app.use("*", async (c, next) => {
-  const path = c.req.path;
-  
-  // Skip static serving for API routes
-  if (path.startsWith("/api/") || path.startsWith("/cron") || path.startsWith("/docs")) {
-    await next();
-    return;
-  }
-  
-  // For non-API routes, try to serve static files first
-  return serveStatic({ root: "./frontend" })(c, next);
-});
+// 404 handler
+app.notFound((c) => {
+  return c.json({
+    success: false,
+    error: 'Not Found',
+    message: 'The requested endpoint does not exist'
+  }, 404)
+})
 
-// Fallback for client-side routing (SPA) - serve index.html for non-API routes
-app.get("*", async (c) => {
-  const path = c.req.path;
-  
-  // This should only be reached for non-API routes that don't have static files
-  try {
-    const file = Bun.file("./frontend/index.html");
-    const content = await file.text();
-    return c.html(content);
-  } catch (error) {
-    console.error("Error serving index.html:", error);
-    return c.json({ error: "Frontend not found" }, 404);
-  }
-});
+const port = Number(process.env.PORT) || 3001
 
-// Start the server when running in Bun
-const port = parseInt(Bun.env.PORT || "3000", 10);
-console.log(`Server is running on port ${port}`);
+console.log(`Server is running on port ${port}`)
+
 export default {
   port,
   fetch: app.fetch

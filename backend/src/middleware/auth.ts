@@ -1,35 +1,35 @@
-import type { Context, Next } from 'hono';
-import { jwt } from 'hono/jwt';
-import type { JwtVariables } from 'hono/jwt';
-import { getUserById } from '../utils/auth';
-import type { User } from '../db/schema';
+import { Context, Next } from 'hono'
+import { HTTPException } from 'hono/http-exception'
+import { verifyToken } from '../utils/auth'
 
-export interface AuthContext extends JwtVariables {
-  user: User;
+export async function authMiddleware(c: Context, next: Next) {
+  const authHeader = c.req.header('Authorization')
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({
+      success: false,
+      error: 'Authorization token required'
+    }, 401)
+  }
+
+  const token = authHeader.substring(7) // Remove 'Bearer ' prefix
+  
+  try {
+    const payload = verifyToken(token)
+    c.set('user', payload)
+    await next()
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: 'Invalid or expired token'
+    }, 401)
+  }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production';
-
-// JWT middleware that will protect routes
-export const jwtMiddleware = jwt({
-  secret: JWT_SECRET,
-  cookie: 'session', // Also check for JWT in cookies
-});
-
-// Custom middleware to add user data to context after JWT verification
-export async function userMiddleware(c: Context, next: Next) {
-  const jwtPayload = c.get('jwtPayload');
-  
-  if (!jwtPayload || !jwtPayload.userId) {
-    return c.json({ error: 'Invalid token' }, 401);
-  }
-  
-  const user = await getUserById(jwtPayload.userId);
-  
+export function getUserFromContext(c: Context) {
+  const user = c.get('user')
   if (!user) {
-    return c.json({ error: 'User not found' }, 401);
+    throw new HTTPException(401, { message: 'User not authenticated' })
   }
-  
-  c.set('user', user);
-  await next();
+  return user
 }

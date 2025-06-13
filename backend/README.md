@@ -1,91 +1,173 @@
 # Journal App Backend
 
-A Hono-based backend API for the personal development journal application with GPT-powered task generation.
+A Hono-based backend API for the conversational journal application with GPT integration.
 
-## Features
+## 🚀 Quick Start
 
-- **GPT-Generated Daily Tasks**: AI-powered personalized task generation using OpenAI
-- **Focus-Based Planning**: Tasks aligned with daily focus areas
-- **Family Connection Tasks**: Tasks that promote bonding with family members
-- **XP & Leveling System**: Gamified progress tracking with stats and levels
-- **Feedback Loop**: User feedback and emotions inform future task generation
+### Prerequisites
 
-## Setup
+- [Bun](https://bun.sh/) (recommended) or Node.js 18+
+- PostgreSQL database
+- OpenAI API key
 
-### Install Dependencies
-```sh
+### Installation
+
+1. Install dependencies:
+```bash
 bun install
 ```
 
-### Environment Configuration
-Copy the example environment file:
-```sh
+2. Set up environment variables:
+```bash
 cp .env.example .env
 ```
 
-Edit `.env` and add your configuration:
-- `OPENAI_API_KEY`: Your OpenAI API key for GPT task generation
-- `DATABASE_URL`: PostgreSQL connection string
-- `JWT_SECRET`: Secret key for JWT authentication
+Edit `.env` with your actual values:
+- `DATABASE_URL`: Your PostgreSQL connection string
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `JWT_SECRET`: A secure random string for JWT signing
 
-### Database Setup
-```sh
-# Generate and run migrations
+3. Generate database migrations:
+```bash
 bun run db:generate
+```
+
+4. Run database migrations:
+```bash
 bun run db:migrate
 ```
 
-### Development Server
-```sh
+5. Seed predefined tone tags:
+```bash
+bun run db:seed
+```
+
+6. Start the development server:
+```bash
 bun run dev
 ```
 
-Server runs at http://localhost:3000
+The API will be available at `http://localhost:3001`
 
-## API Endpoints
+## 📊 Database
 
-### Daily Tasks
-- `GET /api/tasks/daily` - Get or generate today's personalized tasks
-- `POST /api/tasks/:id/complete` - Complete a task with optional feedback and emotion
+The application uses PostgreSQL with Drizzle ORM. The database schema includes:
 
-### Task Completion Schema
-```json
-{
-  "status": "complete|skipped|failed",
-  "completionSummary": "Optional summary",
-  "feedback": "User feedback for GPT learning",
-  "emotionTag": "joy|frustration|satisfaction|etc"
-}
+- **users**: User accounts with authentication
+- **character_stats**: RPG-style stats for personal development tracking
+- **experiments**: Self-improvement experiments/quests
+- **daily_tasks**: Daily checklist items for experiments
+- **journal_entries**: Conversational journal entries with GPT integration
+- **content_tags**: User-generated topic tags
+- **tone_tags**: Predefined mood/emotion tags
+- **Various junction tables**: For many-to-many relationships
+
+## 🛠️ Available Scripts
+
+- `bun run dev` - Start development server with hot reload
+- `bun run build` - Build for production
+- `bun run start` - Start production server
+- `bun run db:generate` - Generate database migrations
+- `bun run db:migrate` - Run database migrations
+- `bun run db:seed` - Seed predefined tone tags
+- `bun run db:studio` - Open Drizzle Studio for database management
+
+## 📚 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
+- `PUT /api/auth/me` - Update current user
+- `DELETE /api/auth/me` - Delete current user
+
+### Character Stats
+- `POST /api/character-stats` - Create character stat
+- `GET /api/character-stats` - Get user's character stats
+- `GET /api/character-stats/:id` - Get specific character stat
+- `PUT /api/character-stats/:id` - Update character stat
+- `DELETE /api/character-stats/:id` - Delete character stat
+
+### Experiments
+- `POST /api/experiments` - Create experiment
+- `GET /api/experiments` - Get user's experiments
+- `GET /api/experiments/:id` - Get specific experiment
+- `PUT /api/experiments/:id` - Update experiment
+- `DELETE /api/experiments/:id` - Delete experiment
+- `GET /api/experiments/:id/tasks` - Get experiment's daily tasks
+- `POST /api/experiments/:id/tasks` - Complete/update daily task
+- `GET /api/experiments/:id/tasks/range` - Get tasks in date range
+
+### Journal
+- `POST /api/journal` - Create journal entry
+- `GET /api/journal` - Get user's journal entries
+- `GET /api/journal/:id` - Get specific journal entry with full details
+- `POST /api/journal/:id/continue` - Continue conversation for journal entry
+- `PUT /api/journal/:id` - Update journal entry
+- `DELETE /api/journal/:id` - Delete journal entry
+
+### Tags
+- `POST /api/tags/content` - Create content tag
+- `GET /api/tags/content` - Get user's content tags
+- `DELETE /api/tags/content/:id` - Delete content tag
+- `GET /api/tags/tone` - Get all predefined tone tags
+
+## 🔐 Authentication
+
+The API uses JWT bearer tokens for authentication. Include the token in the Authorization header:
+
+```
+Authorization: Bearer <your-jwt-token>
 ```
 
-## GPT Task Generation
+## 🤖 GPT Integration
 
-The system generates two types of daily tasks:
+The journal system uses OpenAI's GPT-4 for:
 
-1. **Primary Task**: Aligned with your daily focus area
-2. **Connection Task**: Focused on relationships and emotional well-being
+1. **Conversational prompting**: Generating follow-up questions to deepen reflection
+2. **Insight extraction**: Automatically extracting structured insights from conversations:
+   - Title (6-10 words)
+   - Summary (narrative rewrite in user's voice)
+   - Synopsis (1-2 sentence overview)
+   - Content tags (topic-based)
+   - Tone tags (mood-based from predefined set)
+   - Character tags (personal growth stats used/developed)
 
-### Task Generation Process
+## 🏗️ Architecture
 
-1. Checks if today's tasks already exist
-2. If not, gathers user context:
-   - Current focus and goals
-   - User stats and progress
-   - Family member information
-   - Recent task history and feedback
-3. Sends context to OpenAI GPT-4
-4. Generates personalized tasks
-5. Saves tasks to database with linked stats for XP
+- **Framework**: Hono (ultrafast web framework)
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: JWT with bcryptjs password hashing
+- **Validation**: Zod schemas
+- **AI Integration**: OpenAI GPT-4
+- **TypeScript**: Full end-to-end type safety
 
-### Fallback Behavior
+## 🚀 Deployment
 
-If OpenAI API is unavailable or not configured, the system falls back to mock task generation to ensure the app remains functional.
+1. Build the application:
+```bash
+bun run build
+```
 
-## Development
+2. Set production environment variables
 
-The backend uses:
-- **Hono**: Fast web framework
-- **Drizzle ORM**: Type-safe database operations
-- **PostgreSQL**: Primary database
-- **OpenAI SDK**: GPT integration
-- **Bun**: Runtime and package manager
+3. Run migrations in production:
+```bash
+bun run db:migrate
+```
+
+4. Start the production server:
+```bash
+bun run start
+```
+
+## 📝 Development Notes
+
+- All UUIDs are v4
+- All dates are timezone-aware (stored in UTC)
+- Password hashing uses bcryptjs with 12 salt rounds
+- XP system awards 5 XP per journal entry for associated character stats
+- Conversation completion triggers automatic insight extraction
+- Content tags are user-specific, tone tags are global predefined set
+
+open http://localhost:3000
