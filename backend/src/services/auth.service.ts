@@ -2,11 +2,20 @@ import { eq } from 'drizzle-orm'
 import { db } from '../db'
 import { users } from '../db/schema'
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth'
+import { isValidEmail } from '../utils/helpers'
 import { CreateUserInput, LoginInput, UpdateUserInput, User, AuthResponse } from '../types'
 
 export class AuthService {
   static async register(input: CreateUserInput): Promise<AuthResponse> {
     try {
+      // Validate email format
+      if (!isValidEmail(input.email)) {
+        return {
+          success: false,
+          error: 'Invalid email format'
+        }
+      }
+
       // Check if user already exists
       const existingUser = await db.query.users.findFirst({
         where: eq(users.email, input.email)
@@ -161,6 +170,7 @@ export class AuthService {
     try {
       const result = await db.delete(users)
         .where(eq(users.id, userId))
+        .returning()
 
       return result.length > 0
     } catch (error) {

@@ -34,12 +34,13 @@ export class CharacterStatsService {
 
   static async getById(id: string, userId: string): Promise<CharacterStat | null> {
     try {
-      return await db.query.characterStats.findFirst({
+      const result = await db.query.characterStats.findFirst({
         where: and(
           eq(characterStats.id, id),
           eq(characterStats.userId, userId)
         )
-      }) as CharacterStat | null
+      })
+      return result || null
     } catch (error) {
       console.error('Get character stat error:', error)
       return null
@@ -82,6 +83,7 @@ export class CharacterStatsService {
           eq(characterStats.id, id),
           eq(characterStats.userId, userId)
         ))
+        .returning()
 
       return result.length > 0
     } catch (error) {
