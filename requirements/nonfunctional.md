@@ -1,14 +1,14 @@
 
 ### 🧑‍💻 **System Architecture**
 
-* The backend will use use **Next.js**
+* The backend will use **Hono**, and the frontend will use **Next.js**
 * The database will be Postgres. Use Drizzle for ORM.
 * NextJS target will be static site generation
-* The entire system will feature end to end type safety.
+* The entire system will feature end to end type safety. Hono will export a tRPC client. NextJS will use this client for calls.
 * All API responses and requests must follow **JSON standards** with clear status codes.
 * All backend functions should be **single-purpose** and easy to test or replace.
 * **UUIDv4** will be used for all unique identifiers.
-* All date/time fields must be **timezone-aware** (preferably in UTC with user-local conversions).
+* All date/time fields must be **timezone-aware** (Postgres datetimez type).
 * Use **environment-based config** for secrets, ports, URLs, etc.
 
 ### 🔐 **User Authentication**
