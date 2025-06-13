@@ -43,10 +43,13 @@ export default function JournalPage() {
   const filteredEntries = entries
     .filter(entry => {
       if (!searchQuery) return true
+      const searchLower = searchQuery.toLowerCase()
       return (
-        entry.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.synopsis?.toLowerCase().includes(searchQuery.toLowerCase())
+        entry.title?.toLowerCase().includes(searchLower) ||
+        entry.synopsis?.toLowerCase().includes(searchLower) ||
+        entry.conversationData?.messages?.some(msg => 
+          msg.content.toLowerCase().includes(searchLower)
+        )
       )
     })
     .sort((a, b) => {
@@ -173,12 +176,20 @@ export default function JournalPage() {
                 </div>
                 
                 <p className="text-base-content/80 line-clamp-3 mb-3">
-                  {entry.content ? textUtils.truncate(entry.content, 200) : 'No content'}
+                  {entry.conversationData?.messages?.length > 0 
+                    ? textUtils.truncate(entry.conversationData.messages[0].content, 200)
+                    : entry.summary || 'No content'}
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-xs text-base-content/60">
-                    <span>{entry.content ? textUtils.countWords(entry.content) : 0} words</span>
+                    <span>
+                      {entry.conversationData?.messages 
+                        ? entry.conversationData.messages
+                            .filter(msg => msg.role === 'user')
+                            .reduce((total, msg) => total + textUtils.countWords(msg.content), 0)
+                        : 0} words
+                    </span>
                     <span className="mx-2">•</span>
                     <span>{dateUtils.getRelativeTime(entry.createdAt)}</span>
                   </div>

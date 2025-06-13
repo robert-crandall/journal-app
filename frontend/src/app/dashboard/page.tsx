@@ -160,7 +160,9 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-base-content/70 line-clamp-2">
-                      {entry.content ? textUtils.truncate(entry.content, 100) : 'No content'}
+                      {entry.conversationData?.messages?.length > 0 
+                        ? textUtils.truncate(entry.conversationData.messages[0].content, 100)
+                        : entry.summary || 'No content'}
                     </p>
                   </Link>
                 ))}

@@ -155,7 +155,13 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
                 <Calendar className="h-3 w-3 mr-1" />
                 {dateUtils.formatDate(entry.createdAt, 'PPP')}
               </div>
-              <div>{entry.content ? textUtils.countWords(entry.content) : 0} words</div>
+              <div>
+                {entry.conversationData?.messages 
+                  ? entry.conversationData.messages
+                      .filter(msg => msg.role === 'user')
+                      .reduce((total, msg) => total + textUtils.countWords(msg.content), 0)
+                  : 0} words
+              </div>
               <div>{dateUtils.getRelativeTime(entry.createdAt)}</div>
             </div>
           </div>
