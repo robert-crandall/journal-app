@@ -6,7 +6,10 @@ export async function authMiddleware(c: Context, next: Next) {
   const authHeader = c.req.header('Authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new HTTPException(401, { message: 'Authorization token required' })
+    return c.json({
+      success: false,
+      error: 'Authorization token required'
+    }, 401)
   }
 
   const token = authHeader.substring(7) // Remove 'Bearer ' prefix
@@ -16,7 +19,10 @@ export async function authMiddleware(c: Context, next: Next) {
     c.set('user', payload)
     await next()
   } catch (error) {
-    throw new HTTPException(401, { message: 'Invalid or expired token' })
+    return c.json({
+      success: false,
+      error: 'Invalid or expired token'
+    }, 401)
   }
 }
 

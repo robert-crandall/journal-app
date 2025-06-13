@@ -14,7 +14,10 @@ auth.post('/register', zValidator('json', CreateUserSchema), async (c) => {
   const result = await AuthService.register(input)
   
   if (!result.success) {
-    throw new HTTPException(400, { message: result.error })
+    return c.json({
+      success: false,
+      error: result.error
+    }, 400)
   }
   
   return c.json(result)
@@ -27,7 +30,10 @@ auth.post('/login', zValidator('json', LoginSchema), async (c) => {
   const result = await AuthService.login(input)
   
   if (!result.success) {
-    throw new HTTPException(400, { message: result.error })
+    return c.json({
+      success: false,
+      error: result.error
+    }, 401)
   }
   
   return c.json(result)
@@ -40,7 +46,10 @@ auth.get('/me', authMiddleware, async (c) => {
   const userData = await AuthService.getUserById(user.userId)
   
   if (!userData) {
-    throw new HTTPException(404, { message: 'User not found' })
+    return c.json({
+      success: false,
+      error: 'User not found'
+    }, 404)
   }
   
   return c.json({
