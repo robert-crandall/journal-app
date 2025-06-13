@@ -113,7 +113,7 @@
 				{#if searchQuery}
 					<button 
 						class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
-						on:click={() => searchQuery = ''}
+						onclick={() => searchQuery = ''}
 					>
 						<X size={16} />
 					</button>
@@ -122,7 +122,7 @@
 			
 			<button 
 				class="btn btn-outline {filterExpanded ? 'btn-primary' : ''} gap-1"
-				on:click={() => filterExpanded = !filterExpanded}
+				onclick={() => filterExpanded = !filterExpanded}
 			>
 				<Filter size={18} />
 				{#if selectedTagIds.length > 0}
@@ -142,7 +142,7 @@
 					{#if selectedTagIds.length > 0}
 						<button 
 							class="btn btn-sm btn-ghost text-xs"
-							on:click={() => selectedTagIds = []}
+							onclick={() => selectedTagIds = []}
 						>
 							Clear All
 						</button>
@@ -163,7 +163,7 @@
 						{#each tags as tag}
 							<button
 								class="badge {selectedTagIds.includes(tag.id) ? 'badge-primary' : 'badge-outline'} cursor-pointer"
-								on:click={() => {
+								onclick={() => {
 									if (selectedTagIds.includes(tag.id)) {
 										selectedTagIds = selectedTagIds.filter(id => id !== tag.id);
 									} else {
