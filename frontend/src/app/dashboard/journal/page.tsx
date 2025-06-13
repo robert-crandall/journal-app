@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { BookOpen, Plus, Search, Calendar, Tag } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
-import { JournalEntry } from '@/types'
+import { JournalEntryWithTags } from '@/types'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { ErrorMessage } from '@/components/ErrorMessage'
+import { TagDisplay } from '@/components/TagDisplay'
 import { dateUtils, textUtils } from '@/utils'
 
 export default function JournalPage() {
-  const [entries, setEntries] = useState<JournalEntry[]>([])
+  const [entries, setEntries] = useState<JournalEntryWithTags[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -22,7 +23,7 @@ export default function JournalPage() {
         setIsLoading(true)
         setError(null)
         
-        const response = await apiClient.getJournalEntries()
+        const response = await apiClient.getJournalEntriesWithTags()
         if (response.success && response.data) {
           setEntries(response.data)
         } else {
@@ -47,7 +48,7 @@ export default function JournalPage() {
       return (
         entry.title?.toLowerCase().includes(searchLower) ||
         entry.synopsis?.toLowerCase().includes(searchLower) ||
-        entry.conversationData?.messages?.some(msg => 
+        entry.conversationData?.messages?.some((msg: any) => 
           msg.content.toLowerCase().includes(searchLower)
         )
       )
@@ -181,13 +182,22 @@ export default function JournalPage() {
                     : entry.summary || 'No content'}
                 </p>
                 
+                {/* Tags */}
+                <TagDisplay 
+                  contentTags={entry.contentTags}
+                  toneTags={entry.toneTags}
+                  characterStats={entry.characterStats}
+                  size="sm"
+                  className="mb-3"
+                />
+                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-xs text-base-content/60">
                     <span>
                       {entry.conversationData?.messages 
                         ? entry.conversationData.messages
-                            .filter(msg => msg.role === 'user')
-                            .reduce((total, msg) => total + textUtils.countWords(msg.content), 0)
+                            .filter((msg: any) => msg.role === 'user')
+                            .reduce((total: number, msg: any) => total + textUtils.countWords(msg.content), 0)
                         : 0} words
                     </span>
                     <span className="mx-2">•</span>

@@ -1,7 +1,7 @@
 // API client for connecting to the backend
 // This will be updated to use tRPC once the backend client is properly integrated
 
-import { ApiResponse, User, JournalEntry, Experiment, CharacterStat, ContentTag, ToneTag } from '@/types'
+import { ApiResponse, User, JournalEntry, JournalEntryWithTags, Experiment, CharacterStat, ContentTag, ToneTag } from '@/types'
 
 // Base API configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -76,12 +76,16 @@ class ApiClient {
     return this.request<JournalEntry[]>('/api/journal')
   }
 
+  async getJournalEntriesWithTags() {
+    return this.request<JournalEntryWithTags[]>('/api/journal/with-tags')
+  }
+
   async getJournalEntry(id: string) {
-    return this.request<JournalEntry>(`/api/journal/${id}`)
+    return this.request<JournalEntryWithTags>(`/api/journal/${id}`)
   }
 
   async continueConversation(id: string, data: { content: string }) {
-    return this.request<{ entry: JournalEntry; followUpQuestion: string | null }>(`/api/journal/${id}/continue`, {
+    return this.request<{ entry: JournalEntryWithTags; followUpQuestion: string | null }>(`/api/journal/${id}/continue`, {
       method: 'POST',
       body: JSON.stringify({ message: data.content }),
     })

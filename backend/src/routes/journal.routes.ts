@@ -40,6 +40,18 @@ journal.get('/', async (c) => {
   })
 })
 
+// Get all journal entries for user with tags
+journal.get('/with-tags', async (c) => {
+  const user = getUserFromContext(c)
+  
+  const entries = await JournalService.getByUserIdWithTags(user.userId)
+  
+  return c.json({
+    success: true,
+    data: entries
+  })
+})
+
 // Get journal entry by ID with full details
 journal.get('/:id', async (c) => {
   const user = getUserFromContext(c)

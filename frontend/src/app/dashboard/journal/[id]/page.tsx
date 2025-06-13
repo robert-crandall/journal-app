@@ -21,9 +21,10 @@ import {
   Trash2
 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
-import { JournalEntry } from '@/types'
+import { JournalEntryWithTags } from '@/types'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { ErrorMessage } from '@/components/ErrorMessage'
+import { TagDisplay } from '@/components/TagDisplay'
 import { dateUtils, textUtils } from '@/utils'
 
 const continueSchema = z.object({
@@ -40,7 +41,7 @@ interface JournalPageProps {
 
 export default function JournalEntryPage({ params }: JournalPageProps) {
   const resolvedParams = use(params)
-  const [entry, setEntry] = useState<JournalEntry | null>(null)
+  const [entry, setEntry] = useState<JournalEntryWithTags | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -158,8 +159,8 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
               <div>
                 {entry.conversationData?.messages 
                   ? entry.conversationData.messages
-                      .filter(msg => msg.role === 'user')
-                      .reduce((total, msg) => total + textUtils.countWords(msg.content), 0)
+                      .filter((msg: any) => msg.role === 'user')
+                      .reduce((total: number, msg: any) => total + textUtils.countWords(msg.content), 0)
                   : 0} words
               </div>
               <div>{dateUtils.getRelativeTime(entry.createdAt)}</div>
@@ -184,6 +185,41 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
           <div>
             <div className="font-medium">Synopsis</div>
             <div className="text-sm">{entry.synopsis}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Preview */}
+      {entry.summary && (
+        <div className="card bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 shadow-md">
+          <div className="card-body">
+            <div className="flex items-center mb-3">
+              <Sparkles className="h-5 w-5 text-primary mr-2" />
+              <h3 className="text-lg font-semibold text-base-content">
+                AI-Generated Summary
+              </h3>
+            </div>
+            <div className="prose prose-sm max-w-none text-base-content/90 leading-relaxed">
+              {entry.summary.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="mb-3 last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Tags Preview */}
+      {(entry.contentTags?.length > 0 || entry.toneTags?.length > 0 || entry.characterStats?.length > 0) && (
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body py-3">
+            <TagDisplay 
+              contentTags={entry.contentTags}
+              toneTags={entry.toneTags}
+              characterStats={entry.characterStats}
+              size="sm"
+            />
           </div>
         </div>
       )}
@@ -300,20 +336,43 @@ export default function JournalEntryPage({ params }: JournalPageProps) {
           <div className="card-body">
             <h3 className="card-title text-lg mb-4">
               <Sparkles className="h-5 w-5 text-journal-primary" />
-              AI Analysis
+              AI Analysis & Insights
             </h3>
             
-            <div className="prose prose-sm max-w-none">
-              <h4>Summary</h4>
-              <p>{entry.summary}</p>
+            {/* Detailed Summary */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-base-content mb-3 flex items-center">
+                <div className="w-1 h-4 bg-primary rounded mr-2"></div>
+                Detailed Summary
+              </h4>
+              <div className="bg-base-200/50 rounded-lg p-4">
+                <div className="prose prose-sm max-w-none text-base-content/90 leading-relaxed">
+                  {entry.summary.split('\n\n').map((paragraph, index) => (
+                    <p key={index} className="mb-3 last:mb-0">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Tags would go here */}
-            <div className="flex items-center space-x-2 mt-4">
-              <Tag className="h-4 w-4 text-base-content/60" />
-              <span className="text-sm text-base-content/60">
-                Content and tone tags will appear here after AI processing
-              </span>
+            {/* Tags & Character Growth */}
+            <div>
+              <h4 className="font-semibold text-base-content mb-3 flex items-center">
+                <div className="w-1 h-4 bg-secondary rounded mr-2"></div>
+                Extracted Tags & Character Growth
+              </h4>
+              <TagDisplay 
+                contentTags={entry.contentTags}
+                toneTags={entry.toneTags}
+                characterStats={entry.characterStats}
+                size="md"
+              />
+              {(!entry.contentTags?.length && !entry.toneTags?.length && !entry.characterStats?.length) && (
+                <p className="text-base-content/60 text-sm italic">
+                  Tags and character insights will appear here after the conversation is completed and analyzed.
+                </p>
+              )}
             </div>
           </div>
         </div>

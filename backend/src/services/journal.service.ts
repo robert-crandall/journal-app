@@ -60,7 +60,7 @@ export class JournalService {
     entryId: string, 
     userId: string, 
     input: ContinueConversationInput
-  ): Promise<{ entry: JournalEntry; followUpQuestion: string | null } | null> {
+  ): Promise<{ entry: JournalEntryWithTags; followUpQuestion: string | null } | null> {
     try {
       // Get current entry
       const entry = await db.query.journalEntries.findFirst({
@@ -101,7 +101,7 @@ export class JournalService {
       }
 
       // Update the entry
-      const [updatedEntry] = await db.update(journalEntries)
+      await db.update(journalEntries)
         .set({
           conversationData: {
             messages: updatedMessages,
@@ -110,15 +110,20 @@ export class JournalService {
           updatedAt: new Date()
         })
         .where(eq(journalEntries.id, entryId))
-        .returning()
 
       // If conversation is complete, extract insights
       if (isComplete) {
         await this.extractAndSaveInsights(entryId, userId, updatedMessages)
       }
 
+      // Get the updated entry with tags
+      const updatedEntryWithTags = await this.getById(entryId, userId)
+      if (!updatedEntryWithTags) {
+        throw new Error('Failed to retrieve updated entry')
+      }
+
       return {
-        entry: updatedEntry,
+        entry: updatedEntryWithTags,
         followUpQuestion: assistantMessage?.content || null
       }
     } catch (error) {
@@ -240,6 +245,52 @@ export class JournalService {
       })
     } catch (error) {
       console.error('Get journal entries error:', error)
+      return []
+    }
+  }
+
+  static async getByUserIdWithTags(userId: string): Promise<JournalEntryWithTags[]> {
+    try {
+      const entries = await db.query.journalEntries.findMany({
+        where: eq(journalEntries.userId, userId),
+        orderBy: [desc(journalEntries.entryDate)],
+        with: {
+          journalContentTags: {
+            with: {
+              contentTag: true
+            }
+          },
+          journalToneTags: {
+            with: {
+              toneTag: true
+            }
+          },
+          journalCharacterStats: {
+            with: {
+              characterStat: true
+            }
+          },
+          journalExperiments: {
+            with: {
+              experiment: true
+            }
+          }
+        }
+      })
+
+      // Transform to the expected format
+      return entries.map(entry => ({
+        ...entry,
+        contentTags: entry.journalContentTags.map(jct => jct.contentTag),
+        toneTags: entry.journalToneTags.map(jtt => jtt.toneTag),
+        characterStats: entry.journalCharacterStats.map(jcs => ({
+          ...jcs.characterStat,
+          xpGained: jcs.xpGained
+        })),
+        experiments: entry.journalExperiments.map(je => je.experiment)
+      })) as JournalEntryWithTags[]
+    } catch (error) {
+      console.error('Get journal entries with tags error:', error)
       return []
     }
   }
