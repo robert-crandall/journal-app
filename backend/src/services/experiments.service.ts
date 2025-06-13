@@ -98,6 +98,7 @@ export class ExperimentsService {
           eq(experiments.id, id),
           eq(experiments.userId, userId)
         ))
+        .returning()
 
       return result.length > 0
     } catch (error) {
