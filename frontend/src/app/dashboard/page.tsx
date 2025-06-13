@@ -93,7 +93,7 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-primary to-secondary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-primary-content animate-fade-in">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
-          Welcome back, {user?.username}! 👋
+          Welcome back, {user?.name}! 👋
         </h1>
         <p className="text-base sm:text-lg opacity-90">
           Ready to continue your growth journey? Here's what's happening today.

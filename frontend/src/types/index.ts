@@ -1,72 +1,59 @@
-// Copy your backend types here for frontend use
-// This file imports all the types from your backend client
+// Import shared types from backend
+import type {
+  User as BackendUser,
+  JournalEntry as BackendJournalEntry,
+  Experiment as BackendExperiment,
+  CharacterStat as BackendCharacterStat,
+  ContentTag as BackendContentTag,
+  ToneTag as BackendToneTag,
+  DailyTask as BackendDailyTask,
+  JournalEntryWithTags as BackendJournalEntryWithTags,
+  ExperimentWithStats as BackendExperimentWithStats,
+  ApiResponse as BackendApiResponse,
+  AuthResponse as BackendAuthResponse,
+  CreateUserInput,
+  LoginInput,
+  UpdateUserInput,
+  CreateCharacterStatInput,
+  UpdateCharacterStatInput,
+  CreateExperimentInput,
+  UpdateExperimentInput,
+  CompleteDailyTaskInput,
+  CreateJournalEntryInput,
+  ContinueConversationInput,
+  UpdateJournalEntryInput,
+  CreateContentTagInput,
+  JwtPayload,
+} from '@backend/types'
 
-// For now, we'll copy the essential types from your backend
-// TODO: Set up proper type sharing once the build system is configured
+// Re-export backend types with cleaner names
+export type User = BackendUser
+export type JournalEntry = BackendJournalEntry
+export type Experiment = BackendExperiment
+export type CharacterStat = BackendCharacterStat
+export type ContentTag = BackendContentTag
+export type ToneTag = BackendToneTag
+export type DailyTask = BackendDailyTask
+export type JournalEntryWithTags = BackendJournalEntryWithTags
+export type ExperimentWithStats = BackendExperimentWithStats
+export type ApiResponse<T = any> = BackendApiResponse<T>
+export type AuthResponse = BackendAuthResponse
 
-// Core entity types (copied from backend)
-export interface User {
-  id: string
-  email: string
-  username: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface JournalEntry {
-  id: string
-  userId: string
-  title: string | null
-  summary: string | null
-  synopsis: string | null
-  conversationData: {
-    messages: { role: 'user' | 'assistant'; content: string; timestamp: string }[]
-    isComplete: boolean
-  }
-  entryDate: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Experiment {
-  id: string
-  userId: string
-  title: string
-  description: string
-  startDate: string
-  endDate: string
-  dailyTaskDescription: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CharacterStat {
-  id: string
-  userId: string
-  name: string
-  description: string
-  currentXp: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ContentTag {
-  id: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ToneTag {
-  id: string
-  name: string
-}
-
-// API Response types
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  error?: string
+// Re-export input types
+export type {
+  CreateUserInput,
+  LoginInput,
+  UpdateUserInput,
+  CreateCharacterStatInput,
+  UpdateCharacterStatInput,
+  CreateExperimentInput,
+  UpdateExperimentInput,
+  CompleteDailyTaskInput,
+  CreateJournalEntryInput,
+  ContinueConversationInput,
+  UpdateJournalEntryInput,
+  CreateContentTagInput,
+  JwtPayload,
 }
 
 // Frontend-specific types

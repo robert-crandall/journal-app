@@ -40,6 +40,9 @@
       ],
       "@/styles/*": [
         "./src/styles/*"
+      ],
+      "@backend/*": [
+        "../backend/src/*"
       ]
     },
     "target": "ES2017"

@@ -103,14 +103,14 @@ export function Navigation({ currentPath }: NavigationProps) {
               <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar btn-sm sm:btn-md">
                 <div className="w-8 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-medium text-sm sm:text-base">
-                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
               </div>
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 border border-base-200">
                 <li>
                   <div className="flex flex-col px-4 py-2 text-sm">
-                    <span className="font-medium truncate">{user?.username}</span>
+                    <span className="font-medium truncate">{user?.name}</span>
                     <span className="text-base-content/60 text-xs truncate">{user?.email}</span>
                   </div>
                 </li>
