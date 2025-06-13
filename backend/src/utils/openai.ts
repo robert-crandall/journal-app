@@ -8,6 +8,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini'
+
 export interface ConversationMessage {
   role: 'user' | 'assistant'
   content: string
@@ -47,7 +49,7 @@ ${conversationHistory}`
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: openAiModel,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Generate a follow-up question or indicate completion.' }
@@ -94,7 +96,7 @@ Return ONLY a JSON object with this exact structure:
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: openAiModel,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: conversationText }
