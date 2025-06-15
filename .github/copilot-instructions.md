@@ -6,12 +6,24 @@ This is a chat-first life coaching app with a conversational assistant at its co
 
 ## Technology Stack
 
-- **Framework**: SvelteKit 2 (full stack)
+- **Backend**: Hono (TypeScript-based web framework)
 - **Database**: PostgreSQL with Drizzle ORM
 - **AI Integration**: OpenAI API
-- **Javascript Runtime**: Bun
+- **Frontend Options**: 
+  - Option 1: SvelteUI (component library for Svelte)
+  - Option 2: Expo Web (React Native for web)
 
-## General Development Guidelines
+## Architecture Design
+
+This project uses a split architecture:
+1. Hono backend providing RESTful and/or GraphQL APIs
+2. Frontend client (SvelteUI or Expo Web) consuming these APIs
+
+Hono will export an RPC client for the frontend to use, ensuring type safety and consistency across the application.
+
+Write a test client in Hono that can be used to test the backend APIs. This client should be able to make requests to the backend and handle responses, including error handling. This will be an example of how to use the Hono backend APIs in a client application.
+
+## Backend Development Guidelines (Hono)
 
 ### Code Style & Structure
 
@@ -20,56 +32,61 @@ This is a chat-first life coaching app with a conversational assistant at its co
    - Aim for functions under 20 lines where possible
    - Use descriptive function names that explain their purpose
 
-2. **Readable Code**
-   - Prioritize readability over clever solutions
-   - Use descriptive variable names
-   - Add comments for complex logic, but let clean code speak for itself
-   - Use TypeScript types consistently for better code intelligence
+2. **API Design**
+   - Follow RESTful principles for resource naming
+   - Use appropriate HTTP methods (GET, POST, PUT, DELETE, PATCH)
+   - Return consistent response structures
+   - Include proper error handling and status codes
 
-3. **Modern JavaScript**
-   - Use modern JavaScript features (optional chaining, nullish coalescing, etc.)
-   - Employ async/await for asynchronous operations
-   - Prefer const over let, avoid var
-
-### SvelteKit 2 Best Practices
-
-1. **Runes Mode Usage**
-   - ALWAYS use the new Runes syntax instead of the older $ reactive declarations
-   - Use `$state()` for reactive component state
-   - Use `$derived()` for computed values
-   - Use `$effect()` for side effects
-   - Use `$props()` for component props with TypeScript validation
-
-2. **Examples of Correct Runes Usage**
-   ```javascript
-   // CORRECT - Using Runes
-   const count = $state(0);
-   const doubled = $derived(count * 2);
+3. **Route Organization**
+   ```typescript
+   // Example of organizing routes by resource
+   import { Hono } from 'hono';
    
-   $effect(() => {
-     console.log(`Count changed to ${count}`);
-   });
+   const app = new Hono();
    
-   // INCORRECT - Using old $ syntax (DO NOT USE)
-   // $: doubled = count * 2;
-   // $: console.log(`Count changed to ${count}`);
+   // Group routes by resource
+   const questsApi = new Hono()
+     .get('/', getQuests)
+     .get('/:id', getQuestById)
+     .post('/', createQuest)
+     .put('/:id', updateQuest)
+     .delete('/:id', deleteQuest);
+   
+   // Mount resource routers
+   app.route('/api/quests', questsApi);
    ```
 
-3. **Component Design**
-   - Create small, reusable components with clear responsibilities
-   - Use component props for configuration, not global state
-   - Leverage SvelteKit's layout system for shared UI elements
+4. **Middleware Usage**
+   - Implement authentication middleware
+   - Add request validation middleware
+   - Use CORS middleware for cross-origin requests
+   - Create logging middleware for debugging
 
-4. **Routing**
-   - Use SvelteKit's file-based routing system
-   - Place API endpoints in `/routes/api/` directories
-   - Implement proper error handling with error.svelte files
-   - Use load functions for data loading (server and/or client)
-
-5. **Forms & Actions**
-   - Use SvelteKit's enhanced form actions for form submissions
-   - Implement proper validation both client-side and server-side
-   - Use the new Attachments feature for more flexible form handling
+5. **Request Validation**
+   - Validate request parameters, query strings, and bodies
+   - Return descriptive validation error messages
+   - Use Zod or similar for schema validation
+   ```typescript
+   import { z } from 'zod';
+   
+   const questSchema = z.object({
+     title: z.string().min(3).max(100),
+     description: z.string().optional()
+   });
+   
+   async function createQuest(c) {
+     const result = questSchema.safeParse(await c.req.json());
+     
+     if (!result.success) {
+       return c.json({ error: 'Validation failed', details: result.error }, 400);
+     }
+     
+     // Process valid data
+     const quest = await saveQuestToDatabase(result.data);
+     return c.json({ data: quest }, 201);
+   }
+   ```
 
 ### Database Access with Drizzle
 
@@ -96,8 +113,9 @@ This is a chat-first life coaching app with a conversational assistant at its co
    });
    
    // Query example
-   import { db } from '$lib/database';
-   import { quests } from '$lib/schema';
+   import { db } from '../db';
+   import { quests } from '../schema';
+   import { eq } from 'drizzle-orm';
    
    export async function getQuestById(id: number) {
      try {
@@ -110,72 +128,72 @@ This is a chat-first life coaching app with a conversational assistant at its co
    }
    ```
 
+### API Design for Feature Implementation
+
+1. **Authentication & Authorization**
+   - Implement JWT-based authentication
+   - Create middleware to verify tokens
+   - Add role-based authorization where needed
+
+3. **Streaming Responses**
+   - Implement streaming for AI-generated content
+   - Use appropriate content-type headers
+   - Handle client disconnections properly
+
+4. **Error Handling**
+   - Create consistent error response structure
+   - Log errors with context for debugging
+   - Don't expose sensitive information in error messages
+
 ## Feature-Specific Guidelines
 
 ### Conversational Assistant
 
-1. **Prompt Engineering**
-   - Structure prompts carefully for consistent AI responses
-   - Include relevant context from user data
-   - Implement fallback strategies for AI failures
+1. **Backend Implementation**
+   - Create endpoints for conversation history
+   - Implement streaming responses for AI messages
+   - Store conversation context efficiently
 
-2. **Response Handling**
-   - Stream responses for chat-like experience
-   - Implement message history with proper pagination
-   - Handle errors gracefully with user-friendly messages
+2. **Frontend Implementation**
+   - Display typing indicators during AI response generation
+   - Implement message threading and grouping
+   - Support markdown and rich content in messages
 
 ### Journal Entries
 
-1. **Data Structure**
-   - Store raw text content
-   - Save AI-generated metadata (title, synopsis, tags) separately
-   - Implement relations to other entities (stats, family, etc.)
+1. **API Design**
+   - Support draft saving and auto-saving
+   - Implement endpoints for AI analysis
+   - Create search endpoints with filtering capabilities
 
-2. **User Experience**
-   - Focus on a distraction-free writing experience
-   - Implement auto-save functionality
-   - Provide clear feedback when AI is processing entries
+2. **Frontend Implementation**
+   - Create a distraction-free writing environment
+   - Implement rich text editing if needed
+   - Show AI insights in a non-intrusive manner
 
 ### Quests & Experiments
 
-1. **Progress Tracking**
-   - Implement clear visual indicators of progress
-   - Store milestone completion data
-   - Track experiment metrics consistently
+1. **Data Structure**
+   - Design endpoints that return appropriate related data
+   - Implement proper filtering and pagination
+   - Create endpoints for progress tracking
 
-2. **Task Generation**
-   - Structure context for the AI to generate relevant tasks
-   - Deduplicate tasks against previously completed ones
-   - Allow user verification before saving generated tasks
+2. **User Experience**
+   - Show clear visualizations of progress
+   - Implement drag-and-drop for task prioritization
+   - Create intuitive interfaces for task creation
 
 ## Testing Guidelines
 
-1. **Unit Tests**
-   - Test small, focused functions individually
-   - Mock external dependencies (AI API, database)
-   - Focus on business logic correctness
+1. **Backend Testing**
+   - Write unit tests for business logic
+   - Create API tests for endpoints
+   - Implement integration tests for database interactions
 
-2. **Integration Tests**
-   - Test key user flows end-to-end
-   - Verify database interactions work correctly
-   - Test form submissions and validations
-
-3. **Accessibility Testing**
-   - Ensure keyboard navigation works properly
-   - Verify screen reader compatibility
-   - Maintain proper contrast and text sizing
-
-## Documentation
-
-1. **Code Documentation**
-   - Document complex functions with JSDoc comments
-   - Explain non-obvious design decisions
-   - Keep documentation updated as code changes
-
-2. **User Documentation**
-   - Create clear onboarding instructions
-   - Document feature usage with examples
-   - Provide troubleshooting guidance
+2. **Frontend Testing**
+   - Test component rendering and user interactions
+   - Implement end-to-end tests for critical flows
+   - Mock API responses for predictable testing
 
 ## Specific Implementation Notes
 
@@ -201,7 +219,9 @@ When analyzing journal entries:
 - Create consistent tagging patterns
 - Generate useful summaries for later reference
 
-### Chat interface
-- This should be inspired by the chat interface of ChatGPT
-- The interface should be reusable across the app
-- Each component that uses the chat interface should be able to pass in its own props, system prompt, history, and other relevant data
+## For specific technology stacks, see the following instructions:
+
+- [SvelteKit](instructions/sveltekit.instructions.md)
+- [TailwindCSS](instructions/tailwindcss.instructions.md)
+- [daisyUI](instructions/daisyui.instructions.md)
+- [Drizzle ORM](references/drizzle-llms.md)
