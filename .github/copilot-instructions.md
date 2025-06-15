@@ -9,7 +9,7 @@ This is a chat-first life coaching app with a conversational assistant at its co
 - **Framework**: SvelteKit 2 (full stack)
 - **Database**: PostgreSQL with Drizzle ORM
 - **AI Integration**: OpenAI API
-- **Mobile Strategy**: Expo with PWA export
+- **Javascript Runtime**: Bun
 
 ## General Development Guidelines
 
