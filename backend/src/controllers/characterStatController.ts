@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import { db } from '../db';
 import { characterStats } from '../db/schema';
-import { eq, and, desc } from 'drizzle-orm/pg-core';
+import { eq, and, desc } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { CharacterStatInput, ApiResponse, CharacterStat } from '../types/api';
 

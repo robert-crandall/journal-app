@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import { db } from '../db';
 import { conversations, messages, userContext } from '../db/schema';
-import { eq, and, desc, asc } from 'drizzle-orm/pg-core';
+import { eq, and, asc, desc } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { ConversationInput, MessageInput, UserContextInput, ApiResponse, Conversation, Message } from '../types/api';
 import { generateChatCompletion } from '../utils/openaiUtils';

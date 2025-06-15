@@ -4,7 +4,7 @@ import {
   tasks, taskFamilyMembers, taskCharacterStats,
   familyMembers, characterStats, quests, experiments
 } from '../db/schema';
-import { eq, and, desc, sql } from 'drizzle-orm/pg-core';
+import { eq, and, sql, desc } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { 
   TaskInput, ApiResponse, Task, FamilyMember,
