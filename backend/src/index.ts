@@ -12,7 +12,7 @@ app.use('*', prettyJSON());
 app.use('*', cors({
   origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8081'], // Frontend URLs
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Client'],
   credentials: true,
 }));
 
