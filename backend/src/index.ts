@@ -3,6 +3,9 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { auth } from './routes/auth';
+import tasks from './routes/tasks';
+import journal from './routes/journal';
+import dashboard from './routes/dashboard';
 
 const app = new Hono();
 
@@ -27,6 +30,12 @@ app.get('/', (c) => {
 
 // Routes
 app.route('/auth', auth);
+app.route('/api/tasks', tasks);
+app.route('/api/journal', journal);
+app.route('/api/dashboard', dashboard);
+app.route('/api/dashboard', dashboard);
+app.route('/api/tasks', tasks);
+app.route('/api/journal', journal);
 
 // 404 handler
 app.notFound((c) => {

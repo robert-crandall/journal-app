@@ -49,6 +49,33 @@ export const updateProfileSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').optional(),
 });
 
+// Task creation schema
+export const createTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less'),
+  description: z.string().max(1000, 'Description must be 1000 characters or less').optional(),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').optional(),
+});
+
+// Task update schema
+export const updateTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less').optional(),
+  description: z.string().max(1000, 'Description must be 1000 characters or less').optional(),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').optional().nullable(),
+  isCompleted: z.boolean().optional(),
+});
+
+// Journal entry creation schema
+export const createJournalEntrySchema = z.object({
+  title: z.string().max(200, 'Title must be 200 characters or less').optional(),
+  content: z.string().min(1, 'Content is required').max(10000, 'Content must be 10000 characters or less'),
+});
+
+// Journal entry update schema
+export const updateJournalEntrySchema = z.object({
+  title: z.string().max(200, 'Title must be 200 characters or less').optional().nullable(),
+  content: z.string().min(1, 'Content is required').max(10000, 'Content must be 10000 characters or less').optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PasswordResetRequestInput = z.infer<typeof passwordResetRequestSchema>;
@@ -57,3 +84,7 @@ export type UserContextInput = z.infer<typeof userContextSchema>;
 export type UpdateUserContextInput = z.infer<typeof updateUserContextSchema>;
 export type UserPreferencesInput = z.infer<typeof userPreferencesSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type CreateJournalEntryInput = z.infer<typeof createJournalEntrySchema>;
+export type UpdateJournalEntryInput = z.infer<typeof updateJournalEntrySchema>;

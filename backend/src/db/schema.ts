@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, jsonb, boolean, date } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Users table
@@ -44,11 +44,36 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Tasks table
+export const tasks = pgTable('tasks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  dueDate: date('due_date'), // Date-only field for due dates
+  isCompleted: boolean('is_completed').notNull().default(false),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Journal entries table
+export const journalEntries = pgTable('journal_entries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title'),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   context: many(userContext),
   preferences: one(userPreferences),
   passwordResetTokens: many(passwordResetTokens),
+  tasks: many(tasks),
+  journalEntries: many(journalEntries),
 }));
 
 export const userContextRelations = relations(userContext, ({ one }) => ({
@@ -68,6 +93,20 @@ export const userPreferencesRelations = relations(userPreferences, ({ one }) => 
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
   user: one(users, {
     fields: [passwordResetTokens.userId],
+    references: [users.id],
+  }),
+}));
+
+export const tasksRelations = relations(tasks, ({ one }) => ({
+  user: one(users, {
+    fields: [tasks.userId],
+    references: [users.id],
+  }),
+}));
+
+export const journalEntriesRelations = relations(journalEntries, ({ one }) => ({
+  user: one(users, {
+    fields: [journalEntries.userId],
     references: [users.id],
   }),
 }));

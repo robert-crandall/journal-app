@@ -11,6 +11,10 @@ import {
   updateUserContextSchema,
   userPreferencesSchema,
   updateProfileSchema,
+  createTaskSchema,
+  updateTaskSchema,
+  createJournalEntrySchema,
+  updateJournalEntrySchema,
 } from '../lib/validation';
 
 // Re-export validation schemas for client use
@@ -23,6 +27,10 @@ export {
   updateUserContextSchema,
   userPreferencesSchema,
   updateProfileSchema,
+  createTaskSchema,
+  updateTaskSchema,
+  createJournalEntrySchema,
+  updateJournalEntrySchema,
 };
 
 // Response types
@@ -61,6 +69,65 @@ export interface UserPreferences {
   timezone: string;
 }
 
+export interface Task {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  dueDate?: string; // YYYY-MM-DD format
+  isCompleted: boolean;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  userId: string;
+  title?: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskStats {
+  total: number;
+  completed: number;
+  pending: number;
+  overdue: number;
+}
+
+export interface JournalStats {
+  total: number;
+  thisWeek: number;
+  thisMonth: number;
+}
+
+export interface DashboardData {
+  user: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  };
+  welcome: {
+    message: string;
+    date: {
+      date: string;
+      formatted: string;
+      iso: string;
+    };
+  };
+  tasks: {
+    stats: TaskStats;
+    upcoming: Task[];
+  };
+  journal: {
+    stats: JournalStats;
+    recent: JournalEntry[];
+  };
+}
+
 // Input types (inferred from schemas)
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -70,6 +137,10 @@ export type UserContextInput = z.infer<typeof userContextSchema>;
 export type UpdateUserContextInput = z.infer<typeof updateUserContextSchema>;
 export type UserPreferencesInput = z.infer<typeof userPreferencesSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type CreateJournalEntryInput = z.infer<typeof createJournalEntrySchema>;
+export type UpdateJournalEntryInput = z.infer<typeof updateJournalEntrySchema>;
 
 // Client configuration
 export interface ClientConfig {
@@ -275,6 +346,179 @@ export class JournalApiClient {
       method: 'PUT',
       body: JSON.stringify(preferences),
     });
+  }
+
+  // Dashboard methods (require authentication)
+  async getDashboard(): Promise<ApiResponse<DashboardData>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<DashboardData>('/api/dashboard');
+  }
+
+  // Task methods (require authentication)
+  async createTask(data: CreateTaskInput): Promise<ApiResponse<Task>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<Task>('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTasks(options?: {
+    includeCompleted?: boolean;
+    sortBy?: 'dueDate' | 'createdAt';
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApiResponse<Task[]>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+
+    const params = new URLSearchParams();
+    if (options?.includeCompleted !== undefined) {
+      params.append('includeCompleted', options.includeCompleted.toString());
+    }
+    if (options?.sortBy) {
+      params.append('sortBy', options.sortBy);
+    }
+    if (options?.sortOrder) {
+      params.append('sortOrder', options.sortOrder);
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/tasks?${queryString}` : '/api/tasks';
+
+    return this.request<Task[]>(endpoint);
+  }
+
+  async getTask(taskId: string): Promise<ApiResponse<Task>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<Task>(`/api/tasks/${taskId}`);
+  }
+
+  async updateTask(taskId: string, data: UpdateTaskInput): Promise<ApiResponse<Task>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<Task>(`/api/tasks/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async toggleTask(taskId: string): Promise<ApiResponse<Task>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<Task>(`/api/tasks/${taskId}/toggle`, {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteTask(taskId: string): Promise<ApiResponse<Task>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<Task>(`/api/tasks/${taskId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTaskStats(): Promise<ApiResponse<TaskStats>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<TaskStats>('/api/tasks/stats');
+  }
+
+  // Journal methods (require authentication)
+  async createJournalEntry(data: CreateJournalEntryInput): Promise<ApiResponse<JournalEntry>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<JournalEntry>('/api/journal', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getJournalEntries(options?: {
+    sortOrder?: 'asc' | 'desc';
+    limit?: number;
+    offset?: number;
+  }): Promise<ApiResponse<JournalEntry[]>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+
+    const params = new URLSearchParams();
+    if (options?.sortOrder) {
+      params.append('sortOrder', options.sortOrder);
+    }
+    if (options?.limit !== undefined) {
+      params.append('limit', options.limit.toString());
+    }
+    if (options?.offset !== undefined) {
+      params.append('offset', options.offset.toString());
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/journal?${queryString}` : '/api/journal';
+
+    return this.request<JournalEntry[]>(endpoint);
+  }
+
+  async getRecentJournalEntries(limit?: number): Promise<ApiResponse<JournalEntry[]>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    
+    const params = new URLSearchParams();
+    if (limit !== undefined) {
+      params.append('limit', limit.toString());
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString ? `/api/journal/recent?${queryString}` : '/api/journal/recent';
+
+    return this.request<JournalEntry[]>(endpoint);
+  }
+
+  async getJournalEntry(entryId: string): Promise<ApiResponse<JournalEntry>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<JournalEntry>(`/api/journal/${entryId}`);
+  }
+
+  async updateJournalEntry(entryId: string, data: UpdateJournalEntryInput): Promise<ApiResponse<JournalEntry>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<JournalEntry>(`/api/journal/${entryId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteJournalEntry(entryId: string): Promise<ApiResponse<JournalEntry>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<JournalEntry>(`/api/journal/${entryId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getJournalStats(): Promise<ApiResponse<JournalStats>> {
+    if (!this.token) {
+      throw new ApiError('Authentication required', 401);
+    }
+    return this.request<JournalStats>('/api/journal/stats');
   }
 
   // Utility methods
