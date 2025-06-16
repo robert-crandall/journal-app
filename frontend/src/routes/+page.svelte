@@ -1,9 +1,18 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { authStore } from '$lib/stores/auth';
-  import { MessageCircle, Target, BookOpen, Settings } from 'lucide-svelte';
+  import { goto } from '$app/navigation';
+  import { MessageCircle, Target, BookOpen, Settings, LayoutDashboard, CheckSquare } from 'lucide-svelte';
 
   let isAuthenticated = $derived($authStore.isAuthenticated);
   let user = $derived($authStore.user);
+  
+  onMount(() => {
+    // Redirect authenticated users to dashboard
+    if (isAuthenticated) {
+      goto('/dashboard');
+    }
+  });
 </script>
 
 <svelte:head>
@@ -18,13 +27,13 @@
         <h1 class="text-5xl font-bold">Welcome back, {user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : user.email.split('@')[0]}!</h1>
         <p class="py-6">Ready to continue your journey? Let's chat with your AI coach and work on your goals.</p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/chat" class="btn btn-primary">
-            <MessageCircle size={20} />
-            Start Chatting
+          <a href="/dashboard" class="btn btn-primary">
+            <LayoutDashboard size={20} />
+            Go to Dashboard
           </a>
-          <a href="/quests" class="btn btn-outline">
-            <Target size={20} />
-            View Quests
+          <a href="/tasks" class="btn btn-outline">
+            <CheckSquare size={20} />
+            View Tasks
           </a>
         </div>
       {:else}
@@ -102,11 +111,20 @@
   <div class="text-center py-8">
     <h2 class="text-2xl font-bold mb-6">Quick Actions</h2>
     <div class="flex flex-wrap gap-4 justify-center">
+      <a href="/dashboard" class="btn btn-ghost">
+        <LayoutDashboard size={16} />
+        Dashboard
+      </a>
+      <a href="/tasks" class="btn btn-ghost">
+        <CheckSquare size={16} />
+        Tasks
+      </a>
+      <a href="/journal" class="btn btn-ghost">
+        <BookOpen size={16} />
+        Journal
+      </a>
       <a href="/profile" class="btn btn-ghost">
         Update Profile
-      </a>
-      <a href="/context" class="btn btn-ghost">
-        Set Context
       </a>
       <a href="/preferences" class="btn btn-ghost">
         Preferences

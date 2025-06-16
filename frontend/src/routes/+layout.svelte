@@ -5,7 +5,18 @@
   import { themeStore } from '$lib/stores/theme';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { Menu, Sun, Moon, Settings, LogOut, User } from 'lucide-svelte';
+  import { 
+    Menu, 
+    Sun, 
+    Moon, 
+    Settings, 
+    LogOut, 
+    User, 
+    Home,
+    LayoutDashboard,
+    CheckSquare,
+    BookOpen 
+  } from 'lucide-svelte';
 
   let { children } = $props();
   
@@ -15,7 +26,7 @@
   let isLoading = $derived($authStore.isLoading);
   
   // Protected routes that require authentication
-  const protectedRoutes = ['/profile', '/context', '/preferences'];
+  const protectedRoutes = ['/dashboard', '/tasks', '/journal', '/profile', '/context', '/preferences'];
   const authRoutes = ['/login', '/register', '/forgot-password'];
   
   onMount(() => {
@@ -56,11 +67,13 @@
           <Menu size={20} />
         </div>
         <ul class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-          <li><a href="/">Home</a></li>
+          <li><a href="/"><Home size={16} class="inline" /> Home</a></li>
           {#if isAuthenticated}
-            <li><a href="/profile">Profile</a></li>
-            <li><a href="/context">Context</a></li>
-            <li><a href="/preferences">Preferences</a></li>
+            <li><a href="/dashboard"><LayoutDashboard size={16} class="inline" /> Dashboard</a></li>
+            <li><a href="/tasks"><CheckSquare size={16} class="inline" /> Tasks</a></li>
+            <li><a href="/journal"><BookOpen size={16} class="inline" /> Journal</a></li>
+            <li><a href="/profile"><User size={16} class="inline" /> Profile</a></li>
+            <li><a href="/preferences"><Settings size={16} class="inline" /> Preferences</a></li>
           {/if}
         </ul>
       </div>
@@ -71,9 +84,9 @@
       <ul class="menu menu-horizontal px-1">
         <li><a href="/">Home</a></li>
         {#if isAuthenticated}
-          <li><a href="/profile">Profile</a></li>
-          <li><a href="/context">Context</a></li>
-          <li><a href="/preferences">Preferences</a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/tasks">Tasks</a></li>
+          <li><a href="/journal">Journal</a></li>
         {/if}
       </ul>
     </div>
