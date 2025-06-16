@@ -10,7 +10,7 @@ const app = new Hono();
 app.use('*', logger());
 app.use('*', prettyJSON());
 app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'], // Frontend URLs
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8081'], // Frontend URLs
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
