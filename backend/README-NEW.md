@@ -85,6 +85,54 @@ The API will be available at `http://localhost:3001`.
 - `GET /auth/me/preferences` - Get user preferences
 - `PUT /auth/me/preferences` - Update user preferences
 
+## Type-Safe Client
+
+The backend includes a fully type-safe TypeScript client that frontend applications can use for end-to-end type safety:
+
+```bash
+# Test the type-safe client
+bun run test-client-safe
+```
+
+### Client Features
+
+- 🔒 **Full Type Safety** - All API requests and responses are fully typed
+- 🚀 **Automatic Token Management** - Handles JWT tokens automatically  
+- ⚡ **Framework Agnostic** - Works with React, Svelte, Vue, or any TypeScript project
+- 🛡️ **Error Handling** - Comprehensive error handling with custom error types
+- 📝 **Validation** - Built-in request validation using Zod schemas
+- ⏱️ **Request Timeout** - Configurable request timeouts
+
+### Client Usage Example
+
+```typescript
+import { createJournalApiClient, ApiError } from './src/client-exports';
+
+const client = createJournalApiClient({
+  baseUrl: 'http://localhost:3001'
+});
+
+// Register user with full type safety
+const result = await client.register({
+  email: 'user@example.com',
+  password: 'securepassword123',
+  firstName: 'John',
+  lastName: 'Doe'
+});
+
+if (result.success) {
+  // Token is automatically set
+  const profile = await client.getProfile();
+  console.log('User profile:', profile.data);
+}
+```
+
+The client is located in `src/client/` and includes:
+- `index.ts` - Main client implementation
+- `demo.ts` - Framework integration examples (React, Svelte)
+- `test.ts` - Comprehensive test suite
+- `README.md` - Detailed client documentation
+
 ## Testing
 
 Run the test client to verify all endpoints:

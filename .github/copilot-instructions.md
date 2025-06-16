@@ -26,8 +26,8 @@ Write a test client in Hono that can be used to test the backend APIs. This clie
 ## Development Flow
 
 - Create the feature in the backend first, ensuring it is tested.
-- Add the feature to the client application, using the Hono RPC client for type safety.
-- Add the feature to the client's test to ensure it works as expected.
+- Add the feature to the client application, using the Hono RPC client for type safety. The client is `backend/src/client/index.ts`
+- Add the feature to the client's test to ensure it works as expected. The test client is `backend/src/client/test.ts`
 - Add the feature to the frontend UI, consuming the client, ensuring it is user-friendly and integrates well with the existing components.
 
 ## Backend Development Guidelines (Hono)
