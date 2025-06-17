@@ -7,6 +7,9 @@ import tasks from './routes/tasks';
 import journal from './routes/journal';
 import dashboard from './routes/dashboard';
 
+// Export types for frontend consumption
+export * from './types';
+
 const app = new Hono();
 
 // Middleware
