@@ -72,7 +72,7 @@ export interface Task {
   title: string;
   description?: string;
   isCompleted: boolean;
-  priority: 'low' | 'medium' | 'high';
+  priority?: 'low' | 'medium' | 'high';
   dueDate?: string;
   createdAt: string;
   updatedAt: string;
@@ -83,7 +83,6 @@ export interface JournalEntry {
   userId: string;
   title?: string;
   content: string;
-  isAnalyzed: boolean;
   summary?: string;
   tags?: string[];
   createdAt: string;
@@ -112,11 +111,32 @@ export interface UserPrefs {
 // Dashboard data
 export interface DashboardData {
   user: User;
-  tasksToday: Task[];
-  recentJournalEntries: JournalEntry[];
-  totalTasks: number;
-  completedTasks: number;
-  totalJournalEntries: number;
+  welcome: {
+    message: string;
+    date: string;
+  };
+  tasks: {
+    stats: TaskStats;
+    upcoming: Task[];
+  };
+  journal: {
+    stats: JournalStats;
+    recent: JournalEntry[];
+  };
+}
+
+// Stats interfaces
+export interface TaskStats {
+  total: number;
+  completed: number;
+  pending: number;
+  overdue: number;
+}
+
+export interface JournalStats {
+  total: number;
+  thisWeek: number;
+  thisMonth: number;
 }
 
 // Authentication response

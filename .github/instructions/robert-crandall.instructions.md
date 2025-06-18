@@ -7,21 +7,21 @@ applyTo: "**/*"
 
 ## UI/Design Guidelines
 
-- Use a consistent color palette across the application.
 - Use daisyUI for color and theme management
 - Support light and dark themes. Support other daisyUI themes as well.
 - Use Tailwind CSS v4 for the latest features and performance improvements.
 - Use daisyUI 5 for component-based design.
 - Target a clean, modern aesthetic with a focus on usability. Examples of good design are Superlist, Linear, and GitHub.
+- Use card layouts. Cards should have colored left borders for visual hierarchy and categorization. Cards within one category can have different left border colors to indicate different statuses or types.
+- For dashboards, use a two-column layout with a 2:1 ratio (wider left column).
+- Add shadow effects and hover states for interactive elements
 - Use Lucide Icons (https://lucide.dev) for all icon needs.
-- Never use emojis in production UI - they're inconsistent across platforms.
+- Never use emojis in the UI. Use icons instead.
 - Choose semantic icon names that clearly represent their function.
 - Use consistent icon sizes throughout the application (typically 16px, 20px, 24px).
-- Prefer outline icons over filled icons for better visual hierarchy.
 - Use modals sparingly. These are good for quick actions. They are not good for complex forms or workflows.
 - Use confirmation dialogs for destructive actions only.
 - Cards should be linked to their detail view. Do not include a "view" link or button inside the card.
-- Use left-border colors to indicate the status of an item (e.g., green for success, red for error).
 
 ## Target Browsers
 
@@ -30,6 +30,7 @@ applyTo: "**/*"
 - Optimize for PWA (Progressive Web App) standards.
 - If using a separate backend, the deployment target of the frontend will be Single Page Application (SPA).
 - Use a navigation bar that is accessible and easy to use on both desktop and mobile.
+- Navigation bar should be sticky at the top of the page on desktop and mobile. It can be on the left side on desktop, but should be at the top on mobile.
 
 ## Architecture
 

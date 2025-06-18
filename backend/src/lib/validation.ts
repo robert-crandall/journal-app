@@ -53,6 +53,7 @@ export const updateProfileSchema = z.object({
 export const createTaskSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less'),
   description: z.string().max(1000, 'Description must be 1000 characters or less').optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional(),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').optional(),
 });
 
@@ -60,6 +61,7 @@ export const createTaskSchema = z.object({
 export const updateTaskSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less').optional(),
   description: z.string().max(1000, 'Description must be 1000 characters or less').optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional(),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').optional().nullable(),
   isCompleted: z.boolean().optional(),
 });
