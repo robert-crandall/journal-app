@@ -683,7 +683,7 @@
 								<div class="mb-4 flex flex-wrap gap-2">
 									{#if focus.dayOfWeek}
 										<span
-											class="inline-flex items-center rounded-md bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
+											class="inline-flex items-center rounded-md bg-info/20 px-2 py-1 text-xs font-medium text-info"
 										>
 											<svelte:component this={icons.Calendar} size={12} class="mr-1" />
 											{focus.dayOfWeek}
@@ -691,7 +691,7 @@
 									{/if}
 									{#if focus.stat}
 										<span
-											class="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+											class="inline-flex items-center rounded-md bg-success/20 px-2 py-1 text-xs font-medium text-success"
 										>
 											<svelte:component
 												this={getIconComponent(focus.stat.icon)}
@@ -703,7 +703,7 @@
 									{/if}
 									{#if focus.levels && focus.levels.length > 0}
 										<span
-											class="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+											class="inline-flex items-center rounded-md bg-primary/20 px-2 py-1 text-xs font-medium text-primary"
 										>
 											<svelte:component this={icons.TrendingUp} size={12} class="mr-1" />
 											{focus.levels.length} level{focus.levels.length !== 1 ? 's' : ''}
