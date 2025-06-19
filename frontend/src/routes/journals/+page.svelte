@@ -25,6 +25,7 @@
 	let editingJournal: any = null;
 	let searchQuery = '';
 	let filterType = 'all'; // all, ai, quick
+	let selectedTag = ''; // for tag filtering
 	let saveMessage = '';
 
 	// Form data
@@ -36,9 +37,29 @@
 	// Enhanced computed properties
 	$: filteredJournals = journals
 		.filter((journal) => {
-			// Search filter
-			if (searchQuery && !journal.content.toLowerCase().includes(searchQuery.toLowerCase()))
-				return false;
+			// Search filter - search in content, title, and condensed
+			if (searchQuery) {
+				const searchLower = searchQuery.toLowerCase();
+				const content = journal.content?.toLowerCase() || '';
+				const title = journal.title?.toLowerCase() || '';
+				const condensed = journal.condensed?.toLowerCase() || '';
+				
+				if (!content.includes(searchLower) && 
+					!title.includes(searchLower) && 
+					!condensed.includes(searchLower)) {
+					return false;
+				}
+			}
+
+			// Tag filter
+			if (selectedTag) {
+				const tags = journal.tags || [];
+				const moodTags = journal.moodTags || [];
+				const allTags = [...tags, ...moodTags];
+				if (!allTags.includes(selectedTag)) {
+					return false;
+				}
+			}
 
 			// Type filter
 			if (filterType === 'ai' && !journal.status) return false;
@@ -51,6 +72,9 @@
 	$: aiJournals = journals.filter((j) => j.status);
 	$: traditionalJournals = journals.filter((j) => !j.status);
 	$: recentEntries = journals.slice(0, 3);
+	
+	// Get all unique tags from journals
+	$: allTags = [...new Set(journals.flatMap(j => [...(j.tags || []), ...(j.moodTags || [])]))].sort();
 
 	onMount(async () => {
 		await loadJournals();
@@ -147,6 +171,15 @@
 	function resetFilters() {
 		searchQuery = '';
 		filterType = 'all';
+		selectedTag = '';
+	}
+
+	function handleTagClick(tag: string) {
+		selectedTag = selectedTag === tag ? '' : tag;
+	}
+
+	function viewJournalDetail(journalId: string) {
+		goto(`/journals/${journalId}`);
 	}
 
 	function formatDate(dateString: string) {
@@ -321,8 +354,26 @@
 						/>
 					</div>
 
+					<!-- Tag Filter -->
+					{#if allTags.length > 0}
+						<div class="relative">
+							<select
+								class="border-base-300 bg-base-100 appearance-none rounded-lg border px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+								bind:value={selectedTag}
+							>
+								<option value="">All Tags</option>
+								{#each allTags as tag}
+									<option value={tag}>{tag}</option>
+								{/each}
+							</select>
+							<Filter
+								class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform"
+							/>
+						</div>
+					{/if}
+
 					<!-- Reset -->
-					{#if searchQuery || filterType !== 'all'}
+					{#if searchQuery || filterType !== 'all' || selectedTag}
 						<button
 							class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-3 py-2 text-sm transition-colors"
 							onclick={resetFilters}
@@ -405,7 +456,17 @@
 				{#each filteredJournals as journal (journal.id)}
 					{@const typeInfo = getJournalTypeInfo(journal)}
 					<div
-						class="group border-base-300 bg-base-100 overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md"
+						class="group border-base-300 bg-base-100 overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+						role="button"
+						tabindex="0"
+						onclick={() => viewJournalDetail(journal.id)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								viewJournalDetail(journal.id);
+							}
+						}}
+						aria-label={`View journal entry: ${journal.title || formatDate(journal.date)}`}
 					>
 						<!-- Entry Header -->
 						<div
@@ -414,7 +475,7 @@
 								: 'border-b border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50'}"
 						>
 							<div class="flex items-start justify-between gap-4">
-								<div class="flex items-center gap-3">
+								<div class="flex items-center gap-3 flex-1">
 									<div
 										class="p-2 {typeInfo.isAI
 											? 'bg-primary/10 text-info'
@@ -426,14 +487,24 @@
 											<PenTool class="h-5 w-5" />
 										{/if}
 									</div>
-									<div>
-										<h3 class="text-base-content text-lg font-semibold">
-											{formatDate(journal.date)}
-										</h3>
-										<div class="mt-1 flex items-center gap-2">
-											<span class="text-base-content/70 text-sm"
-												>{getRelativeDate(journal.date)}</span
+									<div class="flex-1">
+										<!-- Title -->
+										{#if journal.title}
+											<h3 class="text-base-content text-lg font-bold mb-1">
+												{journal.title}
+											</h3>
+										{/if}
+										
+										<div class="flex items-center gap-2 mb-2">
+											<span class="text-base-content text-sm font-medium"
+												>{formatDate(journal.date)}</span
 											>
+											<span class="text-base-content/70 text-sm"
+												>• {getRelativeDate(journal.date)}</span
+											>
+										</div>
+										
+										<div class="flex items-center gap-2 flex-wrap">
 											{#if typeInfo.isAI}
 												<div
 													class="inline-flex items-center gap-1 px-2 py-1 {typeInfo.status ===
@@ -469,11 +540,15 @@
 								<!-- Actions -->
 								<div
 									class="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
+									aria-label="Journal actions"
 								>
 									{#if typeInfo.isAI}
 										<button
 											class="text-info hover:bg-primary/5 rounded-lg p-2 transition-colors"
-											onclick={() => continueAIChat(journal.id)}
+											onclick={(e) => {
+												e.stopPropagation();
+												continueAIChat(journal.id);
+											}}
 											title={typeInfo.status === 'completed' ? 'View session' : 'Continue session'}
 										>
 											{#if typeInfo.status === 'completed'}
@@ -485,7 +560,10 @@
 									{:else}
 										<button
 											class="text-base-content/70 hover:bg-base-200 rounded-lg p-2 transition-colors"
-											onclick={() => openEditForm(journal)}
+											onclick={(e) => {
+												e.stopPropagation();
+												openEditForm(journal);
+											}}
 											title="Edit entry"
 										>
 											<Edit class="h-5 w-5" />
@@ -493,7 +571,10 @@
 									{/if}
 									<button
 										class="text-error hover:bg-error/10 rounded-lg p-2 transition-colors"
-										onclick={() => deleteJournal(journal.id)}
+										onclick={(e) => {
+											e.stopPropagation();
+											deleteJournal(journal.id);
+										}}
 										title="Delete entry"
 									>
 										<Trash2 class="h-5 w-5" />
@@ -504,9 +585,49 @@
 
 						<!-- Entry Content -->
 						<div class="p-6">
+							<!-- Condensed Summary -->
+							{#if journal.condensed}
+								<div class="mb-4">
+									<p class="text-base-content text-base leading-relaxed font-medium">
+										{journal.condensed}
+									</p>
+								</div>
+							{/if}
+
+							<!-- Tags -->
+							{#if (journal.tags && journal.tags.length > 0) || (journal.moodTags && journal.moodTags.length > 0)}
+								<div class="mb-4">
+									<div class="flex flex-wrap gap-2">
+										{#each journal.tags || [] as tag}
+											<button
+												class="bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1 rounded-full text-sm font-medium transition-colors"
+												onclick={(e) => {
+													e.stopPropagation();
+													handleTagClick(tag);
+												}}
+											>
+												#{tag}
+											</button>
+										{/each}
+										{#each journal.moodTags || [] as tag}
+											<button
+												class="bg-secondary/10 text-secondary hover:bg-secondary/20 px-3 py-1 rounded-full text-sm font-medium transition-colors"
+												onclick={(e) => {
+													e.stopPropagation();
+													handleTagClick(tag);
+												}}
+											>
+												🎭 {tag}
+											</button>
+										{/each}
+									</div>
+								</div>
+							{/if}
+
+							<!-- Original content preview -->
 							<div class="prose max-w-none">
-								<p class="text-base-content/80 leading-relaxed whitespace-pre-wrap">
-									{truncateContent(journal.content, 300)}
+								<p class="text-base-content/70 text-sm leading-relaxed whitespace-pre-wrap">
+									{truncateContent(journal.content, 200)}
 								</p>
 							</div>
 
@@ -516,7 +637,7 @@
 								>
 									<div class="mb-2 flex items-center gap-2">
 										<Sparkles class="text-info h-4 w-4" />
-										<span class="text-sm font-medium text-blue-900">AI Summary</span>
+										<span class="text-sm font-medium text-blue-900">AI Analysis</span>
 									</div>
 									<p class="text-sm leading-relaxed text-blue-800">
 										{truncateContent(journal.gptSummary, 150)}
@@ -529,7 +650,10 @@
 								{#if typeInfo.isAI}
 									<button
 										class="border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 transition-colors"
-										onclick={() => continueAIChat(journal.id)}
+										onclick={(e) => {
+											e.stopPropagation();
+											continueAIChat(journal.id);
+										}}
 									>
 										{#if typeInfo.status === 'completed'}
 											<BookOpen class="h-4 w-4" />
@@ -542,7 +666,10 @@
 								{:else}
 									<button
 										class="border-secondary/20 bg-secondary/5 text-secondary hover:bg-secondary/10 flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 transition-colors"
-										onclick={() => openEditForm(journal)}
+										onclick={(e) => {
+											e.stopPropagation();
+											openEditForm(journal);
+										}}
 									>
 										<Edit class="h-4 w-4" />
 										Edit
@@ -550,7 +677,10 @@
 								{/if}
 								<button
 									class="text-error hover:bg-error/10 flex items-center justify-center rounded-lg px-4 py-2 transition-colors"
-									onclick={() => deleteJournal(journal.id)}
+									onclick={(e) => {
+										e.stopPropagation();
+										deleteJournal(journal.id);
+									}}
 								>
 									<Trash2 class="h-4 w-4" />
 								</button>
@@ -567,7 +697,16 @@
 {#if showCreateForm}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="modal-title"
+		tabindex="-1"
 		onclick={closeModal}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				showCreateForm = false;
+			}
+		}}
 	>
 		<div class="bg-base-100 max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-lg shadow-xl">
 			<!-- Modal Header -->
@@ -577,7 +716,7 @@
 						<PenTool class="text-secondary h-5 w-5" />
 					</div>
 					<div>
-						<h2 class="text-base-content text-xl font-semibold">
+						<h2 class="text-base-content text-xl font-semibold" id="modal-title">
 							{editingJournal ? 'Edit Journal Entry' : 'New Journal Entry'}
 						</h2>
 						<p class="text-base-content/70 text-sm">
@@ -587,6 +726,7 @@
 				</div>
 				<button
 					class="text-base-content/50 hover:bg-base-200 hover:text-base-content/70 rounded-lg p-2 transition-colors"
+					aria-label="Close modal"
 					onclick={() => (showCreateForm = false)}
 				>
 					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
