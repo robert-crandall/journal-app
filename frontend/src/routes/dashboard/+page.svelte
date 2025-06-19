@@ -640,7 +640,7 @@
 									{#each recentJournals as journal}
 										<a
 											href="/journals/{journal.id}"
-											class="block border-base-300 hover:border-warning/30 rounded-lg border p-4 transition-all hover:shadow-sm cursor-pointer"
+											class="border-base-300 hover:border-warning/30 block cursor-pointer rounded-lg border p-4 transition-all hover:shadow-sm"
 										>
 											<p class="text-base-content mb-3 text-sm leading-relaxed">
 												{journal.content.length > 100
