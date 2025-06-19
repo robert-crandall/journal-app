@@ -30,7 +30,7 @@ export interface GeneratedTask {
   focusId?: string;
   statId?: string;
   linkedStatIds: string[];
-  familyId?: string;
+  familyName?: string;
 }
 
 export interface GeneratedTaskSet {
@@ -91,7 +91,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         focusId: context.todaysFocus?.id,
         statId: parsedResponse.primaryTask.linkedStatIds?.[0] || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
-        familyId: parsedResponse.primaryTask.familyId,
+        familyName: parsedResponse.primaryTask.familyName
       },
       connectionTask: {
         title: parsedResponse.connectionTask.title,
@@ -100,7 +100,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         focusId: context.todaysFocus?.id,
         statId: parsedResponse.connectionTask.linkedStatIds?.[0] || context.userStats.find(s => s.category === 'connection')?.id || context.userStats[0]?.id,
         linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
-        familyId: parsedResponse.connectionTask.familyId,
+        familyName: parsedResponse.connectionTask.familyName,
       },
     };
   } catch (error) {
@@ -167,7 +167,7 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
   // User stats for XP assignment
   prompt += `\n## User Stats (for XP assignment)\n`;
   userStats.forEach(stat => {
-    prompt += `- ${stat.name} (${stat.category}) (id: ${stat.id}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
+    prompt += `- ${stat.name} (${stat.category}): Level ${stat.level}, ${stat.xp} XP - ${stat.description || 'No description'}\n`;
   });
 
   // Family members
@@ -236,20 +236,17 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     "title": "Short, actionable title (max 60 chars)",
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1", "stat_id2"],
-    "familyId": "family_member_id" // optional, only if task involves family
+    "family": "Family Name" // optional, only if task involves family
   },
   "connectionTask": {
     "title": "Short, actionable title (max 60 chars)", 
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1"],
-    "familyId": "family_member_id" // optional, only if task involves family
+    "family": "Family Name" // optional, only if task involves family
   }
 }\n`;
 
-  prompt += `\nUse actual stat IDs from the list above. For connection tasks, prefer stats in categories: connection, spirit, mind.`;
-  if (familyMembers.length > 0) {
-    prompt += ` When including family members, use their actual IDs: ${familyMembers.map(m => `${m.name}(${m.id})`).join(', ')}.`;
-  }
+  prompt += `\nFor connection tasks, prefer stats in categories: connection, spirit, mind.`;
 
   return prompt;
 }
@@ -293,7 +290,7 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
     focusId: todaysFocus?.id,
     statId: connectionStatForTask?.id,
     linkedStatIds: connectionStats.slice(0, 2).map(s => s.id),
-    familyId: randomFamilyMember ? randomFamilyMember.id : undefined,
+    familyName: randomFamilyMember ? randomFamilyMember.name : undefined,
   };
 
   return {
@@ -436,9 +433,21 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     };
     
     const generatedTasks = await generateDailyTasks(context);
-    
     // Save generated tasks to database
-    const tasksToInsert = [
+    const tasksToInsert: Array<{
+      userId: string;
+      focusId?: string;
+      statId?: string;
+      title: string;
+      description: string;
+      taskDate: string;
+      source: 'primary' | 'connection';
+      linkedStatIds: string[];
+      familyId?: string;
+      familyName?: string;
+      origin: 'gpt';
+      status: 'pending';
+    }> = [
       {
         userId: user.id,
         focusId: generatedTasks.primaryTask.focusId,
@@ -448,9 +457,10 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         taskDate: today,
         source: generatedTasks.primaryTask.source,
         linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
-        familyId: generatedTasks.primaryTask.familyId,
-        origin: 'gpt' as const,
-        status: 'pending' as const,
+        familyId: undefined, // familyId will be set below if familyName is provided
+        familyName: generatedTasks.primaryTask.familyName,
+        origin: 'gpt',
+        status: 'pending',
       },
       {
         userId: user.id,
@@ -461,11 +471,23 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         taskDate: today,
         source: generatedTasks.connectionTask.source,
         linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
-        familyId: generatedTasks.connectionTask.familyId,
-        origin: 'gpt' as const,
-        status: 'pending' as const,
+        familyId: undefined, // familyId will be set below if familyName is provided
+        familyName: generatedTasks.connectionTask.familyName,
+        origin: 'gpt',
+        status: 'pending',
       },
     ];
+
+    // Convert familyName to familyId if available
+    for (const task of tasksToInsert) {
+      if (task.familyName) {
+        const familyMember = familyMembers.find(f => f.name === task.familyName);
+        if (familyMember) {
+          task.familyId = familyMember.id;
+        }
+      }
+      delete task.familyName; // Remove familyName as we now have familyId
+    }
     
     await db.insert(tasks).values(tasksToInsert);
     
