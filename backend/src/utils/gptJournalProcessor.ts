@@ -13,7 +13,7 @@ const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 console.log(`Using OpenAI model: ${openAiModel}`);
 
 export interface ConversationMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
 }
@@ -52,10 +52,20 @@ export async function generateFollowupQuestion(context: JournalProcessingContext
 
   try {
     const prompt = buildFollowupPrompt(context);
+    const conversationHistory: ConversationMessage[] = context.journal.conversationHistory || [];
+    
+    // Add the conversation history to the prompt
+    const messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+    // Create the completion request
+    messages.unshift({ role: 'system', content: prompt });
     
     const completion = await openai.chat.completions.create({
       model: openAiModel,
-      messages: [{ role: 'system', content: prompt }],
+      messages,
       temperature: 0.7,
       max_tokens: 200,
     });
@@ -116,26 +126,19 @@ export async function processJournalSubmission(context: JournalProcessingContext
  */
 function buildFollowupPrompt(context: JournalProcessingContext): string {
   const { user, journal } = context;
-  const conversationHistory = journal.conversationHistory || [];
   
-  let prompt = `You are a thoughtful, empathetic journaling companion helping ${user.name} reflect on their experiences. `;
-  prompt += `Your role is to ask one insightful follow-up question that helps them go deeper into their thoughts and feelings.\n\n`;
-  
-  prompt += `CONVERSATION SO FAR:\n`;
-  conversationHistory.forEach((msg, index) => {
-    const speaker = msg.role === 'user' ? user.name : 'You';
-    prompt += `${speaker}: ${msg.content}\n`;
-  });
-  
-  prompt += `\nGUIDELINES:\n`;
-  prompt += `- Ask ONE thoughtful follow-up question (not multiple questions)\n`;
-  prompt += `- Be empathetic and encouraging\n`;
-  prompt += `- Help them explore emotions, insights, or connections they might not have considered\n`;
-  prompt += `- Keep the tone conversational and supportive\n`;
-  prompt += `- Don't repeat questions or topics already covered\n`;
-  prompt += `- The question should be 1-2 sentences maximum\n\n`;
-  
-  prompt += `Your follow-up question:`;
+  let prompt = `You are a compassionate and emotionally intelligent life coach or therapist engaged in a journal conversation with the user.
+
+Respond in a way that mirrors the user's tone and energy — playful if they're playful, serious if they're vulnerable or reflective.
+
+Each response must follow this structure:
+1. A brief observation (1-2 sentences) that shows you're listening and understanding what the user shared
+2. A thoughtful follow-up question (1 sentence) that encourages deeper reflection
+
+Keep your overall response short — never more than 3 sentences.
+Avoid giving advice or interpretation unless the user asks for it.
+Be warm, curious, and affirming — but never generic.
+`
   
   return prompt;
 }
