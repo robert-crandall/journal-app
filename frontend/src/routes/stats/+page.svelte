@@ -12,6 +12,7 @@
 	let error = '';
 	let showCreateForm = false;
 	let editingStat: any = null;
+	let addingFromLibrary = false;
 
 	// Form state
 	let formData = {
@@ -180,16 +181,25 @@
 	}
 
 	// Add a stat from the library
-	function addStatFromLibrary(statName: string) {
+	async function addStatFromLibrary(statName: string) {
 		const statDef = findStatByName(statName);
 		if (statDef) {
-			formData = {
-				name: statDef.name,
-				description: statDef.description,
-				icon: statDef.icon || '',
-				category: statDef.category,
-				enabled: true
-			};
+			try {
+				addingFromLibrary = true;
+				const statData = {
+					name: statDef.name,
+					description: statDef.description,
+					icon: statDef.icon || '',
+					category: statDef.category,
+					enabled: true
+				};
+				await statsApi.create(statData);
+				await loadStats();
+			} catch (err: any) {
+				error = err.message;
+			} finally {
+				addingFromLibrary = false;
+			}
 		}
 	}
 
@@ -709,8 +719,9 @@
 									{#if statDef}
 										<button
 											type="button"
-											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200"
-											on:click={() => addStatFromLibrary(statName)}
+											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200 {addingFromLibrary ? 'cursor-not-allowed opacity-50' : ''}"
+											on:click={() => !addingFromLibrary && addStatFromLibrary(statName)}
+											disabled={addingFromLibrary}
 										>
 											{statName}
 										</button>
@@ -753,11 +764,11 @@
 											{@const isAlreadyAdded = stats.some((s) => s.name === stat.name)}
 											<button
 												type="button"
-												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded
+												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded || addingFromLibrary
 													? 'cursor-not-allowed opacity-50'
 													: ''}"
-												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
-												disabled={isAlreadyAdded}
+												on:click={() => !isAlreadyAdded && !addingFromLibrary && addStatFromLibrary(stat.name)}
+												disabled={isAlreadyAdded || addingFromLibrary}
 											>
 												<div class="flex items-center justify-between">
 													<div>
@@ -777,6 +788,12 @@
 																	class="bg-base-200 text-base-content/60 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
 																>
 																	Added
+																</span>
+															{:else if addingFromLibrary}
+																<span
+																	class="bg-blue-100 text-blue-600 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+																>
+																	Adding...
 																</span>
 															{/if}
 														</div>
