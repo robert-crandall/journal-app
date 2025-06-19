@@ -832,8 +832,9 @@
 
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label class="text-base-content/80 mb-2 block text-sm font-medium"> Category </label>
+							<label for="category-select" class="text-base-content/80 mb-2 block text-sm font-medium"> Category </label>
 							<select
+								id="category-select"
 								class="border-base-300 w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={formData.category}
 							>
@@ -844,8 +845,8 @@
 						</div>
 
 						<div>
-							<label class="text-base-content/80 mb-2 block text-sm font-medium"> Icon </label>
-							<IconPicker bind:selectedIcon={formData.icon} {availableIcons} showPreview={false} />
+							<label for="icon-picker" class="text-base-content/80 mb-2 block text-sm font-medium"> Icon </label>
+							<IconPicker bind:selectedIcon={formData.icon} {availableIcons} showPreview={false} inputId="icon-picker" />
 							{#if formData.icon}
 								<div class="mt-2 flex items-center gap-2">
 									<span class="text-base-content/70 text-sm dark:text-neutral-300">Preview:</span>

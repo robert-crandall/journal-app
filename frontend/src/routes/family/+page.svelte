@@ -12,6 +12,7 @@
 
 	// Form data
 	let memberName = '';
+	let memberAge: number | null = null;
 	let memberClassName = '';
 	let memberClassDescription = '';
 	let openDropdownId: string | null = null;
@@ -35,6 +36,7 @@
 
 	function openCreateForm() {
 		memberName = '';
+		memberAge = null;
 		memberClassName = '';
 		memberClassDescription = '';
 		editingMember = null;
@@ -43,8 +45,9 @@
 
 	function openEditForm(member: any) {
 		memberName = member.name;
+		memberAge = member.age || null;
 		memberClassName = member.className || '';
-		memberClassDescription = member.classDescription || '';
+		memberClassDescription = member.description || '';
 		editingMember = member;
 		showCreateForm = true;
 	}
@@ -54,8 +57,9 @@
 		try {
 			const memberData = {
 				name: memberName,
+				age: memberAge || undefined,
 				className: memberClassName || undefined,
-				classDescription: memberClassDescription || undefined
+				description: memberClassDescription || undefined
 			};
 
 			if (editingMember) {
@@ -92,9 +96,9 @@
 		}
 	}
 
-	function handleClassUpdate(className: string, classDescription: string) {
+	function handleClassUpdate(className: string, description: string) {
 		memberClassName = className;
-		memberClassDescription = classDescription;
+		memberClassDescription = description;
 	}
 
 	function closeCreateForm() {
@@ -193,6 +197,21 @@
 								bind:value={memberName}
 								placeholder="Enter family member's name"
 								required
+								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							/>
+						</div>
+
+						<div>
+							<label for="memberAge" class="text-base-content mb-2 block text-sm font-medium">
+								Age
+							</label>
+							<input
+								id="memberAge"
+								type="number"
+								bind:value={memberAge}
+								placeholder="Enter age (optional)"
+								min="0"
+								max="150"
 								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
@@ -335,13 +354,13 @@
 
 							<div>
 								<label
-									for="classDescription"
+									for="description"
 									class="text-base-content/80 mb-2 block text-sm font-medium"
 								>
 									Personal story
 								</label>
 								<textarea
-									id="classDescription"
+									id="description"
 									bind:value={memberClassDescription}
 									on:input={() => handleClassUpdate(memberClassName, memberClassDescription)}
 									placeholder="What makes them special? What are their quirks, interests, or memorable traits?"
@@ -525,9 +544,9 @@
 										</div>
 										<span class="text-secondary text-sm font-medium">{member.className}</span>
 									</div>
-									{#if member.classDescription}
+									{#if member.description}
 										<p class="text-base-content/70 pl-8 text-xs italic">
-											"{member.classDescription}"
+											"{member.description}"
 										</p>
 									{/if}
 								{/if}

@@ -246,7 +246,7 @@
 	</div>
 {/if}
 
-<div class="bg-neutral-25 min-h-screen">
+<div class="bg-base-200 min-h-screen">
 	<!-- Hero Header -->
 	<div class="text-primary-content bg-gradient-to-br from-purple-600 to-purple-700">
 		<div class="container mx-auto px-6 py-12">
@@ -332,7 +332,7 @@
 					<input
 						type="text"
 						placeholder="Search your journal entries..."
-						class="border-base-300 bg-base-100 w-full rounded-lg border py-3 pr-4 pl-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+						class="input input-bordered w-full pl-10"
 						bind:value={searchQuery}
 					/>
 				</div>
@@ -342,7 +342,7 @@
 					<!-- Type Filter -->
 					<div class="relative">
 						<select
-							class="border-base-300 bg-base-100 appearance-none rounded-lg border px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="select select-bordered pr-10"
 							bind:value={filterType}
 						>
 							<option value="all">All Entries</option>
@@ -358,7 +358,7 @@
 					{#if allTags.length > 0}
 						<div class="relative">
 							<select
-								class="border-base-300 bg-base-100 appearance-none rounded-lg border px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+								class="select select-bordered pr-10"
 								bind:value={selectedTag}
 							>
 								<option value="">All Tags</option>
@@ -375,7 +375,7 @@
 					<!-- Reset -->
 					{#if searchQuery || filterType !== 'all' || selectedTag}
 						<button
-							class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-3 py-2 text-sm transition-colors"
+							class="btn btn-ghost btn-sm"
 							onclick={resetFilters}
 						>
 							Reset
@@ -384,14 +384,14 @@
 
 					<!-- Create Buttons -->
 					<button
-						class="border-secondary/20 bg-secondary/5 text-secondary hover:bg-secondary/10 flex items-center gap-2 rounded-lg border px-4 py-3 transition-colors"
+						class="btn btn-outline btn-secondary gap-2"
 						onclick={startAIChat}
 					>
 						<Bot class="h-4 w-4" />
 						<span class="hidden sm:inline">AI Chat</span>
 					</button>
 
-					<button class="btn-primary flex items-center gap-2" onclick={openCreateForm}>
+					<button class="btn btn-primary gap-2" onclick={openCreateForm}>
 						<Plus class="h-4 w-4" />
 						<span>Quick Entry</span>
 					</button>
@@ -426,12 +426,12 @@
 							start.
 						</p>
 						<div class="flex flex-col justify-center gap-4 sm:flex-row">
-							<button class="btn-primary px-6 py-3 text-lg" onclick={startAIChat}>
+							<button class="btn btn-primary px-6 py-3 text-lg" onclick={startAIChat}>
 								<Bot class="mr-2 h-5 w-5" />
 								AI Guided Session
 							</button>
 							<button
-								class="bg-base-200 text-base-content/80 hover:bg-base-300 rounded-lg px-6 py-3 font-medium transition-colors"
+								class="btn btn-outline px-6 py-3"
 								onclick={openCreateForm}
 							>
 								<PenTool class="mr-2 inline h-5 w-5" />
@@ -443,7 +443,7 @@
 						<p class="text-base-content/70 mb-8 leading-relaxed">
 							Try adjusting your search or filter criteria to find what you're looking for.
 						</p>
-						<button class="btn-primary px-6 py-3 text-lg" onclick={resetFilters}>
+						<button class="btn btn-primary px-6 py-3 text-lg" onclick={resetFilters}>
 							<Search class="mr-2 h-5 w-5" />
 							Reset Search
 						</button>
@@ -470,15 +470,15 @@
 					>
 						<!-- Entry Header -->
 						<div
-							class="p-6 pb-4 {typeInfo.isAI
-								? 'border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50'
-								: 'border-b border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50'}"
+							class="p-6 pb-4 border-b {typeInfo.isAI
+								? 'border-primary/20 bg-primary/5'
+								: 'border-secondary/20 bg-secondary/5'}"
 						>
 							<div class="flex items-start justify-between gap-4">
 								<div class="flex items-center gap-3 flex-1">
 									<div
 										class="p-2 {typeInfo.isAI
-											? 'bg-primary/10 text-info'
+											? 'bg-primary/10 text-primary'
 											: 'bg-secondary/10 text-secondary'} rounded-lg"
 									>
 										{#if typeInfo.isAI}
@@ -544,7 +544,7 @@
 								>
 									{#if typeInfo.isAI}
 										<button
-											class="text-info hover:bg-primary/5 rounded-lg p-2 transition-colors"
+											class="btn btn-ghost btn-sm text-primary hover:bg-primary/10"
 											onclick={(e) => {
 												e.stopPropagation();
 												continueAIChat(journal.id);
@@ -559,7 +559,7 @@
 										</button>
 									{:else}
 										<button
-											class="text-base-content/70 hover:bg-base-200 rounded-lg p-2 transition-colors"
+											class="btn btn-ghost btn-sm"
 											onclick={(e) => {
 												e.stopPropagation();
 												openEditForm(journal);
@@ -570,7 +570,7 @@
 										</button>
 									{/if}
 									<button
-										class="text-error hover:bg-error/10 rounded-lg p-2 transition-colors"
+										class="btn btn-ghost btn-sm text-error hover:bg-error/10"
 										onclick={(e) => {
 											e.stopPropagation();
 											deleteJournal(journal.id);
@@ -633,13 +633,13 @@
 
 							{#if journal.gptSummary}
 								<div
-									class="mt-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4"
+									class="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<Sparkles class="text-info h-4 w-4" />
-										<span class="text-sm font-medium text-blue-900">AI Analysis</span>
+										<Sparkles class="text-primary h-4 w-4" />
+										<span class="text-sm font-medium text-primary">AI Analysis</span>
 									</div>
-									<p class="text-sm leading-relaxed text-blue-800">
+									<p class="text-sm leading-relaxed text-base-content/80">
 										{truncateContent(journal.gptSummary, 150)}
 									</p>
 								</div>
@@ -649,7 +649,7 @@
 							<div class="mt-6 flex gap-3 sm:hidden">
 								{#if typeInfo.isAI}
 									<button
-										class="border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 transition-colors"
+										class="btn btn-outline btn-primary flex-1"
 										onclick={(e) => {
 											e.stopPropagation();
 											continueAIChat(journal.id);
@@ -665,7 +665,7 @@
 									</button>
 								{:else}
 									<button
-										class="border-secondary/20 bg-secondary/5 text-secondary hover:bg-secondary/10 flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 transition-colors"
+										class="btn btn-outline btn-secondary flex-1"
 										onclick={(e) => {
 											e.stopPropagation();
 											openEditForm(journal);
@@ -676,7 +676,7 @@
 									</button>
 								{/if}
 								<button
-									class="text-error hover:bg-error/10 flex items-center justify-center rounded-lg px-4 py-2 transition-colors"
+									class="btn btn-ghost text-error hover:bg-error/10"
 									onclick={(e) => {
 										e.stopPropagation();
 										deleteJournal(journal.id);
@@ -696,7 +696,7 @@
 <!-- Create/Edit Journal Modal -->
 {#if showCreateForm}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+		class="modal modal-open"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="modal-title"
@@ -708,9 +708,9 @@
 			}
 		}}
 	>
-		<div class="bg-base-100 max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-lg shadow-xl">
+		<div class="modal-box max-w-3xl">
 			<!-- Modal Header -->
-			<div class="border-base-300 flex items-center justify-between border-b p-6">
+			<div class="flex items-center justify-between border-b border-base-300 pb-4 mb-6">
 				<div class="flex items-center gap-3">
 					<div class="bg-secondary/10 rounded-lg p-2">
 						<PenTool class="text-secondary h-5 w-5" />
@@ -725,7 +725,7 @@
 					</div>
 				</div>
 				<button
-					class="text-base-content/50 hover:bg-base-200 hover:text-base-content/70 rounded-lg p-2 transition-colors"
+					class="btn btn-ghost btn-sm"
 					aria-label="Close modal"
 					onclick={() => (showCreateForm = false)}
 				>
@@ -741,32 +741,32 @@
 			</div>
 
 			<!-- Modal Body -->
-			<div class="max-h-[calc(90vh-140px)] overflow-y-auto p-6">
+			<div class="max-h-[calc(90vh-140px)] overflow-y-auto">
 				<form onsubmit={handleSubmit} class="space-y-6">
 					<!-- Date Field -->
 					<div class="space-y-2">
-						<label for="journalDate" class="text-base-content block text-sm font-medium">
-							Date
+						<label for="journalDate" class="label">
+							<span class="label-text">Date</span>
 						</label>
 						<input
 							id="journalDate"
 							type="date"
-							class="border-base-300 bg-base-100 w-full rounded-lg border px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="input input-bordered w-full"
 							bind:value={formData.date}
 						/>
 					</div>
 
 					<!-- Content Field -->
 					<div class="space-y-2">
-						<label for="journalContent" class="text-base-content block text-sm font-medium">
-							Your Reflection <span class="text-red-500">*</span>
+						<label for="journalContent" class="label">
+							<span class="label-text">Your Reflection <span class="text-error">*</span></span>
 						</label>
 						<p class="text-base-content/70 mb-3 text-sm">
 							What happened today? How are you feeling? What did you learn?
 						</p>
 						<textarea
 							id="journalContent"
-							class="border-base-300 bg-base-100 min-h-[300px] w-full resize-none rounded-lg border px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="textarea textarea-bordered min-h-[300px] w-full resize-none"
 							bind:value={formData.content}
 							placeholder="Write about your day, thoughts, feelings, insights, achievements, challenges, or anything on your mind..."
 							required
@@ -774,15 +774,15 @@
 					</div>
 
 					<!-- Form Actions -->
-					<div class="border-base-300 flex items-center justify-end gap-3 border-t pt-4">
+					<div class="flex items-center justify-end gap-3 border-t border-base-300 pt-4">
 						<button
 							type="button"
-							class="border-base-300 text-base-content/80 hover:bg-base-200 rounded-lg border px-4 py-2 transition-colors"
+							class="btn btn-ghost"
 							onclick={() => (showCreateForm = false)}
 						>
 							Cancel
 						</button>
-						<button type="submit" class="btn-primary">
+						<button type="submit" class="btn btn-primary">
 							{editingJournal ? 'Update Entry' : 'Save Entry'}
 						</button>
 					</div>
