@@ -190,26 +190,6 @@
 		}
 	}
 
-	async function createJournal() {
-		try {
-			await journalsApi.create({
-				content: journalContent
-			});
-
-			// Reset form and close modal
-			journalContent = '';
-			journalMood = '';
-
-			// Refresh journals
-			const journalsData = await journalsApi.getAll();
-			recentJournals = journalsData.journals.slice(0, 3);
-
-			showSaveMessage('Journal entry created ✓');
-		} catch (error) {
-			console.error('Failed to create journal entry:', error);
-		}
-	}
-
 	function cancelTaskFeedback() {
 		showTaskFeedback = '';
 		taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
@@ -232,21 +212,19 @@
 	<title>Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
+<div class="bg-base-200 min-h-screen">
 	{#if loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="space-y-4 text-center">
-				<div
-					class="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-primary"
-				></div>
-				<p class="text-sm text-base-content/70">Loading your command center...</p>
+				<div class="border-primary inline-block h-8 w-8 animate-spin rounded-full border-b-2"></div>
+				<p class="text-base-content/70 text-sm">Loading your command center...</p>
 			</div>
 		</div>
 	{:else}
 		<!-- Save Message -->
 		{#if saveMessage}
 			<div
-				class="fixed top-6 right-6 z-50 flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 px-4 py-3 text-success shadow-lg transition-opacity"
+				class="border-success/20 bg-success/10 text-success fixed top-6 right-6 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg transition-opacity"
 			>
 				<svelte:component this={icons.CheckCircle} class="h-4 w-4" />
 				{saveMessage}
@@ -259,17 +237,17 @@
 			<section class="space-y-4 text-center">
 				<div class="mb-2 flex items-center justify-center gap-4">
 					<div
-						class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xl font-bold text-primary-content shadow-lg"
+						class="from-primary to-secondary text-primary-content flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br text-xl font-bold shadow-lg"
 					>
 						{(userData?.name || 'U').charAt(0).toUpperCase()}
 					</div>
 					<div class="text-left">
-						<h1 class="text-4xl font-bold text-base-content">
+						<h1 class="text-base-content text-4xl font-bold">
 							Welcome back, {userData?.name || 'User'}! 👋
 						</h1>
-						<p class="mt-1 text-lg text-base-content/70">
+						<p class="text-base-content/70 mt-1 text-lg">
 							{#if userData?.className}
-								Ready to focus on <span class="font-semibold text-primary"
+								Ready to focus on <span class="text-primary font-semibold"
 									>{userData.className}</span
 								> today?
 							{:else}
@@ -282,20 +260,20 @@
 				<!-- Quick Overview Stats -->
 				<div class="flex justify-center gap-8 text-center">
 					<div class="space-y-1">
-						<div class="text-3xl font-bold text-info">
+						<div class="text-info text-3xl font-bold">
 							{dailyTasks.filter((t) => !t.completedAt).length}
 						</div>
-						<div class="text-sm text-base-content/60">Priority Tasks</div>
+						<div class="text-base-content/60 text-sm">Priority Tasks</div>
 					</div>
 					<div class="space-y-1">
-						<div class="text-3xl font-bold text-success">{tasks.length}</div>
-						<div class="text-sm text-base-content/60">Active Goals</div>
+						<div class="text-success text-3xl font-bold">{tasks.length}</div>
+						<div class="text-base-content/60 text-sm">Active Goals</div>
 					</div>
 					<div class="space-y-1">
-						<div class="text-3xl font-bold text-secondary">
+						<div class="text-secondary text-3xl font-bold">
 							{stats.reduce((sum, stat) => sum + stat.level, 0)}
 						</div>
-						<div class="text-sm text-base-content/60">Total Levels</div>
+						<div class="text-base-content/60 text-sm">Total Levels</div>
 					</div>
 				</div>
 			</section>
@@ -303,13 +281,13 @@
 			<!-- Today's Priority -->
 			{#if dailyTasks.filter((t) => !t.completedAt).length > 0}
 				<section
-					class="rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8"
+					class="border-primary/20 from-primary/5 to-secondary/5 rounded-2xl border bg-gradient-to-r p-8"
 				>
 					<div class="mb-6 text-center">
 						<h2
-							class="mb-2 flex items-center justify-center gap-2 text-2xl font-bold text-base-content"
+							class="text-base-content mb-2 flex items-center justify-center gap-2 text-2xl font-bold"
 						>
-							<svelte:component this={icons.Zap} class="h-7 w-7 text-warning" />
+							<svelte:component this={icons.Zap} class="text-warning h-7 w-7" />
 							Today's Priority
 						</h2>
 						<p class="text-base-content/70">Focus on what matters most right now</p>
@@ -317,25 +295,23 @@
 
 					<!-- Featured Priority Task -->
 					{#each dailyTasks.filter((t) => !t.completedAt).slice(0, 1) as task}
-						<div class="mb-6 rounded-xl border-2 border-primary/30 bg-base-100 p-6 shadow-sm">
+						<div class="border-primary/30 bg-base-100 mb-6 rounded-xl border-2 p-6 shadow-sm">
 							<div class="mb-4 text-center">
-								<h3 class="mb-2 text-xl font-bold text-base-content">{task.title}</h3>
+								<h3 class="text-base-content mb-2 text-xl font-bold">{task.title}</h3>
 								{#if task.description}
-									<p class="leading-relaxed text-base-content/70">{task.description}</p>
+									<p class="text-base-content/70 leading-relaxed">{task.description}</p>
 								{/if}
 
 								<div class="mt-4 flex justify-center gap-3">
 									{#if task.focus}
-										<span
-											class="rounded-full bg-info/10 px-3 py-1 text-sm font-medium text-info"
-										>
+										<span class="bg-info/10 text-info rounded-full px-3 py-1 text-sm font-medium">
 											<svelte:component this={icons.Focus} class="mr-1 inline h-4 w-4" />
 											{task.focus.name}
 										</span>
 									{/if}
 									{#if task.stat}
 										<span
-											class="rounded-full bg-secondary/10 px-3 py-1 text-sm font-medium text-secondary"
+											class="bg-secondary/10 text-secondary rounded-full px-3 py-1 text-sm font-medium"
 										>
 											<svelte:component this={icons.TrendingUp} class="mr-1 inline h-4 w-4" />
 											+{task.stat.name}
@@ -345,24 +321,24 @@
 							</div>
 
 							<!-- Action Buttons -->
-							<div class="flex flex-col sm:flex-row gap-4">
+							<div class="flex flex-col gap-4 sm:flex-row">
 								<button
 									onclick={() => completeDailyTask(task.id, 'complete')}
-									class="flex items-center gap-2 rounded-lg bg-success px-8 py-3 font-semibold text-success-content shadow-lg transition-all hover:scale-105 hover:bg-success/90"
+									class="bg-success text-success-content hover:bg-success/90 flex items-center gap-2 rounded-lg px-8 py-3 font-semibold shadow-lg transition-all hover:scale-105"
 								>
 									<svelte:component this={icons.Check} class="h-5 w-5" />
 									Complete
 								</button>
 								<button
 									onclick={() => completeDailyTask(task.id, 'skipped')}
-									class="flex items-center gap-2 rounded-lg bg-warning px-6 py-3 font-medium text-warning-content transition-all hover:bg-warning/90"
+									class="bg-warning text-warning-content hover:bg-warning/90 flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-all"
 								>
 									<svelte:component this={icons.Clock} class="h-4 w-4" />
 									Skip for Now
 								</button>
 								<button
 									onclick={() => completeDailyTask(task.id, 'failed')}
-									class="flex items-center gap-2 rounded-lg bg-neutral px-6 py-3 font-medium text-neutral-content transition-all hover:bg-neutral/90"
+									class="bg-neutral text-neutral-content hover:bg-neutral/90 flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-all"
 								>
 									<svelte:component this={icons.X} class="h-4 w-4" />
 									Can't Do Today
@@ -374,7 +350,7 @@
 					<!-- Remaining Priority Tasks Preview -->
 					{#if dailyTasks.filter((t) => !t.completedAt).length > 1}
 						<div class="text-center">
-							<p class="mb-3 text-sm text-base-content/60">
+							<p class="text-base-content/60 mb-3 text-sm">
 								{dailyTasks.filter((t) => !t.completedAt).length - 1} more priority task{dailyTasks.filter(
 									(t) => !t.completedAt
 								).length > 2
@@ -384,13 +360,13 @@
 							<div class="flex justify-center gap-2">
 								{#each dailyTasks.filter((t) => !t.completedAt).slice(1, 4) as task}
 									<div
-										class="rounded-lg border border-primary/20 bg-base-100 px-4 py-2 text-sm text-base-content/70"
+										class="border-primary/20 bg-base-100 text-base-content/70 rounded-lg border px-4 py-2 text-sm"
 									>
 										{task.title.length > 20 ? task.title.substring(0, 20) + '...' : task.title}
 									</div>
 								{/each}
 								{#if dailyTasks.filter((t) => !t.completedAt).length > 4}
-									<div class="rounded-lg bg-base-200 px-4 py-2 text-sm text-base-content/50">
+									<div class="bg-base-200 text-base-content/50 rounded-lg px-4 py-2 text-sm">
 										+{dailyTasks.filter((t) => !t.completedAt).length - 4} more
 									</div>
 								{/if}
@@ -401,15 +377,15 @@
 			{:else}
 				<!-- All Priority Tasks Complete -->
 				<section
-					class="rounded-2xl border border-success/20 bg-gradient-to-r from-success/5 to-success/10 p-8 text-center"
+					class="border-success/20 from-success/5 to-success/10 rounded-2xl border bg-gradient-to-r p-8 text-center"
 				>
 					<div
-						class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-success/10"
+						class="bg-success/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
 					>
-						<svelte:component this={icons.Trophy} class="h-10 w-10 text-success" />
+						<svelte:component this={icons.Trophy} class="text-success h-10 w-10" />
 					</div>
-					<h2 class="mb-2 text-2xl font-bold text-success">🎉 All Priorities Complete!</h2>
-					<p class="mb-6 text-success/80">
+					<h2 class="text-success mb-2 text-2xl font-bold">🎉 All Priorities Complete!</h2>
+					<p class="text-success/80 mb-6">
 						You've conquered today's most important tasks. What's next?
 					</p>
 				</section>
@@ -420,23 +396,23 @@
 				<!-- Left Column: Active Goals & Progress -->
 				<div class="space-y-8 lg:col-span-2">
 					<!-- Active Goals -->
-					<div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
-						<div class="border-b border-base-300 p-6">
+					<div class="border-base-300 bg-base-100 rounded-xl border shadow-sm">
+						<div class="border-base-300 border-b p-6">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-info/10">
-										<svelte:component this={icons.Target} class="h-5 w-5 text-info" />
+									<div class="bg-info/10 flex h-10 w-10 items-center justify-center rounded-lg">
+										<svelte:component this={icons.Target} class="text-info h-5 w-5" />
 									</div>
 									<div>
-										<h2 class="text-xl font-bold text-base-content">Active Goals</h2>
-										<p class="text-sm text-base-content/50">
+										<h2 class="text-base-content text-xl font-bold">Active Goals</h2>
+										<p class="text-base-content/50 text-sm">
 											{tasks.length} goal{tasks.length !== 1 ? 's' : ''} in progress
 										</p>
 									</div>
 								</div>
 								<a
 									href="/tasks"
-									class="flex items-center gap-1 text-sm font-medium text-info transition-colors hover:text-info/80"
+									class="text-info hover:text-info/80 flex items-center gap-1 text-sm font-medium transition-colors"
 								>
 									Manage Goals
 									<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
@@ -448,19 +424,19 @@
 							{#if tasks.length === 0}
 								<div class="space-y-4 py-12 text-center">
 									<div
-										class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-base-200"
+										class="bg-base-200 mx-auto flex h-16 w-16 items-center justify-center rounded-xl"
 									>
-										<svelte:component this={icons.Target} class="h-8 w-8 text-base-content/40" />
+										<svelte:component this={icons.Target} class="text-base-content/40 h-8 w-8" />
 									</div>
 									<div>
-										<h3 class="text-lg font-semibold text-base-content">Ready to grow?</h3>
-										<p class="text-sm text-base-content/60">
+										<h3 class="text-base-content text-lg font-semibold">Ready to grow?</h3>
+										<p class="text-base-content/60 text-sm">
 											Set your first goal to start building momentum
 										</p>
 									</div>
 									<a
 										href="/tasks"
-										class="inline-flex items-center gap-2 rounded-lg bg-info px-6 py-3 font-semibold text-info-content transition-colors hover:bg-info/90"
+										class="bg-info text-info-content hover:bg-info/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 font-semibold transition-colors"
 									>
 										<svelte:component this={icons.Plus} class="h-4 w-4" />
 										Create First Goal
@@ -470,31 +446,31 @@
 								<div class="space-y-4">
 									{#each tasks as task}
 										<div
-											class="group rounded-lg border border-base-300 p-4 transition-all hover:border-primary/30 hover:shadow-md"
+											class="group border-base-300 hover:border-primary/30 rounded-lg border p-4 transition-all hover:shadow-md"
 										>
 											<div class="flex items-start justify-between gap-4">
 												<div class="flex-1 space-y-2">
 													<h4
-														class="font-semibold text-base-content transition-colors group-hover:text-primary"
+														class="text-base-content group-hover:text-primary font-semibold transition-colors"
 													>
 														{task.title}
 													</h4>
 													{#if task.description}
-														<p class="text-sm leading-relaxed text-base-content/60">
+														<p class="text-base-content/60 text-sm leading-relaxed">
 															{task.description}
 														</p>
 													{/if}
 													<div class="flex flex-wrap gap-2">
 														{#if task.focus}
 															<span
-																class="rounded-md bg-info/10 px-2 py-1 text-xs font-medium text-info"
+																class="bg-info/10 text-info rounded-md px-2 py-1 text-xs font-medium"
 															>
 																{task.focus.name}
 															</span>
 														{/if}
 														{#if task.stat}
 															<span
-																class="rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success"
+																class="bg-success/10 text-success rounded-md px-2 py-1 text-xs font-medium"
 															>
 																+{task.stat.name}
 															</span>
@@ -503,7 +479,7 @@
 												</div>
 												<button
 													onclick={() => completeTask(task.id)}
-													class="flex items-center gap-2 rounded-lg bg-success px-4 py-2 font-medium text-success-content shadow-sm transition-all hover:scale-105 hover:bg-success/90"
+													class="bg-success text-success-content hover:bg-success/90 flex items-center gap-2 rounded-lg px-4 py-2 font-medium shadow-sm transition-all hover:scale-105"
 												>
 													<svelte:component this={icons.Check} class="h-4 w-4" />
 													Done
@@ -517,21 +493,23 @@
 					</div>
 
 					<!-- Your Progress -->
-					<div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
-						<div class="border-b border-base-300 p-6">
+					<div class="border-base-300 bg-base-100 rounded-xl border shadow-sm">
+						<div class="border-base-300 border-b p-6">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-										<svelte:component this={icons.TrendingUp} class="h-5 w-5 text-secondary" />
+									<div
+										class="bg-secondary/10 flex h-10 w-10 items-center justify-center rounded-lg"
+									>
+										<svelte:component this={icons.TrendingUp} class="text-secondary h-5 w-5" />
 									</div>
 									<div>
-										<h2 class="text-xl font-bold text-base-content">Your Progress</h2>
-										<p class="text-sm text-base-content/50">Track your growth journey</p>
+										<h2 class="text-base-content text-xl font-bold">Your Progress</h2>
+										<p class="text-base-content/50 text-sm">Track your growth journey</p>
 									</div>
 								</div>
 								<a
 									href="/stats"
-									class="flex items-center gap-1 text-sm font-medium text-secondary transition-colors hover:text-secondary/80"
+									class="text-secondary hover:text-secondary/80 flex items-center gap-1 text-sm font-medium transition-colors"
 								>
 									View Details
 									<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
@@ -543,21 +521,24 @@
 							{#if stats.length === 0}
 								<div class="space-y-4 py-8 text-center">
 									<div
-										class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-base-200"
+										class="bg-base-200 mx-auto flex h-16 w-16 items-center justify-center rounded-xl"
 									>
-										<svelte:component this={icons.TrendingUp} class="h-8 w-8 text-base-content/40" />
+										<svelte:component
+											this={icons.TrendingUp}
+											class="text-base-content/40 h-8 w-8"
+										/>
 									</div>
 									<div>
-										<h3 class="text-lg font-semibold text-base-content">
+										<h3 class="text-base-content text-lg font-semibold">
 											Start tracking your growth
 										</h3>
-										<p class="text-sm text-base-content/60">
+										<p class="text-base-content/60 text-sm">
 											Create stats to measure progress in different areas
 										</p>
 									</div>
 									<a
 										href="/stats"
-										class="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 font-medium text-secondary-content transition-colors hover:bg-secondary/90"
+										class="bg-secondary text-secondary-content hover:bg-secondary/90 inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors"
 									>
 										<svelte:component this={icons.Plus} class="h-4 w-4" />
 										Create Stats
@@ -567,38 +548,38 @@
 								<div class="grid gap-4 sm:grid-cols-2">
 									{#each stats as stat}
 										<div
-											class="rounded-lg border border-secondary/20 bg-gradient-to-br from-secondary/5 to-accent/5 p-4"
+											class="border-secondary/20 from-secondary/5 to-accent/5 rounded-lg border bg-gradient-to-br p-4"
 										>
 											<div class="mb-3 flex items-center gap-3">
 												<div
-													class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10"
+													class="bg-secondary/10 flex h-10 w-10 items-center justify-center rounded-lg"
 												>
 													<svelte:component
 														this={getIconComponent(stat.icon)}
-														class="h-5 w-5 text-secondary"
+														class="text-secondary h-5 w-5"
 													/>
 												</div>
 												<div class="flex-1">
-													<h4 class="font-bold text-base-content">{stat.name}</h4>
-													<p class="text-sm text-base-content/60">Level {stat.level}</p>
+													<h4 class="text-base-content font-bold">{stat.name}</h4>
+													<p class="text-base-content/60 text-sm">Level {stat.level}</p>
 												</div>
 												<div class="text-right">
-													<div class="text-xl font-bold text-secondary">{stat.level}</div>
+													<div class="text-secondary text-xl font-bold">{stat.level}</div>
 												</div>
 											</div>
 
 											<!-- Mini Progress Bar -->
 											<div class="space-y-1">
-												<div class="h-2 overflow-hidden rounded-full bg-base-300">
+												<div class="bg-base-300 h-2 overflow-hidden rounded-full">
 													<div
-														class="h-2 rounded-full bg-gradient-to-r from-secondary to-accent transition-all duration-500"
+														class="from-secondary to-accent h-2 rounded-full bg-gradient-to-r transition-all duration-500"
 														style="width: {Math.min(
 															100,
 															Math.max(0, ((stat.xp - (stat.level - 1) * 100) / 100) * 100)
 														)}%;"
 													></div>
 												</div>
-												<p class="text-xs text-base-content/50">
+												<p class="text-base-content/50 text-xs">
 													{Math.min(
 														100,
 														Math.max(0, ((stat.xp - (stat.level - 1) * 100) / 100) * 100)
@@ -616,23 +597,23 @@
 				<!-- Right Column: Journal & Quick Actions -->
 				<div class="space-y-8">
 					<!-- Recent Journal Entries -->
-					<div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
-						<div class="border-b border-base-300 p-6">
+					<div class="border-base-300 bg-base-100 rounded-xl border shadow-sm">
+						<div class="border-base-300 border-b p-6">
 							<div class="mb-4 flex items-center justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
-										<svelte:component this={icons.Edit3} class="h-5 w-5 text-warning" />
+									<div class="bg-warning/10 flex h-10 w-10 items-center justify-center rounded-lg">
+										<svelte:component this={icons.Edit3} class="text-warning h-5 w-5" />
 									</div>
 									<div>
-										<h2 class="text-xl font-bold text-base-content">Journal</h2>
-										<p class="text-sm text-base-content/50">Your recent thoughts</p>
+										<h2 class="text-base-content text-xl font-bold">Journal</h2>
+										<p class="text-base-content/50 text-sm">Your recent thoughts</p>
 									</div>
 								</div>
 							</div>
 							<div class="text-center">
 								<a
 									href="/journals/chat"
-									class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-medium text-accent-content transition-colors hover:bg-accent/90"
+									class="bg-accent text-accent-content hover:bg-accent/90 inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors"
 								>
 									<svelte:component this={icons.MessageCircle} class="h-4 w-4" />
 									Write New Entry
@@ -644,28 +625,30 @@
 							{#if recentJournals.length === 0}
 								<div class="space-y-4 py-8 text-center">
 									<div
-										class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-base-200"
+										class="bg-base-200 mx-auto flex h-16 w-16 items-center justify-center rounded-xl"
 									>
-										<svelte:component this={icons.Edit3} class="h-8 w-8 text-base-content/40" />
+										<svelte:component this={icons.Edit3} class="text-base-content/40 h-8 w-8" />
 									</div>
 									<div>
-										<h3 class="text-lg font-semibold text-base-content">Start journaling</h3>
-										<p class="text-sm text-base-content/60">Capture your thoughts and reflections</p>
+										<h3 class="text-base-content text-lg font-semibold">Start journaling</h3>
+										<p class="text-base-content/60 text-sm">
+											Capture your thoughts and reflections
+										</p>
 									</div>
 								</div>
 							{:else}
 								<div class="space-y-4">
 									{#each recentJournals as journal}
 										<div
-											class="rounded-lg border border-base-300 p-4 transition-all hover:border-warning/30 hover:shadow-sm"
+											class="border-base-300 hover:border-warning/30 rounded-lg border p-4 transition-all hover:shadow-sm"
 										>
-											<p class="mb-3 text-sm leading-relaxed text-base-content">
+											<p class="text-base-content mb-3 text-sm leading-relaxed">
 												{journal.content.length > 100
 													? journal.content.substring(0, 100) + '...'
 													: journal.content}
 											</p>
 											<div class="flex items-center justify-between">
-												<span class="text-xs text-base-content/50">
+												<span class="text-base-content/50 text-xs">
 													{new Date(journal.date).toLocaleDateString('en-US', {
 														month: 'short',
 														day: 'numeric',
@@ -675,7 +658,7 @@
 												</span>
 												{#if journal.mood}
 													<span
-														class="rounded-full bg-warning/10 px-2 py-1 text-xs font-medium text-warning"
+														class="bg-warning/10 text-warning rounded-full px-2 py-1 text-xs font-medium"
 													>
 														{journal.mood}
 													</span>
@@ -686,7 +669,7 @@
 									<div class="pt-2 text-center">
 										<a
 											href="/journals"
-											class="flex items-center justify-center gap-1 text-sm font-medium text-warning transition-colors hover:text-warning/80"
+											class="text-warning hover:text-warning/80 flex items-center justify-center gap-1 text-sm font-medium transition-colors"
 										>
 											View All Entries
 											<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
@@ -698,45 +681,43 @@
 					</div>
 
 					<!-- Quick Navigation -->
-					<div
-						class="rounded-xl border border-base-300 bg-base-100 shadow-sm p-6"
-					>
-						<h3 class="mb-4 text-center text-lg font-semibold text-base-content">Quick Actions</h3>
+					<div class="border-base-300 bg-base-100 rounded-xl border p-6 shadow-sm">
+						<h3 class="text-base-content mb-4 text-center text-lg font-semibold">Quick Actions</h3>
 						<div class="space-y-3">
 							<a
 								href="/tasks"
-								class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 p-3 transition-colors hover:border-primary/20 hover:bg-primary/5"
+								class="border-base-300 bg-base-100 hover:border-primary/20 hover:bg-primary/5 flex items-center gap-3 rounded-lg border p-3 transition-colors"
 							>
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-									<svelte:component this={icons.Plus} class="h-5 w-5 text-info" />
+								<div class="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+									<svelte:component this={icons.Plus} class="text-info h-5 w-5" />
 								</div>
 								<div>
-									<div class="font-medium text-base-content">Create Goal</div>
-									<div class="text-sm text-base-content/70">Set new objectives</div>
+									<div class="text-base-content font-medium">Create Goal</div>
+									<div class="text-base-content/70 text-sm">Set new objectives</div>
 								</div>
 							</a>
 							<a
 								href="/focuses"
-								class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 p-3 transition-colors hover:border-accent/20 hover:bg-accent/5"
+								class="border-base-300 bg-base-100 hover:border-accent/20 hover:bg-accent/5 flex items-center gap-3 rounded-lg border p-3 transition-colors"
 							>
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-									<svelte:component this={icons.Focus} class="h-5 w-5 text-accent" />
+								<div class="bg-accent/10 flex h-10 w-10 items-center justify-center rounded-lg">
+									<svelte:component this={icons.Focus} class="text-accent h-5 w-5" />
 								</div>
 								<div>
-									<div class="font-medium text-base-content">Focus Areas</div>
-									<div class="text-sm text-base-content/70">Manage priorities</div>
+									<div class="text-base-content font-medium">Focus Areas</div>
+									<div class="text-base-content/70 text-sm">Manage priorities</div>
 								</div>
 							</a>
 							<a
 								href="/settings"
-								class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 p-3 transition-colors hover:bg-base-200"
+								class="border-base-300 bg-base-100 hover:bg-base-200 flex items-center gap-3 rounded-lg border p-3 transition-colors"
 							>
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-base-200">
-									<svelte:component this={icons.Settings} class="h-5 w-5 text-base-content/70" />
+								<div class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-lg">
+									<svelte:component this={icons.Settings} class="text-base-content/70 h-5 w-5" />
 								</div>
 								<div>
-									<div class="font-medium text-base-content">Settings</div>
-									<div class="text-sm text-base-content/70">Customize profile</div>
+									<div class="text-base-content font-medium">Settings</div>
+									<div class="text-base-content/70 text-sm">Customize profile</div>
 								</div>
 							</a>
 						</div>
@@ -747,21 +728,25 @@
 			<!-- Anytime Tasks Section -->
 			{#if adhocTasks.length > 0}
 				<section class="mt-8">
-					<div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
-						<div class="border-b border-base-300 p-6">
+					<div class="border-base-300 bg-base-100 rounded-xl border shadow-sm">
+						<div class="border-base-300 border-b p-6">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-										<svelte:component this={icons.Zap} class="h-5 w-5 text-secondary" />
+									<div
+										class="bg-secondary/10 flex h-10 w-10 items-center justify-center rounded-lg"
+									>
+										<svelte:component this={icons.Zap} class="text-secondary h-5 w-5" />
 									</div>
 									<div>
-										<h2 class="text-xl font-bold text-base-content">Anytime Tasks</h2>
-										<p class="text-sm text-base-content/60">Quick actions you can complete anytime</p>
+										<h2 class="text-base-content text-xl font-bold">Anytime Tasks</h2>
+										<p class="text-base-content/60 text-sm">
+											Quick actions you can complete anytime
+										</p>
 									</div>
 								</div>
 								<a
 									href="/adhoc-tasks"
-									class="flex items-center gap-1 text-sm font-medium text-secondary transition-colors hover:text-secondary"
+									class="text-secondary hover:text-secondary flex items-center gap-1 text-sm font-medium transition-colors"
 								>
 									Manage Library
 									<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
@@ -774,36 +759,36 @@
 								{#each adhocTasks.slice(0, 6) as adhocTask}
 									<button
 										onclick={() => executeAdhocTask(adhocTask.id)}
-										class="group flex items-start gap-4 rounded-lg border border-base-300 p-4 text-left transition-all hover:border-secondary/30 hover:bg-secondary/5 hover:shadow-md"
+										class="group border-base-300 hover:border-secondary/30 hover:bg-secondary/5 flex items-start gap-4 rounded-lg border p-4 text-left transition-all hover:shadow-md"
 									>
 										<div
-											class="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20"
+											class="bg-secondary/10 group-hover:bg-secondary/20 flex h-12 w-12 items-center justify-center rounded-lg"
 										>
 											{#if adhocTask.iconId}
 												<svelte:component
 													this={getIconComponent(adhocTask.iconId)}
-													class="h-6 w-6 text-secondary"
+													class="text-secondary h-6 w-6"
 												/>
 											{:else}
-												<svelte:component this={icons.Target} class="h-6 w-6 text-secondary" />
+												<svelte:component this={icons.Target} class="text-secondary h-6 w-6" />
 											{/if}
 										</div>
 										<div class="min-w-0 flex-1">
-											<h3 class="font-semibold text-base-content group-hover:text-secondary">
+											<h3 class="text-base-content group-hover:text-secondary font-semibold">
 												{adhocTask.name}
 											</h3>
 											{#if adhocTask.description}
-												<p class="mt-1 line-clamp-2 text-sm text-base-content/70">
+												<p class="text-base-content/70 mt-1 line-clamp-2 text-sm">
 													{adhocTask.description}
 												</p>
 											{/if}
 											<div class="mt-2 flex items-center gap-2">
 												<span
-													class="rounded-full bg-secondary/10 px-2 py-1 text-xs font-medium text-secondary"
+													class="bg-secondary/10 text-secondary rounded-full px-2 py-1 text-xs font-medium"
 												>
 													{adhocTask.linkedStat.name}
 												</span>
-												<span class="text-xs font-medium text-secondary">
+												<span class="text-secondary text-xs font-medium">
 													+{adhocTask.xpValue} XP
 												</span>
 											</div>
@@ -816,7 +801,7 @@
 								<div class="mt-4 text-center">
 									<a
 										href="/adhoc-tasks"
-										class="inline-flex items-center gap-1 text-sm font-medium text-secondary transition-colors hover:text-secondary"
+										class="text-secondary hover:text-secondary inline-flex items-center gap-1 text-sm font-medium transition-colors"
 									>
 										View All {adhocTasks.length} Tasks
 										<svelte:component this={icons.ArrowRight} class="h-4 w-4" />
@@ -837,15 +822,15 @@
 		class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
 		onclick={closeModal}
 	>
-		<div class="w-full max-w-md rounded-lg bg-base-100 shadow-xl">
-			<div class="border-b border-base-300 p-6">
+		<div class="bg-base-100 w-full max-w-md rounded-lg shadow-xl">
+			<div class="border-base-300 border-b p-6">
 				<div class="flex items-center justify-between">
-					<h3 class="text-xl font-semibold text-base-content">
+					<h3 class="text-base-content text-xl font-semibold">
 						{showTaskFeedback.endsWith('_adhoc') ? 'Complete Anytime Task' : 'Task Feedback'}
 					</h3>
 					<button
 						onclick={cancelTaskFeedback}
-						class="text-base-content/50 transition-colors hover:text-base-content/70"
+						class="text-base-content/50 hover:text-base-content/70 transition-colors"
 					>
 						<svelte:component this={icons.X} class="h-6 w-6" />
 					</button>
@@ -854,25 +839,27 @@
 
 			<div class="space-y-4 p-6">
 				<div>
-					<label class="mb-2 block text-sm font-semibold text-base-content">
-						How did it go? <span class="text-sm font-normal text-base-content/70 italic"
+					<label class="text-base-content mb-2 block text-sm font-semibold">
+						How did it go? <span class="text-base-content/70 text-sm font-normal italic"
 							>(optional)</span
 						>
 					</label>
 					<textarea
 						bind:value={taskFeedbackData.feedback}
 						placeholder="Reflect on your experience..."
-						class="min-h-20 w-full resize-y rounded-lg border border-base-300 p-3 text-sm leading-relaxed transition-colors focus:border-blue-500 focus:outline-none"
+						class="border-base-300 min-h-20 w-full resize-y rounded-lg border p-3 text-sm leading-relaxed transition-colors focus:border-blue-500 focus:outline-none"
 					></textarea>
 				</div>
 
 				<div>
-					<label class="mb-2 block text-sm font-semibold text-base-content">
-						Emotion Tag <span class="text-sm font-normal text-base-content/70 italic">(optional)</span>
+					<label class="text-base-content mb-2 block text-sm font-semibold">
+						Emotion Tag <span class="text-base-content/70 text-sm font-normal italic"
+							>(optional)</span
+						>
 					</label>
 					<select
 						bind:value={taskFeedbackData.emotionTag}
-						class="w-full rounded-lg border border-base-300 p-3 text-sm transition-colors focus:border-blue-500 focus:outline-none"
+						class="border-base-300 w-full rounded-lg border p-3 text-sm transition-colors focus:border-blue-500 focus:outline-none"
 					>
 						<option value="">Select an emotion</option>
 						<option value="accomplished">Accomplished</option>
@@ -887,8 +874,8 @@
 				</div>
 
 				<div>
-					<label class="mb-2 block text-sm font-semibold text-base-content">
-						Mood Score (1-10) <span class="text-sm font-normal text-base-content/70 italic"
+					<label class="text-base-content mb-2 block text-sm font-semibold">
+						Mood Score (1-10) <span class="text-base-content/70 text-sm font-normal italic"
 							>(optional)</span
 						>
 					</label>
@@ -897,14 +884,14 @@
 						min="0"
 						max="10"
 						bind:value={taskFeedbackData.moodScore}
-						class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-base-300"
+						class="bg-base-300 h-2 w-full cursor-pointer appearance-none rounded-lg"
 					/>
-					<div class="mt-1 flex justify-between text-xs text-base-content/70">
+					<div class="text-base-content/70 mt-1 flex justify-between text-xs">
 						<span>None</span>
 						<span>Great (10)</span>
 					</div>
 					{#if taskFeedbackData.moodScore > 0}
-						<p class="mt-2 text-center text-sm text-base-content/80">
+						<p class="text-base-content/80 mt-2 text-center text-sm">
 							Score: {taskFeedbackData.moodScore}
 						</p>
 					{/if}
@@ -913,13 +900,13 @@
 				<div class="flex justify-end gap-3 pt-4">
 					<button
 						onclick={cancelTaskFeedback}
-						class="rounded-lg border border-base-300 px-4 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-200"
+						class="border-base-300 text-base-content/80 hover:bg-base-200 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
 					>
 						Cancel
 					</button>
 					<button
 						onclick={() => submitTaskFeedback(showTaskFeedback)}
-						class="rounded-lg bg-success px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-success/90"
+						class="bg-success text-primary-content hover:bg-success/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
 					>
 						{showTaskFeedback.endsWith('_adhoc') ? 'Complete & Earn XP' : 'Complete Task'}
 					</button>

@@ -117,13 +117,15 @@
 <div class="mx-auto max-w-6xl px-6 py-8">
 	<!-- Header -->
 	<div class="mb-8">
-		<h1 class="mb-2 text-2xl font-bold text-base-content">Settings</h1>
+		<h1 class="text-base-content mb-2 text-2xl font-bold">Settings</h1>
 		<p class="text-base-content/70">Customize your LifeQuest experience</p>
 	</div>
 
 	{#if saveMessage}
 		<div
-			class="mb-6 rounded-lg p-4 alert {messageType === 'success' ? 'alert-success' : 'alert-error'}"
+			class="alert mb-6 rounded-lg p-4 {messageType === 'success'
+				? 'alert-success'
+				: 'alert-error'}"
 		>
 			<div class="flex items-start space-x-3">
 				<svelte:component
@@ -135,14 +137,11 @@
 					<p class="text-sm font-medium">
 						{messageType === 'success' ? 'Success' : 'Error'}
 					</p>
-					<p class="text-sm mt-1">
+					<p class="mt-1 text-sm">
 						{saveMessage}
 					</p>
 				</div>
-				<button
-					on:click={() => (saveMessage = '')}
-					class="hover:opacity-70 transition-opacity"
-				>
+				<button on:click={() => (saveMessage = '')} class="transition-opacity hover:opacity-70">
 					<svelte:component this={icons.X} size={14} />
 				</button>
 			</div>
@@ -150,14 +149,14 @@
 	{/if}
 
 	<!-- Tabs Navigation -->
-	<div class="mb-6 rounded-lg border border-base-300 bg-base-100">
-		<div class="border-b border-base-300">
+	<div class="border-base-300 bg-base-100 mb-6 rounded-lg border">
+		<div class="border-base-300 border-b">
 			<nav class="flex space-x-8 px-6" role="tablist">
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'appearance'
 						? 'border-primary text-primary'
-						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
+						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
 					on:click={() => setActiveTab('appearance')}
 					role="tab"
 					aria-selected={activeTab === 'appearance'}
@@ -171,7 +170,7 @@
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'location'
 						? 'border-primary text-primary'
-						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
+						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
 					on:click={() => setActiveTab('location')}
 					role="tab"
 					aria-selected={activeTab === 'location'}
@@ -184,7 +183,7 @@
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab === 'profile'
 						? 'border-primary text-primary'
-						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
+						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
 					on:click={() => setActiveTab('profile')}
 					role="tab"
 					aria-selected={activeTab === 'profile'}
@@ -198,7 +197,7 @@
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'character'
 						? 'border-primary text-primary'
-						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
+						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
 					on:click={() => setActiveTab('character')}
 					role="tab"
 					aria-selected={activeTab === 'character'}
@@ -217,8 +216,8 @@
 				<!-- Appearance Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-base-content">Theme</h3>
-						<p class="mb-4 text-sm text-base-content/70">Choose how LifeQuest looks and feels</p>
+						<h3 class="text-base-content mb-2 text-lg font-semibold">Theme</h3>
+						<p class="text-base-content/70 mb-4 text-sm">Choose how LifeQuest looks and feels</p>
 					</div>
 
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -249,27 +248,25 @@
 										/>
 									</div>
 									<div class="text-left">
-										<div class="font-medium text-base-content">{themeOption.name}</div>
-										<div class="text-xs text-base-content/50">{themeOption.description}</div>
+										<div class="text-base-content font-medium">{themeOption.name}</div>
+										<div class="text-base-content/50 text-xs">{themeOption.description}</div>
 									</div>
 								</div>
 
 								<!-- Theme Preview -->
 								<div class="mb-2 flex space-x-1">
 									{#if themeOption.value === 'light'}
-										<div
-											class="h-4 w-4 rounded border border-base-300 bg-base-100"
-										></div>
-										<div class="h-4 w-4 rounded bg-primary"></div>
-										<div class="h-4 w-4 rounded bg-base-300"></div>
+										<div class="border-base-300 bg-base-100 h-4 w-4 rounded border"></div>
+										<div class="bg-primary h-4 w-4 rounded"></div>
+										<div class="bg-base-300 h-4 w-4 rounded"></div>
 									{:else if themeOption.value === 'dark'}
-										<div class="h-4 w-4 rounded bg-base-300"></div>
-										<div class="h-4 w-4 rounded bg-primary"></div>
-										<div class="h-4 w-4 rounded bg-base-200"></div>
+										<div class="bg-base-300 h-4 w-4 rounded"></div>
+										<div class="bg-primary h-4 w-4 rounded"></div>
+										<div class="bg-base-200 h-4 w-4 rounded"></div>
 									{:else}
-										<div class="h-4 w-4 rounded bg-gradient-to-r from-base-100 to-base-300"></div>
-										<div class="h-4 w-4 rounded bg-primary"></div>
-										<div class="h-4 w-4 rounded bg-base-200"></div>
+										<div class="from-base-100 to-base-300 h-4 w-4 rounded bg-gradient-to-r"></div>
+										<div class="bg-primary h-4 w-4 rounded"></div>
+										<div class="bg-base-200 h-4 w-4 rounded"></div>
 									{/if}
 								</div>
 
@@ -282,16 +279,16 @@
 						{/each}
 					</div>
 
-					<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
+					<div class="border-primary/20 bg-primary/5 rounded-lg border p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.Info}
 								size={16}
-								class="mt-0.5 flex-shrink-0 text-info"
+								class="text-info mt-0.5 flex-shrink-0"
 							/>
 							<div>
 								<p class="text-sm font-medium text-blue-900">About themes</p>
-								<p class="mt-1 text-sm text-primary">
+								<p class="text-primary mt-1 text-sm">
 									Auto theme will switch between light and dark modes based on your system
 									preference. You can always override this setting manually.
 								</p>
@@ -303,8 +300,8 @@
 				<!-- Location Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-base-content">Location Context</h3>
-						<p class="mb-4 text-sm text-base-content/70">
+						<h3 class="text-base-content mb-2 text-lg font-semibold">Location Context</h3>
+						<p class="text-base-content/70 mb-4 text-sm">
 							Help us generate more relevant tasks based on your location and local weather
 						</p>
 					</div>
@@ -313,7 +310,7 @@
 						<div>
 							<label
 								for="locationDescription"
-								class="mb-2 block text-sm font-medium text-base-content"
+								class="text-base-content mb-2 block text-sm font-medium"
 							>
 								Location Description
 							</label>
@@ -321,44 +318,44 @@
 								id="locationDescription"
 								type="text"
 								placeholder="e.g., Seattle area, NYC, San Francisco"
-								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.locationDescription}
 								on:blur={() =>
 									savePreference('locationDescription', preferences.locationDescription || '')}
 							/>
-							<p class="mt-1 text-xs text-base-content/60">
+							<p class="text-base-content/60 mt-1 text-xs">
 								A general description of your area for context
 							</p>
 						</div>
 
 						<div>
-							<label for="zipCode" class="mb-2 block text-sm font-medium text-base-content">
+							<label for="zipCode" class="text-base-content mb-2 block text-sm font-medium">
 								Zip Code
 							</label>
 							<input
 								id="zipCode"
 								type="text"
 								placeholder="e.g., 98101"
-								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.zipCode}
 								on:blur={() => savePreference('zipCode', preferences.zipCode || '')}
 							/>
-							<p class="mt-1 text-xs text-base-content/60">
+							<p class="text-base-content/60 mt-1 text-xs">
 								For weather-based task suggestions (optional)
 							</p>
 						</div>
 					</div>
 
-					<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
+					<div class="border-primary/20 bg-primary/5 rounded-lg border p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.Info}
 								size={16}
-								class="mt-0.5 flex-shrink-0 text-info"
+								class="text-info mt-0.5 flex-shrink-0"
 							/>
 							<div>
 								<p class="text-sm font-medium text-blue-900">How we use your location</p>
-								<p class="mt-1 text-sm text-primary">
+								<p class="text-primary mt-1 text-sm">
 									Your location helps us suggest outdoor activities on nice days, indoor activities
 									during bad weather, and consider weekend vs. weekday schedules. Your data is kept
 									private and secure.
@@ -371,8 +368,8 @@
 				<!-- Profile Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-base-content">Personal Attributes</h3>
-						<p class="mb-4 text-sm text-base-content/70">
+						<h3 class="text-base-content mb-2 text-lg font-semibold">Personal Attributes</h3>
+						<p class="text-base-content/70 mb-4 text-sm">
 							Define your values, interests, skills, and other personal attributes
 						</p>
 					</div>
@@ -386,9 +383,9 @@
 						/>
 					{:else}
 						<div class="flex justify-center py-8">
-							<div class="flex items-center space-x-3 text-base-content/60">
+							<div class="text-base-content/60 flex items-center space-x-3">
 								<div
-									class="h-5 w-5 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
+									class="border-base-300 h-5 w-5 animate-spin rounded-full border-2 border-t-blue-600"
 								></div>
 								<span class="text-sm">Loading profile...</span>
 							</div>
@@ -399,8 +396,8 @@
 				<!-- Character Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-base-content">Character Class</h3>
-						<p class="mb-4 text-sm text-base-content/70">
+						<h3 class="text-base-content mb-2 text-lg font-semibold">Character Class</h3>
+						<p class="text-base-content/70 mb-4 text-sm">
 							Define your RPG-style character class and backstory
 						</p>
 					</div>
@@ -409,13 +406,16 @@
 						<div class="space-y-6">
 							<!-- Class Selection -->
 							<div>
-								<label for="characterClass" class="mb-2 block text-sm font-medium text-base-content">
+								<label
+									for="characterClass"
+									class="text-base-content mb-2 block text-sm font-medium"
+								>
 									Character Class
 								</label>
 								<select
 									id="characterClass"
 									bind:value={memberClassName}
-									class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								>
 									<option value="">No class selected</option>
 									<optgroup label="Warriors & Protectors">
@@ -456,7 +456,7 @@
 								<div>
 									<label
 										for="classDescription"
-										class="mb-2 block text-sm font-medium text-base-content"
+										class="text-base-content mb-2 block text-sm font-medium"
 									>
 										Character Backstory
 									</label>
@@ -465,25 +465,29 @@
 										bind:value={memberClassDescription}
 										placeholder="Describe your character's background, personality, approach to life, or any other details that make them unique..."
 										rows="4"
-										class="w-full resize-none rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+										class="border-base-300 w-full resize-none rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 									></textarea>
-									<p class="mt-1 text-xs text-base-content/60">
+									<p class="text-base-content/60 mt-1 text-xs">
 										Tell your character's story - their motivations, quirks, values, or what drives
 										them
 									</p>
 								</div>
 
 								{#if memberClassDescription}
-									<div class="rounded-lg border border-base-300 bg-base-200 p-4">
+									<div class="border-base-300 bg-base-200 rounded-lg border p-4">
 										<div class="flex items-start space-x-3">
 											<div
-												class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10"
+												class="bg-secondary/10 flex h-8 w-8 items-center justify-center rounded-lg"
 											>
 												<svelte:component this={icons.Shield} size={16} class="text-secondary" />
 											</div>
 											<div class="flex-1">
-												<h5 class="mb-1 text-sm font-medium text-base-content">{memberClassName}</h5>
-												<p class="text-sm text-base-content/80 italic">"{memberClassDescription}"</p>
+												<h5 class="text-base-content mb-1 text-sm font-medium">
+													{memberClassName}
+												</h5>
+												<p class="text-base-content/80 text-sm italic">
+													"{memberClassDescription}"
+												</p>
 											</div>
 										</div>
 									</div>
@@ -491,10 +495,10 @@
 							{/if}
 
 							<!-- Save Button -->
-							<div class="flex justify-end border-t border-base-300 pt-4">
+							<div class="border-base-300 flex justify-end border-t pt-4">
 								<button
 									on:click={handleClassUpdate}
-									class="rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
+									class="bg-primary text-primary-content hover:bg-primary/90 rounded-lg border border-transparent px-4 py-2 text-sm font-medium transition-colors"
 								>
 									Save Character
 								</button>
@@ -502,9 +506,9 @@
 						</div>
 					{:else}
 						<div class="flex justify-center py-8">
-							<div class="flex items-center space-x-3 text-base-content/60">
+							<div class="text-base-content/60 flex items-center space-x-3">
 								<div
-									class="h-5 w-5 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
+									class="border-base-300 h-5 w-5 animate-spin rounded-full border-2 border-t-blue-600"
 								></div>
 								<span class="text-sm">Loading character...</span>
 							</div>

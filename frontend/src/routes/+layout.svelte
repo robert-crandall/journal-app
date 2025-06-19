@@ -89,37 +89,35 @@
 	<meta name="description" content="Personal growth powered by GPT and role-playing mechanics" />
 </svelte:head>
 
-<div class="min-h-screen bg-base-100 text-base-content">
+<div class="bg-base-100 text-base-content min-h-screen">
 	{#if $auth.loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div
-				class="h-8 w-8 animate-spin rounded-full border-2 border-base-300 border-t-primary"
+				class="border-base-300 border-t-primary h-8 w-8 animate-spin rounded-full border-2"
 			></div>
 		</div>
 	{:else if !$auth.user && !isAuthPage}
 		<div
-			class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-200 to-base-300"
+			class="from-base-200 to-base-300 flex min-h-screen items-center justify-center bg-gradient-to-br"
 		>
 			<div class="mx-auto max-w-md px-6 text-center">
-				<div
-					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary"
-				>
+				<div class="bg-primary mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl">
 					<svelte:component this={icons.Zap} size={32} class="text-primary-content" />
 				</div>
-				<h1 class="mb-4 text-4xl font-bold text-base-content">LifeQuest</h1>
-				<p class="mb-8 text-lg text-base-content/70">
+				<h1 class="text-base-content mb-4 text-4xl font-bold">LifeQuest</h1>
+				<p class="text-base-content/70 mb-8 text-lg">
 					Transform your personal growth journey with RPG-style mechanics and AI-powered insights.
 				</p>
 				<div class="flex flex-col justify-center gap-3 sm:flex-row">
 					<a
 						href="/login"
-						class="rounded-lg border border-transparent bg-primary px-6 py-3 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
+						class="bg-primary text-primary-content hover:bg-primary/90 rounded-lg border border-transparent px-6 py-3 text-sm font-medium transition-colors"
 					>
 						Sign In
 					</a>
 					<a
 						href="/register"
-						class="rounded-lg border border-primary/30 bg-base-100 px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-base-200"
+						class="border-primary/30 bg-base-100 text-primary hover:bg-base-200 rounded-lg border px-6 py-3 text-sm font-medium transition-colors"
 					>
 						Get Started
 					</a>
@@ -128,10 +126,7 @@
 		</div>
 	{:else if $auth.user && !isAuthPage && !isHomePage}
 		<!-- Atlassian-style Navigation -->
-		<div
-			class="sticky top-0 z-40 border-b border-base-300 bg-base-100"
-			on:click={closeDropdowns}
-		>
+		<div class="border-base-300 bg-base-100 sticky top-0 z-40 border-b" on:click={closeDropdowns}>
 			<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="flex h-16 items-center justify-between">
 					<!-- Left side: Brand + Main Navigation -->
@@ -139,11 +134,9 @@
 						<!-- Brand -->
 						<a
 							href="/dashboard"
-							class="flex items-center space-x-2 text-xl font-semibold text-base-content transition-colors hover:text-primary"
+							class="text-base-content hover:text-primary flex items-center space-x-2 text-xl font-semibold transition-colors"
 						>
-							<div
-								class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary"
-							>
+							<div class="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
 								<svelte:component this={icons.Zap} size={16} class="text-primary-content" />
 							</div>
 							<span>LifeQuest</span>
@@ -216,20 +209,20 @@
 							<div class="relative">
 								<button
 									on:click|stopPropagation={toggleMoreDropdown}
-									class="flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+									class="text-base-content/70 hover:bg-base-200 hover:text-base-content flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
 								>
 									<span>More</span>
 									<svelte:component this={icons.ChevronDown} size={14} />
 								</button>
 								{#if moreDropdownOpen}
 									<div
-										class="absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 py-1 shadow-lg"
+										class="border-base-300 bg-base-100 absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border py-1 shadow-lg"
 										on:click|stopPropagation
 									>
 										<a
 											href="/focuses"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
+											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/focuses'
 												? 'bg-primary/10 text-primary'
 												: ''}"
@@ -242,7 +235,7 @@
 										<a
 											href="/family"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
+											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/family'
 												? 'bg-primary/10 text-primary'
 												: ''}"
@@ -255,7 +248,7 @@
 										<a
 											href="/potions"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
+											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/potions'
 												? 'bg-primary/10 text-primary'
 												: ''}"
@@ -277,46 +270,42 @@
 						<div class="relative">
 							<button
 								on:click|stopPropagation={toggleUserDropdown}
-								class="flex items-center space-x-2 rounded-lg p-2 transition-colors hover:bg-base-200"
+								class="hover:bg-base-200 flex items-center space-x-2 rounded-lg p-2 transition-colors"
 							>
 								<div
-									class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-content"
+									class="bg-primary text-primary-content flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
 								>
 									{$auth.user?.name?.charAt(0).toUpperCase()}
 								</div>
 								<div class="hidden text-left sm:block">
-									<div class="text-sm font-medium text-base-content">
+									<div class="text-base-content text-sm font-medium">
 										{$auth.user?.name}
 									</div>
 								</div>
-								<svelte:component
-									this={icons.ChevronDown}
-									size={14}
-									class="text-base-content/50"
-								/>
+								<svelte:component this={icons.ChevronDown} size={14} class="text-base-content/50" />
 							</button>
 							{#if userDropdownOpen}
 								<div
-									class="absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 py-1 shadow-lg"
+									class="border-base-300 bg-base-100 absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border py-1 shadow-lg"
 									on:click|stopPropagation
 								>
 									<a
 										href="/settings"
 										on:click={closeDropdowns}
-										class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200"
+										class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors"
 									>
 										<div class="flex items-center space-x-2">
 											<svelte:component this={icons.Settings} size={16} />
 											<span>Settings</span>
 										</div>
 									</a>
-									<div class="my-1 border-t border-base-300"></div>
+									<div class="border-base-300 my-1 border-t"></div>
 									<button
 										on:click={() => {
 											handleLogout();
 											closeDropdowns();
 										}}
-										class="block w-full px-3 py-2 text-left text-sm text-error transition-colors hover:bg-error/10"
+										class="text-error hover:bg-error/10 block w-full px-3 py-2 text-left text-sm transition-colors"
 									>
 										<div class="flex items-center space-x-2">
 											<svelte:component this={icons.LogOut} size={16} />
@@ -330,7 +319,7 @@
 						<!-- Mobile Menu Toggle -->
 						<button
 							on:click={toggleMobileMenu}
-							class="rounded-lg p-2 transition-colors hover:bg-base-200 md:hidden"
+							class="hover:bg-base-200 rounded-lg p-2 transition-colors md:hidden"
 							aria-label="Toggle navigation menu"
 						>
 							<svelte:component
@@ -344,7 +333,7 @@
 
 				<!-- Mobile Navigation Menu -->
 				{#if mobileMenuOpen}
-					<div class="border-t border-base-300 py-4 md:hidden">
+					<div class="border-base-300 border-t py-4 md:hidden">
 						<div class="space-y-1">
 							<a
 								href="/dashboard"
@@ -413,9 +402,9 @@
 							</a>
 
 							<!-- Mobile More Tools Section -->
-							<div class="mt-2 border-t border-base-300 pt-2">
+							<div class="border-base-300 mt-2 border-t pt-2">
 								<div
-									class="px-3 py-1 text-xs font-medium tracking-wider text-base-content/50 uppercase"
+									class="text-base-content/50 px-3 py-1 text-xs font-medium tracking-wider uppercase"
 								>
 									Tools
 								</div>
@@ -466,7 +455,7 @@
 		</div>
 
 		<!-- Main Content Area -->
-		<main class="flex-1 bg-base-100">
+		<main class="bg-base-100 flex-1">
 			{@render children()}
 		</main>
 	{:else}

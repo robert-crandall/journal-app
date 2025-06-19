@@ -110,11 +110,11 @@
 	];
 
 	// Convert to format expected by IconPicker
-	const availableIcons = availableIconsList.map(iconName => {
+	const availableIcons = availableIconsList.map((iconName) => {
 		// Create friendly labels from icon names
 		const label = iconName
 			.split('-')
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
 		return { name: iconName, label };
 	});
@@ -240,21 +240,21 @@
 	<title>Anytime Tasks Library - LifeQuest</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
+<div class="bg-base-200 min-h-screen">
 	{#if loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="text-center">
 				<div
-					class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
+					class="border-primary mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
 				></div>
-				<p class="text-sm text-base-content/70">Loading your anytime tasks...</p>
+				<p class="text-base-content/70 text-sm">Loading your anytime tasks...</p>
 			</div>
 		</div>
 	{:else}
 		<!-- Save Message -->
 		{#if saveMessage}
 			<div
-				class="fixed top-6 right-6 z-50 flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 px-4 py-3 text-success shadow-lg transition-opacity"
+				class="border-success/20 bg-success/10 text-success fixed top-6 right-6 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg transition-opacity"
 			>
 				<svelte:component this={icons.CheckCircle} class="h-4 w-4" />
 				{saveMessage}
@@ -262,21 +262,21 @@
 		{/if}
 
 		<!-- Header -->
-		<header class="border-b border-base-300 bg-base-100">
+		<header class="border-base-300 bg-base-100 border-b">
 			<div class="mx-auto max-w-6xl px-4 py-6">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-4">
-						<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/10">
-							<svelte:component this={icons.Zap} class="h-6 w-6 text-secondary" />
+						<div class="bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+							<svelte:component this={icons.Zap} class="text-secondary h-6 w-6" />
 						</div>
 						<div>
-							<h1 class="text-3xl font-bold text-base-content">Anytime Tasks Library</h1>
+							<h1 class="text-base-content text-3xl font-bold">Anytime Tasks Library</h1>
 							<p class="text-base-content/70">Create and manage your quick action tasks</p>
 						</div>
 					</div>
 					<button
 						onclick={openCreateForm}
-						class="flex items-center gap-2 rounded-lg bg-secondary px-6 py-3 font-semibold text-primary-content transition-colors hover:bg-secondary/90"
+						class="bg-secondary text-primary-content hover:bg-secondary/90 flex items-center gap-2 rounded-lg px-6 py-3 font-semibold transition-colors"
 					>
 						<svelte:component this={icons.Plus} class="h-4 w-4" />
 						Add Task
@@ -289,20 +289,20 @@
 		<main class="mx-auto max-w-6xl px-4 py-8">
 			{#if adhocTasks.length === 0}
 				<!-- Empty State -->
-				<div class="rounded-xl border border-base-300 bg-base-100 p-12 text-center">
+				<div class="border-base-300 bg-base-100 rounded-xl border p-12 text-center">
 					<div
-						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-secondary/10"
+						class="bg-secondary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
 					>
-						<svelte:component this={icons.Zap} class="h-10 w-10 text-secondary" />
+						<svelte:component this={icons.Zap} class="text-secondary h-10 w-10" />
 					</div>
-					<h2 class="mb-3 text-2xl font-bold text-base-content">Build Your Task Library</h2>
-					<p class="mx-auto mb-8 max-w-md leading-relaxed text-base-content/70">
+					<h2 class="text-base-content mb-3 text-2xl font-bold">Build Your Task Library</h2>
+					<p class="text-base-content/70 mx-auto mb-8 max-w-md leading-relaxed">
 						Create quick actions you can complete anytime to earn XP and build momentum. Perfect for
 						habits like workouts, reading, or meditation.
 					</p>
 					<button
 						onclick={openCreateForm}
-						class="mx-auto flex items-center gap-2 rounded-lg bg-secondary px-8 py-4 font-semibold text-primary-content transition-colors hover:bg-secondary/90"
+						class="bg-secondary text-primary-content hover:bg-secondary/90 mx-auto flex items-center gap-2 rounded-lg px-8 py-4 font-semibold transition-colors"
 					>
 						<svelte:component this={icons.Plus} class="h-5 w-5" />
 						Create Your First Task
@@ -314,29 +314,31 @@
 					{#each adhocTasks as task}
 						{@const categoryInfo = getCategoryInfo(task.category)}
 						<div
-							class="group rounded-xl border border-base-300 bg-base-100 p-6 shadow-sm transition-all hover:shadow-md"
+							class="group border-base-300 bg-base-100 rounded-xl border p-6 shadow-sm transition-all hover:shadow-md"
 						>
 							<!-- Task Header -->
 							<div class="mb-4 flex items-start justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10">
+									<div
+										class="bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-lg"
+									>
 										{#if task.iconId}
 											<svelte:component
 												this={getIconComponent(task.iconId)}
-												class="h-6 w-6 text-secondary"
+												class="text-secondary h-6 w-6"
 											/>
 										{:else}
-											<svelte:component this={icons.Target} class="h-6 w-6 text-secondary" />
+											<svelte:component this={icons.Target} class="text-secondary h-6 w-6" />
 										{/if}
 									</div>
 									<div class="min-w-0 flex-1">
-										<h3 class="truncate font-semibold text-base-content">{task.name}</h3>
+										<h3 class="text-base-content truncate font-semibold">{task.name}</h3>
 										<div class="mt-1 flex items-center gap-2">
-											<span class="text-xs font-medium text-secondary">
+											<span class="text-secondary text-xs font-medium">
 												+{task.xpValue} XP
 											</span>
-											<span class="text-xs text-base-content/60">•</span>
-											<span class="text-xs text-base-content/70">
+											<span class="text-base-content/60 text-xs">•</span>
+											<span class="text-base-content/70 text-xs">
 												{categoryInfo.icon}
 												{categoryInfo.label}
 											</span>
@@ -346,14 +348,14 @@
 								<div class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
 									<button
 										onclick={() => openEditForm(task)}
-										class="rounded-lg p-2 text-base-content/70 transition-colors hover:bg-base-200"
+										class="text-base-content/70 hover:bg-base-200 rounded-lg p-2 transition-colors"
 										title="Edit task"
 									>
 										<svelte:component this={icons.Edit} class="h-4 w-4" />
 									</button>
 									<button
 										onclick={() => deleteTask(task.id)}
-										class="rounded-lg p-2 text-error transition-colors hover:bg-error/10"
+										class="text-error hover:bg-error/10 rounded-lg p-2 transition-colors"
 										title="Delete task"
 									>
 										<svelte:component this={icons.Trash2} class="h-4 w-4" />
@@ -363,18 +365,18 @@
 
 							<!-- Description -->
 							{#if task.description}
-								<p class="mb-4 line-clamp-2 text-sm text-base-content/70">
+								<p class="text-base-content/70 mb-4 line-clamp-2 text-sm">
 									{task.description}
 								</p>
 							{/if}
 
 							<!-- Linked Stat -->
-							<div class="flex items-center gap-2 rounded-lg bg-base-200 px-3 py-2">
-								<svelte:component this={icons.TrendingUp} class="h-4 w-4 text-success" />
-								<span class="text-sm font-medium text-base-content">
+							<div class="bg-base-200 flex items-center gap-2 rounded-lg px-3 py-2">
+								<svelte:component this={icons.TrendingUp} class="text-success h-4 w-4" />
+								<span class="text-base-content text-sm font-medium">
 									{task.linkedStat.name}
 								</span>
-								<span class="text-xs text-base-content/60">
+								<span class="text-base-content/60 text-xs">
 									(Level {task.linkedStat.level})
 								</span>
 							</div>
@@ -393,14 +395,14 @@
 		onclick={closeModal}
 	>
 		<div
-			class="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-base-100 shadow-2xl"
+			class="bg-base-100 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl"
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Modal Header -->
-			<div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 text-primary-content">
+			<div class="text-primary-content bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-3">
-						<div class="rounded-lg bg-base-100/10 p-2">
+						<div class="bg-base-100/10 rounded-lg p-2">
 							<svelte:component this={icons.Zap} class="h-6 w-6" />
 						</div>
 						<div>
@@ -415,7 +417,7 @@
 						</div>
 					</div>
 					<button
-						class="rounded-lg p-2 transition-colors hover:bg-base-100/10"
+						class="hover:bg-base-100/10 rounded-lg p-2 transition-colors"
 						onclick={() => (showCreateForm = false)}
 					>
 						<svelte:component this={icons.X} class="h-6 w-6" />
@@ -429,14 +431,14 @@
 					<!-- Essential Fields -->
 					<div class="space-y-6">
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-								<div class="h-2 w-2 rounded-full bg-secondary"></div>
+							<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
+								<div class="bg-secondary h-2 w-2 rounded-full"></div>
 								Task Details
 							</h3>
 
 							<!-- Name -->
 							<div class="mb-6 space-y-2">
-								<label for="name" class="block text-sm font-medium text-base-content">
+								<label for="name" class="text-base-content block text-sm font-medium">
 									Task Name *
 								</label>
 								<input
@@ -444,14 +446,14 @@
 									type="text"
 									bind:value={formData.name}
 									placeholder="e.g., Morning Workout, Read 10 Pages, Meditate"
-									class="w-full rounded-lg border border-base-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
 									required
 								/>
 							</div>
 
 							<!-- Description -->
 							<div class="mb-6 space-y-2">
-								<label for="description" class="block text-sm font-medium text-base-content">
+								<label for="description" class="text-base-content block text-sm font-medium">
 									Description
 								</label>
 								<textarea
@@ -459,13 +461,13 @@
 									bind:value={formData.description}
 									placeholder="Describe this task or add notes..."
 									rows="3"
-									class="w-full rounded-lg border border-base-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
 								></textarea>
 							</div>
 
 							<!-- XP Value -->
 							<div class="mb-6 space-y-2">
-								<label for="xpValue" class="block text-sm font-medium text-base-content">
+								<label for="xpValue" class="text-base-content block text-sm font-medium">
 									XP Reward
 								</label>
 								<input
@@ -474,10 +476,10 @@
 									min="1"
 									max="100"
 									bind:value={formData.xpValue}
-									class="w-full rounded-lg border border-base-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
 									required
 								/>
-								<p class="text-xs text-base-content/70">
+								<p class="text-base-content/70 text-xs">
 									How much XP should this task award when completed? (1-100)
 								</p>
 							</div>
@@ -485,20 +487,20 @@
 
 						<!-- Configuration -->
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-								<div class="h-2 w-2 rounded-full bg-success/100"></div>
+							<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
+								<div class="bg-success/100 h-2 w-2 rounded-full"></div>
 								Configuration
 							</h3>
 
 							<!-- Category -->
 							<div class="mb-6 space-y-2">
-								<label for="category" class="block text-sm font-medium text-base-content">
+								<label for="category" class="text-base-content block text-sm font-medium">
 									Category *
 								</label>
 								<select
 									id="category"
 									bind:value={formData.category}
-									class="w-full rounded-lg border border-base-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
 									required
 								>
 									{#each categoryOptions as option}
@@ -512,13 +514,13 @@
 
 							<!-- Linked Stat -->
 							<div class="mb-6 space-y-2">
-								<label for="linkedStatId" class="block text-sm font-medium text-base-content">
+								<label for="linkedStatId" class="text-base-content block text-sm font-medium">
 									Linked Stat *
 								</label>
 								<select
 									id="linkedStatId"
 									bind:value={formData.linkedStatId}
-									class="w-full rounded-lg border border-base-300 px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+									class="border-base-300 w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
 									required
 								>
 									<option value="">Choose a stat to boost...</option>
@@ -528,19 +530,19 @@
 										</option>
 									{/each}
 								</select>
-								<p class="text-xs text-base-content/70">
+								<p class="text-base-content/70 text-xs">
 									This stat will receive the XP when the task is completed
 								</p>
 							</div>
 
 							<!-- Icon -->
 							<div class="space-y-2">
-								<label for="iconId" class="block text-sm font-medium text-base-content">
+								<label for="iconId" class="text-base-content block text-sm font-medium">
 									Icon
 								</label>
-								<IconPicker 
+								<IconPicker
 									bind:selectedIcon={formData.iconId}
-									availableIcons={availableIcons}
+									{availableIcons}
 									showPreview={false}
 								/>
 							</div>
@@ -550,18 +552,18 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="border-t border-base-300 bg-base-200 px-8 py-6">
+			<div class="border-base-300 bg-base-200 border-t px-8 py-6">
 				<div class="flex justify-end gap-4">
 					<button
 						type="button"
-						class="rounded-lg px-6 py-3 font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+						class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-6 py-3 font-medium transition-colors"
 						onclick={() => (showCreateForm = false)}
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="rounded-lg bg-secondary px-8 py-3 font-semibold text-primary-content transition-colors hover:bg-secondary/90"
+						class="bg-secondary text-primary-content hover:bg-secondary/90 rounded-lg px-8 py-3 font-semibold transition-colors"
 						onclick={handleSubmit}
 					>
 						{editingTask ? 'Update Task' : 'Create Task'}

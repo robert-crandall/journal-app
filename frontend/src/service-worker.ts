@@ -17,7 +17,7 @@ const toCache = build.concat(files);
 // Install event - cache static resources
 self.addEventListener('install', (event: ExtendableEvent) => {
 	console.log('Service Worker: Installing version', version);
-	
+
 	event.waitUntil(
 		caches
 			.open(CACHE_NAME)
@@ -35,7 +35,7 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 // Activate event - clean up old caches and take control
 self.addEventListener('activate', (event: ExtendableEvent) => {
 	console.log('Service Worker: Activating version', version);
-	
+
 	event.waitUntil(
 		caches
 			.keys()
@@ -74,39 +74,39 @@ self.addEventListener('fetch', (event: FetchEvent) => {
 	}
 
 	event.respondWith(
-		caches
-			.match(event.request)
-			.then((cachedResponse) => {
-				// Return cached version if available
-				if (cachedResponse) {
-					return cachedResponse;
-				}
+		caches.match(event.request).then((cachedResponse) => {
+			// Return cached version if available
+			if (cachedResponse) {
+				return cachedResponse;
+			}
 
-				// Otherwise, fetch from network
-				return fetch(event.request)
-					.then((response) => {
-						// Don't cache if not a valid response
-						if (!response || response.status !== 200 || response.type !== 'basic') {
-							return response;
-						}
-
-						// Clone the response before caching
-						const responseToCache = response.clone();
-
-						caches.open(CACHE_NAME).then((cache) => {
-							cache.put(event.request, responseToCache);
-						});
-
+			// Otherwise, fetch from network
+			return fetch(event.request)
+				.then((response) => {
+					// Don't cache if not a valid response
+					if (!response || response.status !== 200 || response.type !== 'basic') {
 						return response;
-					})
-					.catch(() => {
-						// If both cache and network fail, return a fallback page for navigation requests
-						if (event.request.mode === 'navigate') {
-							return caches.match('/').then(fallback => fallback || new Response('Offline', { status: 503 }));
-						}
-						return new Response('Offline', { status: 503 });
+					}
+
+					// Clone the response before caching
+					const responseToCache = response.clone();
+
+					caches.open(CACHE_NAME).then((cache) => {
+						cache.put(event.request, responseToCache);
 					});
-			})
+
+					return response;
+				})
+				.catch(() => {
+					// If both cache and network fail, return a fallback page for navigation requests
+					if (event.request.mode === 'navigate') {
+						return caches
+							.match('/')
+							.then((fallback) => fallback || new Response('Offline', { status: 503 }));
+					}
+					return new Response('Offline', { status: 503 });
+				});
+		})
 	);
 });
 
