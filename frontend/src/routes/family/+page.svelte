@@ -134,24 +134,24 @@
 		class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-12 backdrop-blur-sm"
 	>
 		<div
-			class="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-neutral-800"
+			class="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-lg bg-base-100 shadow-2xl dark:bg-neutral-800"
 		>
 			<!-- Modal Header -->
-			<div class="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+			<div class="border-b border-base-300 bg-base-200 px-6 py-4">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center space-x-3">
-						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-							<svelte:component this={icons.Users} size={16} class="text-blue-600" />
+						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+							<svelte:component this={icons.Users} size={16} class="text-info" />
 						</div>
-						<h3 class="text-lg font-semibold text-neutral-900">
+						<h3 class="text-lg font-semibold text-base-content">
 							{editingMember ? 'Edit family member' : 'Add family member'}
 						</h3>
 					</div>
 					<button
 						on:click={closeCreateForm}
-						class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-200"
+						class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-base-300"
 					>
-						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+						<svelte:component this={icons.X} size={16} class="text-base-content/60" />
 					</button>
 				</div>
 			</div>
@@ -159,7 +159,7 @@
 			<!-- Modal Body -->
 			<div class="max-h-[calc(85vh-140px)] overflow-y-auto px-6 py-6">
 				{#if error}
-					<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+					<div class="mb-6 rounded-lg border border-error/20 bg-error/10 p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.AlertTriangle}
@@ -168,11 +168,11 @@
 							/>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-red-900">Error</p>
-								<p class="mt-1 text-sm text-red-700">{error}</p>
+								<p class="mt-1 text-sm text-error">{error}</p>
 							</div>
 							<button
 								on:click={() => (error = '')}
-								class="text-red-400 transition-colors hover:text-red-600"
+								class="text-red-400 transition-colors hover:text-error"
 							>
 								<svelte:component this={icons.X} size={14} />
 							</button>
@@ -184,7 +184,7 @@
 					<!-- Basic Information -->
 					<div class="space-y-4">
 						<div>
-							<label for="memberName" class="mb-2 block text-sm font-medium text-neutral-900">
+							<label for="memberName" class="mb-2 block text-sm font-medium text-base-content">
 								Name <span class="text-red-500">*</span>
 							</label>
 							<input
@@ -193,7 +193,7 @@
 								bind:value={memberName}
 								placeholder="Enter family member's name"
 								required
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
 					</div>
@@ -202,8 +202,8 @@
 					<div class="space-y-4">
 						<div class="flex items-center justify-between">
 							<div>
-								<h4 class="text-sm font-medium text-neutral-900">RPG Class</h4>
-								<p class="mt-1 text-xs text-neutral-600">
+								<h4 class="text-sm font-medium text-base-content">RPG Class</h4>
+								<p class="mt-1 text-xs text-base-content/70">
 									Choose a character class that represents their personality
 								</p>
 							</div>
@@ -215,7 +215,7 @@
 										memberClassDescription = '';
 										handleClassUpdate('', '');
 									}}
-									class="text-xs text-neutral-500 transition-colors hover:text-red-600"
+									class="text-xs text-base-content/60 transition-colors hover:text-error"
 								>
 									Clear
 								</button>
@@ -223,14 +223,14 @@
 						</div>
 
 						<div>
-							<label for="classSelect" class="mb-2 block text-sm font-medium text-neutral-700">
+							<label for="classSelect" class="mb-2 block text-sm font-medium text-base-content/80">
 								Class
 							</label>
 							<select
 								id="classSelect"
 								bind:value={memberClassName}
 								on:change={() => handleClassUpdate(memberClassName, memberClassDescription)}
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							>
 								<option value="">No class selected</option>
 								<optgroup label="Warriors & Protectors">
@@ -267,14 +267,14 @@
 						</div>
 
 						{#if memberClassName}
-							<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+							<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
 								<div class="flex items-start space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-										<svelte:component this={icons.Shield} size={16} class="text-blue-600" />
+									<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+										<svelte:component this={icons.Shield} size={16} class="text-info" />
 									</div>
 									<div class="flex-1">
 										<h5 class="text-sm font-medium text-blue-900">{memberClassName}</h5>
-										<p class="mt-1 text-xs text-blue-700">
+										<p class="mt-1 text-xs text-primary">
 											{#if memberClassName === 'Paladin'}
 												A noble defender who values justice, honor, and protecting others
 											{:else if memberClassName === 'Guardian'}
@@ -329,14 +329,14 @@
 					{#if memberClassName}
 						<div class="space-y-4">
 							<div>
-								<h4 class="mb-1 text-sm font-medium text-neutral-900">Backstory</h4>
-								<p class="text-xs text-neutral-600">Tell their unique story and personality</p>
+								<h4 class="mb-1 text-sm font-medium text-base-content">Backstory</h4>
+								<p class="text-xs text-base-content/70">Tell their unique story and personality</p>
 							</div>
 
 							<div>
 								<label
 									for="classDescription"
-									class="mb-2 block text-sm font-medium text-neutral-700"
+									class="mb-2 block text-sm font-medium text-base-content/80"
 								>
 									Personal story
 								</label>
@@ -346,21 +346,21 @@
 									on:input={() => handleClassUpdate(memberClassName, memberClassDescription)}
 									placeholder="What makes them special? What are their quirks, interests, or memorable traits?"
 									rows="4"
-									class="w-full resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									class="w-full resize-none rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								></textarea>
-								<p class="mt-1 text-xs text-neutral-500">
+								<p class="mt-1 text-xs text-base-content/60">
 									Describe their personality, hobbies, funny habits, or what makes them unique
 								</p>
 							</div>
 
 							{#if memberClassDescription}
-								<div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+								<div class="rounded-lg border border-base-300 bg-base-200 p-4">
 									<div class="flex items-start space-x-3">
-										<div class="flex h-6 w-6 items-center justify-center rounded bg-neutral-100">
-											<svelte:component this={icons.User} size={12} class="text-neutral-600" />
+										<div class="flex h-6 w-6 items-center justify-center rounded bg-base-200">
+											<svelte:component this={icons.User} size={12} class="text-base-content/70" />
 										</div>
 										<div class="flex-1">
-											<p class="text-sm text-neutral-900 italic">"{memberClassDescription}"</p>
+											<p class="text-sm text-base-content italic">"{memberClassDescription}"</p>
 										</div>
 									</div>
 								</div>
@@ -368,17 +368,17 @@
 						</div>
 					{/if}
 
-					<div class="flex justify-end space-x-3 border-t border-neutral-200 pt-4">
+					<div class="flex justify-end space-x-3 border-t border-base-300 pt-4">
 						<button
 							type="button"
 							on:click={closeCreateForm}
-							class="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:bg-neutral-800"
+							class="rounded-lg border border-base-300 bg-base-100 px-4 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-200 dark:bg-neutral-800"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
-							class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+							class="rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 						>
 							{editingMember ? 'Update member' : 'Add member'}
 						</button>
@@ -394,12 +394,12 @@
 		<div class="mb-8">
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<h1 class="text-2xl font-bold text-neutral-900">Family Members</h1>
-					<p class="mt-1 text-neutral-600">Manage your family and their unique attributes</p>
+					<h1 class="text-2xl font-bold text-base-content">Family Members</h1>
+					<p class="mt-1 text-base-content/70">Manage your family and their unique attributes</p>
 				</div>
 				<button
 					on:click={openCreateForm}
-					class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+					class="inline-flex items-center rounded-lg border border-transparent bg-primary px-3 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 				>
 					<svelte:component this={icons.Plus} size={16} class="mr-2" />
 					Add member
@@ -407,7 +407,7 @@
 			</div>
 
 			{#if error}
-				<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+				<div class="mb-6 rounded-lg border border-error/20 bg-error/10 p-4">
 					<div class="flex items-start space-x-3">
 						<svelte:component
 							this={icons.AlertTriangle}
@@ -416,11 +416,11 @@
 						/>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-red-900">Error</p>
-							<p class="mt-1 text-sm text-red-700">{error}</p>
+							<p class="mt-1 text-sm text-error">{error}</p>
 						</div>
 						<button
 							on:click={() => (error = '')}
-							class="text-red-400 transition-colors hover:text-red-600"
+							class="text-red-400 transition-colors hover:text-error"
 						>
 							<svelte:component this={icons.X} size={14} />
 						</button>
@@ -431,36 +431,36 @@
 			<!-- Quick Stats -->
 			{#if familyMembers.length > 0}
 				<div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-								<svelte:component this={icons.Users} size={16} class="text-blue-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+								<svelte:component this={icons.Users} size={16} class="text-info" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{totalMembers}</div>
-								<div class="text-xs text-neutral-600">Family members</div>
+								<div class="text-lg font-semibold text-base-content">{totalMembers}</div>
+								<div class="text-xs text-base-content/70">Family members</div>
 							</div>
 						</div>
 					</div>
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-								<svelte:component this={icons.Crown} size={16} class="text-purple-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
+								<svelte:component this={icons.Crown} size={16} class="text-secondary" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{membersWithClasses}</div>
-								<div class="text-xs text-neutral-600">With classes</div>
+								<div class="text-lg font-semibold text-base-content">{membersWithClasses}</div>
+								<div class="text-xs text-base-content/70">With classes</div>
 							</div>
 						</div>
 					</div>
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-								<svelte:component this={icons.Tags} size={16} class="text-green-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10">
+								<svelte:component this={icons.Tags} size={16} class="text-success" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{totalAttributes}</div>
-								<div class="text-xs text-neutral-600">Total attributes</div>
+								<div class="text-lg font-semibold text-base-content">{totalAttributes}</div>
+								<div class="text-xs text-base-content/70">Total attributes</div>
 							</div>
 						</div>
 					</div>
@@ -470,9 +470,9 @@
 
 		{#if loading}
 			<div class="flex justify-center py-16">
-				<div class="flex items-center space-x-3 text-neutral-500">
+				<div class="flex items-center space-x-3 text-base-content/60">
 					<div
-						class="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+						class="h-5 w-5 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
 					></div>
 					<span class="text-sm">Loading family members...</span>
 				</div>
@@ -480,20 +480,20 @@
 		{:else if familyMembers.length === 0}
 			<div class="py-16 text-center">
 				<div
-					class="mx-auto max-w-md rounded-lg border border-neutral-200 bg-white p-12 dark:bg-neutral-800"
+					class="mx-auto max-w-md rounded-lg border border-base-300 bg-base-100 p-12 dark:bg-neutral-800"
 				>
 					<div
-						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100"
+						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-base-200"
 					>
-						<svelte:component this={icons.Users} size={24} class="text-neutral-400" />
+						<svelte:component this={icons.Users} size={24} class="text-base-content/50" />
 					</div>
-					<h3 class="mb-2 text-lg font-semibold text-neutral-900">No family members yet</h3>
-					<p class="mb-6 text-sm text-neutral-600">
+					<h3 class="mb-2 text-lg font-semibold text-base-content">No family members yet</h3>
+					<p class="mb-6 text-sm text-base-content/70">
 						Add your first family member to start tracking their journey
 					</p>
 					<button
 						on:click={openCreateForm}
-						class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+						class="rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 					>
 						Add your first member
 					</button>
@@ -504,27 +504,27 @@
 			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{#each familyMembers as member}
 					<div
-						class="rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-sm dark:bg-neutral-800"
+						class="rounded-lg border border-base-300 bg-base-100 p-6 transition-shadow hover:shadow-sm dark:bg-neutral-800"
 					>
 						<!-- Member Header -->
 						<div class="mb-4 flex items-start justify-between">
 							<div class="flex-1">
 								<div class="mb-2 flex items-center space-x-3">
-									<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-										<svelte:component this={icons.User} size={20} class="text-blue-600" />
+									<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+										<svelte:component this={icons.User} size={20} class="text-info" />
 									</div>
-									<h3 class="text-lg font-semibold text-neutral-900">{member.name}</h3>
+									<h3 class="text-lg font-semibold text-base-content">{member.name}</h3>
 								</div>
 
 								{#if member.className}
 									<div class="mb-2 flex items-center space-x-2">
-										<div class="flex h-6 w-6 items-center justify-center rounded bg-purple-100">
-											<svelte:component this={icons.Crown} size={12} class="text-purple-600" />
+										<div class="flex h-6 w-6 items-center justify-center rounded bg-secondary/10">
+											<svelte:component this={icons.Crown} size={12} class="text-secondary" />
 										</div>
-										<span class="text-sm font-medium text-purple-700">{member.className}</span>
+										<span class="text-sm font-medium text-secondary">{member.className}</span>
 									</div>
 									{#if member.classDescription}
-										<p class="pl-8 text-xs text-neutral-600 italic">"{member.classDescription}"</p>
+										<p class="pl-8 text-xs text-base-content/70 italic">"{member.classDescription}"</p>
 									{/if}
 								{/if}
 							</div>
@@ -532,25 +532,25 @@
 							<!-- Actions Menu -->
 							<div class="dropdown-container relative">
 								<button
-									class="group flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-100"
+									class="group flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-base-200"
 									on:click={() => toggleDropdown(member.id)}
 								>
 									<svelte:component
 										this={icons.MoreVertical}
 										size={16}
-										class="text-neutral-500 group-hover:text-neutral-700"
+										class="text-base-content/60 group-hover:text-base-content/80"
 									/>
 								</button>
 								{#if openDropdownId === member.id}
 									<div
-										class="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-neutral-200 bg-white shadow-lg dark:bg-neutral-800"
+										class="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 shadow-lg dark:bg-neutral-800"
 									>
 										<button
 											on:click={() => {
 												openEditForm(member);
 												closeDropdown();
 											}}
-											class="flex w-full items-center space-x-3 px-4 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+											class="flex w-full items-center space-x-3 px-4 py-2 text-left text-sm text-base-content/80 transition-colors hover:bg-base-200"
 										>
 											<svelte:component this={icons.Edit2} size={14} />
 											<span>Edit profile</span>
@@ -560,7 +560,7 @@
 												deleteMember(member.id);
 												closeDropdown();
 											}}
-											class="flex w-full items-center space-x-3 px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+											class="flex w-full items-center space-x-3 px-4 py-2 text-left text-sm text-error transition-colors hover:bg-error/10"
 										>
 											<svelte:component this={icons.Trash2} size={14} />
 											<span>Delete</span>
@@ -571,7 +571,7 @@
 						</div>
 
 						<!-- Attributes Section -->
-						<div class="border-t border-neutral-200 pt-4">
+						<div class="border-t border-base-300 pt-4">
 							<AttributeManager
 								attributes={member.attributes || []}
 								onAddAttribute={(key, value) => handleAddAttribute(member.id, key, value)}

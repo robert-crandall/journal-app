@@ -56,21 +56,21 @@
 	<button
 		type="button"
 		onclick={togglePicker}
-		class="w-full flex items-center justify-between rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none hover:border-neutral-400"
+		class="w-full flex items-center justify-between rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none hover:border-base-content/20 bg-base-100"
 	>
 		<div class="flex items-center space-x-2">
 			{#if selectedIcon}
 				<div class="flex h-5 w-5 items-center justify-center">
-					<svelte:component this={getIconComponent(selectedIcon)} size={16} class="text-neutral-600" />
+					<svelte:component this={getIconComponent(selectedIcon)} size={16} class="text-base-content/60" />
 				</div>
-				<span class="text-neutral-900">
+				<span class="text-base-content">
 					{availableIcons.find((opt) => opt.name === selectedIcon)?.label || selectedIcon}
 				</span>
 			{:else}
-				<span class="text-neutral-500">Choose an icon...</span>
+				<span class="text-base-content/50">Choose an icon...</span>
 			{/if}
 		</div>
-		<svelte:component this={icons.ChevronDown} size={16} class="text-neutral-400" />
+		<svelte:component this={icons.ChevronDown} size={16} class="text-base-content/50" />
 	</button>
 
 	<!-- Icon Picker Modal -->
@@ -79,16 +79,16 @@
 		<div class="fixed inset-0 z-40 bg-black bg-opacity-25" onclick={closePicker}></div>
 
 		<!-- Modal -->
-		<div class="absolute top-full left-0 right-0 z-50 mt-1 max-h-96 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">
+		<div class="absolute top-full left-0 right-0 z-50 mt-1 max-h-96 overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-lg">
 			<!-- Search Bar -->
-			<div class="border-b border-neutral-200 p-3">
+			<div class="border-b border-base-300 p-3">
 				<div class="relative">
-					<svelte:component this={icons.Search} size={16} class="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
+					<svelte:component this={icons.Search} size={16} class="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
 					<input
 						type="text"
 						bind:value={searchTerm}
 						placeholder={placeholder}
-						class="w-full pl-10 pr-3 py-2 text-sm border border-neutral-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+						class="w-full pl-10 pr-3 py-2 text-sm border border-base-300 rounded-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none bg-base-100 text-base-content"
 						autofocus
 					/>
 				</div>
@@ -102,44 +102,44 @@
 							<button
 								type="button"
 								onclick={() => selectIcon(icon.name)}
-								class="group flex flex-col items-center justify-center p-3 rounded-lg border transition-all hover:border-blue-300 hover:bg-blue-50 {selectedIcon === icon.name ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 bg-white'}"
+								class="group flex flex-col items-center justify-center p-3 rounded-lg border transition-all hover:border-primary/50 hover:bg-primary/10 {selectedIcon === icon.name ? 'border-primary bg-primary/10' : 'border-base-300 bg-base-100'}"
 								title={icon.label}
 							>
 								<div class="flex h-6 w-6 items-center justify-center mb-1">
 									<svelte:component 
 										this={getIconComponent(icon.name)} 
 										size={18} 
-										class="transition-colors {selectedIcon === icon.name ? 'text-blue-600' : 'text-neutral-600 group-hover:text-blue-600'}"
+										class="transition-colors {selectedIcon === icon.name ? 'text-primary' : 'text-base-content/60 group-hover:text-primary'}"
 									/>
 								</div>
-								<span class="text-xs text-center text-neutral-600 group-hover:text-blue-600 {selectedIcon === icon.name ? 'text-blue-600 font-medium' : ''} truncate w-full">
+								<span class="text-xs text-center text-base-content/60 group-hover:text-primary {selectedIcon === icon.name ? 'text-primary font-medium' : ''} truncate w-full">
 									{icon.label}
 								</span>
 							</button>
 						{/each}
 					</div>
 				{:else}
-					<div class="text-center py-8 text-neutral-500">
-						<svelte:component this={icons.Search} size={24} class="mx-auto mb-2 text-neutral-400" />
+					<div class="text-center py-8 text-base-content/50">
+						<svelte:component this={icons.Search} size={24} class="mx-auto mb-2 text-base-content/30" />
 						<p class="text-sm">No icons found</p>
-						<p class="text-xs text-neutral-400 mt-1">Try a different search term</p>
+						<p class="text-xs text-base-content/30 mt-1">Try a different search term</p>
 					</div>
 				{/if}
 			</div>
 
 			<!-- Preview Area (if enabled and icon selected) -->
 			{#if showPreview && selectedIcon}
-				<div class="border-t border-neutral-200 p-3 bg-neutral-50">
+				<div class="border-t border-base-300 p-3 bg-base-200">
 					<div class="flex items-center space-x-3">
-						<span class="text-sm font-medium text-neutral-700">Selected:</span>
-						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+						<span class="text-sm font-medium text-base-content/70">Selected:</span>
+						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
 							<svelte:component
 								this={getIconComponent(selectedIcon)}
 								size={18}
-								class="text-blue-600"
+								class="text-primary"
 							/>
 						</div>
-						<span class="text-sm text-neutral-600">
+						<span class="text-sm text-base-content/60">
 							{availableIcons.find((opt) => opt.name === selectedIcon)?.label || selectedIcon}
 						</span>
 					</div>

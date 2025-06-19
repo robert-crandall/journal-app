@@ -152,12 +152,12 @@
 	function getStatusColor(status: string) {
 		switch (status) {
 			case 'completed':
-				return 'text-green-700 bg-green-100 border-green-200';
+				return 'text-success bg-success/10 border-success/20';
 			case 'overdue':
 				return 'text-orange-700 bg-orange-100 border-orange-200';
 			case 'active':
 			default:
-				return 'text-blue-700 bg-blue-100 border-blue-200';
+				return 'text-primary bg-primary/10 border-primary/20';
 		}
 	}
 
@@ -219,14 +219,14 @@
 	function getEffectivenessColor(effectiveness: string) {
 		switch (effectiveness) {
 			case 'likely_effective':
-				return 'text-green-600';
+				return 'text-success';
 			case 'mixed_results':
 				return 'text-yellow-600';
 			case 'likely_ineffective':
-				return 'text-red-600';
+				return 'text-error';
 			case 'insufficient_data':
 			default:
-				return 'text-neutral-600';
+				return 'text-base-content/70';
 		}
 	}
 
@@ -261,24 +261,24 @@
 		class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-12 backdrop-blur-sm"
 	>
 		<div
-			class="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-neutral-800"
+			class="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-lg bg-base-100 shadow-2xl dark:bg-neutral-800"
 		>
 			<!-- Modal Header -->
-			<div class="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+			<div class="border-b border-base-300 bg-base-200 px-6 py-4">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center space-x-3">
-						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-							<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
+						<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
+							<svelte:component this={icons.Beaker} size={16} class="text-secondary" />
 						</div>
-						<h3 class="text-lg font-semibold text-neutral-900">
+						<h3 class="text-lg font-semibold text-base-content">
 							{editingPotion ? 'Edit experiment' : 'New experiment'}
 						</h3>
 					</div>
 					<button
 						on:click={closeCreateForm}
-						class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-200"
+						class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-base-300"
 					>
-						<svelte:component this={icons.X} size={16} class="text-neutral-500" />
+						<svelte:component this={icons.X} size={16} class="text-base-content/60" />
 					</button>
 				</div>
 			</div>
@@ -286,7 +286,7 @@
 			<!-- Modal Body -->
 			<div class="max-h-[calc(85vh-140px)] overflow-y-auto px-6 py-6">
 				{#if error}
-					<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+					<div class="mb-6 rounded-lg border border-error/20 bg-error/10 p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.AlertTriangle}
@@ -295,11 +295,11 @@
 							/>
 							<div class="flex-1">
 								<p class="text-sm font-medium text-red-900">Error</p>
-								<p class="mt-1 text-sm text-red-700">{error}</p>
+								<p class="mt-1 text-sm text-error">{error}</p>
 							</div>
 							<button
 								on:click={() => (error = '')}
-								class="text-red-400 transition-colors hover:text-red-600"
+								class="text-red-400 transition-colors hover:text-error"
 							>
 								<svelte:component this={icons.X} size={14} />
 							</button>
@@ -309,7 +309,7 @@
 
 				<form on:submit={handleSubmit} class="space-y-6">
 					<div>
-						<label for="potionTitle" class="mb-2 block text-sm font-medium text-neutral-900">
+						<label for="potionTitle" class="mb-2 block text-sm font-medium text-base-content">
 							Title <span class="text-red-500">*</span>
 						</label>
 						<input
@@ -318,27 +318,27 @@
 							bind:value={formData.title}
 							placeholder="e.g., Morning meditation, No social media, Cold showers"
 							required
-							class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						/>
 					</div>
 
 					<div>
-						<label for="potionHypothesis" class="mb-2 block text-sm font-medium text-neutral-900">
+						<label for="potionHypothesis" class="mb-2 block text-sm font-medium text-base-content">
 							Hypothesis
 						</label>
-						<p class="mb-2 text-xs text-neutral-600">What do you expect to happen?</p>
+						<p class="mb-2 text-xs text-base-content/70">What do you expect to happen?</p>
 						<textarea
 							id="potionHypothesis"
 							bind:value={formData.hypothesis}
 							placeholder="If I do X for Y days, then I expect Z to happen because..."
 							rows="4"
-							class="w-full resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="w-full resize-none rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						></textarea>
 					</div>
 
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<label for="potionStartDate" class="mb-2 block text-sm font-medium text-neutral-900">
+							<label for="potionStartDate" class="mb-2 block text-sm font-medium text-base-content">
 								Start Date <span class="text-red-500">*</span>
 							</label>
 							<input
@@ -346,34 +346,34 @@
 								type="date"
 								bind:value={formData.startDate}
 								required
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
 
 						<div>
-							<label for="potionEndDate" class="mb-2 block text-sm font-medium text-neutral-900">
+							<label for="potionEndDate" class="mb-2 block text-sm font-medium text-base-content">
 								Planned End Date
 							</label>
 							<input
 								id="potionEndDate"
 								type="date"
 								bind:value={formData.endDate}
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
 					</div>
 
-					<div class="flex justify-end space-x-3 border-t border-neutral-200 pt-4">
+					<div class="flex justify-end space-x-3 border-t border-base-300 pt-4">
 						<button
 							type="button"
 							on:click={closeCreateForm}
-							class="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:bg-neutral-800"
+							class="rounded-lg border border-base-300 bg-base-100 px-4 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-200 dark:bg-neutral-800"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
-							class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+							class="rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 						>
 							{editingPotion ? 'Update experiment' : 'Start experiment'}
 						</button>
@@ -389,18 +389,18 @@
 		<div class="mb-8">
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<h1 class="text-2xl font-bold text-neutral-900">Potions</h1>
-					<p class="mt-1 text-neutral-600">Personal experiments and habit trials</p>
+					<h1 class="text-2xl font-bold text-base-content">Potions</h1>
+					<p class="mt-1 text-base-content/70">Personal experiments and habit trials</p>
 				</div>
 				<div class="flex items-center space-x-3">
 					<button
 						on:click={analyzeAll}
 						disabled={analyzing}
-						class="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-800"
+						class="inline-flex items-center rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-800"
 					>
 						{#if analyzing}
 							<div
-								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
 							></div>
 						{:else}
 							<svelte:component this={icons.Search} size={16} class="mr-2" />
@@ -409,7 +409,7 @@
 					</button>
 					<button
 						on:click={openCreateForm}
-						class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+						class="inline-flex items-center rounded-lg border border-transparent bg-primary px-3 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 					>
 						<svelte:component this={icons.Plus} size={16} class="mr-2" />
 						New Experiment
@@ -418,7 +418,7 @@
 			</div>
 
 			{#if error}
-				<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+				<div class="mb-6 rounded-lg border border-error/20 bg-error/10 p-4">
 					<div class="flex items-start space-x-3">
 						<svelte:component
 							this={icons.AlertTriangle}
@@ -427,11 +427,11 @@
 						/>
 						<div class="flex-1">
 							<p class="text-sm font-medium text-red-900">Error</p>
-							<p class="mt-1 text-sm text-red-700">{error}</p>
+							<p class="mt-1 text-sm text-error">{error}</p>
 						</div>
 						<button
 							on:click={() => (error = '')}
-							class="text-red-400 transition-colors hover:text-red-600"
+							class="text-red-400 transition-colors hover:text-error"
 						>
 							<svelte:component this={icons.X} size={14} />
 						</button>
@@ -442,47 +442,47 @@
 			<!-- Quick Stats -->
 			{#if totalPotions > 0}
 				<div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-								<svelte:component this={icons.Activity} size={16} class="text-blue-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+								<svelte:component this={icons.Activity} size={16} class="text-info" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{activePotions.length}</div>
-								<div class="text-xs text-neutral-600">Active</div>
+								<div class="text-lg font-semibold text-base-content">{activePotions.length}</div>
+								<div class="text-xs text-base-content/70">Active</div>
 							</div>
 						</div>
 					</div>
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-								<svelte:component this={icons.CheckCircle} size={16} class="text-green-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10">
+								<svelte:component this={icons.CheckCircle} size={16} class="text-success" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{completedPotions.length}</div>
-								<div class="text-xs text-neutral-600">Completed</div>
+								<div class="text-lg font-semibold text-base-content">{completedPotions.length}</div>
+								<div class="text-xs text-base-content/70">Completed</div>
 							</div>
 						</div>
 					</div>
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
 								<svelte:component this={icons.Clock} size={16} class="text-orange-600" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{overduePotions.length}</div>
-								<div class="text-xs text-neutral-600">Overdue</div>
+								<div class="text-lg font-semibold text-base-content">{overduePotions.length}</div>
+								<div class="text-xs text-base-content/70">Overdue</div>
 							</div>
 						</div>
 					</div>
-					<div class="rounded-lg border border-neutral-200 bg-white p-4 dark:bg-neutral-800">
+					<div class="rounded-lg border border-base-300 bg-base-100 p-4 dark:bg-neutral-800">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-								<svelte:component this={icons.Beaker} size={16} class="text-purple-600" />
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
+								<svelte:component this={icons.Beaker} size={16} class="text-secondary" />
 							</div>
 							<div>
-								<div class="text-lg font-semibold text-neutral-900">{totalPotions}</div>
-								<div class="text-xs text-neutral-600">Total experiments</div>
+								<div class="text-lg font-semibold text-base-content">{totalPotions}</div>
+								<div class="text-xs text-base-content/70">Total experiments</div>
 							</div>
 						</div>
 					</div>
@@ -494,23 +494,23 @@
 		{#if loading}
 			<div class="flex items-center justify-center py-12">
 				<div
-					class="h-8 w-8 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+					class="h-8 w-8 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
 				></div>
 			</div>
 		{:else if totalPotions === 0}
 			<div class="py-12 text-center">
 				<div
-					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100"
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary/10"
 				>
-					<svelte:component this={icons.Beaker} size={24} class="text-purple-600" />
+					<svelte:component this={icons.Beaker} size={24} class="text-secondary" />
 				</div>
-				<h3 class="mb-2 text-lg font-semibold text-neutral-900">No experiments yet</h3>
-				<p class="mb-6 text-neutral-600">
+				<h3 class="mb-2 text-lg font-semibold text-base-content">No experiments yet</h3>
+				<p class="mb-6 text-base-content/70">
 					Start your first personal experiment to track habits or test hypotheses!
 				</p>
 				<button
 					on:click={openCreateForm}
-					class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+					class="inline-flex items-center rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 				>
 					<svelte:component this={icons.Plus} size={16} class="mr-2" />
 					Start Your First Experiment
@@ -521,13 +521,13 @@
 				{#each potions as potion}
 					{@const status = getStatus(potion)}
 					<div
-						class="rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-md dark:bg-neutral-800"
+						class="rounded-lg border border-base-300 bg-base-100 p-6 transition-shadow hover:shadow-md dark:bg-neutral-800"
 					>
 						<!-- Header Row -->
 						<div class="mb-4 flex items-start justify-between">
 							<div class="flex-1">
 								<div class="mb-2 flex items-center space-x-3">
-									<h3 class="text-lg font-semibold text-neutral-900">{potion.title}</h3>
+									<h3 class="text-lg font-semibold text-base-content">{potion.title}</h3>
 									<span
 										class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {getStatusColor(
 											status
@@ -540,7 +540,7 @@
 												: 'Overdue'}
 									</span>
 								</div>
-								<div class="flex items-center space-x-4 text-sm text-neutral-600">
+								<div class="flex items-center space-x-4 text-sm text-base-content/70">
 									<span>Day {getDaysSince(potion.startDate)}</span>
 									<span>Started {formatDate(potion.startDate)}</span>
 									{#if potion.endDate}
@@ -555,35 +555,35 @@
 							<div class="dropdown-container relative">
 								<button
 									on:click={() => toggleDropdown(potion.id)}
-									class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-neutral-100"
+									class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-base-200"
 								>
-									<svelte:component this={icons.MoreVertical} size={16} class="text-neutral-500" />
+									<svelte:component this={icons.MoreVertical} size={16} class="text-base-content/60" />
 								</button>
 
 								{#if openDropdownId === potion.id}
 									<div
-										class="absolute top-full right-0 z-10 mt-1 w-48 rounded-lg border border-neutral-200 bg-white shadow-lg dark:bg-neutral-800"
+										class="absolute top-full right-0 z-10 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 shadow-lg dark:bg-neutral-800"
 									>
 										<div class="py-1">
 											<button
 												on:click={() => analyzePotion(potion.id)}
 												disabled={analyzing}
-												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-base-content/80 transition-colors hover:bg-base-200"
 											>
 												<svelte:component this={icons.Search} size={14} />
 												<span>Analyze Effectiveness</span>
 											</button>
 											<button
 												on:click={() => loadPotionAnalysis(potion.id)}
-												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-base-content/80 transition-colors hover:bg-base-200"
 											>
 												<svelte:component this={icons.BarChart3} size={14} />
 												<span>View Analysis</span>
 											</button>
-											<div class="my-1 border-t border-neutral-200"></div>
+											<div class="my-1 border-t border-base-300"></div>
 											<button
 												on:click={() => openEditForm(potion)}
-												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-base-content/80 transition-colors hover:bg-base-200"
 											>
 												<svelte:component this={icons.Edit2} size={14} />
 												<span>Edit</span>
@@ -591,16 +591,16 @@
 											{#if status === 'active'}
 												<button
 													on:click={() => endPotion(potion.id)}
-													class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+													class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-base-content/80 transition-colors hover:bg-base-200"
 												>
 													<svelte:component this={icons.StopCircle} size={14} />
 													<span>End Experiment</span>
 												</button>
 											{/if}
-											<div class="my-1 border-t border-neutral-200"></div>
+											<div class="my-1 border-t border-base-300"></div>
 											<button
 												on:click={() => deletePotion(potion.id)}
-												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+												class="flex w-full items-center space-x-2 px-3 py-2 text-left text-sm text-error transition-colors hover:bg-error/10"
 											>
 												<svelte:component this={icons.Trash2} size={14} />
 												<span>Delete</span>
@@ -613,29 +613,29 @@
 
 						<!-- Hypothesis -->
 						{#if potion.hypothesis}
-							<div class="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-								<h4 class="mb-1 text-sm font-medium text-neutral-900">Hypothesis</h4>
-								<p class="text-sm text-neutral-700">{potion.hypothesis}</p>
+							<div class="mb-4 rounded-lg border border-base-300 bg-base-200 p-3">
+								<h4 class="mb-1 text-sm font-medium text-base-content">Hypothesis</h4>
+								<p class="text-sm text-base-content/80">{potion.hypothesis}</p>
 							</div>
 						{/if}
 
 						<!-- Analysis Results -->
 						{#if potionAnalyses[potion.id]}
 							{@const analysis = potionAnalyses[potion.id]}
-							<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+							<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
 								<div class="mb-3 flex items-center space-x-2">
 									<svelte:component
 										this={getEffectivenessIcon(analysis.effectiveness)}
 										size={16}
 										class={getEffectivenessColor(analysis.effectiveness)}
 									/>
-									<h4 class="text-sm font-semibold text-neutral-900">
+									<h4 class="text-sm font-semibold text-base-content">
 										{getEffectivenessText(analysis.effectiveness)}
 									</h4>
 								</div>
-								<p class="mb-2 text-sm text-neutral-700">{analysis.summary}</p>
+								<p class="mb-2 text-sm text-base-content/80">{analysis.summary}</p>
 								{#if analysis.recommendations}
-									<div class="text-xs text-neutral-600">
+									<div class="text-xs text-base-content/70">
 										<span class="font-medium">Recommendation:</span>
 										{analysis.recommendations}
 									</div>
