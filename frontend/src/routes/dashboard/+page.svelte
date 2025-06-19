@@ -321,24 +321,24 @@
 							</div>
 
 							<!-- Action Buttons -->
-							<div class="flex flex-col gap-4 sm:flex-row">
+							<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
 								<button
 									onclick={() => completeDailyTask(task.id, 'complete')}
-									class="bg-success text-success-content hover:bg-success/90 flex items-center gap-2 rounded-lg px-8 py-3 font-semibold shadow-lg transition-all hover:scale-105"
+									class="btn btn-success flex items-center justify-center gap-2 px-8 py-3 font-semibold shadow-lg transition-all hover:scale-105"
 								>
 									<svelte:component this={icons.Check} class="h-5 w-5" />
 									Complete
 								</button>
 								<button
 									onclick={() => completeDailyTask(task.id, 'skipped')}
-									class="bg-warning text-warning-content hover:bg-warning/90 flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-all"
+									class="btn btn-warning flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all"
 								>
 									<svelte:component this={icons.Clock} class="h-4 w-4" />
 									Skip for Now
 								</button>
 								<button
 									onclick={() => completeDailyTask(task.id, 'failed')}
-									class="bg-neutral text-neutral-content hover:bg-neutral/90 flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-all"
+									class="btn btn-neutral flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all"
 								>
 									<svelte:component this={icons.X} class="h-4 w-4" />
 									Can't Do Today
