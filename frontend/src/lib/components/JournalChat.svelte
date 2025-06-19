@@ -220,36 +220,36 @@
 	<div class="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
-				<div class="rounded-lg bg-primary/10 p-2">
-					<Bot class="h-5 w-5 text-info" />
+				<div class="bg-primary/10 rounded-lg p-2">
+					<Bot class="text-info h-5 w-5" />
 				</div>
-				<h2 class="text-xl font-semibold text-base-content">AI Journal Session</h2>
+				<h2 class="text-base-content text-xl font-semibold">AI Journal Session</h2>
 			</div>
 			<div class="flex items-center gap-2">
 				{#if journalStatus === 'fully_completed'}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-sm font-medium text-success"
+						class="bg-success/10 text-success inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
 					>
 						<CheckCircle class="h-4 w-4" />
 						Completed
 					</div>
 				{:else if journalStatus === 'day_completion'}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-warning/10 px-3 py-1 text-sm font-medium text-warning"
+						class="bg-warning/10 text-warning inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
 					>
 						<Bot class="h-4 w-4" />
 						Day Reflection
 					</div>
 				{:else if journalStatus === 'in_progress'}
 					<div
-						class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
+						class="bg-primary/10 text-primary inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium"
 					>
-						<div class="h-2 w-2 animate-pulse rounded-full bg-primary"></div>
+						<div class="bg-primary h-2 w-2 animate-pulse rounded-full"></div>
 						In Progress ({followupCount}/{maxFollowups} follow-ups)
 					</div>
 				{:else}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-base-200 px-3 py-1 text-sm font-medium text-base-content/70"
+						class="bg-base-200 text-base-content/70 inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
 					>
 						<Bot class="h-4 w-4" />
 						New Session
@@ -260,16 +260,16 @@
 	</div>
 
 	<!-- Chat Messages -->
-	<div class="flex-1 space-y-6 overflow-y-auto bg-base-100 p-6">
+	<div class="bg-base-100 flex-1 space-y-6 overflow-y-auto p-6">
 		{#if messages.length === 0 && journalStatus === 'new'}
 			<div class="py-12 text-center">
 				<div
-					class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"
+					class="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
 				>
-					<Bot class="h-10 w-10 text-info" />
+					<Bot class="text-info h-10 w-10" />
 				</div>
-				<h3 class="mb-3 text-2xl font-bold text-base-content">Start Your Journal Session</h3>
-				<p class="mx-auto max-w-md leading-relaxed text-base-content/70">
+				<h3 class="text-base-content mb-3 text-2xl font-bold">Start Your Journal Session</h3>
+				<p class="text-base-content/70 mx-auto max-w-md leading-relaxed">
 					Share what's on your mind, and I'll help you explore your thoughts with thoughtful
 					questions and insights.
 				</p>
@@ -286,9 +286,9 @@
 							: 'bg-primary/10'} flex items-center justify-center"
 					>
 						{#if message.role === 'user'}
-							<User class="h-5 w-5 text-secondary" />
+							<User class="text-secondary h-5 w-5" />
 						{:else}
-							<Bot class="h-5 w-5 text-info" />
+							<Bot class="text-info h-5 w-5" />
 						{/if}
 					</div>
 				</div>
@@ -300,17 +300,17 @@
 							? 'justify-end'
 							: 'justify-start'}"
 					>
-						<span class="text-sm font-medium text-base-content">
+						<span class="text-base-content text-sm font-medium">
 							{message.role === 'user' ? 'You' : 'AI Assistant'}
 						</span>
-						<time class="text-xs text-base-content/60">
+						<time class="text-base-content/60 text-xs">
 							{formatTimestamp(message.timestamp)}
 						</time>
 					</div>
 					<div
 						class="rounded-lg p-4 {message.role === 'user'
-							? 'ml-8 bg-secondary text-primary-content'
-							: 'mr-8 bg-base-200 text-base-content'} shadow-sm"
+							? 'bg-secondary text-primary-content ml-8'
+							: 'bg-base-200 text-base-content mr-8'} shadow-sm"
 					>
 						{#if message.content.includes('**Journal Summary:**')}
 							<div class="prose max-w-none {message.role === 'user' ? 'prose-invert' : ''}">
@@ -332,26 +332,26 @@
 			<div class="flex gap-4">
 				<!-- Avatar -->
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-						<Loader2 class="h-5 w-5 animate-spin text-info" />
+					<div class="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+						<Loader2 class="text-info h-5 w-5 animate-spin" />
 					</div>
 				</div>
 
 				<!-- Message Content -->
 				<div class="max-w-3xl flex-1">
 					<div class="mb-2 flex items-center gap-2">
-						<span class="text-sm font-medium text-base-content">AI Assistant</span>
+						<span class="text-base-content text-sm font-medium">AI Assistant</span>
 					</div>
-					<div class="mr-8 rounded-lg bg-base-200 p-4 text-base-content shadow-sm">
+					<div class="bg-base-200 text-base-content mr-8 rounded-lg p-4 shadow-sm">
 						<div class="flex items-center gap-3">
 							<div class="flex gap-1">
-								<div class="h-2 w-2 animate-bounce rounded-full bg-primary"></div>
+								<div class="bg-primary h-2 w-2 animate-bounce rounded-full"></div>
 								<div
-									class="h-2 w-2 animate-bounce rounded-full bg-primary"
+									class="bg-primary h-2 w-2 animate-bounce rounded-full"
 									style="animation-delay: 0.1s"
 								></div>
 								<div
-									class="h-2 w-2 animate-bounce rounded-full bg-primary"
+									class="bg-primary h-2 w-2 animate-bounce rounded-full"
 									style="animation-delay: 0.2s"
 								></div>
 							</div>
@@ -369,11 +369,11 @@
 			<div class="mx-auto max-w-3xl space-y-6">
 				<div class="text-center">
 					<div
-						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning/10"
+						class="bg-warning/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
 					>
-						<Sparkles class="h-8 w-8 text-warning" />
+						<Sparkles class="text-warning h-8 w-8" />
 					</div>
-					<h3 class="mb-2 text-xl font-semibold text-base-content">Day Reflection</h3>
+					<h3 class="text-base-content mb-2 text-xl font-semibold">Day Reflection</h3>
 					<p class="text-base-content/70">
 						Before we finish, let's capture a few more details about your day.
 					</p>
@@ -382,28 +382,28 @@
 				<div class="space-y-6">
 					<!-- Day Memory -->
 					<div class="space-y-3">
-						<label for="day-memory" class="block text-sm font-medium text-base-content">
+						<label for="day-memory" class="text-base-content block text-sm font-medium">
 							Is there anything you want to remember from today?
-							<span class="ml-1 font-normal text-base-content/60">(Optional)</span>
+							<span class="text-base-content/60 ml-1 font-normal">(Optional)</span>
 						</label>
 						<textarea
 							id="day-memory"
 							bind:value={dayMemory}
 							placeholder="Something special, a moment of gratitude, or just something you don't want to forget..."
-							class="w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
+							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
 							rows="4"
 							disabled={isLoading}
 						></textarea>
-						<p class="text-xs text-base-content/60">
+						<p class="text-base-content/60 text-xs">
 							This won't be analyzed or used for tagging - it's just for you.
 						</p>
 					</div>
 
 					<!-- Day Rating -->
 					<div class="space-y-3">
-						<label class="block text-sm font-medium text-base-content">
+						<label class="text-base-content block text-sm font-medium">
 							How would you rate your day overall? (1-5)
-							<span class="ml-1 font-normal text-base-content/60">(Optional)</span>
+							<span class="text-base-content/60 ml-1 font-normal">(Optional)</span>
 						</label>
 						<div class="flex items-center gap-3">
 							{#each [1, 2, 3, 4, 5] as rating}
@@ -411,8 +411,8 @@
 									onclick={() => (dayRating = rating)}
 									class="h-12 w-12 rounded-lg border-2 font-semibold transition-all duration-200 {dayRating ===
 									rating
-										? 'scale-105 border-amber-500 bg-warning text-primary-content shadow-lg'
-										: 'border-base-300 bg-base-100 text-base-content/80 hover:border-amber-300 hover:bg-warning/10'}"
+										? 'bg-warning text-primary-content scale-105 border-amber-500 shadow-lg'
+										: 'border-base-300 bg-base-100 text-base-content/80 hover:bg-warning/10 hover:border-amber-300'}"
 									disabled={isLoading}
 									aria-label="Rate day as {rating}"
 								>
@@ -422,7 +422,7 @@
 							{#if dayRating !== null}
 								<button
 									onclick={() => (dayRating = null)}
-									class="rounded-lg px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+									class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-3 py-2 text-sm transition-colors"
 									disabled={isLoading}
 									aria-label="Clear rating"
 								>
@@ -430,11 +430,11 @@
 								</button>
 							{/if}
 						</div>
-						<p class="text-xs text-base-content/60">Consider your energy, mood, and productivity</p>
+						<p class="text-base-content/60 text-xs">Consider your energy, mood, and productivity</p>
 					</div>
 
 					<!-- Completion buttons -->
-					<div class="flex justify-end border-t border-warning/20 pt-4">
+					<div class="border-warning/20 flex justify-end border-t pt-4">
 						<button
 							onclick={completeDayReflection}
 							disabled={isLoading}
@@ -453,7 +453,7 @@
 			</div>
 		</div>
 	{:else if journalStatus !== 'fully_completed'}
-		<div class="border-t border-base-300 bg-base-200 p-6">
+		<div class="border-base-300 bg-base-200 border-t p-6">
 			<div class="mx-auto max-w-3xl">
 				<div class="flex gap-4">
 					<div class="flex-1">
@@ -463,7 +463,7 @@
 							placeholder={journalStatus === 'new'
 								? "What's on your mind today? Share your thoughts, feelings, or experiences..."
 								: 'Share your response to continue the conversation...'}
-							class="w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							rows="4"
 							disabled={isLoading}
 						></textarea>
@@ -499,7 +499,7 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="flex items-center gap-2 rounded-lg bg-success px-4 py-2 font-medium text-primary-content transition-colors hover:bg-success/90"
+									class="bg-success text-primary-content hover:bg-success/90 flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors"
 								>
 									{#if isLoading}
 										<Loader2 class="h-4 w-4 animate-spin" />
@@ -512,7 +512,7 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="rounded-lg px-4 py-2 font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+									class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-4 py-2 font-medium transition-colors"
 								>
 									Finish Early
 								</button>
@@ -522,10 +522,10 @@
 				</div>
 
 				{#if journalStatus === 'in_progress'}
-					<div class="mt-4 flex items-center justify-between text-sm text-base-content/70">
+					<div class="text-base-content/70 mt-4 flex items-center justify-between text-sm">
 						<span>Press Enter to send, Shift+Enter for new line</span>
 						{#if followupCount < maxFollowups}
-							<span class="font-medium text-info">
+							<span class="text-info font-medium">
 								{maxFollowups - followupCount} follow-up question{maxFollowups - followupCount !== 1
 									? 's'
 									: ''} remaining

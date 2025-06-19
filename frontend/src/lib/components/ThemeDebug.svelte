@@ -30,47 +30,34 @@
 	});
 </script>
 
-<div class="fixed bottom-4 right-4 z-50 rounded-lg border border-base-300 bg-base-100 p-4 text-xs shadow-lg">
-	<h3 class="mb-2 font-bold text-base-content">Theme Debug</h3>
-	<div class="space-y-1 text-base-content/70">
+<div
+	class="border-base-300 bg-base-100 fixed right-4 bottom-4 z-50 rounded-lg border p-4 text-xs shadow-lg"
+>
+	<h3 class="text-base-content mb-2 font-bold">Theme Debug</h3>
+	<div class="text-base-content/70 space-y-1">
 		<div>Store Theme: {currentTheme}</div>
 		<div>HTML data-theme: {htmlDataTheme}</div>
 		<div>HTML classes: {htmlClass || 'none'}</div>
 	</div>
-	
+
 	<!-- Color test squares -->
 	<div class="mt-3 grid grid-cols-4 gap-1">
-		<div class="h-4 w-4 bg-primary" title="primary"></div>
-		<div class="h-4 w-4 bg-secondary" title="secondary"></div>
-		<div class="h-4 w-4 bg-accent" title="accent"></div>
-		<div class="h-4 w-4 bg-base-100 border border-base-300" title="base-100"></div>
-		<div class="h-4 w-4 bg-base-200" title="base-200"></div>
-		<div class="h-4 w-4 bg-base-300" title="base-300"></div>
-		<div class="h-4 w-4 bg-info" title="info"></div>
-		<div class="h-4 w-4 bg-success" title="success"></div>
-		<div class="h-4 w-4 bg-warning" title="warning"></div>
-		<div class="h-4 w-4 bg-error" title="error"></div>
+		<div class="bg-primary h-4 w-4" title="primary"></div>
+		<div class="bg-secondary h-4 w-4" title="secondary"></div>
+		<div class="bg-accent h-4 w-4" title="accent"></div>
+		<div class="bg-base-100 border-base-300 h-4 w-4 border" title="base-100"></div>
+		<div class="bg-base-200 h-4 w-4" title="base-200"></div>
+		<div class="bg-base-300 h-4 w-4" title="base-300"></div>
+		<div class="bg-info h-4 w-4" title="info"></div>
+		<div class="bg-success h-4 w-4" title="success"></div>
+		<div class="bg-warning h-4 w-4" title="warning"></div>
+		<div class="bg-error h-4 w-4" title="error"></div>
 	</div>
 
 	<!-- Theme toggle buttons for testing -->
 	<div class="mt-3 flex gap-1">
-		<button 
-			class="btn btn-xs" 
-			onclick={() => theme.setTheme('light', true)}
-		>
-			Light
-		</button>
-		<button 
-			class="btn btn-xs" 
-			onclick={() => theme.setTheme('dark', true)}
-		>
-			Dark
-		</button>
-		<button 
-			class="btn btn-xs" 
-			onclick={() => theme.setTheme('auto', true)}
-		>
-			Auto
-		</button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('light', true)}> Light </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('dark', true)}> Dark </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('auto', true)}> Auto </button>
 	</div>
 </div>

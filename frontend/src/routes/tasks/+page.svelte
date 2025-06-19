@@ -255,10 +255,10 @@
 		const diffTime = date.getTime() - today.getTime();
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-		if (diffDays < 0) return 'text-error bg-error/10'; // Overdue
-		if (diffDays === 0) return 'text-warning bg-warning/10'; // Today
+		if (diffDays < 0) return 'text-red-600 bg-red-50'; // Overdue
+		if (diffDays === 0) return 'text-amber-700 bg-amber-50'; // Today
 		if (diffDays <= 3) return 'text-orange-700 bg-orange-50'; // Soon
-		return 'text-base-content/70 bg-base-200'; // Future
+		return 'text-neutral-600 bg-base-200'; // Future
 	}
 
 	function getTaskPriority(task: any) {
@@ -287,14 +287,14 @@
 <!-- Success Message -->
 {#if saveMessage}
 	<div
-		class="fixed top-6 right-6 z-50 max-w-sm rounded-lg border border-success/20 bg-base-100 p-4 shadow-lg"
+		class="fixed top-6 right-6 z-50 max-w-sm rounded-lg border border-green-200 bg-white p-4 shadow-lg"
 	>
 		<div class="flex items-start gap-3">
 			<div class="flex-shrink-0">
-				<CheckCircle2 class="h-5 w-5 text-success" />
+				<CheckCircle2 class="h-5 w-5 text-green-600" />
 			</div>
 			<div class="min-w-0 flex-1">
-				<p class="text-sm font-medium text-base-content">{saveMessage}</p>
+				<p class="text-sm font-medium text-neutral-900">{saveMessage}</p>
 			</div>
 		</div>
 	</div>
@@ -302,11 +302,11 @@
 
 <div class="bg-neutral-25 min-h-screen">
 	<!-- Hero Header -->
-	<div class="bg-gradient-to-br from-blue-600 to-blue-700 text-primary-content">
+	<div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
 		<div class="container mx-auto px-6 py-12">
 			<div class="max-w-4xl">
 				<div class="mb-4 flex items-center gap-4">
-					<div class="rounded-lg bg-base-100/10 p-3 backdrop-blur-sm">
+					<div class="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
 						<Target class="h-8 w-8" />
 					</div>
 					<div>
@@ -317,7 +317,7 @@
 
 				<!-- Hero Stats -->
 				<div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-					<div class="rounded-lg bg-base-100/10 p-4 backdrop-blur-sm">
+					<div class="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
 						<div class="mb-1 flex items-center gap-2">
 							<Clock class="h-4 w-4 text-blue-200" />
 							<span class="text-sm text-blue-200">Active</span>
@@ -326,7 +326,7 @@
 					</div>
 
 					{#if overdueTasks.length > 0}
-						<div class="rounded-lg border border-red-400/30 bg-error/20 p-4 backdrop-blur-sm">
+						<div class="rounded-lg border border-red-400/30 bg-red-500/20 p-4 backdrop-blur-sm">
 							<div class="mb-1 flex items-center gap-2">
 								<AlertCircle class="h-4 w-4 text-red-200" />
 								<span class="text-sm text-red-200">Overdue</span>
@@ -334,7 +334,7 @@
 							<div class="text-2xl font-bold text-red-100">{overdueTasks.length}</div>
 						</div>
 					{:else}
-						<div class="rounded-lg bg-base-100/10 p-4 backdrop-blur-sm">
+						<div class="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
 							<div class="mb-1 flex items-center gap-2">
 								<AlertCircle class="h-4 w-4 text-blue-200" />
 								<span class="text-sm text-blue-200">Overdue</span>
@@ -343,7 +343,7 @@
 						</div>
 					{/if}
 
-					<div class="rounded-lg bg-base-100/10 p-4 backdrop-blur-sm">
+					<div class="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
 						<div class="mb-1 flex items-center gap-2">
 							<Calendar class="h-4 w-4 text-blue-200" />
 							<span class="text-sm text-blue-200">Due Today</span>
@@ -351,7 +351,7 @@
 						<div class="text-2xl font-bold">{todayTasks.length}</div>
 					</div>
 
-					<div class="rounded-lg border border-green-400/30 bg-success/100/20 p-4 backdrop-blur-sm">
+					<div class="rounded-lg border border-green-400/30 bg-green-500/20 p-4 backdrop-blur-sm">
 						<div class="mb-1 flex items-center gap-2">
 							<CheckCircle2 class="h-4 w-4 text-green-200" />
 							<span class="text-sm text-green-200">Completed</span>
@@ -364,18 +364,18 @@
 	</div>
 
 	<!-- Controls Section -->
-	<div class="sticky top-0 z-10 border-b border-base-300 bg-base-100">
+	<div class="sticky top-0 z-10 border-b border-neutral-200 bg-white">
 		<div class="container mx-auto px-6 py-4">
 			<div class="flex flex-col items-center gap-4 lg:flex-row">
 				<!-- Search -->
 				<div class="relative flex-1">
 					<Search
-						class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+						class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
 					/>
 					<input
 						type="text"
 						placeholder="Search tasks by title or description..."
-						class="w-full rounded-lg border border-base-300 bg-base-100 py-3 pr-4 pl-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						class="w-full rounded-lg border border-neutral-300 bg-white py-3 pr-4 pl-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						bind:value={searchQuery}
 					/>
 				</div>
@@ -385,7 +385,7 @@
 					<!-- Status Filter -->
 					<div class="relative">
 						<select
-							class="appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							bind:value={filterStatus}
 						>
 							<option value="all">All Status</option>
@@ -394,7 +394,7 @@
 							<option value="overdue">Overdue</option>
 						</select>
 						<ChevronDown
-							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-neutral-400"
 						/>
 					</div>
 
@@ -402,7 +402,7 @@
 					{#if focuses.length > 0}
 						<div class="relative">
 							<select
-								class="appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={filterFocus}
 							>
 								<option value="">All Focus Areas</option>
@@ -411,7 +411,7 @@
 								{/each}
 							</select>
 							<ChevronDown
-								class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+								class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-neutral-400"
 							/>
 						</div>
 					{/if}
@@ -419,7 +419,7 @@
 					<!-- Sort -->
 					<div class="relative">
 						<select
-							class="appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							bind:value={sortBy}
 						>
 							<option value="dueDate">Due Date</option>
@@ -427,14 +427,14 @@
 							<option value="created">Created</option>
 						</select>
 						<ChevronDown
-							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-neutral-400"
 						/>
 					</div>
 
 					<!-- Reset -->
 					{#if searchQuery || filterStatus !== 'all' || filterFocus || sortBy !== 'dueDate'}
 						<button
-							class="rounded-lg px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+							class="hover:bg-base-200 rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
 							onclick={resetFilters}
 						>
 							Reset
@@ -457,22 +457,22 @@
 			<div class="flex items-center justify-center py-20">
 				<div class="flex flex-col items-center gap-4">
 					<div
-						class="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent"
+						class="h-10 w-10 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
 					></div>
-					<p class="font-medium text-base-content/70">Loading your tasks...</p>
+					<p class="font-medium text-neutral-600">Loading your tasks...</p>
 				</div>
 			</div>
 		{:else if filteredTasks.length === 0}
 			<div class="py-20 text-center">
-				<div class="mx-auto max-w-md rounded-xl border border-base-300 bg-base-100 p-12 shadow-sm">
+				<div class="mx-auto max-w-md rounded-xl border border-neutral-200 bg-white p-12 shadow-sm">
 					<div
-						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-base-200"
+						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100"
 					>
-						<Target class="h-10 w-10 text-base-content/50" />
+						<Target class="h-10 w-10 text-neutral-400" />
 					</div>
 					{#if tasks.length === 0}
-						<h3 class="mb-3 text-2xl font-bold text-base-content">Ready to get organized?</h3>
-						<p class="mb-8 leading-relaxed text-base-content/70">
+						<h3 class="mb-3 text-2xl font-bold text-neutral-900">Ready to get organized?</h3>
+						<p class="mb-8 leading-relaxed text-neutral-600">
 							Create your first task and take the first step towards achieving your goals.
 						</p>
 						<button class="btn-primary px-6 py-3 text-lg" onclick={openCreateForm}>
@@ -480,8 +480,8 @@
 							Create Your First Task
 						</button>
 					{:else}
-						<h3 class="mb-3 text-2xl font-bold text-base-content">No matching tasks</h3>
-						<p class="mb-8 leading-relaxed text-base-content/70">
+						<h3 class="mb-3 text-2xl font-bold text-neutral-900">No matching tasks</h3>
+						<p class="mb-8 leading-relaxed text-neutral-600">
 							Try adjusting your search or filter criteria to find what you're looking for.
 						</p>
 						<button class="btn-ghost px-6 py-3 text-lg" onclick={resetFilters}>
@@ -496,11 +496,11 @@
 			{#if overdueTasks.length > 0 || todayTasks.length > 0}
 				<div class="mb-8">
 					<div
-						class="rounded-xl border border-warning/20 bg-gradient-to-r from-amber-50 to-orange-50 p-6"
+						class="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6"
 					>
 						<div class="flex items-start gap-4">
-							<div class="rounded-lg bg-warning/10 p-2">
-								<AlertCircle class="h-5 w-5 text-warning" />
+							<div class="rounded-lg bg-amber-100 p-2">
+								<AlertCircle class="h-5 w-5 text-amber-600" />
 							</div>
 							<div class="flex-1">
 								<h3 class="mb-2 font-semibold text-amber-900">Attention Required</h3>
@@ -525,7 +525,7 @@
 				{#each filteredTasks as task (task.id)}
 					{@const priority = getTaskPriority(task)}
 					<div
-						class="group rounded-xl border border-base-300 bg-base-100 shadow-sm transition-all duration-200 hover:shadow-md"
+						class="group rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
 					>
 						<!-- Task Header -->
 						<div class="p-6 pb-4">
@@ -533,20 +533,20 @@
 								<!-- Priority Indicator & Status -->
 								<div class="mt-1 flex flex-col items-center gap-2">
 									{#if task.completedAt}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-success/10">
-											<CheckCircle2 class="h-5 w-5 text-success" />
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+											<CheckCircle2 class="h-5 w-5 text-green-600" />
 										</div>
 									{:else if priority === 'overdue'}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-error/10">
-											<AlertCircle class="h-5 w-5 text-error" />
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+											<AlertCircle class="h-5 w-5 text-red-600" />
 										</div>
 									{:else if priority === 'urgent'}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-warning/10">
-											<Clock class="h-5 w-5 text-warning" />
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
+											<Clock class="h-5 w-5 text-amber-600" />
 										</div>
 									{:else}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-											<Target class="h-5 w-5 text-info" />
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+											<Target class="h-5 w-5 text-blue-600" />
 										</div>
 									{/if}
 								</div>
@@ -555,8 +555,8 @@
 								<div class="min-w-0 flex-1">
 									<div class="mb-3 flex items-start justify-between gap-4">
 										<h3
-											class="text-xl leading-tight font-semibold text-base-content {task.completedAt
-												? 'text-base-content/60 line-through'
+											class="text-xl leading-tight font-semibold text-neutral-900 {task.completedAt
+												? 'text-neutral-500 line-through'
 												: ''}"
 										>
 											{task.title}
@@ -568,7 +568,7 @@
 										>
 											{#if !task.completedAt}
 												<button
-													class="rounded-lg p-2 text-success transition-colors hover:bg-success/10"
+													class="rounded-lg p-2 text-green-600 transition-colors hover:bg-green-50"
 													onclick={() => completeTask(task.id)}
 													title="Mark as complete"
 												>
@@ -576,14 +576,14 @@
 												</button>
 											{/if}
 											<button
-												class="rounded-lg p-2 text-base-content/70 transition-colors hover:bg-base-200"
+												class="hover:bg-base-200 rounded-lg p-2 text-neutral-600 transition-colors"
 												onclick={() => openEditForm(task)}
 												title="Edit task"
 											>
 												<Edit class="h-5 w-5" />
 											</button>
 											<button
-												class="rounded-lg p-2 text-error transition-colors hover:bg-error/10"
+												class="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
 												onclick={() => deleteTask(task.id)}
 												title="Delete task"
 											>
@@ -594,7 +594,7 @@
 
 									{#if task.description}
 										<p
-											class="mb-4 leading-relaxed text-base-content/70 {task.completedAt
+											class="mb-4 leading-relaxed text-neutral-600 {task.completedAt
 												? 'line-through'
 												: ''}"
 										>
@@ -623,21 +623,21 @@
 								<!-- Tags -->
 								{#if task.focus?.name}
 									<div
-										class="inline-flex items-center rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary"
+										class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700"
 									>
 										{task.focus.name}
 									</div>
 								{/if}
 								{#if task.familyMember?.name}
 									<div
-										class="inline-flex items-center rounded-lg border border-secondary/20 bg-secondary/5 px-3 py-2 text-sm font-medium text-secondary"
+										class="inline-flex items-center rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700"
 									>
 										{task.familyMember.name}
 									</div>
 								{/if}
 								{#if task.stat?.name}
 									<div
-										class="inline-flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 px-3 py-2 text-sm font-medium text-success"
+										class="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700"
 									>
 										<svelte:component this={getIconComponent(task.stat.icon)} class="h-4 w-4" />
 										{task.stat.name}
@@ -675,14 +675,14 @@
 		onclick={closeModal}
 	>
 		<div
-			class="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-base-100 shadow-2xl"
+			class="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Modal Header -->
-			<div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-primary-content">
+			<div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-3">
-						<div class="rounded-lg bg-base-100/10 p-2">
+						<div class="rounded-lg bg-white/10 p-2">
 							<Target class="h-6 w-6" />
 						</div>
 						<div>
@@ -695,7 +695,7 @@
 						</div>
 					</div>
 					<button
-						class="rounded-lg p-2 transition-colors hover:bg-base-100/10"
+						class="rounded-lg p-2 transition-colors hover:bg-white/10"
 						onclick={() => (showCreateForm = false)}
 					>
 						<X class="h-6 w-6" />
@@ -709,20 +709,20 @@
 					<!-- Essential Fields -->
 					<div class="space-y-6">
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-								<div class="h-2 w-2 rounded-full bg-primary"></div>
+							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900">
+								<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 								Task Details
 							</h3>
 
 							<!-- Title -->
 							<div class="mb-6 space-y-2">
-								<label for="title" class="block text-sm font-medium text-base-content">
+								<label for="title" class="block text-sm font-medium text-neutral-900">
 									Task Title *
 								</label>
 								<input
 									id="title"
 									type="text"
-									class="w-full rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									class="w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 									placeholder="What needs to be done?"
 									bind:value={formData.title}
 									required
@@ -731,12 +731,12 @@
 
 							<!-- Description -->
 							<div class="space-y-2">
-								<label for="description" class="block text-sm font-medium text-base-content">
+								<label for="description" class="block text-sm font-medium text-neutral-900">
 									Description
 								</label>
 								<textarea
 									id="description"
-									class="w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									class="w-full resize-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 									placeholder="Add context, notes, or additional details..."
 									bind:value={formData.description}
 									rows="3"
@@ -746,24 +746,24 @@
 
 						<!-- Scheduling -->
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-								<div class="h-2 w-2 rounded-full bg-warning"></div>
+							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900">
+								<div class="h-2 w-2 rounded-full bg-amber-500"></div>
 								Scheduling
 							</h3>
 
 							<div class="space-y-2">
-								<label for="dueDate" class="block text-sm font-medium text-base-content">
+								<label for="dueDate" class="block text-sm font-medium text-neutral-900">
 									Due Date
 								</label>
 								<div class="relative">
 									<input
 										id="dueDate"
 										type="date"
-										class="w-full rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+										class="w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 										bind:value={formData.dueDate}
 									/>
 									<Calendar
-										class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+										class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
 									/>
 								</div>
 							</div>
@@ -771,8 +771,8 @@
 
 						<!-- Organization -->
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-								<div class="h-2 w-2 rounded-full bg-secondary"></div>
+							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900">
+								<div class="h-2 w-2 rounded-full bg-purple-500"></div>
 								Organization
 							</h3>
 
@@ -780,13 +780,13 @@
 								<!-- Focus Area -->
 								{#if focuses.length > 0}
 									<div class="space-y-2">
-										<label for="focusId" class="block text-sm font-medium text-base-content">
+										<label for="focusId" class="block text-sm font-medium text-neutral-900">
 											Focus Area
 										</label>
 										<div class="relative">
 											<select
 												id="focusId"
-												class="w-full appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+												class="w-full appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 												bind:value={formData.focusId}
 											>
 												<option value="">Choose focus area...</option>
@@ -795,7 +795,7 @@
 												{/each}
 											</select>
 											<ChevronDown
-												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
 											/>
 										</div>
 									</div>
@@ -804,13 +804,13 @@
 								<!-- Family Member -->
 								{#if familyMembers.length > 0}
 									<div class="space-y-2">
-										<label for="familyMemberId" class="block text-sm font-medium text-base-content">
+										<label for="familyMemberId" class="block text-sm font-medium text-neutral-900">
 											Family Member
 										</label>
 										<div class="relative">
 											<select
 												id="familyMemberId"
-												class="w-full appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+												class="w-full appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 												bind:value={formData.familyMemberId}
 											>
 												<option value="">Choose family member...</option>
@@ -819,7 +819,7 @@
 												{/each}
 											</select>
 											<ChevronDown
-												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
 											/>
 										</div>
 									</div>
@@ -830,19 +830,19 @@
 						<!-- Rewards -->
 						{#if stats.length > 0}
 							<div>
-								<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
-									<div class="h-2 w-2 rounded-full bg-success/100"></div>
+								<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900">
+									<div class="h-2 w-2 rounded-full bg-green-500"></div>
 									Rewards & Progress
 								</h3>
 
 								<div class="space-y-2">
-									<label for="statId" class="block text-sm font-medium text-base-content">
+									<label for="statId" class="block text-sm font-medium text-neutral-900">
 										Linked Stat
 									</label>
 									<div class="relative">
 										<select
 											id="statId"
-											class="w-full appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+											class="w-full appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 											bind:value={formData.statId}
 										>
 											<option value="">Choose stat to boost...</option>
@@ -853,14 +853,14 @@
 											{/each}
 										</select>
 										<ChevronDown
-											class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+											class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
 										/>
 									</div>
 									<div class="mt-2 flex items-center gap-2">
-										<div class="flex h-4 w-4 items-center justify-center rounded-full bg-success/10">
-											<CheckCircle2 class="h-3 w-3 text-success" />
+										<div class="flex h-4 w-4 items-center justify-center rounded-full bg-green-100">
+											<CheckCircle2 class="h-3 w-3 text-green-600" />
 										</div>
-										<p class="text-xs text-base-content/70">
+										<p class="text-xs text-neutral-600">
 											Completing this task will automatically boost the selected stat
 										</p>
 									</div>
@@ -872,11 +872,11 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="border-t border-base-300 bg-base-200 px-8 py-6">
+			<div class="bg-base-200 border-t border-neutral-200 px-8 py-6">
 				<div class="flex justify-end gap-4">
 					<button
 						type="button"
-						class="rounded-lg px-6 py-3 font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
+						class="rounded-lg px-6 py-3 font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
 						onclick={() => (showCreateForm = false)}
 					>
 						Cancel

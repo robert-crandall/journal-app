@@ -7,7 +7,7 @@ import { iosPWAManager } from './ios-pwa';
  */
 export function isPWA(): boolean {
 	if (!browser) return false;
-	
+
 	// Check if running in standalone mode (iOS/Android)
 	return (
 		window.matchMedia('(display-mode: standalone)').matches ||

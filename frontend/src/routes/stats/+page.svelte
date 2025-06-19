@@ -96,11 +96,11 @@
 	];
 
 	// Convert to format expected by IconPicker
-	const availableIcons = availableIconsList.map(iconName => {
+	const availableIcons = availableIconsList.map((iconName) => {
 		// Create friendly labels from icon names
 		const label = iconName
 			.split('-')
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
 		return { name: iconName, label };
 	});
@@ -317,23 +317,25 @@
 	<title>Stats - LifeQuest</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200 dark:bg-neutral-900 dark:bg-neutral-900">
+<div class="bg-base-200 min-h-screen dark:bg-neutral-900 dark:bg-neutral-900">
 	<!-- Hero Section -->
 	<div
-		class="border-b border-base-300 bg-base-100 dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
+		class="border-base-300 bg-base-100 border-b dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
 	>
 		<div class="mx-auto max-w-6xl px-4 py-8">
 			<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div>
-					<h1 class="mb-2 text-3xl font-bold text-base-content dark:text-primary-content dark:text-primary-content">
+					<h1
+						class="text-base-content dark:text-primary-content dark:text-primary-content mb-2 text-3xl font-bold"
+					>
 						Character Stats
 					</h1>
-					<p class="text-sm text-base-content/70 dark:text-neutral-300 dark:text-neutral-300">
+					<p class="text-base-content/70 text-sm dark:text-neutral-300 dark:text-neutral-300">
 						Track your growth across different areas of life
 					</p>
 				</div>
 				<button
-					class="flex items-center gap-2 self-start rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 md:self-auto dark:bg-primary dark:hover:bg-primary"
+					class="bg-primary text-primary-content hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary flex items-center gap-2 self-start rounded-md px-4 py-2 text-sm font-medium transition-colors md:self-auto"
 					on:click={() => (showCreateForm = true)}
 				>
 					<icons.Plus size={16} />
@@ -348,42 +350,50 @@
 		<div class="mx-auto max-w-6xl px-4 py-6">
 			<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 				<div
-					class="rounded-md border border-base-300 bg-base-100 p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
+					class="border-base-300 bg-base-100 rounded-md border p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
 				>
-					<div class="text-2xl font-bold text-base-content dark:text-primary-content dark:text-primary-content">
+					<div
+						class="text-base-content dark:text-primary-content dark:text-primary-content text-2xl font-bold"
+					>
 						{enabledStats.length}
 					</div>
-					<div class="text-sm text-base-content/70 dark:text-neutral-300 dark:text-neutral-300">
+					<div class="text-base-content/70 text-sm dark:text-neutral-300 dark:text-neutral-300">
 						Active Stats
 					</div>
 				</div>
 				<div
-					class="rounded-md border border-base-300 bg-base-100 p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
+					class="border-base-300 bg-base-100 rounded-md border p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
 				>
-					<div class="text-2xl font-bold text-base-content dark:text-primary-content dark:text-primary-content">
+					<div
+						class="text-base-content dark:text-primary-content dark:text-primary-content text-2xl font-bold"
+					>
 						{totalLevel}
 					</div>
-					<div class="text-sm text-base-content/70 dark:text-neutral-300 dark:text-neutral-300">
+					<div class="text-base-content/70 text-sm dark:text-neutral-300 dark:text-neutral-300">
 						Total Levels
 					</div>
 				</div>
 				<div
-					class="rounded-md border border-base-300 bg-base-100 p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
+					class="border-base-300 bg-base-100 rounded-md border p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
 				>
-					<div class="text-2xl font-bold text-base-content dark:text-primary-content dark:text-primary-content">
+					<div
+						class="text-base-content dark:text-primary-content dark:text-primary-content text-2xl font-bold"
+					>
 						{totalXP.toLocaleString()}
 					</div>
-					<div class="text-sm text-base-content/70 dark:text-neutral-300 dark:text-neutral-300">
+					<div class="text-base-content/70 text-sm dark:text-neutral-300 dark:text-neutral-300">
 						Total XP
 					</div>
 				</div>
 				<div
-					class="rounded-md border border-base-300 bg-base-100 p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
+					class="border-base-300 bg-base-100 rounded-md border p-4 shadow-sm dark:border-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:bg-neutral-800"
 				>
-					<div class="text-2xl font-bold text-base-content dark:text-primary-content dark:text-primary-content">
+					<div
+						class="text-base-content dark:text-primary-content dark:text-primary-content text-2xl font-bold"
+					>
 						{averageLevel}
 					</div>
-					<div class="text-sm text-base-content/70 dark:text-neutral-300 dark:text-neutral-300">
+					<div class="text-base-content/70 text-sm dark:text-neutral-300 dark:text-neutral-300">
 						Avg Level
 					</div>
 				</div>
@@ -394,11 +404,11 @@
 	<!-- Error Alert -->
 	{#if error}
 		<div class="mx-auto max-w-6xl px-4">
-			<div class="mb-6 rounded-md border-l-4 border-red-400 bg-error/10 p-4">
+			<div class="bg-error/10 mb-6 rounded-md border-l-4 border-red-400 p-4">
 				<div class="flex items-center">
 					<icons.AlertCircle class="mr-3 text-red-400" size={20} />
-					<p class="text-sm text-error">{error}</p>
-					<button class="ml-auto p-1 text-red-400 hover:text-error" on:click={() => (error = '')}>
+					<p class="text-error text-sm">{error}</p>
+					<button class="hover:text-error ml-auto p-1 text-red-400" on:click={() => (error = '')}>
 						<icons.X size={16} />
 					</button>
 				</div>
@@ -412,26 +422,28 @@
 			<div class="flex justify-center py-12">
 				<div class="flex items-center gap-3">
 					<div
-						class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
+						class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
 					></div>
-					<span class="text-sm text-base-content/70 dark:text-neutral-300">Loading stats...</span>
+					<span class="text-base-content/70 text-sm dark:text-neutral-300">Loading stats...</span>
 				</div>
 			</div>
 		{:else if stats.length === 0}
 			<div
-				class="rounded-lg border border-base-300 bg-base-100 p-12 text-center dark:border-neutral-700 dark:bg-neutral-800"
+				class="border-base-300 bg-base-100 rounded-lg border p-12 text-center dark:border-neutral-700 dark:bg-neutral-800"
 			>
 				<div
-					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-base-200"
+					class="bg-base-200 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
 				>
 					<icons.TrendingUp class="text-base-content/50" size={32} />
 				</div>
-				<h2 class="mb-2 text-xl font-semibold text-base-content dark:text-primary-content">No stats yet</h2>
-				<p class="mx-auto mb-6 max-w-sm text-sm text-base-content/70 dark:text-neutral-300">
+				<h2 class="text-base-content dark:text-primary-content mb-2 text-xl font-semibold">
+					No stats yet
+				</h2>
+				<p class="text-base-content/70 mx-auto mb-6 max-w-sm text-sm dark:text-neutral-300">
 					Start tracking your growth by creating your first character stat
 				</p>
 				<button
-					class="mx-auto flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
+					class="bg-primary text-primary-content hover:bg-primary/90 mx-auto flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
 					on:click={() => (showCreateForm = true)}
 				>
 					<icons.Plus size={16} />
@@ -445,22 +457,24 @@
 				<div class="mb-8">
 					<div class="mb-6 flex items-center gap-3">
 						<div
-							class="flex h-10 w-10 items-center justify-center rounded-lg border border-base-300 bg-base-100 text-xl dark:border-neutral-700 dark:bg-neutral-800"
+							class="border-base-300 bg-base-100 flex h-10 w-10 items-center justify-center rounded-lg border text-xl dark:border-neutral-700 dark:bg-neutral-800"
 						>
 							{categoryInfo.icon}
 						</div>
 						<div>
-							<h2 class="text-xl font-semibold text-base-content dark:text-primary-content">
+							<h2 class="text-base-content dark:text-primary-content text-xl font-semibold">
 								{categoryInfo.label}
 							</h2>
-							<p class="text-sm text-base-content/70 dark:text-neutral-300">{categoryInfo.description}</p>
+							<p class="text-base-content/70 text-sm dark:text-neutral-300">
+								{categoryInfo.description}
+							</p>
 						</div>
 					</div>
 
 					<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 						{#each categoryStats as stat}
 							<div
-								class="rounded-lg border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 {!stat.enabled
+								class="border-base-300 bg-base-100 rounded-lg border shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 {!stat.enabled
 									? 'opacity-60'
 									: ''}"
 							>
@@ -469,7 +483,7 @@
 									<div class="mb-4 flex items-start justify-between">
 										<div class="flex items-center gap-3">
 											<div
-												class="flex h-10 w-10 items-center justify-center rounded-lg bg-base-200 {!stat.enabled
+												class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-lg {!stat.enabled
 													? 'grayscale'
 													: ''}"
 											>
@@ -485,7 +499,7 @@
 											</div>
 											<div>
 												<h3
-													class="font-semibold text-base-content dark:text-primary-content {!stat.enabled
+													class="text-base-content dark:text-primary-content font-semibold {!stat.enabled
 														? 'text-base-content/60'
 														: ''}"
 												>
@@ -493,7 +507,7 @@
 												</h3>
 												{#if !stat.enabled}
 													<span
-														class="mt-1 inline-flex items-center rounded-full bg-base-200 px-2 py-1 text-xs font-medium text-base-content/60"
+														class="bg-base-200 text-base-content/60 mt-1 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
 													>
 														Disabled
 													</span>
@@ -504,7 +518,7 @@
 										<!-- Actions Menu -->
 										<div class="relative">
 											<button
-												class="flex h-8 w-8 items-center justify-center rounded-md text-base-content/50 transition-colors hover:bg-base-200 hover:text-base-content/70 dark:text-neutral-300"
+												class="text-base-content/50 hover:bg-base-200 hover:text-base-content/70 flex h-8 w-8 items-center justify-center rounded-md transition-colors dark:text-neutral-300"
 												on:click={(e) => {
 													e.preventDefault();
 													const dropdown = e.currentTarget.nextElementSibling;
@@ -514,17 +528,17 @@
 												<icons.MoreVertical size={16} />
 											</button>
 											<div
-												class="absolute top-full right-0 z-10 mt-1 hidden w-48 rounded-md border border-base-300 bg-base-100 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+												class="border-base-300 bg-base-100 absolute top-full right-0 z-10 mt-1 hidden w-48 rounded-md border shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
 											>
 												<button
-													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-base-content/80 hover:bg-base-200 dark:bg-neutral-900"
+													class="text-base-content/80 hover:bg-base-200 flex w-full items-center gap-2 px-4 py-2 text-left text-sm dark:bg-neutral-900"
 													on:click={() => startEdit(stat)}
 												>
 													<icons.Edit2 size={14} />
 													Edit
 												</button>
 												<button
-													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-base-content/80 hover:bg-base-200 dark:bg-neutral-900"
+													class="text-base-content/80 hover:bg-base-200 flex w-full items-center gap-2 px-4 py-2 text-left text-sm dark:bg-neutral-900"
 													on:click={() => toggleStatEnabled(stat)}
 												>
 													{#if stat.enabled}
@@ -537,7 +551,7 @@
 												</button>
 												<hr class="my-1" />
 												<button
-													class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-error hover:bg-error/10"
+													class="text-error hover:bg-error/10 flex w-full items-center gap-2 px-4 py-2 text-left text-sm"
 													on:click={() => deleteStat(stat.id)}
 												>
 													<icons.Trash2 size={14} />
@@ -550,7 +564,7 @@
 									<!-- Description -->
 									{#if stat.description}
 										<p
-											class="mb-4 text-sm text-base-content/70 dark:text-neutral-300 {!stat.enabled
+											class="text-base-content/70 mb-4 text-sm dark:text-neutral-300 {!stat.enabled
 												? 'text-base-content/50'
 												: ''}"
 										>
@@ -562,20 +576,20 @@
 									<div class="mb-4">
 										<div class="mb-2 flex items-center justify-between">
 											<span
-												class="text-sm font-medium text-base-content dark:text-primary-content {!stat.enabled
+												class="text-base-content dark:text-primary-content text-sm font-medium {!stat.enabled
 													? 'text-base-content/50'
 													: ''}"
 											>
 												Level {stat.level}
 											</span>
-											<span class="text-xs text-base-content/60">
+											<span class="text-base-content/60 text-xs">
 												{stat.xp} XP
 											</span>
 										</div>
 
-										<div class="h-2 w-full rounded-full bg-base-300">
+										<div class="bg-base-300 h-2 w-full rounded-full">
 											<div
-												class="h-2 rounded-full bg-primary transition-all duration-300 {!stat.enabled
+												class="bg-primary h-2 rounded-full transition-all duration-300 {!stat.enabled
 													? 'opacity-40'
 													: ''}"
 												style="width: {getProgressWidth(stat)}%"
@@ -583,12 +597,12 @@
 										</div>
 
 										{#if canLevelUp(stat)}
-											<div class="mt-2 flex items-center gap-1 text-xs text-success">
+											<div class="text-success mt-2 flex items-center gap-1 text-xs">
 												<icons.Star size={12} />
 												Ready to level up!
 											</div>
 										{:else}
-											<div class="mt-2 text-xs text-base-content/60">
+											<div class="text-base-content/60 mt-2 text-xs">
 												{getXpToNextLevel(stat)} XP to level {stat.level + 1}
 											</div>
 										{/if}
@@ -600,7 +614,7 @@
 											<div class="flex gap-2">
 												{#if canLevelUp(stat)}
 													<button
-														class="flex items-center gap-1 rounded-md bg-success px-3 py-1.5 text-xs font-medium text-primary-content transition-colors hover:bg-success/90"
+														class="bg-success text-primary-content hover:bg-success/90 flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
 														on:click={() => levelUpStat(stat.id)}
 													>
 														<icons.Star size={12} />
@@ -608,13 +622,13 @@
 													</button>
 												{:else}
 													<button
-														class="rounded-md bg-base-200 px-3 py-1.5 text-xs font-medium text-base-content/80 transition-colors hover:bg-base-300"
+														class="bg-base-200 text-base-content/80 hover:bg-base-300 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
 														on:click={() => incrementStat(stat.id, 1)}
 													>
 														+25 XP
 													</button>
 													<button
-														class="rounded-md bg-base-200 px-3 py-1.5 text-xs font-medium text-base-content/80 transition-colors hover:bg-base-300"
+														class="bg-base-200 text-base-content/80 hover:bg-base-300 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
 														on:click={() => incrementStat(stat.id, 5)}
 													>
 														+125 XP
@@ -622,7 +636,7 @@
 												{/if}
 											</div>
 											<button
-												class="p-1 text-base-content/50 hover:text-base-content/70 dark:text-neutral-300"
+												class="text-base-content/50 hover:text-base-content/70 p-1 dark:text-neutral-300"
 												on:click={() => startEdit(stat)}
 											>
 												<icons.Settings size={14} />
@@ -631,7 +645,7 @@
 									{:else}
 										<div class="flex justify-center">
 											<button
-												class="rounded-md border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-medium text-info transition-colors hover:bg-primary/10"
+												class="border-primary/20 bg-primary/5 text-info hover:bg-primary/10 rounded-md border px-4 py-2 text-xs font-medium transition-colors"
 												on:click={() => toggleStatEnabled(stat)}
 											>
 												Re-enable Stat
@@ -653,17 +667,17 @@
 	<!-- Modal Backdrop -->
 	<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
 		<div
-			class="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg bg-base-100 shadow-xl dark:bg-neutral-800"
+			class="bg-base-100 max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg shadow-xl dark:bg-neutral-800"
 		>
 			<!-- Modal Header -->
 			<div
-				class="flex items-center justify-between border-b border-base-300 p-6 dark:border-neutral-700"
+				class="border-base-300 flex items-center justify-between border-b p-6 dark:border-neutral-700"
 			>
-				<h2 class="text-xl font-semibold text-base-content dark:text-primary-content">
+				<h2 class="text-base-content dark:text-primary-content text-xl font-semibold">
 					{editingStat ? 'Edit Stat' : 'Create New Stat'}
 				</h2>
 				<button
-					class="p-1 text-base-content/50 hover:text-base-content/70 dark:text-neutral-300"
+					class="text-base-content/50 hover:text-base-content/70 p-1 dark:text-neutral-300"
 					on:click={resetForm}
 				>
 					<icons.X size={20} />
@@ -677,16 +691,16 @@
 					{@const recommendedStats = getRecommendedStats()}
 
 					{#if classDef && recommendedStats.length > 0}
-						<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
+						<div class="border-primary/20 bg-primary/5 rounded-lg border p-4">
 							<div class="mb-3 flex items-center gap-2">
-								<div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+								<div class="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-full">
 									🎭
 								</div>
 								<h3 class="font-medium text-blue-900">
 									Recommended for {userData.className}
 								</h3>
 							</div>
-							<p class="mb-3 text-sm text-primary">
+							<p class="text-primary mb-3 text-sm">
 								These stats complement your class. Click to add one:
 							</p>
 							<div class="flex flex-wrap gap-2">
@@ -695,7 +709,7 @@
 									{#if statDef}
 										<button
 											type="button"
-											class="rounded-md bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-blue-200"
+											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200"
 											on:click={() => addStatFromLibrary(statName)}
 										>
 											{statName}
@@ -709,7 +723,7 @@
 
 				<!-- Stat Library Browser (only for new stats) -->
 				{#if !editingStat}
-					<div class="rounded-lg border border-base-300 dark:border-neutral-700">
+					<div class="border-base-300 rounded-lg border dark:border-neutral-700">
 						<button
 							type="button"
 							class="flex w-full items-center justify-between p-4 text-left"
@@ -720,14 +734,18 @@
 						>
 							<div class="flex items-center gap-2">
 								<icons.BookOpen size={16} class="text-base-content/70 dark:text-neutral-300" />
-								<span class="font-medium text-base-content dark:text-primary-content">Browse Stat Library</span>
+								<span class="text-base-content dark:text-primary-content font-medium"
+									>Browse Stat Library</span
+								>
 							</div>
 							<icons.ChevronDown size={16} class="text-base-content/50" />
 						</button>
-						<div class="hidden space-y-4 border-t border-base-300 p-4 dark:border-neutral-700">
+						<div class="border-base-300 hidden space-y-4 border-t p-4 dark:border-neutral-700">
 							{#each Object.entries(getStatsByCategory()) as [category, categoryStats]}
 								<div>
-									<h4 class="mb-3 text-sm font-medium text-base-content capitalize dark:text-primary-content">
+									<h4
+										class="text-base-content dark:text-primary-content mb-3 text-sm font-medium capitalize"
+									>
 										{category}
 									</h4>
 									<div class="space-y-2">
@@ -735,7 +753,7 @@
 											{@const isAlreadyAdded = stats.some((s) => s.name === stat.name)}
 											<button
 												type="button"
-												class="w-full rounded-md border border-base-300 p-3 text-left transition-colors hover:bg-base-200 dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded
+												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded
 													? 'cursor-not-allowed opacity-50'
 													: ''}"
 												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
@@ -744,25 +762,25 @@
 												<div class="flex items-center justify-between">
 													<div>
 														<div class="flex items-center gap-2">
-															<span class="font-medium text-base-content dark:text-primary-content"
+															<span class="text-base-content dark:text-primary-content font-medium"
 																>{stat.name}</span
 															>
 															{#if isStatRecommended(stat.name)}
 																<span
-																	class="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
+																	class="bg-primary/10 text-primary inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
 																>
 																	Recommended
 																</span>
 															{/if}
 															{#if isAlreadyAdded}
 																<span
-																	class="inline-flex items-center rounded-full bg-base-200 px-2 py-1 text-xs font-medium text-base-content/60"
+																	class="bg-base-200 text-base-content/60 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
 																>
 																	Added
 																</span>
 															{/if}
 														</div>
-														<p class="mt-1 text-sm text-base-content/70 dark:text-neutral-300">
+														<p class="text-base-content/70 mt-1 text-sm dark:text-neutral-300">
 															{stat.description}
 														</p>
 													</div>
@@ -777,10 +795,10 @@
 
 					<div class="relative">
 						<div class="absolute inset-0 flex items-center">
-							<div class="w-full border-t border-base-300 dark:border-neutral-700"></div>
+							<div class="border-base-300 w-full border-t dark:border-neutral-700"></div>
 						</div>
 						<div class="relative flex justify-center">
-							<span class="bg-base-100 px-3 text-sm text-base-content/60 dark:bg-neutral-800"
+							<span class="bg-base-100 text-base-content/60 px-3 text-sm dark:bg-neutral-800"
 								>Or create a custom stat</span
 							>
 						</div>
@@ -790,12 +808,12 @@
 				<!-- Form Fields -->
 				<div class="space-y-4">
 					<div>
-						<label class="mb-2 block text-sm font-medium text-base-content/80">
+						<label class="text-base-content/80 mb-2 block text-sm font-medium">
 							Name <span class="text-red-500">*</span>
 						</label>
 						<input
 							type="text"
-							class="w-full rounded-md border border-base-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="border-base-300 w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							bind:value={formData.name}
 							placeholder="e.g. Strength, Wisdom, Charisma"
 							required
@@ -803,9 +821,9 @@
 					</div>
 
 					<div>
-						<label class="mb-2 block text-sm font-medium text-base-content/80"> Description </label>
+						<label class="text-base-content/80 mb-2 block text-sm font-medium"> Description </label>
 						<textarea
-							class="w-full resize-none rounded-md border border-base-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="border-base-300 w-full resize-none rounded-md border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							bind:value={formData.description}
 							placeholder="What this stat represents and why it matters to you..."
 							rows="3"
@@ -814,9 +832,9 @@
 
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label class="mb-2 block text-sm font-medium text-base-content/80"> Category </label>
+							<label class="text-base-content/80 mb-2 block text-sm font-medium"> Category </label>
 							<select
-								class="w-full rounded-md border border-base-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="border-base-300 w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={formData.category}
 							>
 								{#each categoryOptions as option}
@@ -826,15 +844,11 @@
 						</div>
 
 						<div>
-							<label class="mb-2 block text-sm font-medium text-base-content/80"> Icon </label>
-							<IconPicker 
-								bind:selectedIcon={formData.icon}
-								availableIcons={availableIcons}
-								showPreview={false}
-							/>
+							<label class="text-base-content/80 mb-2 block text-sm font-medium"> Icon </label>
+							<IconPicker bind:selectedIcon={formData.icon} {availableIcons} showPreview={false} />
 							{#if formData.icon}
 								<div class="mt-2 flex items-center gap-2">
-									<span class="text-sm text-base-content/70 dark:text-neutral-300">Preview:</span>
+									<span class="text-base-content/70 text-sm dark:text-neutral-300">Preview:</span>
 									<svelte:component
 										this={getIconComponent(formData.icon)}
 										size={16}
@@ -849,10 +863,10 @@
 						<input
 							type="checkbox"
 							id="enabled"
-							class="h-4 w-4 rounded border-base-300 text-info focus:ring-blue-500"
+							class="border-base-300 text-info h-4 w-4 rounded focus:ring-blue-500"
 							bind:checked={formData.enabled}
 						/>
-						<label for="enabled" class="ml-2 block text-sm text-base-content/80">
+						<label for="enabled" class="text-base-content/80 ml-2 block text-sm">
 							Enable this stat (you can disable it later)
 						</label>
 					</div>
@@ -860,18 +874,18 @@
 
 				<!-- Form Actions -->
 				<div
-					class="flex items-center justify-end gap-3 border-t border-base-300 pt-4 dark:border-neutral-700"
+					class="border-base-300 flex items-center justify-end gap-3 border-t pt-4 dark:border-neutral-700"
 				>
 					<button
 						type="button"
-						class="rounded-md border border-base-300 bg-base-100 px-4 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-200 dark:bg-neutral-800 dark:bg-neutral-900"
+						class="border-base-300 bg-base-100 text-base-content/80 hover:bg-base-200 rounded-md border px-4 py-2 text-sm font-medium transition-colors dark:bg-neutral-800 dark:bg-neutral-900"
 						on:click={resetForm}
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
+						class="bg-primary text-primary-content hover:bg-primary/90 rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors"
 					>
 						{editingStat ? 'Update Stat' : 'Create Stat'}
 					</button>
