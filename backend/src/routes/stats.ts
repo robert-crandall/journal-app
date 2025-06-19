@@ -57,6 +57,8 @@ app.post('/', jwtMiddleware, userMiddleware, async (c) => {
       icon: validation.data.icon,
       category: validation.data.category,
       enabled: validation.data.enabled ?? true,
+      dayOfWeek: validation.data.dayOfWeek,
+      sampleTasks: validation.data.sampleTasks,
       xp: 0,
       level: 1
     })

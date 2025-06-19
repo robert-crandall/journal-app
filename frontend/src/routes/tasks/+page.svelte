@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { tasksApi, familyApi, focusesApi, statsApi } from '$lib/api';
+	import { tasksApi, familyApi, statsApi } from '$lib/api';
 	import {
 		Plus,
 		Calendar,
@@ -33,7 +33,6 @@
 
 	let tasks: any[] = [];
 	let familyMembers: any[] = [];
-	let focuses: any[] = [];
 	let stats: any[] = [];
 	let loading = true;
 	let showCreateForm = false;
@@ -41,7 +40,6 @@
 	let saveMessage = '';
 	let searchQuery = '';
 	let filterStatus = 'all'; // all, active, completed, overdue
-	let filterFocus = '';
 	let sortBy = 'dueDate'; // dueDate, created, title, priority
 	let viewMode = 'list'; // list, board
 	let showFilters = false;
@@ -51,7 +49,6 @@
 		title: '',
 		description: '',
 		dueDate: '',
-		focusId: '',
 		levelId: '',
 		familyMemberId: '',
 		statId: ''
@@ -77,8 +74,6 @@
 			)
 				return false;
 
-			// Focus filter
-			if (filterFocus && task.focusId !== filterFocus) return false;
 			return true;
 		})
 		.sort((a, b) => {
@@ -125,15 +120,13 @@
 	async function loadData() {
 		try {
 			loading = true;
-			const [tasksRes, familyRes, focusesRes, statsRes] = await Promise.all([
+			const [tasksRes, familyRes, statsRes] = await Promise.all([
 				tasksApi.getAll(),
 				familyApi.getAll(),
-				focusesApi.getAll(),
 				statsApi.getAll()
 			]);
 			tasks = tasksRes.tasks;
 			familyMembers = familyRes.familyMembers;
-			focuses = focusesRes.focuses;
 			stats = statsRes.stats;
 		} catch (error) {
 			console.error('Failed to load data:', error);
@@ -147,7 +140,6 @@
 			title: '',
 			description: '',
 			dueDate: '',
-			focusId: '',
 			levelId: '',
 			familyMemberId: '',
 			statId: ''
@@ -161,7 +153,6 @@
 			title: task.title,
 			description: task.description || '',
 			dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
-			focusId: task.focusId || '',
 			levelId: task.levelId || '',
 			familyMemberId: task.familyMemberId || '',
 			statId: task.statId || ''
@@ -176,7 +167,6 @@
 			const taskData = {
 				...formData,
 				dueDate: formData.dueDate || undefined,
-				focusId: formData.focusId || undefined,
 				levelId: formData.levelId || undefined,
 				familyMemberId: formData.familyMemberId || undefined,
 				statId: formData.statId || undefined
@@ -275,7 +265,6 @@
 	function resetFilters() {
 		searchQuery = '';
 		filterStatus = 'all';
-		filterFocus = '';
 		sortBy = 'dueDate';
 	}
 </script>
@@ -398,24 +387,6 @@
 						/>
 					</div>
 
-					<!-- Focus Filter -->
-					{#if focuses.length > 0}
-						<div class="relative">
-							<select
-								class="appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-								bind:value={filterFocus}
-							>
-								<option value="">All Focus Areas</option>
-								{#each focuses as focus}
-									<option value={focus.id}>{focus.name}</option>
-								{/each}
-							</select>
-							<ChevronDown
-								class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-neutral-400"
-							/>
-						</div>
-					{/if}
-
 					<!-- Sort -->
 					<div class="relative">
 						<select
@@ -432,7 +403,7 @@
 					</div>
 
 					<!-- Reset -->
-					{#if searchQuery || filterStatus !== 'all' || filterFocus || sortBy !== 'dueDate'}
+					{#if searchQuery || filterStatus !== 'all' || sortBy !== 'dueDate'}
 						<button
 							class="rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 							onclick={resetFilters}
@@ -621,13 +592,6 @@
 								{/if}
 
 								<!-- Tags -->
-								{#if task.focus?.name}
-									<div
-										class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700"
-									>
-										{task.focus.name}
-									</div>
-								{/if}
 								{#if task.familyMember?.name}
 									<div
 										class="inline-flex items-center rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700"
@@ -777,30 +741,6 @@
 							</h3>
 
 							<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-								<!-- Focus Area -->
-								{#if focuses.length > 0}
-									<div class="space-y-2">
-										<label for="focusId" class="block text-sm font-medium text-neutral-900">
-											Focus Area
-										</label>
-										<div class="relative">
-											<select
-												id="focusId"
-												class="w-full appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-												bind:value={formData.focusId}
-											>
-												<option value="">Choose focus area...</option>
-												{#each focuses as focus}
-													<option value={focus.id}>{focus.name}</option>
-												{/each}
-											</select>
-											<ChevronDown
-												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
-											/>
-										</div>
-									</div>
-								{/if}
-
 								<!-- Family Member -->
 								{#if familyMembers.length > 0}
 									<div class="space-y-2">

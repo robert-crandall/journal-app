@@ -3,9 +3,10 @@ import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 import type { JwtVariables } from 'hono/jwt';
 import { db } from '../db';
-import { tasks, stats, focuses, users, potions, adhocTasks, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
+import { tasks, stats, users, potions, adhocTasks, preferences, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
 import { jwtMiddleware, userMiddleware } from '../middleware/auth';
-import { generateDailyTasks, getTodaysFocus, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
+import { generateDailyTasks, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
+import { getTodayInTimezone } from '../utils/timezone';
 
 // Define the variables type for this route
 type Variables = JwtVariables & {
@@ -21,7 +22,6 @@ tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
   const userTasks = await db.query.tasks.findMany({
     where: eq(tasks.userId, user.id),
     with: {
-      focus: true,
       stat: true,
       family: true,
     },
@@ -55,7 +55,6 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     source,
     linkedStatIds,
     familyId,
-    focusId, 
     statId
   } = c.req.valid('json');
   
@@ -68,7 +67,6 @@ tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTa
     source,
     linkedStatIds: linkedStatIds || [],
     familyId,
-    focusId,
     statId,
     origin: 'user',
     status: 'pending',
@@ -85,7 +83,6 @@ tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
   const task = await db.query.tasks.findFirst({
     where: and(eq(tasks.id, taskId), eq(tasks.userId, user.id)),
     with: {
-      focus: true,
       stat: true,
       family: true,
     },
@@ -110,7 +107,6 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
     source,
     linkedStatIds,
     familyId,
-    focusId, 
     statId
   } = c.req.valid('json');
   
@@ -123,7 +119,6 @@ tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', create
       source,
       linkedStatIds: linkedStatIds || [],
       familyId,
-      focusId,
       statId,
       updatedAt: new Date(),
     })
@@ -189,20 +184,6 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
       if (completedTask.statId) {
         statIdsToAward.push(completedTask.statId);
       }
-      
-      // Include stat from focus if exists (legacy)
-      if (completedTask.focusId) {
-        const taskWithFocus = await db.query.tasks.findFirst({
-          where: eq(tasks.id, completedTask.id),
-          with: {
-            focus: true
-          }
-        });
-        
-        if (taskWithFocus?.focus?.statId) {
-          statIdsToAward.push(taskWithFocus.focus.statId);
-        }
-      }
     }
     
     // Remove duplicates
@@ -240,7 +221,12 @@ tasksRouter.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
 
 // Helper function to get active potions for a user
 async function getActivePotions(userId: string): Promise<string[]> {
-  const today = new Date().toISOString().split('T')[0];
+  // Get user's timezone preference
+  const userPreferences = await db.query.preferences.findFirst({
+    where: eq(preferences.userId, userId),
+  });
+  
+  const today = getTodayInTimezone(userPreferences?.timezone);
   
   const activePotions = await db.query.potions.findMany({
     where: and(
