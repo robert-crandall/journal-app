@@ -352,7 +352,7 @@
 							</div>
 
 							<!-- Action Buttons -->
-							<div class="flex justify-center gap-3">
+							<div class="flex flex-col sm:flex-row gap-4">
 								<button
 									onclick={() => completeDailyTask(task.id, 'complete')}
 									class="flex items-center gap-2 rounded-lg bg-green-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-green-700"
