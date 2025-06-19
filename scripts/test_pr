@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+# Run checks in backend
+echo "Running backend checks"
+cd "$(dirname "$0")/../backend"
+bun install --frozen-lockfile
+bun run type-check
+
+# Run checks in frontend
+echo "Running frontend checks"
+cd ../frontend
+bun install --frozen-lockfile
+bun run check
+bun run format
+bun run build
+
+echo "All checks completed successfully."
