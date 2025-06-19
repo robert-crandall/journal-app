@@ -13,7 +13,7 @@ const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 console.log(`Using OpenAI model: ${openAiModel}`);
 
 export interface ConversationMessage {
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant';
   content: string;
   timestamp: string;
 }
