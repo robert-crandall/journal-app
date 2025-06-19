@@ -39,17 +39,21 @@ function createThemeStore() {
 
 			const html = document.documentElement;
 
-			// Handle Tailwind dark mode classes
+			// Handle daisyUI theme switching and Tailwind dark mode classes
 			if (theme === 'dark') {
+				html.setAttribute('data-theme', 'dark');
 				html.classList.add('dark');
 			} else if (theme === 'light') {
+				html.setAttribute('data-theme', 'light');
 				html.classList.remove('dark');
 			} else if (theme === 'auto') {
 				// Use system preference for auto mode
 				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 				if (prefersDark) {
+					html.setAttribute('data-theme', 'dark');
 					html.classList.add('dark');
 				} else {
+					html.setAttribute('data-theme', 'light');
 					html.classList.remove('dark');
 				}
 			}

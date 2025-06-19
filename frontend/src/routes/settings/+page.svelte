@@ -123,31 +123,25 @@
 
 	{#if saveMessage}
 		<div
-			class="mb-6 bg-{messageType === 'success' ? 'green' : 'red'}-50 border border-{messageType ===
-			'success'
-				? 'green'
-				: 'red'}-200 rounded-lg p-4"
+			class="mb-6 rounded-lg p-4 alert {messageType === 'success' ? 'alert-success' : 'alert-error'}"
 		>
 			<div class="flex items-start space-x-3">
 				<svelte:component
 					this={messageType === 'success' ? icons.CheckCircle : icons.AlertTriangle}
 					size={16}
-					class="text-{messageType === 'success' ? 'green' : 'red'}-500 mt-0.5 flex-shrink-0"
+					class="mt-0.5 flex-shrink-0"
 				/>
 				<div class="flex-1">
-					<p class="text-sm font-medium text-{messageType === 'success' ? 'green' : 'red'}-900">
+					<p class="text-sm font-medium">
 						{messageType === 'success' ? 'Success' : 'Error'}
 					</p>
-					<p class="text-sm text-{messageType === 'success' ? 'green' : 'red'}-700 mt-1">
+					<p class="text-sm mt-1">
 						{saveMessage}
 					</p>
 				</div>
 				<button
 					on:click={() => (saveMessage = '')}
-					class="text-{messageType === 'success' ? 'green' : 'red'}-400 hover:text-{messageType ===
-					'success'
-						? 'green'
-						: 'red'}-600 transition-colors"
+					class="hover:opacity-70 transition-opacity"
 				>
 					<svelte:component this={icons.X} size={14} />
 				</button>
@@ -156,14 +150,14 @@
 	{/if}
 
 	<!-- Tabs Navigation -->
-	<div class="mb-6 rounded-lg border border-neutral-200 bg-white dark:bg-neutral-800">
-		<div class="border-b border-neutral-200">
+	<div class="mb-6 rounded-lg border border-base-300 bg-base-100">
+		<div class="border-b border-base-300">
 			<nav class="flex space-x-8 px-6" role="tablist">
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'appearance'
-						? 'border-blue-500 text-blue-600'
-						: 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700'}"
+						? 'border-primary text-primary'
+						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
 					on:click={() => setActiveTab('appearance')}
 					role="tab"
 					aria-selected={activeTab === 'appearance'}
@@ -176,8 +170,8 @@
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'location'
-						? 'border-blue-500 text-blue-600'
-						: 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700'}"
+						? 'border-primary text-primary'
+						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
 					on:click={() => setActiveTab('location')}
 					role="tab"
 					aria-selected={activeTab === 'location'}
@@ -189,8 +183,8 @@
 				</button>
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab === 'profile'
-						? 'border-blue-500 text-blue-600'
-						: 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700'}"
+						? 'border-primary text-primary'
+						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
 					on:click={() => setActiveTab('profile')}
 					role="tab"
 					aria-selected={activeTab === 'profile'}
@@ -203,8 +197,8 @@
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'character'
-						? 'border-blue-500 text-blue-600'
-						: 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700'}"
+						? 'border-primary text-primary'
+						: 'border-transparent text-base-content/50 hover:border-base-300 hover:text-base-content/70'}"
 					on:click={() => setActiveTab('character')}
 					role="tab"
 					aria-selected={activeTab === 'character'}
@@ -223,8 +217,8 @@
 				<!-- Appearance Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-neutral-900">Theme</h3>
-						<p class="mb-4 text-sm text-neutral-600">Choose how LifeQuest looks and feels</p>
+						<h3 class="mb-2 text-lg font-semibold text-base-content">Theme</h3>
+						<p class="mb-4 text-sm text-base-content/70">Choose how LifeQuest looks and feels</p>
 					</div>
 
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -232,18 +226,18 @@
 							<button
 								class="relative rounded-lg border-2 p-4 transition-all hover:shadow-sm {$theme ===
 								themeOption.value
-									? 'border-blue-500 bg-blue-50'
-									: 'border-neutral-200 hover:border-neutral-300'}"
+									? 'border-primary bg-primary/10'
+									: 'border-base-300 hover:border-base-content/20'}"
 								on:click={() => selectTheme(themeOption.value)}
 							>
 								<div class="mb-3 flex items-center space-x-3">
 									<div
 										class="flex h-8 w-8 items-center justify-center rounded-lg {themeOption.value ===
 										'light'
-											? 'bg-yellow-100 text-yellow-600'
+											? 'bg-warning/20 text-warning'
 											: themeOption.value === 'dark'
-												? 'bg-purple-100 text-purple-600'
-												: 'bg-blue-100 text-blue-600'}"
+												? 'bg-secondary/20 text-secondary'
+												: 'bg-info/20 text-info'}"
 									>
 										<svelte:component
 											this={themeOption.value === 'light'
@@ -255,8 +249,8 @@
 										/>
 									</div>
 									<div class="text-left">
-										<div class="font-medium text-neutral-900">{themeOption.name}</div>
-										<div class="text-xs text-neutral-500">{themeOption.description}</div>
+										<div class="font-medium text-base-content">{themeOption.name}</div>
+										<div class="text-xs text-base-content/50">{themeOption.description}</div>
 									</div>
 								</div>
 
@@ -264,24 +258,24 @@
 								<div class="mb-2 flex space-x-1">
 									{#if themeOption.value === 'light'}
 										<div
-											class="h-4 w-4 rounded border border-neutral-200 bg-white dark:bg-neutral-800"
+											class="h-4 w-4 rounded border border-base-300 bg-base-100"
 										></div>
-										<div class="h-4 w-4 rounded bg-blue-500"></div>
-										<div class="h-4 w-4 rounded bg-neutral-300"></div>
+										<div class="h-4 w-4 rounded bg-primary"></div>
+										<div class="h-4 w-4 rounded bg-base-300"></div>
 									{:else if themeOption.value === 'dark'}
-										<div class="h-4 w-4 rounded bg-neutral-900"></div>
-										<div class="h-4 w-4 rounded bg-blue-400"></div>
-										<div class="h-4 w-4 rounded bg-neutral-700"></div>
+										<div class="h-4 w-4 rounded bg-base-300"></div>
+										<div class="h-4 w-4 rounded bg-primary"></div>
+										<div class="h-4 w-4 rounded bg-base-200"></div>
 									{:else}
-										<div class="h-4 w-4 rounded bg-gradient-to-r from-white to-neutral-900"></div>
-										<div class="h-4 w-4 rounded bg-blue-500"></div>
-										<div class="h-4 w-4 rounded bg-neutral-400"></div>
+										<div class="h-4 w-4 rounded bg-gradient-to-r from-base-100 to-base-300"></div>
+										<div class="h-4 w-4 rounded bg-primary"></div>
+										<div class="h-4 w-4 rounded bg-base-200"></div>
 									{/if}
 								</div>
 
 								{#if $theme === themeOption.value}
 									<div class="absolute top-2 right-2">
-										<svelte:component this={icons.Check} size={16} class="text-blue-600" />
+										<svelte:component this={icons.Check} size={16} class="text-primary" />
 									</div>
 								{/if}
 							</button>

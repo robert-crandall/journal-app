@@ -89,37 +89,37 @@
 	<meta name="description" content="Personal growth powered by GPT and role-playing mechanics" />
 </svelte:head>
 
-<div class="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+<div class="min-h-screen bg-base-100 text-base-content">
 	{#if $auth.loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div
-				class="h-8 w-8 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600 dark:border-neutral-600 dark:border-t-blue-400"
+				class="h-8 w-8 animate-spin rounded-full border-2 border-base-300 border-t-primary"
 			></div>
 		</div>
 	{:else if !$auth.user && !isAuthPage}
 		<div
-			class="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950"
+			class="flex min-h-screen items-center justify-center bg-gradient-to-br from-base-200 to-base-300"
 		>
 			<div class="mx-auto max-w-md px-6 text-center">
 				<div
-					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 dark:bg-blue-500"
+					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary"
 				>
-					<svelte:component this={icons.Zap} size={32} class="text-white" />
+					<svelte:component this={icons.Zap} size={32} class="text-primary-content" />
 				</div>
-				<h1 class="mb-4 text-4xl font-bold text-neutral-900 dark:text-white">LifeQuest</h1>
-				<p class="mb-8 text-lg text-neutral-600 dark:text-neutral-300">
+				<h1 class="mb-4 text-4xl font-bold text-base-content">LifeQuest</h1>
+				<p class="mb-8 text-lg text-base-content/70">
 					Transform your personal growth journey with RPG-style mechanics and AI-powered insights.
 				</p>
 				<div class="flex flex-col justify-center gap-3 sm:flex-row">
 					<a
 						href="/login"
-						class="rounded-lg border border-transparent bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+						class="rounded-lg border border-transparent bg-primary px-6 py-3 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 					>
 						Sign In
 					</a>
 					<a
 						href="/register"
-						class="rounded-lg border border-blue-300 bg-white px-6 py-3 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:border-blue-400 dark:bg-neutral-800 dark:text-blue-400 dark:hover:bg-neutral-700"
+						class="rounded-lg border border-primary/30 bg-base-100 px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-base-200"
 					>
 						Get Started
 					</a>
@@ -129,7 +129,7 @@
 	{:else if $auth.user && !isAuthPage && !isHomePage}
 		<!-- Atlassian-style Navigation -->
 		<div
-			class="sticky top-0 z-40 border-b border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800"
+			class="sticky top-0 z-40 border-b border-base-300 bg-base-100"
 			on:click={closeDropdowns}
 		>
 			<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -139,12 +139,12 @@
 						<!-- Brand -->
 						<a
 							href="/dashboard"
-							class="flex items-center space-x-2 text-xl font-semibold text-neutral-900 transition-colors hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
+							class="flex items-center space-x-2 text-xl font-semibold text-base-content transition-colors hover:text-primary"
 						>
 							<div
-								class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 dark:bg-blue-500"
+								class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary"
 							>
-								<svelte:component this={icons.Zap} size={16} class="text-white" />
+								<svelte:component this={icons.Zap} size={16} class="text-primary-content" />
 							</div>
 							<span>LifeQuest</span>
 						</a>
@@ -155,8 +155,8 @@
 								href="/dashboard"
 								class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/dashboard'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-2">
 									<svelte:component this={icons.Home} size={16} />
@@ -167,8 +167,8 @@
 								href="/tasks"
 								class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/tasks'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-2">
 									<svelte:component this={icons.CheckSquare} size={16} />
@@ -179,8 +179,8 @@
 								href="/adhoc-tasks"
 								class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/adhoc-tasks'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-2">
 									<svelte:component this={icons.Zap} size={16} />
@@ -191,8 +191,8 @@
 								href="/journals"
 								class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/journals'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-2">
 									<svelte:component this={icons.BookOpen} size={16} />
@@ -203,8 +203,8 @@
 								href="/stats"
 								class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/stats'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-2">
 									<svelte:component this={icons.BarChart3} size={16} />
@@ -216,22 +216,22 @@
 							<div class="relative">
 								<button
 									on:click|stopPropagation={toggleMoreDropdown}
-									class="flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white"
+									class="flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
 								>
 									<span>More</span>
 									<svelte:component this={icons.ChevronDown} size={14} />
 								</button>
 								{#if moreDropdownOpen}
 									<div
-										class="absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+										class="absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 py-1 shadow-lg"
 										on:click|stopPropagation
 									>
 										<a
 											href="/focuses"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700 {$page
+											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
 												.route.id === '/focuses'
-												? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+												? 'bg-primary/10 text-primary'
 												: ''}"
 										>
 											<div class="flex items-center space-x-2">
@@ -242,9 +242,9 @@
 										<a
 											href="/family"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700 {$page
+											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
 												.route.id === '/family'
-												? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+												? 'bg-primary/10 text-primary'
 												: ''}"
 										>
 											<div class="flex items-center space-x-2">
@@ -255,9 +255,9 @@
 										<a
 											href="/potions"
 											on:click={closeDropdowns}
-											class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700 {$page
+											class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 {$page
 												.route.id === '/potions'
-												? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+												? 'bg-primary/10 text-primary'
 												: ''}"
 										>
 											<div class="flex items-center space-x-2">
@@ -277,46 +277,46 @@
 						<div class="relative">
 							<button
 								on:click|stopPropagation={toggleUserDropdown}
-								class="flex items-center space-x-2 rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-700"
+								class="flex items-center space-x-2 rounded-lg p-2 transition-colors hover:bg-base-200"
 							>
 								<div
-									class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white dark:bg-blue-500"
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-content"
 								>
 									{$auth.user?.name?.charAt(0).toUpperCase()}
 								</div>
 								<div class="hidden text-left sm:block">
-									<div class="text-sm font-medium text-neutral-900 dark:text-white">
+									<div class="text-sm font-medium text-base-content">
 										{$auth.user?.name}
 									</div>
 								</div>
 								<svelte:component
 									this={icons.ChevronDown}
 									size={14}
-									class="text-neutral-500 dark:text-neutral-400"
+									class="text-base-content/50"
 								/>
 							</button>
 							{#if userDropdownOpen}
 								<div
-									class="absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+									class="absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border border-base-300 bg-base-100 py-1 shadow-lg"
 									on:click|stopPropagation
 								>
 									<a
 										href="/settings"
 										on:click={closeDropdowns}
-										class="block px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-700"
+										class="block px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200"
 									>
 										<div class="flex items-center space-x-2">
 											<svelte:component this={icons.Settings} size={16} />
 											<span>Settings</span>
 										</div>
 									</a>
-									<div class="my-1 border-t border-neutral-200 dark:border-neutral-700"></div>
+									<div class="my-1 border-t border-base-300"></div>
 									<button
 										on:click={() => {
 											handleLogout();
 											closeDropdowns();
 										}}
-										class="block w-full px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+										class="block w-full px-3 py-2 text-left text-sm text-error transition-colors hover:bg-error/10"
 									>
 										<div class="flex items-center space-x-2">
 											<svelte:component this={icons.LogOut} size={16} />
@@ -330,13 +330,13 @@
 						<!-- Mobile Menu Toggle -->
 						<button
 							on:click={toggleMobileMenu}
-							class="rounded-lg p-2 transition-colors hover:bg-neutral-100 md:hidden dark:hover:bg-neutral-700"
+							class="rounded-lg p-2 transition-colors hover:bg-base-200 md:hidden"
 							aria-label="Toggle navigation menu"
 						>
 							<svelte:component
 								this={mobileMenuOpen ? icons.X : icons.Menu}
 								size={20}
-								class="text-neutral-700 dark:text-neutral-300"
+								class="text-base-content/70"
 							/>
 						</button>
 					</div>
@@ -344,15 +344,15 @@
 
 				<!-- Mobile Navigation Menu -->
 				{#if mobileMenuOpen}
-					<div class="border-t border-neutral-200 py-4 md:hidden dark:border-neutral-700">
+					<div class="border-t border-base-300 py-4 md:hidden">
 						<div class="space-y-1">
 							<a
 								href="/dashboard"
 								on:click={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/dashboard'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.Home} size={16} />
@@ -364,8 +364,8 @@
 								on:click={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/tasks'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.CheckSquare} size={16} />
@@ -377,8 +377,8 @@
 								on:click={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/adhoc-tasks'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.Zap} size={16} />
@@ -390,8 +390,8 @@
 								on:click={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/journals'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.BookOpen} size={16} />
@@ -403,8 +403,8 @@
 								on:click={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/stats'
-									? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-									: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+									? 'bg-primary/10 text-primary'
+									: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 							>
 								<div class="flex items-center space-x-3">
 									<svelte:component this={icons.BarChart3} size={16} />
@@ -413,9 +413,9 @@
 							</a>
 
 							<!-- Mobile More Tools Section -->
-							<div class="mt-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
+							<div class="mt-2 border-t border-base-300 pt-2">
 								<div
-									class="px-3 py-1 text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400"
+									class="px-3 py-1 text-xs font-medium tracking-wider text-base-content/50 uppercase"
 								>
 									Tools
 								</div>
@@ -424,8 +424,8 @@
 									on:click={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/focuses'
-										? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-										: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+										? 'bg-primary/10 text-primary'
+										: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 								>
 									<div class="flex items-center space-x-3">
 										<svelte:component this={icons.Target} size={16} />
@@ -437,8 +437,8 @@
 									on:click={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/family'
-										? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-										: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+										? 'bg-primary/10 text-primary'
+										: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 								>
 									<div class="flex items-center space-x-3">
 										<svelte:component this={icons.Users} size={16} />
@@ -450,8 +450,8 @@
 									on:click={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/potions'
-										? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-										: 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white'}"
+										? 'bg-primary/10 text-primary'
+										: 'text-base-content/70 hover:bg-base-200 hover:text-base-content'}"
 								>
 									<div class="flex items-center space-x-3">
 										<svelte:component this={icons.Beaker} size={16} />
@@ -466,7 +466,7 @@
 		</div>
 
 		<!-- Main Content Area -->
-		<main class="flex-1 bg-neutral-50 dark:bg-neutral-900">
+		<main class="flex-1 bg-base-100">
 			{@render children()}
 		</main>
 	{:else}
