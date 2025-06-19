@@ -9,6 +9,7 @@
 	import { beforeNavigate } from '$app/navigation';
 	import * as icons from 'lucide-svelte';
 	import DaisyUITest from '$lib/components/DaisyUITest.svelte';
+	import ThemeDebug from '$lib/components/ThemeDebug.svelte';
 
 	let { children } = $props();
 	let mobileMenuOpen = $state(false);
@@ -477,3 +478,4 @@
 
 <!-- Hidden component to force daisyUI classes -->
 <DaisyUITest />
+<ThemeDebug />

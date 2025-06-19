@@ -56,18 +56,18 @@
 
 <div class="bg-neutral-25 min-h-screen">
 	<!-- Hero Header -->
-	<div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+	<div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-primary-content">
 		<div class="container mx-auto px-6 py-8">
 			<div class="max-w-4xl">
 				<div class="mb-4 flex items-center gap-4">
 					<button
 						onclick={goBack}
-						class="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+						class="rounded-lg p-2 text-primary-content/80 transition-colors hover:bg-base-100/10 hover:text-primary-content"
 					>
 						<ArrowLeft class="h-6 w-6" />
 					</button>
 					<div class="flex items-center gap-4">
-						<div class="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+						<div class="rounded-lg bg-base-100/10 p-3 backdrop-blur-sm">
 							<Bot class="h-8 w-8" />
 						</div>
 						<div>
@@ -87,7 +87,7 @@
 					<div class="mt-6 flex items-center gap-4">
 						<button
 							onclick={goBack}
-							class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+							class="rounded-lg border border-white/20 bg-base-100/10 px-4 py-2 text-primary-content backdrop-blur-sm transition-colors hover:bg-base-100/20"
 						>
 							<ArrowLeft class="mr-2 inline h-4 w-4" />
 							View All Journals
@@ -104,15 +104,15 @@
 			<div class="flex items-center justify-center py-20">
 				<div class="flex flex-col items-center gap-4">
 					<div
-						class="h-10 w-10 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
+						class="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent"
 					></div>
-					<p class="font-medium text-neutral-600">Loading your journal session...</p>
+					<p class="font-medium text-base-content/70">Loading your journal session...</p>
 				</div>
 			</div>
 		{:else}
 			<!-- Chat Interface -->
 			<div
-				class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+				class="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
 				style="height: calc(100vh - 200px);"
 			>
 				<JournalChat

@@ -200,14 +200,14 @@
 <!-- Success Message -->
 {#if saveMessage}
 	<div
-		class="fixed top-6 right-6 z-50 max-w-sm rounded-lg border border-green-200 bg-white p-4 shadow-lg"
+		class="fixed top-6 right-6 z-50 max-w-sm rounded-lg border border-success/20 bg-base-100 p-4 shadow-lg"
 	>
 		<div class="flex items-start gap-3">
 			<div class="flex-shrink-0">
-				<CheckCircle class="h-5 w-5 text-green-600" />
+				<CheckCircle class="h-5 w-5 text-success" />
 			</div>
 			<div class="min-w-0 flex-1">
-				<p class="text-sm font-medium text-neutral-900">{saveMessage}</p>
+				<p class="text-sm font-medium text-base-content">{saveMessage}</p>
 			</div>
 		</div>
 	</div>
@@ -215,11 +215,11 @@
 
 <div class="bg-neutral-25 min-h-screen">
 	<!-- Hero Header -->
-	<div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white">
+	<div class="bg-gradient-to-br from-purple-600 to-purple-700 text-primary-content">
 		<div class="container mx-auto px-6 py-12">
 			<div class="max-w-4xl">
 				<div class="mb-4 flex items-center gap-4">
-					<div class="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+					<div class="rounded-lg bg-base-100/10 p-3 backdrop-blur-sm">
 						<BookOpen class="h-8 w-8" />
 					</div>
 					<div>
@@ -230,7 +230,7 @@
 
 				<!-- Hero Stats -->
 				<div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
-					<div class="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+					<div class="rounded-lg bg-base-100/10 p-4 backdrop-blur-sm">
 						<div class="mb-1 flex items-center gap-2">
 							<Bot class="h-4 w-4 text-purple-200" />
 							<span class="text-sm text-purple-200">AI Sessions</span>
@@ -238,7 +238,7 @@
 						<div class="text-2xl font-bold">{aiJournals.length}</div>
 					</div>
 
-					<div class="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+					<div class="rounded-lg bg-base-100/10 p-4 backdrop-blur-sm">
 						<div class="mb-1 flex items-center gap-2">
 							<PenTool class="h-4 w-4 text-purple-200" />
 							<span class="text-sm text-purple-200">Quick Entries</span>
@@ -246,7 +246,7 @@
 						<div class="text-2xl font-bold">{traditionalJournals.length}</div>
 					</div>
 
-					<div class="col-span-2 rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:col-span-1">
+					<div class="col-span-2 rounded-lg bg-base-100/10 p-4 backdrop-blur-sm sm:col-span-1">
 						<div class="mb-1 flex items-center gap-2">
 							<Calendar class="h-4 w-4 text-purple-200" />
 							<span class="text-sm text-purple-200">Total Entries</span>
@@ -258,10 +258,10 @@
 				<!-- Quick Actions -->
 				<div class="mt-8 flex flex-wrap gap-4">
 					<button
-						class="group flex items-center gap-3 rounded-lg bg-white/10 px-6 py-4 backdrop-blur-sm transition-colors hover:bg-white/20"
+						class="group flex items-center gap-3 rounded-lg bg-base-100/10 px-6 py-4 backdrop-blur-sm transition-colors hover:bg-base-100/20"
 						onclick={startAIChat}
 					>
-						<div class="rounded-lg bg-white/10 p-2 transition-colors group-hover:bg-white/20">
+						<div class="rounded-lg bg-base-100/10 p-2 transition-colors group-hover:bg-base-100/20">
 							<Bot class="h-5 w-5" />
 						</div>
 						<div class="text-left">
@@ -271,10 +271,10 @@
 					</button>
 
 					<button
-						class="group flex items-center gap-3 rounded-lg bg-white/10 px-6 py-4 backdrop-blur-sm transition-colors hover:bg-white/20"
+						class="group flex items-center gap-3 rounded-lg bg-base-100/10 px-6 py-4 backdrop-blur-sm transition-colors hover:bg-base-100/20"
 						onclick={openCreateForm}
 					>
-						<div class="rounded-lg bg-white/10 p-2 transition-colors group-hover:bg-white/20">
+						<div class="rounded-lg bg-base-100/10 p-2 transition-colors group-hover:bg-base-100/20">
 							<PenTool class="h-5 w-5" />
 						</div>
 						<div class="text-left">
@@ -288,18 +288,18 @@
 	</div>
 
 	<!-- Controls Section -->
-	<div class="sticky top-0 z-10 border-b border-neutral-200 bg-white">
+	<div class="sticky top-0 z-10 border-b border-base-300 bg-base-100">
 		<div class="container mx-auto px-6 py-4">
 			<div class="flex flex-col items-center gap-4 lg:flex-row">
 				<!-- Search -->
 				<div class="relative flex-1">
 					<Search
-						class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-neutral-400"
+						class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
 					/>
 					<input
 						type="text"
 						placeholder="Search your journal entries..."
-						class="w-full rounded-lg border border-neutral-300 bg-white py-3 pr-4 pl-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+						class="w-full rounded-lg border border-base-300 bg-base-100 py-3 pr-4 pl-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
 						bind:value={searchQuery}
 					/>
 				</div>
@@ -309,7 +309,7 @@
 					<!-- Type Filter -->
 					<div class="relative">
 						<select
-							class="appearance-none rounded-lg border border-neutral-300 bg-white px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="appearance-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 pr-10 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
 							bind:value={filterType}
 						>
 							<option value="all">All Entries</option>
@@ -317,14 +317,14 @@
 							<option value="quick">Quick Entries</option>
 						</select>
 						<Filter
-							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-neutral-400"
+							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
 						/>
 					</div>
 
 					<!-- Reset -->
 					{#if searchQuery || filterType !== 'all'}
 						<button
-							class="rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+							class="rounded-lg px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
 							onclick={resetFilters}
 						>
 							Reset
@@ -333,7 +333,7 @@
 
 					<!-- Create Buttons -->
 					<button
-						class="flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-purple-700 transition-colors hover:bg-purple-100"
+						class="flex items-center gap-2 rounded-lg border border-secondary/20 bg-secondary/5 px-4 py-3 text-secondary transition-colors hover:bg-secondary/10"
 						onclick={startAIChat}
 					>
 						<Bot class="h-4 w-4" />
@@ -357,20 +357,20 @@
 					<div
 						class="h-10 w-10 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"
 					></div>
-					<p class="font-medium text-neutral-600">Loading your journal...</p>
+					<p class="font-medium text-base-content/70">Loading your journal...</p>
 				</div>
 			</div>
 		{:else if filteredJournals.length === 0}
 			<div class="py-20 text-center">
-				<div class="mx-auto max-w-md rounded-xl border border-neutral-200 bg-white p-12 shadow-sm">
+				<div class="mx-auto max-w-md rounded-xl border border-base-300 bg-base-100 p-12 shadow-sm">
 					<div
-						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-purple-100"
+						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-secondary/10"
 					>
-						<BookOpen class="h-10 w-10 text-purple-600" />
+						<BookOpen class="h-10 w-10 text-secondary" />
 					</div>
 					{#if journals.length === 0}
-						<h3 class="mb-3 text-2xl font-bold text-neutral-900">Start Your Journey</h3>
-						<p class="mb-8 leading-relaxed text-neutral-600">
+						<h3 class="mb-3 text-2xl font-bold text-base-content">Start Your Journey</h3>
+						<p class="mb-8 leading-relaxed text-base-content/70">
 							Begin documenting your thoughts, reflections, and growth. Choose your preferred way to
 							start.
 						</p>
@@ -380,7 +380,7 @@
 								AI Guided Session
 							</button>
 							<button
-								class="rounded-lg bg-neutral-100 px-6 py-3 font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
+								class="rounded-lg bg-base-200 px-6 py-3 font-medium text-base-content/80 transition-colors hover:bg-base-300"
 								onclick={openCreateForm}
 							>
 								<PenTool class="mr-2 inline h-5 w-5" />
@@ -388,8 +388,8 @@
 							</button>
 						</div>
 					{:else}
-						<h3 class="mb-3 text-2xl font-bold text-neutral-900">No matching entries</h3>
-						<p class="mb-8 leading-relaxed text-neutral-600">
+						<h3 class="mb-3 text-2xl font-bold text-base-content">No matching entries</h3>
+						<p class="mb-8 leading-relaxed text-base-content/70">
 							Try adjusting your search or filter criteria to find what you're looking for.
 						</p>
 						<button class="btn-primary px-6 py-3 text-lg" onclick={resetFilters}>
@@ -405,7 +405,7 @@
 				{#each filteredJournals as journal (journal.id)}
 					{@const typeInfo = getJournalTypeInfo(journal)}
 					<div
-						class="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+						class="group overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm transition-all duration-200 hover:shadow-md"
 					>
 						<!-- Entry Header -->
 						<div
@@ -417,8 +417,8 @@
 								<div class="flex items-center gap-3">
 									<div
 										class="p-2 {typeInfo.isAI
-											? 'bg-blue-100 text-blue-600'
-											: 'bg-purple-100 text-purple-600'} rounded-lg"
+											? 'bg-primary/10 text-info'
+											: 'bg-secondary/10 text-secondary'} rounded-lg"
 									>
 										{#if typeInfo.isAI}
 											<Bot class="h-5 w-5" />
@@ -427,19 +427,19 @@
 										{/if}
 									</div>
 									<div>
-										<h3 class="text-lg font-semibold text-neutral-900">
+										<h3 class="text-lg font-semibold text-base-content">
 											{formatDate(journal.date)}
 										</h3>
 										<div class="mt-1 flex items-center gap-2">
-											<span class="text-sm text-neutral-600">{getRelativeDate(journal.date)}</span>
+											<span class="text-sm text-base-content/70">{getRelativeDate(journal.date)}</span>
 											{#if typeInfo.isAI}
 												<div
 													class="inline-flex items-center gap-1 px-2 py-1 {typeInfo.status ===
 													'completed'
-														? 'bg-green-100 text-green-700'
+														? 'bg-success/10 text-success'
 														: typeInfo.status === 'in_progress'
-															? 'bg-blue-100 text-blue-700'
-															: 'bg-amber-100 text-amber-700'} rounded text-xs font-medium"
+															? 'bg-primary/10 text-primary'
+															: 'bg-warning/10 text-warning'} rounded text-xs font-medium"
 												>
 													{#if typeInfo.status === 'completed'}
 														<CheckCircle class="h-3 w-3" />
@@ -454,7 +454,7 @@
 												</div>
 											{:else}
 												<div
-													class="inline-flex items-center gap-1 rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
+													class="inline-flex items-center gap-1 rounded bg-secondary/10 px-2 py-1 text-xs font-medium text-secondary"
 												>
 													<PenTool class="h-3 w-3" />
 													Quick Entry
@@ -470,7 +470,7 @@
 								>
 									{#if typeInfo.isAI}
 										<button
-											class="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
+											class="rounded-lg p-2 text-info transition-colors hover:bg-primary/5"
 											onclick={() => continueAIChat(journal.id)}
 											title={typeInfo.status === 'completed' ? 'View session' : 'Continue session'}
 										>
@@ -482,7 +482,7 @@
 										</button>
 									{:else}
 										<button
-											class="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-50"
+											class="rounded-lg p-2 text-base-content/70 transition-colors hover:bg-base-200"
 											onclick={() => openEditForm(journal)}
 											title="Edit entry"
 										>
@@ -490,7 +490,7 @@
 										</button>
 									{/if}
 									<button
-										class="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
+										class="rounded-lg p-2 text-error transition-colors hover:bg-error/10"
 										onclick={() => deleteJournal(journal.id)}
 										title="Delete entry"
 									>
@@ -503,7 +503,7 @@
 						<!-- Entry Content -->
 						<div class="p-6">
 							<div class="prose max-w-none">
-								<p class="leading-relaxed whitespace-pre-wrap text-neutral-700">
+								<p class="leading-relaxed whitespace-pre-wrap text-base-content/80">
 									{truncateContent(journal.content, 300)}
 								</p>
 							</div>
@@ -513,7 +513,7 @@
 									class="mt-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4"
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<Sparkles class="h-4 w-4 text-blue-600" />
+										<Sparkles class="h-4 w-4 text-info" />
 										<span class="text-sm font-medium text-blue-900">AI Summary</span>
 									</div>
 									<p class="text-sm leading-relaxed text-blue-800">
@@ -526,7 +526,7 @@
 							<div class="mt-6 flex gap-3 sm:hidden">
 								{#if typeInfo.isAI}
 									<button
-										class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-blue-700 transition-colors hover:bg-blue-100"
+										class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2 text-primary transition-colors hover:bg-primary/10"
 										onclick={() => continueAIChat(journal.id)}
 									>
 										{#if typeInfo.status === 'completed'}
@@ -539,7 +539,7 @@
 									</button>
 								{:else}
 									<button
-										class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2 text-purple-700 transition-colors hover:bg-purple-100"
+										class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-secondary/20 bg-secondary/5 px-4 py-2 text-secondary transition-colors hover:bg-secondary/10"
 										onclick={() => openEditForm(journal)}
 									>
 										<Edit class="h-4 w-4" />
@@ -547,7 +547,7 @@
 									</button>
 								{/if}
 								<button
-									class="flex items-center justify-center rounded-lg px-4 py-2 text-red-600 transition-colors hover:bg-red-50"
+									class="flex items-center justify-center rounded-lg px-4 py-2 text-error transition-colors hover:bg-error/10"
 									onclick={() => deleteJournal(journal.id)}
 								>
 									<Trash2 class="h-4 w-4" />
@@ -567,24 +567,24 @@
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
 		onclick={closeModal}
 	>
-		<div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl">
+		<div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-lg bg-base-100 shadow-xl">
 			<!-- Modal Header -->
-			<div class="flex items-center justify-between border-b border-neutral-200 p-6">
+			<div class="flex items-center justify-between border-b border-base-300 p-6">
 				<div class="flex items-center gap-3">
-					<div class="rounded-lg bg-purple-100 p-2">
-						<PenTool class="h-5 w-5 text-purple-600" />
+					<div class="rounded-lg bg-secondary/10 p-2">
+						<PenTool class="h-5 w-5 text-secondary" />
 					</div>
 					<div>
-						<h2 class="text-xl font-semibold text-neutral-900">
+						<h2 class="text-xl font-semibold text-base-content">
 							{editingJournal ? 'Edit Journal Entry' : 'New Journal Entry'}
 						</h2>
-						<p class="text-sm text-neutral-600">
+						<p class="text-sm text-base-content/70">
 							{editingJournal ? 'Update your reflection' : 'Capture your thoughts and experiences'}
 						</p>
 					</div>
 				</div>
 				<button
-					class="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600"
+					class="rounded-lg p-2 text-base-content/50 transition-colors hover:bg-base-200 hover:text-base-content/70"
 					onclick={() => (showCreateForm = false)}
 				>
 					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -603,28 +603,28 @@
 				<form onsubmit={handleSubmit} class="space-y-6">
 					<!-- Date Field -->
 					<div class="space-y-2">
-						<label for="journalDate" class="block text-sm font-medium text-neutral-900">
+						<label for="journalDate" class="block text-sm font-medium text-base-content">
 							Date
 						</label>
 						<input
 							id="journalDate"
 							type="date"
-							class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
 							bind:value={formData.date}
 						/>
 					</div>
 
 					<!-- Content Field -->
 					<div class="space-y-2">
-						<label for="journalContent" class="block text-sm font-medium text-neutral-900">
+						<label for="journalContent" class="block text-sm font-medium text-base-content">
 							Your Reflection <span class="text-red-500">*</span>
 						</label>
-						<p class="mb-3 text-sm text-neutral-600">
+						<p class="mb-3 text-sm text-base-content/70">
 							What happened today? How are you feeling? What did you learn?
 						</p>
 						<textarea
 							id="journalContent"
-							class="min-h-[300px] w-full resize-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+							class="min-h-[300px] w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
 							bind:value={formData.content}
 							placeholder="Write about your day, thoughts, feelings, insights, achievements, challenges, or anything on your mind..."
 							required
@@ -632,10 +632,10 @@
 					</div>
 
 					<!-- Form Actions -->
-					<div class="flex items-center justify-end gap-3 border-t border-neutral-200 pt-4">
+					<div class="flex items-center justify-end gap-3 border-t border-base-300 pt-4">
 						<button
 							type="button"
-							class="rounded-lg border border-neutral-300 px-4 py-2 text-neutral-700 transition-colors hover:bg-neutral-50"
+							class="rounded-lg border border-base-300 px-4 py-2 text-base-content/80 transition-colors hover:bg-base-200"
 							onclick={() => (showCreateForm = false)}
 						>
 							Cancel

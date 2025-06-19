@@ -220,36 +220,36 @@
 	<div class="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
-				<div class="rounded-lg bg-blue-100 p-2">
-					<Bot class="h-5 w-5 text-blue-600" />
+				<div class="rounded-lg bg-primary/10 p-2">
+					<Bot class="h-5 w-5 text-info" />
 				</div>
-				<h2 class="text-xl font-semibold text-neutral-900">AI Journal Session</h2>
+				<h2 class="text-xl font-semibold text-base-content">AI Journal Session</h2>
 			</div>
 			<div class="flex items-center gap-2">
 				{#if journalStatus === 'fully_completed'}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700"
+						class="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-sm font-medium text-success"
 					>
 						<CheckCircle class="h-4 w-4" />
 						Completed
 					</div>
 				{:else if journalStatus === 'day_completion'}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700"
+						class="inline-flex items-center gap-1 rounded-full bg-warning/10 px-3 py-1 text-sm font-medium text-warning"
 					>
 						<Bot class="h-4 w-4" />
 						Day Reflection
 					</div>
 				{:else if journalStatus === 'in_progress'}
 					<div
-						class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+						class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
 					>
-						<div class="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
+						<div class="h-2 w-2 animate-pulse rounded-full bg-primary"></div>
 						In Progress ({followupCount}/{maxFollowups} follow-ups)
 					</div>
 				{:else}
 					<div
-						class="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-600"
+						class="inline-flex items-center gap-1 rounded-full bg-base-200 px-3 py-1 text-sm font-medium text-base-content/70"
 					>
 						<Bot class="h-4 w-4" />
 						New Session
@@ -260,16 +260,16 @@
 	</div>
 
 	<!-- Chat Messages -->
-	<div class="flex-1 space-y-6 overflow-y-auto bg-white p-6">
+	<div class="flex-1 space-y-6 overflow-y-auto bg-base-100 p-6">
 		{#if messages.length === 0 && journalStatus === 'new'}
 			<div class="py-12 text-center">
 				<div
-					class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100"
+					class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"
 				>
-					<Bot class="h-10 w-10 text-blue-600" />
+					<Bot class="h-10 w-10 text-info" />
 				</div>
-				<h3 class="mb-3 text-2xl font-bold text-neutral-900">Start Your Journal Session</h3>
-				<p class="mx-auto max-w-md leading-relaxed text-neutral-600">
+				<h3 class="mb-3 text-2xl font-bold text-base-content">Start Your Journal Session</h3>
+				<p class="mx-auto max-w-md leading-relaxed text-base-content/70">
 					Share what's on your mind, and I'll help you explore your thoughts with thoughtful
 					questions and insights.
 				</p>
@@ -282,13 +282,13 @@
 				<div class="flex-shrink-0">
 					<div
 						class="h-10 w-10 rounded-full {message.role === 'user'
-							? 'bg-purple-100'
-							: 'bg-blue-100'} flex items-center justify-center"
+							? 'bg-secondary/10'
+							: 'bg-primary/10'} flex items-center justify-center"
 					>
 						{#if message.role === 'user'}
-							<User class="h-5 w-5 text-purple-600" />
+							<User class="h-5 w-5 text-secondary" />
 						{:else}
-							<Bot class="h-5 w-5 text-blue-600" />
+							<Bot class="h-5 w-5 text-info" />
 						{/if}
 					</div>
 				</div>
@@ -300,17 +300,17 @@
 							? 'justify-end'
 							: 'justify-start'}"
 					>
-						<span class="text-sm font-medium text-neutral-900">
+						<span class="text-sm font-medium text-base-content">
 							{message.role === 'user' ? 'You' : 'AI Assistant'}
 						</span>
-						<time class="text-xs text-neutral-500">
+						<time class="text-xs text-base-content/60">
 							{formatTimestamp(message.timestamp)}
 						</time>
 					</div>
 					<div
 						class="rounded-lg p-4 {message.role === 'user'
-							? 'ml-8 bg-purple-600 text-white'
-							: 'mr-8 bg-neutral-50 text-neutral-900'} shadow-sm"
+							? 'ml-8 bg-secondary text-primary-content'
+							: 'mr-8 bg-base-200 text-base-content'} shadow-sm"
 					>
 						{#if message.content.includes('**Journal Summary:**')}
 							<div class="prose max-w-none {message.role === 'user' ? 'prose-invert' : ''}">
@@ -332,30 +332,30 @@
 			<div class="flex gap-4">
 				<!-- Avatar -->
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-						<Loader2 class="h-5 w-5 animate-spin text-blue-600" />
+					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+						<Loader2 class="h-5 w-5 animate-spin text-info" />
 					</div>
 				</div>
 
 				<!-- Message Content -->
 				<div class="max-w-3xl flex-1">
 					<div class="mb-2 flex items-center gap-2">
-						<span class="text-sm font-medium text-neutral-900">AI Assistant</span>
+						<span class="text-sm font-medium text-base-content">AI Assistant</span>
 					</div>
-					<div class="mr-8 rounded-lg bg-neutral-50 p-4 text-neutral-900 shadow-sm">
+					<div class="mr-8 rounded-lg bg-base-200 p-4 text-base-content shadow-sm">
 						<div class="flex items-center gap-3">
 							<div class="flex gap-1">
-								<div class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
+								<div class="h-2 w-2 animate-bounce rounded-full bg-primary"></div>
 								<div
-									class="h-2 w-2 animate-bounce rounded-full bg-blue-500"
+									class="h-2 w-2 animate-bounce rounded-full bg-primary"
 									style="animation-delay: 0.1s"
 								></div>
 								<div
-									class="h-2 w-2 animate-bounce rounded-full bg-blue-500"
+									class="h-2 w-2 animate-bounce rounded-full bg-primary"
 									style="animation-delay: 0.2s"
 								></div>
 							</div>
-							<span class="text-neutral-600">Thinking...</span>
+							<span class="text-base-content/70">Thinking...</span>
 						</div>
 					</div>
 				</div>
@@ -369,12 +369,12 @@
 			<div class="mx-auto max-w-3xl space-y-6">
 				<div class="text-center">
 					<div
-						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100"
+						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning/10"
 					>
-						<Sparkles class="h-8 w-8 text-amber-600" />
+						<Sparkles class="h-8 w-8 text-warning" />
 					</div>
-					<h3 class="mb-2 text-xl font-semibold text-neutral-900">Day Reflection</h3>
-					<p class="text-neutral-600">
+					<h3 class="mb-2 text-xl font-semibold text-base-content">Day Reflection</h3>
+					<p class="text-base-content/70">
 						Before we finish, let's capture a few more details about your day.
 					</p>
 				</div>
@@ -382,28 +382,28 @@
 				<div class="space-y-6">
 					<!-- Day Memory -->
 					<div class="space-y-3">
-						<label for="day-memory" class="block text-sm font-medium text-neutral-900">
+						<label for="day-memory" class="block text-sm font-medium text-base-content">
 							Is there anything you want to remember from today?
-							<span class="ml-1 font-normal text-neutral-500">(Optional)</span>
+							<span class="ml-1 font-normal text-base-content/60">(Optional)</span>
 						</label>
 						<textarea
 							id="day-memory"
 							bind:value={dayMemory}
 							placeholder="Something special, a moment of gratitude, or just something you don't want to forget..."
-							class="w-full resize-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
+							class="w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
 							rows="4"
 							disabled={isLoading}
 						></textarea>
-						<p class="text-xs text-neutral-500">
+						<p class="text-xs text-base-content/60">
 							This won't be analyzed or used for tagging - it's just for you.
 						</p>
 					</div>
 
 					<!-- Day Rating -->
 					<div class="space-y-3">
-						<label class="block text-sm font-medium text-neutral-900">
+						<label class="block text-sm font-medium text-base-content">
 							How would you rate your day overall? (1-5)
-							<span class="ml-1 font-normal text-neutral-500">(Optional)</span>
+							<span class="ml-1 font-normal text-base-content/60">(Optional)</span>
 						</label>
 						<div class="flex items-center gap-3">
 							{#each [1, 2, 3, 4, 5] as rating}
@@ -411,8 +411,8 @@
 									onclick={() => (dayRating = rating)}
 									class="h-12 w-12 rounded-lg border-2 font-semibold transition-all duration-200 {dayRating ===
 									rating
-										? 'scale-105 border-amber-500 bg-amber-500 text-white shadow-lg'
-										: 'border-neutral-300 bg-white text-neutral-700 hover:border-amber-300 hover:bg-amber-50'}"
+										? 'scale-105 border-amber-500 bg-warning text-primary-content shadow-lg'
+										: 'border-base-300 bg-base-100 text-base-content/80 hover:border-amber-300 hover:bg-warning/10'}"
 									disabled={isLoading}
 									aria-label="Rate day as {rating}"
 								>
@@ -422,7 +422,7 @@
 							{#if dayRating !== null}
 								<button
 									onclick={() => (dayRating = null)}
-									class="rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+									class="rounded-lg px-3 py-2 text-sm text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
 									disabled={isLoading}
 									aria-label="Clear rating"
 								>
@@ -430,11 +430,11 @@
 								</button>
 							{/if}
 						</div>
-						<p class="text-xs text-neutral-500">Consider your energy, mood, and productivity</p>
+						<p class="text-xs text-base-content/60">Consider your energy, mood, and productivity</p>
 					</div>
 
 					<!-- Completion buttons -->
-					<div class="flex justify-end border-t border-amber-200 pt-4">
+					<div class="flex justify-end border-t border-warning/20 pt-4">
 						<button
 							onclick={completeDayReflection}
 							disabled={isLoading}
@@ -453,7 +453,7 @@
 			</div>
 		</div>
 	{:else if journalStatus !== 'fully_completed'}
-		<div class="border-t border-neutral-200 bg-neutral-50 p-6">
+		<div class="border-t border-base-300 bg-base-200 p-6">
 			<div class="mx-auto max-w-3xl">
 				<div class="flex gap-4">
 					<div class="flex-1">
@@ -463,7 +463,7 @@
 							placeholder={journalStatus === 'new'
 								? "What's on your mind today? Share your thoughts, feelings, or experiences..."
 								: 'Share your response to continue the conversation...'}
-							class="w-full resize-none rounded-lg border border-neutral-300 bg-white px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							class="w-full resize-none rounded-lg border border-base-300 bg-base-100 px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							rows="4"
 							disabled={isLoading}
 						></textarea>
@@ -499,7 +499,7 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
+									class="flex items-center gap-2 rounded-lg bg-success px-4 py-2 font-medium text-primary-content transition-colors hover:bg-success/90"
 								>
 									{#if isLoading}
 										<Loader2 class="h-4 w-4 animate-spin" />
@@ -512,7 +512,7 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="rounded-lg px-4 py-2 font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+									class="rounded-lg px-4 py-2 font-medium text-base-content/70 transition-colors hover:bg-base-200 hover:text-base-content"
 								>
 									Finish Early
 								</button>
@@ -522,10 +522,10 @@
 				</div>
 
 				{#if journalStatus === 'in_progress'}
-					<div class="mt-4 flex items-center justify-between text-sm text-neutral-600">
+					<div class="mt-4 flex items-center justify-between text-sm text-base-content/70">
 						<span>Press Enter to send, Shift+Enter for new line</span>
 						{#if followupCount < maxFollowups}
-							<span class="font-medium text-blue-600">
+							<span class="font-medium text-info">
 								{maxFollowups - followupCount} follow-up question{maxFollowups - followupCount !== 1
 									? 's'
 									: ''} remaining

@@ -117,8 +117,8 @@
 <div class="mx-auto max-w-6xl px-6 py-8">
 	<!-- Header -->
 	<div class="mb-8">
-		<h1 class="mb-2 text-2xl font-bold text-neutral-900">Settings</h1>
-		<p class="text-neutral-600">Customize your LifeQuest experience</p>
+		<h1 class="mb-2 text-2xl font-bold text-base-content">Settings</h1>
+		<p class="text-base-content/70">Customize your LifeQuest experience</p>
 	</div>
 
 	{#if saveMessage}
@@ -282,16 +282,16 @@
 						{/each}
 					</div>
 
-					<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+					<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.Info}
 								size={16}
-								class="mt-0.5 flex-shrink-0 text-blue-600"
+								class="mt-0.5 flex-shrink-0 text-info"
 							/>
 							<div>
 								<p class="text-sm font-medium text-blue-900">About themes</p>
-								<p class="mt-1 text-sm text-blue-700">
+								<p class="mt-1 text-sm text-primary">
 									Auto theme will switch between light and dark modes based on your system
 									preference. You can always override this setting manually.
 								</p>
@@ -303,8 +303,8 @@
 				<!-- Location Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-neutral-900">Location Context</h3>
-						<p class="mb-4 text-sm text-neutral-600">
+						<h3 class="mb-2 text-lg font-semibold text-base-content">Location Context</h3>
+						<p class="mb-4 text-sm text-base-content/70">
 							Help us generate more relevant tasks based on your location and local weather
 						</p>
 					</div>
@@ -313,7 +313,7 @@
 						<div>
 							<label
 								for="locationDescription"
-								class="mb-2 block text-sm font-medium text-neutral-900"
+								class="mb-2 block text-sm font-medium text-base-content"
 							>
 								Location Description
 							</label>
@@ -321,44 +321,44 @@
 								id="locationDescription"
 								type="text"
 								placeholder="e.g., Seattle area, NYC, San Francisco"
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.locationDescription}
 								on:blur={() =>
 									savePreference('locationDescription', preferences.locationDescription || '')}
 							/>
-							<p class="mt-1 text-xs text-neutral-500">
+							<p class="mt-1 text-xs text-base-content/60">
 								A general description of your area for context
 							</p>
 						</div>
 
 						<div>
-							<label for="zipCode" class="mb-2 block text-sm font-medium text-neutral-900">
+							<label for="zipCode" class="mb-2 block text-sm font-medium text-base-content">
 								Zip Code
 							</label>
 							<input
 								id="zipCode"
 								type="text"
 								placeholder="e.g., 98101"
-								class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.zipCode}
 								on:blur={() => savePreference('zipCode', preferences.zipCode || '')}
 							/>
-							<p class="mt-1 text-xs text-neutral-500">
+							<p class="mt-1 text-xs text-base-content/60">
 								For weather-based task suggestions (optional)
 							</p>
 						</div>
 					</div>
 
-					<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+					<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
 						<div class="flex items-start space-x-3">
 							<svelte:component
 								this={icons.Info}
 								size={16}
-								class="mt-0.5 flex-shrink-0 text-blue-600"
+								class="mt-0.5 flex-shrink-0 text-info"
 							/>
 							<div>
 								<p class="text-sm font-medium text-blue-900">How we use your location</p>
-								<p class="mt-1 text-sm text-blue-700">
+								<p class="mt-1 text-sm text-primary">
 									Your location helps us suggest outdoor activities on nice days, indoor activities
 									during bad weather, and consider weekend vs. weekday schedules. Your data is kept
 									private and secure.
@@ -371,8 +371,8 @@
 				<!-- Profile Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-neutral-900">Personal Attributes</h3>
-						<p class="mb-4 text-sm text-neutral-600">
+						<h3 class="mb-2 text-lg font-semibold text-base-content">Personal Attributes</h3>
+						<p class="mb-4 text-sm text-base-content/70">
 							Define your values, interests, skills, and other personal attributes
 						</p>
 					</div>
@@ -386,9 +386,9 @@
 						/>
 					{:else}
 						<div class="flex justify-center py-8">
-							<div class="flex items-center space-x-3 text-neutral-500">
+							<div class="flex items-center space-x-3 text-base-content/60">
 								<div
-									class="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+									class="h-5 w-5 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
 								></div>
 								<span class="text-sm">Loading profile...</span>
 							</div>
@@ -399,8 +399,8 @@
 				<!-- Character Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="mb-2 text-lg font-semibold text-neutral-900">Character Class</h3>
-						<p class="mb-4 text-sm text-neutral-600">
+						<h3 class="mb-2 text-lg font-semibold text-base-content">Character Class</h3>
+						<p class="mb-4 text-sm text-base-content/70">
 							Define your RPG-style character class and backstory
 						</p>
 					</div>
@@ -409,13 +409,13 @@
 						<div class="space-y-6">
 							<!-- Class Selection -->
 							<div>
-								<label for="characterClass" class="mb-2 block text-sm font-medium text-neutral-900">
+								<label for="characterClass" class="mb-2 block text-sm font-medium text-base-content">
 									Character Class
 								</label>
 								<select
 									id="characterClass"
 									bind:value={memberClassName}
-									class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									class="w-full rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								>
 									<option value="">No class selected</option>
 									<optgroup label="Warriors & Protectors">
@@ -456,7 +456,7 @@
 								<div>
 									<label
 										for="classDescription"
-										class="mb-2 block text-sm font-medium text-neutral-900"
+										class="mb-2 block text-sm font-medium text-base-content"
 									>
 										Character Backstory
 									</label>
@@ -465,25 +465,25 @@
 										bind:value={memberClassDescription}
 										placeholder="Describe your character's background, personality, approach to life, or any other details that make them unique..."
 										rows="4"
-										class="w-full resize-none rounded-lg border border-neutral-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+										class="w-full resize-none rounded-lg border border-base-300 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 									></textarea>
-									<p class="mt-1 text-xs text-neutral-500">
+									<p class="mt-1 text-xs text-base-content/60">
 										Tell your character's story - their motivations, quirks, values, or what drives
 										them
 									</p>
 								</div>
 
 								{#if memberClassDescription}
-									<div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+									<div class="rounded-lg border border-base-300 bg-base-200 p-4">
 										<div class="flex items-start space-x-3">
 											<div
-												class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100"
+												class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10"
 											>
-												<svelte:component this={icons.Shield} size={16} class="text-purple-600" />
+												<svelte:component this={icons.Shield} size={16} class="text-secondary" />
 											</div>
 											<div class="flex-1">
-												<h5 class="mb-1 text-sm font-medium text-neutral-900">{memberClassName}</h5>
-												<p class="text-sm text-neutral-700 italic">"{memberClassDescription}"</p>
+												<h5 class="mb-1 text-sm font-medium text-base-content">{memberClassName}</h5>
+												<p class="text-sm text-base-content/80 italic">"{memberClassDescription}"</p>
 											</div>
 										</div>
 									</div>
@@ -491,10 +491,10 @@
 							{/if}
 
 							<!-- Save Button -->
-							<div class="flex justify-end border-t border-neutral-200 pt-4">
+							<div class="flex justify-end border-t border-base-300 pt-4">
 								<button
 									on:click={handleClassUpdate}
-									class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+									class="rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
 								>
 									Save Character
 								</button>
@@ -502,9 +502,9 @@
 						</div>
 					{:else}
 						<div class="flex justify-center py-8">
-							<div class="flex items-center space-x-3 text-neutral-500">
+							<div class="flex items-center space-x-3 text-base-content/60">
 								<div
-									class="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600"
+									class="h-5 w-5 animate-spin rounded-full border-2 border-base-300 border-t-blue-600"
 								></div>
 								<span class="text-sm">Loading character...</span>
 							</div>
