@@ -629,13 +629,15 @@
 									</div>
 								</div>
 							</div>
-							<a
-								href="/journals/chat"
-								class="flex items-center gap-2 rounded-lg border-2 border-green-300 bg-white px-6 py-3 font-semibold text-green-700 transition-colors hover:bg-green-50"
-							>
-								<svelte:component this={icons.Plus} class="h-4 w-4" />
-								Set New Goals
-							</a>
+							<div class="text-center">
+								<a
+									href="/journals/chat"
+									class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
+								>
+									<svelte:component this={icons.MessageCircle} class="h-4 w-4" />
+									Write New Entry
+								</a>
+							</div>
 						</div>
 
 						<div class="p-6">
