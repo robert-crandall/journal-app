@@ -44,7 +44,7 @@
 	function openEditForm(member: any) {
 		memberName = member.name;
 		memberClassName = member.className || '';
-		memberClassDescription = member.classDescription || '';
+		memberClassDescription = member.description || '';
 		editingMember = member;
 		showCreateForm = true;
 	}
@@ -55,7 +55,7 @@
 			const memberData = {
 				name: memberName,
 				className: memberClassName || undefined,
-				classDescription: memberClassDescription || undefined
+				description: memberClassDescription || undefined
 			};
 
 			if (editingMember) {
@@ -92,9 +92,9 @@
 		}
 	}
 
-	function handleClassUpdate(className: string, classDescription: string) {
+	function handleClassUpdate(className: string, description: string) {
 		memberClassName = className;
-		memberClassDescription = classDescription;
+		memberClassDescription = description;
 	}
 
 	function closeCreateForm() {
@@ -335,13 +335,13 @@
 
 							<div>
 								<label
-									for="classDescription"
+									for="description"
 									class="text-base-content/80 mb-2 block text-sm font-medium"
 								>
 									Personal story
 								</label>
 								<textarea
-									id="classDescription"
+									id="description"
 									bind:value={memberClassDescription}
 									on:input={() => handleClassUpdate(memberClassName, memberClassDescription)}
 									placeholder="What makes them special? What are their quirks, interests, or memorable traits?"
@@ -525,9 +525,9 @@
 										</div>
 										<span class="text-secondary text-sm font-medium">{member.className}</span>
 									</div>
-									{#if member.classDescription}
+									{#if member.description}
 										<p class="text-base-content/70 pl-8 text-xs italic">
-											"{member.classDescription}"
+											"{member.description}"
 										</p>
 									{/if}
 								{/if}
