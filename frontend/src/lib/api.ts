@@ -197,6 +197,10 @@ export const journalsApi = {
 		return apiRequest('/journals');
 	},
 
+	async getById(id: string) {
+		return apiRequest(`/journals/${id}`);
+	},
+
 	async create(journal: { content: string; date?: string }) {
 		return apiRequest('/journals', {
 			method: 'POST',
