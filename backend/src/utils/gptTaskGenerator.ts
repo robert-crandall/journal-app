@@ -236,13 +236,13 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
     "title": "Short, actionable title (max 60 chars)",
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1", "stat_id2"],
-    "family": "Family Name" // optional, only if task involves family
+    "familyName": "Family Name" // optional, only if task involves family
   },
   "connectionTask": {
     "title": "Short, actionable title (max 60 chars)", 
     "description": "Detailed guidance and context (2-3 sentences)",
     "linkedStatIds": ["stat_id1"],
-    "family": "Family Name" // optional, only if task involves family
+    "familyName": "Family Name" // optional, only if task involves family
   }
 }\n`;
 
@@ -451,7 +451,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       {
         userId: user.id,
         focusId: generatedTasks.primaryTask.focusId,
-        statId: generatedTasks.primaryTask.statId,
+        statId: undefined, // statId will be set below if linkedStatIds is provided
         title: generatedTasks.primaryTask.title,
         description: generatedTasks.primaryTask.description,
         taskDate: today,
@@ -465,7 +465,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
       {
         userId: user.id,
         focusId: generatedTasks.connectionTask.focusId,
-        statId: generatedTasks.connectionTask.statId,
+        statId: undefined, // statId will be set below if linkedStatIds is provided
         title: generatedTasks.connectionTask.title,
         description: generatedTasks.connectionTask.description,
         taskDate: today,
@@ -486,7 +486,7 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
           task.familyId = familyMember.id;
         }
       }
-      delete task.familyName; // Remove familyName as we now have familyId
+      delete task.familyName;
     }
     
     await db.insert(tasks).values(tasksToInsert);
