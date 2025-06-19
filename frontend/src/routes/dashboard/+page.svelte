@@ -26,9 +26,6 @@
 	let userData: any = null;
 	let loading = true;
 	let showTaskFeedback = '';
-	let showJournalModal = false;
-	let journalContent = '';
-	let journalMood = '';
 	let taskFeedbackData = {
 		feedback: '',
 		emotionTag: '',
@@ -202,7 +199,6 @@
 			// Reset form and close modal
 			journalContent = '';
 			journalMood = '';
-			showJournalModal = false;
 
 			// Refresh journals
 			const journalsData = await journalsApi.getAll();
@@ -227,10 +223,7 @@
 	function closeModal(event: MouseEvent) {
 		if (event.target === event.currentTarget) {
 			showTaskFeedback = '';
-			showJournalModal = false;
 			taskFeedbackData = { feedback: '', emotionTag: '', moodScore: 0 };
-			journalContent = '';
-			journalMood = '';
 		}
 	}
 </script>
@@ -419,22 +412,6 @@
 					<p class="mb-6 text-green-700">
 						You've conquered today's most important tasks. What's next?
 					</p>
-					<div class="flex justify-center gap-4">
-						<button
-							onclick={() => (showJournalModal = true)}
-							class="flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
-						>
-							<svelte:component this={icons.Edit3} class="h-4 w-4" />
-							Reflect & Journal
-						</button>
-						<a
-							href="/tasks"
-							class="flex items-center gap-2 rounded-lg border-2 border-green-300 bg-white px-6 py-3 font-semibold text-green-700 transition-colors hover:bg-green-50"
-						>
-							<svelte:component this={icons.Plus} class="h-4 w-4" />
-							Set New Goals
-						</a>
-					</div>
 				</section>
 			{/if}
 
@@ -652,13 +629,13 @@
 									</div>
 								</div>
 							</div>
-							<button
-								onclick={() => (showJournalModal = true)}
-								class="flex w-full items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-amber-700"
+							<a
+								href="/journals/chat"
+								class="flex items-center gap-2 rounded-lg border-2 border-green-300 bg-white px-6 py-3 font-semibold text-green-700 transition-colors hover:bg-green-50"
 							>
-								<svelte:component this={icons.Edit3} class="h-4 w-4" />
-								Write New Entry
-							</button>
+								<svelte:component this={icons.Plus} class="h-4 w-4" />
+								Set New Goals
+							</a>
 						</div>
 
 						<div class="p-6">
@@ -851,85 +828,6 @@
 		</main>
 	{/if}
 </div>
-<!-- Journal Entry Modal -->
-{#if showJournalModal}
-	<div
-		class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
-		onclick={closeModal}
-	>
-		<div class="w-full max-w-lg rounded-xl bg-white shadow-xl">
-			<div
-				class="rounded-t-xl border-b border-neutral-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6"
-			>
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-3">
-						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
-							<svelte:component this={icons.Edit3} class="h-5 w-5 text-amber-600" />
-						</div>
-						<h3 class="text-xl font-bold text-neutral-900">New Journal Entry</h3>
-					</div>
-					<button
-						onclick={() => (showJournalModal = false)}
-						class="p-1 text-neutral-400 transition-colors hover:text-neutral-600"
-					>
-						<svelte:component this={icons.X} class="h-6 w-6" />
-					</button>
-				</div>
-			</div>
-
-			<div class="space-y-6 p-6">
-				<div>
-					<label class="mb-3 block text-sm font-semibold text-neutral-800">
-						What's on your mind today?
-					</label>
-					<textarea
-						bind:value={journalContent}
-						placeholder="Share your thoughts, reflections, or experiences..."
-						class="min-h-40 w-full resize-y rounded-lg border border-neutral-300 p-4 text-sm leading-relaxed transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none"
-					></textarea>
-				</div>
-
-				<div>
-					<label class="mb-3 block text-sm font-semibold text-neutral-800">
-						How are you feeling? <span class="text-sm font-normal text-neutral-500">(optional)</span
-						>
-					</label>
-					<select
-						bind:value={journalMood}
-						class="w-full rounded-lg border border-neutral-300 p-3 text-sm transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none"
-					>
-						<option value="">Select your mood</option>
-						<option value="happy">😊 Happy</option>
-						<option value="grateful">🙏 Grateful</option>
-						<option value="excited">🤗 Excited</option>
-						<option value="calm">😌 Calm</option>
-						<option value="reflective">🤔 Reflective</option>
-						<option value="anxious">😰 Anxious</option>
-						<option value="frustrated">😤 Frustrated</option>
-						<option value="tired">😴 Tired</option>
-					</select>
-				</div>
-
-				<div class="flex justify-end gap-3 border-t border-neutral-200 pt-4">
-					<button
-						onclick={() => (showJournalModal = false)}
-						class="rounded-lg border border-neutral-300 px-6 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-					>
-						Cancel
-					</button>
-					<button
-						onclick={createJournal}
-						disabled={!journalContent.trim()}
-						class="flex items-center gap-2 rounded-lg bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
-					>
-						<svelte:component this={icons.Save} class="h-4 w-4" />
-						Save Entry
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
 
 <!-- Task Feedback Modal -->
 {#if showTaskFeedback}
