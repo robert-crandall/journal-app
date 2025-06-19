@@ -12,6 +12,7 @@
 
 	// Form data
 	let memberName = '';
+	let memberAge: number | null = null;
 	let memberClassName = '';
 	let memberClassDescription = '';
 	let openDropdownId: string | null = null;
@@ -35,6 +36,7 @@
 
 	function openCreateForm() {
 		memberName = '';
+		memberAge = null;
 		memberClassName = '';
 		memberClassDescription = '';
 		editingMember = null;
@@ -43,6 +45,7 @@
 
 	function openEditForm(member: any) {
 		memberName = member.name;
+		memberAge = member.age || null;
 		memberClassName = member.className || '';
 		memberClassDescription = member.description || '';
 		editingMember = member;
@@ -54,6 +57,7 @@
 		try {
 			const memberData = {
 				name: memberName,
+				age: memberAge || undefined,
 				className: memberClassName || undefined,
 				description: memberClassDescription || undefined
 			};
@@ -193,6 +197,21 @@
 								bind:value={memberName}
 								placeholder="Enter family member's name"
 								required
+								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+							/>
+						</div>
+
+						<div>
+							<label for="memberAge" class="text-base-content mb-2 block text-sm font-medium">
+								Age
+							</label>
+							<input
+								id="memberAge"
+								type="number"
+								bind:value={memberAge}
+								placeholder="Enter age (optional)"
+								min="0"
+								max="150"
 								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
