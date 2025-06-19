@@ -38,6 +38,22 @@ export interface GeneratedTaskSet {
   connectionTask: GeneratedTask;
 }
 
+interface InsertableTask {
+  userId: string;
+  focusId?: string;
+  statId?: string;
+  title: string;
+  description: string;
+  taskDate: string;
+  source: 'primary' | 'connection';
+  linkedStatIds: string[];
+  familyId?: string;
+  familyName?: string;
+  origin: 'gpt';
+  status: 'pending';
+};
+
+
 /**
  * Generate daily tasks using OpenAI GPT
  * Creates personalized tasks based on user context and feedback
@@ -434,20 +450,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
     
     const generatedTasks = await generateDailyTasks(context);
     // Save generated tasks to database
-    const tasksToInsert: Array<{
-      userId: string;
-      focusId?: string;
-      statId?: string;
-      title: string;
-      description: string;
-      taskDate: string;
-      source: 'primary' | 'connection';
-      linkedStatIds: string[];
-      familyId?: string;
-      familyName?: string;
-      origin: 'gpt';
-      status: 'pending';
-    }> = [
+
+    const tasksToInsert: InsertableTask[] = [
       {
         userId: user.id,
         focusId: generatedTasks.primaryTask.focusId,
