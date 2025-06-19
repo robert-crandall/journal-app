@@ -126,7 +126,7 @@
 		</div>
 	{:else if $auth.user && !isAuthPage && !isHomePage}
 		<!-- Atlassian-style Navigation -->
-		<div class="border-base-300 bg-base-100 sticky top-0 z-40 border-b" on:click={closeDropdowns}>
+		<div class="border-base-300 bg-base-100 sticky top-0 z-40 border-b" onclick={closeDropdowns}>
 			<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="flex h-16 items-center justify-between">
 					<!-- Left side: Brand + Main Navigation -->
@@ -208,7 +208,7 @@
 							<!-- More Tools Dropdown -->
 							<div class="relative">
 								<button
-									on:click|stopPropagation={toggleMoreDropdown}
+									onclick={(e) => { e.stopPropagation(); toggleMoreDropdown(); }}
 									class="text-base-content/70 hover:bg-base-200 hover:text-base-content flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
 								>
 									<span>More</span>
@@ -217,11 +217,11 @@
 								{#if moreDropdownOpen}
 									<div
 										class="border-base-300 bg-base-100 absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border py-1 shadow-lg"
-										on:click|stopPropagation
+										onclick={(e) => e.stopPropagation()}
 									>
 										<a
 											href="/focuses"
-											on:click={closeDropdowns}
+											onclick={closeDropdowns}
 											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/focuses'
 												? 'bg-primary/10 text-primary'
@@ -234,7 +234,7 @@
 										</a>
 										<a
 											href="/family"
-											on:click={closeDropdowns}
+											onclick={closeDropdowns}
 											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/family'
 												? 'bg-primary/10 text-primary'
@@ -247,7 +247,7 @@
 										</a>
 										<a
 											href="/potions"
-											on:click={closeDropdowns}
+											onclick={closeDropdowns}
 											class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors {$page
 												.route.id === '/potions'
 												? 'bg-primary/10 text-primary'
@@ -269,7 +269,7 @@
 						<!-- User Menu -->
 						<div class="relative">
 							<button
-								on:click|stopPropagation={toggleUserDropdown}
+								onclick={(e) => { e.stopPropagation(); toggleUserDropdown(); }}
 								class="hover:bg-base-200 flex items-center space-x-2 rounded-lg p-2 transition-colors"
 							>
 								<div
@@ -287,11 +287,11 @@
 							{#if userDropdownOpen}
 								<div
 									class="border-base-300 bg-base-100 absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border py-1 shadow-lg"
-									on:click|stopPropagation
+									onclick={e => e.stopPropagation()}
 								>
 									<a
 										href="/settings"
-										on:click={closeDropdowns}
+										onclick={closeDropdowns}
 										class="text-base-content/70 hover:bg-base-200 block px-3 py-2 text-sm transition-colors"
 									>
 										<div class="flex items-center space-x-2">
@@ -301,7 +301,7 @@
 									</a>
 									<div class="border-base-300 my-1 border-t"></div>
 									<button
-										on:click={() => {
+										onclick={() => {
 											handleLogout();
 											closeDropdowns();
 										}}
@@ -318,7 +318,7 @@
 
 						<!-- Mobile Menu Toggle -->
 						<button
-							on:click={toggleMobileMenu}
+							onclick={toggleMobileMenu}
 							class="hover:bg-base-200 rounded-lg p-2 transition-colors md:hidden"
 							aria-label="Toggle navigation menu"
 						>
@@ -337,7 +337,7 @@
 						<div class="space-y-1">
 							<a
 								href="/dashboard"
-								on:click={closeMobileMenu}
+								onclick={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/dashboard'
 									? 'bg-primary/10 text-primary'
@@ -350,7 +350,7 @@
 							</a>
 							<a
 								href="/tasks"
-								on:click={closeMobileMenu}
+								onclick={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/tasks'
 									? 'bg-primary/10 text-primary'
@@ -363,7 +363,7 @@
 							</a>
 							<a
 								href="/adhoc-tasks"
-								on:click={closeMobileMenu}
+								onclick={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/adhoc-tasks'
 									? 'bg-primary/10 text-primary'
@@ -376,7 +376,7 @@
 							</a>
 							<a
 								href="/journals"
-								on:click={closeMobileMenu}
+								onclick={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/journals'
 									? 'bg-primary/10 text-primary'
@@ -389,7 +389,7 @@
 							</a>
 							<a
 								href="/stats"
-								on:click={closeMobileMenu}
+								onclick={closeMobileMenu}
 								class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page.route
 									.id === '/stats'
 									? 'bg-primary/10 text-primary'
@@ -410,7 +410,7 @@
 								</div>
 								<a
 									href="/focuses"
-									on:click={closeMobileMenu}
+									onclick={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/focuses'
 										? 'bg-primary/10 text-primary'
@@ -423,7 +423,7 @@
 								</a>
 								<a
 									href="/family"
-									on:click={closeMobileMenu}
+									onclick={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/family'
 										? 'bg-primary/10 text-primary'
@@ -436,7 +436,7 @@
 								</a>
 								<a
 									href="/potions"
-									on:click={closeMobileMenu}
+									onclick={closeMobileMenu}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors {$page
 										.route.id === '/potions'
 										? 'bg-primary/10 text-primary'

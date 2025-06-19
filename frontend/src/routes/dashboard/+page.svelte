@@ -606,7 +606,6 @@
 									</div>
 									<div>
 										<h2 class="text-base-content text-xl font-bold">Journal</h2>
-										<p class="text-base-content/50 text-sm">Your recent thoughts</p>
 									</div>
 								</div>
 							</div>
@@ -639,8 +638,9 @@
 							{:else}
 								<div class="space-y-4">
 									{#each recentJournals as journal}
-										<div
-											class="border-base-300 hover:border-warning/30 rounded-lg border p-4 transition-all hover:shadow-sm"
+										<a
+											href="/journals/{journal.id}"
+											class="block border-base-300 hover:border-warning/30 rounded-lg border p-4 transition-all hover:shadow-sm cursor-pointer"
 										>
 											<p class="text-base-content mb-3 text-sm leading-relaxed">
 												{journal.content.length > 100
@@ -664,7 +664,7 @@
 													</span>
 												{/if}
 											</div>
-										</div>
+										</a>
 									{/each}
 									<div class="pt-2 text-center">
 										<a

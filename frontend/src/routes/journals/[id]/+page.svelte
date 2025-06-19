@@ -190,7 +190,20 @@
 						<div class="prose max-w-none">
 							<h3 class="text-base-content mb-4 text-lg font-semibold">Journal Entry</h3>
 							<div class="text-base-content/90 whitespace-pre-wrap leading-relaxed">
-								{journal.content}
+								{#if journal.conversationHistory}
+									{#each journal.conversationHistory as msg}
+										<div class="mb-4">
+											{#if msg.role === 'user'}
+												<div class="font-semibold text-primary mb-1">You:</div>
+											{:else}
+												<div class="font-semibold text-secondary mb-1">AI:</div>
+											{/if}
+											{msg.content}
+										</div>
+									{/each}
+								{:else}
+									{journal.content}
+								{/if}
 							</div>
 						</div>
 
