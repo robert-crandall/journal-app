@@ -217,7 +217,7 @@
 
 <div class="flex h-full flex-col">
 	<!-- Chat Header -->
-	<div class="border-b border-primary-100 bg-gradient-to-r from-primary-50 to-secondary-50 p-6">
+	<div class="border-primary-100 from-primary-50 to-secondary-50 border-b bg-gradient-to-r p-6">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				<div class="bg-primary/10 rounded-lg p-2">
@@ -268,7 +268,9 @@
 				>
 					<Bot class="text-info h-8 w-8 md:h-10 md:w-10" />
 				</div>
-				<h3 class="text-base-content mb-2 text-xl font-bold md:mb-3 md:text-2xl">Start Your Journal Session</h3>
+				<h3 class="text-base-content mb-2 text-xl font-bold md:mb-3 md:text-2xl">
+					Start Your Journal Session
+				</h3>
 				<p class="text-base-content/70 mx-auto max-w-md text-sm leading-relaxed md:text-base">
 					Share what's on your mind, and I'll help you explore your thoughts with thoughtful
 					questions and insights.
@@ -313,7 +315,11 @@
 							: 'bg-base-200 text-base-content mr-2 md:mr-8'} md:p-4"
 					>
 						{#if message.content.includes('**Journal Summary:**')}
-							<div class="prose max-w-none text-sm {message.role === 'user' ? 'prose-invert' : ''} md:text-base">
+							<div
+								class="prose max-w-none text-sm {message.role === 'user'
+									? 'prose-invert'
+									: ''} md:text-base"
+							>
 								{@html message.content
 									.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 									.replace(/\n/g, '<br>')}
@@ -373,7 +379,9 @@
 					>
 						<Sparkles class="text-warning h-6 w-6 md:h-8 md:w-8" />
 					</div>
-					<h3 class="text-base-content mb-1 text-lg font-semibold md:mb-2 md:text-xl">Day Reflection</h3>
+					<h3 class="text-base-content mb-1 text-lg font-semibold md:mb-2 md:text-xl">
+						Day Reflection
+					</h3>
 					<p class="text-base-content/70 text-sm md:text-base">
 						Before we finish, let's capture a few more details about your day.
 					</p>
@@ -500,7 +508,7 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="btn btn-success btn-sm md:btn-md flex flex-1 items-center justify-center gap-2 md:bg-success md:text-primary-content md:hover:bg-success/90 md:rounded-lg md:px-4 md:py-2 md:font-medium md:transition-colors"
+									class="btn btn-success btn-sm md:btn-md md:bg-success md:text-primary-content md:hover:bg-success/90 flex flex-1 items-center justify-center gap-2 md:rounded-lg md:px-4 md:py-2 md:font-medium md:transition-colors"
 								>
 									{#if isLoading}
 										<Loader2 class="h-4 w-4 animate-spin" />
@@ -525,7 +533,9 @@
 				</div>
 
 				{#if journalStatus === 'in_progress'}
-					<div class="text-base-content/70 mt-3 text-sm md:mt-4 md:flex md:items-center md:justify-between">
+					<div
+						class="text-base-content/70 mt-3 text-sm md:mt-4 md:flex md:items-center md:justify-between"
+					>
 						<span class="hidden md:block">Press Enter to send, Shift+Enter for new line</span>
 						{#if followupCount < maxFollowups}
 							<span class="text-info block text-center text-xs font-medium md:text-sm">
