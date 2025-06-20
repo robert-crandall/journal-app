@@ -89,7 +89,7 @@
 	<meta name="description" content="Personal growth powered by GPT and role-playing mechanics" />
 </svelte:head>
 
-<div class="bg-base-100 text-base-content min-h-screen">
+<div class="bg-base-100 text-base-content min-h-screen-safe">
 	{#if $auth.loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div
@@ -126,7 +126,10 @@
 		</div>
 	{:else if $auth.user && !isAuthPage && !isHomePage}
 		<!-- Atlassian-style Navigation -->
-		<div class="border-base-300 bg-base-100 sticky top-0 z-40 border-b" onclick={closeDropdowns}>
+		<div
+			class="border-base-300 bg-base-100 pt-safe px-safe sticky top-0 z-40 border-b"
+			onclick={closeDropdowns}
+		>
 			<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="flex h-16 items-center justify-between">
 					<!-- Left side: Brand + Main Navigation -->
@@ -340,7 +343,7 @@
 				<!-- Mobile Navigation Menu -->
 				{#if mobileMenuOpen}
 					<div class="border-base-300 border-t py-4 md:hidden">
-						<div class="space-y-1">
+						<div class="px-safe space-y-1">
 							<a
 								href="/dashboard"
 								onclick={closeMobileMenu}

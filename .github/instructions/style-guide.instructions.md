@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{svelte,ts,js,html,css}"
+applyTo: "frontend/**/*.{svelte,ts,js,html,css}"
 ---
 
 ## 🧭 Design Style Guide
