@@ -719,7 +719,9 @@
 									{#if statDef}
 										<button
 											type="button"
-											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200 {addingFromLibrary ? 'cursor-not-allowed opacity-50' : ''}"
+											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200 {addingFromLibrary
+												? 'cursor-not-allowed opacity-50'
+												: ''}"
 											on:click={() => !addingFromLibrary && addStatFromLibrary(statName)}
 											disabled={addingFromLibrary}
 										>
@@ -764,10 +766,12 @@
 											{@const isAlreadyAdded = stats.some((s) => s.name === stat.name)}
 											<button
 												type="button"
-												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded || addingFromLibrary
+												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded ||
+												addingFromLibrary
 													? 'cursor-not-allowed opacity-50'
 													: ''}"
-												on:click={() => !isAlreadyAdded && !addingFromLibrary && addStatFromLibrary(stat.name)}
+												on:click={() =>
+													!isAlreadyAdded && !addingFromLibrary && addStatFromLibrary(stat.name)}
 												disabled={isAlreadyAdded || addingFromLibrary}
 											>
 												<div class="flex items-center justify-between">
@@ -791,7 +795,7 @@
 																</span>
 															{:else if addingFromLibrary}
 																<span
-																	class="bg-blue-100 text-blue-600 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+																	class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600"
 																>
 																	Adding...
 																</span>

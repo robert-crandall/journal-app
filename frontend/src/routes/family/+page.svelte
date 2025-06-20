@@ -47,7 +47,7 @@
 		memberName = member.name;
 		memberAge = member.age || null;
 		memberClassName = member.className || '';
-		memberClassDescription = member.description || '';
+		memberClassDescription = member.classDescription || '';
 		editingMember = member;
 		showCreateForm = true;
 	}
@@ -59,7 +59,7 @@
 				name: memberName,
 				age: memberAge || undefined,
 				className: memberClassName || undefined,
-				description: memberClassDescription || undefined
+				classDescription: memberClassDescription || undefined
 			};
 
 			if (editingMember) {
@@ -96,9 +96,9 @@
 		}
 	}
 
-	function handleClassUpdate(className: string, description: string) {
+	function handleClassUpdate(className: string, classDescription: string) {
 		memberClassName = className;
-		memberClassDescription = description;
+		memberClassDescription = classDescription;
 	}
 
 	function closeCreateForm() {
@@ -354,13 +354,13 @@
 
 							<div>
 								<label
-									for="description"
+									for="classDescription"
 									class="text-base-content/80 mb-2 block text-sm font-medium"
 								>
 									Personal story
 								</label>
 								<textarea
-									id="description"
+									id="classDescription"
 									bind:value={memberClassDescription}
 									on:input={() => handleClassUpdate(memberClassName, memberClassDescription)}
 									placeholder="What makes them special? What are their quirks, interests, or memorable traits?"
@@ -544,9 +544,9 @@
 										</div>
 										<span class="text-secondary text-sm font-medium">{member.className}</span>
 									</div>
-									{#if member.description}
+									{#if member.classDescription}
 										<p class="text-base-content/70 pl-8 text-xs italic">
-											"{member.description}"
+											"{member.classDescription}"
 										</p>
 									{/if}
 								{/if}

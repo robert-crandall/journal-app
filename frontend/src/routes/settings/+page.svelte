@@ -24,6 +24,7 @@
 	// Form data for user class
 	let memberClassName = '';
 	let memberClassDescription = '';
+	let rpgFlavorEnabled = false;
 
 	onMount(async () => {
 		await loadPreferences();
@@ -35,6 +36,7 @@
 		try {
 			const response = await preferencesApi.getAll();
 			preferences = response.preferences || {};
+			rpgFlavorEnabled = preferences.rpgFlavorEnabled.toString() === 'true';
 		} catch (error) {
 			console.error('Failed to load preferences:', error);
 		} finally {
@@ -94,6 +96,19 @@
 		} catch (error) {
 			console.error('Failed to update class information:', error);
 			showSaveMessage('Failed to update class information', 'error');
+		}
+	}
+
+	async function handleRpgFlavorToggle() {
+		try {
+			await preferencesApi.set('rpgFlavorEnabled', rpgFlavorEnabled.toString());
+			preferences.rpgFlavorEnabled = rpgFlavorEnabled.toString();
+			showSaveMessage('RPG flavor setting updated');
+		} catch (error) {
+			console.error('Failed to update RPG flavor setting:', error);
+			showSaveMessage('Failed to update RPG flavor setting', 'error');
+			// Revert the checkbox state on error
+			rpgFlavorEnabled = !rpgFlavorEnabled;
 		}
 	}
 
@@ -396,14 +411,41 @@
 				<!-- Character Settings -->
 				<div class="space-y-6">
 					<div>
-						<h3 class="text-base-content mb-2 text-lg font-semibold">Character Class</h3>
+						<h3 class="text-base-content mb-2 text-lg font-semibold">Character Settings</h3>
 						<p class="text-base-content/70 mb-4 text-sm">
-							Define your RPG-style character class and backstory
+							Configure your RPG-style character experience
 						</p>
 					</div>
 
 					{#if userData}
 						<div class="space-y-6">
+							<!-- RPG Flavor Toggle -->
+							<div class="border-base-300 bg-base-50 rounded-lg border p-4">
+								<div class="flex items-start space-x-3">
+									<div class="flex items-center">
+										<input
+											type="checkbox"
+											id="rpgFlavorEnabled"
+											bind:checked={rpgFlavorEnabled}
+											on:change={handleRpgFlavorToggle}
+											class="checkbox checkbox-primary"
+										/>
+									</div>
+									<div class="flex-1">
+										<label
+											for="rpgFlavorEnabled"
+											class="text-base-content cursor-pointer text-sm font-medium"
+										>
+											Enable RPG Flavor
+										</label>
+										<p class="text-base-content/70 mt-1 text-xs">
+											Add fantasy RPG elements to your tasks and descriptions. When enabled, tasks
+											will include character class themes and story elements.
+										</p>
+									</div>
+								</div>
+							</div>
+
 							<!-- Class Selection -->
 							<div>
 								<label
@@ -411,11 +453,17 @@
 									class="text-base-content mb-2 block text-sm font-medium"
 								>
 									Character Class
+									{#if !rpgFlavorEnabled}
+										<span class="text-base-content/50 text-xs">(Enable RPG Flavor to use)</span>
+									{/if}
 								</label>
 								<select
 									id="characterClass"
 									bind:value={memberClassName}
-									class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+									disabled={!rpgFlavorEnabled}
+									class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none {!rpgFlavorEnabled
+										? 'cursor-not-allowed opacity-50'
+										: ''}"
 								>
 									<option value="">No class selected</option>
 									<optgroup label="Warriors & Protectors">
@@ -452,7 +500,7 @@
 							</div>
 
 							<!-- Class Description -->
-							{#if memberClassName}
+							{#if memberClassName && rpgFlavorEnabled}
 								<div>
 									<label
 										for="classDescription"
@@ -473,7 +521,7 @@
 									</p>
 								</div>
 
-								{#if memberClassDescription}
+								{#if memberClassDescription && rpgFlavorEnabled}
 									<div class="border-base-300 bg-base-200 rounded-lg border p-4">
 										<div class="flex items-start space-x-3">
 											<div

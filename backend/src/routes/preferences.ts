@@ -84,7 +84,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
       } else if (key === 'zipCode') {
         updateData.zipCode = value;
       } else if (key === 'rpgFlavorEnabled') {
-        updateData.rpgFlavorEnabled = value;
+        // Convert string to boolean for rpgFlavorEnabled
+        updateData.rpgFlavorEnabled = value === 'true' || value === true;
       }
 
       await db
@@ -106,7 +107,8 @@ app.put('/:key', jwtMiddleware, userMiddleware, async (c) => {
       } else if (key === 'zipCode') {
         newPrefs.zipCode = value;
       } else if (key === 'rpgFlavorEnabled') {
-        newPrefs.rpgFlavorEnabled = value;
+        // Convert string to boolean for rpgFlavorEnabled
+        newPrefs.rpgFlavorEnabled = value === 'true' || value === true;
       }
 
       await db.insert(preferences).values(newPrefs);
