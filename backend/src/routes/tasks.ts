@@ -185,11 +185,6 @@ tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('jso
         statIdsToAward = [...completedTask.linkedStatIds];
       }
       
-      // Also include legacy single stat ID for backward compatibility
-      if (completedTask.statId) {
-        statIdsToAward.push(completedTask.statId);
-      }
-      
       // Include stat from focus if exists (legacy)
       if (completedTask.focusId) {
         const taskWithFocus = await db.query.tasks.findFirst({

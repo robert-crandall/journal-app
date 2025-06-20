@@ -28,8 +28,7 @@ export interface GeneratedTask {
   description: string;
   source: 'primary' | 'connection';
   focusId?: string;
-  statId?: string;
-  linkedStatIds: string[];
+  linkedStatNames?: string[];
   familyName?: string;
 }
 
@@ -46,6 +45,7 @@ interface InsertableTask {
   description: string;
   taskDate: string;
   source: 'primary' | 'connection';
+  linkedStatNames?: string[];
   linkedStatIds: string[];
   familyId?: string;
   familyName?: string;
@@ -105,8 +105,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         description: parsedResponse.primaryTask.description,
         source: 'primary',
         focusId: context.todaysFocus?.id,
-        statId: parsedResponse.primaryTask.linkedStatIds?.[0] || context.userStats[0]?.id,
-        linkedStatIds: parsedResponse.primaryTask.linkedStatIds || [],
+        linkedStatNames: parsedResponse.primaryTask.linkedStatNames || [],
         familyName: parsedResponse.primaryTask.familyName
       },
       connectionTask: {
@@ -114,8 +113,7 @@ export async function generateDailyTasks(context: TaskGenerationContext): Promis
         description: parsedResponse.connectionTask.description,
         source: 'connection',
         focusId: context.todaysFocus?.id,
-        statId: parsedResponse.connectionTask.linkedStatIds?.[0] || context.userStats.find(s => s.category === 'connection')?.id || context.userStats[0]?.id,
-        linkedStatIds: parsedResponse.connectionTask.linkedStatIds || [],
+        linkedStatNames: parsedResponse.connectionTask.linkedStatNames || [],
         familyName: parsedResponse.connectionTask.familyName,
       },
     };
@@ -251,18 +249,16 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
   "primaryTask": {
     "title": "Short, actionable title (max 60 chars)",
     "description": "Detailed guidance and context (2-3 sentences)",
-    "linkedStatIds": ["stat_id1", "stat_id2"],
+    "linkedStatNames": ["stat_name1", "stat_name2"],
     "familyName": "Family Name" // optional, only if task involves family
   },
   "connectionTask": {
     "title": "Short, actionable title (max 60 chars)", 
     "description": "Detailed guidance and context (2-3 sentences)",
-    "linkedStatIds": ["stat_id1"],
+    "linkedStatNames": ["stat_name3"],
     "familyName": "Family Name" // optional, only if task involves family
   }
 }\n`;
-
-  prompt += `\nFor connection tasks, prefer stats in categories: connection, spirit, mind.`;
 
   return prompt;
 }
@@ -283,17 +279,13 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
       : `Spend 30 minutes working on personal development. Choose something that challenges you and moves you forward.`,
     source: 'primary',
     focusId: todaysFocus?.id,
-    statId: todaysFocus?.statId || userStats[0]?.id,
-    linkedStatIds: todaysFocus?.statId ? [todaysFocus.statId] : userStats.slice(0, 1).map(s => s.id),
+    linkedStatNames: userStats.slice(0, 2).map(s => s.name),
   };
 
   // Mock connection task that rotates through family members
   const randomFamilyMember = familyMembers.length > 0 
     ? familyMembers[Math.floor(Math.random() * familyMembers.length)]
     : null;
-
-  const connectionStats = userStats.filter(s => s.category === 'connection' || s.category === 'spirit');
-  const connectionStatForTask = connectionStats[0] || userStats[0];
 
   const connectionTask: GeneratedTask = {
     title: randomFamilyMember 
@@ -304,9 +296,7 @@ function generateMockTasks(context: TaskGenerationContext): GeneratedTaskSet {
       : `Take 15 minutes for mindful self-connection. This could be meditation, journaling, or simply sitting quietly and checking in with how you're feeling.`,
     source: 'connection',
     focusId: todaysFocus?.id,
-    statId: connectionStatForTask?.id,
-    linkedStatIds: connectionStats.slice(0, 2).map(s => s.id),
-    familyName: randomFamilyMember ? randomFamilyMember.name : undefined,
+    linkedStatNames: userStats.slice(1, 3).map(s => s.name),
   };
 
   return {
@@ -460,7 +450,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         description: generatedTasks.primaryTask.description,
         taskDate: today,
         source: generatedTasks.primaryTask.source,
-        linkedStatIds: generatedTasks.primaryTask.linkedStatIds,
+        linkedStatNames: generatedTasks.primaryTask.linkedStatNames,
+        linkedStatIds: [],
         familyId: undefined, // familyId will be set below if familyName is provided
         familyName: generatedTasks.primaryTask.familyName,
         origin: 'gpt',
@@ -474,7 +465,8 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         description: generatedTasks.connectionTask.description,
         taskDate: today,
         source: generatedTasks.connectionTask.source,
-        linkedStatIds: generatedTasks.connectionTask.linkedStatIds,
+        linkedStatNames: generatedTasks.connectionTask.linkedStatNames,
+        linkedStatIds: [],
         familyId: undefined, // familyId will be set below if familyName is provided
         familyName: generatedTasks.connectionTask.familyName,
         origin: 'gpt',
@@ -491,6 +483,13 @@ export async function getOrGenerateTodaysTask(userId: string): Promise<Task[]> {
         }
       }
       delete task.familyName;
+
+      if (task.linkedStatNames && task.linkedStatNames.length > 0) {
+        // Find stats by name and set linkedStatIds
+        const linkedStats = userStats.filter(s => task.linkedStatNames!.includes(s.name));
+        task.linkedStatIds = linkedStats.map(s => s.id);
+      }
+      delete task.linkedStatNames;
     }
     
     await db.insert(tasks).values(tasksToInsert);
