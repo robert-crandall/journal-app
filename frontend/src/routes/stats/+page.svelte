@@ -12,6 +12,7 @@
 	let error = '';
 	let showCreateForm = false;
 	let editingStat: any = null;
+	let addingFromLibrary = false;
 
 	// Form state
 	let formData = {
@@ -180,16 +181,25 @@
 	}
 
 	// Add a stat from the library
-	function addStatFromLibrary(statName: string) {
+	async function addStatFromLibrary(statName: string) {
 		const statDef = findStatByName(statName);
 		if (statDef) {
-			formData = {
-				name: statDef.name,
-				description: statDef.description,
-				icon: statDef.icon || '',
-				category: statDef.category,
-				enabled: true
-			};
+			try {
+				addingFromLibrary = true;
+				const statData = {
+					name: statDef.name,
+					description: statDef.description,
+					icon: statDef.icon || '',
+					category: statDef.category,
+					enabled: true
+				};
+				await statsApi.create(statData);
+				await loadStats();
+			} catch (err: any) {
+				error = err.message;
+			} finally {
+				addingFromLibrary = false;
+			}
 		}
 	}
 
@@ -709,8 +719,11 @@
 									{#if statDef}
 										<button
 											type="button"
-											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200"
-											on:click={() => addStatFromLibrary(statName)}
+											class="bg-primary/10 text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-blue-200 {addingFromLibrary
+												? 'cursor-not-allowed opacity-50'
+												: ''}"
+											on:click={() => !addingFromLibrary && addStatFromLibrary(statName)}
+											disabled={addingFromLibrary}
 										>
 											{statName}
 										</button>
@@ -753,11 +766,13 @@
 											{@const isAlreadyAdded = stats.some((s) => s.name === stat.name)}
 											<button
 												type="button"
-												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded
+												class="border-base-300 hover:bg-base-200 w-full rounded-md border p-3 text-left transition-colors dark:border-neutral-700 dark:bg-neutral-900 {isAlreadyAdded ||
+												addingFromLibrary
 													? 'cursor-not-allowed opacity-50'
 													: ''}"
-												on:click={() => !isAlreadyAdded && addStatFromLibrary(stat.name)}
-												disabled={isAlreadyAdded}
+												on:click={() =>
+													!isAlreadyAdded && !addingFromLibrary && addStatFromLibrary(stat.name)}
+												disabled={isAlreadyAdded || addingFromLibrary}
 											>
 												<div class="flex items-center justify-between">
 													<div>
@@ -777,6 +792,12 @@
 																	class="bg-base-200 text-base-content/60 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
 																>
 																	Added
+																</span>
+															{:else if addingFromLibrary}
+																<span
+																	class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600"
+																>
+																	Adding...
 																</span>
 															{/if}
 														</div>
@@ -832,7 +853,12 @@
 
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label for="category-select" class="text-base-content/80 mb-2 block text-sm font-medium"> Category </label>
+							<label
+								for="category-select"
+								class="text-base-content/80 mb-2 block text-sm font-medium"
+							>
+								Category
+							</label>
 							<select
 								id="category-select"
 								class="border-base-300 w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -845,8 +871,10 @@
 						</div>
 
 						<div>
-							<label for="icon-picker" class="text-base-content/80 mb-2 block text-sm font-medium"> Icon </label>
-							<IconPicker bind:selectedIcon={formData.icon} {availableIcons} showPreview={false} inputId="icon-picker" />
+							<label for="icon-picker" class="text-base-content/80 mb-2 block text-sm font-medium">
+								Icon
+							</label>
+							<IconPicker bind:selectedIcon={formData.icon} {availableIcons} showPreview={false} />
 							{#if formData.icon}
 								<div class="mt-2 flex items-center gap-2">
 									<span class="text-base-content/70 text-sm dark:text-neutral-300">Preview:</span>

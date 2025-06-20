@@ -208,7 +208,10 @@
 							<!-- More Tools Dropdown -->
 							<div class="relative">
 								<button
-									onclick={(e) => { e.stopPropagation(); toggleMoreDropdown(); }}
+									onclick={(e) => {
+										e.stopPropagation();
+										toggleMoreDropdown();
+									}}
 									class="text-base-content/70 hover:bg-base-200 hover:text-base-content flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
 								>
 									<span>More</span>
@@ -269,7 +272,10 @@
 						<!-- User Menu -->
 						<div class="relative">
 							<button
-								onclick={(e) => { e.stopPropagation(); toggleUserDropdown(); }}
+								onclick={(e) => {
+									e.stopPropagation();
+									toggleUserDropdown();
+								}}
 								class="hover:bg-base-200 flex items-center space-x-2 rounded-lg p-2 transition-colors"
 							>
 								<div
@@ -287,7 +293,7 @@
 							{#if userDropdownOpen}
 								<div
 									class="border-base-300 bg-base-100 absolute top-full right-0 z-50 mt-1 w-48 rounded-lg border py-1 shadow-lg"
-									onclick={e => e.stopPropagation()}
+									onclick={(e) => e.stopPropagation()}
 								>
 									<a
 										href="/settings"

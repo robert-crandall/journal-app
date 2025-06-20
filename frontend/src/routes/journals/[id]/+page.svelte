@@ -83,22 +83,26 @@
 	<title>{journal?.title || 'Journal Entry'} - LifeQuest</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
+<div class="bg-base-200 min-h-screen">
 	{#if loading}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="flex flex-col items-center gap-4">
-				<div class="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+				<div
+					class="border-primary h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
+				></div>
 				<p class="text-base-content/70 font-medium">Loading journal entry...</p>
 			</div>
 		</div>
 	{:else if error}
 		<div class="flex min-h-screen items-center justify-center">
 			<div class="max-w-md text-center">
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-error/10">
-					<icons.AlertCircle class="h-8 w-8 text-error" />
+				<div
+					class="bg-error/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+				>
+					<icons.AlertCircle class="text-error h-8 w-8" />
 				</div>
-				<h2 class="mb-2 text-xl font-bold text-base-content">{error}</h2>
-				<p class="mb-4 text-base-content/70">The journal entry could not be found or loaded.</p>
+				<h2 class="text-base-content mb-2 text-xl font-bold">{error}</h2>
+				<p class="text-base-content/70 mb-4">The journal entry could not be found or loaded.</p>
 				<button class="btn btn-primary" onclick={() => goto('/journals')}>
 					<icons.ArrowLeft class="mr-2 h-4 w-4" />
 					Back to Journals
@@ -107,28 +111,25 @@
 		</div>
 	{:else if journal}
 		<!-- Header -->
-		<div class="border-b border-base-300 bg-base-100">
+		<div class="border-base-300 bg-base-100 border-b">
 			<div class="container mx-auto px-6 py-4">
 				<div class="flex items-center gap-4">
-					<button 
-						class="btn btn-ghost btn-sm"
-						onclick={() => goto('/journals')}
-					>
+					<button class="btn btn-ghost btn-sm" onclick={() => goto('/journals')}>
 						<icons.ArrowLeft class="h-4 w-4" />
 					</button>
 					<div class="flex items-center gap-3">
 						<div class="rounded-lg p-2 {typeInfo?.isAI ? 'bg-primary/10' : 'bg-secondary/10'}">
 							{#if typeInfo?.isAI}
-								<icons.Bot class="h-5 w-5 text-primary" />
+								<icons.Bot class="text-primary h-5 w-5" />
 							{:else}
-								<icons.PenTool class="h-5 w-5 text-secondary" />
+								<icons.PenTool class="text-secondary h-5 w-5" />
 							{/if}
 						</div>
 						<div>
-							<h1 class="text-xl font-bold text-base-content">
+							<h1 class="text-base-content text-xl font-bold">
 								{journal.title || formatDate(journal.date)}
 							</h1>
-							<p class="text-sm text-base-content/70">
+							<p class="text-base-content/70 text-sm">
 								{formatDateTime(journal.createdAt || journal.date)}
 							</p>
 						</div>
@@ -146,7 +147,7 @@
 						<!-- Tags -->
 						{#if journal.tags && journal.tags.length > 0}
 							<div class="mb-6">
-								<h3 class="mb-3 text-sm font-medium text-base-content/70">Tags</h3>
+								<h3 class="text-base-content/70 mb-3 text-sm font-medium">Tags</h3>
 								<div class="flex flex-wrap gap-2">
 									{#each journal.tags as tag}
 										<button
@@ -162,12 +163,12 @@
 
 						<!-- AI Summary -->
 						{#if journal.gptSummary}
-							<div class="mb-6 rounded-lg border border-info/20 bg-info/5 p-4">
+							<div class="border-info/20 bg-info/5 mb-6 rounded-lg border p-4">
 								<div class="mb-2 flex items-center gap-2">
-									<icons.Sparkles class="h-4 w-4 text-info" />
-									<span class="text-sm font-medium text-info">AI Summary</span>
+									<icons.Sparkles class="text-info h-4 w-4" />
+									<span class="text-info text-sm font-medium">AI Summary</span>
 								</div>
-								<p class="text-sm leading-relaxed text-base-content/80">
+								<p class="text-base-content/80 text-sm leading-relaxed">
 									{journal.gptSummary}
 								</p>
 							</div>
@@ -175,12 +176,12 @@
 
 						<!-- Condensed Summary -->
 						{#if journal.condensed}
-							<div class="mb-6 rounded-lg border border-secondary/20 bg-secondary/5 p-4">
+							<div class="border-secondary/20 bg-secondary/5 mb-6 rounded-lg border p-4">
 								<div class="mb-2 flex items-center gap-2">
-									<icons.FileText class="h-4 w-4 text-secondary" />
-									<span class="text-sm font-medium text-secondary">Summary</span>
+									<icons.FileText class="text-secondary h-4 w-4" />
+									<span class="text-secondary text-sm font-medium">Summary</span>
 								</div>
-								<p class="text-sm leading-relaxed text-base-content/80">
+								<p class="text-base-content/80 text-sm leading-relaxed">
 									{journal.condensed}
 								</p>
 							</div>
@@ -189,14 +190,14 @@
 						<!-- Main Content -->
 						<div class="prose max-w-none">
 							<h3 class="text-base-content mb-4 text-lg font-semibold">Journal Entry</h3>
-							<div class="text-base-content/90 whitespace-pre-wrap leading-relaxed">
+							<div class="text-base-content/90 leading-relaxed whitespace-pre-wrap">
 								{#if journal.conversationHistory}
 									{#each journal.conversationHistory as msg}
 										<div class="mb-4">
 											{#if msg.role === 'user'}
-												<div class="font-semibold text-primary mb-1">You:</div>
+												<div class="text-primary mb-1 font-semibold">You:</div>
 											{:else}
-												<div class="font-semibold text-secondary mb-1">AI:</div>
+												<div class="text-secondary mb-1 font-semibold">AI:</div>
 											{/if}
 											{msg.content}
 										</div>
@@ -208,27 +209,27 @@
 						</div>
 
 						<!-- Metadata -->
-						<div class="mt-8 flex flex-wrap gap-4 border-t border-base-300 pt-6">
+						<div class="border-base-300 mt-8 flex flex-wrap gap-4 border-t pt-6">
 							{#if journal.sentimentScore}
 								<div class="flex items-center gap-2">
-									<icons.Heart class="h-4 w-4 text-base-content/50" />
-									<span class="text-sm text-base-content/70">
+									<icons.Heart class="text-base-content/50 h-4 w-4" />
+									<span class="text-base-content/70 text-sm">
 										Sentiment: {journal.sentimentScore}/5
 									</span>
 								</div>
 							{/if}
 							{#if journal.dayRating}
 								<div class="flex items-center gap-2">
-									<icons.Star class="h-4 w-4 text-base-content/50" />
-									<span class="text-sm text-base-content/70">
+									<icons.Star class="text-base-content/50 h-4 w-4" />
+									<span class="text-base-content/70 text-sm">
 										Day Rating: {journal.dayRating}/5
 									</span>
 								</div>
 							{/if}
 							{#if journal.moodTags && journal.moodTags.length > 0}
 								<div class="flex items-center gap-2">
-									<icons.Smile class="h-4 w-4 text-base-content/50" />
-									<span class="text-sm text-base-content/70">
+									<icons.Smile class="text-base-content/50 h-4 w-4" />
+									<span class="text-base-content/70 text-sm">
 										Mood: {journal.moodTags.join(', ')}
 									</span>
 								</div>

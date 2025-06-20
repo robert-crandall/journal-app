@@ -197,8 +197,8 @@ function buildGPTPrompt(context: TaskGenerationContext): string {
       // Include family member class info for collaborative tasks when RPG flavor is enabled
       if (userPreferences?.rpgFlavorEnabled && member.className) {
         prompt += ` - Class: ${member.className}`;
-        if (member.description) {
-          prompt += ` (${member.description})`;
+        if (member.classDescription) {
+          prompt += ` (${member.classDescription})`;
         }
       }
       prompt += `\n`;

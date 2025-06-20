@@ -43,10 +43,12 @@
 				const content = journal.content?.toLowerCase() || '';
 				const title = journal.title?.toLowerCase() || '';
 				const condensed = journal.condensed?.toLowerCase() || '';
-				
-				if (!content.includes(searchLower) && 
-					!title.includes(searchLower) && 
-					!condensed.includes(searchLower)) {
+
+				if (
+					!content.includes(searchLower) &&
+					!title.includes(searchLower) &&
+					!condensed.includes(searchLower)
+				) {
 					return false;
 				}
 			}
@@ -72,9 +74,11 @@
 	$: aiJournals = journals.filter((j) => j.status);
 	$: traditionalJournals = journals.filter((j) => !j.status);
 	$: recentEntries = journals.slice(0, 3);
-	
+
 	// Get all unique tags from journals
-	$: allTags = [...new Set(journals.flatMap(j => [...(j.tags || []), ...(j.moodTags || [])]))].sort();
+	$: allTags = [
+		...new Set(journals.flatMap((j) => [...(j.tags || []), ...(j.moodTags || [])]))
+	].sort();
 
 	onMount(async () => {
 		await loadJournals();
@@ -341,10 +345,7 @@
 				<div class="flex flex-wrap items-center gap-3">
 					<!-- Type Filter -->
 					<div class="relative">
-						<select
-							class="select select-bordered pr-10"
-							bind:value={filterType}
-						>
+						<select class="select select-bordered pr-10" bind:value={filterType}>
 							<option value="all">All Entries</option>
 							<option value="ai">AI Sessions</option>
 							<option value="quick">Quick Entries</option>
@@ -357,10 +358,7 @@
 					<!-- Tag Filter -->
 					{#if allTags.length > 0}
 						<div class="relative">
-							<select
-								class="select select-bordered pr-10"
-								bind:value={selectedTag}
-							>
+							<select class="select select-bordered pr-10" bind:value={selectedTag}>
 								<option value="">All Tags</option>
 								{#each allTags as tag}
 									<option value={tag}>{tag}</option>
@@ -374,19 +372,11 @@
 
 					<!-- Reset -->
 					{#if searchQuery || filterType !== 'all' || selectedTag}
-						<button
-							class="btn btn-ghost btn-sm"
-							onclick={resetFilters}
-						>
-							Reset
-						</button>
+						<button class="btn btn-ghost btn-sm" onclick={resetFilters}> Reset </button>
 					{/if}
 
 					<!-- Create Buttons -->
-					<button
-						class="btn btn-outline btn-secondary gap-2"
-						onclick={startAIChat}
-					>
+					<button class="btn btn-outline btn-secondary gap-2" onclick={startAIChat}>
 						<Bot class="h-4 w-4" />
 						<span class="hidden sm:inline">AI Chat</span>
 					</button>
@@ -430,10 +420,7 @@
 								<Bot class="mr-2 h-5 w-5" />
 								AI Guided Session
 							</button>
-							<button
-								class="btn btn-outline px-6 py-3"
-								onclick={openCreateForm}
-							>
+							<button class="btn btn-outline px-6 py-3" onclick={openCreateForm}>
 								<PenTool class="mr-2 inline h-5 w-5" />
 								Quick Entry
 							</button>
@@ -456,7 +443,7 @@
 				{#each filteredJournals as journal (journal.id)}
 					{@const typeInfo = getJournalTypeInfo(journal)}
 					<div
-						class="group border-base-300 bg-base-100 overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+						class="group border-base-300 bg-base-100 cursor-pointer overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md"
 						role="button"
 						tabindex="0"
 						onclick={() => viewJournalDetail(journal.id)}
@@ -470,12 +457,12 @@
 					>
 						<!-- Entry Header -->
 						<div
-							class="p-6 pb-4 border-b {typeInfo.isAI
+							class="border-b p-6 pb-4 {typeInfo.isAI
 								? 'border-primary/20 bg-primary/5'
 								: 'border-secondary/20 bg-secondary/5'}"
 						>
 							<div class="flex items-start justify-between gap-4">
-								<div class="flex items-center gap-3 flex-1">
+								<div class="flex flex-1 items-center gap-3">
 									<div
 										class="p-2 {typeInfo.isAI
 											? 'bg-primary/10 text-primary'
@@ -490,12 +477,12 @@
 									<div class="flex-1">
 										<!-- Title -->
 										{#if journal.title}
-											<h3 class="text-base-content text-lg font-bold mb-1">
+											<h3 class="text-base-content mb-1 text-lg font-bold">
 												{journal.title}
 											</h3>
 										{/if}
-										
-										<div class="flex items-center gap-2 mb-2">
+
+										<div class="mb-2 flex items-center gap-2">
 											<span class="text-base-content text-sm font-medium"
 												>{formatDate(journal.date)}</span
 											>
@@ -503,8 +490,8 @@
 												>• {getRelativeDate(journal.date)}</span
 											>
 										</div>
-										
-										<div class="flex items-center gap-2 flex-wrap">
+
+										<div class="flex flex-wrap items-center gap-2">
 											{#if typeInfo.isAI}
 												<div
 													class="inline-flex items-center gap-1 px-2 py-1 {typeInfo.status ===
@@ -600,7 +587,7 @@
 									<div class="flex flex-wrap gap-2">
 										{#each journal.tags || [] as tag}
 											<button
-												class="bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1 rounded-full text-sm font-medium transition-colors"
+												class="bg-primary/10 text-primary hover:bg-primary/20 rounded-full px-3 py-1 text-sm font-medium transition-colors"
 												onclick={(e) => {
 													e.stopPropagation();
 													handleTagClick(tag);
@@ -611,7 +598,7 @@
 										{/each}
 										{#each journal.moodTags || [] as tag}
 											<button
-												class="bg-secondary/10 text-secondary hover:bg-secondary/20 px-3 py-1 rounded-full text-sm font-medium transition-colors"
+												class="bg-secondary/10 text-secondary hover:bg-secondary/20 rounded-full px-3 py-1 text-sm font-medium transition-colors"
 												onclick={(e) => {
 													e.stopPropagation();
 													handleTagClick(tag);
@@ -632,14 +619,12 @@
 							</div>
 
 							{#if journal.gptSummary}
-								<div
-									class="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
-								>
+								<div class="border-primary/20 bg-primary/5 mt-4 rounded-lg border p-4">
 									<div class="mb-2 flex items-center gap-2">
 										<Sparkles class="text-primary h-4 w-4" />
-										<span class="text-sm font-medium text-primary">AI Analysis</span>
+										<span class="text-primary text-sm font-medium">AI Analysis</span>
 									</div>
-									<p class="text-sm leading-relaxed text-base-content/80">
+									<p class="text-base-content/80 text-sm leading-relaxed">
 										{truncateContent(journal.gptSummary, 150)}
 									</p>
 								</div>
@@ -710,7 +695,7 @@
 	>
 		<div class="modal-box max-w-3xl">
 			<!-- Modal Header -->
-			<div class="flex items-center justify-between border-b border-base-300 pb-4 mb-6">
+			<div class="border-base-300 mb-6 flex items-center justify-between border-b pb-4">
 				<div class="flex items-center gap-3">
 					<div class="bg-secondary/10 rounded-lg p-2">
 						<PenTool class="text-secondary h-5 w-5" />
@@ -774,12 +759,8 @@
 					</div>
 
 					<!-- Form Actions -->
-					<div class="flex items-center justify-end gap-3 border-t border-base-300 pt-4">
-						<button
-							type="button"
-							class="btn btn-ghost"
-							onclick={() => (showCreateForm = false)}
-						>
+					<div class="border-base-300 flex items-center justify-end gap-3 border-t pt-4">
+						<button type="button" class="btn btn-ghost" onclick={() => (showCreateForm = false)}>
 							Cancel
 						</button>
 						<button type="submit" class="btn btn-primary">

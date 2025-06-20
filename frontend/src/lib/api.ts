@@ -444,12 +444,6 @@ export const statsApi = {
 		return apiRequest(`/stats/${id}`, {
 			method: 'DELETE'
 		});
-	},
-
-	async restoreDefaults() {
-		return apiRequest('/stats/restore-defaults', {
-			method: 'POST'
-		});
 	}
 };
 

@@ -9,6 +9,8 @@ export const users = pgTable('users', {
   email: text('email').unique(),
   password: text('password'),
   name: text('name').notNull(),
+  className: text('class_name'),
+  classDescription: text('class_description'),
   gptContext: jsonb('gpt_context'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -21,7 +23,7 @@ export const family = pgTable('family', {
   name: text('name').notNull(),
   age: integer('age'),
   className: text('class_name'), // Keep existing className field name for compatibility
-  description: text('description'),
+  classDescription: text('class_description'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -300,6 +302,8 @@ export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().min(1),
+  className: z.string().optional(),
+  classDescription: z.string().optional(),
 });
 
 export const createTaskSchema = z.object({
@@ -383,7 +387,7 @@ export const createFamilyMemberSchema = z.object({
   name: z.string().min(1),
   age: z.number().int().min(0).optional(),
   className: z.string().optional(),
-  description: z.string().optional(),
+  classDescription: z.string().optional(),
 });
 
 export const createPotionSchema = z.object({

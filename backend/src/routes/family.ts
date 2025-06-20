@@ -27,14 +27,14 @@ familyRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
 // Create family member
 familyRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
-  const { name, age, className, description } = c.req.valid('json');
+  const { name, age, className, classDescription } = c.req.valid('json');
   
   const [familyMember] = await db.insert(family).values({
     userId: user.id,
     name,
     age,
     className,
-    description,
+    classDescription,
   }).returning();
   
   return c.json({ familyMember });
@@ -65,10 +65,10 @@ familyRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
 familyRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createFamilyMemberSchema), async (c) => {
   const user = c.get('user') as User;
   const familyMemberId = c.req.param('id');
-  const { name, age, className, description } = c.req.valid('json');
+  const { name, age, className, classDescription } = c.req.valid('json');
   
   const [updatedFamilyMember] = await db.update(family)
-    .set({ name, age, className, description, updatedAt: new Date() })
+    .set({ name, age, className, classDescription, updatedAt: new Date() })
     .where(and(eq(family.id, familyMemberId), eq(family.userId, user.id)))
     .returning();
   

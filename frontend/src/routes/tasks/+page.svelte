@@ -287,14 +287,14 @@
 <!-- Success Message -->
 {#if saveMessage}
 	<div
-		class="fixed top-6 right-6 z-50 max-w-sm rounded-lg border border-success/20 bg-base-100 p-4 shadow-lg"
+		class="border-success/20 bg-base-100 fixed top-6 right-6 z-50 max-w-sm rounded-lg border p-4 shadow-lg"
 	>
 		<div class="flex items-start gap-3">
 			<div class="flex-shrink-0">
-				<CheckCircle2 class="h-5 w-5 text-success" />
+				<CheckCircle2 class="text-success h-5 w-5" />
 			</div>
 			<div class="min-w-0 flex-1">
-				<p class="text-sm font-medium text-base-content">{saveMessage}</p>
+				<p class="text-base-content text-sm font-medium">{saveMessage}</p>
 			</div>
 		</div>
 	</div>
@@ -364,13 +364,13 @@
 	</div>
 
 	<!-- Controls Section -->
-	<div class="sticky top-0 z-10 border-b border-base-300 bg-base-100">
+	<div class="border-base-300 bg-base-100 sticky top-0 z-10 border-b">
 		<div class="container mx-auto px-6 py-4">
 			<div class="flex flex-col items-center gap-4 lg:flex-row">
 				<!-- Search -->
 				<div class="relative flex-1">
 					<Search
-						class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+						class="text-base-content/50 absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform"
 					/>
 					<input
 						type="text"
@@ -384,61 +384,47 @@
 				<div class="flex flex-wrap items-center gap-3">
 					<!-- Status Filter -->
 					<div class="relative">
-						<select
-							class="select select-bordered pr-10"
-							bind:value={filterStatus}
-						>
+						<select class="select select-bordered pr-10" bind:value={filterStatus}>
 							<option value="all">All Status</option>
 							<option value="active">Active</option>
 							<option value="completed">Completed</option>
 							<option value="overdue">Overdue</option>
 						</select>
 						<ChevronDown
-							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+							class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform"
 						/>
 					</div>
 
 					<!-- Focus Filter -->
 					{#if focuses.length > 0}
 						<div class="relative">
-							<select
-								class="select select-bordered pr-10"
-								bind:value={filterFocus}
-							>
+							<select class="select select-bordered pr-10" bind:value={filterFocus}>
 								<option value="">All Focus Areas</option>
 								{#each focuses as focus}
 									<option value={focus.id}>{focus.name}</option>
 								{/each}
 							</select>
 							<ChevronDown
-								class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+								class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform"
 							/>
 						</div>
 					{/if}
 
 					<!-- Sort -->
 					<div class="relative">
-						<select
-							class="select select-bordered pr-10"
-							bind:value={sortBy}
-						>
+						<select class="select select-bordered pr-10" bind:value={sortBy}>
 							<option value="dueDate">Due Date</option>
 							<option value="title">Title</option>
 							<option value="created">Created</option>
 						</select>
 						<ChevronDown
-							class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-base-content/50"
+							class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform"
 						/>
 					</div>
 
 					<!-- Reset -->
 					{#if searchQuery || filterStatus !== 'all' || filterFocus || sortBy !== 'dueDate'}
-						<button
-							class="btn btn-ghost btn-sm"
-							onclick={resetFilters}
-						>
-							Reset
-						</button>
+						<button class="btn btn-ghost btn-sm" onclick={resetFilters}> Reset </button>
 					{/if}
 
 					<!-- Create Task Button -->
@@ -459,20 +445,20 @@
 					<div
 						class="h-10 w-10 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
 					></div>
-					<p class="font-medium text-base-content">Loading your tasks...</p>
+					<p class="text-base-content font-medium">Loading your tasks...</p>
 				</div>
 			</div>
 		{:else if filteredTasks.length === 0}
 			<div class="py-20 text-center">
-				<div class="mx-auto max-w-md rounded-xl border border-base-300 bg-base-100 p-12 shadow-sm">
+				<div class="border-base-300 bg-base-100 mx-auto max-w-md rounded-xl border p-12 shadow-sm">
 					<div
-						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-base-200"
+						class="bg-base-200 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
 					>
-						<Target class="h-10 w-10 text-base-content/50" />
+						<Target class="text-base-content/50 h-10 w-10" />
 					</div>
 					{#if tasks.length === 0}
-						<h3 class="mb-3 text-2xl font-bold text-base-content">Ready to get organized?</h3>
-						<p class="mb-8 leading-relaxed text-base-content/70">
+						<h3 class="text-base-content mb-3 text-2xl font-bold">Ready to get organized?</h3>
+						<p class="text-base-content/70 mb-8 leading-relaxed">
 							Create your first task and take the first step towards achieving your goals.
 						</p>
 						<button class="btn btn-primary px-6 py-3 text-lg" onclick={openCreateForm}>
@@ -480,8 +466,8 @@
 							Create Your First Task
 						</button>
 					{:else}
-						<h3 class="mb-3 text-2xl font-bold text-base-content">No matching tasks</h3>
-						<p class="mb-8 leading-relaxed text-base-content/70">
+						<h3 class="text-base-content mb-3 text-2xl font-bold">No matching tasks</h3>
+						<p class="text-base-content/70 mb-8 leading-relaxed">
 							Try adjusting your search or filter criteria to find what you're looking for.
 						</p>
 						<button class="btn btn-ghost px-6 py-3 text-lg" onclick={resetFilters}>
@@ -495,16 +481,14 @@
 			<!-- Quick Actions Bar -->
 			{#if overdueTasks.length > 0 || todayTasks.length > 0}
 				<div class="mb-8">
-					<div
-						class="rounded-xl border border-warning/20 bg-warning/5 p-6"
-					>
+					<div class="border-warning/20 bg-warning/5 rounded-xl border p-6">
 						<div class="flex items-start gap-4">
-							<div class="rounded-lg bg-warning/20 p-2">
-								<AlertCircle class="h-5 w-5 text-warning" />
+							<div class="bg-warning/20 rounded-lg p-2">
+								<AlertCircle class="text-warning h-5 w-5" />
 							</div>
 							<div class="flex-1">
-								<h3 class="mb-2 font-semibold text-warning">Attention Required</h3>
-								<div class="flex flex-wrap gap-4 text-sm text-warning">
+								<h3 class="text-warning mb-2 font-semibold">Attention Required</h3>
+								<div class="text-warning flex flex-wrap gap-4 text-sm">
 									{#if overdueTasks.length > 0}
 										<span
 											>{overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}</span
@@ -525,7 +509,7 @@
 				{#each filteredTasks as task (task.id)}
 					{@const priority = getTaskPriority(task)}
 					<div
-						class="group rounded-xl border border-base-300 bg-base-100 shadow-sm transition-all duration-200 hover:shadow-md"
+						class="group border-base-300 bg-base-100 rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md"
 					>
 						<!-- Task Header -->
 						<div class="p-6 pb-4">
@@ -533,20 +517,26 @@
 								<!-- Priority Indicator & Status -->
 								<div class="mt-1 flex flex-col items-center gap-2">
 									{#if task.completedAt}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-success/20">
-											<CheckCircle2 class="h-5 w-5 text-success" />
+										<div
+											class="bg-success/20 flex h-8 w-8 items-center justify-center rounded-full"
+										>
+											<CheckCircle2 class="text-success h-5 w-5" />
 										</div>
 									{:else if priority === 'overdue'}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-error/20">
-											<AlertCircle class="h-5 w-5 text-error" />
+										<div class="bg-error/20 flex h-8 w-8 items-center justify-center rounded-full">
+											<AlertCircle class="text-error h-5 w-5" />
 										</div>
 									{:else if priority === 'urgent'}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-warning/20">
-											<Clock class="h-5 w-5 text-warning" />
+										<div
+											class="bg-warning/20 flex h-8 w-8 items-center justify-center rounded-full"
+										>
+											<Clock class="text-warning h-5 w-5" />
 										</div>
 									{:else}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
-											<Target class="h-5 w-5 text-primary" />
+										<div
+											class="bg-primary/20 flex h-8 w-8 items-center justify-center rounded-full"
+										>
+											<Target class="text-primary h-5 w-5" />
 										</div>
 									{/if}
 								</div>
@@ -555,7 +545,7 @@
 								<div class="min-w-0 flex-1">
 									<div class="mb-3 flex items-start justify-between gap-4">
 										<h3
-											class="text-xl leading-tight font-semibold text-base-content {task.completedAt
+											class="text-base-content text-xl leading-tight font-semibold {task.completedAt
 												? 'text-base-content/50 line-through'
 												: ''}"
 										>
@@ -594,7 +584,7 @@
 
 									{#if task.description}
 										<p
-											class="mb-4 leading-relaxed text-base-content/70 {task.completedAt
+											class="text-base-content/70 mb-4 leading-relaxed {task.completedAt
 												? 'line-through'
 												: ''}"
 										>
@@ -622,23 +612,17 @@
 
 								<!-- Tags -->
 								{#if task.focus?.name}
-									<div
-										class="badge badge-primary badge-outline"
-									>
+									<div class="badge badge-primary badge-outline">
 										{task.focus.name}
 									</div>
 								{/if}
 								{#if task.familyMember?.name}
-									<div
-										class="badge badge-secondary badge-outline"
-									>
+									<div class="badge badge-secondary badge-outline">
 										{task.familyMember.name}
 									</div>
 								{/if}
 								{#if task.stat?.name}
-									<div
-										class="badge badge-accent badge-outline gap-2"
-									>
+									<div class="badge badge-accent badge-outline gap-2">
 										<svelte:component this={getIconComponent(task.stat.icon)} class="h-4 w-4" />
 										{task.stat.name}
 									</div>
@@ -648,10 +632,7 @@
 							<!-- Mobile Actions -->
 							{#if !task.completedAt}
 								<div class="mt-4 flex gap-3 sm:hidden">
-									<button
-										class="btn btn-success flex-1"
-										onclick={() => completeTask(task.id)}
-									>
+									<button class="btn btn-success flex-1" onclick={() => completeTask(task.id)}>
 										<CheckCircle2 class="mr-2 h-4 w-4" />
 										Complete
 									</button>
@@ -670,14 +651,8 @@
 
 <!-- Create/Edit Task Modal -->
 {#if showCreateForm}
-	<div
-		class="modal modal-open"
-		onclick={closeModal}
-	>
-		<div
-			class="modal-box max-w-2xl"
-			onclick={(e) => e.stopPropagation()}
-		>
+	<div class="modal modal-open" onclick={closeModal}>
+		<div class="modal-box max-w-2xl" onclick={(e) => e.stopPropagation()}>
 			<!-- Modal Header -->
 			<div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
 				<div class="flex items-center justify-between">
@@ -709,7 +684,7 @@
 					<!-- Essential Fields -->
 					<div class="space-y-6">
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
+							<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
 								<div class="h-2 w-2 rounded-full bg-blue-500"></div>
 								Task Details
 							</h3>
@@ -746,7 +721,7 @@
 
 						<!-- Scheduling -->
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
+							<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
 								<div class="h-2 w-2 rounded-full bg-amber-500"></div>
 								Scheduling
 							</h3>
@@ -763,7 +738,7 @@
 										bind:value={formData.dueDate}
 									/>
 									<Calendar
-										class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+										class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform"
 									/>
 								</div>
 							</div>
@@ -771,7 +746,7 @@
 
 						<!-- Organization -->
 						<div>
-							<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
+							<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
 								<div class="h-2 w-2 rounded-full bg-purple-500"></div>
 								Organization
 							</h3>
@@ -795,7 +770,7 @@
 												{/each}
 											</select>
 											<ChevronDown
-												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+												class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform"
 											/>
 										</div>
 									</div>
@@ -819,7 +794,7 @@
 												{/each}
 											</select>
 											<ChevronDown
-												class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+												class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform"
 											/>
 										</div>
 									</div>
@@ -830,7 +805,7 @@
 						<!-- Rewards -->
 						{#if stats.length > 0}
 							<div>
-								<h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-base-content">
+								<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
 									<div class="h-2 w-2 rounded-full bg-green-500"></div>
 									Rewards & Progress
 								</h3>
@@ -853,14 +828,16 @@
 											{/each}
 										</select>
 										<ChevronDown
-											class="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform text-base-content/50"
+											class="text-base-content/50 pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform"
 										/>
 									</div>
 									<div class="mt-2 flex items-center gap-2">
-										<div class="flex h-4 w-4 items-center justify-center rounded-full bg-success/20">
-											<CheckCircle2 class="h-3 w-3 text-success" />
+										<div
+											class="bg-success/20 flex h-4 w-4 items-center justify-center rounded-full"
+										>
+											<CheckCircle2 class="text-success h-3 w-3" />
 										</div>
-										<p class="text-xs text-base-content/70">
+										<p class="text-base-content/70 text-xs">
 											Completing this task will automatically boost the selected stat
 										</p>
 									</div>
@@ -872,13 +849,9 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="bg-base-200 border-t border-base-300 px-8 py-6">
+			<div class="bg-base-200 border-base-300 border-t px-8 py-6">
 				<div class="flex justify-end gap-4">
-					<button
-						type="button"
-						class="btn btn-ghost"
-						onclick={() => (showCreateForm = false)}
-					>
+					<button type="button" class="btn btn-ghost" onclick={() => (showCreateForm = false)}>
 						Cancel
 					</button>
 					<button type="submit" class="btn btn-primary" onclick={handleSubmit}>
