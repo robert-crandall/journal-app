@@ -294,7 +294,7 @@
 					</div>
 
 					<!-- Featured Priority Task -->
-					{#each dailyTasks.filter((t) => !t.completedAt).slice(0, 1) as task}
+					{#each dailyTasks.filter((t) => !t.completedAt).slice(0, 3) as task}
 						<div class="border-primary/30 bg-base-100 mb-6 rounded-xl border-2 p-6 shadow-sm">
 							<div class="mb-4 text-center">
 								<h3 class="text-base-content mb-2 text-xl font-bold">{task.title}</h3>
@@ -875,20 +875,20 @@
 
 				<div>
 					<label class="text-base-content mb-2 block text-sm font-semibold">
-						Mood Score (1-10) <span class="text-base-content/70 text-sm font-normal italic"
+						Mood Score (1-5) <span class="text-base-content/70 text-sm font-normal italic"
 							>(optional)</span
 						>
 					</label>
 					<input
 						type="range"
 						min="0"
-						max="10"
+						max="5"
 						bind:value={taskFeedbackData.moodScore}
 						class="bg-base-300 h-2 w-full cursor-pointer appearance-none rounded-lg"
 					/>
 					<div class="text-base-content/70 mt-1 flex justify-between text-xs">
 						<span>None</span>
-						<span>Great (10)</span>
+						<span>Great (5)</span>
 					</div>
 					{#if taskFeedbackData.moodScore > 0}
 						<p class="text-base-content/80 mt-2 text-center text-sm">
