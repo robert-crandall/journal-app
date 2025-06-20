@@ -646,9 +646,7 @@
 						</div>
 						<div>
 							<h2 class="text-2xl font-bold">Create New Task</h2>
-							<p class="mt-1 text-sm text-blue-100">
-								Add a new task to your workflow
-							</p>
+							<p class="mt-1 text-sm text-blue-100">Add a new task to your workflow</p>
 						</div>
 					</div>
 					<button

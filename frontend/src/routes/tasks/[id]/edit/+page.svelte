@@ -55,7 +55,7 @@
 				focusesApi.getAll(),
 				statsApi.getAll()
 			]);
-			
+
 			task = taskRes.task;
 			familyMembers = familyRes.familyMembers;
 			focuses = focusesRes.focuses;
@@ -81,7 +81,7 @@
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
-		
+
 		if (!formData.title.trim()) {
 			showSaveMessage('Please enter a task title');
 			return;
@@ -100,7 +100,7 @@
 
 			await tasksApi.update(taskId, taskData);
 			showSaveMessage('Task updated successfully ✓');
-			
+
 			// Navigate back after a brief delay
 			setTimeout(() => {
 				goto('/tasks');
@@ -135,17 +135,13 @@
 		</div>
 	</div>
 {:else if task}
-	<div class="min-h-screen bg-base-200">
+	<div class="bg-base-200 min-h-screen">
 		<!-- Header -->
 		<div class="bg-base-100 border-base-300 border-b">
 			<div class="container mx-auto px-4 py-6">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-4">
-						<button
-							onclick={goBack}
-							class="btn btn-ghost btn-sm"
-							title="Back to tasks"
-						>
+						<button onclick={goBack} class="btn btn-ghost btn-sm" title="Back to tasks">
 							<ArrowLeft class="h-5 w-5" />
 						</button>
 						<div class="flex items-center gap-3">
@@ -172,7 +168,7 @@
 							<div class="space-y-6">
 								<div>
 									<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
-										<div class="h-2 w-2 rounded-full bg-primary"></div>
+										<div class="bg-primary h-2 w-2 rounded-full"></div>
 										Task Details
 									</h3>
 
@@ -209,7 +205,7 @@
 								<!-- Scheduling -->
 								<div>
 									<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
-										<div class="h-2 w-2 rounded-full bg-secondary"></div>
+										<div class="bg-secondary h-2 w-2 rounded-full"></div>
 										Scheduling
 									</h3>
 
@@ -234,7 +230,7 @@
 								<!-- Organization -->
 								<div>
 									<h3 class="text-base-content mb-4 flex items-center gap-2 text-lg font-semibold">
-										<div class="h-2 w-2 rounded-full bg-accent"></div>
+										<div class="bg-accent h-2 w-2 rounded-full"></div>
 										Organization
 									</h3>
 
@@ -298,13 +294,8 @@
 							</div>
 
 							<!-- Form Actions -->
-							<div class="flex items-center justify-between border-t border-base-300 pt-6">
-								<button
-									type="button"
-									class="btn btn-ghost"
-									onclick={goBack}
-									disabled={saving}
-								>
+							<div class="border-base-300 flex items-center justify-between border-t pt-6">
+								<button type="button" class="btn btn-ghost" onclick={goBack} disabled={saving}>
 									Cancel
 								</button>
 								<button
@@ -341,9 +332,7 @@
 		<div class="text-center">
 			<h1 class="text-base-content text-2xl font-bold">Task not found</h1>
 			<p class="text-base-content/60 mt-2">The task you're looking for doesn't exist.</p>
-			<button onclick={goBack} class="btn btn-primary mt-4">
-				Back to Tasks
-			</button>
+			<button onclick={goBack} class="btn btn-primary mt-4"> Back to Tasks </button>
 		</div>
 	</div>
 {/if}
