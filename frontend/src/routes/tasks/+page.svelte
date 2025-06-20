@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { tasksApi, familyApi, focusesApi, statsApi } from '$lib/api';
 	import {
 		Plus,
@@ -37,7 +38,6 @@
 	let stats: any[] = [];
 	let loading = true;
 	let showCreateForm = false;
-	let editingTask: any = null;
 	let saveMessage = '';
 	let searchQuery = '';
 	let filterStatus = 'all'; // all, active, completed, overdue
@@ -152,22 +152,11 @@
 			familyMemberId: '',
 			statId: ''
 		};
-		editingTask = null;
 		showCreateForm = true;
 	}
 
 	function openEditForm(task: any) {
-		formData = {
-			title: task.title,
-			description: task.description || '',
-			dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
-			focusId: task.focusId || '',
-			levelId: task.levelId || '',
-			familyMemberId: task.familyMemberId || '',
-			statId: task.statId || ''
-		};
-		editingTask = task;
-		showCreateForm = true;
+		goto(`/tasks/${task.id}/edit`);
 	}
 
 	async function handleSubmit(event: Event) {
@@ -182,13 +171,8 @@
 				statId: formData.statId || undefined
 			};
 
-			if (editingTask) {
-				await tasksApi.update(editingTask.id, taskData);
-				showSaveMessage('Task updated successfully ✓');
-			} else {
-				await tasksApi.create(taskData);
-				showSaveMessage('New task created ✓');
-			}
+			await tasksApi.create(taskData);
+			showSaveMessage('New task created ✓');
 
 			showCreateForm = false;
 			await loadData();
@@ -567,7 +551,7 @@
 											{/if}
 											<button
 												class="btn btn-ghost btn-sm"
-												onclick={() => openEditForm(task)}
+												onclick={() => goto(`/tasks/${task.id}/edit`)}
 												title="Edit task"
 											>
 												<Edit class="h-5 w-5" />
@@ -636,7 +620,7 @@
 										<CheckCircle2 class="mr-2 h-4 w-4" />
 										Complete
 									</button>
-									<button class="btn btn-ghost" onclick={() => openEditForm(task)}>
+									<button class="btn btn-ghost" onclick={() => goto(`/tasks/${task.id}/edit`)}>
 										<Edit class="h-4 w-4" />
 									</button>
 								</div>
@@ -661,11 +645,9 @@
 							<Target class="h-6 w-6" />
 						</div>
 						<div>
-							<h2 class="text-2xl font-bold">
-								{editingTask ? 'Edit Task' : 'Create New Task'}
-							</h2>
+							<h2 class="text-2xl font-bold">Create New Task</h2>
 							<p class="mt-1 text-sm text-blue-100">
-								{editingTask ? 'Update your task details' : 'Add a new task to your workflow'}
+								Add a new task to your workflow
 							</p>
 						</div>
 					</div>
@@ -855,7 +837,7 @@
 						Cancel
 					</button>
 					<button type="submit" class="btn btn-primary" onclick={handleSubmit}>
-						{editingTask ? 'Update Task' : 'Create Task'}
+						Create Task
 					</button>
 				</div>
 			</div>

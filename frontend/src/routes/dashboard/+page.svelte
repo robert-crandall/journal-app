@@ -57,7 +57,20 @@
 					.filter((task: any) => !task.completedAt && task.origin !== 'gpt')
 					.slice(0, 5);
 				dailyTasks = dailyTasksData.tasks || [];
-				adhocTasks = adhocTasksData.adhocTasks || [];
+				
+				// Filter out adhoc tasks that were completed today
+				const today = new Date().toDateString();
+				const completedAdhocTaskIdsToday = tasksData.tasks
+					.filter((task: any) => 
+						task.completedAt && 
+						task.adhocTaskId && 
+						new Date(task.completedAt).toDateString() === today
+					)
+					.map((task: any) => task.adhocTaskId);
+				
+				adhocTasks = (adhocTasksData.adhocTasks || [])
+					.filter((adhocTask: any) => !completedAdhocTaskIdsToday.includes(adhocTask.id));
+				
 				stats = statsData.slice(0, 4);
 				recentJournals = journalsData.journals.slice(0, 3);
 				userData = userResponse.user;
@@ -177,9 +190,25 @@
 				moodScore: taskFeedbackData.moodScore || undefined
 			});
 
-			// Refresh stats
-			const statsData = await statsApi.getAll();
+			// Refresh stats and tasks to hide completed adhoc tasks
+			const [statsData, tasksData] = await Promise.all([
+				statsApi.getAll(),
+				tasksApi.getAll()
+			]);
 			stats = statsData.slice(0, 4);
+			
+			// Filter out adhoc tasks that were completed today
+			const today = new Date().toDateString();
+			const completedAdhocTaskIdsToday = tasksData.tasks
+				.filter((task: any) => 
+					task.completedAt && 
+					task.adhocTaskId && 
+					new Date(task.completedAt).toDateString() === today
+				)
+				.map((task: any) => task.adhocTaskId);
+			
+			// Remove the completed adhoc task from the list
+			adhocTasks = adhocTasks.filter((adhocTask: any) => !completedAdhocTaskIdsToday.includes(adhocTask.id));
 
 			// Reset form and close modal
 			cancelTaskFeedback();

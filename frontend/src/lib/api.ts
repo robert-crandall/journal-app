@@ -36,6 +36,10 @@ export const tasksApi = {
 		return apiRequest('/tasks');
 	},
 
+	async get(id: string) {
+		return apiRequest(`/tasks/${id}`);
+	},
+
 	async getDailyTasks() {
 		return apiRequest('/tasks/daily');
 	},
