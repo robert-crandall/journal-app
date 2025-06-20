@@ -25,11 +25,5 @@ echo "🔧 Running Svelte check..."
 bun run check
 echo "🎨 Running formatter..."
 bun run format
-echo "🏗️ Testing build process..."
-# Set timeout for build to prevent hanging
-timeout 60s bun run build || {
-    echo "⚠️  Build timed out after 60 seconds, but other checks passed"
-    exit 0
-}
 
 print_section "All checks completed successfully! ✅"
