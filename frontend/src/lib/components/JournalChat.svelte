@@ -217,7 +217,7 @@
 
 <div class="flex h-full flex-col">
 	<!-- Chat Header -->
-	<div class="border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+	<div class="border-b border-primary-100 bg-gradient-to-r from-primary-50 to-secondary-50 p-6">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				<div class="bg-primary/10 rounded-lg p-2">
@@ -260,16 +260,16 @@
 	</div>
 
 	<!-- Chat Messages -->
-	<div class="bg-base-100 flex-1 space-y-6 overflow-y-auto p-6">
+	<div class="bg-base-100 flex-1 space-y-4 overflow-y-auto p-3 md:space-y-6 md:p-6">
 		{#if messages.length === 0 && journalStatus === 'new'}
-			<div class="py-12 text-center">
+			<div class="py-8 text-center md:py-12">
 				<div
-					class="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
+					class="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full md:mb-6 md:h-20 md:w-20"
 				>
-					<Bot class="text-info h-10 w-10" />
+					<Bot class="text-info h-8 w-8 md:h-10 md:w-10" />
 				</div>
-				<h3 class="text-base-content mb-3 text-2xl font-bold">Start Your Journal Session</h3>
-				<p class="text-base-content/70 mx-auto max-w-md leading-relaxed">
+				<h3 class="text-base-content mb-2 text-xl font-bold md:mb-3 md:text-2xl">Start Your Journal Session</h3>
+				<p class="text-base-content/70 mx-auto max-w-md text-sm leading-relaxed md:text-base">
 					Share what's on your mind, and I'll help you explore your thoughts with thoughtful
 					questions and insights.
 				</p>
@@ -277,30 +277,30 @@
 		{/if}
 
 		{#each messages as message (message.timestamp)}
-			<div class="flex gap-4 {message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
+			<div class="flex gap-3 md:gap-4 {message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}">
 				<!-- Avatar -->
 				<div class="flex-shrink-0">
 					<div
-						class="h-10 w-10 rounded-full {message.role === 'user'
+						class="h-8 w-8 rounded-full {message.role === 'user'
 							? 'bg-secondary/10'
-							: 'bg-primary/10'} flex items-center justify-center"
+							: 'bg-primary/10'} flex items-center justify-center md:h-10 md:w-10"
 					>
 						{#if message.role === 'user'}
-							<User class="text-secondary h-5 w-5" />
+							<User class="text-secondary h-4 w-4 md:h-5 md:w-5" />
 						{:else}
-							<Bot class="text-info h-5 w-5" />
+							<Bot class="text-info h-4 w-4 md:h-5 md:w-5" />
 						{/if}
 					</div>
 				</div>
 
 				<!-- Message Content -->
-				<div class="max-w-3xl flex-1">
+				<div class="min-w-0 flex-1 md:max-w-3xl">
 					<div
-						class="mb-2 flex items-center gap-2 {message.role === 'user'
+						class="mb-1 flex items-center gap-2 md:mb-2 {message.role === 'user'
 							? 'justify-end'
 							: 'justify-start'}"
 					>
-						<span class="text-base-content text-sm font-medium">
+						<span class="text-base-content text-xs font-medium md:text-sm">
 							{message.role === 'user' ? 'You' : 'AI Assistant'}
 						</span>
 						<time class="text-base-content/60 text-xs">
@@ -308,18 +308,18 @@
 						</time>
 					</div>
 					<div
-						class="rounded-lg p-4 {message.role === 'user'
-							? 'bg-secondary text-primary-content ml-8'
-							: 'bg-base-200 text-base-content mr-8'} shadow-sm"
+						class="rounded-lg p-3 shadow-sm {message.role === 'user'
+							? 'bg-secondary text-primary-content ml-2 md:ml-8'
+							: 'bg-base-200 text-base-content mr-2 md:mr-8'} md:p-4"
 					>
 						{#if message.content.includes('**Journal Summary:**')}
-							<div class="prose max-w-none {message.role === 'user' ? 'prose-invert' : ''}">
+							<div class="prose max-w-none text-sm {message.role === 'user' ? 'prose-invert' : ''} md:text-base">
 								{@html message.content
 									.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 									.replace(/\n/g, '<br>')}
 							</div>
 						{:else}
-							<div class="leading-relaxed whitespace-pre-wrap">
+							<div class="text-sm leading-relaxed whitespace-pre-wrap md:text-base">
 								{message.content}
 							</div>
 						{/if}
@@ -365,23 +365,23 @@
 
 	<!-- Input Area -->
 	{#if journalStatus === 'day_completion'}
-		<div class="border-t border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 p-6">
-			<div class="mx-auto max-w-3xl space-y-6">
+		<div class="border-t border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 p-4 md:p-6">
+			<div class="mx-auto max-w-3xl space-y-4 md:space-y-6">
 				<div class="text-center">
 					<div
-						class="bg-warning/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+						class="bg-warning/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full md:mb-4 md:h-16 md:w-16"
 					>
-						<Sparkles class="text-warning h-8 w-8" />
+						<Sparkles class="text-warning h-6 w-6 md:h-8 md:w-8" />
 					</div>
-					<h3 class="text-base-content mb-2 text-xl font-semibold">Day Reflection</h3>
-					<p class="text-base-content/70">
+					<h3 class="text-base-content mb-1 text-lg font-semibold md:mb-2 md:text-xl">Day Reflection</h3>
+					<p class="text-base-content/70 text-sm md:text-base">
 						Before we finish, let's capture a few more details about your day.
 					</p>
 				</div>
 
-				<div class="space-y-6">
+				<div class="space-y-4 md:space-y-6">
 					<!-- Day Memory -->
-					<div class="space-y-3">
+					<div class="space-y-2 md:space-y-3">
 						<label for="day-memory" class="text-base-content block text-sm font-medium">
 							Is there anything you want to remember from today?
 							<span class="text-base-content/60 ml-1 font-normal">(Optional)</span>
@@ -390,8 +390,8 @@
 							id="day-memory"
 							bind:value={dayMemory}
 							placeholder="Something special, a moment of gratitude, or just something you don't want to forget..."
-							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
-							rows="4"
+							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-3 py-3 text-base shadow-sm focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none md:px-4"
+							rows="3"
 							disabled={isLoading}
 						></textarea>
 						<p class="text-base-content/60 text-xs">
@@ -400,16 +400,16 @@
 					</div>
 
 					<!-- Day Rating -->
-					<div class="space-y-3">
+					<div class="space-y-2 md:space-y-3">
 						<label class="text-base-content block text-sm font-medium">
 							How would you rate your day overall? (1-5)
 							<span class="text-base-content/60 ml-1 font-normal">(Optional)</span>
 						</label>
-						<div class="flex items-center gap-3">
+						<div class="flex items-center gap-2 md:gap-3">
 							{#each [1, 2, 3, 4, 5] as rating}
 								<button
 									onclick={() => (dayRating = rating)}
-									class="h-12 w-12 rounded-lg border-2 font-semibold transition-all duration-200 {dayRating ===
+									class="h-10 w-10 rounded-lg border-2 font-semibold transition-all duration-200 md:h-12 md:w-12 {dayRating ===
 									rating
 										? 'bg-warning text-primary-content scale-105 border-amber-500 shadow-lg'
 										: 'border-base-300 bg-base-100 text-base-content/80 hover:bg-warning/10 hover:border-amber-300'}"
@@ -422,7 +422,7 @@
 							{#if dayRating !== null}
 								<button
 									onclick={() => (dayRating = null)}
-									class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-3 py-2 text-sm transition-colors"
+									class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-2 py-1 text-sm transition-colors md:px-3 md:py-2"
 									disabled={isLoading}
 									aria-label="Clear rating"
 								>
@@ -434,17 +434,17 @@
 					</div>
 
 					<!-- Completion buttons -->
-					<div class="border-warning/20 flex justify-end border-t pt-4">
+					<div class="border-warning/20 flex justify-end border-t pt-3 md:pt-4">
 						<button
 							onclick={completeDayReflection}
 							disabled={isLoading}
-							class="btn-primary flex items-center gap-2"
+							class="btn btn-primary flex items-center gap-2"
 						>
 							{#if isLoading}
-								<Loader2 class="h-5 w-5 animate-spin" />
+								<Loader2 class="h-4 w-4 animate-spin md:h-5 md:w-5" />
 								Saving...
 							{:else}
-								<CheckCircle class="h-5 w-5" />
+								<CheckCircle class="h-4 w-4 md:h-5 md:w-5" />
 								Complete Journal
 							{/if}
 						</button>
@@ -453,40 +453,41 @@
 			</div>
 		</div>
 	{:else if journalStatus !== 'fully_completed'}
-		<div class="border-base-300 bg-base-200 border-t p-6">
+		<div class="border-base-300 bg-base-200 border-t p-3 md:p-6">
 			<div class="mx-auto max-w-3xl">
-				<div class="flex gap-4">
+				<div class="flex flex-col gap-3 md:flex-row md:gap-4">
 					<div class="flex-1">
 						<textarea
 							bind:value={currentInput}
 							onkeydown={handleKeydown}
 							placeholder={journalStatus === 'new'
-								? "What's on your mind today? Share your thoughts, feelings, or experiences..."
-								: 'Share your response to continue the conversation...'}
-							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-4 py-3 shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-							rows="4"
+								? "What's on your mind today?"
+								: 'Share your response...'}
+							class="border-base-300 bg-base-100 w-full resize-none rounded-lg border px-3 py-3 text-base shadow-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none md:px-4"
+							rows="3"
 							disabled={isLoading}
 						></textarea>
 					</div>
-					<div class="flex flex-col gap-3">
+					<div class="flex flex-row gap-2 md:flex-col md:gap-3">
 						{#if journalStatus === 'new'}
 							<button
 								onclick={startJournal}
 								disabled={!currentInput.trim() || isLoading}
-								class="btn-primary flex items-center gap-2 px-6 py-3"
+								class="btn btn-primary btn-sm md:btn-md flex flex-1 items-center justify-center gap-2 md:px-6 md:py-3"
 							>
 								{#if isLoading}
-									<Loader2 class="h-5 w-5 animate-spin" />
+									<Loader2 class="h-4 w-4 animate-spin md:h-5 md:w-5" />
 								{:else}
-									<Send class="h-5 w-5" />
+									<Send class="h-4 w-4 md:h-5 md:w-5" />
 								{/if}
-								Start Session
+								<span class="hidden md:inline">Start Session</span>
+								<span class="md:hidden">Start</span>
 							</button>
 						{:else if journalStatus === 'in_progress'}
 							<button
 								onclick={sendFollowupResponse}
 								disabled={!currentInput.trim() || isLoading}
-								class="btn-primary flex items-center gap-2 px-4 py-2"
+								class="btn btn-primary btn-sm md:btn-md flex flex-1 items-center justify-center gap-2 md:px-4 md:py-2"
 							>
 								{#if isLoading}
 									<Loader2 class="h-4 w-4 animate-spin" />
@@ -499,22 +500,24 @@
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="bg-success text-primary-content hover:bg-success/90 flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors"
+									class="btn btn-success btn-sm md:btn-md flex flex-1 items-center justify-center gap-2 md:bg-success md:text-primary-content md:hover:bg-success/90 md:rounded-lg md:px-4 md:py-2 md:font-medium md:transition-colors"
 								>
 									{#if isLoading}
 										<Loader2 class="h-4 w-4 animate-spin" />
 									{:else}
 										<CheckCircle class="h-4 w-4" />
 									{/if}
-									Finish Session
+									<span class="hidden md:inline">Finish Session</span>
+									<span class="md:hidden">Finish</span>
 								</button>
 							{:else if canSubmit}
 								<button
 									onclick={submitJournal}
 									disabled={isLoading}
-									class="text-base-content/70 hover:bg-base-200 hover:text-base-content rounded-lg px-4 py-2 font-medium transition-colors"
+									class="btn btn-ghost btn-sm md:text-base-content/70 md:hover:bg-base-200 md:hover:text-base-content md:rounded-lg md:px-4 md:py-2 md:font-medium md:transition-colors"
 								>
-									Finish Early
+									<span class="hidden md:inline">Finish Early</span>
+									<span class="md:hidden">Finish</span>
 								</button>
 							{/if}
 						{/if}
@@ -522,10 +525,10 @@
 				</div>
 
 				{#if journalStatus === 'in_progress'}
-					<div class="text-base-content/70 mt-4 flex items-center justify-between text-sm">
-						<span>Press Enter to send, Shift+Enter for new line</span>
+					<div class="text-base-content/70 mt-3 text-sm md:mt-4 md:flex md:items-center md:justify-between">
+						<span class="hidden md:block">Press Enter to send, Shift+Enter for new line</span>
 						{#if followupCount < maxFollowups}
-							<span class="text-info font-medium">
+							<span class="text-info block text-center text-xs font-medium md:text-sm">
 								{maxFollowups - followupCount} follow-up question{maxFollowups - followupCount !== 1
 									? 's'
 									: ''} remaining
