@@ -1,17 +1,47 @@
 <script lang="ts">
-	import { theme } from '$lib/stores/theme';
+	import { theme, availableThemes } from '$lib/stores/theme';
 	import { auth } from '$lib/stores/auth';
 	import { preferencesApi, userApi } from '$lib/api';
 	import { onMount } from 'svelte';
 	import AttributeManager from '$lib/components/AttributeManager.svelte';
 	import * as icons from 'lucide-svelte';
 
-	// Simplified theme options (only dark/light/auto)
-	const themeOptions = [
-		{ name: 'Light', value: 'light', description: 'Light theme for all times' },
-		{ name: 'Dark', value: 'dark', description: 'Dark theme for all times' },
-		{ name: 'Auto', value: 'auto', description: 'Follows your system preference' }
-	];
+	// Map themes to descriptions and icons
+	const themeDescriptions: Record<string, { description: string; icon: any }> = {
+		auto: { description: 'Follows your system preference', icon: icons.Monitor },
+		light: { description: 'Light theme for all times', icon: icons.Sun },
+		dark: { description: 'Dark theme for all times', icon: icons.Moon },
+		cupcake: { description: 'Sweet and colorful', icon: icons.Heart },
+		bumblebee: { description: 'Bright and energetic', icon: icons.Zap },
+		emerald: { description: 'Fresh and natural', icon: icons.Leaf },
+		corporate: { description: 'Professional and clean', icon: icons.Building },
+		synthwave: { description: 'Retro futuristic', icon: icons.Gamepad2 },
+		retro: { description: 'Vintage inspired', icon: icons.Radio },
+		cyberpunk: { description: 'Neon and futuristic', icon: icons.Cpu },
+		valentine: { description: 'Romantic and warm', icon: icons.Heart },
+		halloween: { description: 'Spooky and dark', icon: icons.Ghost },
+		garden: { description: 'Natural and earthy', icon: icons.TreePine },
+		forest: { description: 'Deep and mysterious', icon: icons.Trees },
+		aqua: { description: 'Cool and refreshing', icon: icons.Waves },
+		lofi: { description: 'Calm and minimal', icon: icons.Music },
+		pastel: { description: 'Soft and gentle', icon: icons.Palette },
+		fantasy: { description: 'Magical and dreamy', icon: icons.Sparkles },
+		wireframe: { description: 'Minimal and structural', icon: icons.Square },
+		black: { description: 'Pure and stark', icon: icons.Circle },
+		luxury: { description: 'Rich and elegant', icon: icons.Crown },
+		dracula: { description: 'Dark and mysterious', icon: icons.Moon },
+		cmyk: { description: 'Print inspired', icon: icons.Printer },
+		autumn: { description: 'Warm and cozy', icon: icons.Leaf },
+		business: { description: 'Professional and modern', icon: icons.Briefcase },
+		acid: { description: 'Bold and vibrant', icon: icons.Zap },
+		lemonade: { description: 'Fresh and citrusy', icon: icons.Sun },
+		night: { description: 'Deep and calming', icon: icons.Moon },
+		coffee: { description: 'Warm and rich', icon: icons.Coffee },
+		winter: { description: 'Cool and crisp', icon: icons.Snowflake },
+		dim: { description: 'Soft and muted', icon: icons.Minus },
+		nord: { description: 'Arctic inspired', icon: icons.Mountain },
+		sunset: { description: 'Warm and golden', icon: icons.Sunset }
+	};
 
 	let preferences: Record<string, string> = {};
 	let loading = false;
@@ -156,7 +186,7 @@
 						{saveMessage}
 					</p>
 				</div>
-				<button on:click={() => (saveMessage = '')} class="transition-opacity hover:opacity-70">
+				<button onclick={() => (saveMessage = '')} class="transition-opacity hover:opacity-70">
 					<svelte:component this={icons.X} size={14} />
 				</button>
 			</div>
@@ -166,13 +196,13 @@
 	<!-- Tabs Navigation -->
 	<div class="border-base-300 bg-base-100 mb-6 rounded-lg border">
 		<div class="border-base-300 border-b">
-			<nav class="flex space-x-8 px-6" role="tablist">
+			<nav class="flex space-x-8 px-6">
 				<button
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab ===
 					'appearance'
 						? 'border-primary text-primary'
 						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
-					on:click={() => setActiveTab('appearance')}
+					onclick={() => setActiveTab('appearance')}
 					role="tab"
 					aria-selected={activeTab === 'appearance'}
 				>
@@ -186,7 +216,7 @@
 					'location'
 						? 'border-primary text-primary'
 						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
-					on:click={() => setActiveTab('location')}
+					onclick={() => setActiveTab('location')}
 					role="tab"
 					aria-selected={activeTab === 'location'}
 				>
@@ -199,7 +229,7 @@
 					class="border-b-2 px-1 py-4 text-sm font-medium transition-colors {activeTab === 'profile'
 						? 'border-primary text-primary'
 						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
-					on:click={() => setActiveTab('profile')}
+					onclick={() => setActiveTab('profile')}
 					role="tab"
 					aria-selected={activeTab === 'profile'}
 				>
@@ -213,7 +243,7 @@
 					'character'
 						? 'border-primary text-primary'
 						: 'text-base-content/50 hover:border-base-300 hover:text-base-content/70 border-transparent'}"
-					on:click={() => setActiveTab('character')}
+					onclick={() => setActiveTab('character')}
 					role="tab"
 					aria-selected={activeTab === 'character'}
 				>
@@ -235,59 +265,46 @@
 						<p class="text-base-content/70 mb-4 text-sm">Choose how LifeQuest looks and feels</p>
 					</div>
 
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-						{#each themeOptions as themeOption}
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+						{#each availableThemes as themeOption}
 							<button
 								class="relative rounded-lg border-2 p-4 transition-all hover:shadow-sm {$theme ===
 								themeOption.value
 									? 'border-primary bg-primary/10'
 									: 'border-base-300 hover:border-base-content/20'}"
-								on:click={() => selectTheme(themeOption.value)}
+								onclick={() => selectTheme(themeOption.value)}
 							>
 								<div class="mb-3 flex items-center space-x-3">
 									<div
-										class="flex h-8 w-8 items-center justify-center rounded-lg {themeOption.value ===
-										'light'
-											? 'bg-warning/20 text-warning'
-											: themeOption.value === 'dark'
-												? 'bg-secondary/20 text-secondary'
-												: 'bg-info/20 text-info'}"
+										class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary"
 									>
-										<svelte:component
-											this={themeOption.value === 'light'
-												? icons.Sun
-												: themeOption.value === 'dark'
-													? icons.Moon
-													: icons.Monitor}
-											size={16}
-										/>
+										{#if themeDescriptions[themeOption.value]?.icon}
+											{@const ThemeIcon = themeDescriptions[themeOption.value].icon}
+											<ThemeIcon size={16} />
+										{:else}
+											{@const PaletteIcon = icons.Palette}
+											<PaletteIcon size={16} />
+										{/if}
 									</div>
 									<div class="text-left">
 										<div class="text-base-content font-medium">{themeOption.name}</div>
-										<div class="text-base-content/50 text-xs">{themeOption.description}</div>
+										<div class="text-base-content/50 text-xs">
+											{themeDescriptions[themeOption.value]?.description || 'Custom theme'}
+										</div>
 									</div>
 								</div>
 
 								<!-- Theme Preview -->
 								<div class="mb-2 flex space-x-1">
-									{#if themeOption.value === 'light'}
-										<div class="border-base-300 bg-base-100 h-4 w-4 rounded border"></div>
-										<div class="bg-primary h-4 w-4 rounded"></div>
-										<div class="bg-base-300 h-4 w-4 rounded"></div>
-									{:else if themeOption.value === 'dark'}
-										<div class="bg-base-300 h-4 w-4 rounded"></div>
-										<div class="bg-primary h-4 w-4 rounded"></div>
-										<div class="bg-base-200 h-4 w-4 rounded"></div>
-									{:else}
-										<div class="from-base-100 to-base-300 h-4 w-4 rounded bg-gradient-to-r"></div>
-										<div class="bg-primary h-4 w-4 rounded"></div>
-										<div class="bg-base-200 h-4 w-4 rounded"></div>
-									{/if}
+									<div class="bg-base-100 border-base-300 h-4 w-4 rounded border"></div>
+									<div class="bg-primary h-4 w-4 rounded"></div>
+									<div class="bg-base-300 h-4 w-4 rounded"></div>
 								</div>
 
 								{#if $theme === themeOption.value}
+									{@const CheckIcon = icons.Check}
 									<div class="absolute top-2 right-2">
-										<svelte:component this={icons.Check} size={16} class="text-primary" />
+										<CheckIcon size={16} class="text-primary" />
 									</div>
 								{/if}
 							</button>
@@ -335,7 +352,7 @@
 								placeholder="e.g., Seattle area, NYC, San Francisco"
 								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.locationDescription}
-								on:blur={() =>
+								onblur={() =>
 									savePreference('locationDescription', preferences.locationDescription || '')}
 							/>
 							<p class="text-base-content/60 mt-1 text-xs">
@@ -353,7 +370,7 @@
 								placeholder="e.g., 98101"
 								class="border-base-300 w-full rounded-lg border px-3 py-2 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 								bind:value={preferences.zipCode}
-								on:blur={() => savePreference('zipCode', preferences.zipCode || '')}
+								onblur={() => savePreference('zipCode', preferences.zipCode || '')}
 							/>
 							<p class="text-base-content/60 mt-1 text-xs">
 								For weather-based task suggestions (optional)
@@ -427,7 +444,7 @@
 											type="checkbox"
 											id="rpgFlavorEnabled"
 											bind:checked={rpgFlavorEnabled}
-											on:change={handleRpgFlavorToggle}
+											onchange={handleRpgFlavorToggle}
 											class="checkbox checkbox-primary"
 										/>
 									</div>
@@ -545,7 +562,7 @@
 							<!-- Save Button -->
 							<div class="border-base-300 flex justify-end border-t pt-4">
 								<button
-									on:click={handleClassUpdate}
+									onclick={handleClassUpdate}
 									class="bg-primary text-primary-content hover:bg-primary/90 rounded-lg border border-transparent px-4 py-2 text-sm font-medium transition-colors"
 								>
 									Save Character

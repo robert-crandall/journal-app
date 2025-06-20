@@ -55,9 +55,12 @@
 	</div>
 
 	<!-- Theme toggle buttons for testing -->
-	<div class="mt-3 flex gap-1">
+	<div class="mt-3 flex flex-wrap gap-1">
 		<button class="btn btn-xs" onclick={() => theme.setTheme('light', true)}> Light </button>
 		<button class="btn btn-xs" onclick={() => theme.setTheme('dark', true)}> Dark </button>
 		<button class="btn btn-xs" onclick={() => theme.setTheme('auto', true)}> Auto </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('cupcake', true)}> Cupcake </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('dracula', true)}> Dracula </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('synthwave', true)}> Synthwave </button>
 	</div>
 </div>
