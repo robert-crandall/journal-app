@@ -97,7 +97,7 @@ function createThemeStore() {
 			} else {
 				// Set the specific theme
 				html.setAttribute('data-theme', theme);
-				
+
 				// Add/remove dark class based on theme
 				if (darkThemes.includes(theme)) {
 					html.classList.add('dark');

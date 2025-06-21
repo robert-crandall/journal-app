@@ -68,8 +68,9 @@
 <div class="grid gap-3" style="grid-template-columns: repeat({columns}, minmax(0, 1fr));">
 	{#each availableThemes as themeOption}
 		<button
-			class="relative rounded-lg border-2 transition-all hover:shadow-sm {sizeClasses[size]} {$theme ===
-			themeOption.value
+			class="relative rounded-lg border-2 transition-all hover:shadow-sm {sizeClasses[
+				size
+			]} {$theme === themeOption.value
 				? 'border-primary bg-primary/10'
 				: 'border-base-300 hover:border-base-content/20'}"
 			onclick={() => selectTheme(themeOption.value)}
@@ -77,7 +78,7 @@
 		>
 			{#if showLabels}
 				<div class="mb-2 flex items-center space-x-2">
-					<div class="text-base-content font-medium truncate">{themeOption.name}</div>
+					<div class="text-base-content truncate font-medium">{themeOption.name}</div>
 				</div>
 			{/if}
 

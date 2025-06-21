@@ -61,6 +61,8 @@
 		<button class="btn btn-xs" onclick={() => theme.setTheme('auto', true)}> Auto </button>
 		<button class="btn btn-xs" onclick={() => theme.setTheme('cupcake', true)}> Cupcake </button>
 		<button class="btn btn-xs" onclick={() => theme.setTheme('dracula', true)}> Dracula </button>
-		<button class="btn btn-xs" onclick={() => theme.setTheme('synthwave', true)}> Synthwave </button>
+		<button class="btn btn-xs" onclick={() => theme.setTheme('synthwave', true)}>
+			Synthwave
+		</button>
 	</div>
 </div>

@@ -276,7 +276,7 @@
 							>
 								<div class="mb-3 flex items-center space-x-3">
 									<div
-										class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary"
+										class="bg-primary/20 text-primary flex h-8 w-8 items-center justify-center rounded-lg"
 									>
 										{#if themeDescriptions[themeOption.value]?.icon}
 											{@const ThemeIcon = themeDescriptions[themeOption.value].icon}
