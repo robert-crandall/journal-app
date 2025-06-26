@@ -1,6 +1,5 @@
 test-results
 node_modules
-.svelte-kit/
 
 # Output
 .output
@@ -9,6 +8,7 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/backups
 
 # OS
 .DS_Store

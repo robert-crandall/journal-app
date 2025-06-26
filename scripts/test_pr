@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+# Function to print section headers
+print_section() {
+    echo ""
+    echo "🔍 $1"
+    echo "----------------------------------------"
+}
+
+# Run checks in backend
+print_section "Running backend checks"
+cd "$(dirname "$0")/../backend"
+echo "📦 Installing backend dependencies..."
+bun install --frozen-lockfile
+echo "🔧 Running checks..."
+bun run check
+
+# Run checks in frontend
+print_section "Running frontend checks"
+cd "../frontend"
+echo "📦 Installing frontend dependencies..."
+bun install --frozen-lockfile
+echo "🔧 Running Svelte check..."
+bun run check
+echo "🎨 Running formatter..."
+bun run format
+
+print_section "Running expensive checks"
+echo "- Building frontend..."
+cd "../frontend"
+bun run build
+echo "- Backend tests..."
+cd "../backend"
+bun test
+
+print_section "All checks completed successfully! ✅"

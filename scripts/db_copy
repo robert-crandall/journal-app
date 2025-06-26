@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Copies the PostgreSQL database from one URL to another
+set -e
+
+export $(cat .env | grep DATABASE_URL | xargs)
+
+# Parse DB name from DATABASE_URL
+DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|.*/([^/?]+).*|\1|')
+PRODUCTION_DB_NAME=$(echo "$PRODUCTION_DATABASE_URL" | sed -E 's|.*/([^/?]+).*|\1|')
+
+# Check if production and development database URLs are set
+if [ -z "$PRODUCTION_DATABASE_URL" ]; then
+  echo "PRODUCTION_DATABASE_URL is not set in .env"
+  exit 1
+fi
+
+if [ -z "$DATABASE_URL" ]; then
+  echo "DATABASE_URL is not set in .env"
+  exit 1
+fi
+
+# If they are the same, exit
+if [ "$DATABASE_URL" == "$PRODUCTION_DATABASE_URL" ]; then
+  echo "The development and production database URLs are the same. Exiting."
+  exit 1
+fi
+
+# Replace the database name in the URL with 'postgres'
+PG_URL_POSTGRES=$(echo "$DATABASE_URL" | sed -E "s|/$DB_NAME(\?.*)?$|/postgres\1|")
+
+# Backup existing database
+pg_dump "$PRODUCTION_DATABASE_URL" > backups/production_clone_backup.sql
+
+# Terminate all connections to the dev DB
+psql "$PG_URL_POSTGRES" -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$DB_NAME';"
+
+# Drop and recreate the database from the 'postgres' database
+psql "$PG_URL_POSTGRES" -c "DROP DATABASE IF EXISTS \"$DB_NAME\";"
+psql "$PG_URL_POSTGRES" -c "CREATE DATABASE \"$DB_NAME\";"
+
+# Restore from production_clone_backup.sql
+psql "$DATABASE_URL" -f backups/production_clone_backup.sql
+
+# Remove the backup file
+rm backups/production_clone_backup.sql
+
+# Remove all push subscriptions for development.
+# psql "$DATABASE_URL" -c "DELETE FROM push_subscriptions;"
+# echo "Database copy completed successfully."
