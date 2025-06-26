@@ -80,8 +80,8 @@
   - [x] 1.13 Configure Hono backend with environment variables and database connection
   - [x] 1.14 Write integration tests for database schema and relationships
 
-- [ ] 2.0 Character System Implementation
-  - [ ] 2.1 Create character creation API endpoints with class selection and backstory
+- [x] 2.0 Character System Implementation
+  - [x] 2.1 Create character creation API endpoints with class selection and backstory
   - [ ] 2.2 Implement custom character stats management with predefined categories
   - [ ] 2.3 Build XP calculation utilities with Level N = ((N*(N+1))/2 × 100) Total XP formula
   - [ ] 2.4 Create manual level-up trigger system to control pacing
