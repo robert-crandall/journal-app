@@ -9,6 +9,9 @@ import {
   calculateLevelFromTotalXp, 
   calculateLevelUpRewards, 
   isReadyToLevelUp,
+  calculateXpProgress,
+  calculateXpToNextLevel,
+  calculateTotalXpForLevel,
   type LevelCalculation 
 } from '../utils/xp-calculator'
 import { generateLevelTitle } from '../services/ai-level-titles'
@@ -905,6 +908,267 @@ const app = new Hono()
       throw new HTTPException(500, { message: 'Failed to level up character stats' })
     }
   })
+
+  // Stat Progression Endpoints
+
+  // Validation schemas for stat progression
+  const awardXpSchema = z.object({
+    userId: z.string().uuid('Valid user ID is required'),
+    xpAmount: z.number().int().min(1, 'XP amount must be positive'),
+    reason: z.string().min(1, 'Reason is required').max(500),
+  })
+
+  const updateStatProgressionSchema = z.object({
+    userId: z.string().uuid('Valid user ID is required'),
+    currentXp: z.number().int().min(0).optional(),
+    totalXp: z.number().int().min(0).optional(),
+    currentLevel: z.number().int().min(1).optional(),
+    description: z.string().optional(),
+    sampleActivities: z.array(z.string()).optional(),
+  })
+
+  // POST /api/characters/:characterId/stats/:statId/award-xp - Award XP to a specific stat
+  app.post('/:characterId/stats/:statId/award-xp', 
+    zValidator('json', awardXpSchema),
+    async (c) => {
+      try {
+        const characterId = c.req.param('characterId')
+        const statId = c.req.param('statId')
+        const { userId, xpAmount, reason } = c.req.valid('json')
+
+        // Verify character ownership
+        const character = await db
+          .select()
+          .from(characters)
+          .where(and(
+            eq(characters.id, characterId),
+            eq(characters.userId, userId),
+            eq(characters.isActive, true)
+          ))
+          .limit(1)
+
+        if (character.length === 0) {
+          throw new HTTPException(404, { message: 'Character not found' })
+        }
+
+        // Get the specific stat
+        const [stat] = await db
+          .select()
+          .from(characterStats)
+          .where(and(
+            eq(characterStats.id, statId),
+            eq(characterStats.characterId, characterId)
+          ))
+          .limit(1)
+
+        if (!stat) {
+          throw new HTTPException(404, { message: 'Character stat not found' })
+        }
+
+        // Calculate new XP values
+        const newCurrentXp = stat.currentXp + xpAmount
+        const newTotalXp = stat.totalXp + xpAmount
+        const oldLevel = stat.currentLevel
+        const newLevel = calculateLevelFromTotalXp(newTotalXp)
+        const leveledUp = newLevel > oldLevel
+        const levelsGained = newLevel - oldLevel
+
+        // Generate level title if leveled up
+        let levelTitle = stat.levelTitle
+        if (leveledUp) {
+          try {
+            levelTitle = await generateLevelTitle({
+              statCategory: stat.category,
+              newLevel,
+              characterClass: character[0].class,
+              characterBackstory: character[0].backstory || undefined
+            })
+          } catch (error) {
+            console.warn('Failed to generate level title:', error)
+            // Continue without new title
+          }
+        }
+
+        // Update the stat in database
+        const [updatedStat] = await db
+          .update(characterStats)
+          .set({
+            currentXp: newCurrentXp,
+            totalXp: newTotalXp,
+            currentLevel: newLevel,
+            ...(leveledUp && levelTitle ? { levelTitle } : {}),
+            updatedAt: new Date()
+          })
+          .where(eq(characterStats.id, statId))
+          .returning()
+
+        // Return progression result
+        return c.json({
+          success: true,
+          data: {
+            stat: updatedStat,
+            xpAwarded: xpAmount,
+            reason,
+            leveledUp,
+            ...(leveledUp ? { 
+              newLevel, 
+              levelsGained,
+              oldLevel 
+            } : {})
+          }
+        })
+
+      } catch (error) {
+        console.error('Error awarding XP to character stat:', error)
+        if (error instanceof HTTPException) {
+          throw error
+        }
+        throw new HTTPException(500, { message: 'Failed to award XP to character stat' })
+      }
+    }
+  )
+
+  // GET /api/characters/:characterId/stats/:statId/progression - Get stat progression details
+  app.get('/:characterId/stats/:statId/progression', async (c) => {
+    try {
+      const characterId = c.req.param('characterId')
+      const statId = c.req.param('statId')
+      const userId = c.req.query('userId')
+
+      if (!userId) {
+        throw new HTTPException(400, { message: 'User ID is required' })
+      }
+
+      // Verify character ownership
+      const character = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId),
+          eq(characters.isActive, true)
+        ))
+        .limit(1)
+
+      if (character.length === 0) {
+        throw new HTTPException(403, { message: 'Character not found or access denied' })
+      }
+
+      // Get the specific stat
+      const [stat] = await db
+        .select()
+        .from(characterStats)
+        .where(and(
+          eq(characterStats.id, statId),
+          eq(characterStats.characterId, characterId)
+        ))
+        .limit(1)
+
+      if (!stat) {
+        throw new HTTPException(404, { message: 'Character stat not found' })
+      }
+
+      // Calculate progression details
+      const canLevelUp = isReadyToLevelUp(stat.totalXp, stat.currentLevel)
+      const xpProgress = calculateXpProgress(stat.totalXp, stat.currentLevel)
+      const xpToNextLevel = calculateXpToNextLevel(stat.totalXp, stat.currentLevel)
+
+      return c.json({
+        success: true,
+        data: {
+          stat,
+          progression: {
+            canLevelUp,
+            xpToNextLevel,
+            progressPercent: xpProgress.progressPercent,
+            currentLevelXp: xpProgress.currentLevelXp,
+            xpInCurrentLevel: xpProgress.xpInCurrentLevel
+          }
+        }
+      })
+
+    } catch (error) {
+      console.error('Error fetching stat progression:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to fetch stat progression' })
+    }
+  })
+
+  // PUT /api/characters/:characterId/stats/:statId/progression - Update stat progression directly
+  app.put('/:characterId/stats/:statId/progression',
+    zValidator('json', updateStatProgressionSchema),
+    async (c) => {
+      try {
+        const characterId = c.req.param('characterId')
+        const statId = c.req.param('statId')
+        const data = c.req.valid('json')
+        const { userId, ...updateData } = data
+
+        // Verify character ownership
+        const character = await db
+          .select()
+          .from(characters)
+          .where(and(
+            eq(characters.id, characterId),
+            eq(characters.userId, userId),
+            eq(characters.isActive, true)
+          ))
+          .limit(1)
+
+        if (character.length === 0) {
+          throw new HTTPException(404, { message: 'Character not found' })
+        }
+
+        // Get the specific stat
+        const [stat] = await db
+          .select()
+          .from(characterStats)
+          .where(and(
+            eq(characterStats.id, statId),
+            eq(characterStats.characterId, characterId)
+          ))
+          .limit(1)
+
+        if (!stat) {
+          throw new HTTPException(404, { message: 'Character stat not found' })
+        }
+
+        // Validate XP and level consistency if both are provided
+        if (updateData.totalXp !== undefined && updateData.currentLevel !== undefined) {
+          const requiredXpForLevel = calculateTotalXpForLevel(updateData.currentLevel)
+          if (updateData.totalXp < requiredXpForLevel) {
+            throw new HTTPException(400, { 
+              message: `Level ${updateData.currentLevel} requires at least ${requiredXpForLevel} total XP, but only ${updateData.totalXp} was provided` 
+            })
+          }
+        }
+
+        // Update the stat
+        const [updatedStat] = await db
+          .update(characterStats)
+          .set({
+            ...updateData,
+            updatedAt: new Date()
+          })
+          .where(eq(characterStats.id, statId))
+          .returning()
+
+        return c.json({
+          success: true,
+          data: updatedStat
+        })
+
+      } catch (error) {
+        console.error('Error updating character stat:', error)
+        if (error instanceof HTTPException) {
+          throw error
+        }
+        throw new HTTPException(500, { message: 'Failed to update character stat' })
+      }
+    }
+  )
 
 export default app
 export type CharacterAppType = typeof app
