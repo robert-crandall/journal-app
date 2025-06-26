@@ -82,8 +82,8 @@
 
 - [x] 2.0 Character System Implementation
   - [x] 2.1 Create character creation API endpoints with class selection and backstory
-  - [ ] 2.2 Implement custom character stats management with predefined categories
-  - [ ] 2.3 Build XP calculation utilities with Level N = ((N*(N+1))/2 × 100) Total XP formula
+  - [x] 2.2 Implement custom character stats management with predefined categories
+  - [x] 2.3 Build XP calculation utilities with Level N = ((N*(N+1))/2 × 100) Total XP formula
   - [ ] 2.4 Create manual level-up trigger system to control pacing
   - [ ] 2.5 Integrate GPT for generating humorous, contextual level titles
   - [ ] 2.6 Implement stat progression tracking with individual XP and level storage
