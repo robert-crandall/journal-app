@@ -11,6 +11,7 @@ import {
   isReadyToLevelUp,
   type LevelCalculation 
 } from '../utils/xp-calculator'
+import { generateLevelTitle } from '../services/ai-level-titles'
 
 // Validation schemas
 const createCharacterSchema = z.object({
@@ -756,11 +757,26 @@ const app = new Hono()
       const levelUpRewards = calculateLevelUpRewards(stat.totalXp, stat.currentLevel)
       const newLevel = levelUpRewards.newLevel
 
+      // Generate humorous level title using AI
+      let levelTitle: string | undefined
+      try {
+        levelTitle = await generateLevelTitle({
+          statCategory: stat.category,
+          newLevel,
+          characterClass: character[0].class,
+          characterBackstory: character[0].backstory || undefined
+        })
+      } catch (error) {
+        console.warn('Failed to generate level title:', error)
+        // Continue without title - it's optional
+      }
+
       // Update the stat in database
       await db
         .update(characterStats)
         .set({ 
           currentLevel: newLevel,
+          levelTitle,
           updatedAt: new Date()
         })
         .where(eq(characterStats.id, statId))
@@ -773,7 +789,8 @@ const app = new Hono()
         newLevel,
         levelsGained: levelUpRewards.levelsGained,
         levelProgression: levelUpRewards.levelProgression,
-        totalXp: stat.totalXp
+        totalXp: stat.totalXp,
+        levelTitle
       }
 
       return c.json({
@@ -837,11 +854,26 @@ const app = new Hono()
         const levelUpRewards = calculateLevelUpRewards(stat.totalXp, stat.currentLevel)
         const newLevel = levelUpRewards.newLevel
 
+        // Generate humorous level title using AI
+        let levelTitle: string | undefined
+        try {
+          levelTitle = await generateLevelTitle({
+            statCategory: stat.category,
+            newLevel,
+            characterClass: character[0].class,
+            characterBackstory: character[0].backstory || undefined
+          })
+        } catch (error) {
+          console.warn('Failed to generate level title for', stat.category, ':', error)
+          // Continue without title - it's optional
+        }
+
         // Update the stat in database
         await db
           .update(characterStats)
           .set({ 
             currentLevel: newLevel,
+            levelTitle,
             updatedAt: new Date()
           })
           .where(eq(characterStats.id, stat.id))
@@ -854,7 +886,8 @@ const app = new Hono()
           newLevel,
           levelsGained: levelUpRewards.levelsGained,
           levelProgression: levelUpRewards.levelProgression,
-          totalXp: stat.totalXp
+          totalXp: stat.totalXp,
+          levelTitle
         })
       }
 

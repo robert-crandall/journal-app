@@ -8,6 +8,13 @@
       "when": 1750955281822,
       "tag": "0000_icy_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1750962398213,
+      "tag": "0001_yielding_doorman",
+      "breakpoints": true
     }
   ]
 }

@@ -114,6 +114,11 @@ describe('Character Level-Up System Integration Tests', () => {
     expect(data.levelUpResult.newLevel).toBe(2)
     expect(data.levelUpResult.levelsGained).toBe(1)
     
+    // Level title should be generated (but may be undefined if AI fails)
+    if (data.levelUpResult.levelTitle) {
+      expect(typeof data.levelUpResult.levelTitle).toBe('string')
+    }
+    
     // Verify database was updated
     const [updatedStat] = await db
       .select()
@@ -182,6 +187,14 @@ describe('Character Level-Up System Integration Tests', () => {
     
     const socialResult = data.levelUpResults.find((result: any) => result.category === 'Social')
     expect(socialResult.newLevel).toBe(4)
+    
+    // Verify level titles were generated for all stats
+    data.levelUpResults.forEach((result: any) => {
+      if (result.levelTitle) {
+        expect(typeof result.levelTitle).toBe('string')
+        expect(result.levelTitle.length).toBeGreaterThan(0)
+      }
+    })
     
     // Verify database was updated for all stats
     const updatedStats = await db
@@ -264,5 +277,39 @@ describe('Character Level-Up System Integration Tests', () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.opportunities).toHaveLength(0)
+  })
+
+  test('POST /api/characters/:id/level-up should generate AI level titles', async () => {
+    const physicalStatId = testStatIds[0]
+    
+    const res = await app.request(`/api/characters/${testCharacterId}/level-up`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: testUserId,
+        statId: physicalStatId
+      })
+    })
+    
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.success).toBe(true)
+    expect(data.levelUpResult.category).toBe('Physical Fitness')
+    expect(data.levelUpResult.newLevel).toBe(2)
+    
+    // Verify level title was generated
+    expect(data.levelUpResult.levelTitle).toBeDefined()
+    expect(typeof data.levelUpResult.levelTitle).toBe('string')
+    expect(data.levelUpResult.levelTitle.length).toBeGreaterThan(0)
+    
+    // Verify database was updated with level title
+    const [updatedStat] = await db
+      .select()
+      .from(characterStats)
+      .where(eq(characterStats.id, physicalStatId))
+    
+    expect(updatedStat.currentLevel).toBe(2)
+    expect(updatedStat.levelTitle).toBe(data.levelUpResult.levelTitle)
+    expect(updatedStat.levelTitle).toBeDefined()
   })
 })

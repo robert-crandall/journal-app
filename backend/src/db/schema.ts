@@ -32,6 +32,7 @@ export const characterStats = pgTable('character_stats', {
   currentXp: integer('current_xp').notNull().default(0),
   currentLevel: integer('current_level').notNull().default(1),
   totalXp: integer('total_xp').notNull().default(0),
+  levelTitle: varchar('level_title', { length: 100 }), // AI-generated humorous level title
   description: text('description'),
   sampleActivities: jsonb('sample_activities'), // Array of example activities
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
