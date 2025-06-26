@@ -7,7 +7,7 @@ applyTo: "**/*"
 
 ## UI/Design Guidelines
 
-- Use a consistent color palette across the application.
+- Use color description (ie, primary) instead of color names (blue), to support easy theming.
 - Use Lucide Icons (https://lucide.dev) for all icon needs.
 - Never use emojis in production UI - they're inconsistent across platforms.
 - Choose semantic icon names that clearly represent their function.

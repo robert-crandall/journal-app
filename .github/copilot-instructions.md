@@ -8,8 +8,7 @@
   - Use [generate-tasks.md](./instructions/generate-tasks.md) to break down the PRD into actionable tasks
   - Use [process-task-list.md](./instructions/process-task-list.md) to manage the task list and track progress
   - Integration tests should be written for each task as it is implemented.
-- For new features without a PRD:
-  - Use [generate-tasks.md](./instructions/generate-tasks.md) to break down the feature into actionable tasks
+- For new features:
   - Use [process-task-list.md](./instructions/process-task-list.md) to manage the task list and track progress
   - Integration tests should be written for each task as it is implemented.
 - For bug fixes:
