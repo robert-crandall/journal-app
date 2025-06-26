@@ -87,10 +87,10 @@
   - [x] 2.4 Create manual level-up trigger system to control pacing
   - [x] 2.5 Integrate GPT for generating humorous, contextual level titles
   - [x] 2.6 Implement stat progression tracking with individual XP and level storage
-  - [ ] 2.7 Create API endpoints for stat updates and XP awards
-  - [ ] 2.8 Add sample stats and example activities for each category guidance
-  - [ ] 2.9 Build character dashboard API with current stats and progression
-  - [ ] 2.10 Write integration tests for character system endpoints
+  - [x] 2.7 Create API endpoints for stat updates and XP awards
+  - [ ] 2.8 Add sample stats and example activities for each category guidance (moved to frontend)
+  - [x] 2.9 Build character dashboard API with current stats and progression
+  - [x] 2.10 Write integration tests for character system endpoints
 
 - [ ] 3.0 Task Management System
   - [ ] 3.1 Create comprehensive task CRUD API supporting all task types
@@ -141,6 +141,7 @@
   - [ ] 6.5 Create task display components with card-based layout and completion states
   - [ ] 6.6 Build XP progress visualization with immediate feedback (2-second notifications)
   - [ ] 6.7 Implement character stats dashboard with color coding and level progression
+  - [ ] 6.7.1 Add sample stats and example activities for each category guidance
   - [ ] 6.8 Create conversational journal interface with smart follow-up questions
   - [ ] 6.9 Build quest and experiment management pages with dedicated dashboards
   - [ ] 6.10 Implement family member management interface

@@ -1170,5 +1170,395 @@ const app = new Hono()
     }
   )
 
+  // Sample Stats and Activities Guidance Endpoint
+  
+  // GET /api/characters/stat-guidance - Get comprehensive stat guidance with sample activities
+  app.get('/stat-guidance', async (c) => {
+    try {
+      const statGuidance = [
+        {
+          category: 'Physical Health',
+          description: 'Activities that improve physical fitness, energy, and overall health',
+          icon: 'activity',
+          color: 'red',
+          sampleActivities: [
+            // Daily habits
+            'Take a 30-minute walk',
+            'Do 15 push-ups',
+            'Stretch for 10 minutes',
+            'Drink 8 glasses of water',
+            'Take the stairs instead of elevator',
+            'Do desk exercises during work breaks',
+            
+            // Weekly activities  
+            'Go for a bike ride',
+            'Attend a fitness class',
+            'Go swimming',
+            'Try a new hiking trail',
+            'Play a sport with friends',
+            'Do a home workout video',
+            
+            // Health maintenance
+            'Prepare a healthy meal',
+            'Get 7-8 hours of sleep',
+            'Take vitamins/supplements',
+            'Schedule a health checkup',
+            'Practice good posture',
+            'Limit screen time before bed'
+          ],
+          tips: [
+            'Start small - even 5 minutes of activity counts',
+            'Focus on consistency over intensity',
+            'Find activities you actually enjoy',
+            'Track your energy levels throughout the day',
+            'Celebrate small wins and progress'
+          ],
+          xpRange: '10-50 XP per activity'
+        },
+        {
+          category: 'Mental Wellness',
+          description: 'Activities that support mental health, mindfulness, and emotional wellbeing',
+          icon: 'brain',
+          color: 'blue',
+          sampleActivities: [
+            // Mindfulness & meditation
+            'Meditate for 10 minutes',
+            'Practice deep breathing exercises',
+            'Do a body scan meditation',
+            'Practice gratitude journaling',
+            'Use a mindfulness app',
+            
+            // Learning & growth
+            'Read for 20 minutes',
+            'Listen to an educational podcast',
+            'Learn something new online',
+            'Practice a hobby skill',
+            'Complete a puzzle or brain teaser',
+            
+            // Emotional wellness
+            'Journal about your day',
+            'Practice positive self-talk',
+            'Call a therapist or counselor',
+            'Write down three good things from today',
+            'Practice saying no to overcommitment',
+            'Take a mental health day when needed'
+          ],
+          tips: [
+            'Mental wellness is just as important as physical health',
+            'Be patient with yourself during tough days',
+            'Find what works for you - not everyone meditates',
+            'Professional help is a sign of strength',
+            'Small daily practices compound over time'
+          ],
+          xpRange: '15-40 XP per activity'
+        },
+        {
+          category: 'Family Bonding',
+          description: 'Quality time and meaningful activities with family members',
+          icon: 'users',
+          color: 'green',
+          sampleActivities: [
+            // Quality time
+            'Play a board game together',
+            'Cook a meal as a family',
+            'Have a meaningful conversation',
+            'Take family photos',
+            'Go on a family walk',
+            'Have a movie night with snacks',
+            
+            // Activities by age group
+            'Read bedtime stories to kids',
+            'Help with homework',
+            'Play catch or sports together',
+            'Do arts and crafts project',
+            'Build something together',
+            'Plan a family outing',
+            
+            // Connection & traditions
+            'Start a new family tradition',
+            'Share stories about family history',
+            'Write letters to extended family',
+            'Plan a surprise for a family member',
+            'Have everyone share their day at dinner',
+            'Create a family time capsule'
+          ],
+          tips: [
+            'Quality matters more than quantity',
+            'Put away devices during family time',
+            'Let kids help plan activities',
+            'Create new traditions that fit your family',
+            'Remember that showing up consistently matters most'
+          ],
+          xpRange: '20-60 XP per activity'
+        },
+        {
+          category: 'Professional Growth',
+          description: 'Career development, skill building, and professional networking',
+          icon: 'briefcase',
+          color: 'purple',
+          sampleActivities: [
+            // Skill development
+            'Learn a new skill for 30 minutes',
+            'Complete an online course module',
+            'Practice a technical skill',
+            'Read industry-related articles',
+            'Watch educational videos',
+            'Take notes on best practices',
+            
+            // Networking & relationships
+            'Network with a colleague',
+            'Attend a professional meetup',
+            'Update LinkedIn profile',
+            'Reach out to a mentor',
+            'Help a coworker with their project',
+            'Join a professional organization',
+            
+            // Organization & productivity
+            'Organize workspace',
+            'Update resume/portfolio',
+            'Set weekly goals',
+            'Complete a training module',
+            'Research career opportunities',
+            'Practice presentation skills'
+          ],
+          tips: [
+            'Invest in yourself daily, even if just 15 minutes',
+            'Focus on skills that align with your goals',
+            'Build genuine relationships, not just connections',
+            'Document your achievements for reviews',
+            'Stay curious and embrace continuous learning'
+          ],
+          xpRange: '25-75 XP per activity'
+        },
+        {
+          category: 'Creative Expression',
+          description: 'Artistic pursuits, creativity, and self-expression activities',
+          icon: 'palette',
+          color: 'orange',
+          sampleActivities: [
+            // Visual arts
+            'Draw or sketch for 20 minutes',
+            'Try watercolor painting',
+            'Take artistic photos',
+            'Create digital art',
+            'Doodle in a sketchbook',
+            'Visit an art museum or gallery',
+            
+            // Writing & storytelling
+            'Write in a creative journal',
+            'Start a short story',
+            'Write poetry',
+            'Blog about something you love',
+            'Write letters to future self',
+            'Create character stories',
+            
+            // Music & performance
+            'Play a musical instrument',
+            'Sing favorite songs',
+            'Learn a new song',
+            'Create a playlist',
+            'Dance to favorite music',
+            
+            // Crafts & making
+            'Try a new recipe experimentally',
+            'Do a DIY project',
+            'Learn origami',
+            'Try knitting or crocheting',
+            'Build something with your hands',
+            'Repurpose old items creatively'
+          ],
+          tips: [
+            'There\'s no such thing as "not creative"',
+            'Focus on the process, not the outcome',
+            'Try different mediums to find what resonates',
+            'Share your creations with supportive people',
+            'Creativity is practice, not just talent'
+          ],
+          xpRange: '20-50 XP per activity'
+        },
+        {
+          category: 'Social Connection',
+          description: 'Building and maintaining relationships with friends and community',
+          icon: 'heart',
+          color: 'pink',
+          sampleActivities: [
+            // One-on-one connections
+            'Call a friend you haven\'t talked to recently',
+            'Write a thoughtful text or email',
+            'Meet a friend for coffee',
+            'Listen actively to someone\'s problems',
+            'Send a thank you note',
+            'Check in on someone going through tough times',
+            
+            // Group activities
+            'Attend a social event',
+            'Join a club or group activity',
+            'Organize a gathering with friends',
+            'Participate in community events',
+            'Join a recreational sports team',
+            'Attend religious or spiritual services',
+            
+            // Community service
+            'Help a neighbor with something',
+            'Volunteer for a cause you care about',
+            'Participate in community cleanup',
+            'Donate items to charity',
+            'Help someone learn a skill',
+            'Be kind to a stranger'
+          ],
+          tips: [
+            'Quality relationships are built through consistent small gestures',
+            'Be genuinely interested in others\' lives',
+            'Practice active listening without judgment',
+            'Show up for people during difficult times',
+            'Remember that vulnerability strengthens connections'
+          ],
+          xpRange: '15-45 XP per activity'
+        }
+      ]
+
+      return c.json({
+        success: true,
+        data: {
+          statGuidance,
+          generalTips: [
+            'Start with activities that feel manageable and build up',
+            'Consistency matters more than perfection',
+            'Choose activities that align with your current life circumstances',
+            'It\'s okay to modify activities to fit your needs',
+            'Celebrate progress, no matter how small',
+            'Some days will be harder than others - that\'s normal',
+            'Focus on one stat at a time if feeling overwhelmed'
+          ],
+          customizationNote: 'These are suggestions - feel free to create custom activities that work better for your lifestyle and goals.'
+        }
+      })
+
+    } catch (error) {
+      console.error('Error fetching stat guidance:', error)
+      throw new HTTPException(500, { message: 'Failed to fetch stat guidance' })
+    }
+  })
+
+  // Get character dashboard with comprehensive stats and progression - Task 2.9
+  .get('/:id/dashboard', async (c) => {
+    const characterId = c.req.param('id')
+    const userId = c.req.query('userId') // TODO: Get from JWT token
+
+    if (!userId) {
+      throw new HTTPException(400, { message: 'User ID is required' })
+    }
+
+    try {
+      // Get character with user verification
+      const [character] = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId)
+        ))
+
+      if (!character) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get all character stats with progression details
+      const stats = await db
+        .select()
+        .from(characterStats)
+        .where(eq(characterStats.characterId, characterId))
+
+      // Calculate progression details for each stat
+      const statsWithProgression = stats.map(stat => {
+        const xpProgress = calculateXpProgress(stat.totalXp, stat.currentLevel)
+        const xpToNextLevel = calculateXpToNextLevel(stat.totalXp, stat.currentLevel)
+        const nextLevelTotalXp = calculateTotalXpForLevel(stat.currentLevel + 1)
+
+        return {
+          ...stat,
+          progression: {
+            xpProgress,
+            xpToNextLevel,
+            nextLevelTotalXp,
+            progressPercent: xpProgress.progressPercent
+          }
+        }
+      })
+
+      // Calculate overall character progression
+      const totalXpAcrossAllStats = stats.reduce((sum, stat) => sum + stat.totalXp, 0)
+      const averageLevel = stats.length > 0 
+        ? stats.reduce((sum, stat) => sum + stat.currentLevel, 0) / stats.length 
+        : 1
+      
+      // Find highest and lowest performing stats
+      const sortedStatsByLevel = stats.sort((a, b) => b.currentLevel - a.currentLevel)
+      const highestStat = sortedStatsByLevel[0] || null
+      const lowestStat = sortedStatsByLevel[sortedStatsByLevel.length - 1] || null
+
+      // Calculate recent activity (stats updated in last 7 days)
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      
+      const recentlyUpdatedStats = stats.filter(stat => 
+        new Date(stat.updatedAt) > sevenDaysAgo
+      )
+
+      return c.json({
+        character: {
+          ...character,
+          stats: statsWithProgression
+        },
+        overview: {
+          totalStats: stats.length,
+          totalXpAcrossAllStats,
+          averageLevel: Math.round(averageLevel * 100) / 100,
+          highestLevelStat: highestStat ? {
+            category: highestStat.category,
+            level: highestStat.currentLevel,
+            levelTitle: highestStat.levelTitle
+          } : null,
+          lowestLevelStat: lowestStat ? {
+            category: lowestStat.category,
+            level: lowestStat.currentLevel,
+            levelTitle: lowestStat.levelTitle
+          } : null,
+          recentActivity: {
+            statsUpdatedLastWeek: recentlyUpdatedStats.length,
+            recentlyUpdatedStats: recentlyUpdatedStats.map(stat => ({
+              category: stat.category,
+              level: stat.currentLevel,
+              lastUpdated: stat.updatedAt
+            }))
+          }
+        },
+        recommendations: {
+          focusAreas: lowestStat ? [
+            {
+              category: lowestStat.category,
+              currentLevel: lowestStat.currentLevel,
+              suggestion: `Focus on ${lowestStat.category.toLowerCase()} activities to balance your character development`,
+              xpToNextLevel: calculateXpToNextLevel(lowestStat.totalXp, lowestStat.currentLevel)
+            }
+          ] : [],
+          nextMilestones: statsWithProgression
+            .filter(stat => stat.progression.xpToNextLevel <= 100) // Close to leveling up
+            .map(stat => ({
+              category: stat.category,
+              currentLevel: stat.currentLevel,
+              xpToNextLevel: stat.progression.xpToNextLevel,
+              message: `You're close to leveling up in ${stat.category}!`
+            }))
+            .slice(0, 3) // Top 3 closest to leveling
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching character dashboard:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to fetch character dashboard' })
+    }
+  })
+
 export default app
 export type CharacterAppType = typeof app
