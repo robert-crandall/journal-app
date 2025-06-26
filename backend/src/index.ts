@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { HTTPException } from 'hono/http-exception'
 import characters from './routes/characters'
 import tasks from './routes/tasks'
+import { taskCompletionRoutes } from './routes/task-completion'
 
 const app = new Hono()
 
@@ -28,7 +29,10 @@ app.get('/', (c) => {
 // Mount character routes
 app.route('/api/characters', characters)
 
-// Mount task routes
+// Mount task completion routes first (more specific routes)
+app.route('/api/tasks', taskCompletionRoutes)
+
+// Mount task routes (includes catch-all /:id route)
 app.route('/api/tasks', tasks)
 
 // Error handler
