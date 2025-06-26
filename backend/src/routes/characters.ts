@@ -5,6 +5,12 @@ import { HTTPException } from 'hono/http-exception'
 import { db } from '../db/connection'
 import { characters, characterStats, users } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { 
+  calculateLevelFromTotalXp, 
+  calculateLevelUpRewards, 
+  isReadyToLevelUp,
+  type LevelCalculation 
+} from '../utils/xp-calculator'
 
 // Validation schemas
 const createCharacterSchema = z.object({
@@ -628,6 +634,242 @@ const app = new Hono()
       console.error('Error deleting character stat:', error)
       if (error instanceof HTTPException) throw error
       throw new HTTPException(500, { message: 'Failed to delete character stat' })
+    }
+  })
+
+  // Level-up validation schemas
+  const levelUpSchema = z.object({
+    userId: z.string().uuid('Valid user ID is required'),
+    statId: z.string().uuid('Valid stat ID is required'),
+  })
+
+  const levelUpAllSchema = z.object({
+    userId: z.string().uuid('Valid user ID is required'),
+  })
+
+  // Level-up endpoints
+
+  // GET /api/characters/:id/level-up-opportunities - Check which stats can level up
+  app.get('/:id/level-up-opportunities', async (c) => {
+    try {
+      const characterId = c.req.param('id')
+      const userId = c.req.query('userId')
+
+      if (!userId) {
+        throw new HTTPException(400, { message: 'User ID is required' })
+      }
+
+      // Verify character ownership
+      const character = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId),
+          eq(characters.isActive, true)
+        ))
+        .limit(1)
+
+      if (character.length === 0) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get all character stats
+      const stats = await db
+        .select()
+        .from(characterStats)
+        .where(eq(characterStats.characterId, characterId))
+
+      // Check level-up opportunities for each stat
+      const opportunities = stats.map(stat => {
+        const canLevelUp = isReadyToLevelUp(stat.totalXp, stat.currentLevel)
+        const newLevel = canLevelUp ? calculateLevelFromTotalXp(stat.totalXp) : stat.currentLevel
+        
+        return {
+          id: stat.id,
+          category: stat.category,
+          currentLevel: stat.currentLevel,
+          newLevel,
+          totalXp: stat.totalXp,
+          canLevelUp,
+          levelsGained: newLevel - stat.currentLevel
+        }
+      }).filter(opp => opp.canLevelUp)
+
+      return c.json({
+        characterId,
+        opportunities
+      })
+
+    } catch (error) {
+      console.error('Error fetching level-up opportunities:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to fetch level-up opportunities' })
+    }
+  })
+
+  // POST /api/characters/:id/level-up - Level up a specific stat
+  app.post('/:id/level-up', zValidator('json', levelUpSchema), async (c) => {
+    try {
+      const characterId = c.req.param('id')
+      const { userId, statId } = c.req.valid('json')
+
+      // Verify character ownership
+      const character = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId),
+          eq(characters.isActive, true)
+        ))
+        .limit(1)
+
+      if (character.length === 0) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get the specific stat
+      const [stat] = await db
+        .select()
+        .from(characterStats)
+        .where(and(
+          eq(characterStats.id, statId),
+          eq(characterStats.characterId, characterId)
+        ))
+        .limit(1)
+
+      if (!stat) {
+        throw new HTTPException(404, { message: 'Character stat not found' })
+      }
+
+      // Check if ready to level up
+      if (!isReadyToLevelUp(stat.totalXp, stat.currentLevel)) {
+        throw new HTTPException(400, { 
+          message: `Stat '${stat.category}' is not ready for level up. Current level: ${stat.currentLevel}, Total XP: ${stat.totalXp}` 
+        })
+      }
+
+      // Calculate level-up rewards
+      const levelUpRewards = calculateLevelUpRewards(stat.totalXp, stat.currentLevel)
+      const newLevel = levelUpRewards.newLevel
+
+      // Update the stat in database
+      await db
+        .update(characterStats)
+        .set({ 
+          currentLevel: newLevel,
+          updatedAt: new Date()
+        })
+        .where(eq(characterStats.id, statId))
+
+      // Return level-up result
+      const levelUpResult = {
+        id: stat.id,
+        category: stat.category,
+        oldLevel: stat.currentLevel,
+        newLevel,
+        levelsGained: levelUpRewards.levelsGained,
+        levelProgression: levelUpRewards.levelProgression,
+        totalXp: stat.totalXp
+      }
+
+      return c.json({
+        success: true,
+        levelUpResult
+      })
+
+    } catch (error) {
+      console.error('Error leveling up character stat:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to level up character stat' })
+    }
+  })
+
+  // POST /api/characters/:id/level-up-all - Level up all eligible stats
+  app.post('/:id/level-up-all', zValidator('json', levelUpAllSchema), async (c) => {
+    try {
+      const characterId = c.req.param('id')
+      const { userId } = c.req.valid('json')
+
+      // Verify character ownership
+      const character = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId),
+          eq(characters.isActive, true)
+        ))
+        .limit(1)
+
+      if (character.length === 0) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get all character stats
+      const stats = await db
+        .select()
+        .from(characterStats)
+        .where(eq(characterStats.characterId, characterId))
+
+      // Find stats ready for level up
+      const eligibleStats = stats.filter(stat => 
+        isReadyToLevelUp(stat.totalXp, stat.currentLevel)
+      )
+
+      if (eligibleStats.length === 0) {
+        return c.json({
+          success: true,
+          levelUpResults: [],
+          message: 'No stats are ready for level up'
+        })
+      }
+
+      // Level up all eligible stats
+      const levelUpResults = []
+      
+      for (const stat of eligibleStats) {
+        const levelUpRewards = calculateLevelUpRewards(stat.totalXp, stat.currentLevel)
+        const newLevel = levelUpRewards.newLevel
+
+        // Update the stat in database
+        await db
+          .update(characterStats)
+          .set({ 
+            currentLevel: newLevel,
+            updatedAt: new Date()
+          })
+          .where(eq(characterStats.id, stat.id))
+
+        // Add to results
+        levelUpResults.push({
+          id: stat.id,
+          category: stat.category,
+          oldLevel: stat.currentLevel,
+          newLevel,
+          levelsGained: levelUpRewards.levelsGained,
+          levelProgression: levelUpRewards.levelProgression,
+          totalXp: stat.totalXp
+        })
+      }
+
+      return c.json({
+        success: true,
+        levelUpResults,
+        message: `Successfully leveled up ${levelUpResults.length} stat(s)`
+      })
+
+    } catch (error) {
+      console.error('Error leveling up all character stats:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to level up character stats' })
     }
   })
 
