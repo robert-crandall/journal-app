@@ -2,8 +2,13 @@
 
 ## Relevant Files
 
-- `backend/src/database/schema.ts` - Database schema definitions for all entities (users, characters, stats, tasks, journals, etc.)
-- `backend/src/database/schema.test.ts` - Unit tests for database schema and relationships
+- `backend/src/db/schema.ts` - Database schema definitions for all entities (users, characters, stats, tasks, journals, etc.)
+- `backend/src/db/schema.test.ts` - Integration tests for database schema and relationships
+- `backend/src/db/connection.ts` - Database connection setup with Drizzle ORM and schema integration
+- `backend/src/db/seed.ts` - Database seeding script with sample data
+- `backend/src/env.ts` - Environment variable configuration and validation
+- `backend/drizzle.config.ts` - Drizzle migration configuration
+- `backend/src/db/migrations/0000_icy_scarlet_spider.sql` - Initial database migration file
 - `backend/src/routes/auth.ts` - Authentication routes and user management
 - `backend/src/routes/auth.test.ts` - Unit tests for authentication endpoints
 - `backend/src/routes/character.ts` - Character creation, stats management, and XP tracking endpoints
@@ -58,22 +63,22 @@
 
 ## Tasks
 
-- [ ] 1.0 Database Schema and Core Infrastructure Setup
-  - [ ] 1.1 Set up PostgreSQL database with Drizzle ORM configuration
-  - [ ] 1.2 Create users table with UUID primary keys and timezone preferences
-  - [ ] 1.3 Create characters table with class, backstory, and user relationships
-  - [ ] 1.4 Create character_stats table with categories, XP tracking, and level progression
-  - [ ] 1.5 Create family_members table with names, ages, interests
-  - [ ] 1.6 Create tasks table supporting multiple sources (AI, quest, experiment, todo, ad-hoc)
-  - [ ] 1.7 Create task_completions table with feedback and XP awards (loose coupling design)
-  - [ ] 1.7.1 Create family_members_interactions table with task, family_member id, and feedback (loose coupling design)
-  - [ ] 1.8 Create quests and experiments tables with timeline and progress tracking
-  - [ ] 1.9 Create journal_conversations and journal_entries tables with GPT processing results
-  - [ ] 1.10 Create daily_focuses and goals tables for AI context
-  - [ ] 1.11 Create projects table with associated tasks (non-dashboard)
-  - [ ] 1.12 Set up database migrations and seeding with sample data
-  - [ ] 1.13 Configure Hono backend with environment variables and database connection
-  - [ ] 1.14 Write integration tests for database schema and relationships
+- [x] 1.0 Database Schema and Core Infrastructure Setup
+  - [x] 1.1 Set up PostgreSQL database with Drizzle ORM configuration
+  - [x] 1.2 Create users table with UUID primary keys
+  - [x] 1.3 Create characters table with class, backstory, and user relationships
+  - [x] 1.4 Create character_stats table with categories, XP tracking, and level progression
+  - [x] 1.5 Create family_members table with names, ages, interests
+  - [x] 1.6 Create tasks table supporting multiple sources (AI, quest, experiment, todo, ad-hoc)
+  - [x] 1.7 Create task_completions table with feedback and XP awards (loose coupling design)
+  - [x] 1.7.1 Create family_members_interactions table with task, family_member id, and feedback (loose coupling design)
+  - [x] 1.8 Create quests and experiments tables with timeline and progress tracking
+  - [x] 1.9 Create journal_conversations and journal_entries tables with GPT processing results
+  - [x] 1.10 Create daily_focuses and goals tables for AI context
+  - [x] 1.11 Create projects table with associated tasks (non-dashboard)
+  - [x] 1.12 Set up database migrations and seeding with sample data
+  - [x] 1.13 Configure Hono backend with environment variables and database connection
+  - [x] 1.14 Write integration tests for database schema and relationships
 
 - [ ] 2.0 Character System Implementation
   - [ ] 2.1 Create character creation API endpoints with class selection and backstory
