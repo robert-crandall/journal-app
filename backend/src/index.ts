@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { HTTPException } from 'hono/http-exception'
 import characters from './routes/characters'
+import tasks from './routes/tasks'
 
 const app = new Hono()
 
@@ -26,6 +27,9 @@ app.get('/', (c) => {
 
 // Mount character routes
 app.route('/api/characters', characters)
+
+// Mount task routes
+app.route('/api/tasks', tasks)
 
 // Error handler
 app.onError((err, c) => {
