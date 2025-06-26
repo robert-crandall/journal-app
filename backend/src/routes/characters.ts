@@ -20,6 +20,29 @@ const updateCharacterSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
+// Character stats validation schemas
+const createStatSchema = z.object({
+  category: z.string().min(1, 'Category is required').max(100),
+  description: z.string().optional(),
+  sampleActivities: z.array(z.string()).optional(),
+})
+
+const updateStatSchema = z.object({
+  category: z.string().min(1).max(100).optional(),
+  description: z.string().optional(),
+  sampleActivities: z.array(z.string()).optional(),
+})
+
+// Predefined stat categories that cannot be deleted
+const PREDEFINED_STATS = [
+  'Physical Health',
+  'Mental Wellness', 
+  'Family Bonding',
+  'Professional Growth',
+  'Creative Expression',
+  'Social Connection'
+] as const
+
 // Character class options for frontend
 const CHARACTER_CLASSES = [
   'Life Explorer',
@@ -316,6 +339,295 @@ const app = new Hono()
       console.error('Error deactivating character:', error)
       if (error instanceof HTTPException) throw error
       throw new HTTPException(500, { message: 'Failed to deactivate character' })
+    }
+  })
+
+  // Character Stats Management Routes
+
+  // Get all stats for a character
+  .get('/:id/stats', async (c) => {
+    const characterId = c.req.param('id')
+    const userId = c.req.query('userId') // TODO: Get from JWT token
+
+    if (!userId) {
+      throw new HTTPException(400, { message: 'User ID is required' })
+    }
+
+    try {
+      // Verify character exists and belongs to user
+      const [character] = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId)
+        ))
+
+      if (!character) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get all stats for the character
+      const stats = await db
+        .select()
+        .from(characterStats)
+        .where(eq(characterStats.characterId, characterId))
+
+      return c.json({ stats })
+
+    } catch (error) {
+      console.error('Error fetching character stats:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to fetch character stats' })
+    }
+  })
+
+  // Get individual stat by ID
+  .get('/:id/stats/:statId', async (c) => {
+    const characterId = c.req.param('id')
+    const statId = c.req.param('statId')
+    const userId = c.req.query('userId') // TODO: Get from JWT token
+
+    if (!userId) {
+      throw new HTTPException(400, { message: 'User ID is required' })
+    }
+
+    try {
+      // Verify character exists and belongs to user
+      const [character] = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId)
+        ))
+
+      if (!character) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get the specific stat
+      const [stat] = await db
+        .select()
+        .from(characterStats)
+        .where(and(
+          eq(characterStats.id, statId),
+          eq(characterStats.characterId, characterId)
+        ))
+
+      if (!stat) {
+        throw new HTTPException(404, { message: 'Character stat not found' })
+      }
+
+      return c.json({ stat })
+
+    } catch (error) {
+      console.error('Error fetching character stat:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to fetch character stat' })
+    }
+  })
+
+  // Create new custom stat
+  .post('/:id/stats',
+    zValidator('json', createStatSchema),
+    async (c) => {
+      const characterId = c.req.param('id')
+      const data = c.req.valid('json')
+      const userId = c.req.query('userId') // TODO: Get from JWT token
+
+      if (!userId) {
+        throw new HTTPException(400, { message: 'User ID is required' })
+      }
+
+      try {
+        // Verify character exists and belongs to user
+        const [character] = await db
+          .select()
+          .from(characters)
+          .where(and(
+            eq(characters.id, characterId),
+            eq(characters.userId, userId)
+          ))
+
+        if (!character) {
+          throw new HTTPException(404, { message: 'Character not found' })
+        }
+
+        // Check if stat category already exists for this character
+        const [existingStat] = await db
+          .select()
+          .from(characterStats)
+          .where(and(
+            eq(characterStats.characterId, characterId),
+            eq(characterStats.category, data.category)
+          ))
+
+        if (existingStat) {
+          throw new HTTPException(409, { 
+            message: 'A stat with this category already exists for this character' 
+          })
+        }
+
+        // Create the new stat
+        const [newStat] = await db
+          .insert(characterStats)
+          .values({
+            characterId,
+            category: data.category,
+            description: data.description,
+            sampleActivities: data.sampleActivities || [],
+            currentXp: 0,
+            currentLevel: 1,
+            totalXp: 0,
+          })
+          .returning()
+
+        return c.json({ stat: newStat }, 201)
+
+      } catch (error) {
+        console.error('Error creating character stat:', error)
+        if (error instanceof HTTPException) throw error
+        throw new HTTPException(500, { message: 'Failed to create character stat' })
+      }
+    }
+  )
+
+  // Update existing stat
+  .put('/:id/stats/:statId',
+    zValidator('json', updateStatSchema),
+    async (c) => {
+      const characterId = c.req.param('id')
+      const statId = c.req.param('statId')
+      const data = c.req.valid('json')
+      const userId = c.req.query('userId') // TODO: Get from JWT token
+
+      if (!userId) {
+        throw new HTTPException(400, { message: 'User ID is required' })
+      }
+
+      try {
+        // Verify character exists and belongs to user
+        const [character] = await db
+          .select()
+          .from(characters)
+          .where(and(
+            eq(characters.id, characterId),
+            eq(characters.userId, userId)
+          ))
+
+        if (!character) {
+          throw new HTTPException(404, { message: 'Character not found' })
+        }
+
+        // Check that the stat exists and belongs to this character
+        const [existingStat] = await db
+          .select()
+          .from(characterStats)
+          .where(and(
+            eq(characterStats.id, statId),
+            eq(characterStats.characterId, characterId)
+          ))
+
+        if (!existingStat) {
+          throw new HTTPException(404, { message: 'Character stat not found' })
+        }
+
+        // If updating category, check for conflicts
+        if (data.category && data.category !== existingStat.category) {
+          const [conflictingStat] = await db
+            .select()
+            .from(characterStats)
+            .where(and(
+              eq(characterStats.characterId, characterId),
+              eq(characterStats.category, data.category)
+            ))
+
+          if (conflictingStat) {
+            throw new HTTPException(409, { 
+              message: 'A stat with this category already exists for this character' 
+            })
+          }
+        }
+
+        // Update the stat
+        const [updatedStat] = await db
+          .update(characterStats)
+          .set({
+            ...data,
+            updatedAt: new Date(),
+          })
+          .where(eq(characterStats.id, statId))
+          .returning()
+
+        return c.json({ stat: updatedStat })
+
+      } catch (error) {
+        console.error('Error updating character stat:', error)
+        if (error instanceof HTTPException) throw error
+        throw new HTTPException(500, { message: 'Failed to update character stat' })
+      }
+    }
+  )
+
+  // Delete custom stat (prevent deletion of predefined stats)
+  .delete('/:id/stats/:statId', async (c) => {
+    const characterId = c.req.param('id')
+    const statId = c.req.param('statId')
+    const userId = c.req.query('userId') // TODO: Get from JWT token
+
+    if (!userId) {
+      throw new HTTPException(400, { message: 'User ID is required' })
+    }
+
+    try {
+      // Verify character exists and belongs to user
+      const [character] = await db
+        .select()
+        .from(characters)
+        .where(and(
+          eq(characters.id, characterId),
+          eq(characters.userId, userId)
+        ))
+
+      if (!character) {
+        throw new HTTPException(404, { message: 'Character not found' })
+      }
+
+      // Get the stat to check if it's predefined
+      const [stat] = await db
+        .select()
+        .from(characterStats)
+        .where(and(
+          eq(characterStats.id, statId),
+          eq(characterStats.characterId, characterId)
+        ))
+
+      if (!stat) {
+        throw new HTTPException(404, { message: 'Character stat not found' })
+      }
+
+      // Prevent deletion of predefined stats
+      if (PREDEFINED_STATS.includes(stat.category as any)) {
+        throw new HTTPException(400, { 
+          message: 'Cannot delete predefined stat categories. Only custom stats can be deleted.' 
+        })
+      }
+
+      // Delete the custom stat
+      await db
+        .delete(characterStats)
+        .where(eq(characterStats.id, statId))
+
+      return c.json({ 
+        message: 'Custom stat deleted successfully',
+        deletedStat: stat 
+      })
+
+    } catch (error) {
+      console.error('Error deleting character stat:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to delete character stat' })
     }
   })
 
