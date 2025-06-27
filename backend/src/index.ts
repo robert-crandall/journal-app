@@ -8,6 +8,7 @@ import { taskCompletionRoutes } from './routes/task-completion'
 import feedbackApp from './routes/feedback-system'
 import dashboardApp from './routes/dashboard'
 import questsApp from './routes/quests'
+import experimentsApp from './routes/experiments'
 
 const app = new Hono()
 
@@ -40,6 +41,9 @@ app.route('/api/dashboard', dashboardApp)
 
 // Mount quest routes
 app.route('/api/quests', questsApp)
+
+// Mount experiment routes
+app.route('/api/experiments', experimentsApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)

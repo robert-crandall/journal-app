@@ -98,7 +98,7 @@
   - [x] 3.3 Build feedback system for AI-generated task completions
   - [x] 3.4 Create dashboard API aggregating tasks from all sources
   - [x] 3.5 Implement quest progress tracking with deadline monitoring
-  - [ ] 3.6 Build experiment task differentiation (shorter-term, no AI influence)
+  - [x] 3.6 Build experiment task differentiation (shorter-term, no AI influence)
   - [ ] 3.7 Create ad-hoc task system tied to specific character stats
   - [ ] 3.8 Implement simple todos without XP/quest integration
   - [ ] 3.9 Design extensible task source architecture for future API integrations

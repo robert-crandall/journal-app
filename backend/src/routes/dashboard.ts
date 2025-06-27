@@ -168,7 +168,15 @@ dashboardApp.get('/', async (c) => {
           completedAt: task.questCompletedAt
         }
       } else if (task.source === 'experiment' && task.experimentTitle) {
+        // Calculate days remaining for active experiments
+        const now = new Date()
+        const endDate = task.experimentEndDate ? new Date(task.experimentEndDate) : 
+          (task.experimentStartDate ? new Date(new Date(task.experimentStartDate).getTime() + (task.experimentDuration || 0) * 24 * 60 * 60 * 1000) : now)
+        const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
+        
         sourceMetadata = {
+          type: 'experiment', // Key differentiation
+          influencesAI: false, // Key differentiation: experiments don't influence AI
           title: task.experimentTitle,
           description: task.experimentDescription,
           hypothesis: task.experimentHypothesis,
@@ -177,7 +185,8 @@ dashboardApp.get('/', async (c) => {
           endDate: task.experimentEndDate,
           status: task.experimentStatus,
           results: task.experimentResults,
-          completedAt: task.experimentCompletedAt
+          completedAt: task.experimentCompletedAt,
+          daysRemaining: task.experimentStatus === 'active' ? daysRemaining : null
         }
       }
 
