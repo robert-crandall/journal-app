@@ -10,6 +10,7 @@ import dashboardApp from './routes/dashboard'
 import questsApp from './routes/quests'
 import experimentsApp from './routes/experiments'
 import adHocTasksApp from './routes/ad-hoc-tasks'
+import todosApp from './routes/todos'
 
 const app = new Hono()
 
@@ -48,6 +49,9 @@ app.route('/api/experiments', experimentsApp)
 
 // Mount ad-hoc task routes
 app.route('/api/tasks/ad-hoc', adHocTasksApp)
+
+// Mount todos routes
+app.route('/api/todos', todosApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)
