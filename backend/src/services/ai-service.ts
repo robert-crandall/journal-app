@@ -32,11 +32,20 @@ export interface AICompletionResponse {
 export interface TaskGenerationContext {
   characterClass: string
   characterBackstory?: string
+  characterStats?: Array<{
+    category: string
+    currentLevel: number
+    totalXp: number
+    description?: string
+  }>
   userGoals?: string[]
   familyMembers?: Array<{
     name: string
     age: number
     interests: string[]
+    interactionFrequency?: string
+    isOverdue?: boolean
+    daysSinceLastInteraction?: number
   }>
   weather?: {
     condition: string
@@ -54,6 +63,7 @@ export interface TaskGenerationContext {
     confidence: number
     shouldAvoid: boolean
   }>
+  dailyFocus?: string
 }
 
 export interface TaskGenerationRequest {
