@@ -12,6 +12,8 @@ import experimentsApp from './routes/experiments'
 import adHocTasksApp from './routes/ad-hoc-tasks'
 import todosApp from './routes/todos'
 import externalTaskSourcesApp from './routes/external-task-sources'
+import familyMembersApp from './routes/family-members'
+import patternTrackingApp from './routes/pattern-tracking'
 
 const app = new Hono()
 
@@ -56,6 +58,12 @@ app.route('/api/todos', todosApp)
 
 // Mount external task sources routes
 app.route('/api/external-sources', externalTaskSourcesApp)
+
+// Mount family members routes
+app.route('/api/family-members', familyMembersApp)
+
+// Mount pattern tracking routes
+app.route('/api/patterns', patternTrackingApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)

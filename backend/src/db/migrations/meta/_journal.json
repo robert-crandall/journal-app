@@ -22,6 +22,20 @@
       "when": 1750994448581,
       "tag": "0002_woozy_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1750995713002,
+      "tag": "0003_rich_krista_starr",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1750997343324,
+      "tag": "0004_uneven_smiling_tiger",
+      "breakpoints": true
     }
   ]
 }

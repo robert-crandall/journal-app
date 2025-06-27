@@ -5,6 +5,7 @@ import { tasks, taskCompletions, users, characters, characterStats } from '../db
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm'
 import { calculateLevelFromTotalXp, calculateTotalXpForLevel } from '../utils/xp-calculator'
 import { generateLevelTitle } from '../services/ai-level-titles'
+import { PatternTrackingService } from '../services/pattern-tracking'
 
 const taskCompletionRoutes = new Hono()
 
@@ -199,6 +200,22 @@ taskCompletionRoutes.post('/:id/complete', async (c) => {
 
       return { updatedTask, taskCompletion, xpNotifications }
     })
+
+    // Record pattern tracking event after successful completion
+    try {
+      await PatternTrackingService.recordTaskCompletionEvent({
+        userId,
+        taskId,
+        completionId: result.taskCompletion.id,
+        eventType: 'completed',
+        taskSource: task.source,
+        xpAwarded: actualXp,
+        feedback: feedback
+      })
+    } catch (error) {
+      console.warn('Failed to record pattern tracking event:', error)
+      // Don't fail the completion if pattern tracking fails
+    }
 
     // Determine display duration and feedback requirements
     const feedbackRequired = task.source === 'ai'

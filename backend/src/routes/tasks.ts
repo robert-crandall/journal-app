@@ -53,7 +53,7 @@ app.post('/',
   async (c) => {
     try {
       const data = c.req.valid('json')
-      const { userId, sourceId, dueDate, ...taskData } = data
+      const { userId, sourceId, dueDate, source, ...taskData } = data
 
       // Verify user exists
       const user = await db
@@ -68,7 +68,7 @@ app.post('/',
 
       // If sourceId is provided, verify it exists and belongs to user
       if (sourceId) {
-        if (data.source === 'quest') {
+        if (source === 'quest') {
           const quest = await db
             .select()
             .from(quests)
@@ -78,7 +78,7 @@ app.post('/',
           if (quest.length === 0) {
             throw new HTTPException(400, { message: 'Invalid quest ID or quest does not belong to user' })
           }
-        } else if (data.source === 'experiment') {
+        } else if (source === 'experiment') {
           const experiment = await db
             .select()
             .from(experiments)
@@ -94,6 +94,7 @@ app.post('/',
       // Create the task
       const [task] = await db.insert(tasks).values({
         userId,
+        source,
         sourceId: sourceId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         ...taskData,

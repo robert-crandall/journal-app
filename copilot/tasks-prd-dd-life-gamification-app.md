@@ -100,8 +100,8 @@
   - [x] 3.5 Implement quest progress tracking with deadline monitoring
   - [x] 3.6 Build experiment task differentiation (shorter-term, no AI influence)
   - [x] 3.7 Create ad-hoc task system tied to specific character stats
-  - [ ] 3.8 Implement simple todos without XP/quest integration
-  - [ ] 3.9 Design extensible task source architecture for future API integrations
+  - [x] 3.8 Implement simple todos without XP/quest integration
+  - [x] 3.9 Design extensible task source architecture for future API integrations
   - [ ] 3.10 Build task completion pattern tracking for AI learning
   - [ ] 3.11 Create family member management with interaction frequency preferences
   - [ ] 3.12 Write integration tests for task management system
