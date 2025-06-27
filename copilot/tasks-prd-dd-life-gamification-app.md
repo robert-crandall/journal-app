@@ -96,7 +96,7 @@
   - [x] 3.1 Create comprehensive task CRUD API supporting all task types
   - [x] 3.2 Implement task completion system with immediate XP notifications
   - [x] 3.3 Build feedback system for AI-generated task completions
-  - [ ] 3.4 Create dashboard API aggregating tasks from all sources
+  - [x] 3.4 Create dashboard API aggregating tasks from all sources
   - [ ] 3.5 Implement quest progress tracking with deadline monitoring
   - [ ] 3.6 Build experiment task differentiation (shorter-term, no AI influence)
   - [ ] 3.7 Create ad-hoc task system tied to specific character stats

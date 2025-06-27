@@ -6,6 +6,7 @@ import characters from './routes/characters'
 import tasks from './routes/tasks'
 import { taskCompletionRoutes } from './routes/task-completion'
 import feedbackApp from './routes/feedback-system'
+import dashboardApp from './routes/dashboard'
 
 const app = new Hono()
 
@@ -32,6 +33,9 @@ app.route('/api/characters', characters)
 
 // Mount feedback system routes
 app.route('/api/feedback', feedbackApp)
+
+// Mount dashboard routes
+app.route('/api/dashboard', dashboardApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)
