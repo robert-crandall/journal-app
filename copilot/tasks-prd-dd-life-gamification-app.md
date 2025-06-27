@@ -107,8 +107,8 @@
   - [x] 3.12 Write integration tests for task management system
 
 - [ ] 4.0 AI Integration and Daily Task Generation
-  - [ ] 4.1 Set up OpenAI GPT integration service with proper API key management
-  - [ ] 4.2 Create weather API integration with user provided zip code
+  - [x] 4.1 Set up OpenAI GPT integration service with proper API key management
+  - [x] 4.2 Create weather API integration with user provided zip code
   - [ ] 4.3 Build AI context gathering system (class, backstory, goals, family, history)
   - [ ] 4.4 Implement daily task generation: exactly 2 tasks (1 adventure + 1 family)
   - [ ] 4.5 Create task generation logic considering weather, family interaction timing

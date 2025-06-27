@@ -8,6 +8,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_GPT_MODEL: z.string().optional().default('gpt-4.1'),
+  WEATHER_API_KEY: z.string().optional(),
 })
 
 export function loadEnv() {
