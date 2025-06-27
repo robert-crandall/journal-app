@@ -58,7 +58,7 @@ export const tasks = pgTable('tasks', {
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 500 }).notNull(),
   description: text('description'),
-  source: varchar('source', { length: 50 }).notNull(), // 'ai', 'quest', 'experiment', 'todo', 'ad-hoc'
+  source: varchar('source', { length: 50 }).notNull(), // 'ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external'
   sourceId: uuid('source_id'), // Reference to quest, experiment, etc.
   targetStats: jsonb('target_stats'), // Array of stat categories this task affects
   estimatedXp: integer('estimated_xp').default(0),
@@ -192,6 +192,41 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
+// External task sources table - Task 3.9
+export const externalTaskSources = pgTable('external_task_sources', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 50 }).notNull(), // calendar, project_management, fitness, notes, habits, time_tracking
+  apiEndpoint: varchar('api_endpoint', { length: 500 }).notNull(),
+  authType: varchar('auth_type', { length: 50 }).notNull(), // oauth2, api_key, basic_auth
+  config: jsonb('config').notNull(), // API keys, tokens, client IDs, etc.
+  mappingRules: jsonb('mapping_rules').notNull(), // Field mappings and transformation rules
+  syncSchedule: varchar('sync_schedule', { length: 100 }), // Cron expression for auto-sync
+  lastSyncAt: timestamp('last_sync_at', { withTimezone: true }),
+  nextSyncAt: timestamp('next_sync_at', { withTimezone: true }),
+  isActive: boolean('is_active').default(true),
+  errorCount: integer('error_count').default(0),
+  lastError: text('last_error'),
+  metadata: jsonb('metadata'), // Additional source-specific data
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// External task integrations table - Task 3.9
+export const externalTaskIntegrations = pgTable('external_task_integrations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sourceId: uuid('source_id').notNull().references(() => externalTaskSources.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  externalId: varchar('external_id', { length: 255 }).notNull(), // ID from external system
+  taskId: uuid('task_id').references(() => tasks.id, { onDelete: 'set null' }), // Nullable - task can be deleted
+  lastSyncAt: timestamp('last_sync_at', { withTimezone: true }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, inactive, error
+  metadata: jsonb('metadata'), // External system specific data
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   characters: many(characters),
@@ -205,6 +240,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   goals: many(goals),
   projects: many(projects),
   taskCompletions: many(taskCompletions),
+  externalTaskSources: many(externalTaskSources),
+  externalTaskIntegrations: many(externalTaskIntegrations),
 }))
 
 export const charactersRelations = relations(characters, ({ one, many }) => ({
@@ -316,4 +353,27 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     references: [users.id],
   }),
   tasks: many(tasks),
+}))
+
+export const externalTaskSourcesRelations = relations(externalTaskSources, ({ one, many }) => ({
+  user: one(users, {
+    fields: [externalTaskSources.userId],
+    references: [users.id],
+  }),
+  integrations: many(externalTaskIntegrations),
+}))
+
+export const externalTaskIntegrationsRelations = relations(externalTaskIntegrations, ({ one }) => ({
+  source: one(externalTaskSources, {
+    fields: [externalTaskIntegrations.sourceId],
+    references: [externalTaskSources.id],
+  }),
+  user: one(users, {
+    fields: [externalTaskIntegrations.userId],
+    references: [users.id],
+  }),
+  task: one(tasks, {
+    fields: [externalTaskIntegrations.taskId],
+    references: [tasks.id],
+  }),
 }))

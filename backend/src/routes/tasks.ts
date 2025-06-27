@@ -11,8 +11,8 @@ const createTaskSchema = z.object({
   userId: z.string().uuid('Invalid user ID'),
   title: z.string().min(1, 'Title is required').max(500),
   description: z.string().optional(),
-  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc'], {
-    errorMap: () => ({ message: 'Source must be one of: ai, quest, experiment, todo, ad-hoc' })
+  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external'], {
+    errorMap: () => ({ message: 'Source must be one of: ai, quest, experiment, todo, ad-hoc, external' })
   }),
   sourceId: z.string().uuid().optional(),
   targetStats: z.array(z.string()).optional().nullable(),
@@ -35,7 +35,7 @@ const updateTaskSchema = z.object({
 const taskQuerySchema = z.object({
   userId: z.string().uuid('Invalid user ID'),
   status: z.enum(['pending', 'completed', 'skipped']).optional(),
-  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc']).optional(),
+  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external']).optional(),
   dashboard: z.string().transform(val => val === 'true').optional(), // Filter for dashboard display
   limit: z.string().transform(val => parseInt(val, 10)).optional(),
   offset: z.string().transform(val => parseInt(val, 10)).optional(),

@@ -11,6 +11,7 @@ import questsApp from './routes/quests'
 import experimentsApp from './routes/experiments'
 import adHocTasksApp from './routes/ad-hoc-tasks'
 import todosApp from './routes/todos'
+import externalTaskSourcesApp from './routes/external-task-sources'
 
 const app = new Hono()
 
@@ -52,6 +53,9 @@ app.route('/api/tasks/ad-hoc', adHocTasksApp)
 
 // Mount todos routes
 app.route('/api/todos', todosApp)
+
+// Mount external task sources routes
+app.route('/api/external-sources', externalTaskSourcesApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)

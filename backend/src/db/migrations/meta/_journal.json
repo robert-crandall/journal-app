@@ -15,6 +15,13 @@
       "when": 1750962398213,
       "tag": "0001_yielding_doorman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750994448581,
+      "tag": "0002_woozy_skrulls",
+      "breakpoints": true
     }
   ]
 }

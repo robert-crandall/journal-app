@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { db } from '../db/connection'
-import { tasks, quests, experiments, taskCompletions } from '../db/schema'
+import { tasks, quests, experiments, taskCompletions, externalTaskSources } from '../db/schema'
 import { eq, and, desc, asc, sql, count, sum, isNull, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
@@ -58,9 +58,9 @@ dashboardApp.get('/', async (c) => {
     }
 
     // Build query conditions for dashboard-visible tasks
-    // Include: ai, quest, experiment, todo
+    // Include: ai, quest, experiment, todo, external
     // Exclude: project, ad-hoc
-    const dashboardSources = ['ai', 'quest', 'experiment', 'todo'] as const
+    const dashboardSources = ['ai', 'quest', 'experiment', 'todo', 'external'] as const
     let whereConditions = [
       eq(tasks.userId, userId),
       inArray(tasks.source, dashboardSources)
@@ -111,7 +111,11 @@ dashboardApp.get('/', async (c) => {
         experimentEndDate: experiments.endDate,
         experimentStatus: experiments.status,
         experimentResults: experiments.results,
-        experimentCompletedAt: experiments.completedAt
+        experimentCompletedAt: experiments.completedAt,
+        // External source metadata
+        externalSourceName: externalTaskSources.name,
+        externalSourceType: externalTaskSources.type,
+        externalSourceIsActive: externalTaskSources.isActive
       })
       .from(tasks)
       .leftJoin(quests, and(
@@ -121,6 +125,10 @@ dashboardApp.get('/', async (c) => {
       .leftJoin(experiments, and(
         eq(tasks.sourceId, experiments.id),
         eq(tasks.source, 'experiment')
+      ))
+      .leftJoin(externalTaskSources, and(
+        eq(tasks.sourceId, externalTaskSources.id),
+        eq(tasks.source, 'external')
       ))
       .where(and(...whereConditions))
       .orderBy(
@@ -187,6 +195,17 @@ dashboardApp.get('/', async (c) => {
           results: task.experimentResults,
           completedAt: task.experimentCompletedAt,
           daysRemaining: task.experimentStatus === 'active' ? daysRemaining : null
+        }
+      } else if (task.source === 'external' && task.externalSourceName) {
+        sourceMetadata = {
+          type: 'external', // Key differentiation
+          isExternal: true, // Key differentiation: external tasks are read-only in many contexts
+          canModify: false, // External tasks shouldn't be modifiable from dashboard
+          sourceInfo: {
+            name: task.externalSourceName,
+            type: task.externalSourceType,
+            isActive: task.externalSourceIsActive
+          }
         }
       }
 
