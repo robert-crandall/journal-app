@@ -5,6 +5,7 @@ import { HTTPException } from 'hono/http-exception'
 import characters from './routes/characters'
 import tasks from './routes/tasks'
 import { taskCompletionRoutes } from './routes/task-completion'
+import feedbackApp from './routes/feedback-system'
 
 const app = new Hono()
 
@@ -28,6 +29,9 @@ app.get('/', (c) => {
 
 // Mount character routes
 app.route('/api/characters', characters)
+
+// Mount feedback system routes
+app.route('/api/feedback', feedbackApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)
