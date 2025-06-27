@@ -48,6 +48,14 @@ export interface TaskGenerationContext {
     isOverdue?: boolean
     daysSinceLastInteraction?: number
   }>
+  // Task 4.10: Projects context for AI influence (not dashboard display)
+  projects?: Array<{
+    id: string
+    title: string
+    description?: string
+    status: string
+    dueDate?: string
+  }>
   weather?: {
     condition: string
     temperature: number
@@ -530,6 +538,14 @@ Task Types Needed: ${taskTypes.join(', ')}
       prompt += '\n'
     }
 
+    if (context.projects && context.projects.length > 0) {
+      prompt += `Projects:\n`
+      context.projects.forEach(project => {
+        prompt += `- ${project.title} (Status: ${project.status}${project.dueDate ? `, Due: ${project.dueDate}` : ''}): ${project.description || 'No description'}\n`
+      })
+      prompt += '\n'
+    }
+
     if (constraints) {
       prompt += `Constraints:\n`
       if (constraints.avoidOutdoor) prompt += `- Avoid outdoor activities\n`
@@ -902,6 +918,25 @@ CHARACTER CONTEXT:
       })
     }
 
+    // Task 4.10: Project context for AI influence (but not dashboard display)
+    if (context.projects && context.projects.length > 0) {
+      prompt += '\n\nACTIVE PROJECTS (for context, not direct task creation):'
+      context.projects.forEach(project => {
+        prompt += `\n- "${project.title}"`
+        if (project.description) {
+          prompt += ` - ${project.description}`
+        }
+        if (project.dueDate) {
+          const dueDate = new Date(project.dueDate)
+          const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+          if (daysUntilDue <= 7) {
+            prompt += ` [DUE SOON: ${daysUntilDue} days]`
+          }
+        }
+      })
+      prompt += '\nNOTE: Generate tasks that complement project work or provide balance, NOT direct project tasks.'
+    }
+
     // Weather influence
     if (context.weather) {
       prompt += `\n\nCURRENT WEATHER: ${context.weather.condition}, ${context.weather.temperature}°F`
@@ -987,12 +1022,21 @@ Your role is to generate personalized daily tasks that:
 4. Learn from past task completion patterns and feedback
 5. Provide appropriate difficulty scaling based on current levels
 6. Prioritize overdue family interactions while maintaining engagement
+7. Be influenced by active projects but NOT create direct project tasks
 
 STAT TARGETING PRINCIPLES:
 - Weight stats 0.1-1.0 based on how much they should benefit
 - Higher-level stats need more challenging tasks for meaningful progression
 - Balance familiar comfortable tasks with growth-edge challenges
 - Consider stat synergies (multiple stats can benefit from one activity)
+
+PROJECT INFLUENCE PRINCIPLES (Task 4.10):
+- Use active projects as CONTEXT, not direct task sources
+- Generate tasks that complement project work (e.g., creative breaks, physical balance)
+- Consider project stress levels and recommend balancing activities
+- If projects have tight deadlines, suggest stress-relief or energy-restoration tasks
+- Create tasks that build skills indirectly useful for projects
+- NEVER generate tasks that are direct project work items
 
 FAMILY INTERACTION PRINCIPLES:
 - Prioritize overdue family members (high priority if 7+ days overdue)

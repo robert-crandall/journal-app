@@ -441,6 +441,14 @@ export class AIContextService {
         isOverdue: member.isOverdue,
         daysSinceLastInteraction: member.daysSinceLastInteraction
       })),
+      // Task 4.10: Include projects for AI influence (not dashboard display)
+      projects: context.projects.map(project => ({
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        status: project.status,
+        dueDate: project.dueDate
+      })),
       taskHistory: context.recentTaskHistory.map(task => ({
         id: task.id,
         title: task.title,
