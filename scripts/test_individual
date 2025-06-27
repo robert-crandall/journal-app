@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Script to run test files individually and stop at first failure
+# Usage: ./scripts/test_individual
+
+set -e  # Exit on any error
+
+echo "🧪 Running tests individually to identify failures..."
+echo "=============================================="
+
+# Find all test files in the backend
+test_files=$(find backend/src -name "*.test.ts" | sort)
+
+# Counter for tracking progress
+total_files=$(echo "$test_files" | wc -l | tr -d ' ')
+current=1
+
+echo "Found $total_files test files to run"
+echo ""
+
+# Run each test file individually
+for test_file in $test_files; do
+    echo "[$current/$total_files] Running: $test_file"
+    echo "----------------------------------------"
+    
+    # Extract just the src part of the path for the backend directory
+    relative_path=${test_file#backend/}
+    
+    # Run the specific test with proper path
+    if cd backend && bun test "./$relative_path" && cd ..; then
+        echo "✅ PASSED: $test_file"
+    else
+        echo "❌ FAILED: $test_file"
+        echo ""
+        echo "🚨 Test failure detected in: $test_file"
+        echo "Stopping execution to investigate this failure."
+        exit 1
+    fi
+    
+    echo ""
+    current=$((current + 1))
+done
+
+echo "🎉 All test files passed individually!"
+echo "This suggests the failure might be due to test interaction or timing issues."

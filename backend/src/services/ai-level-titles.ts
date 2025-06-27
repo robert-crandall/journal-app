@@ -31,7 +31,7 @@ export async function generateLevelTitle(request: LevelTitleRequest): Promise<st
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: env.OPENAI_GPT_MODEL || 'gpt-4',
+        model: env.OPENAI_GPT_MODEL || 'gpt-4.1-mini',
         messages: [
           {
             role: 'system',
