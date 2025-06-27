@@ -15,6 +15,7 @@ import externalTaskSourcesApp from './routes/external-task-sources'
 import familyMembersApp from './routes/family-members'
 import patternTrackingApp from './routes/pattern-tracking'
 import scheduledApp from './routes/scheduled'
+import journalApp from './routes/journal'
 
 const app = new Hono()
 
@@ -68,6 +69,9 @@ app.route('/api/patterns', patternTrackingApp)
 
 // Mount scheduled task generation routes
 app.route('/api/scheduled', scheduledApp)
+
+// Mount journal routes
+app.route('/api/journal', journalApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)
