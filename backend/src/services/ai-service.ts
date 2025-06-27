@@ -1,4 +1,5 @@
 import { env } from '../env'
+import { calculateTotalXpForLevel } from '../utils/xp-calculator'
 
 // Types for AI Service API
 export interface AICompletionRequest {
@@ -743,5 +744,698 @@ Respond with valid JSON:
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  /**
+   * Task 4.7: Generate enhanced tasks with intelligent XP estimation and target stat specification
+   */
+  async generateEnhancedDailyTasks(request: TaskGenerationRequest): Promise<{
+    success: boolean
+    data?: EnhancedTaskGenerationResponse
+    error?: { type: string; message: string }
+  }> {
+    try {
+      // Build enhanced prompt for more intelligent task generation
+      const enhancedPrompt = this.buildEnhancedTaskGenerationPrompt(request.context)
+      
+      const completion = await this.generateCompletion({
+        model: this.defaultModel,
+        messages: [
+          {
+            role: 'system',
+            content: this.getEnhancedTaskGenerationSystemPrompt()
+          },
+          {
+            role: 'user',
+            content: enhancedPrompt
+          }
+        ],
+        maxTokens: 1200,
+        temperature: 0.7
+      })
+
+      if (!completion.success || !completion.content) {
+        return {
+          success: false,
+          error: {
+            type: 'generation_failed',
+            message: completion.error?.message || 'Failed to generate enhanced tasks'
+          }
+        }
+      }
+
+      // Parse the enhanced response
+      const enhancedTasks = this.parseEnhancedTaskGeneration(completion.content)
+      
+      // Apply intelligent XP estimation
+      const adventureTask = {
+        ...this.enhanceTaskWithXPCalculation(enhancedTasks.adventureTask, request.context),
+        weatherInfluence: enhancedTasks.adventureTask.weatherInfluence,
+        goalAlignment: enhancedTasks.adventureTask.goalAlignment
+      }
+      
+      const familyTask = {
+        ...this.enhanceTaskWithXPCalculation(enhancedTasks.familyTask, request.context),
+        targetFamilyMember: enhancedTasks.familyTask.targetFamilyMember,
+        interactionType: enhancedTasks.familyTask.interactionType,
+        overdueNotes: enhancedTasks.familyTask.overdueNotes
+      }
+
+      return {
+        success: true,
+        data: {
+          adventureTask,
+          familyTask,
+          generationMetadata: enhancedTasks.generationMetadata
+        }
+      }
+
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          type: 'processing',
+          message: error instanceof Error ? error.message : 'Error generating enhanced tasks'
+        }
+      }
+    }
+  }
+
+  /**
+   * Calculate intelligent XP estimation based on task difficulty, stat levels, and complexity
+   */
+  private enhanceTaskWithXPCalculation(
+    task: EnhancedTaskSpecification, 
+    context: TaskGenerationContext
+  ): EnhancedTaskSpecification {
+    // Base XP values by difficulty
+    const baseXpByDifficulty = {
+      easy: 15,
+      medium: 25,
+      hard: 40,
+      epic: 60
+    }
+
+    let estimatedXp = baseXpByDifficulty[task.difficulty]
+
+    // Adjust based on target stat levels (higher level stats get more XP)
+    const statLevelMultiplier = task.targetStats.reduce((multiplier, targetStat) => {
+      const contextStat = context.characterStats?.find(s => s.category === targetStat.category)
+      if (contextStat) {
+        // Higher level stats require more XP (1.0x at level 1, 1.5x at level 10)
+        const levelMultiplier = 1 + (contextStat.currentLevel - 1) * 0.05
+        return multiplier + (levelMultiplier * targetStat.xpWeight)
+      }
+      return multiplier + targetStat.xpWeight
+    }, 0) / task.targetStats.length
+
+    estimatedXp = Math.round(estimatedXp * statLevelMultiplier)
+
+    // Time-based adjustment
+    if (task.timeEstimate.includes('hour')) {
+      estimatedXp = Math.round(estimatedXp * 1.5) // Longer tasks get bonus XP
+    }
+
+    // Prerequisites bonus
+    if (task.prerequisites && task.prerequisites.length > 0) {
+      estimatedXp = Math.round(estimatedXp * 1.2) // Complex tasks with prep get bonus
+    }
+
+    return {
+      ...task,
+      estimatedXp: Math.max(5, Math.min(100, estimatedXp)) // Cap between 5-100 XP
+    }
+  }
+
+  /**
+   * Build enhanced prompt for more intelligent task generation
+   */
+  private buildEnhancedTaskGenerationPrompt(context: TaskGenerationContext): string {
+    let prompt = `Generate exactly 2 personalized daily tasks for a ${context.characterClass} character.
+
+CHARACTER CONTEXT:
+- Class: ${context.characterClass}
+- Backstory: ${context.characterBackstory || 'Not specified'}
+- Daily Focus: ${context.dailyFocus || 'General improvement'}`
+
+    // Character stats with levels for XP targeting
+    if (context.characterStats && context.characterStats.length > 0) {
+      prompt += '\n\nCURRENT STATS & LEVELS:'
+      context.characterStats.forEach(stat => {
+        prompt += `\n- ${stat.category}: Level ${stat.currentLevel} (${stat.totalXp} total XP)`
+      })
+    }
+
+    // User goals for alignment
+    if (context.userGoals && context.userGoals.length > 0) {
+      prompt += '\n\nCURRENT GOALS:\n' + context.userGoals.map(goal => `- ${goal}`).join('\n')
+    }
+
+    // Family context with overdue prioritization
+    if (context.familyMembers && context.familyMembers.length > 0) {
+      prompt += '\n\nFAMILY MEMBERS:'
+      context.familyMembers.forEach(member => {
+        prompt += `\n- ${member.name} (${member.age} years old, interests: ${member.interests?.join(', ') || 'unspecified'})`
+        if (member.isOverdue) {
+          prompt += ` [OVERDUE: ${member.daysSinceLastInteraction} days since last interaction - HIGH PRIORITY]`
+        }
+      })
+    }
+
+    // Weather influence
+    if (context.weather) {
+      prompt += `\n\nCURRENT WEATHER: ${context.weather.condition}, ${context.weather.temperature}°F`
+    }
+
+    // Task history for learning
+    if (context.taskHistory && context.taskHistory.length > 0) {
+      prompt += '\n\nRECENT TASK HISTORY (for learning preferences):'
+      context.taskHistory.slice(0, 3).forEach(task => {
+        prompt += `\n- "${task.title}" (${task.completed ? 'Completed' : 'Skipped'})`
+        if (task.feedback) {
+          prompt += ` - Feedback: ${task.feedback}`
+        }
+      })
+    }
+
+    prompt += `
+
+REQUIREMENTS:
+1. Generate exactly 2 tasks: 1 ADVENTURE task and 1 FAMILY task
+2. For each task, specify target stats with XP weights (0.1-1.0) and reasoning
+3. Choose appropriate difficulty: easy (15min), medium (30-45min), hard (1+ hour), epic (2+ hours)
+4. Provide time estimates and any prerequisites needed
+5. Explain reasoning for task design and stat targeting
+6. FAMILY TASK: If family members are overdue, prioritize them with specific interaction types
+
+RESPONSE FORMAT (JSON):
+{
+  "adventureTask": {
+    "title": "Engaging title",
+    "description": "Detailed description with specific actions",
+    "targetStats": [
+      {
+        "category": "Stat name",
+        "xpWeight": 0.8,
+        "reasoning": "Why this stat benefits"
+      }
+    ],
+    "difficulty": "medium",
+    "timeEstimate": "30-45 minutes",
+    "prerequisites": ["Optional preparation needed"],
+    "reasoning": "Why this task fits the character and context",
+    "weatherInfluence": "How weather influenced this choice",
+    "goalAlignment": "How this supports current goals"
+  },
+  "familyTask": {
+    "title": "Family-focused title",
+    "description": "Detailed family interaction description",
+    "targetStats": [
+      {
+        "category": "Social Connection",
+        "xpWeight": 1.0,
+        "reasoning": "Family bonding primary benefit"
+      }
+    ],
+    "difficulty": "easy",
+    "timeEstimate": "15-30 minutes",
+    "targetFamilyMember": "Specific family member name",
+    "interactionType": "quality_time",
+    "overdueNotes": "Notes if addressing overdue interaction",
+    "reasoning": "Why this family interaction is recommended"
+  },
+  "generationMetadata": {
+    "contextFactorsConsidered": ["List of factors that influenced generation"],
+    "alternativesConsidered": ["Other task options considered"],
+    "adaptationsFromHistory": ["How past feedback influenced choices"]
+  }
+}`
+
+    return prompt
+  }
+
+  /**
+   * System prompt for enhanced task generation
+   */
+  private getEnhancedTaskGenerationSystemPrompt(): string {
+    return `You are an expert life coach and game designer specializing in D&D-style character development and family relationship building.
+
+Your role is to generate personalized daily tasks that:
+1. Match the character's class, backstory, and current stat progression
+2. Align with their stated goals and daily focus
+3. Consider current weather and family interaction needs
+4. Learn from past task completion patterns and feedback
+5. Provide appropriate difficulty scaling based on current levels
+6. Prioritize overdue family interactions while maintaining engagement
+
+STAT TARGETING PRINCIPLES:
+- Weight stats 0.1-1.0 based on how much they should benefit
+- Higher-level stats need more challenging tasks for meaningful progression
+- Balance familiar comfortable tasks with growth-edge challenges
+- Consider stat synergies (multiple stats can benefit from one activity)
+
+FAMILY INTERACTION PRINCIPLES:
+- Prioritize overdue family members (high priority if 7+ days overdue)
+- Match interaction types to family member interests and age
+- Create meaningful bonding opportunities, not just "check-ins"
+- Consider family schedules and energy levels
+
+XP ESTIMATION GUIDELINES:
+- Easy (15min): 10-20 XP base
+- Medium (30-45min): 20-35 XP base  
+- Hard (1+ hour): 35-50 XP base
+- Epic (2+ hours): 50-75 XP base
+- Adjust based on stat levels, complexity, and prerequisites
+
+Be creative, engaging, and consider the full context to create tasks that feel personally meaningful and achievable.`
+  }
+
+  /**
+   * Parse enhanced task generation response
+   */
+  private parseEnhancedTaskGeneration(content: string): EnhancedTaskGenerationResponse {
+    try {
+      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
+      const parsed = JSON.parse(cleanContent)
+
+      return {
+        adventureTask: {
+          title: parsed.adventureTask?.title || 'Adventure Task',
+          description: parsed.adventureTask?.description || 'Complete an adventure activity',
+          targetStats: parsed.adventureTask?.targetStats || [{ category: 'Adventure Spirit', xpWeight: 1.0, reasoning: 'Default adventure benefit' }],
+          estimatedXp: parsed.adventureTask?.estimatedXp || 25,
+          difficulty: parsed.adventureTask?.difficulty || 'medium',
+          timeEstimate: parsed.adventureTask?.timeEstimate || '30-45 minutes',
+          prerequisites: parsed.adventureTask?.prerequisites,
+          reasoning: parsed.adventureTask?.reasoning || 'Adventure task for character development',
+          contextualNotes: parsed.adventureTask?.contextualNotes,
+          weatherInfluence: parsed.adventureTask?.weatherInfluence,
+          goalAlignment: parsed.adventureTask?.goalAlignment
+        },
+        familyTask: {
+          title: parsed.familyTask?.title || 'Family Time',
+          description: parsed.familyTask?.description || 'Spend quality time with family',
+          targetStats: parsed.familyTask?.targetStats || [{ category: 'Social Connection', xpWeight: 1.0, reasoning: 'Family bonding benefit' }],
+          estimatedXp: parsed.familyTask?.estimatedXp || 20,
+          difficulty: parsed.familyTask?.difficulty || 'easy',
+          timeEstimate: parsed.familyTask?.timeEstimate || '15-30 minutes',
+          prerequisites: parsed.familyTask?.prerequisites,
+          reasoning: parsed.familyTask?.reasoning || 'Family interaction for social development',
+          contextualNotes: parsed.familyTask?.contextualNotes,
+          targetFamilyMember: parsed.familyTask?.targetFamilyMember,
+          interactionType: parsed.familyTask?.interactionType || 'quality_time',
+          overdueNotes: parsed.familyTask?.overdueNotes
+        },
+        generationMetadata: {
+          contextFactorsConsidered: parsed.generationMetadata?.contextFactorsConsidered || ['Character class', 'Current stats'],
+          alternativesConsidered: parsed.generationMetadata?.alternativesConsidered,
+          adaptationsFromHistory: parsed.generationMetadata?.adaptationsFromHistory
+        }
+      }
+
+    } catch (error) {
+      console.error('Error parsing enhanced task generation:', error)
+      // Return fallback response
+      return {
+        adventureTask: {
+          title: 'Daily Adventure',
+          description: 'Embark on a personal growth adventure today',
+          targetStats: [{ category: 'Adventure Spirit', xpWeight: 1.0, reasoning: 'Adventure activities build courage and curiosity' }],
+          estimatedXp: 25,
+          difficulty: 'medium',
+          timeEstimate: '30 minutes',
+          reasoning: 'Adventure task for character development'
+        },
+        familyTask: {
+          title: 'Family Connection',
+          description: 'Connect meaningfully with a family member',
+          targetStats: [{ category: 'Social Connection', xpWeight: 1.0, reasoning: 'Family interactions strengthen social bonds' }],
+          estimatedXp: 20,
+          difficulty: 'easy',
+          timeEstimate: '20 minutes',
+          interactionType: 'quality_time',
+          reasoning: 'Family bonding for social development'
+        },
+        generationMetadata: {
+          contextFactorsConsidered: ['Character development needs', 'Family relationships']
+        }
+      }
+    }
+  }
+
+  /**
+   * Task 4.8: Process feedback from completed tasks for AI learning and improvement
+   */
+  async processFeedbackForLearning(request: {
+    userId: string
+    taskId: string
+    feedback: string
+    actualXp?: number
+    wasCompleted: boolean
+    completionNotes?: string
+    context: TaskGenerationContext
+  }): Promise<{
+    success: boolean
+    learningInsights?: {
+      preferencePatterns: Array<{
+        type: 'likes' | 'dislikes' | 'difficulty_preference' | 'time_preference' | 'stat_focus'
+        pattern: string
+        confidence: number
+      }>
+      taskAdjustments: Array<{
+        aspect: 'difficulty' | 'duration' | 'stat_targeting' | 'content_type'
+        recommendation: string
+        reasoning: string
+      }>
+      futureConsiderations: string[]
+    }
+    error?: { type: string; message: string }
+  }> {
+    try {
+      // Build feedback analysis prompt
+      const feedbackPrompt = this.buildFeedbackAnalysisPrompt(request)
+      
+      const completion = await this.generateCompletion({
+        model: this.defaultModel,
+        messages: [
+          {
+            role: 'system',
+            content: this.getFeedbackAnalysisSystemPrompt()
+          },
+          {
+            role: 'user',
+            content: feedbackPrompt
+          }
+        ],
+        maxTokens: 800,
+        temperature: 0.3 // Lower temperature for more analytical processing
+      })
+
+      if (!completion.success || !completion.content) {
+        return {
+          success: false,
+          error: {
+            type: 'analysis_failed',
+            message: completion.error?.message || 'Failed to analyze feedback'
+          }
+        }
+      }
+
+      // Parse feedback analysis
+      const learningInsights = this.parseFeedbackAnalysis(completion.content)
+
+      return {
+        success: true,
+        learningInsights
+      }
+
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          type: 'processing',
+          message: error instanceof Error ? error.message : 'Error processing feedback'
+        }
+      }
+    }
+  }
+
+  /**
+   * Build feedback analysis prompt for learning patterns
+   */
+  private buildFeedbackAnalysisPrompt(request: {
+    userId: string
+    taskId: string
+    feedback: string
+    actualXp?: number
+    wasCompleted: boolean
+    completionNotes?: string
+    context: TaskGenerationContext
+  }): string {
+    let prompt = `Analyze user feedback for learning patterns and future task generation improvements.
+
+TASK CONTEXT:
+- User Character: ${request.context.characterClass}
+- Task Completion: ${request.wasCompleted ? 'COMPLETED' : 'NOT COMPLETED'}
+- User Feedback: "${request.feedback}"`
+
+    if (request.actualXp) {
+      prompt += `\n- Actual XP Awarded: ${request.actualXp}`
+    }
+
+    if (request.completionNotes) {
+      prompt += `\n- Completion Notes: "${request.completionNotes}"`
+    }
+
+    // Add character stats context for difficulty assessment
+    if (request.context.characterStats) {
+      prompt += '\n\nCURRENT STATS:'
+      request.context.characterStats.forEach(stat => {
+        prompt += `\n- ${stat.category}: Level ${stat.currentLevel}`
+      })
+    }
+
+    // Add recent task history for pattern recognition
+    if (request.context.taskHistory) {
+      prompt += '\n\nRECENT TASK HISTORY:'
+      request.context.taskHistory.slice(0, 3).forEach(task => {
+        prompt += `\n- "${task.title}" (${task.completed ? 'Completed' : 'Skipped'})`
+        if (task.feedback) {
+          prompt += ` - Previous feedback: ${task.feedback}`
+        }
+      })
+    }
+
+    prompt += `
+
+ANALYSIS REQUIREMENTS:
+1. Identify user preference patterns (likes, dislikes, optimal difficulty/timing)
+2. Suggest task generation adjustments for future improvements
+3. Extract insights about user motivation and engagement
+4. Consider completion patterns and feedback sentiment
+5. Recommend specific changes to task difficulty, duration, content type, or stat targeting
+
+RESPONSE FORMAT (JSON):
+{
+  "preferencePatterns": [
+    {
+      "type": "likes",
+      "pattern": "Specific preference identified",
+      "confidence": 0.8
+    }
+  ],
+  "taskAdjustments": [
+    {
+      "aspect": "difficulty",
+      "recommendation": "Specific adjustment to make",
+      "reasoning": "Why this change would help"
+    }
+  ],
+  "futureConsiderations": [
+    "Key considerations for future task generation"
+  ]
+}`
+
+    return prompt
+  }
+
+  /**
+   * System prompt for feedback analysis
+   */
+  private getFeedbackAnalysisSystemPrompt(): string {
+    return `You are an expert data analyst specializing in user behavior and gamification patterns.
+
+Your role is to analyze user feedback on completed (or uncompleted) tasks to identify:
+1. User preference patterns and motivational triggers
+2. Optimal task difficulty and duration preferences  
+3. Content types and activity styles that engage the user
+4. Stat targeting preferences and character development patterns
+5. Time-of-day and context preferences for different activities
+
+ANALYSIS PRINCIPLES:
+- Look for sentiment indicators in feedback (positive/negative language)
+- Consider completion vs. non-completion patterns
+- Identify difficulty mismatches (too easy = bored, too hard = overwhelmed)
+- Recognize time constraint issues and scheduling preferences
+- Detect stat targeting misalignment or preferences
+- Note family interaction preferences and successful patterns
+
+CONFIDENCE SCORING:
+- 0.9-1.0: Strong pattern based on explicit feedback
+- 0.7-0.8: Clear pattern based on implied preferences
+- 0.5-0.6: Moderate pattern requiring more data
+- 0.3-0.4: Weak pattern, tentative insight
+
+ADJUSTMENT CATEGORIES:
+- difficulty: Task complexity and challenge level
+- duration: Time estimates and task length
+- stat_targeting: Which stats to focus on or avoid
+- content_type: Activity styles, indoor/outdoor, social/solo
+
+Provide actionable insights that will improve future task generation quality and user engagement.`
+  }
+
+  /**
+   * Parse feedback analysis response
+   */
+  private parseFeedbackAnalysis(content: string): {
+    preferencePatterns: Array<{
+      type: 'likes' | 'dislikes' | 'difficulty_preference' | 'time_preference' | 'stat_focus'
+      pattern: string
+      confidence: number
+    }>
+    taskAdjustments: Array<{
+      aspect: 'difficulty' | 'duration' | 'stat_targeting' | 'content_type'
+      recommendation: string
+      reasoning: string
+    }>
+    futureConsiderations: string[]
+  } {
+    try {
+      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
+      const parsed = JSON.parse(cleanContent)
+
+      return {
+        preferencePatterns: parsed.preferencePatterns || [],
+        taskAdjustments: parsed.taskAdjustments || [],
+        futureConsiderations: parsed.futureConsiderations || []
+      }
+
+    } catch (error) {
+      console.error('Error parsing feedback analysis:', error)
+      return {
+        preferencePatterns: [],
+        taskAdjustments: [],
+        futureConsiderations: ['Unable to parse feedback analysis - manual review recommended']
+      }
+    }
+  }
+
+  /**
+   * Task 4.9: Generate tasks with daily focus influence for priority alignment
+   */
+  async generateFocusInfluencedTasks(request: TaskGenerationRequest & {
+    dailyFocus?: string
+    focusWeight?: number // 0.1-1.0, how much to weight the daily focus
+  }): Promise<{
+    success: boolean
+    data?: EnhancedTaskGenerationResponse
+    error?: { type: string; message: string }
+  }> {
+    try {
+      // Enhance context with daily focus prioritization
+      const focusEnhancedContext = this.enhanceContextWithDailyFocus(request.context, request.dailyFocus, request.focusWeight || 0.7)
+      
+      // Generate tasks with focus influence
+      const focusInfluencedRequest = {
+        ...request,
+        context: focusEnhancedContext
+      }
+
+      return await this.generateEnhancedDailyTasks(focusInfluencedRequest)
+
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          type: 'processing',
+          message: error instanceof Error ? error.message : 'Error generating focus-influenced tasks'
+        }
+      }
+    }
+  }
+
+  /**
+   * Enhance task generation context with daily focus prioritization
+   */
+  private enhanceContextWithDailyFocus(
+    context: TaskGenerationContext, 
+    dailyFocus?: string, 
+    focusWeight: number = 0.7
+  ): TaskGenerationContext {
+    if (!dailyFocus) {
+      return context
+    }
+
+    // Create focus-enhanced context
+    const enhanced: TaskGenerationContext = {
+      ...context,
+      dailyFocus
+    }
+
+    // Boost stats that align with daily focus
+    if (enhanced.characterStats) {
+      enhanced.characterStats = enhanced.characterStats.map(stat => {
+        // Check if stat aligns with daily focus (simple keyword matching for now)
+        const focusKeywords = dailyFocus.toLowerCase().split(' ')
+        const statKeywords = stat.category.toLowerCase().split(' ')
+        
+        const hasAlignment = focusKeywords.some(focusWord => 
+          statKeywords.some(statWord => 
+            statWord.includes(focusWord) || focusWord.includes(statWord)
+          )
+        )
+
+        if (hasAlignment) {
+          return {
+            ...stat,
+            // Boost this stat's priority for focus alignment
+            focusAlignment: focusWeight,
+            description: stat.description ? `${stat.description} [DAILY FOCUS ALIGNED]` : `[DAILY FOCUS: ${dailyFocus}]`
+          }
+        }
+
+        return stat
+      })
+    }
+
+    // Add focus-related goals if not already present
+    if (enhanced.userGoals) {
+      const focusGoal = `Today's focus: ${dailyFocus}`
+      if (!enhanced.userGoals.includes(focusGoal)) {
+        enhanced.userGoals = [focusGoal, ...enhanced.userGoals]
+      }
+    } else {
+      enhanced.userGoals = [`Today's focus: ${dailyFocus}`]
+    }
+
+    return enhanced
+  }
+}
+
+/**
+ * Enhanced task specification and generation for AI Service
+ */
+
+export interface EnhancedTaskSpecification {
+  title: string
+  description: string
+  targetStats: Array<{
+    category: string
+    xpWeight: number // 0.1 to 1.0 representing how much this stat should benefit
+    reasoning: string // Why this stat is targeted
+  }>
+  estimatedXp: number
+  difficulty: 'easy' | 'medium' | 'hard' | 'epic'
+  timeEstimate: string // e.g., "15-30 minutes", "1-2 hours"
+  prerequisites?: string[] // Any requirements or preparations needed
+  reasoning: string // AI's reasoning for this task design
+  contextualNotes?: string // Any special considerations
+}
+
+export interface EnhancedTaskGenerationResponse {
+  adventureTask: EnhancedTaskSpecification & {
+    weatherInfluence?: string // How weather influenced this task
+    goalAlignment?: string // How this aligns with user goals
+  }
+  familyTask: EnhancedTaskSpecification & {
+    targetFamilyMember?: string
+    interactionType: 'quality_time' | 'activity' | 'conversation' | 'support' | 'shared_interest'
+    overdueNotes?: string // Notes if this family member interaction is overdue
+  }
+  generationMetadata: {
+    contextFactorsConsidered: string[]
+    alternativesConsidered?: string[]
+    adaptationsFromHistory?: string[]
   }
 }
