@@ -1,29 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Send, MessageCircle, PenTool, Loader2 } from 'lucide-svelte';
-	import { api } from '$lib/api/client';
+	import { api, apiSimple } from '$lib/api/client';
 	import MessageBubble from '$lib/components/journal/MessageBubble.svelte';
 	import TypingIndicator from '$lib/components/journal/TypingIndicator.svelte';
 	
-	// Types based on backend journal system
-	interface JournalEntry {
-		id: string;
-		content: string;
-		role: 'user' | 'assistant';
-		createdAt: string;
-	}
-	
-	interface Conversation {
-		id: string;
-		isActive: boolean;
-		createdAt: string;
-		updatedAt: string;
-	}
+	// Import types directly from backend - NEVER rewrite interfaces!
+	import type { JournalEntry, JournalConversation } from '../../../backend/src/db/schema';
 
 	// Component state
 	let currentMessage = $state('');
 	let messages: JournalEntry[] = $state([]);
-	let activeConversation: Conversation | null = $state(null);
+	let activeConversation: JournalConversation | null = $state(null);
 	let isLoading = $state(false);
 	let isTyping = $state(false);
 	let error = $state('');
@@ -42,22 +30,25 @@
 		try {
 			isLoading = true;
 			error = '';
-					// Check if user has an active conversation
-		const statusResponse = await api.api.journal.status.$get({
-			query: { userId }
-		});
-		
-		if (!statusResponse.ok) {
-			throw new Error('Failed to check journal status');
-		}
-		
-		const statusData = await statusResponse.json();
-		
-		if (!statusData.success) {
-			throw new Error(statusData.error || 'Failed to get status');
-		}
 			
-		if (statusData.data.hasActiveConversation) {
+			console.log('Making status request with userId:', userId);
+			
+			// Check if user has an active conversation
+			const statusResponse = await apiSimple.journal.status.get(userId);
+			
+			console.log('Status response:', statusResponse.status, statusResponse.url);
+			
+			if (!statusResponse.ok) {
+				throw new Error('Failed to check journal status');
+			}
+			
+			const statusData = await statusResponse.json();
+			
+			if (!statusData.success) {
+				throw new Error(statusData.error || 'Failed to get status');
+			}
+				
+			if (statusData.data.hasActiveConversation) {
 				// Continue existing conversation
 				await continueExistingConversation();
 			} else {
@@ -74,9 +65,7 @@
 	}
 	
 	async function continueExistingConversation() {
-		try {		const continueResponse = await api.api.journal['quick-continue'].$get({
-			query: { userId }
-		});
+		try {		const continueResponse = await apiSimple.journal['quick-continue'].get(userId);
 			
 			if (!continueResponse.ok) {
 				throw new Error('Failed to continue conversation');
@@ -99,9 +88,7 @@
 	}
 	
 	async function startNewConversation() {
-		try {		const startResponse = await api.api.journal['quick-start'].$post({
-			json: { userId }
-		});
+		try {		const startResponse = await apiSimple.journal['quick-start'].post({ userId });
 			
 			if (!startResponse.ok) {
 				throw new Error('Failed to start new conversation');
@@ -141,14 +128,14 @@
 		try {
 			isLoading = true;
 					// Send user message to backend
-		const messageResponse = await api.api.journal.conversations[':id'].messages.$post({
-			param: { id: activeConversation.id },
-			json: {
+		const messageResponse = await apiSimple.journal.conversations.messages.post(
+			activeConversation.id,
+			{
 				userId,
 				content: messageContent,
 				role: 'user'
 			}
-		});
+		);
 			
 			if (!messageResponse.ok) {
 				throw new Error('Failed to send message');
@@ -185,14 +172,14 @@
 	
 	async function getAIResponse() {
 		try {		// Request AI follow-up by sending empty assistant message
-		const aiResponse = await api.api.journal.conversations[':id'].messages.$post({
-			param: { id: activeConversation!.id },
-			json: {
+		const aiResponse = await apiSimple.journal.conversations.messages.post(
+			activeConversation!.id,
+			{
 				userId,
 				content: '', // Empty content triggers AI response
 				role: 'assistant'
 			}
-		});
+		);
 			
 			if (!aiResponse.ok) {
 				throw new Error('Failed to get AI response');
@@ -218,10 +205,10 @@
 		
 		try {
 			isLoading = true;
-					const endResponse = await api.api.journal.conversations[':id'].end.$put({
-			param: { id: activeConversation.id },
-			json: { userId }
-		});
+					const endResponse = await apiSimple.journal.conversations.end.put(
+			activeConversation.id,
+			{ userId }
+		);
 					if (!endResponse.ok) {
 			throw new Error('Failed to end conversation');
 		}
@@ -272,10 +259,9 @@
 		<div class="max-w-4xl mx-auto flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				<MessageCircle class="h-6 w-6" style="color: rgb(var(--color-primary-600))" />
-				<div>
-					<h1 class="text-xl font-semibold" style="color: rgb(var(--color-text-primary))">
-						Journal Conversation
-					</h1>
+				<div>				<h1 class="text-xl font-semibold" style="color: rgb(var(--color-text-primary))">
+					Journal
+				</h1>
 					<p class="text-sm" style="color: rgb(var(--color-text-secondary))">
 						Reflect and explore your thoughts with AI guidance
 					</p>
@@ -288,7 +274,7 @@
 					disabled={isLoading}
 					class="btn btn-secondary text-sm"
 				>
-					Complete Session
+					End Conversation
 				</button>
 			{/if}
 		</div>
@@ -301,13 +287,14 @@
 			bind:this={chatContainer}
 			class="flex-1 overflow-y-auto px-4 py-6 md:px-6 space-y-4"
 			style="min-height: 0;"
+			data-testid="chat-container"
 		>
 			{#if isLoading && messages.length === 0}
 				<div class="flex items-center justify-center py-12">
 					<div class="flex flex-col items-center gap-3">
 						<Loader2 class="h-8 w-8 animate-spin" style="color: rgb(var(--color-primary-600))" />
 						<p class="text-sm" style="color: rgb(var(--color-text-secondary))">
-							Starting your journal session...
+							Starting conversation...
 						</p>
 					</div>
 				</div>
@@ -328,11 +315,18 @@
 					<div class="text-center">
 						<PenTool class="h-12 w-12 mx-auto mb-4" style="color: rgb(var(--color-text-tertiary))" />
 						<h3 class="text-lg font-medium mb-2" style="color: rgb(var(--color-text-primary))">
-							Ready to Journal
+							Start a new conversation
 						</h3>
-						<p class="text-sm" style="color: rgb(var(--color-text-secondary))">
+						<p class="text-sm mb-4" style="color: rgb(var(--color-text-secondary))">
 							Your AI companion is ready to help you reflect
 						</p>
+						<button 
+							onclick={initializeJournal}
+							class="btn btn-primary"
+							disabled={isLoading}
+						>
+							New Conversation
+						</button>
 					</div>
 				</div>
 			{:else}
@@ -354,7 +348,7 @@
 						bind:value={currentMessage}
 						onkeydown={handleKeyDown}
 						disabled={isLoading || !activeConversation}
-						placeholder={isLoading ? "Thinking..." : "Share what's on your mind..."}
+						placeholder={isLoading ? "Thinking..." : "Type your journal entry..."}
 						class="w-full px-4 py-3 rounded-xl border border-neutral-300 resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
 						style="min-height: 52px; max-height: 120px; background-color: rgb(var(--color-neutral-50));"
 						rows="1"
@@ -379,6 +373,7 @@
 						<Loader2 class="h-5 w-5 animate-spin" />
 					{:else}
 						<Send class="h-5 w-5" />
+						<span class="sr-only">Send</span>
 					{/if}
 				</button>
 			</div>

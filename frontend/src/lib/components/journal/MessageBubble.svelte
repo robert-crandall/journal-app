@@ -20,7 +20,9 @@
 	}
 </script>
 
-<div class="flex gap-3 {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+<div class="flex gap-3 {message.role === 'user' ? 'justify-end' : 'justify-start'}" 
+	 data-testid="message-bubble" 
+	 data-role="{message.role}">
 	{#if message.role === 'assistant'}
 		<div class="flex-shrink-0">
 			<div class="w-8 h-8 rounded-full flex items-center justify-center" 

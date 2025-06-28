@@ -172,47 +172,129 @@ const authMiddleware = createMiddleware(async (c, next) => {
 app.use('/protected/*', authMiddleware)
 ```
 
-## Type Safety and Hono Stacks
+## Hono Stacks
 
-### Define Proper Types
-**✅ Use Hono's type system for end-to-end type safety:**
-```typescript
-type AppBindings = {
-  Variables: {
-    userId: string
-    user: User
-  }
-  Bindings: {
-    DATABASE_URL: string
-    JWT_SECRET: string
-  }
-}
+Hono Stacks bundle together tools to help you build a full-stack, type-safe app—from server to client—with minimal boilerplate.
 
-const app = new Hono<AppBindings>()
+These stacks are essentially:
 
-app.get('/profile', (c) => {
-  const userId = c.var.userId // Fully typed
-  const dbUrl = c.env.DATABASE_URL // Fully typed
-  return c.json({ userId })
-})
+* **Hono** – your HTTP API server
+* **Zod** – for runtime validation
+* **@hono/zod-validator** – middleware to integrate Zod
+* **hc** – Hono’s HTTP client generator
+
+Put together, they form the **Hono Stack**—a toolkit for consistent, type-safe RPC-style development.
+
+---
+
+### Step 1: Create the API
+
+Write a basic endpoint with Hono:
+
+```ts
+import { Hono } from 'hono'
+const app = new Hono()
+
+app.get('/hello', (c) => c.json({ message: 'Hello!' }))
 ```
 
-### Export Types for Frontend
-**✅ Enable frontend type safety:**
-```typescript
-// Export the app type for frontend usage
-export type AppType = typeof app
-export default app
+---
+
+### Step 2: Add Zod validation
+
+Use Zod to ensure correct inputs:
+
+```ts
+import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
+
+app.get(
+  '/hello',
+  zValidator('query', z.object({ name: z.string() })),
+  (c) => {
+    const { name } = c.req.valid('query')
+    return c.json({ message: `Hello! ${name}` })
+  }
+)
 ```
 
-```typescript
-// Frontend usage with full type safety
-import type { AppType } from '../backend/src/index'
+---
+
+### Step 3: Share types for client safety
+
+Export the app's type to let the client know all the routes and types:
+
+```ts
+const route = app.get(...validation and handler...)
+export type AppType = typeof route
+```
+
+💡 **Tip**: Keep routes chained and derived from a single variable for auto-type inference.
+
+---
+
+### Step 4: Build the client
+
+Use `hc<AppType>` to auto-generate a type-safe client:
+
+```ts
+import { AppType } from './server'
 import { hc } from 'hono/client'
 
 const client = hc<AppType>('/api')
-const response = await client.profile.$get() // Fully typed response
+
+const res = await client.hello.$get({ query: { name: 'Hono' } })
+const data = await res.json()  // `data` typed: { message: string }
 ```
+
+Everything stays in sync—even API changes—without code duplication.
+
+---
+
+### ✨ Step 5: Integrate with React
+
+Hono Stacks work great with React (and tools like React Query):
+
+**API (Cloudflare Pages)**
+
+```ts
+// functions/api/[[route]].ts
+import { Hono } from 'hono'
+import { handle } from 'hono/cloudflare-pages'
+import { z, zValidator } from 'hono/zod-validator'
+
+const app = new Hono()
+type Todo = z.infer<typeof z.object({ id: z.string(), title: z.string() })>()
+
+const route = app
+  .post('/todo', zValidator('form', schema), (c) => {
+    // create todo…
+  })
+  .get((c) => { /* list todos */ })
+
+export type AppType = typeof route
+export const onRequest = handle(app, '/api')
+```
+
+**Client (React + TanStack Query)**
+
+```tsx
+import { useQuery, QueryClientProvider } from '@tanstack/react-query'
+import { hc } from 'hono/client'
+import type { AppType } from '../functions/api/[[route]]'
+
+const client = hc<AppType>('/api')
+
+// Inside component:
+const todos = useQuery({
+  queryKey: ['todos'],
+  queryFn: () => client.todo.$get().then(r => r.json()),
+})
+```
+
+You get full type checking and API safety from front to back.
+
+---
 
 ## Error Handling
 

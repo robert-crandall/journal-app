@@ -157,7 +157,16 @@ See [testing.instructions.md](./testing/testing.instructions.md) for general tes
 - **NEVER duplicate logic** - extract to shared utilities instead
 - **NEVER duplicate types** - import from single source of truth
 - **NEVER duplicate components** - extend or compose existing ones
+- **NEVER rewrite interfaces** - always import types directly from backend
 - If you find yourself copying or duplicating code, stop and refactor into reusable abstractions
+
+### Critical Type Safety Rule
+- **ALWAYS import types directly from backend** - `import type { UserType } from '../../backend/src/db/schema'`
+- **NEVER rewrite or duplicate type definitions** in frontend
+- **NEVER create custom interfaces** that duplicate backend types
+- **Fix typing issues by importing from backend** - do not create workarounds
+- The backend is the single source of truth for all data types
+- Frontend must directly import and use backend types to maintain end-to-end type safety
 
 ### Refactoring for DRY
 - When you identify duplicate code, immediately refactor it into shared utilities

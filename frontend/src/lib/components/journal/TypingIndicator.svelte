@@ -2,7 +2,7 @@
 	import { Bot } from 'lucide-svelte';
 </script>
 
-<div class="flex gap-3 justify-start">
+<div class="flex gap-3 justify-start" data-testid="typing-indicator">
 	<div class="flex-shrink-0">
 		<div class="w-8 h-8 rounded-full flex items-center justify-center" 
 			 style="background-color: rgb(var(--color-primary-100));">

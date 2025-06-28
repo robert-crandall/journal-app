@@ -96,11 +96,10 @@ const journalSearchQuerySchema = z.object({
 })
 
 const app = new Hono()
-
-// POST /api/journal/conversations - Start new journal conversation
-app.post('/conversations',
-  zValidator('json', createConversationSchema),
-  async (c) => {
+  // POST /api/journal/conversations - Start new journal conversation
+  .post('/conversations',
+    zValidator('json', createConversationSchema),
+    async (c) => {
     try {
       const { userId } = c.req.valid('json')
 
@@ -139,11 +138,9 @@ app.post('/conversations',
         error: 'Failed to create journal conversation'
       }, 500)
     }
-  }
-)
-
-// POST /api/journal/conversations/:id/messages - Add message to conversation
-app.post('/conversations/:id/messages',
+  })
+  // POST /api/journal/conversations/:id/messages - Add message to conversation
+  .post('/conversations/:id/messages',
   zValidator('json', addMessageSchema),
   async (c) => {
     try {
@@ -325,11 +322,9 @@ app.post('/conversations/:id/messages',
         error: 'Failed to add message to conversation'
       }, 500)
     }
-  }
-)
-
-// PUT /api/journal/conversations/:id/end - End conversation and process with AI
-app.put('/conversations/:id/end',
+  })
+  // PUT /api/journal/conversations/:id/end - End conversation and process with AI
+  .put('/conversations/:id/end',
   zValidator('json', endConversationSchema),
   async (c) => {
     try {
@@ -530,11 +525,9 @@ app.put('/conversations/:id/end',
         error: 'Failed to end conversation'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/conversations/:id - Get conversation details with messages
-app.get('/conversations/:id',
+  })
+  // GET /api/journal/conversations/:id - Get conversation details with messages
+  .get('/conversations/:id',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -587,11 +580,9 @@ app.get('/conversations/:id',
         error: 'Failed to get conversation'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/conversations - List user's conversations
-app.get('/conversations',
+  })
+  // GET /api/journal/conversations - List user's conversations
+  .get('/conversations',
   zValidator('query', conversationListQuerySchema),
   async (c) => {
     try {
@@ -641,11 +632,9 @@ app.get('/conversations',
         error: 'Failed to list conversations'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/history - Enhanced journal history with search and filtering
-app.get('/history',
+  })
+  // GET /api/journal/history - Enhanced journal history with search and filtering
+  .get('/history',
   zValidator('query', journalHistoryQuerySchema),
   async (c) => {
     try {
@@ -679,11 +668,9 @@ app.get('/history',
         error: 'Failed to search journal history'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/stats - Journal statistics and analytics
-app.get('/stats',
+  })
+  // GET /api/journal/stats - Journal statistics and analytics
+  .get('/stats',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -717,11 +704,9 @@ app.get('/stats',
         error: 'Failed to get journal statistics'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/search - Full-text search within journal content
-app.get('/search',
+  })
+  // GET /api/journal/search - Full-text search within journal content
+  .get('/search',
   zValidator('query', journalSearchQuerySchema),
   async (c) => {
     try {
@@ -761,11 +746,9 @@ app.get('/search',
         error: 'Failed to search journal content'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/tags - Get popular tags for autocomplete
-app.get('/tags',
+  })
+  // GET /api/journal/tags - Get popular tags for autocomplete
+  .get('/tags',
   zValidator('query', z.object({
     userId: z.string().uuid('Invalid user ID format'),
     type: z.enum(['content', 'stat']).optional().default('content'),
@@ -809,12 +792,10 @@ app.get('/tags',
         error: 'Failed to get popular tags'
       }, 500)
     }
-  }
-)
-
-// Homepage journal integration endpoints
-// POST /api/journal/quick-start - Start journal with AI opening question
-app.post('/quick-start',
+  })
+  // Homepage journal integration endpoints
+  // POST /api/journal/quick-start - Start journal with AI opening question
+  .post('/quick-start',
   zValidator('json', z.object({
     userId: z.string().uuid('Invalid user ID format')
   })),
@@ -920,11 +901,9 @@ app.post('/quick-start',
         error: 'Failed to start quick journal session'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/recent-activity - Recent activity summary for homepage dashboard
-app.get('/recent-activity',
+  })
+  // GET /api/journal/recent-activity - Recent activity summary for homepage dashboard
+  .get('/recent-activity',
   zValidator('query', z.object({
     userId: z.string().uuid('Invalid user ID format'),
     days: z.string().optional().default('7').transform(val => {
@@ -1009,11 +988,9 @@ app.get('/recent-activity',
         error: 'Failed to get recent journal activity'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/status - Check active conversation status
-app.get('/status',
+  })
+  // GET /api/journal/status - Check active conversation status
+  .get('/status',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -1078,11 +1055,9 @@ app.get('/status',
         error: 'Failed to check journal status'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/quick-continue - Continue active conversation
-app.get('/quick-continue',
+  })
+  // GET /api/journal/quick-continue - Continue active conversation
+  .get('/quick-continue',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -1157,11 +1132,9 @@ app.get('/quick-continue',
         error: 'Failed to continue journal conversation'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/quick-prompts - Get suggested journal starter prompts
-app.get('/quick-prompts',
+  })
+  // GET /api/journal/quick-prompts - Get suggested journal starter prompts
+  .get('/quick-prompts',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -1244,11 +1217,9 @@ Return as a JSON array of strings.`
         error: 'Failed to generate journal prompts'
       }, 500)
     }
-  }
-)
-
-// POST /api/journal/start-with-prompt - Start with specific prompt
-app.post('/start-with-prompt',
+  })
+  // POST /api/journal/start-with-prompt - Start with specific prompt
+  .post('/start-with-prompt',
   zValidator('json', z.object({
     userId: z.string().uuid('Invalid user ID format'),
     prompt: z.string().min(1, 'Prompt is required')
@@ -1328,11 +1299,9 @@ app.post('/start-with-prompt',
         error: 'Failed to start journal with prompt'
       }, 500)
     }
-  }
-)
-
-// GET /api/journal/metrics - Homepage metrics and streak tracking
-app.get('/metrics',
+  })
+  // GET /api/journal/metrics - Homepage metrics and streak tracking
+  .get('/metrics',
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
@@ -1442,7 +1411,6 @@ app.get('/metrics',
         error: 'Failed to get journal metrics'
       }, 500)
     }
-  }
-)
+  })
 
 export default app
