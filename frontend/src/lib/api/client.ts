@@ -1,12 +1,11 @@
 import { hc } from '@hono/hc'
-
-// We'll need to import the actual app type from the backend once available
-// For now, we'll create a placeholder type structure
+// TODO: Fix Hono type compatibility for proper type safety
+// import type { AppType } from '../../../../backend/src/index'
 
 // API Base URL - use environment variable or default to localhost
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-// Create the typed Hono client
+// Create the typed Hono client - using any for now due to type compatibility issues
 export const api = hc<any>(API_BASE_URL)
 
 // Type-safe API call wrapper with error handling

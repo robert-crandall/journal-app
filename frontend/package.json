@@ -48,6 +48,7 @@
 	},
 	"dependencies": {
 		"@hono/hc": "^0.0.6",
+		"date-fns": "^4.1.0",
 		"lucide-svelte": "^0.523.0"
 	}
 }
