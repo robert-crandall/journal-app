@@ -145,7 +145,7 @@
   - [x] 6.1 Set up SvelteKit frontend with Hono client for type-safe API calls
   - [x] 6.2 Create mobile-first responsive layout with iOS Safari optimization
   - [x] 6.3 Build homepage dashboard with today's tasks, XP progress, quick journal access
-  - [ ] 6.4 Implement character creation and management interface
+  - [x] 6.4 Implement character creation and management interface
   - [x] 6.5 Create task display components with card-based layout and completion states
   - [x] 6.6 Build XP progress visualization with immediate feedback (2-second notifications)
   - [ ] 6.7 Implement character stats dashboard with color coding and level progression
