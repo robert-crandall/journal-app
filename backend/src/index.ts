@@ -16,6 +16,7 @@ import familyMembersApp from './routes/family-members'
 import patternTrackingApp from './routes/pattern-tracking'
 import scheduledApp from './routes/scheduled'
 import journalApp from './routes/journal'
+import testUtilsApp from './routes/test-utils'
 
 const app = new Hono()
 
@@ -72,6 +73,9 @@ app.route('/api/scheduled', scheduledApp)
 
 // Mount journal routes
 app.route('/api/journal', journalApp)
+
+// Mount test utilities (development/test only)
+app.route('/api/test', testUtilsApp)
 
 // Mount task completion routes first (more specific routes)
 app.route('/api/tasks', taskCompletionRoutes)
