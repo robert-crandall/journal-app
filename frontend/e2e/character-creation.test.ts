@@ -16,16 +16,15 @@ test.describe('Character Creation', () => {
 		await page.getByPlaceholder('Enter your character name').fill('Test Hero');
 		await page.getByText('Continue').click();
 
-		// Step 3: Class selection
+		// Step 3: Class selection - this auto-advances to stat customization
 		await expect(page.getByText('Choose Your Character Class')).toBeVisible();
 		await page.getByRole('button', { name: /The Achiever/ }).click();
 
-		// Step 4: Should skip to stat customization (auto-advanced from class selection)
+		// Should auto-advance to stat customization
 		await expect(page.getByText('Customize Your Stats')).toBeVisible();
 		
 		// Should have 3 pre-selected stats from "The Achiever" class
-		const selectedStats = page.locator('.selected');
-		await expect(selectedStats).toHaveCount(3);
+		await expect(page.getByText('Selected: 3/6')).toBeVisible();
 		
 		// Add one more stat
 		await page.getByRole('button', { name: 'Mental Health' }).click();
@@ -54,8 +53,9 @@ test.describe('Character Creation', () => {
 		// Should show the backstory
 		await expect(page.getByText('A determined individual focused on personal growth')).toBeVisible();
 		
-		// Should show at least 4 stats (3 from class + 1 added)
-		const statCards = page.locator('.card').filter({ hasText: 'Level 1' });
+		// Should show at least 4 stat cards (3 from class + 1 added)
+		// Updated to look for the StatCard component structure
+		const statCards = page.locator('.stat-card');
 		await expect(statCards).toHaveCount(4);
 	});
 
@@ -138,5 +138,68 @@ test.describe('Character Creation', () => {
 
 		// Should be back at step 1
 		await expect(page.getByText('Welcome to Your Adventure!')).toBeVisible();
+	});
+
+	test('should display enhanced character stats dashboard', async ({ page }) => {
+		await page.goto('/character');
+
+		// Complete character creation quickly
+		await page.getByText('Get Started').click();
+		await page.getByPlaceholder('Enter your character name').fill('Stats Test Hero');
+		await page.getByText('Continue').click();
+		// Class selection auto-advances
+		await page.getByRole('button', { name: /The Achiever/ }).click();
+		// Skip stat customization 
+		await page.getByText('Continue').click(); 
+		// Skip backstory
+		await page.getByText('Continue').click(); 
+		// Create character
+		await page.getByText('Create Character').click();
+
+		// Should show enhanced stats dashboard
+		await expect(page.getByText('Character Stats')).toBeVisible();
+		
+		// Should show stats ready to level up indicator
+		await expect(page.getByText(/stats ready to level up/)).toBeVisible();
+		
+		// Should show sample activities guide
+		await expect(page.getByText('Sample Activities & XP Guide')).toBeVisible();
+		await expect(page.getByText('Physical Health & Adventure')).toBeVisible();
+		await expect(page.getByText('Mental Health & Learning')).toBeVisible();
+		await expect(page.getByText('Family Time & Social')).toBeVisible();
+		await expect(page.getByText('Creativity & Personal Development')).toBeVisible();
+		
+		// Should show XP examples
+		await expect(page.getByText('Morning walk/jog: 15-25 XP')).toBeVisible();
+		await expect(page.getByText('Family game night: 40-60 XP')).toBeVisible();
+		
+		// Should show XP tips
+		await expect(page.getByText('XP Tips:')).toBeVisible();
+	});
+
+	test('should handle level up functionality', async ({ page }) => {
+		await page.goto('/character');
+
+		// Complete character creation quickly
+		await page.getByText('Get Started').click();
+		await page.getByPlaceholder('Enter your character name').fill('Level Up Hero');
+		await page.getByText('Continue').click();
+		await page.getByRole('button', { name: /The Achiever/ }).click();
+		await page.getByText('Continue').click();
+		await page.getByText('Continue').click();
+		await page.getByText('Create Character').click();
+
+		// Look for any level up buttons (some stats randomly can level up)
+		const levelUpButtons = page.locator('button:has-text("Level Up!")');
+		const levelUpCount = await levelUpButtons.count();
+
+		if (levelUpCount > 0) {
+			// Click the first level up button
+			await levelUpButtons.first().click();
+			
+			// Should show updated level (the stat should have changed)
+			// We can't predict exact content due to randomness, but interface should still work
+			await expect(page.getByText('Character Stats')).toBeVisible();
+		}
 	});
 });

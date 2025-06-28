@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { PlusCircle, User, Sparkles, Target, ArrowRight } from 'lucide-svelte';
+	import StatCard from '$lib/components/StatCard.svelte';
 
 	// Mock character data - this will be replaced with real API calls
 	let hasCharacter = false;
 	let character = {
 		name: '',
-		class: '',
+		characterClass: '',
 		backstory: '',
 		stats: [] as Array<{
 			name: string;
@@ -14,6 +15,7 @@
 			totalXP: number;
 			nextLevelXP: number;
 			title: string;
+			canLevelUp?: boolean;
 		}>
 	};
 
@@ -23,7 +25,7 @@
 	
 	let formData = {
 		name: '',
-		class: '',
+		characterClass: '',
 		backstory: '',
 		selectedStats: [] as string[]
 	};
@@ -72,7 +74,7 @@
 	}
 
 	function selectClass(selectedClass: typeof characterClasses[0]) {
-		formData.class = selectedClass.name;
+		formData.characterClass = selectedClass.name;
 		formData.selectedStats = [...selectedClass.stats];
 		nextStep();
 	}
@@ -89,18 +91,47 @@
 		// Mock character creation - in real app this would call API
 		character = {
 			name: formData.name,
-			class: formData.class,
+			characterClass: formData.characterClass,
 			backstory: formData.backstory,
 			stats: formData.selectedStats.map((stat, index) => ({
 				name: stat,
 				level: 1,
-				currentXP: 0,
-				totalXP: 0,
+				currentXP: Math.floor(Math.random() * 80) + 10, // Random progress for demo
+				totalXP: Math.floor(Math.random() * 80) + 10,
 				nextLevelXP: 100,
-				title: 'Novice'
+				title: 'Novice',
+				canLevelUp: Math.random() > 0.7 // 30% chance can level up for demo
 			}))
 		};
 		hasCharacter = true;
+	}
+
+	function handleLevelUp(statName: string) {
+		if (character.stats) {
+			character.stats = character.stats.map(stat => {
+				if (stat.name === statName && stat.canLevelUp) {
+					const newLevel = stat.level + 1;
+					return {
+						...stat,
+						level: newLevel,
+						currentXP: 0,
+						totalXP: stat.totalXP + stat.currentXP,
+						nextLevelXP: newLevel * 100, // Simplified level progression
+						title: generateTitle(newLevel),
+						canLevelUp: false
+					};
+				}
+				return stat;
+			});
+		}
+	}
+
+	function generateTitle(level: number): string {
+		const titles = [
+			'Novice', 'Apprentice', 'Adept', 'Expert', 'Master', 
+			'Grandmaster', 'Legend', 'Champion', 'Mythic Hero'
+		];
+		return titles[Math.min(level - 1, titles.length - 1)] || 'Legendary';
 	}
 
 	function startOver() {
@@ -108,7 +139,7 @@
 		step = 1;
 		formData = {
 			name: '',
-			class: '',
+			characterClass: '',
 			backstory: '',
 			selectedStats: []
 		};
@@ -348,7 +379,7 @@
 						</div>
 						<div>
 							<h3 class="font-medium" style="color: rgb(var(--color-text-primary))">Class</h3>
-							<p style="color: rgb(var(--color-text-secondary))">{formData.class}</p>
+							<p style="color: rgb(var(--color-text-secondary))">{formData.characterClass}</p>
 						</div>
 						<div>
 							<h3 class="font-medium" style="color: rgb(var(--color-text-primary))">Stats</h3>
@@ -403,7 +434,7 @@
 					</div>
 					<div class="flex-1">
 						<h2 class="text-xl font-semibold mb-1" style="color: rgb(var(--color-text-primary))">
-							{character.class}
+							{character.characterClass}
 						</h2>
 						{#if character.backstory}
 							<p style="color: rgb(var(--color-text-secondary))">
@@ -414,53 +445,95 @@
 				</div>
 			</div>
 
-			<!-- Character Stats -->
-			<h2 class="text-2xl font-semibold mb-4" style="color: rgb(var(--color-text-primary))">
-				Character Stats
-			</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{#each character.stats as stat}
-					<div class="card">
-						<div class="flex justify-between items-start mb-3">
-							<div>
-								<h3 class="font-semibold" style="color: rgb(var(--color-text-primary))">
-									{stat.name}
-								</h3>
-								<p class="text-sm italic" style="color: rgb(var(--color-text-tertiary))">
-									"{stat.title}"
-								</p>
-							</div>
-							<div class="text-right">
-								<div class="flex items-center">
-									<Target class="h-4 w-4 mr-1" style="color: rgb(var(--color-success-500))" />
-									<span class="font-medium" style="color: rgb(var(--color-text-primary))">
-										Level {stat.level}
-									</span>
-								</div>
-							</div>
-						</div>
-						<div class="mb-2">
-							<div class="flex justify-between text-sm mb-1">
-								<span style="color: rgb(var(--color-text-secondary))">
-									{stat.currentXP} / {stat.nextLevelXP} XP
-								</span>
-								<span style="color: rgb(var(--color-text-secondary))">
-									{Math.round((stat.currentXP / stat.nextLevelXP) * 100)}%
-								</span>
-							</div>
-							<div class="xp-progress">
-								<div 
-									class="xp-progress-bar"
-									style:width="{(stat.currentXP / stat.nextLevelXP) * 100}%"
-									style:background-color="rgb(var(--color-success-500))"
-								></div>
-							</div>
-						</div>
-						<p class="text-sm" style="color: rgb(var(--color-text-tertiary))">
-							Total XP: {stat.totalXP}
-						</p>
+			<!-- Character Stats Dashboard -->
+			<div class="mb-6">
+				<div class="flex items-center justify-between mb-4">
+					<h2 class="text-2xl font-semibold" style="color: rgb(var(--color-text-primary))">
+						Character Stats
+					</h2>
+					<div class="text-sm" style="color: rgb(var(--color-text-tertiary))">
+						{character.stats.filter(s => s.canLevelUp).length} stats ready to level up
 					</div>
-				{/each}
+				</div>
+				
+				<!-- Stats Overview Cards -->
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+					{#each character.stats as stat}
+						<StatCard
+							name={stat.name}
+							level={stat.level}
+							currentXP={stat.currentXP}
+							totalXP={stat.totalXP}
+							nextLevelXP={stat.nextLevelXP}
+							title={stat.title}
+							canLevelUp={stat.canLevelUp}
+							onLevelUp={() => handleLevelUp(stat.name)}
+						/>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Sample Activities Guide -->
+			<div class="card">
+				<h3 class="text-lg font-semibold mb-4" style="color: rgb(var(--color-text-primary))">
+					💡 Sample Activities & XP Guide
+				</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div>
+						<h4 class="font-medium mb-2" style="color: rgb(var(--color-success-600))">
+							🏃 Physical Health & Adventure
+						</h4>
+						<ul class="text-sm space-y-1" style="color: rgb(var(--color-text-secondary))">
+							<li>• Morning walk/jog: 15-25 XP</li>
+							<li>• Hiking new trail: 50-75 XP</li>
+							<li>• Rock climbing session: 60-80 XP</li>
+							<li>• Outdoor photography: 30-40 XP</li>
+							<li>• Bike ride exploration: 40-60 XP</li>
+						</ul>
+					</div>
+					<div>
+						<h4 class="font-medium mb-2" style="color: rgb(var(--color-info-600))">
+							🧠 Mental Health & Learning
+						</h4>
+						<ul class="text-sm space-y-1" style="color: rgb(var(--color-text-secondary))">
+							<li>• Read for 30 minutes: 20-30 XP</li>
+							<li>• Complete online course: 75-100 XP</li>
+							<li>• Meditation session: 15-25 XP</li>
+							<li>• Learn new skill: 50-80 XP</li>
+							<li>• Journaling reflection: 20-35 XP</li>
+						</ul>
+					</div>
+					<div>
+						<h4 class="font-medium mb-2" style="color: rgb(var(--color-danger-600))">
+							👨‍👩‍👧‍👦 Family Time & Social
+						</h4>
+						<ul class="text-sm space-y-1" style="color: rgb(var(--color-text-secondary))">
+							<li>• Family game night: 40-60 XP</li>
+							<li>• One-on-one time with child: 35-50 XP</li>
+							<li>• Date night activity: 45-65 XP</li>
+							<li>• Community volunteering: 50-75 XP</li>
+							<li>• Call distant relative: 20-30 XP</li>
+						</ul>
+					</div>
+					<div>
+						<h4 class="font-medium mb-2" style="color: rgb(var(--color-warning-600))">
+							🎨 Creativity & Personal Development
+						</h4>
+						<ul class="text-sm space-y-1" style="color: rgb(var(--color-text-secondary))">
+							<li>• Art/craft project: 30-50 XP</li>
+							<li>• Write in creative journal: 25-40 XP</li>
+							<li>• Music practice: 20-35 XP</li>
+							<li>• Home improvement project: 40-70 XP</li>
+							<li>• Try new recipe: 25-40 XP</li>
+						</ul>
+					</div>
+				</div>
+				<div class="mt-4 p-3 rounded-lg" style="background-color: rgb(var(--color-info-50))">
+					<p class="text-sm" style="color: rgb(var(--color-info-700))">
+						<strong>XP Tips:</strong> Difficulty, duration, and stepping outside your comfort zone increase XP rewards. 
+						The AI Dungeon Master will adjust XP based on your personal growth and effort!
+					</p>
+				</div>
 			</div>
 		</div>
 	{/if}
