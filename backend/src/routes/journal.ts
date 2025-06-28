@@ -5,6 +5,7 @@ import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { AIService } from '../services/ai-service'
+import { analyzeMoodAndContent, generateContextualQuestions, getFallbackQuestion, generateSystemPrompt, generateConversationMetadata } from '../utils/mood-content-analysis'
 
 // Initialize AI service
 const aiService = new AIService()
@@ -134,9 +135,11 @@ app.post('/conversations/:id/messages',
       }
 
       let messageContent = content
+      console.log('Initial messageContent:', messageContent, 'role:', role, 'content empty?', content.trim() === '')
 
       // If role is assistant and content is empty, generate GPT response
       if (role === 'assistant' && content.trim() === '') {
+        console.log('Entering assistant message generation logic')
         // Get conversation history for context
         const existingMessages = await db
           .select()
@@ -144,53 +147,102 @@ app.post('/conversations/:id/messages',
           .where(eq(journalEntries.conversationId, conversationId))
           .orderBy(journalEntries.createdAt)
 
+        console.log('Found existing messages:', existingMessages.length)
+
         // Generate GPT response based on conversation history
         const conversationHistory = existingMessages.map(msg => ({
           role: msg.role as 'user' | 'assistant',
           content: msg.content
         }))
 
-        // Generate follow-up question or response
-        if (aiService.isConfigured()) {
-          try {
-            const response = await aiService.generateCompletion({
-              model: 'gpt-3.5-turbo',
-              messages: [
-                {
-                  role: 'system',
-                  content: `You are a supportive journal companion helping someone reflect on their day. Ask thoughtful follow-up questions to help them explore their experiences, emotions, and thoughts. Be empathetic, curious, and encouraging. Keep responses conversational and not too long.`
-                },
-                ...conversationHistory,
-                {
-                  role: 'user',
-                  content: 'Please ask me a thoughtful follow-up question to help me reflect further on what I\'ve shared.'
-                }
-              ],
-              maxTokens: 200,
-              temperature: 0.7
-            })
+        // Get the most recent user message for mood/content analysis
+        const recentUserMessage = existingMessages
+          .filter(msg => msg.role === 'user')
+          .slice(-1)[0]
 
-            if (response.success && response.content) {
-              messageContent = response.content
-            } else {
-              messageContent = "That's interesting. How did that make you feel? Can you tell me more about what was going through your mind?"
+        console.log('Recent user message found:', !!recentUserMessage, recentUserMessage?.content?.substring(0, 50))
+
+        if (recentUserMessage) {
+          // Analyze mood and content of the most recent user message
+          const analysis = analyzeMoodAndContent(recentUserMessage.content, conversationHistory)
+
+          // Generate follow-up question or response
+          if (aiService.isConfigured()) {
+            // Generate system prompt based on mood and content analysis
+            const systemPrompt = generateSystemPrompt(analysis)
+            
+            try {
+              const response = await aiService.generateCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                  {
+                    role: 'system',
+                    content: systemPrompt
+                  },
+                  ...conversationHistory.map(msg => ({
+                    role: msg.role as 'user' | 'assistant',
+                    content: msg.content
+                  }))
+                ],
+                maxTokens: 150,
+                temperature: 0.7
+              })
+
+              if (response.success && response.content) {
+                messageContent = response.content
+              } else {
+                // AI failed, use fallback
+                messageContent = getFallbackQuestion(analysis)
+              }
+            } catch (error) {
+              console.error('Error generating GPT response:', error)
+              // AI failed, use fallback
+              messageContent = getFallbackQuestion(analysis)
             }
-          } catch (error) {
-            console.error('Error generating GPT response:', error)
-            messageContent = "Thank you for sharing that with me. What was the most significant part of that experience for you?"
+          } else {
+            // AI not configured, use fallback based on analysis
+            messageContent = getFallbackQuestion(analysis)
           }
         } else {
-          // Fallback questions when AI is not configured
-          const fallbackQuestions = [
-            "That's interesting. How did that make you feel?",
-            "Can you tell me more about what was going through your mind?",
-            "What was the most significant part of that experience for you?",
-            "How do you think that experience might influence you going forward?",
-            "What emotions came up for you during that time?",
-            "Is there anything about that situation you'd handle differently?",
-            "What did you learn about yourself from that experience?"
-          ]
-          messageContent = fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)]
+          // No previous messages, use generic opening
+          if (aiService.isConfigured()) {
+            try {
+              const response = await aiService.generateCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                  {
+                    role: 'system',
+                    content: `You are a supportive journal companion. The user has just started a new journal conversation. Ask them a warm, welcoming question to help them begin reflecting on their day or thoughts. Be encouraging and open-ended.`
+                  },
+                  {
+                    role: 'user',
+                    content: 'I\'d like to start journaling. Please ask me an opening question to help me begin.'
+                  }
+                ],
+                maxTokens: 150,
+                temperature: 0.7
+              })
+
+              if (response.success && response.content) {
+                messageContent = response.content
+              } else {
+                messageContent = "Welcome to your journal! How has your day been so far? What's on your mind right now?"
+              }
+            } catch (error) {
+              console.error('Error generating opening GPT response:', error)
+              messageContent = "I'm here to listen. What would you like to reflect on today?"
+            }
+          } else {
+            // Fallback opening questions when AI is not configured
+            const openingQuestions = [
+              "Welcome to your journal! How has your day been so far?",
+              "I'm here to listen. What would you like to reflect on today?",
+              "What's been on your mind lately that you'd like to explore?",
+              "How are you feeling right now, and what's brought you to journal today?",
+              "What happened in your day that you'd like to talk through?"
+            ]
+            messageContent = openingQuestions[Math.floor(Math.random() * openingQuestions.length)]
+          }
         }
       }
 
@@ -321,6 +373,13 @@ app.put('/conversations/:id/end',
           console.error('Error processing conversation with AI:', error)
           // Continue with fallback data
         }
+      } else {
+        // Use content analysis when AI is not available
+        const conversationForAnalysis = messages.map(msg => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content
+        }))
+        processedData = generateConversationMetadata(conversationForAnalysis)
       }
 
       // Update conversation with processed data

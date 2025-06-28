@@ -21,6 +21,15 @@
 - `backend/src/routes/journal.test.ts` - Unit tests for journal system endpoints
 - `backend/src/services/ai-service.ts` - OpenAI GPT integration service
 - `backend/src/services/ai-service.test.ts` - Unit tests for AI service
+- `backend/src/services/ai-task-generation-integration.test.ts` - Comprehensive integration tests for AI task generation (Task 4.12)
+- `backend/src/services/daily-task-generation-service.ts` - Daily task generation orchestration service
+- `backend/src/services/daily-task-generation-service.test.ts` - Unit tests for daily task generation service
+- `backend/src/services/ai-context-service.ts` - User context gathering service for AI task generation
+- `backend/src/services/ai-context-service.test.ts` - Unit tests for AI context service
+- `backend/src/services/scheduled-task-generation-service.ts` - Scheduled task generation for all users
+- `backend/src/services/scheduled-task-generation-service.test.ts` - Unit tests for scheduled task generation service
+- `backend/src/services/enhanced-task-generation.test.ts` - Integration tests for enhanced AI task features (Tasks 4.7-4.9)
+- `backend/src/services/project-context-integration.test.ts` - Integration tests for project context integration (Task 4.10)
 - `backend/src/services/weather-service.ts` - Weather API integration service
 - `backend/src/services/weather-service.test.ts` - Unit tests for weather service
 - `backend/src/utils/xp-calculator.ts` - XP and level progression calculation utilities
@@ -116,13 +125,13 @@
   - [x] 4.8 Create feedback processing system for AI learning and improvement
   - [x] 4.9 Build daily focus influence system for task generation priorities
   - [x] 4.10 Implement project context integration (influence but not dashboard display)
-  - [ ] 4.11 Create scheduled daily task generation system
-  - [ ] 4.12 Write integration tests for AI task generation
+  - [x] 4.11 Create scheduled daily task generation system
+  - [x] 4.12 Write integration tests for AI task generation
 
 - [ ] 5.0 Journal System with Conversational Interface
-  - [ ] 5.1 Create conversational journal API with GPT integration
-  - [ ] 5.2 Implement smart follow-up question generation based on mood/content detection
-  - [ ] 5.3 Build conversation management with user-controlled ending
+  - [x] 5.1 Create conversational journal API with GPT integration
+  - [x] 5.2 Implement smart follow-up question generation based on mood/content detection
+  - [x] 5.3 Build conversation management with user-controlled ending
   - [ ] 5.4 Create GPT processing for extracting summaries, synopses, and titles
   - [ ] 5.5 Implement content tag system with preference for existing tags
   - [ ] 5.6 Build character stat tag system using only existing user stats

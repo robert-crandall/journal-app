@@ -552,4 +552,429 @@ describe('Journal Conversational API Integration Tests', () => {
       expect(endResult.success).toBe(true)
     })
   })
+
+  describe('Task 5.2: Smart Follow-up Question Generation', () => {
+    test('should generate mood-appropriate follow-up questions for positive content', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add positive user message
+      const userMessage = "I had an amazing day today! I got a promotion at work and spent quality time with my kids playing in the park. Everything felt perfect!"
+      
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: userMessage,
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // Request AI follow-up (mood-aware)
+      const followUpResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: '', // Empty triggers AI response
+          role: 'assistant'
+        })
+      })
+
+      expect(followUpResponse.status).toBe(201)
+      const followUpResult = await followUpResponse.json()
+      
+      expect(followUpResult.success).toBe(true)
+      expect(followUpResult.data.entry.content).toBeDefined()
+      expect(followUpResult.data.entry.role).toBe('assistant')
+      
+      const response = followUpResult.data.entry.content.toLowerCase()
+      
+      // Should detect positive mood and ask appropriate follow-up
+      // For positive content, should encourage elaboration on the positive experience
+      expect(response).toMatch(/(celebrate|amazing|wonderful|great|promotion|kids|feeling|moment|experience|accomplishment)/i)
+      
+      cleanupEntryIds.push(followUpResult.data.entry.id)
+    })
+
+    test('should generate mood-appropriate follow-up questions for negative content', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add negative user message
+      const userMessage = "Today was really difficult. I had a big argument with my partner and I feel frustrated and overwhelmed. Work is stressing me out too."
+      
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: userMessage,
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // Request AI follow-up (mood-aware)
+      const followUpResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: '', // Empty triggers AI response
+          role: 'assistant'
+        })
+      })
+
+      expect(followUpResponse.status).toBe(201)
+      const followUpResult = await followUpResponse.json()
+      
+      expect(followUpResult.success).toBe(true)
+      expect(followUpResult.data.entry.content).toBeDefined()
+      
+      const response = followUpResult.data.entry.content.toLowerCase()
+      
+      // Should detect negative mood and ask supportive, understanding follow-up
+      // For negative content, should focus on understanding and support
+      expect(response).toMatch(/(understand|support|feel|difficult|challenge|cope|help|process|emotions|stress)/i)
+      
+      cleanupEntryIds.push(followUpResult.data.entry.id)
+    })
+
+    test('should generate content-specific follow-up questions', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add content about family interaction
+      const userMessage = "I taught my youngest daughter how to ride a bike today. She was scared at first but then got excited when she could balance on her own."
+      
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: userMessage,
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // Request AI follow-up (content-aware)
+      const followUpResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: '', // Empty triggers AI response
+          role: 'assistant'
+        })
+      })
+
+      expect(followUpResponse.status).toBe(201)
+      const followUpResult = await followUpResponse.json()
+      
+      expect(followUpResult.success).toBe(true)
+      expect(followUpResult.data.entry.content).toBeDefined()
+      
+      const response = followUpResult.data.entry.content.toLowerCase()
+      
+      // Should detect family/teaching content and ask relevant follow-up
+      expect(response).toMatch(/(daughter|bike|teaching|proud|moment|learned|balance|parenting|child|experience)/i)
+      
+      cleanupEntryIds.push(followUpResult.data.entry.id)
+    })
+
+    test('should handle mixed emotions and generate nuanced follow-up questions', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add message with mixed emotions
+      const userMessage = "I completed a challenging project at work today, which feels great, but I'm also worried about the upcoming deadline for the next one. It's exciting but stressful."
+      
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: userMessage,
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // Request AI follow-up
+      const followUpResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: '', // Empty triggers AI response
+          role: 'assistant'
+        })
+      })
+
+      expect(followUpResponse.status).toBe(201)
+      const followUpResult = await followUpResponse.json()
+      
+      expect(followUpResult.success).toBe(true)
+      expect(followUpResult.data.entry.content).toBeDefined()
+      
+      const response = followUpResult.data.entry.content.toLowerCase()
+      
+      // Should acknowledge the complexity of mixed emotions
+      expect(response).toMatch(/(balance|feeling|both|complex|mixed|challenging|accomplish|worry|stress|excitement)/i)
+      
+      cleanupEntryIds.push(followUpResult.data.entry.id)
+    })
+  })
+
+  describe('Task 5.3: Enhanced Conversation Management', () => {
+    test('should allow users to end conversation at any point with proper validation', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add just one message
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: "Just a quick thought before I go.",
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // User should be able to end conversation immediately
+      const endResponse = await app.request(`/api/journal/conversations/${conversationId}/end`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(endResponse.status).toBe(200)
+      const endResult = await endResponse.json()
+      
+      expect(endResult.success).toBe(true)
+      expect(endResult.data.conversation.isActive).toBe(false)
+      expect(endResult.data.conversation.endedAt).toBeDefined()
+    })
+
+    test('should provide conversation summary and metadata when ending conversation', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add meaningful conversation
+      const messages = [
+        "I went for a hike in the mountains today. The weather was perfect and the views were breathtaking.",
+        "I felt so peaceful and connected to nature. It reminded me why I love outdoor adventures.",
+        "I also realized I want to share more experiences like this with my family."
+      ]
+
+      for (const message of messages) {
+        const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: testUserId,
+            content: message,
+            role: 'user'
+          })
+        })
+
+        expect(messageResponse.status).toBe(201)
+        const messageResult = await messageResponse.json()
+        cleanupEntryIds.push(messageResult.data.entry.id)
+      }
+
+      // End conversation and check metadata
+      const endResponse = await app.request(`/api/journal/conversations/${conversationId}/end`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(endResponse.status).toBe(200)
+      const endResult = await endResponse.json()
+      
+      expect(endResult.success).toBe(true)
+      expect(endResult.data.conversation.isActive).toBe(false)
+      expect(endResult.data.conversation.title).toBeDefined()
+      expect(endResult.data.conversation.summary).toBeDefined()
+      expect(endResult.data.conversation.synopsis).toBeDefined()
+      expect(endResult.data.conversation.contentTags).toBeDefined()
+      
+      // Should detect adventure/nature content
+      const title = endResult.data.conversation.title.toLowerCase()
+      const summary = endResult.data.conversation.summary.toLowerCase()
+      expect(title + ' ' + summary).toMatch(/(hike|mountain|nature|adventure|peaceful|outdoor)/i)
+    })
+
+    test('should handle conversation ending with appropriate mood detection', async () => {
+      // Create new conversation
+      const createResponse = await app.request('/api/journal/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(createResponse.status).toBe(201)
+      const createResult = await createResponse.json()
+      const conversationId = createResult.data.conversation.id
+      cleanupConversationIds.push(conversationId)
+
+      // Add emotionally charged content
+      const messageResponse = await app.request(`/api/journal/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId,
+          content: "I'm feeling grateful for my family and excited about our upcoming vacation. Life feels wonderful right now!",
+          role: 'user'
+        })
+      })
+
+      expect(messageResponse.status).toBe(201)
+      const messageResult = await messageResponse.json()
+      cleanupEntryIds.push(messageResult.data.entry.id)
+
+      // End conversation and check mood detection
+      const endResponse = await app.request(`/api/journal/conversations/${conversationId}/end`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: testUserId
+        })
+      })
+
+      expect(endResponse.status).toBe(200)
+      const endResult = await endResponse.json()
+      
+      expect(endResult.success).toBe(true)
+      
+      // Should detect positive mood in content tags or summary
+      const contentTags = endResult.data.conversation.contentTags || []
+      const summary = endResult.data.conversation.summary?.toLowerCase() || ''
+      
+      const positiveIndicators = contentTags.some((tag: string) => 
+        ['happy', 'grateful', 'excited', 'positive', 'wonderful'].includes(tag.toLowerCase())
+      ) || summary.includes('grateful') || summary.includes('excited') || summary.includes('wonderful')
+      
+      expect(positiveIndicators).toBe(true)
+    })
+
+    test('should prevent unauthorized users from ending conversations', async () => {
+      expect(testConversationId).toBeTruthy()
+
+      // Create another user
+      const [otherUser] = await db.insert(users).values({
+        email: 'other-end-test@example.com',
+        name: 'Other End Test User'
+      }).returning()
+      cleanupUserIds.push(otherUser.id)
+
+      // Other user should not be able to end first user's conversation
+      const endResponse = await app.request(`/api/journal/conversations/${testConversationId}/end`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: otherUser.id
+        })
+      })
+
+      expect(endResponse.status).toBe(404) // Should return 404 for conversations not belonging to user
+      const endResult = await endResponse.json()
+      expect(endResult.success).toBe(false)
+      expect(endResult.error).toContain('Conversation not found')
+    })
+  })
 })
