@@ -136,8 +136,8 @@
   - [x] 5.5 Implement content tag system with preference for existing tags
   - [x] 5.6 Build character stat tag system using only existing user stats
   - [x] 5.7 Create XP award system for journal entries (including negative XP)
-  - [ ] 5.8 Implement journal entry storage with processed metadata
-  - [ ] 5.9 Build journal history and search functionality
+  - [x] 5.8 Implement journal entry storage with processed metadata
+  - [x] 5.9 Build journal history and search functionality
   - [ ] 5.10 Create quick journal access integration for homepage
   - [ ] 5.11 Write integration tests for journal system
 

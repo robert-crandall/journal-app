@@ -8,6 +8,7 @@ import { AIService } from '../services/ai-service'
 import { ContentTagService } from '../services/content-tag-service'
 import { CharacterStatTagService } from '../services/character-stat-tag-service'
 import { XpAwardService } from '../services/xp-award-service'
+import { JournalHistoryService } from '../services/journal-history-service'
 import { analyzeMoodAndContent, generateContextualQuestions, getFallbackQuestion, generateSystemPrompt, generateConversationMetadata } from '../utils/mood-content-analysis'
 
 // Initialize AI service
@@ -38,6 +39,50 @@ const conversationListQuerySchema = z.object({
     const num = Number(val)
     if (isNaN(num) || num < 1 || num > 100) {
       throw new Error('Limit must be between 1 and 100')
+    }
+    return num
+  }),
+  offset: z.string().optional().default('0').transform(val => {
+    const num = Number(val)
+    if (isNaN(num) || num < 0) {
+      throw new Error('Offset must be 0 or greater')
+    }
+    return num
+  })
+})
+
+const journalHistoryQuerySchema = z.object({
+  userId: z.string().uuid('Invalid user ID format'),
+  search: z.string().optional(), // Search in title, summary, synopsis
+  tags: z.string().optional().transform(val => val ? val.split(',').map(t => t.trim()) : undefined), // Content tags
+  statTags: z.string().optional().transform(val => val ? val.split(',').map(t => t.trim()) : undefined), // Stat tags
+  mood: z.string().optional(), // Filter by mood
+  startDate: z.string().optional().transform(val => val ? new Date(val) : undefined), // Date range start
+  endDate: z.string().optional().transform(val => val ? new Date(val) : undefined), // Date range end
+  limit: z.string().optional().default('20').transform(val => {
+    const num = Number(val)
+    if (isNaN(num) || num < 1 || num > 100) {
+      throw new Error('Limit must be between 1 and 100')
+    }
+    return num
+  }),
+  offset: z.string().optional().default('0').transform(val => {
+    const num = Number(val)
+    if (isNaN(num) || num < 0) {
+      throw new Error('Offset must be 0 or greater')
+    }
+    return num
+  })
+})
+
+const journalSearchQuerySchema = z.object({
+  userId: z.string().uuid('Invalid user ID format'),
+  query: z.string().min(1, 'Search query is required'),
+  searchIn: z.enum(['content', 'metadata', 'all']).optional().default('all'),
+  limit: z.string().optional().default('20').transform(val => {
+    const num = Number(val)
+    if (isNaN(num) || num < 1 || num > 50) {
+      throw new Error('Limit must be between 1 and 50')
     }
     return num
   }),
@@ -575,6 +620,174 @@ app.get('/conversations',
       return c.json({
         success: false,
         error: 'Failed to list conversations'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/history - Enhanced journal history with search and filtering
+app.get('/history',
+  zValidator('query', journalHistoryQuerySchema),
+  async (c) => {
+    try {
+      const filters = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, filters.userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      const result = await JournalHistoryService.searchConversations(filters)
+
+      return c.json({
+        success: true,
+        data: result
+      })
+
+    } catch (error) {
+      console.error('Error searching journal history:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to search journal history'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/stats - Journal statistics and analytics
+app.get('/stats',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      const stats = await JournalHistoryService.getJournalStats(userId)
+
+      return c.json({
+        success: true,
+        data: stats
+      })
+
+    } catch (error) {
+      console.error('Error getting journal stats:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to get journal statistics'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/search - Full-text search within journal content
+app.get('/search',
+  zValidator('query', journalSearchQuerySchema),
+  async (c) => {
+    try {
+      const { userId, query, searchIn, limit, offset } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      const result = await JournalHistoryService.searchJournalContent(
+        userId,
+        query,
+        searchIn,
+        limit,
+        offset
+      )
+
+      return c.json({
+        success: true,
+        data: result
+      })
+
+    } catch (error) {
+      console.error('Error searching journal content:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to search journal content'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/tags - Get popular tags for autocomplete
+app.get('/tags',
+  zValidator('query', z.object({
+    userId: z.string().uuid('Invalid user ID format'),
+    type: z.enum(['content', 'stat']).optional().default('content'),
+    limit: z.string().optional().default('20').transform(val => {
+      const num = Number(val)
+      if (isNaN(num) || num < 1 || num > 50) {
+        throw new Error('Limit must be between 1 and 50')
+      }
+      return num
+    })
+  })),
+  async (c) => {
+    try {
+      const { userId, type, limit } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      const tags = await JournalHistoryService.getPopularTags(userId, type, limit)
+
+      return c.json({
+        success: true,
+        data: { tags }
+      })
+
+    } catch (error) {
+      console.error('Error getting popular tags:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to get popular tags'
       }, 500)
     }
   }
