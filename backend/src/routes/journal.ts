@@ -5,6 +5,9 @@ import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { AIService } from '../services/ai-service'
+import { ContentTagService } from '../services/content-tag-service'
+import { CharacterStatTagService } from '../services/character-stat-tag-service'
+import { XpAwardService } from '../services/xp-award-service'
 import { analyzeMoodAndContent, generateContextualQuestions, getFallbackQuestion, generateSystemPrompt, generateConversationMetadata } from '../utils/mood-content-analysis'
 
 // Initialize AI service
@@ -360,12 +363,24 @@ app.put('/conversations/:id/end',
           })
 
           if (aiResult.success && aiResult.metadata) {
+            // Optimize content tags using the ContentTagService
+            const optimizedContentTags = await ContentTagService.optimizeContentTags(
+              userId,
+              aiResult.metadata.contentTags
+            )
+            
+            // Map character stat tags to existing user stats only
+            const validStatTags = await CharacterStatTagService.mapToExistingStats(
+              userId,
+              aiResult.metadata.characterStatTags
+            )
+            
             processedData = {
               title: aiResult.metadata.title,
               summary: aiResult.metadata.summary,
               synopsis: aiResult.metadata.synopsis,
-              contentTags: aiResult.metadata.contentTags,
-              statTags: aiResult.metadata.characterStatTags
+              contentTags: optimizedContentTags,
+              statTags: validStatTags
             }
             xpAwards = aiResult.xpAwards || []
           }
@@ -379,7 +394,45 @@ app.put('/conversations/:id/end',
           role: msg.role as 'user' | 'assistant',
           content: msg.content
         }))
-        processedData = generateConversationMetadata(conversationForAnalysis)
+        const fallbackData = generateConversationMetadata(conversationForAnalysis)
+        
+        // Optimize content tags using the ContentTagService
+        const optimizedContentTags = await ContentTagService.optimizeContentTags(
+          userId,
+          fallbackData.contentTags
+        )
+        
+        // Map character stat tags to existing user stats only
+        const validStatTags = await CharacterStatTagService.mapToExistingStats(
+          userId,
+          fallbackData.statTags || []
+        )
+        
+        processedData = {
+          ...fallbackData,
+          contentTags: optimizedContentTags,
+          statTags: validStatTags
+        }
+      }
+
+      // Process XP awards based on stat tags and journal content
+      let xpResult = { success: true, awards: [] as any[], errors: [] as string[] }
+      if (processedData.statTags.length > 0) {
+        // Get the full conversation content for XP processing
+        const fullContent = messages
+          .filter(msg => msg.role === 'user')
+          .map(msg => msg.content)
+          .join(' ')
+        
+        xpResult = await XpAwardService.processJournalForXp(
+          userId,
+          processedData.statTags,
+          fullContent,
+          processedData.contentTags
+        )
+        
+        // Update xpAwards with the new awards (merging with any existing from AI)
+        xpAwards = [...xpAwards, ...xpResult.awards]
       }
 
       // Update conversation with processed data

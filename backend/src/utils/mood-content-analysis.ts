@@ -464,13 +464,13 @@ export function generateConversationMetadata(messages: Array<{role: 'user' | 'as
   
   // Map themes to potential stat categories
   const statTags: string[] = []
-  if (analysis.content.themes.includes('family')) statTags.push('Social')
-  if (analysis.content.themes.includes('work')) statTags.push('Professional')
-  if (analysis.content.themes.includes('adventure')) statTags.push('Physical Health')
-  if (analysis.content.themes.includes('health')) statTags.push('Physical Health')
-  if (analysis.content.themes.includes('creativity')) statTags.push('Creativity')
-  if (analysis.content.themes.includes('learning')) statTags.push('Knowledge')
-  if (analysis.content.themes.includes('challenge')) statTags.push('Mental Health')
+  if (analysis.content.themes.includes('family')) statTags.push('Social', 'Relationships')
+  if (analysis.content.themes.includes('work')) statTags.push('Professional', 'Career')
+  if (analysis.content.themes.includes('adventure')) statTags.push('Fitness', 'Physical')
+  if (analysis.content.themes.includes('health')) statTags.push('Fitness', 'Health', 'Physical')
+  if (analysis.content.themes.includes('creativity')) statTags.push('Creativity', 'Creative', 'Art')
+  if (analysis.content.themes.includes('learning')) statTags.push('Learning', 'Knowledge', 'Education')
+  if (analysis.content.themes.includes('challenge')) statTags.push('Mental', 'Resilience')
   
   return {
     title,

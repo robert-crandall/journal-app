@@ -132,10 +132,10 @@
   - [x] 5.1 Create conversational journal API with GPT integration
   - [x] 5.2 Implement smart follow-up question generation based on mood/content detection
   - [x] 5.3 Build conversation management with user-controlled ending
-  - [ ] 5.4 Create GPT processing for extracting summaries, synopses, and titles
-  - [ ] 5.5 Implement content tag system with preference for existing tags
-  - [ ] 5.6 Build character stat tag system using only existing user stats
-  - [ ] 5.7 Create XP award system for journal entries (including negative XP)
+  - [x] 5.4 Create GPT processing for extracting summaries, synopses, and titles
+  - [x] 5.5 Implement content tag system with preference for existing tags
+  - [x] 5.6 Build character stat tag system using only existing user stats
+  - [x] 5.7 Create XP award system for journal entries (including negative XP)
   - [ ] 5.8 Implement journal entry storage with processed metadata
   - [ ] 5.9 Build journal history and search functionality
   - [ ] 5.10 Create quick journal access integration for homepage
