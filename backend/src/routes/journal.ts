@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, and, desc, sql, gte } from 'drizzle-orm'
 import { AIService } from '../services/ai-service'
 import { ContentTagService } from '../services/content-tag-service'
 import { CharacterStatTagService } from '../services/character-stat-tag-service'
@@ -184,6 +184,14 @@ app.post('/conversations/:id/messages',
 
       let messageContent = content
       console.log('Initial messageContent:', messageContent, 'role:', role, 'content empty?', content.trim() === '')
+
+      // Validate user messages have content
+      if (role === 'user' && content.trim() === '') {
+        return c.json({
+          success: false,
+          error: 'User messages cannot be empty'
+        }, 400)
+      }
 
       // If role is assistant and content is empty, generate GPT response
       if (role === 'assistant' && content.trim() === '') {
@@ -389,7 +397,8 @@ app.put('/conversations/:id/end',
         summary: 'Daily reflection recorded',
         synopsis: 'User shared thoughts and experiences',
         contentTags: ['reflection'] as string[],
-        statTags: [] as string[]
+        statTags: [] as string[],
+        mood: 'neutral' as string
       }
       let xpAwards: any[] = []
 
@@ -425,7 +434,8 @@ app.put('/conversations/:id/end',
               summary: aiResult.metadata.summary,
               synopsis: aiResult.metadata.synopsis,
               contentTags: optimizedContentTags,
-              statTags: validStatTags
+              statTags: validStatTags,
+              mood: 'neutral' // Default mood - AI service doesn't provide mood yet
             }
             xpAwards = aiResult.xpAwards || []
           }
@@ -440,6 +450,13 @@ app.put('/conversations/:id/end',
           content: msg.content
         }))
         const fallbackData = generateConversationMetadata(conversationForAnalysis)
+        
+        // Get mood from sentiment analysis of user content
+        const userContent = messages
+          .filter(msg => msg.role === 'user')
+          .map(msg => msg.content)
+          .join(' ')
+        const sentimentAnalysis = analyzeMoodAndContent(userContent)
         
         // Optimize content tags using the ContentTagService
         const optimizedContentTags = await ContentTagService.optimizeContentTags(
@@ -456,7 +473,8 @@ app.put('/conversations/:id/end',
         processedData = {
           ...fallbackData,
           contentTags: optimizedContentTags,
-          statTags: validStatTags
+          statTags: validStatTags,
+          mood: sentimentAnalysis.mood.sentiment
         }
       }
 
@@ -491,6 +509,7 @@ app.put('/conversations/:id/end',
           synopsis: processedData.synopsis,
           contentTags: processedData.contentTags,
           statTags: processedData.statTags,
+          mood: processedData.mood,
           updatedAt: new Date()
         })
         .where(eq(journalConversations.id, conversationId))
@@ -788,6 +807,639 @@ app.get('/tags',
       return c.json({
         success: false,
         error: 'Failed to get popular tags'
+      }, 500)
+    }
+  }
+)
+
+// Homepage journal integration endpoints
+// POST /api/journal/quick-start - Start journal with AI opening question
+app.post('/quick-start',
+  zValidator('json', z.object({
+    userId: z.string().uuid('Invalid user ID format')
+  })),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('json')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Check if user already has an active conversation
+      const [activeConversation] = await db
+        .select()
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          eq(journalConversations.isActive, true)
+        ))
+        .limit(1)
+
+      if (activeConversation) {
+        return c.json({
+          success: false,
+          error: 'User already has an active conversation. Use /quick-continue instead.'
+        }, 400)
+      }
+
+      // Create new conversation
+      const [conversation] = await db
+        .insert(journalConversations)
+        .values({
+          userId,
+          isActive: true
+        })
+        .returning()
+
+      // Generate AI opening question based on user's history
+      const recentEntries = await db
+        .select({
+          content: journalEntries.content,
+          createdAt: journalEntries.createdAt
+        })
+        .from(journalEntries)
+        .innerJoin(journalConversations, eq(journalEntries.conversationId, journalConversations.id))
+        .where(eq(journalConversations.userId, userId))
+        .orderBy(desc(journalEntries.createdAt))
+        .limit(5)
+
+      // Generate opening question
+      const response = await aiService.generateCompletion({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a thoughtful journal companion. Generate a brief, engaging opening question for a journal session. Make it personal and thoughtful, designed to help the user reflect on their current state, recent experiences, or goals. Keep it under 50 words and avoid generic questions. Recent user activity context: ${recentEntries.length > 0 ? 'User has been journaling regularly' : 'New or returning user'}`
+          }
+        ],
+        maxTokens: 100,
+        temperature: 0.8
+      })
+
+      const openingQuestion = response.success ? (response.content || 'How are you feeling today? What would you like to explore in your journal?') : 'How are you feeling today? What would you like to explore in your journal?'
+
+      // Add the AI opening message to the conversation
+      const [openingMessage] = await db
+        .insert(journalEntries)
+        .values({
+          conversationId: conversation.id,
+          userId: userId,
+          content: openingQuestion,
+          role: 'assistant'
+        })
+        .returning()
+
+      return c.json({
+        success: true,
+        data: { 
+          conversation,
+          openingMessage: {
+            id: openingMessage.id,
+            content: openingMessage.content,
+            role: openingMessage.role,
+            createdAt: openingMessage.createdAt
+          }
+        }
+      }, 201)
+
+    } catch (error) {
+      console.error('Error starting quick journal:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to start quick journal session'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/recent-activity - Recent activity summary for homepage dashboard
+app.get('/recent-activity',
+  zValidator('query', z.object({
+    userId: z.string().uuid('Invalid user ID format'),
+    days: z.string().optional().default('7').transform(val => {
+      const num = Number(val)
+      if (isNaN(num) || num < 1 || num > 30) {
+        throw new Error('Days must be between 1 and 30')
+      }
+      return num
+    })
+  })),
+  async (c) => {
+    try {
+      const { userId, days } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - days)
+
+      // Get recent journal statistics
+      const stats = await JournalHistoryService.getJournalStats(userId)
+      
+      // Get count for the specified time period
+      const [periodCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          gte(journalConversations.createdAt, startDate)
+        ))
+      
+      // Add period-specific stats
+      const enhancedStats = {
+        ...stats,
+        [`last${days}Days`]: periodCount.count
+      }
+      
+      // Get recent entries (last 3)
+      const recentEntries = await db
+        .select({
+          id: journalConversations.id,
+          title: journalConversations.title,
+          summary: journalConversations.summary,
+          mood: journalConversations.mood,
+          createdAt: journalConversations.createdAt,
+          updatedAt: journalConversations.updatedAt
+        })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          eq(journalConversations.isActive, false),
+          gte(journalConversations.createdAt, startDate)
+        ))
+        .orderBy(desc(journalConversations.updatedAt))
+        .limit(3)
+
+      return c.json({
+        success: true,
+        data: {
+          stats: enhancedStats,
+          recentEntries,
+          periodDays: days
+        }
+      })
+
+    } catch (error) {
+      console.error('Error getting recent activity:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to get recent journal activity'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/status - Check active conversation status
+app.get('/status',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Check for active conversation
+      const [activeConversation] = await db
+        .select({
+          id: journalConversations.id,
+          createdAt: journalConversations.createdAt,
+          updatedAt: journalConversations.updatedAt
+        })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          eq(journalConversations.isActive, true)
+        ))
+        .limit(1)
+
+      // Get message count for active conversation
+      let messageCount = 0
+      if (activeConversation) {
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(journalEntries)
+          .where(eq(journalEntries.conversationId, activeConversation.id))
+        messageCount = countResult.count
+      }
+
+      return c.json({
+        success: true,
+        data: {
+          hasActiveConversation: !!activeConversation,
+          activeConversation: activeConversation ? {
+            id: activeConversation.id,
+            createdAt: activeConversation.createdAt,
+            updatedAt: activeConversation.updatedAt,
+            messageCount
+          } : null,
+          canStartNew: !activeConversation
+        }
+      })
+
+    } catch (error) {
+      console.error('Error checking journal status:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to check journal status'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/quick-continue - Continue active conversation
+app.get('/quick-continue',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Get active conversation
+      const [activeConversation] = await db
+        .select()
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          eq(journalConversations.isActive, true)
+        ))
+        .limit(1)
+
+      if (!activeConversation) {
+        return c.json({
+          success: false,
+          error: 'No active conversation found. Use /quick-start to begin.'
+        }, 404)
+      }
+
+      // Get recent messages (last 5)
+      const recentMessages = await db
+        .select({
+          id: journalEntries.id,
+          content: journalEntries.content,
+          role: journalEntries.role,
+          createdAt: journalEntries.createdAt
+        })
+        .from(journalEntries)
+        .where(eq(journalEntries.conversationId, activeConversation.id))
+        .orderBy(desc(journalEntries.createdAt))
+        .limit(5)
+
+      // Reverse to get chronological order
+      recentMessages.reverse()
+
+      // Get total message count
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(journalEntries)
+        .where(eq(journalEntries.conversationId, activeConversation.id))
+
+      return c.json({
+        success: true,
+        data: {
+          conversation: activeConversation,
+          recentMessages,
+          messageCount: countResult.count
+        }
+      })
+
+    } catch (error) {
+      console.error('Error continuing journal conversation:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to continue journal conversation'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/quick-prompts - Get suggested journal starter prompts
+app.get('/quick-prompts',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Get user's recent journal patterns for context
+      const recentEntries = await db
+        .select({
+          content: journalEntries.content,
+          createdAt: journalEntries.createdAt
+        })
+        .from(journalEntries)
+        .innerJoin(journalConversations, eq(journalEntries.conversationId, journalConversations.id))
+        .where(eq(journalConversations.userId, userId))
+        .orderBy(desc(journalEntries.createdAt))
+        .limit(10)
+
+      // Generate contextual prompts
+      const response = await aiService.generateCompletion({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `Generate 4 diverse journal starter prompts that would be helpful for a user. Make them:
+1. Specific and engaging (not generic)
+2. Under 30 words each
+3. Focused on different aspects: reflection, planning, gratitude, growth
+4. Personalized based on their activity level: ${recentEntries.length > 0 ? 'regular journaler' : 'new or returning user'}
+
+Return as a JSON array of strings.`
+          }
+        ],
+        maxTokens: 200,
+        temperature: 0.8
+      })
+
+      let prompts: string[]
+      try {
+        if (response.success && response.content) {
+          prompts = JSON.parse(response.content)
+          if (!Array.isArray(prompts) || prompts.length !== 4) {
+            throw new Error('Invalid prompts format')
+          }
+        } else {
+          throw new Error('AI generation failed')
+        }
+      } catch (parseError) {
+        // Fallback prompts if AI response parsing fails
+        prompts = [
+          "What's one thing you're grateful for today, and why does it matter to you?",
+          "Describe a challenge you're facing and one small step you could take toward solving it.",
+          "What did you learn about yourself this week?",
+          "If you could give your past self one piece of advice, what would it be?"
+        ]
+      }
+
+      return c.json({
+        success: true,
+        data: { prompts }
+      })
+
+    } catch (error) {
+      console.error('Error generating quick prompts:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to generate journal prompts'
+      }, 500)
+    }
+  }
+)
+
+// POST /api/journal/start-with-prompt - Start with specific prompt
+app.post('/start-with-prompt',
+  zValidator('json', z.object({
+    userId: z.string().uuid('Invalid user ID format'),
+    prompt: z.string().min(1, 'Prompt is required')
+  })),
+  async (c) => {
+    try {
+      const { userId, prompt } = c.req.valid('json')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Check if user already has an active conversation
+      const [activeConversation] = await db
+        .select()
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          eq(journalConversations.isActive, true)
+        ))
+        .limit(1)
+
+      if (activeConversation) {
+        return c.json({
+          success: false,
+          error: 'User already has an active conversation. Use /quick-continue instead.'
+        }, 400)
+      }
+
+      // Create new conversation
+      const [conversation] = await db
+        .insert(journalConversations)
+        .values({
+          userId,
+          isActive: true
+        })
+        .returning()
+
+      // Add the prompt as the opening message
+      const [promptMessage] = await db
+        .insert(journalEntries)
+        .values({
+          conversationId: conversation.id,
+          userId: userId,
+          content: prompt,
+          role: 'assistant'
+        })
+        .returning()
+
+      return c.json({
+        success: true,
+        data: { 
+          conversation,
+          promptMessage: {
+            id: promptMessage.id,
+            content: promptMessage.content,
+            role: promptMessage.role,
+            createdAt: promptMessage.createdAt
+          }
+        }
+      }, 201)
+
+    } catch (error) {
+      console.error('Error starting journal with prompt:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to start journal with prompt'
+      }, 500)
+    }
+  }
+)
+
+// GET /api/journal/metrics - Homepage metrics and streak tracking
+app.get('/metrics',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (!user) {
+        return c.json({
+          success: false,
+          error: 'User not found'
+        }, 404)
+      }
+
+      // Calculate current streak and metrics
+      const now = new Date()
+      const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000))
+      
+      // Get all journal conversations in chronological order for streak calculation
+      const allConversations = await db
+        .select({
+          createdAt: journalConversations.createdAt
+        })
+        .from(journalConversations)
+        .where(eq(journalConversations.userId, userId))
+        .orderBy(desc(journalConversations.createdAt))
+
+      // Calculate current streak (consecutive days with journal entries)
+      let currentStreak = 0
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      for (let i = 0; i < allConversations.length; i++) {
+        const entryDate = new Date(allConversations[i].createdAt)
+        entryDate.setHours(0, 0, 0, 0)
+        
+        const expectedDate = new Date(today.getTime() - (currentStreak * 24 * 60 * 60 * 1000))
+        
+        if (entryDate.getTime() === expectedDate.getTime()) {
+          currentStreak++
+        } else if (entryDate.getTime() < expectedDate.getTime()) {
+          break
+        }
+      }
+
+      // Get total entries count
+      const [totalEntriesResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(journalConversations)
+        .where(eq(journalConversations.userId, userId))
+      
+      const totalEntries = totalEntriesResult.count
+
+      // Get entries this month
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+      const [monthlyEntriesResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          sql`${journalConversations.createdAt} >= ${startOfMonth.toISOString()}`
+        ))
+      
+      const monthlyEntries = monthlyEntriesResult.count
+
+      // Get recent mood trend (last 7 entries)
+      const recentMoods = await db
+        .select({ mood: journalConversations.mood })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          sql`${journalConversations.mood} IS NOT NULL`
+        ))
+        .orderBy(desc(journalConversations.createdAt))
+        .limit(7)
+
+      // Calculate average mood (if we have mood data)
+      let averageMood = null
+      if (recentMoods.length > 0) {
+        const moodSum = recentMoods.reduce((sum, entry) => {
+          const moodValue = typeof entry.mood === 'number' ? entry.mood : 0
+          return sum + moodValue
+        }, 0)
+        averageMood = Math.round((moodSum / recentMoods.length) * 10) / 10
+      }
+
+      return c.json({
+        success: true,
+        data: {
+          currentStreak,
+          totalEntries,
+          monthlyEntries,
+          averageMood,
+          streakUpdatedAt: now.toISOString()
+        }
+      })
+
+    } catch (error) {
+      console.error('Error getting journal metrics:', error)
+      return c.json({
+        success: false,
+        error: 'Failed to get journal metrics'
       }, 500)
     }
   }

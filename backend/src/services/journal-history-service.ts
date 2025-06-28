@@ -60,16 +60,52 @@ export class JournalHistoryService {
     // Build dynamic WHERE conditions
     const whereConditions = [eq(journalConversations.userId, userId)]
 
-    // Text search in title, summary, synopsis
+    // If searching for text, we need to search both metadata and entry content
+    let conversationIds: string[] = []
     if (search && search.trim().length > 0) {
       const searchTerm = `%${search.toLowerCase()}%`
-      whereConditions.push(
-        or(
-          sql`LOWER(${journalConversations.title}) LIKE ${searchTerm}`,
-          sql`LOWER(${journalConversations.summary}) LIKE ${searchTerm}`,
-          sql`LOWER(${journalConversations.synopsis}) LIKE ${searchTerm}`
-        )!
-      )
+      
+      // Search in conversation metadata
+      const metadataMatches = await db
+        .select({ id: journalConversations.id })
+        .from(journalConversations)
+        .where(and(
+          eq(journalConversations.userId, userId),
+          or(
+            sql`LOWER(${journalConversations.title}) LIKE ${searchTerm}`,
+            sql`LOWER(${journalConversations.summary}) LIKE ${searchTerm}`,
+            sql`LOWER(${journalConversations.synopsis}) LIKE ${searchTerm}`
+          )!
+        ))
+
+      // Search in journal entry content
+      const contentMatches = await db
+        .select({ id: journalConversations.id })
+        .from(journalEntries)
+        .innerJoin(journalConversations, eq(journalEntries.conversationId, journalConversations.id))
+        .where(and(
+          eq(journalConversations.userId, userId),
+          sql`LOWER(${journalEntries.content}) LIKE ${searchTerm}`
+        ))
+
+      // Combine both sets of conversation IDs
+      const allMatches = [...metadataMatches, ...contentMatches]
+      conversationIds = Array.from(new Set(allMatches.map(match => match.id)))
+      
+      if (conversationIds.length > 0) {
+        whereConditions.push(inArray(journalConversations.id, conversationIds))
+      } else {
+        // No matches found, return empty result
+        return {
+          conversations: [],
+          total: 0,
+          pagination: {
+            limit,
+            offset,
+            hasMore: false
+          }
+        }
+      }
     }
 
     // Filter by content tags

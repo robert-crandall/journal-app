@@ -138,8 +138,8 @@
   - [x] 5.7 Create XP award system for journal entries (including negative XP)
   - [x] 5.8 Implement journal entry storage with processed metadata
   - [x] 5.9 Build journal history and search functionality
-  - [ ] 5.10 Create quick journal access integration for homepage
-  - [ ] 5.11 Write integration tests for journal system
+  - [x] 5.10 Create quick journal access integration for homepage
+  - [x] 5.11 Write integration tests for journal system
 
 - [ ] 6.0 Frontend Dashboard and User Interface
   - [ ] 6.1 Set up SvelteKit frontend with Hono client for type-safe API calls

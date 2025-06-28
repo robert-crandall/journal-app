@@ -41,7 +41,7 @@ export function analyzeMoodAndContent(text: string, conversationHistory: Array<{
   const familyWords = ['family', 'kids', 'children', 'daughter', 'son', 'wife', 'husband', 'partner', 'parent', 'mom', 'dad', 'parenting']
   const workWords = ['work', 'job', 'career', 'boss', 'colleague', 'project', 'meeting', 'office', 'deadline', 'promotion', 'business']
   const adventureWords = ['adventure', 'travel', 'hike', 'explore', 'outdoor', 'nature', 'mountain', 'beach', 'journey', 'discovery', 'exercise', 'sport']
-  const healthWords = ['health', 'medical', 'doctor', 'wellness', 'fitness', 'diet', 'exercise', 'sleep', 'energy', 'sick', 'recovery']
+  const healthWords = ['health', 'medical', 'doctor', 'wellness', 'fitness', 'diet', 'exercise', 'sleep', 'energy', 'sick', 'recovery', 'workout', 'gym', 'training']
   const creativeWords = ['creative', 'art', 'music', 'writing', 'painting', 'photography', 'design', 'craft', 'hobby', 'imagination']
   const socialWords = ['friends', 'social', 'party', 'gathering', 'community', 'relationship', 'connection', 'support', 'lonely', 'isolated']
   const learningWords = ['learn', 'study', 'education', 'skill', 'knowledge', 'book', 'course', 'practice', 'improvement', 'growth']
