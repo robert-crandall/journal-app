@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { clearFamilyMemberTestData } from './seed-api-test-data';
+import { TEST_CONFIG } from './test-config';
 
 test.describe('Family Management E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the family page
+    await clearFamilyMemberTestData(TEST_CONFIG.TEST_USER.id);
     await page.goto('/family');
   });
 

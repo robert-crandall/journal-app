@@ -158,6 +158,17 @@ async function createTestJournalConversation(userId: string) {
 	}
 }
 
+async function clearFamilyMemberTestData(userId: string) {	
+	try {
+		// Delete family member interactions first (foreign key dependency)
+		await executeSQL('DELETE FROM family_member_interactions WHERE "family_member_id" IN (SELECT id FROM family_members WHERE "user_id" = $1)', [userId]);
+		// Then delete family members
+		await executeSQL('DELETE FROM family_members WHERE "user_id" = $1', [userId]);
+	} catch (error) {
+		console.log('⚠️ Could not clear family member data, continuing...');
+	}
+}
+
 async function clearExistingTestData(userId: string) {
 	console.log('Clearing existing test data...');
 	
@@ -229,4 +240,4 @@ if (typeof require !== 'undefined' && require.main === module) {
 	});
 }
 
-export { seedTestDataViaAPI };
+export { seedTestDataViaAPI, clearFamilyMemberTestData };
