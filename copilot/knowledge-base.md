@@ -219,3 +219,38 @@ async function performAction() {
 - Proper foreign key relationships
 - Timestamp fields for audit trails
 - Snake_case for database, camelCase for TypeScript
+
+## Testing Commands
+
+### E2E Test Commands
+```bash
+# Run specific E2E test file
+bun run test:e2e -- tests/e2e/family.test.ts
+
+# Run all E2E tests
+bun run test:e2e
+
+# Run E2E tests in headed mode (visible browser)
+bun run test:e2e --headed
+
+# Run E2E tests for specific browser
+bun run test:e2e --project=chromium
+bun run test:e2e --project=webkit
+```
+
+### Unit Test Commands
+```bash
+# Run unit tests
+bun test
+
+# Run unit tests in watch mode
+bun test --watch
+
+# Run specific test file
+bun test path/to/test.test.ts
+```
+
+### Test Debugging
+- Use `--headed` flag to see browser during E2E tests
+- Use `await page.pause()` in tests for debugging
+- Check `test-results/` folder for screenshots and videos on failures

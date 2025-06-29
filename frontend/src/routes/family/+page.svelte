@@ -1,15 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { Plus, Calendar, AlertTriangle, Users, Clock, Trash2, Heart } from 'lucide-svelte';
-	import type { 
-		familyMembers as familyMembersSchema, 
-		familyMemberInteractions 
-	} from '../../../../backend/src/db/schema';
 	import { apiCall, apiSimple } from '$lib/api/client';
 
-	// Types based on backend schema
-	type FamilyMember = typeof familyMembersSchema.$inferSelect;
-	type FamilyMemberInteraction = typeof familyMemberInteractions.$inferSelect;
+	// Types based on backend schema - using proper type definitions
+	type FamilyMember = {
+		id: string;
+		userId: string;
+		name: string;
+		age?: number;
+		interests?: string[];
+		interactionFrequency: string;
+		lastInteraction?: string;
+		createdAt: string;
+		updatedAt: string;
+	};
 	
 	// Extended type for list view with stats
 	type FamilyMemberWithStats = FamilyMember & {
@@ -30,22 +36,6 @@
 	let alerts = $state<InteractionAlert[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let showAddForm = $state(false);
-	let selectedMember = $state<FamilyMemberWithStats | null>(null);
-	let showInteractionForm = $state(false);
-
-	// Form states
-	let addFormData = $state({
-		name: '',
-		age: '',
-		interests: '',
-		interactionFrequency: 'weekly' as 'daily' | 'weekly' | 'biweekly' | 'monthly'
-	});
-
-	let interactionFormData = $state({
-		feedback: '',
-		interactionDate: new Date().toISOString().split('T')[0]
-	});
 
 	// Mock user ID - in real app would come from auth store
 	const userId = 'b8a9c1e2-f3d4-5e6f-7a8b-9c0d1e2f3a4b'; // Test user ID
@@ -73,54 +63,6 @@
 		const result = await apiCall(apiSimple['family-members']['interaction-alerts'].get(userId));
 		if (result.data?.success) {
 			alerts = result.data.data.alerts;
-		}
-	}
-
-	async function createFamilyMember() {
-		if (!addFormData.name.trim()) return;
-
-		const payload = {
-			userId,
-			name: addFormData.name.trim(),
-			age: addFormData.age ? parseInt(addFormData.age) : undefined,
-			interests: addFormData.interests 
-				? addFormData.interests.split(',').map(i => i.trim()).filter(i => i)
-				: [],
-			interactionFrequency: addFormData.interactionFrequency
-		};
-
-		const result = await apiCall(apiSimple['family-members'].post(payload));
-		if (result.error) {
-			error = result.error;
-		} else if (result.data?.success) {
-			showAddForm = false;
-			addFormData = { name: '', age: '', interests: '', interactionFrequency: 'weekly' };
-			await loadFamilyMembers();
-			await loadAlerts();
-		}
-	}
-
-	async function recordInteraction(familyMemberId: string) {
-		if (!interactionFormData.feedback.trim()) return;
-
-		const payload = {
-			userId,
-			feedback: interactionFormData.feedback.trim(),
-			interactionDate: interactionFormData.interactionDate
-		};
-
-		const result = await apiCall(apiSimple['family-members'].interactions.post(familyMemberId, payload));
-		if (result.error) {
-			error = result.error;
-		} else if (result.data?.success) {
-			showInteractionForm = false;
-			selectedMember = null;
-			interactionFormData = { 
-				feedback: '', 
-				interactionDate: new Date().toISOString().split('T')[0] 
-			};
-			await loadFamilyMembers();
-			await loadAlerts();
 		}
 	}
 
@@ -180,7 +122,7 @@
 			</p>
 		</div>
 		<button 
-			onclick={() => showAddForm = true}
+			onclick={() => goto('/family/add')}
 			class="btn btn-primary"
 		>
 			<Plus class="h-4 w-4 mr-2" />
@@ -226,10 +168,7 @@
 							</div>
 						</div>
 						<button 
-							onclick={() => {
-								selectedMember = familyMembersList.find(m => m.id === alert.familyMember.id) || null;
-								showInteractionForm = true;
-							}}
+							onclick={() => goto(`/family/interaction/${alert.familyMember.id}`)}
 							class="btn btn-sm btn-primary"
 						>
 							Record Interaction
@@ -257,7 +196,7 @@
 				Add your first family member to start tracking interactions
 			</p>
 			<button 
-				onclick={() => showAddForm = true}
+				onclick={() => goto('/family/add')}
 				class="btn btn-primary"
 			>
 				<Plus class="h-4 w-4 mr-2" />
@@ -267,7 +206,7 @@
 	{:else}
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{#each familyMembersList as member}
-				<div class="card">
+				<div class="card" data-testid="family-member-card">
 					<div class="card-content">
 						<!-- Member Header -->
 						<div class="flex items-start justify-between mb-4">
@@ -338,10 +277,7 @@
 						<!-- Action Buttons -->
 						<div class="flex gap-2">
 							<button 
-								onclick={() => {
-									selectedMember = member;
-									showInteractionForm = true;
-								}}
+								onclick={() => goto(`/family/interaction/${member.id}`)}
 								class="btn btn-sm btn-primary flex-1"
 							>
 								<Calendar class="h-4 w-4 mr-1" />
@@ -361,133 +297,3 @@
 		</div>
 	{/if}
 </div>
-
-<!-- Add Family Member Modal -->
-{#if showAddForm}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-		<div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-			<div class="p-6 border-b">
-				<h2 class="text-xl font-semibold">Add Family Member</h2>
-			</div>
-			<div class="p-6 space-y-4">
-				<div>
-					<label for="name" class="block text-sm font-medium mb-2">Name *</label>
-					<input 
-						id="name"
-						bind:value={addFormData.name}
-						type="text" 
-						placeholder="Enter name"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-				</div>
-
-				<div>
-					<label for="age" class="block text-sm font-medium mb-2">Age</label>
-					<input 
-						id="age"
-						bind:value={addFormData.age}
-						type="number" 
-						placeholder="Enter age"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-						min="0"
-						max="150"
-					/>
-				</div>
-
-				<div>
-					<label for="interests" class="block text-sm font-medium mb-2">Interests</label>
-					<input 
-						id="interests"
-						bind:value={addFormData.interests}
-						type="text" 
-						placeholder="Enter interests separated by commas"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-					<p class="text-sm text-gray-500 mt-1">e.g., cooking, reading, sports</p>
-				</div>
-
-				<div>
-					<label for="frequency" class="block text-sm font-medium mb-2">Interaction Frequency</label>
-					<select 
-						id="frequency"
-						bind:value={addFormData.interactionFrequency} 
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					>
-						<option value="daily">Daily</option>
-						<option value="weekly">Weekly</option>
-						<option value="biweekly">Every 2 weeks</option>
-						<option value="monthly">Monthly</option>
-					</select>
-				</div>
-			</div>
-			<div class="p-6 border-t flex gap-3 justify-end">
-				<button 
-					onclick={() => showAddForm = false}
-					class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-				>
-					Cancel
-				</button>
-				<button 
-					onclick={createFamilyMember}
-					disabled={!addFormData.name.trim()}
-					data-testid="submit-add-family-member"
-					class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					<Plus class="h-4 w-4 mr-2 inline" />
-					Add Family Member
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-<!-- Record Interaction Modal -->
-{#if showInteractionForm && selectedMember}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-		<div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-			<div class="p-6 border-b">
-				<h2 class="text-xl font-semibold">Record Interaction with {selectedMember.name}</h2>
-			</div>
-			<div class="p-6 space-y-4">
-				<div>
-					<label for="interaction-date" class="block text-sm font-medium mb-2">Interaction Date</label>
-					<input 
-						id="interaction-date"
-						bind:value={interactionFormData.interactionDate}
-						type="date" 
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-				</div>
-
-				<div>
-					<label for="feedback" class="block text-sm font-medium mb-2">What did you do together? *</label>
-					<textarea 
-						id="feedback"
-						bind:value={interactionFormData.feedback}
-						placeholder="Describe your interaction, activity, or conversation..."
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
-					></textarea>
-				</div>
-			</div>
-			<div class="p-6 border-t flex gap-3 justify-end">
-				<button 
-					onclick={() => {
-						showInteractionForm = false;
-						selectedMember = null;
-					}}
-					class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-				>
-					Cancel
-				</button>
-				<button 
-					onclick={() => selectedMember && recordInteraction(selectedMember.id)}
-					disabled={!interactionFormData.feedback.trim()}
-					class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					<Calendar class="h-4 w-4 mr-2 inline" />
-					Record Interaction
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
