@@ -75,11 +75,7 @@ See [testing.instructions.md](./testing/testing.instructions.md) for general tes
 
 #### Frontend (SvelteKit) Integration Tests
 - See [sveltekit.test.instructions.md](./testing/sveltekit.test.instructions.md) for detailed guidance
-- Test components with real API calls to running backend
-- Use @testing-library/svelte for user interactions
-- Test form submissions with actual server responses
-- Verify loading states and error handling from real API responses
-- Test routing and navigation behavior
+- Only write end to end testing using Playwright. Do not mock APIs. Do not duplicate API logic in tests.
 
 #### Test Completion Criteria
 - New feature integration test passes
