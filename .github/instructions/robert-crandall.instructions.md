@@ -5,6 +5,13 @@ applyTo: "**/*"
 
 # Personal Development Guidelines
 
+## Copilot
+
+These are instructions for Copilot when interacting with terminal:
+
+- Do not issue `sleep` commands. By the time you want to run this, the time has already elapsed and the servers have started.
+- Always precede commands with `cd <full_path>`.
+
 ## UI/Design Guidelines
 
 - Use color description (ie, primary) instead of color names (blue), to support easy theming.
