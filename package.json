@@ -1,0 +1,20 @@
+{
+  "name": "journal-app",
+  "version": "1.0.0",
+  "description": "D&D Life Gamification App",
+  "type": "module",
+  "scripts": {
+    "backend": "node scripts/start-backend.js",
+    "frontend": "node scripts/start-frontend.js",
+    "dev": "node scripts/start-dev.js",
+    "logs": "node scripts/show-logs.js"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "node-fetch": "^3.3.2"
+  }
+}

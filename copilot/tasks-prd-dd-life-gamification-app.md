@@ -141,23 +141,23 @@
   - [x] 5.10 Create quick journal access integration for homepage
   - [x] 5.11 Write integration tests for journal system
 
-- [x] 6.0 Frontend Dashboard and User Interface
-  - [x] 6.1 Set up SvelteKit frontend with Hono client for type-safe API calls
-  - [x] 6.2 Create mobile-first responsive layout with iOS Safari optimization
-  - [x] 6.3 Build homepage dashboard with today's tasks, XP progress, quick journal access
-  - [x] 6.4 Implement character creation and management interface
-  - [x] 6.5 Create task display components with card-based layout and completion states
-  - [x] 6.6 Build XP progress visualization with immediate feedback (2-second notifications)
-  - [x] 6.7 Implement character stats dashboard with color coding and level progression
-  - [x] 6.7.1 Add sample stats and example activities for each category guidance
-  - [x] 6.8 Create conversational journal interface with smart follow-up questions
-  - [x] 6.9 Build quest and experiment management pages with dedicated dashboards
+- [ ] 6.0 Frontend Dashboard and User Interface
+  - [ ] 6.1 Set up SvelteKit frontend with Hono client for type-safe API calls
+  - [ ] 6.2 Create mobile-first responsive layout with iOS Safari optimization
+  - [ ] 6.3 Build homepage dashboard with today's tasks, XP progress, quick journal access
+  - [ ] 6.4 Implement character creation and management interface
+  - [ ] 6.5 Create task display components with card-based layout and completion states
+  - [ ] 6.6 Build XP progress visualization with immediate feedback (2-second notifications)
+  - [ ] 6.7 Implement character stats dashboard with color coding and level progression
+  - [ ] 6.7.1 Add sample stats and example activities for each category guidance
+  - [ ] 6.8 Create conversational journal interface with smart follow-up questions
+  - [ ] 6.9 Build quest and experiment management pages with dedicated dashboards
   - [ ] 6.10 Implement family member management interface
   - [ ] 6.11 Create daily focus setting system with sample focuses
   - [ ] 6.12 Build goals and projects management interface
   - [ ] 6.13 Implement ad-hoc task creation page
-  - [x] 6.14 Create navigation system optimized for ADHD users (minimal decision fatigue)
-  - [x] 6.15 Implement progressive disclosure design patterns
-  - [x] 6.16 Add Lucide icons throughout interface (no emojis)
+  - [ ] 6.14 Create navigation system optimized for ADHD users (minimal decision fatigue)
+  - [ ] 6.15 Implement progressive disclosure design patterns
+  - [ ] 6.16 Add Lucide icons throughout interface (no emojis)
   - [ ] 6.17 Create loading states and error handling for all user interactions
   - [ ] 6.18 Write integration tests for frontend components and user flows
