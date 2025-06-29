@@ -118,11 +118,11 @@ test.describe('Family Management E2E Tests', () => {
     
     // Should show the new family member - check for at least one instance
     await expect(page.getByRole('heading', { name: 'John Doe' }).first()).toBeVisible();
-    await expect(page.getByText('Age 35')).toBeVisible();
-    await expect(page.getByText('Weekly')).toBeVisible();
-    await expect(page.getByText('reading')).toBeVisible();
-    await expect(page.getByText('cooking')).toBeVisible();
-    await expect(page.getByText('hiking')).toBeVisible();
+    await expect(page.getByText('Age 35').first()).toBeVisible();
+    await expect(page.getByText('Weekly').first()).toBeVisible();
+    await expect(page.getByText('reading').first()).toBeVisible();
+    await expect(page.getByText('cooking').first()).toBeVisible();
+    await expect(page.getByText('hiking').first()).toBeVisible();
   });
 
   test('should show interaction alerts for new family members', async ({ page }) => {
