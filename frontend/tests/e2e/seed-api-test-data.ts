@@ -168,6 +168,10 @@ async function clearExistingTestData(userId: string) {
 		await executeSQL('DELETE FROM character_stats WHERE "character_id" IN (SELECT id FROM characters WHERE "user_id" = $1)', [userId]);
 		await executeSQL('DELETE FROM characters WHERE "user_id" = $1', [userId]);
 		
+		// Delete family member data
+		await executeSQL('DELETE FROM family_member_interactions WHERE "family_member_id" IN (SELECT id FROM family_members WHERE "user_id" = $1)', [userId]);
+		await executeSQL('DELETE FROM family_members WHERE "user_id" = $1', [userId]);
+		
 		console.log('✅ Existing test data cleared');
 	} catch (error) {
 		console.log('⚠️ Could not clear all existing data, continuing...');

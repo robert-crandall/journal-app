@@ -18,6 +18,7 @@
 		{ name: 'Tasks', href: '/tasks', icon: null },
 		{ name: 'Journal', href: '/journal', icon: null },
 		{ name: 'Quests', href: '/quests', icon: null },
+		{ name: 'Family', href: '/family', icon: null },
 	];
 
 	function toggleMobileMenu() {

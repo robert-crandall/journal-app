@@ -151,7 +151,7 @@
   - [x] 6.7 Implement character stats dashboard with color coding and level progression
   - [x] 6.7.1 Add sample stats and example activities for each category guidance
   - [x] 6.8 Create conversational journal interface with smart follow-up questions
-  - [ ] 6.9 Build quest and experiment management pages with dedicated dashboards
+  - [x] 6.9 Build quest and experiment management pages with dedicated dashboards
   - [ ] 6.10 Implement family member management interface
   - [ ] 6.11 Create daily focus setting system with sample focuses
   - [ ] 6.12 Build goals and projects management interface

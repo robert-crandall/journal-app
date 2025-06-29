@@ -58,6 +58,53 @@ export const apiSimple = {
         }
       }
     }
+  },
+  'family-members': {
+    get: async (userId: string) => {
+      const response = await fetch(`${API_BASE_URL}/api/family-members?userId=${userId}`)
+      return response
+    },
+    post: async (data: {
+      userId: string;
+      name: string;
+      age?: number;
+      interests?: string[];
+      interactionFrequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly';
+    }) => {
+      const response = await fetch(`${API_BASE_URL}/api/family-members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      return response
+    },
+    delete: async (id: string, userId: string) => {
+      const response = await fetch(`${API_BASE_URL}/api/family-members/${id}?userId=${userId}`, {
+        method: 'DELETE'
+      })
+      return response
+    },
+    'interaction-alerts': {
+      get: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/api/family-members/interaction-alerts?userId=${userId}`)
+        return response
+      }
+    },
+    interactions: {
+      post: async (familyMemberId: string, data: {
+        userId: string;
+        feedback?: string;
+        interactionDate?: string;
+        taskId?: string;
+      }) => {
+        const response = await fetch(`${API_BASE_URL}/api/family-members/${familyMemberId}/interactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        return response
+      }
+    }
   }
 }
 
