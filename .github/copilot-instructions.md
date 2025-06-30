@@ -8,7 +8,8 @@
   - Use [generate-tasks.md](./instructions/generate-tasks.md) to break down the PRD into actionable tasks
   - Use [process-task-list.md](./instructions/process-task-list.md) to manage the task list and track progress
   - Integration tests should be written for each task as it is implemented.
-- For new features:
+- For new features without a PRD:
+  - Use [generate-tasks.md](./instructions/generate-tasks.md) to break down the feature into actionable tasks
   - Use [process-task-list.md](./instructions/process-task-list.md) to manage the task list and track progress
   - Integration tests should be written for each task as it is implemented.
 - For bug fixes:
@@ -17,7 +18,6 @@
   - NEVER COPY BUSINESS LOGIC into a test file. Always import the business logic from the original source file.
   - Use [hono.test.instructions.md](./testing/hono.test.instructions.md) when implementing backend features
   - Use [sveltekit.test.instructions.md](./testing/sveltekit.test.instructions.md) when implementing frontend features
-  - Refer to [testing.instructions.md](./testing/testing.instructions.md) for general testing guidelines
 - Refer to the [knowledge base](../copilot/knowledge-base.md) for common patterns and practices
 
 ### 1. Context and Understanding
@@ -41,8 +41,6 @@
   4. Verify all existing tests still pass
   5. Only then consider the task complete
 - Break down complex features into smaller, testable increments
-- Each increment must have its own integration test
-- Explain your approach and test strategy before coding
 - Consider edge cases, error handling, and performance implications in tests
 - Think about backwards compatibility and migration paths
 
@@ -53,8 +51,6 @@
 - Consider the broader implications of changes across the codebase
 
 ## Testing Strategy (Integration-First Approach)
-
-See [testing.instructions.md](./testing/testing.instructions.md) for general testing guidelines.
 
 ### Overall Testing Philosophy
 - **Integration-First**: Primary testing through real HTTP requests and database operations
@@ -75,14 +71,16 @@ See [testing.instructions.md](./testing/testing.instructions.md) for general tes
 
 #### Frontend (SvelteKit) Integration Tests
 - See [sveltekit.test.instructions.md](./testing/sveltekit.test.instructions.md) for detailed guidance
-- Only write end to end testing using Playwright. Do not mock APIs. Do not duplicate API logic in tests.
+- Test form submissions with an actual browser environment
+- Verify loading states and error handling from real API responses
+- Test routing and navigation behavior
 
 #### Test Completion Criteria
 - New feature integration test passes
 - ALL existing tests still pass (no regressions)
-- Feature works end-to-end with real API calls
+- Feature works end-to-end with real browser interactions
 - Database operations are properly tested with actual data
-- Frontend components integrate correctly with backend APIs
+- No mock data or fake responses used in tests
 
 ### Key Testing Principles
 - **Real Database Operations**: Test with actual database connections, not mocks

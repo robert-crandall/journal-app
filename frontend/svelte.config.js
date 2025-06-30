@@ -6,10 +6,12 @@ const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
-	kit: { 
+	kit: {
 		adapter: adapter({
-			// Enable SPA mode with fallback to index.html
-			fallback: 'index.html'
+			// SPA mode: serve index.html for all routes
+			fallback: 'index.html',
+			// Disable prerendering for SPA
+			precompress: false
 		})
 	}
 };

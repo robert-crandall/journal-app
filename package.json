@@ -4,10 +4,11 @@
   "description": "D&D Life Gamification App",
   "type": "module",
   "scripts": {
-    "backend": "node scripts/start-backend.js",
-    "frontend": "node scripts/start-frontend.js",
-    "dev": "node scripts/start-dev.js",
-    "logs": "node scripts/show-logs.js"
+    "backend": "bun scripts/start-backend.js",
+    "frontend": "bun scripts/start-frontend.js",
+    "dev": "bun scripts/start-dev.js",
+    "logs": "bun scripts/show-logs.js",
+    "test": "scripts/test_pr"
   },
   "workspaces": [
     "backend",

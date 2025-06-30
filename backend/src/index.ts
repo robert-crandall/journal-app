@@ -30,7 +30,7 @@ app.use('*', cors({
 }))
 
 // Health check
-app.get('/', (c) => {
+app.get('/api/health', (c) => {
   return c.json({ 
     message: 'Life Gamification API',
     status: 'healthy',
