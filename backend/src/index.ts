@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { HTTPException } from 'hono/http-exception'
+import authApp from './routes/auth'
 import characters from './routes/characters'
 import tasks from './routes/tasks'
 import { taskCompletionRoutes } from './routes/task-completion'
@@ -37,6 +38,9 @@ app.get('/api/health', (c) => {
     timestamp: new Date().toISOString()
   })
 })
+
+// Mount authentication routes
+app.route('/api/auth', authApp)
 
 // Mount character routes
 app.route('/api/characters', characters)
