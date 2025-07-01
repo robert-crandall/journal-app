@@ -3,6 +3,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, quests, tasks, taskCompletions } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq, and } from 'drizzle-orm'
 
 // Generate UUIDs using crypto.randomUUID()
@@ -27,12 +28,12 @@ describe('Quest Management API Integration Tests - Task 3.5', () => {
     console.log('Setting up quest management integration tests...')
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       id: generateUUID(),
       email: 'quest-test@example.com',
       name: 'Quest Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     
     testUserId = user.id
     cleanupUserIds.push(user.id)

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq, and } from 'drizzle-orm'
 
 describe('Character System Integration Tests - Task 2.10', () => {

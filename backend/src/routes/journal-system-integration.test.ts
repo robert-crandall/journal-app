@@ -19,6 +19,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Task 5.11: Complete Journal System Integration Tests', () => {
@@ -34,11 +35,11 @@ describe('Task 5.11: Complete Journal System Integration Tests', () => {
     client = testClient(app)
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: `journal-integration-test-${Date.now()}@example.com`,
       name: 'Journal Integration Test User',
       timezone: 'America/New_York'
-    }).returning()
+    })
     testUserId = user.id
     cleanupUserIds.push(testUserId)
 
@@ -376,10 +377,10 @@ describe('Task 5.11: Complete Journal System Integration Tests', () => {
     console.log('Testing journal isolation between users and search functionality...')
 
     // Create second user for isolation testing
-    const [user2] = await db.insert(users).values({
+    const { user: user2 } = await createTestUser({
       email: `journal-user2-${Date.now()}@example.com`,
       name: 'Second Test User'
-    }).returning()
+    })
     const user2Id = user2.id
     cleanupUserIds.push(user2Id)
 
@@ -642,10 +643,10 @@ describe('Task 5.11: Complete Journal System Integration Tests', () => {
     expect(nonExistentConvResponse.status).toBe(404)
 
     // Test unauthorized access to conversation
-    const [unauthorizedUser] = await db.insert(users).values({
+    const { user: unauthorizedUser } = await createTestUser({
       email: `unauthorized-${Date.now()}@example.com`,
       name: 'Unauthorized User'
-    }).returning()
+    })
     cleanupUserIds.push(unauthorizedUser.id)
 
     const testConvResponse = await client.api.journal.conversations.$post({

@@ -12,11 +12,7 @@ import {
   patternInsights
 } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
-
-// Generate UUIDs using crypto.randomUUID()
-function generateUUID(): string {
-  return crypto.randomUUID()
-}
+import { createTestUser, generateTestUUID } from '../utils/test-helpers'
 
 describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
   let testUserId: string
@@ -33,19 +29,19 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
     console.log('Setting up pattern tracking integration tests...')
     
     // Create test user
-    const [user] = await db.insert(users).values({
-      id: generateUUID(),
+    const { user } = await createTestUser({
+      id: generateTestUUID(),
       email: 'pattern-test@example.com',
       name: 'Pattern Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     
     testUserId = user.id
     cleanupUserIds.push(user.id)
     
     // Create test character
     const [character] = await db.insert(characters).values({
-      id: generateUUID(),
+      id: generateTestUUID(),
       userId: testUserId,
       name: 'Pattern Hero',
       class: 'Data Analyst',
@@ -59,7 +55,7 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
     const statCategories = ['Physical Health', 'Mental Health', 'Social Connection', 'Personal Growth']
     for (const category of statCategories) {
       await db.insert(characterStats).values({
-        id: generateUUID(),
+        id: generateTestUUID(),
         characterId: testCharacterId,
         category,
         currentXp: 0,
@@ -70,7 +66,7 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
     
     // Create test task
     const [task] = await db.insert(tasks).values({
-      id: generateUUID(),
+      id: generateTestUUID(),
       userId: testUserId,
       title: 'Test Pattern Task',
       description: 'A task for testing pattern tracking',
@@ -167,7 +163,7 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
   test('should get AI learning context with patterns and insights', async () => {
     // Create a new task for this test
     const [newTask] = await db.insert(tasks).values({
-      id: generateUUID(),
+      id: generateTestUUID(),
       userId: testUserId,
       title: 'AI Context Test Task',
       description: 'A task for testing AI context generation',
@@ -255,7 +251,7 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
   test('should get patterns summary with statistics', async () => {
     // Create a new task for this test
     const [newTask] = await db.insert(tasks).values({
-      id: generateUUID(),
+      id: generateTestUUID(),
       userId: testUserId,
       title: 'Summary Test Task',
       description: 'A task for testing pattern summary',
@@ -311,7 +307,7 @@ describe('Pattern Tracking API Integration Tests - Task 3.10', () => {
   })
 
   test('should handle invalid user ID gracefully', async () => {
-    const invalidUserId = generateUUID()
+    const invalidUserId = generateTestUUID()
     
     // Try to record event with invalid user
     const response = await app.request('/api/patterns/events', {

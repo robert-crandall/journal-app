@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, tasks, taskCompletions } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Task Completion System - Task 3.2', () => {
@@ -15,11 +16,11 @@ describe('Task Completion System - Task 3.2', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: `test-completion-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     testUserId = user.id
     cleanupUserIds.push(user.id)
 
@@ -274,11 +275,11 @@ describe('Task Completion System - Task 3.2', () => {
 
     it('should validate user ownership of task', async () => {
       // Create another user
-      const [anotherUser] = await db.insert(users).values({
+      const { user: anotherUser } = await createTestUser({
         email: `other-${Date.now()}@example.com`,
         name: 'Other User',
         timezone: 'UTC'
-      }).returning()
+      })
       cleanupUserIds.push(anotherUser.id)
 
       const completionData = {

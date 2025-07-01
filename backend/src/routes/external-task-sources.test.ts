@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, tasks, externalTaskSources, externalTaskIntegrations } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 /**

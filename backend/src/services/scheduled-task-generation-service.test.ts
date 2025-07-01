@@ -11,6 +11,7 @@ import {
 } from '../db/schema'
 import { eq, and, gte, lte } from 'drizzle-orm'
 import { ScheduledTaskGenerationService } from './scheduled-task-generation-service'
+import { createTestUser } from '../utils/test-helpers'
 
 // Simple UUID generator for tests
 function generateUUID(): string {
@@ -39,13 +40,12 @@ describe('Scheduled Task Generation Service - Task 4.11', () => {
     scheduledService = new ScheduledTaskGenerationService()
     
     // Create test user
-    const [user] = await db.insert(users).values({
-      id: generateUUID(),
+    const { user } = await createTestUser({
       email: 'scheduled-task-test@example.com',
       name: 'Scheduled Task Test User',
       timezone: 'UTC',
       zipCode: '10001' // NYC for weather testing
-    }).returning()
+    })
     
     testUserId = user.id
     cleanupUserIds.push(user.id)
@@ -198,12 +198,11 @@ describe('Scheduled Task Generation Service - Task 4.11', () => {
 
     it('should handle users without characters gracefully', async () => {
       // Create user without character
-      const [userWithoutChar] = await db.insert(users).values({
-        id: generateUUID(),
+      const { user: userWithoutChar } = await createTestUser({
         email: 'no-char-scheduled@example.com',
         name: 'No Character User',
         timezone: 'UTC'
-      }).returning()
+      })
       cleanupUserIds.push(userWithoutChar.id)
 
       const result = await scheduledService.generateDailyTasksForAllUsers()
@@ -299,12 +298,11 @@ describe('Scheduled Task Generation Service - Task 4.11', () => {
 
     it('should exclude users without characters', async () => {
       // Create user without character
-      const [userWithoutChar] = await db.insert(users).values({
-        id: generateUUID(),
+      const { user: userWithoutChar } = await createTestUser({
         email: 'no-char-filter@example.com',
         name: 'No Character User Filter Test',
         timezone: 'UTC'
-      }).returning()
+      })
       cleanupUserIds.push(userWithoutChar.id)
 
       const eligibleUsers = await scheduledService.getEligibleUsers()
@@ -404,12 +402,11 @@ describe('Scheduled Task Generation Service - Task 4.11', () => {
 
     it('should provide detailed error information', async () => {
       // Create user that will likely fail (no character)
-      const [problematicUser] = await db.insert(users).values({
-        id: generateUUID(),
+      const { user: problematicUser } = await createTestUser({
         email: 'error-test@example.com',
         name: 'Error Test User',
         timezone: 'UTC'
-      }).returning()
+      })
       cleanupUserIds.push(problematicUser.id)
 
       const result = await scheduledService.generateDailyTasksForAllUsers()

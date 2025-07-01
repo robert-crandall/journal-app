@@ -21,6 +21,7 @@ async function cleanDatabase() {
   // Drop all tables in public schema
   const tables = await db.execute(`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`);
   for (const row of tables.rows) {
+    console.log(`Dropping table: ${row.tablename}`);
     await db.execute(`DROP TABLE IF EXISTS "${row.tablename}" CASCADE`);
   }
   // Drop drizzle schema (migration tracking)

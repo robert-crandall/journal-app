@@ -4,6 +4,7 @@ import { db } from '../db/connection'
 import { users, characters, characterStats, tasks, taskCompletions, quests, experiments, familyMembers } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import app from '../index'
+import { createTestUser } from '../utils/test-helpers'
 
 describe('Task Management API Integration Tests', () => {
   let testUserId: string
@@ -16,11 +17,11 @@ describe('Task Management API Integration Tests', () => {
   beforeEach(async () => {
     // Create test user with unique email
     const uniqueEmail = `tasktest-${Date.now()}@example.com`
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: uniqueEmail,
       name: 'Task Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     testUserId = user.id
 
     // Create test character
@@ -405,10 +406,10 @@ describe('Task Management API Integration Tests', () => {
     it('should return 403 for unauthorized access', async () => {
       // Create another user with unique email
       const uniqueEmail = `another-${Date.now()}@example.com`
-      const [anotherUser] = await db.insert(users).values({
+      const { user: anotherUser } = await createTestUser({
         email: uniqueEmail,
         name: 'Another User'
-      }).returning()
+      })
 
       const response = await app.request(`/api/tasks/${testTaskId}?userId=${anotherUser.id}`, {
         method: 'GET'

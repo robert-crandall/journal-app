@@ -3,6 +3,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Journal System Features Integration Tests', () => {
@@ -15,13 +16,10 @@ describe('Journal System Features Integration Tests', () => {
     client = testClient(app)
 
     // Create test user
-    const [user] = await db
-      .insert(users)
-      .values({
-        name: 'Test User',
-        email: `test-${Date.now()}@example.com` // Make email unique
-      })
-      .returning()
+    const { user } = await createTestUser({
+      name: 'Test User',
+      email: `test-${Date.now()}@example.com` // Make email unique
+    })
     testUserId = user.id
 
     // Create test character

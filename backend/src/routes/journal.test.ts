@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq, and } from 'drizzle-orm'
 import app from '../index'
 
@@ -17,10 +18,10 @@ describe('Journal Conversational API Integration Tests', () => {
 
   beforeAll(async () => {
     // Create test user
-    const [userRecord] = await db.insert(users).values({
+    const { user: userRecord } = await createTestUser({
       email: 'journal-test@example.com',
       name: 'Journal Test User'
-    }).returning()
+    })
     testUserId = userRecord.id
     cleanupUserIds.push(testUserId)
 
@@ -237,10 +238,10 @@ describe('Journal Conversational API Integration Tests', () => {
       expect(testConversationId).toBeTruthy()
 
       // Create another user
-      const [otherUser] = await db.insert(users).values({
+      const { user: otherUser } = await createTestUser({
         email: 'other-journal-test@example.com',
         name: 'Other Journal Test User'
-      }).returning()
+      })
       cleanupUserIds.push(otherUser.id)
       
       const response = await app.request(`/api/journal/conversations/${testConversationId}/messages`, {
@@ -414,10 +415,10 @@ describe('Journal Conversational API Integration Tests', () => {
       expect(testConversationId).toBeTruthy()
 
       // Create another user for unauthorized test
-      const [unauthorizedUser] = await db.insert(users).values({
+      const { user: unauthorizedUser } = await createTestUser({
         email: 'unauthorized-journal@example.com',
         name: 'Unauthorized Journal User'
-      }).returning()
+      })
       cleanupUserIds.push(unauthorizedUser.id)
       
       const response = await app.request(`/api/journal/conversations/${testConversationId}?userId=${unauthorizedUser.id}`, {
@@ -455,10 +456,10 @@ describe('Journal Conversational API Integration Tests', () => {
 
     test('should return empty array for user with no conversations', async () => {
       // Create user with no conversations
-      const [newUser] = await db.insert(users).values({
+      const { user: newUser } = await createTestUser({
         email: 'no-conversations@example.com',
         name: 'No Conversations User'
-      }).returning()
+      })
       cleanupUserIds.push(newUser.id)
       
       const response = await app.request(`/api/journal/conversations?userId=${newUser.id}`, {
@@ -956,10 +957,10 @@ describe('Journal Conversational API Integration Tests', () => {
       expect(testConversationId).toBeTruthy()
 
       // Create another user
-      const [otherUser] = await db.insert(users).values({
+      const { user: otherUser } = await createTestUser({
         email: 'other-end-test@example.com',
         name: 'Other End Test User'
-      }).returning()
+      })
       cleanupUserIds.push(otherUser.id)
 
       // Other user should not be able to end first user's conversation

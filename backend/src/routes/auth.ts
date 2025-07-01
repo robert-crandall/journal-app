@@ -6,6 +6,7 @@ import { HTTPException } from 'hono/http-exception'
 import { db } from '../db/connection'
 import { users } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import * as bcrypt from 'bcrypt'
 
 // Validation schemas
 const registerSchema = z.object({
@@ -32,15 +33,14 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(6, 'New password must be at least 6 characters'),
 })
 
-// Simple password hashing (in production, use bcrypt)
-function hashPassword(password: string): string {
-  // This is a placeholder - in production use proper bcrypt
-  return Buffer.from(password).toString('base64')
+// Password hashing functions using bcrypt
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10
+  return await bcrypt.hash(password, saltRounds)
 }
 
-function verifyPassword(password: string, hashedPassword: string): boolean {
-  // This is a placeholder - in production use proper bcrypt
-  return Buffer.from(password).toString('base64') === hashedPassword
+async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return await bcrypt.compare(password, hashedPassword)
 }
 
 // JWT secret - in production this should be in environment variables
@@ -67,7 +67,7 @@ app.post('/register',
       }
 
       // Hash password
-      const hashedPassword = hashPassword(userData.password)
+      const hashedPassword = await hashPassword(userData.password)
 
       // Create user
       const [newUser] = await db
@@ -75,7 +75,7 @@ app.post('/register',
         .values({
           email: userData.email,
           name: userData.name,
-          // Store hashed password in a password field (we need to add this to schema)
+          password: hashedPassword,
           timezone: userData.timezone,
           zipCode: userData.zipCode,
         })
@@ -132,9 +132,8 @@ app.post('/login',
         throw new HTTPException(401, { message: 'Invalid email or password' })
       }
 
-      // For now, we'll use a simple demo password check
-      // In a real app, you'd verify against a hashed password field
-      const isValidPassword = password === 'demo123' || password === 'password'
+      // Verify password against stored hash
+      const isValidPassword = await verifyPassword(password, user.password)
       
       if (!isValidPassword) {
         throw new HTTPException(401, { message: 'Invalid email or password' })
@@ -327,12 +326,17 @@ app.post('/verify-token', async (c) => {
 app.post('/create-demo-user', async (c) => {
   try {
     const demoEmail = `demo-${Date.now()}@example.com`
+    const demoPassword = 'demo123'
+    
+    // Hash the demo password
+    const hashedPassword = await hashPassword(demoPassword)
     
     const [demoUser] = await db
       .insert(users)
       .values({
         email: demoEmail,
         name: 'Demo User',
+        password: hashedPassword,
         timezone: 'America/New_York',
         zipCode: '10001',
       })
@@ -361,7 +365,7 @@ app.post('/create-demo-user', async (c) => {
         token,
         credentials: {
           email: demoEmail,
-          password: 'demo123'
+          password: demoPassword
         }
       }
     })

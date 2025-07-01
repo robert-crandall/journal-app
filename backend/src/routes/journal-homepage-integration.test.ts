@@ -8,6 +8,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Task 5.10: Quick Journal Access Integration for Homepage', () => {
@@ -23,10 +24,10 @@ describe('Task 5.10: Quick Journal Access Integration for Homepage', () => {
     client = testClient(app)
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: `journal-homepage-test-${Date.now()}@example.com`,
       name: 'Journal Homepage Test User'
-    }).returning()
+    })
     testUserId = user.id
     cleanupUserIds.push(testUserId)
 

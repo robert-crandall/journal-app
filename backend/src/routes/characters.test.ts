@@ -3,6 +3,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Character API Integration Tests', () => {

@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test'
 import { db } from '../db/connection'
 import { users, characters } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 /**
@@ -30,12 +31,11 @@ function generateUUID(): string {
 describe('Quest and Experiment Management End-to-End Integration - Task 6.9', () => {
   beforeAll(async () => {
     // Create test user and character
-    const [user] = await db.insert(users).values({
-      id: generateUUID(),
+    const { user } = await createTestUser({
       email: 'quest-experiment-test@example.com',
       name: 'Quest Experiment Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     
     userId = user.id
     

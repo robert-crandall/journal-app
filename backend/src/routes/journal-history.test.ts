@@ -8,6 +8,7 @@ import { testClient } from 'hono/testing'
 import app from '../index'
 import { db } from '../db/connection'
 import { users, characters, characterStats, journalConversations, journalEntries } from '../db/schema'
+import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Task 5.9: Journal History and Search Functionality', () => {
@@ -22,10 +23,10 @@ describe('Task 5.9: Journal History and Search Functionality', () => {
   beforeEach(async () => {
     client = testClient(app)
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: `journal-history-test-${Date.now()}@example.com`,
       name: 'Journal History Test User'
-    }).returning()
+    })
     testUserId = user.id
     cleanupUserIds.push(testUserId)
 

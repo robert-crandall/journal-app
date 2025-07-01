@@ -3,6 +3,7 @@ import app from '../index'
 import { db } from '../db/connection'
 import { users, familyMembers, familyMemberInteractions, tasks } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { createTestUser } from '../utils/test-helpers'
 
 describe('Family Members API Integration Tests - Task 3.11', () => {
   let testUserId: string
@@ -14,11 +15,11 @@ describe('Family Members API Integration Tests - Task 3.11', () => {
     console.log('Setting up family members integration tests...')
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const { user } = await createTestUser({
       email: `test-family-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     testUserId = user.id
     cleanupUserIds.push(testUserId)
   })
@@ -223,11 +224,11 @@ describe('Family Members API Integration Tests - Task 3.11', () => {
 
     it('should return 404 for unauthorized access to family member', async () => {
       // Create another user
-      const [otherUser] = await db.insert(users).values({
+      const { user: otherUser } = await createTestUser({
         email: `other-user-${Date.now()}@example.com`,
         name: 'Other User',
         timezone: 'UTC'
-      }).returning()
+      })
       cleanupUserIds.push(otherUser.id)
 
       const response = await app.request(`/api/family-members/${familyMember1Id}?userId=${otherUser.id}`, {
