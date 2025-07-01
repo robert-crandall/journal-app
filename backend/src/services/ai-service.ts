@@ -169,7 +169,28 @@ export class AIService {
    * Check if the AI service is properly configured
    */
   isConfigured(): boolean {
-    return this.apiKey !== null && this.apiKey.length > 0
+    if (!this.apiKey || this.apiKey.length === 0) {
+      return false
+    }
+    
+    // Check for obviously fake/placeholder API keys (but allow test keys for unit tests)
+    const fakeKeyPatterns = [
+      'sk-long-and-secret',
+      'sk-fake',
+      'sk-placeholder',
+      'your-api-key'
+    ]
+    
+    const isPlaceholder = fakeKeyPatterns.some(pattern => 
+      this.apiKey?.toLowerCase().includes(pattern.toLowerCase())
+    )
+    
+    if (isPlaceholder) {
+      return false
+    }
+    
+    // OpenAI API keys should start with 'sk-' and be at least 32 characters
+    return this.apiKey.startsWith('sk-') && this.apiKey.length >= 32
   }
 
   /**

@@ -39,13 +39,14 @@ export function analyzeMoodAndContent(text: string, conversationHistory: Array<{
   
   // Content theme keywords
   const familyWords = ['family', 'kids', 'children', 'daughter', 'son', 'wife', 'husband', 'partner', 'parent', 'mom', 'dad', 'parenting']
-  const workWords = ['work', 'job', 'career', 'boss', 'colleague', 'project', 'meeting', 'office', 'deadline', 'promotion', 'business']
+  const workWords = ['work', 'job', 'career', 'boss', 'colleague', 'project', 'meeting', 'office', 'deadline', 'promotion', 'business', 'programming', 'code', 'coding', 'javascript', 'software', 'developer', 'react', 'web', 'application']
   const adventureWords = ['adventure', 'travel', 'hike', 'explore', 'outdoor', 'nature', 'mountain', 'beach', 'journey', 'discovery', 'exercise', 'sport']
   const healthWords = ['health', 'medical', 'doctor', 'wellness', 'fitness', 'diet', 'exercise', 'sleep', 'energy', 'sick', 'recovery', 'workout', 'gym', 'training']
   const creativeWords = ['creative', 'art', 'music', 'writing', 'painting', 'photography', 'design', 'craft', 'hobby', 'imagination']
   const socialWords = ['friends', 'social', 'party', 'gathering', 'community', 'relationship', 'connection', 'support', 'lonely', 'isolated']
-  const learningWords = ['learn', 'study', 'education', 'skill', 'knowledge', 'book', 'course', 'practice', 'improvement', 'growth']
+  const learningWords = ['learn', 'study', 'education', 'skill', 'knowledge', 'book', 'course', 'practice', 'improvement', 'growth', 'javascript', 'programming', 'concepts', 'understood', 'closures', 'async', 'await', 'challenging', 'material', 'persevered']
   const challengeWords = ['challenge', 'problem', 'obstacle', 'difficult', 'struggle', 'overcome', 'persevere', 'resilience', 'determination']
+  const fitnessWords = ['fitness', 'gym', 'workout', 'exercise', 'training', 'lifting', 'running', 'cardio', 'strength', 'muscle', 'health', 'physical']
 
   // Emotion detection
   let positiveScore = 0
@@ -85,13 +86,19 @@ export function analyzeMoodAndContent(text: string, conversationHistory: Array<{
   if (workWords.some(ww => lowerText.includes(ww))) {
     themes.push('work')
     categories.push('career')
+    // Also check for programming/learning specific content
+    if (learningWords.some(lw => lowerText.includes(lw))) {
+      themes.push('learning')
+      categories.push('growth')
+    }
   }
   if (adventureWords.some(aw => lowerText.includes(aw))) {
     themes.push('adventure')
     categories.push('outdoor')
   }
-  if (healthWords.some(hw => lowerText.includes(hw))) {
+  if (healthWords.some(hw => lowerText.includes(hw)) || fitnessWords.some(fw => lowerText.includes(fw))) {
     themes.push('health')
+    themes.push('fitness')
     categories.push('wellness')
   }
   if (creativeWords.some(cw => lowerText.includes(cw))) {
@@ -464,13 +471,14 @@ export function generateConversationMetadata(messages: Array<{role: 'user' | 'as
   
   // Map themes to potential stat categories
   const statTags: string[] = []
-  if (analysis.content.themes.includes('family')) statTags.push('Social', 'Relationships')
-  if (analysis.content.themes.includes('work')) statTags.push('Professional', 'Career')
-  if (analysis.content.themes.includes('adventure')) statTags.push('Fitness', 'Physical')
-  if (analysis.content.themes.includes('health')) statTags.push('Fitness', 'Health', 'Physical')
-  if (analysis.content.themes.includes('creativity')) statTags.push('Creativity', 'Creative', 'Art')
-  if (analysis.content.themes.includes('learning')) statTags.push('Learning', 'Knowledge', 'Education')
-  if (analysis.content.themes.includes('challenge')) statTags.push('Mental', 'Resilience')
+  if (analysis.content.themes.includes('family')) statTags.push('Social Connection', 'Relationships')
+  if (analysis.content.themes.includes('work')) statTags.push('Professional Growth', 'Career')
+  if (analysis.content.themes.includes('adventure')) statTags.push('Adventure Spirit', 'Physical Fitness')
+  if (analysis.content.themes.includes('health') || analysis.content.themes.includes('fitness')) statTags.push('Fitness', 'Physical Fitness', 'Health')
+  if (analysis.content.themes.includes('creativity')) statTags.push('Creative Expression', 'Art')
+  if (analysis.content.themes.includes('learning')) statTags.push('Learning', 'Knowledge', 'Education', 'Mental Growth')
+  if (analysis.content.themes.includes('challenge')) statTags.push('Mental Health', 'Resilience', 'Emotional Intelligence')
+  if (analysis.content.themes.includes('social')) statTags.push('Social Connection', 'Social Skills')
   
   return {
     title,

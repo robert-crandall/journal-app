@@ -5,9 +5,16 @@ import { AIService } from './ai-service'
 import '../env'
 
 describe('AI Service Unit Tests - Task 4.1', () => {
+  const isAIConfigured = process.env.OPENAI_API_KEY && 
+    process.env.OPENAI_API_KEY.length > 0 && 
+    !process.env.OPENAI_API_KEY.includes('test') &&
+    !process.env.OPENAI_API_KEY.includes('fake')
+
   beforeEach(() => {
-    // Set a test API key
-    process.env.OPENAI_API_KEY = 'test-api-key-sk-1234567890'
+    // Set a properly formatted test API key (32+ chars, starts with sk-)
+    if (!isAIConfigured) {
+      process.env.OPENAI_API_KEY = 'sk-1234567890abcdef1234567890abcdef'
+    }
   })
 
   describe('Service Initialization and Configuration', () => {
