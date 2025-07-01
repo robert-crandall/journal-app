@@ -1,85 +1,109 @@
-import 'dotenv/config';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
-import type { JwtVariables } from 'hono/jwt';
-import type { User } from './db/schema';
-import { prettyJSON } from 'hono/pretty-json';
-import { serveStatic } from 'hono/bun';
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
+import { HTTPException } from 'hono/http-exception'
+import authApp from './routes/auth'
+import characters from './routes/characters'
+import tasks from './routes/tasks'
+import { taskCompletionRoutes } from './routes/task-completion'
+import feedbackApp from './routes/feedback-system'
+import dashboardApp from './routes/dashboard'
+import questsApp from './routes/quests'
+import experimentsApp from './routes/experiments'
+import adHocTasksApp from './routes/ad-hoc-tasks'
+import todosApp from './routes/todos'
+import externalTaskSourcesApp from './routes/external-task-sources'
+import familyMembersApp from './routes/family-members'
+import patternTrackingApp from './routes/pattern-tracking'
+import scheduledApp from './routes/scheduled'
+import journalApp from './routes/journal'
+import testUtilsApp from './routes/test-utils'
 
-// Define app variables type
-type Variables = JwtVariables & {
-  user: User;
-};
+const app = new Hono()
 
-// Routes
-import auth from './routes/auth';
-import family from './routes/family';
-import tasks from './routes/tasks';
-import adhocTasks from './routes/adhocTasks';
-import focuses from './routes/focuses';
-import journals from './routes/journals';
-import potions from './routes/potions';
-import stats from './routes/stats';
-import preferences from './routes/preferences';
-import tags from './routes/tags';
+// Global middleware
+app.use('*', logger())
+app.use('*', cors({
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:4173'
+  ],
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization']
+}))
 
-const app = new Hono<{ Variables: Variables }>();
+// Health check
+app.get('/api/health', (c) => {
+  return c.json({ 
+    message: 'Life Gamification API',
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  })
+})
 
-// Middleware
-app.use("*", cors());
+// Mount authentication routes
+app.route('/api/auth', authApp)
 
-// Only enable detailed logging in development
-// if (process.env.NODE_ENV !== "production") {
-//   app.use("*", logger());
-// }
-app.use("*", prettyJSON());
+// Mount character routes
+app.route('/api/characters', characters)
 
-// API routes
-app.route('/api/auth', auth);
-app.route('/api/family', family);
-app.route('/api/tasks', tasks);
-app.route('/api/adhoc-tasks', adhocTasks);
-app.route('/api/focuses', focuses);
-app.route('/api/journals', journals);
-app.route('/api/potions', potions);
-app.route('/api/stats', stats);
-app.route('/api/preferences', preferences);
-app.route('/api/tags', tags);
+// Mount feedback system routes
+app.route('/api/feedback', feedbackApp)
 
-// Serve static files - but exclude API routes using a custom condition
-app.use("*", async (c, next) => {
-  const path = c.req.path;
+// Mount dashboard routes
+app.route('/api/dashboard', dashboardApp)
+
+// Mount quest routes
+app.route('/api/quests', questsApp)
+
+// Mount experiment routes
+app.route('/api/experiments', experimentsApp)
+
+// Mount ad-hoc task routes
+app.route('/api/tasks/ad-hoc', adHocTasksApp)
+
+// Mount todos routes
+app.route('/api/todos', todosApp)
+
+// Mount external task sources routes
+app.route('/api/external-sources', externalTaskSourcesApp)
+
+// Mount family members routes
+app.route('/api/family-members', familyMembersApp)
+
+// Mount pattern tracking routes
+app.route('/api/patterns', patternTrackingApp)
+
+// Mount scheduled task generation routes
+app.route('/api/scheduled', scheduledApp)
+
+// Mount journal routes
+app.route('/api/journal', journalApp)
+
+// Mount test utilities (development/test only)
+app.route('/api/test', testUtilsApp)
+
+// Mount task completion routes first (more specific routes)
+app.route('/api/tasks', taskCompletionRoutes)
+
+// Mount task routes (includes catch-all /:id route)
+app.route('/api/tasks', tasks)
+
+// Error handler
+app.onError((err, c) => {
+  console.error('Unhandled error:', err)
   
-  // Skip static serving for API routes
-  if (path.startsWith("/api/") || path.startsWith("/cron") || path.startsWith("/docs")) {
-    await next();
-    return;
+  if (err instanceof HTTPException) {
+    // Return the HTTPException response directly
+    return err.getResponse()
   }
   
-  // For non-API routes, try to serve static files first
-  return serveStatic({ root: "./frontend" })(c, next);
-});
+  return c.json({ 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  }, 500)
+})
 
-// Fallback for client-side routing (SPA) - serve index.html for non-API routes
-app.get("*", async (c) => {
-  const path = c.req.path;
-  
-  // This should only be reached for non-API routes that don't have static files
-  try {
-    const file = Bun.file("./frontend/index.html");
-    const content = await file.text();
-    return c.html(content);
-  } catch (error) {
-    console.error("Error serving index.html:", error);
-    return c.json({ error: "Frontend not found" }, 404);
-  }
-});
-
-// Start the server when running in Bun
-const port = parseInt(Bun.env.PORT || "3000", 10);
-console.log(`Server is running on port ${port}`);
-export default {
-  port,
-  fetch: app.fetch
-};
+export default app
+export type AppType = typeof app

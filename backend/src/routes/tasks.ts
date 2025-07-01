@@ -1,252 +1,345 @@
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
-import type { JwtVariables } from 'hono/jwt';
-import { db } from '../db';
-import { tasks, stats, focuses, users, potions, adhocTasks, createTaskSchema, completeTaskSchema, type User } from '../db/schema';
-import { jwtMiddleware, userMiddleware } from '../middleware/auth';
-import { generateDailyTasks, getTodaysFocus, getOrGenerateTodaysTask, type TaskGenerationContext } from '../utils/gptTaskGenerator';
+import { Hono } from 'hono'
+import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
+import { HTTPException } from 'hono/http-exception'
+import { db } from '../db/connection'
+import { tasks, taskCompletions, users, quests, experiments } from '../db/schema'
+import { eq, and, or, inArray } from 'drizzle-orm'
 
-// Define the variables type for this route
-type Variables = JwtVariables & {
-  user: User;
-};
+// Validation schemas
+const createTaskSchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  title: z.string().min(1, 'Title is required').max(500),
+  description: z.string().optional(),
+  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external'], {
+    errorMap: () => ({ message: 'Source must be one of: ai, quest, experiment, todo, ad-hoc, external' })
+  }),
+  sourceId: z.string().uuid().optional(),
+  targetStats: z.array(z.string()).optional().nullable(),
+  estimatedXp: z.number().int().min(0).default(0),
+  dueDate: z.string().datetime().optional(),
+  status: z.enum(['pending', 'completed', 'skipped']).default('pending'),
+})
 
-const tasksRouter = new Hono<{ Variables: Variables }>();
+const updateTaskSchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  title: z.string().min(1).max(500).optional(),
+  description: z.string().optional(),
+  targetStats: z.array(z.string()).optional().nullable(),
+  estimatedXp: z.number().int().min(0).optional(),
+  dueDate: z.string().datetime().optional().nullable(),
+  status: z.enum(['pending', 'completed', 'skipped']).optional(),
+  completedAt: z.string().datetime().optional().nullable(),
+})
 
-// Get all tasks for user
-tasksRouter.get('/', jwtMiddleware, userMiddleware, async (c) => {
-  const user = c.get('user');
-  
-  const userTasks = await db.query.tasks.findMany({
-    where: eq(tasks.userId, user.id),
-    with: {
-      focus: true,
-      stat: true,
-      family: true,
-    },
-    orderBy: [desc(tasks.createdAt)],
-  });
-  
-  return c.json({ tasks: userTasks });
-});
+const taskQuerySchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  status: z.enum(['pending', 'completed', 'skipped']).optional(),
+  source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external']).optional(),
+  dashboard: z.string().transform(val => val === 'true').optional(), // Filter for dashboard display
+  limit: z.string().transform(val => parseInt(val, 10)).optional(),
+  offset: z.string().transform(val => parseInt(val, 10)).optional(),
+})
 
-// Get or generate today's tasks
-tasksRouter.get('/daily', jwtMiddleware, userMiddleware, async (c) => {
-  const user = c.get('user');
-  
-  try {
-    const todaysTasks = await getOrGenerateTodaysTask(user.id);
-    return c.json({ tasks: todaysTasks });
-  } catch (error) {
-    console.error('Failed to get or generate daily tasks:', error);
-    return c.json({ error: 'Failed to get or generate daily tasks' }, 500);
-  }
-});
+const userIdQuerySchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+})
 
-// Create task
-tasksRouter.post('/', jwtMiddleware, userMiddleware, zValidator('json', createTaskSchema), async (c) => {
-  const user = c.get('user') as User;
-  const { 
-    title, 
-    description, 
-    dueDate, 
-    taskDate,
-    source,
-    linkedStatIds,
-    familyId,
-    focusId, 
-    statId
-  } = c.req.valid('json');
-  
-  const [task] = await db.insert(tasks).values({
-    userId: user.id,
-    title,
-    description,
-    dueDate: dueDate || null,
-    taskDate: taskDate || null,
-    source,
-    linkedStatIds: linkedStatIds || [],
-    familyId,
-    focusId,
-    statId,
-    origin: 'user',
-    status: 'pending',
-  }).returning();
-  
-  return c.json({ task });
-});
+const app = new Hono()
 
-// Get specific task
-tasksRouter.get('/:id', jwtMiddleware, userMiddleware, async (c) => {
-  const user = c.get('user') as User;
-  const taskId = c.req.param('id');
-  
-  const task = await db.query.tasks.findFirst({
-    where: and(eq(tasks.id, taskId), eq(tasks.userId, user.id)),
-    with: {
-      focus: true,
-      stat: true,
-      family: true,
-    },
-  });
-  
-  if (!task) {
-    return c.json({ error: 'Task not found' }, 404);
-  }
-  
-  return c.json({ task });
-});
+// POST /api/tasks - Create new task
+app.post('/',
+  zValidator('json', createTaskSchema),
+  async (c) => {
+    try {
+      const data = c.req.valid('json')
+      const { userId, sourceId, dueDate, source, ...taskData } = data
 
-// Update task
-tasksRouter.put('/:id', jwtMiddleware, userMiddleware, zValidator('json', createTaskSchema), async (c) => {
-  const user = c.get('user') as User;
-  const taskId = c.req.param('id');
-  const { 
-    title, 
-    description, 
-    dueDate,
-    taskDate,
-    source,
-    linkedStatIds,
-    familyId,
-    focusId, 
-    statId
-  } = c.req.valid('json');
-  
-  const [updatedTask] = await db.update(tasks)
-    .set({
-      title,
-      description,
-      dueDate: dueDate || null,
-      taskDate: taskDate || null,
-      source,
-      linkedStatIds: linkedStatIds || [],
-      familyId,
-      focusId,
-      statId,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
-    .returning();
-  
-  if (!updatedTask) {
-    return c.json({ error: 'Task not found' }, 404);
-  }
-  
-  return c.json({ task: updatedTask });
-});
+      // Verify user exists
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
 
-// Complete task (now supports status, feedback, emotion, and mood score)
-tasksRouter.post('/:id/complete', jwtMiddleware, userMiddleware, zValidator('json', completeTaskSchema), async (c) => {
-  const user = c.get('user') as User;
-  const taskId = c.req.param('id');
-  const { status, feedback, emotionTag, moodScore } = c.req.valid('json');
-  
-  // Get active potions to link this task completion
-  const activePotionIds = await getActivePotions(user.id);
-  const potionId = activePotionIds.length > 0 ? activePotionIds[0] : null; // Link to first active potion if any
-  
-  const [completedTask] = await db.update(tasks)
-    .set({
-      status,
-      completedAt: status === 'complete' ? new Date() : null,
-      feedback,
-      emotionTag,
-      moodScore,
-      potionId: potionId,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
-    .returning();
-  
-  if (!completedTask) {
-    return c.json({ error: 'Task not found' }, 404);
-  }
-  
-  // Only award XP if task was marked as complete
-  if (status === 'complete') {
-    let statIdsToAward: string[] = [];
-    let xpToAward = 25; // Default XP value
-    
-    // If this task was created from an ad hoc task, use its custom XP value
-    if (completedTask.adhocTaskId) {
-      const adhocTask = await db.query.adhocTasks.findFirst({
-        where: eq(adhocTasks.id, completedTask.adhocTaskId),
-      });
-      if (adhocTask) {
-        xpToAward = adhocTask.xpValue;
-        statIdsToAward.push(adhocTask.linkedStatId);
+      if (user.length === 0) {
+        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
       }
-    } else {
-      // Use existing logic for regular tasks
-      // Collect stat IDs from linkedStatIds array (new primary method)
-      if (completedTask.linkedStatIds && Array.isArray(completedTask.linkedStatIds)) {
-        statIdsToAward = [...completedTask.linkedStatIds];
-      }
-      
-      // Include stat from focus if exists (legacy)
-      if (completedTask.focusId) {
-        const taskWithFocus = await db.query.tasks.findFirst({
-          where: eq(tasks.id, completedTask.id),
-          with: {
-            focus: true
+
+      // If sourceId is provided, verify it exists and belongs to user
+      if (sourceId) {
+        if (source === 'quest') {
+          const quest = await db
+            .select()
+            .from(quests)
+            .where(and(eq(quests.id, sourceId), eq(quests.userId, userId)))
+            .limit(1)
+
+          if (quest.length === 0) {
+            throw new HTTPException(400, { message: 'Invalid quest ID or quest does not belong to user' })
           }
-        });
-        
-        if (taskWithFocus?.focus?.statId) {
-          statIdsToAward.push(taskWithFocus.focus.statId);
+        } else if (source === 'experiment') {
+          const experiment = await db
+            .select()
+            .from(experiments)
+            .where(and(eq(experiments.id, sourceId), eq(experiments.userId, userId)))
+            .limit(1)
+
+          if (experiment.length === 0) {
+            throw new HTTPException(400, { message: 'Invalid experiment ID or experiment does not belong to user' })
+          }
         }
       }
+
+      // Create the task
+      const [task] = await db.insert(tasks).values({
+        userId,
+        source,
+        sourceId: sourceId || null,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        ...taskData,
+      }).returning()
+
+      return c.json({
+        success: true,
+        data: task
+      }, 201)
+
+    } catch (error) {
+      console.error('Error creating task:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to create task' })
     }
-    
-    // Remove duplicates
-    statIdsToAward = Array.from(new Set(statIdsToAward));
-    
-    // Award XP to each linked stat
-    for (const statId of statIdsToAward) {
-      await db.update(stats)
-        .set({
-          xp: sql`${stats.xp} + ${xpToAward}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(stats.id, statId));
+  })
+
+// GET /api/tasks - List tasks with filtering
+app.get('/',
+  zValidator('query', taskQuerySchema),
+  async (c) => {
+    try {
+      const query = c.req.valid('query')
+      const { userId, status, source, dashboard, limit = 50, offset = 0 } = query
+
+      // Verify user exists
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (user.length === 0) {
+        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
+      }
+
+      // Build query conditions
+      const conditions = [eq(tasks.userId, userId)]
+
+      if (status) {
+        conditions.push(eq(tasks.status, status))
+      }
+
+      if (source) {
+        conditions.push(eq(tasks.source, source))
+      }
+
+      // Dashboard filter excludes ad-hoc tasks (they have their own page)
+      if (dashboard) {
+        conditions.push(or(
+          eq(tasks.source, 'ai'),
+          eq(tasks.source, 'quest'),
+          eq(tasks.source, 'experiment'),
+          eq(tasks.source, 'todo')
+        )!)
+      }
+
+      const tasksList = await db
+        .select()
+        .from(tasks)
+        .where(and(...conditions))
+        .limit(limit)
+        .offset(offset)
+        .orderBy(tasks.createdAt)
+
+      return c.json({
+        success: true,
+        data: tasksList
+      })
+
+    } catch (error) {
+      console.error('Error fetching tasks:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to fetch tasks' })
     }
-  }
-  
-  return c.json({ task: completedTask });
-});
+  })
 
-// Delete task
-tasksRouter.delete('/:id', jwtMiddleware, userMiddleware, async (c) => {
-  const user = c.get('user') as User;
-  const taskId = c.req.param('id');
-  
-  const [deletedTask] = await db.delete(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)))
-    .returning();
-  
-  if (!deletedTask) {
-    return c.json({ error: 'Task not found' }, 404);
-  }
-  
-  return c.json({ message: 'Task deleted successfully' });
-});
+// GET /api/tasks/:id - Get specific task
+app.get('/:id',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const taskId = c.req.param('id')
+      const { userId } = c.req.valid('query')
 
-// Helper function to get active potions for a user
-async function getActivePotions(userId: string): Promise<string[]> {
-  const today = new Date().toISOString().split('T')[0];
-  
-  const activePotions = await db.query.potions.findMany({
-    where: and(
-      eq(potions.userId, userId),
-      eq(potions.isActive, true),
-      lte(potions.startDate, today),
-      gte(potions.endDate, today)
-    ),
-  });
-  
-  return activePotions.map(potion => potion.id);
-}
+      // Validate UUID format for taskId
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(taskId)) {
+        throw new HTTPException(404, { message: 'Task not found' })
+      }
 
-export default tasksRouter;
+      // Verify user exists
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (user.length === 0) {
+        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
+      }
+
+      // Check if task exists first
+      const taskExists = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.id, taskId))
+        .limit(1)
+
+      if (taskExists.length === 0) {
+        throw new HTTPException(404, { message: 'Task not found' })
+      }
+
+      // Check if task belongs to user
+      if (taskExists[0].userId !== userId) {
+        throw new HTTPException(403, { message: 'Unauthorized: Task does not belong to user' })
+      }
+
+      return c.json({
+        success: true,
+        data: taskExists[0]
+      })
+
+    } catch (error) {
+      console.error('Error fetching task:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to fetch task' })
+    }
+  })
+
+// PUT /api/tasks/:id - Update task
+app.put('/:id',
+  zValidator('json', updateTaskSchema),
+  async (c) => {
+    try {
+      const taskId = c.req.param('id')
+      const data = c.req.valid('json')
+      const { userId, completedAt, dueDate, ...updateData } = data
+
+      // Verify user exists
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (user.length === 0) {
+        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
+      }
+
+      // Verify task exists and belongs to user
+      const existingTask = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+        .limit(1)
+
+      if (existingTask.length === 0) {
+        throw new HTTPException(404, { message: 'Task not found' })
+      }
+
+      // Prepare update data
+      const updateFields: any = { ...updateData }
+      
+      if (completedAt !== undefined) {
+        updateFields.completedAt = completedAt ? new Date(completedAt) : null
+      }
+      
+      if (dueDate !== undefined) {
+        updateFields.dueDate = dueDate ? new Date(dueDate) : null
+      }
+
+      updateFields.updatedAt = new Date()
+
+      const [updatedTask] = await db
+        .update(tasks)
+        .set(updateFields)
+        .where(eq(tasks.id, taskId))
+        .returning()
+
+      return c.json({
+        success: true,
+        data: updatedTask
+      })
+
+    } catch (error) {
+      console.error('Error updating task:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to update task' })
+    }
+  })
+
+// DELETE /api/tasks/:id - Delete task (maintains loose coupling)
+app.delete('/:id',
+  zValidator('query', userIdQuerySchema),
+  async (c) => {
+    try {
+      const taskId = c.req.param('id')
+      const { userId } = c.req.valid('query')
+
+      // Verify user exists
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+
+      if (user.length === 0) {
+        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
+      }
+
+      // Verify task exists and belongs to user
+      const existingTask = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+        .limit(1)
+
+      if (existingTask.length === 0) {
+        throw new HTTPException(404, { message: 'Task not found' })
+      }
+
+      // Delete the task (task completions remain due to loose coupling design)
+      await db.delete(tasks).where(eq(tasks.id, taskId))
+
+      return c.json({
+        success: true,
+        message: 'Task deleted successfully'
+      })
+
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      if (error instanceof HTTPException) {
+        throw error
+      }
+      throw new HTTPException(500, { message: 'Failed to delete task' })
+    }
+  })
+
+export default app

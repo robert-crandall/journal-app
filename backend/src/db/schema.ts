@@ -1,449 +1,513 @@
-import { pgTable, text, date, timestamp, integer, boolean, uuid, jsonb } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { pgTable, uuid, varchar, text, timestamp, integer, boolean, jsonb, date, decimal } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
 
-// Users table (no longer includes family members)
+// Users table - Task 1.2
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').unique(),
-  password: text('password'),
-  name: text('name').notNull(),
-  className: text('class_name'),
-  classDescription: text('class_description'),
-  gptContext: jsonb('gpt_context'),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  password: varchar('password', { length: 255 }).notNull(),
+  timezone: varchar('timezone', { length: 50 }).default('UTC'),
+  zipCode: varchar('zip_code', { length: 10 }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
 
-// Separate family table
-export const family = pgTable('family', {
+// Characters table - Task 1.3
+export const characters = pgTable('characters', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(), // Who's family it is
-  name: text('name').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  class: varchar('class', { length: 100 }).notNull(),
+  backstory: text('backstory'),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Character stats table - Task 1.4
+export const characterStats = pgTable('character_stats', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  characterId: uuid('character_id').notNull().references(() => characters.id, { onDelete: 'cascade' }),
+  category: varchar('category', { length: 100 }).notNull(),
+  currentXp: integer('current_xp').notNull().default(0),
+  currentLevel: integer('current_level').notNull().default(1),
+  totalXp: integer('total_xp').notNull().default(0),
+  levelTitle: varchar('level_title', { length: 100 }), // AI-generated humorous level title
+  description: text('description'),
+  sampleActivities: jsonb('sample_activities'), // Array of example activities
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Family members table - Task 1.5
+export const familyMembers = pgTable('family_members', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
   age: integer('age'),
-  className: text('class_name'), // Keep existing className field name for compatibility
-  classDescription: text('class_description'),
+  interests: jsonb('interests'), // Array of interests
+  interactionFrequency: varchar('interaction_frequency', { length: 50 }).default('weekly'), // daily, weekly, etc.
+  lastInteraction: date('last_interaction'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
 
-// Attributes for both users and family members using polymorphic relationship
-export const attributes = pgTable('attributes', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  entityType: text('entity_type', { enum: ['user', 'family'] }).notNull(),
-  entityId: uuid('entity_id').notNull(), // References either users.id or family.id
-  key: text('key').notNull(),
-  value: text('value').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// Focus areas for personal development
-export const focuses = pgTable('focuses', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
-  name: text('name').notNull(),
-  description: text('description'),
-  icon: text('icon'),
-  dayOfWeek: text('day_of_week', { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] }),
-  sampleActivities: jsonb('sample_activities').$type<string[]>(),
-  gptContext: jsonb('gpt_context'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// Character stats for personal growth tracking
-export const stats = pgTable('stats', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  icon: text('icon'),
-  category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }),
-  enabled: boolean('enabled').notNull().default(true),
-  xp: integer('xp').notNull().default(0),
-  level: integer('level').notNull().default(1),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// Ad Hoc Tasks Library - user-defined reusable tasks
-export const adhocTasks = pgTable('adhoc_tasks', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  linkedStatId: uuid('linked_stat_id').references(() => stats.id, { onDelete: 'set null' }).notNull(),
-  xpValue: integer('xp_value').notNull().default(25),
-  iconId: text('icon_id'),
-  category: text('category', { enum: ['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy'] }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// Tasks
+// Tasks table - Task 1.6
 export const tasks = pgTable('tasks', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }),
-  statId: uuid('stat_id').references(() => stats.id, { onDelete: 'set null' }),
-  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
-  adhocTaskId: uuid('adhoc_task_id').references(() => adhocTasks.id, { onDelete: 'set null' }), // Links to ad hoc task if created from library
-  familyId: uuid('family_id').references(() => family.id, { onDelete: 'set null' }), // Link to specific family member
-  title: text('title').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
   description: text('description'),
-  dueDate: date('due_date'),
-  taskDate: date('task_date'), // Date when task was assigned (for daily tasks)
-  source: text('source', { enum: ['primary', 'connection'] }), // GPT task type
-  linkedStatIds: jsonb('linked_stat_ids').$type<string[]>(), // Multiple stats for XP
-  origin: text('origin', { enum: ['user', 'gpt', 'system', 'adhoc'] }).notNull().default('user'),
-  status: text('status', { enum: ['pending', 'complete', 'skipped', 'failed'] }).notNull().default('pending'),
+  source: varchar('source', { length: 50 }).notNull(), // 'ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external'
+  sourceId: uuid('source_id'), // Reference to quest, experiment, etc.
+  targetStats: jsonb('target_stats'), // Array of stat categories this task affects
+  estimatedXp: integer('estimated_xp').default(0),
+  status: varchar('status', { length: 20 }).notNull().default('pending'), // pending, completed, skipped
+  dueDate: timestamp('due_date', { withTimezone: true }),
   completedAt: timestamp('completed_at', { withTimezone: true }),
-  feedback: text('feedback'), // User feedback on task completion
-  emotionTag: text('emotion_tag'), // User emotion after task completion
-  moodScore: integer('mood_score'), // Optional 1-5 mood/energy rating for A/B testing
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
 
-// Journal entries with threading support
-export const journals = pgTable('journals', {
+// Task completions table - Task 1.7
+export const taskCompletions = pgTable('task_completions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  potionId: uuid('potion_id'), // Links to active potion for A/B testing (no FK constraint as potions can be deleted)
-  content: text('content').notNull(),
-  title: text('title'), // GPT-generated title for the journal entry
-  gptSummary: text('gpt_summary'), // GPT-generated narrative-style summary
-  condensed: text('condensed'), // GPT-generated brief synopsis (1-2 sentences)
-  sentimentScore: integer('sentiment_score'), // 1-5 sentiment rating from GPT analysis
-  moodTags: jsonb('mood_tags').$type<string[]>(), // GPT-extracted mood tags (e.g., "calm", "anxious", "energized")
-  tags: jsonb('tags').$type<string[]>(), // Keep for backward compatibility
-  date: date('date').notNull().defaultNow(),
-  // New fields for conversation threading
-  status: text('status', { enum: ['draft', 'in_progress', 'completed'] }).notNull().default('draft'),
-  conversationHistory: jsonb('conversation_history').$type<Array<{role: 'user' | 'assistant', content: string, timestamp: string}>>().default([]),
-  followupCount: integer('followup_count').notNull().default(0),
-  maxFollowups: integer('max_followups').notNull().default(3),
-  // Remember day prompt fields
-  dayMemory: text('day_memory'), // What the user wants to remember from the day
-  dayRating: integer('day_rating'), // 1-5 rating of the day (energy, mood, productivity)
+  taskId: uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  feedback: text('feedback'), // User feedback on the task
+  actualXp: integer('actual_xp').notNull().default(0),
+  statAwards: jsonb('stat_awards'), // Which stats received XP and how much
+  completedAt: timestamp('completed_at', { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Family member interactions table - Task 1.7.1
+export const familyMemberInteractions = pgTable('family_member_interactions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  taskId: uuid('task_id').references(() => tasks.id, { onDelete: 'cascade' }), // Optional - can be null for manual interactions
+  familyMemberId: uuid('family_member_id').notNull().references(() => familyMembers.id, { onDelete: 'cascade' }),
+  feedback: text('feedback'),
+  interactionDate: date('interaction_date').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Quests table - Task 1.8
+export const quests = pgTable('quests', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  description: text('description'),
+  goalDescription: text('goal_description'),
+  startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, completed, paused, abandoned
+  progressNotes: text('progress_notes'),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
 
-// Tags table for structured tag management
-export const tags = pgTable('tags', {
+// Experiments table - Task 1.8
+export const experiments = pgTable('experiments', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  name: text('name').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// Tag associations for journals and tasks
-export const tagAssociations = pgTable('tag_associations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  tagId: uuid('tag_id').references(() => tags.id, { onDelete: 'cascade' }).notNull(),
-  entityType: text('entity_type', { enum: ['journal', 'task'] }).notNull(),
-  entityId: uuid('entity_id').notNull(), // References either journals.id or tasks.id
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// A/B Testing Potions
-export const potions = pgTable('potions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  title: text('title').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  description: text('description'),
   hypothesis: text('hypothesis'),
-  startDate: date('start_date',).notNull(),
-  endDate: date('end_date').notNull(),
-  isActive: boolean('is_active').notNull().default(true),
-  gptAnalysis: text('gpt_analysis'),
+  duration: integer('duration'), // Duration in days
+  startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, completed, abandoned
+  results: text('results'),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
 
-// Sessions for authentication
-export const sessions = pgTable('sessions', {
+// Journal conversations table - Task 1.9
+export const journalConversations = pgTable('journal_conversations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  token: text('token').notNull().unique(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-// User preferences - one column per preference for structured storage
-export const preferences = pgTable('preferences', {
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull().unique(),
-  theme: text('theme').notNull().default('light'),
-  locationDescription: text('location_description'), // e.g., "Seattle area"
-  zipCode: text('zip_code'), // for weather API calls
-  rpgFlavorEnabled: boolean('rpg_flavor_enabled').notNull().default(false), // Enable RPG flavor in task descriptions
-  // Future preferences can be added as new columns:
-  // language: text('language').default('en'),
-  // notifications: boolean('notifications').default(true'),
-  // timezone: text('timezone'),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }),
+  isActive: boolean('is_active').default(true),
+  summary: text('summary'), // AI-generated summary
+  synopsis: text('synopsis'), // AI-generated synopsis
+  contentTags: jsonb('content_tags'), // AI-extracted tags
+  statTags: jsonb('stat_tags'), // Character stats mentioned
+  mood: varchar('mood', { length: 100 }), // AI-detected mood
+  startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+})
+
+// Journal entries table - Task 1.9
+export const journalEntries = pgTable('journal_entries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  conversationId: uuid('conversation_id').notNull().references(() => journalConversations.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  role: varchar('role', { length: 20 }).notNull(), // 'user', 'assistant'
+  xpAwarded: integer('xp_awarded').default(0), // Can be negative
+  statAwards: jsonb('stat_awards'), // Which stats received XP
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Daily focuses table - Task 1.10
+export const dailyFocuses = pgTable('daily_focuses', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  focus: text('focus').notNull(),
+  description: text('description'),
+  isActive: boolean('is_active').default(true),
+  focusDate: date('focus_date').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Goals table - Task 1.10
+export const goals = pgTable('goals', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  description: text('description'),
+  targetDate: timestamp('target_date', { withTimezone: true }),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, completed, paused, abandoned
+  priority: varchar('priority', { length: 20 }).default('medium'), // low, medium, high
+  relatedStats: jsonb('related_stats'), // Which character stats this goal relates to
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Projects table - Task 1.11
+export const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  description: text('description'),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, completed, paused, archived
+  dueDate: timestamp('due_date', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// External task sources table - Task 3.9
+export const externalTaskSources = pgTable('external_task_sources', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 50 }).notNull(), // calendar, project_management, fitness, notes, habits, time_tracking
+  apiEndpoint: varchar('api_endpoint', { length: 500 }).notNull(),
+  authType: varchar('auth_type', { length: 50 }).notNull(), // oauth2, api_key, basic_auth
+  config: jsonb('config').notNull(), // API keys, tokens, client IDs, etc.
+  mappingRules: jsonb('mapping_rules').notNull(), // Field mappings and transformation rules
+  syncSchedule: varchar('sync_schedule', { length: 100 }), // Cron expression for auto-sync
+  lastSyncAt: timestamp('last_sync_at', { withTimezone: true }),
+  nextSyncAt: timestamp('next_sync_at', { withTimezone: true }),
+  isActive: boolean('is_active').default(true),
+  errorCount: integer('error_count').default(0),
+  lastError: text('last_error'),
+  metadata: jsonb('metadata'), // Additional source-specific data
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// External task integrations table - Task 3.9
+export const externalTaskIntegrations = pgTable('external_task_integrations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sourceId: uuid('source_id').notNull().references(() => externalTaskSources.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  externalId: varchar('external_id', { length: 255 }).notNull(), // ID from external system
+  taskId: uuid('task_id').references(() => tasks.id, { onDelete: 'set null' }), // Nullable - task can be deleted
+  lastSyncAt: timestamp('last_sync_at', { withTimezone: true }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // active, inactive, error
+  metadata: jsonb('metadata'), // External system specific data
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Task completion patterns table for AI learning - Task 3.10
+export const taskCompletionPatterns = pgTable('task_completion_patterns', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  
+  // Pattern identification
+  patternType: varchar('pattern_type', { length: 50 }).notNull(), // 'timing', 'task_type', 'difficulty', 'duration', 'weather', 'stat_preference'
+  patternKey: varchar('pattern_key', { length: 100 }).notNull(), // 'morning_tasks', 'outdoor_activities', 'family_bonding'
+  patternValue: jsonb('pattern_value'), // Additional pattern data
+  
+  // Pattern metrics
+  totalOccurrences: integer('total_occurrences').notNull().default(0),
+  successfulCompletions: integer('successful_completions').notNull().default(0),
+  failedCompletions: integer('failed_completions').notNull().default(0),
+  averageXpAwarded: decimal('average_xp_awarded', { precision: 5, scale: 2 }).default('0'),
+  averageFeedbackSentiment: decimal('average_feedback_sentiment', { precision: 3, scale: 2 }).default('0'), // -1 to 1
+  
+  // Pattern strength and confidence
+  confidence: decimal('confidence', { precision: 3, scale: 2 }).default('0'), // 0 to 1
+  strength: varchar('strength', { length: 20 }).default('weak'), // weak, moderate, strong
+  
+  // AI recommendations
+  recommendation: text('recommendation'), // Generated AI recommendation based on pattern
+  shouldAvoid: boolean('should_avoid').default(false), // Mark patterns to avoid
+  
+  // Temporal tracking
+  firstObserved: timestamp('first_observed', { withTimezone: true }).notNull().defaultNow(),
+  lastObserved: timestamp('last_observed', { withTimezone: true }).notNull().defaultNow(),
+  lastUpdated: timestamp('last_updated', { withTimezone: true }).notNull().defaultNow(),
+  
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Task completion events for pattern analysis - Task 3.10
+export const taskCompletionEvents = pgTable('task_completion_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  taskId: uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
+  completionId: uuid('completion_id').references(() => taskCompletions.id, { onDelete: 'cascade' }),
+  
+  // Event context for pattern detection
+  eventType: varchar('event_type', { length: 50 }).notNull(), // 'completed', 'skipped', 'failed'
+  eventTimestamp: timestamp('event_timestamp', { withTimezone: true }).notNull(),
+  
+  // Contextual data for pattern analysis
+  taskSource: varchar('task_source', { length: 50 }).notNull(),
+  taskDifficulty: varchar('task_difficulty', { length: 20 }), // 'easy', 'medium', 'hard'
+  estimatedDuration: integer('estimated_duration'), // minutes
+  actualDuration: integer('actual_duration'), // minutes
+  
+  // Environmental context
+  timeOfDay: varchar('time_of_day', { length: 20 }), // 'morning', 'afternoon', 'evening', 'night'
+  dayOfWeek: varchar('day_of_week', { length: 10 }),
+  weatherCondition: varchar('weather_condition', { length: 50 }),
+  
+  // User context
+  userMood: varchar('user_mood', { length: 20 }), // extracted from feedback
+  energyLevel: varchar('energy_level', { length: 20 }), // 'low', 'medium', 'high'
+  previousTaskCompletion: boolean('previous_task_completion'), // did they complete the previous task?
+  
+  // Task performance
+  xpAwarded: integer('xp_awarded').default(0),
+  feedbackSentiment: decimal('feedback_sentiment', { precision: 3, scale: 2 }), // -1 to 1
+  feedbackKeywords: jsonb('feedback_keywords'), // extracted keywords
+  
+  // Family interaction context (if applicable)
+  involvesFamilyMember: uuid('involves_family_member').references(() => familyMembers.id, { onDelete: 'set null' }),
+  familyMemberSatisfaction: varchar('family_member_satisfaction', { length: 20 }), // 'low', 'medium', 'high'
+  
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Pattern insights for AI context - Task 3.10
+export const patternInsights = pgTable('pattern_insights', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  
+  // Insight metadata
+  insightType: varchar('insight_type', { length: 50 }).notNull(), // 'preference', 'avoid', 'optimal_timing', 'stat_focus'
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description').notNull(),
+  
+  // Supporting data
+  supportingPatterns: jsonb('supporting_patterns'), // array of pattern IDs
+  confidenceScore: decimal('confidence_score', { precision: 3, scale: 2 }).notNull(),
+  evidenceCount: integer('evidence_count').notNull().default(0),
+  
+  // AI context for task generation
+  aiContext: jsonb('ai_context'), // structured data for GPT prompt
+  priority: varchar('priority', { length: 20 }).default('medium'), // low, medium, high
+  
+  // Insight lifecycle
+  isActive: boolean('is_active').default(true),
+  expires: timestamp('expires', { withTimezone: true }),
+  
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
 
 // Relations
-export const usersRelations = relations(users, ({ many, one }) => ({
-  familyMembers: many(family),
-  focuses: many(focuses),
-  stats: many(stats),
-  tasks: many(tasks, { relationName: "user" }),
-  adhocTasks: many(adhocTasks),
-  journals: many(journals),
-  tags: many(tags),
-  potions: many(potions),
-  sessions: many(sessions),
-  preferences: one(preferences, { fields: [users.id], references: [preferences.userId] }),
-}));
-
-export const familyRelations = relations(family, ({ one, many }) => ({
-  user: one(users, { fields: [family.userId], references: [users.id] }),
+export const usersRelations = relations(users, ({ many }) => ({
+  characters: many(characters),
+  familyMembers: many(familyMembers),
   tasks: many(tasks),
-}));
+  quests: many(quests),
+  experiments: many(experiments),
+  journalConversations: many(journalConversations),
+  journalEntries: many(journalEntries),
+  dailyFocuses: many(dailyFocuses),
+  goals: many(goals),
+  projects: many(projects),
+  taskCompletions: many(taskCompletions),
+  externalTaskSources: many(externalTaskSources),
+  externalTaskIntegrations: many(externalTaskIntegrations),
+}))
 
-export const attributesRelations = relations(attributes, ({ one }) => ({
-  // Note: Polymorphic relations are handled manually in queries
-}));
+export const charactersRelations = relations(characters, ({ one, many }) => ({
+  user: one(users, {
+    fields: [characters.userId],
+    references: [users.id],
+  }),
+  stats: many(characterStats),
+}))
 
-export const focusesRelations = relations(focuses, ({ one, many }) => ({
-  user: one(users, { fields: [focuses.userId], references: [users.id] }),
-  stat: one(stats, { fields: [focuses.statId], references: [stats.id] }),
+export const characterStatsRelations = relations(characterStats, ({ one }) => ({
+  character: one(characters, {
+    fields: [characterStats.characterId],
+    references: [characters.id],
+  }),
+}))
+
+export const familyMembersRelations = relations(familyMembers, ({ one, many }) => ({
+  user: one(users, {
+    fields: [familyMembers.userId],
+    references: [users.id],
+  }),
+  interactions: many(familyMemberInteractions),
+}))
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  user: one(users, {
+    fields: [tasks.userId],
+    references: [users.id],
+  }),
+  completions: many(taskCompletions),
+  familyInteractions: many(familyMemberInteractions),
+}))
+
+export const taskCompletionsRelations = relations(taskCompletions, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskCompletions.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskCompletions.userId],
+    references: [users.id],
+  }),
+}))
+
+export const familyMemberInteractionsRelations = relations(familyMemberInteractions, ({ one }) => ({
+  task: one(tasks, {
+    fields: [familyMemberInteractions.taskId],
+    references: [tasks.id],
+  }),
+  familyMember: one(familyMembers, {
+    fields: [familyMemberInteractions.familyMemberId],
+    references: [familyMembers.id],
+  }),
+}))
+
+export const questsRelations = relations(quests, ({ one, many }) => ({
+  user: one(users, {
+    fields: [quests.userId],
+    references: [users.id],
+  }),
   tasks: many(tasks),
-}));
+}))
 
-export const statsRelations = relations(stats, ({ one, many }) => ({
-  user: one(users, { fields: [stats.userId], references: [users.id] }),
-  focuses: many(focuses),
+export const experimentsRelations = relations(experiments, ({ one, many }) => ({
+  user: one(users, {
+    fields: [experiments.userId],
+    references: [users.id],
+  }),
   tasks: many(tasks),
-  adhocTasks: many(adhocTasks),
-}));
+}))
 
-export const tasksRelations = relations(tasks, ({ one }) => ({
-  user: one(users, { fields: [tasks.userId], references: [users.id], relationName: "user" }),
-  focus: one(focuses, { fields: [tasks.focusId], references: [focuses.id] }),
-  stat: one(stats, { fields: [tasks.statId], references: [stats.id] }),
-  adhocTask: one(adhocTasks, { fields: [tasks.adhocTaskId], references: [adhocTasks.id] }),
-  family: one(family, { fields: [tasks.familyId], references: [family.id] }),
-}));
+export const journalConversationsRelations = relations(journalConversations, ({ one, many }) => ({
+  user: one(users, {
+    fields: [journalConversations.userId],
+    references: [users.id],
+  }),
+  entries: many(journalEntries),
+}))
 
-export const adhocTasksRelations = relations(adhocTasks, ({ one, many }) => ({
-  user: one(users, { fields: [adhocTasks.userId], references: [users.id] }),
-  linkedStat: one(stats, { fields: [adhocTasks.linkedStatId], references: [stats.id] }),
+export const journalEntriesRelations = relations(journalEntries, ({ one }) => ({
+  conversation: one(journalConversations, {
+    fields: [journalEntries.conversationId],
+    references: [journalConversations.id],
+  }),
+  user: one(users, {
+    fields: [journalEntries.userId],
+    references: [users.id],
+  }),
+}))
+
+export const dailyFocusesRelations = relations(dailyFocuses, ({ one }) => ({
+  user: one(users, {
+    fields: [dailyFocuses.userId],
+    references: [users.id],
+  }),
+}))
+
+export const goalsRelations = relations(goals, ({ one }) => ({
+  user: one(users, {
+    fields: [goals.userId],
+    references: [users.id],
+  }),
+}))
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  user: one(users, {
+    fields: [projects.userId],
+    references: [users.id],
+  }),
   tasks: many(tasks),
-}));
+}))
 
-export const journalsRelations = relations(journals, ({ one }) => ({
-  user: one(users, { fields: [journals.userId], references: [users.id] }),
-}));
+export const externalTaskSourcesRelations = relations(externalTaskSources, ({ one, many }) => ({
+  user: one(users, {
+    fields: [externalTaskSources.userId],
+    references: [users.id],
+  }),
+  integrations: many(externalTaskIntegrations),
+}))
 
-export const tagsRelations = relations(tags, ({ one, many }) => ({
-  user: one(users, { fields: [tags.userId], references: [users.id] }),
-  associations: many(tagAssociations),
-}));
+export const externalTaskIntegrationsRelations = relations(externalTaskIntegrations, ({ one }) => ({
+  source: one(externalTaskSources, {
+    fields: [externalTaskIntegrations.sourceId],
+    references: [externalTaskSources.id],
+  }),
+  user: one(users, {
+    fields: [externalTaskIntegrations.userId],
+    references: [users.id],
+  }),
+  task: one(tasks, {
+    fields: [externalTaskIntegrations.taskId],
+    references: [tasks.id],
+  }),
+}))
 
-export const tagAssociationsRelations = relations(tagAssociations, ({ one }) => ({
-  tag: one(tags, { fields: [tagAssociations.tagId], references: [tags.id] }),
-}));
+export const taskCompletionPatternsRelations = relations(taskCompletionPatterns, ({ one }) => ({
+  user: one(users, {
+    fields: [taskCompletionPatterns.userId],
+    references: [users.id],
+  }),
+}))
 
-export const potionsRelations = relations(potions, ({ one }) => ({
-  user: one(users, { fields: [potions.userId], references: [users.id] }),
-}));
+export const taskCompletionEventsRelations = relations(taskCompletionEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [taskCompletionEvents.userId],
+    references: [users.id],
+  }),
+  task: one(tasks, {
+    fields: [taskCompletionEvents.taskId],
+    references: [tasks.id],
+  }),
+  completion: one(taskCompletions, {
+    fields: [taskCompletionEvents.completionId],
+    references: [taskCompletions.id],
+  }),
+  familyMember: one(familyMembers, {
+    fields: [taskCompletionEvents.involvesFamilyMember],
+    references: [familyMembers.id],
+  }),
+}))
 
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-  user: one(users, { fields: [sessions.userId], references: [users.id] }),
-}));
-
-export const preferencesRelations = relations(preferences, ({ one }) => ({
-  user: one(users, { fields: [preferences.userId], references: [users.id] }),
-}));
-
-// Zod schemas for validation
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
-export const insertFamilySchema = createInsertSchema(family);
-export const selectFamilySchema = createSelectSchema(family);
-export const insertAttributeSchema = createInsertSchema(attributes);
-export const selectAttributeSchema = createSelectSchema(attributes);
-export const insertFocusSchema = createInsertSchema(focuses);
-export const selectFocusSchema = createSelectSchema(focuses);
-export const insertStatSchema = createInsertSchema(stats);
-export const selectStatSchema = createSelectSchema(stats);
-export const insertTaskSchema = createInsertSchema(tasks);
-export const selectTaskSchema = createSelectSchema(tasks);
-export const insertAdhocTaskSchema = createInsertSchema(adhocTasks);
-export const selectAdhocTaskSchema = createSelectSchema(adhocTasks);
-export const insertJournalSchema = createInsertSchema(journals);
-export const selectJournalSchema = createSelectSchema(journals);
-export const insertTagSchema = createInsertSchema(tags);
-export const selectTagSchema = createSelectSchema(tags);
-export const insertTagAssociationSchema = createInsertSchema(tagAssociations);
-export const selectTagAssociationSchema = createSelectSchema(tagAssociations);
-export const insertPotionSchema = createInsertSchema(potions);
-export const selectPotionSchema = createSelectSchema(potions);
-export const insertSessionSchema = createInsertSchema(sessions);
-export const selectSessionSchema = createSelectSchema(sessions);
-export const insertPreferenceSchema = createInsertSchema(preferences);
-export const selectPreferenceSchema = createSelectSchema(preferences);
-
-// Custom validation schemas
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-export const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().min(1),
-  className: z.string().optional(),
-  classDescription: z.string().optional(),
-});
-
-export const createTaskSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  dueDate: z.string().datetime().optional(),
-  taskDate: z.string().datetime().optional(),
-  source: z.enum(['primary', 'connection']).optional(),
-  linkedStatIds: z.array(z.string().uuid()).optional(),
-  familyId: z.string().uuid().optional(),
-  focusId: z.string().uuid().optional(),
-  statId: z.string().uuid().optional(),
-});
-
-export const createAdhocTaskSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  linkedStatId: z.string().uuid(),
-  xpValue: z.number().int().min(1).max(100).default(25),
-  iconId: z.string().optional(),
-  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']),
-});
-
-export const updateAdhocTaskSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
-  linkedStatId: z.string().uuid().optional(),
-  xpValue: z.number().int().min(1).max(100).optional(),
-  iconId: z.string().optional(),
-  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
-});
-
-export const executeAdhocTaskSchema = z.object({
-  feedback: z.string().optional(),
-  emotionTag: z.string().optional(),
-  moodScore: z.number().int().min(1).max(5).optional(),
-});
-
-export const completeTaskSchema = z.object({
-  status: z.enum(['complete', 'skipped', 'failed']),
-  feedback: z.string().optional(),
-  emotionTag: z.string().optional(),
-  moodScore: z.number().int().min(1).max(5).optional(), // Optional 1-5 mood rating
-});
-
-export const createJournalSchema = z.object({
-  content: z.string().min(1),
-  date: z.string().date().optional(),
-});
-
-// New schemas for journal conversation flow
-export const startJournalSchema = z.object({
-  content: z.string().min(1),
-  date: z.string().date().optional(),
-});
-
-export const followupResponseSchema = z.object({
-  response: z.string().min(1),
-});
-
-export const submitJournalSchema = z.object({
-  // No additional data needed - journal is submitted as-is
-});
-
-export const completeJournalDaySchema = z.object({
-  dayMemory: z.string().optional(),
-  dayRating: z.number().int().min(1).max(5).optional(),
-});
-
-export const createFocusSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  dayOfWeek: z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).optional(),
-  sampleActivities: z.array(z.string()).optional(),
-  statId: z.string().uuid().optional(),
-  gptContext: z.any().optional(),
-});
-
-export const createFamilyMemberSchema = z.object({
-  name: z.string().min(1),
-  age: z.number().int().min(0).optional(),
-  className: z.string().optional(),
-  classDescription: z.string().optional(),
-});
-
-export const createPotionSchema = z.object({
-  title: z.string().min(1),
-  hypothesis: z.string().optional(),
-  startDate: z.string().date(),
-  endDate: z.string().date().optional(),
-});
-
-export const createAttributeSchema = z.object({
-  key: z.string().min(1),
-  value: z.string().min(1),
-});
-
-export const createStatSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
-  enabled: z.boolean().optional(),
-});
-
-export const updateStatSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  category: z.enum(['body', 'mind', 'connection', 'shadow', 'spirit', 'legacy']).optional(),
-  enabled: z.boolean().optional(),
-  xp: z.number().int().min(0).optional(),
-  level: z.number().int().min(1).optional(),
-});
-
-// Type exports
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type Family = typeof family.$inferSelect;
-export type NewFamily = typeof family.$inferInsert;
-export type Attribute = typeof attributes.$inferSelect;
-export type NewAttribute = typeof attributes.$inferInsert;
-export type Focus = typeof focuses.$inferSelect;
-export type NewFocus = typeof focuses.$inferInsert;
-export type Stat = typeof stats.$inferSelect;
-export type NewStat = typeof stats.$inferInsert;
-export type Task = typeof tasks.$inferSelect;
-export type NewTask = typeof tasks.$inferInsert;
-export type AdhocTask = typeof adhocTasks.$inferSelect;
-export type NewAdhocTask = typeof adhocTasks.$inferInsert;
-export type Journal = typeof journals.$inferSelect;
-export type NewJournal = typeof journals.$inferInsert;
-export type Tag = typeof tags.$inferSelect;
-export type NewTag = typeof tags.$inferInsert;
-export type TagAssociation = typeof tagAssociations.$inferSelect;
-export type NewTagAssociation = typeof tagAssociations.$inferInsert;
-export type Potion = typeof potions.$inferSelect;
-export type NewPotion = typeof potions.$inferInsert;
-export type Session = typeof sessions.$inferSelect;
-export type NewSession = typeof sessions.$inferInsert;
-export type Preference = typeof preferences.$inferSelect;
-export type NewPreference = typeof preferences.$inferInsert;
+export const patternInsightsRelations = relations(patternInsights, ({ one }) => ({
+  user: one(users, {
+    fields: [patternInsights.userId],
+    references: [users.id],
+  }),
+}))

@@ -1,90 +1,160 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/typography';
-@plugin "daisyui" {
-	themes:
-		light --default,
-		dark --prefersdark,
-		cupcake,
-		bumblebee,
-		emerald,
-		corporate,
-		synthwave,
-		retro,
-		cyberpunk,
-		valentine,
-		halloween,
-		garden,
-		forest,
-		aqua,
-		lofi,
-		pastel,
-		fantasy,
-		wireframe,
-		black,
-		luxury,
-		dracula,
-		cmyk,
-		autumn,
-		business,
-		acid,
-		lemonade,
-		night,
-		coffee,
-		winter,
-		dim,
-		nord,
-		sunset;
+@plugin 'daisyui' {
+  themes: light --default, dark --prefersdark;
+  logs: false;
 }
 
-/* PWA Safe Area Support */
-.pt-safe {
-	padding-top: env(safe-area-inset-top, 0);
+@theme {
+  --font-family-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  
+  /* Custom animations */
+  --animate-level-up: levelUp 0.6s ease-out;
+  --animate-xp-gain: xpGain 0.4s ease-out;
+  --animate-pulse-success: pulseSuccess 0.8s ease-out;
+  
+  /* Custom screens for touch devices */
+  --breakpoint-touch: (hover: none) and (pointer: coarse);
+  --breakpoint-no-touch: (hover: hover) and (pointer: fine);
 }
 
-.pb-safe {
-	padding-bottom: env(safe-area-inset-bottom, 0);
+/* CSS Custom Properties for theming */
+:root {
+  /* Safe area variables for iOS */
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-right: env(safe-area-inset-right);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
 }
 
-.pl-safe {
-	padding-left: env(safe-area-inset-left, 0);
+/* Base styles */
+html {
+  /* Enable smooth scrolling */
+  scroll-behavior: smooth;
+  /* Prevent text size adjustment on iOS */
+  -webkit-text-size-adjust: 100%;
+  /* Enable hardware acceleration */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.pr-safe {
-	padding-right: env(safe-area-inset-right, 0);
+body {
+  /* Handle safe areas on iOS */
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+  /* Prevent bounce scrolling on iOS */
+  overscroll-behavior: none;
 }
 
-.px-safe {
-	padding-left: env(safe-area-inset-left, 0);
-	padding-right: env(safe-area-inset-right, 0);
+/* Remove default button styles */
+button {
+  touch-action: manipulation;
 }
 
-.py-safe {
-	padding-top: env(safe-area-inset-top, 0);
-	padding-bottom: env(safe-area-inset-bottom, 0);
+/* Touch target optimization for mobile */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
 }
 
-.p-safe {
-	padding-top: env(safe-area-inset-top, 0);
-	padding-bottom: env(safe-area-inset-bottom, 0);
-	padding-left: env(safe-area-inset-left, 0);
-	padding-right: env(safe-area-inset-right, 0);
+/* Progress bar styles */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: oklch(var(--b3));
 }
 
-/* PWA viewport height that accounts for safe areas */
-.h-screen-safe {
-	height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(to right, oklch(var(--p)), oklch(var(--s)));
+  width: var(--progress, 0%);
+  transition: width 0.5s ease-out;
 }
 
-.min-h-screen-safe {
-	min-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+/* Loading spinner */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  border: 2px solid oklch(var(--b3));
+  border-top-color: oklch(var(--p));
 }
 
-/* For PWA, ensure the entire app respects safe areas */
-@supports (padding: env(safe-area-inset-top)) {
-	.pwa-safe {
-		padding-top: env(safe-area-inset-top);
-		padding-bottom: env(safe-area-inset-bottom);
-		padding-left: env(safe-area-inset-left);
-		padding-right: env(safe-area-inset-right);
-	}
+/* Custom scrollbar for webkit browsers */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: oklch(var(--b3));
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: oklch(var(--bc) / 0.3);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(var(--bc) / 0.5);
+}
+
+/* Utility classes for common patterns */
+.glass-effect {
+  background-color: oklch(var(--b1) / 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid oklch(var(--b3) / 0.5);
+}
+
+/* Typography improvements */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Animation keyframes */
+@keyframes levelUp {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes xpGain {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseSuccess {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
 }

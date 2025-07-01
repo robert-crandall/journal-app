@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Load environment variables from .env file
+if [ -f ../.env ]; then
+  export $(grep -v '^#' ../.env | xargs)
+else
+  echo "Warning: .env file not found"
+  exit 1
+fi
+
+# Set default values if not provided in .env
+PORT=${PORT:-3000}
+
+docker stop journal_app || true
+docker rm journal_app || true
+
+docker build -t journal_app .
+docker run --name journal_app \
+  -e DATABASE_URL="$DATABASE_URL" \
+  -e JWT_SECRET="$JWT_SECRET" \
+  -e PORT="$PORT" \
+  -e TZ="$TZ" \
+  -p $PORT:$PORT \
+  journal_app

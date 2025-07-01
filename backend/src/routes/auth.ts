@@ -1,158 +1,380 @@
-import { Hono } from 'hono';
-import { setCookie, deleteCookie } from 'hono/cookie';
-import { zValidator } from '@hono/zod-validator';
-import { eq, and } from 'drizzle-orm';
-import { z } from 'zod';
-import type { JwtVariables } from 'hono/jwt';
-import { db } from '../db';
-import { users, attributes, stats, loginSchema, registerSchema, createAttributeSchema, type User } from '../db/schema';
-import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
-import { jwtMiddleware, userMiddleware } from '../middleware/auth';
+import { Hono } from 'hono'
+import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
+import { sign, verify } from 'hono/jwt'
+import { HTTPException } from 'hono/http-exception'
+import { db } from '../db/connection'
+import { users } from '../db/schema'
+import { eq } from 'drizzle-orm'
+import * as bcrypt from 'bcrypt'
 
-// Define the variables type for this route
-type Variables = JwtVariables & {
-  user: User;
-};
+// Validation schemas
+const registerSchema = z.object({
+  email: z.string().email('Valid email is required'),
+  name: z.string().min(1, 'Name is required').max(255),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  timezone: z.string().optional().default('UTC'),
+  zipCode: z.string().optional(),
+})
 
-const auth = new Hono<{ Variables: Variables }>();
+const loginSchema = z.object({
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(1, 'Password is required'),
+})
 
-// Register
-auth.post('/register', zValidator('json', registerSchema), async (c) => {
-  const { email, password, name, className, classDescription } = c.req.valid('json');
-  
-  // Check if user already exists
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
-  
-  if (existingUser) {
-    return c.json({ error: 'User already exists' }, 400);
+const updateProfileSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  timezone: z.string().optional(),
+  zipCode: z.string().optional(),
+})
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+})
+
+// Password hashing functions using bcrypt
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10
+  return await bcrypt.hash(password, saltRounds)
+}
+
+async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return await bcrypt.compare(password, hashedPassword)
+}
+
+// JWT secret - in production this should be in environment variables
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this'
+
+const app = new Hono()
+
+// POST /api/auth/register - Register a new user
+app.post('/register', 
+  zValidator('json', registerSchema),
+  async (c) => {
+    try {
+      const userData = c.req.valid('json')
+
+      // Check if user already exists
+      const [existingUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, userData.email))
+        .limit(1)
+
+      if (existingUser) {
+        throw new HTTPException(409, { message: 'User with this email already exists' })
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(userData.password)
+
+      // Create user
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          email: userData.email,
+          name: userData.name,
+          password: hashedPassword,
+          timezone: userData.timezone,
+          zipCode: userData.zipCode,
+        })
+        .returning({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          timezone: users.timezone,
+          zipCode: users.zipCode,
+          createdAt: users.createdAt,
+        })
+
+      // Generate JWT token
+      const token = await sign(
+        { 
+          userId: newUser.id, 
+          email: newUser.email,
+          exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 // 7 days
+        },
+        JWT_SECRET
+      )
+
+      return c.json({
+        success: true,
+        data: {
+          user: newUser,
+          token
+        }
+      }, 201)
+
+    } catch (error) {
+      console.error('Registration error:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to register user' })
+    }
   }
-  
-  // Create user
-  const hashedPassword = await hashPassword(password);
-  const [newUser] = await db.insert(users).values({
-    email,
-    password: hashedPassword,
-    name,
-    className,
-    classDescription,
-  }).returning();
-  
-  // Generate JWT token
-  const token = await generateToken(newUser.id);
-  
-  // Set cookie
-  setCookie(c, 'session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  });
-  
-  // Return user without password
-  const { password: _, ...userWithoutPassword } = newUser;
-  return c.json({ user: userWithoutPassword, token });
-});
+)
 
-// Login
-auth.post('/login', zValidator('json', loginSchema), async (c) => {
-  const { email, password } = c.req.valid('json');
-  
-  // Find user
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
-  
-  if (!user || !user.password) {
-    return c.json({ error: 'Invalid credentials' }, 401);
+// POST /api/auth/login - Login user
+app.post('/login',
+  zValidator('json', loginSchema),
+  async (c) => {
+    try {
+      const { email, password } = c.req.valid('json')
+
+      // Find user by email
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1)
+
+      if (!user) {
+        throw new HTTPException(401, { message: 'Invalid email or password' })
+      }
+
+      // Verify password against stored hash
+      const isValidPassword = await verifyPassword(password, user.password)
+      
+      if (!isValidPassword) {
+        throw new HTTPException(401, { message: 'Invalid email or password' })
+      }
+
+      // Generate JWT token
+      const token = await sign(
+        { 
+          userId: user.id, 
+          email: user.email,
+          exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 // 7 days
+        },
+        JWT_SECRET
+      )
+
+      // Return user data without sensitive information
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        timezone: user.timezone,
+        zipCode: user.zipCode,
+        createdAt: user.createdAt,
+      }
+
+      return c.json({
+        success: true,
+        data: {
+          user: safeUser,
+          token
+        }
+      })
+
+    } catch (error) {
+      console.error('Login error:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to login' })
+    }
   }
-  
-  // Verify password
-  const isValid = await verifyPassword(password, user.password);
-  if (!isValid) {
-    return c.json({ error: 'Invalid credentials' }, 401);
+)
+
+// GET /api/auth/me - Get current user profile
+app.get('/me', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new HTTPException(401, { message: 'Authorization token required' })
+    }
+
+    const token = authHeader.substring(7) // Remove 'Bearer ' prefix
+    
+    try {
+      const payload = await verify(token, JWT_SECRET) as any
+      
+      // Get fresh user data
+      const [user] = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          timezone: users.timezone,
+          zipCode: users.zipCode,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        })
+        .from(users)
+        .where(eq(users.id, payload.userId))
+        .limit(1)
+
+      if (!user) {
+        throw new HTTPException(401, { message: 'User not found' })
+      }
+
+      return c.json({
+        success: true,
+        data: user
+      })
+
+    } catch (jwtError) {
+      throw new HTTPException(401, { message: 'Invalid or expired token' })
+    }
+
+  } catch (error) {
+    console.error('Get profile error:', error)
+    if (error instanceof HTTPException) throw error
+    throw new HTTPException(500, { message: 'Failed to get user profile' })
   }
-  
-  // Generate JWT token
-  const token = await generateToken(user.id);
-  
-  // Set cookie
-  setCookie(c, 'session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  });
-  
-  // Return user without password
-  const { password: _, ...userWithoutPassword } = user;
-  return c.json({ user: userWithoutPassword, token });
-});
+})
 
-// Logout
-auth.post('/logout', async (c) => {
-  deleteCookie(c, 'session');
-  return c.json({ message: 'Logged out successfully' });
-});
+// PUT /api/auth/profile - Update user profile
+app.put('/profile',
+  zValidator('json', updateProfileSchema),
+  async (c) => {
+    try {
+      const authHeader = c.req.header('Authorization')
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new HTTPException(401, { message: 'Authorization token required' })
+      }
 
-// Get current user - protected route
-auth.get('/me', jwtMiddleware, userMiddleware, async (c) => {
-  const user = c.get('user');
-  
-  // Get user with attributes
-  const userWithAttributes = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-  });
-  
-  if (!userWithAttributes) {
-    return c.json({ error: 'User not found' }, 404);
+      const token = authHeader.substring(7)
+      const payload = await verify(token, JWT_SECRET) as any
+      const updateData = c.req.valid('json')
+
+      // Update user profile
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, payload.userId))
+        .returning({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          timezone: users.timezone,
+          zipCode: users.zipCode,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        })
+
+      return c.json({
+        success: true,
+        data: updatedUser
+      })
+
+    } catch (error) {
+      console.error('Update profile error:', error)
+      if (error instanceof HTTPException) throw error
+      throw new HTTPException(500, { message: 'Failed to update profile' })
+    }
   }
-  
-  // Get user attributes separately
-  const userAttributes = await db.query.attributes.findMany({
-    where: and(eq(attributes.entityType, 'user'), eq(attributes.entityId, user.id)),
-  });
-  
-  const { password: _, ...userWithoutPassword } = userWithAttributes;
-  return c.json({ user: { ...userWithoutPassword, attributes: userAttributes } });
-});
+)
 
-// Add attribute to current user
-auth.post('/me/attributes', jwtMiddleware, userMiddleware, zValidator('json', createAttributeSchema), async (c) => {
-  const user = c.get('user') as User;
-  const { key, value } = c.req.valid('json');
-  
-  const [attribute] = await db.insert(attributes).values({
-    entityType: 'user',
-    entityId: user.id,
-    key,
-    value,
-  }).returning();
-  
-  return c.json({ attribute });
-});
+// POST /api/auth/logout - Logout (client-side token removal, but we can blacklist tokens in future)
+app.post('/logout', async (c) => {
+  // For JWT tokens, logout is typically handled client-side by removing the token
+  // In a more advanced setup, you might want to blacklist the token server-side
+  return c.json({
+    success: true,
+    message: 'Logged out successfully'
+  })
+})
 
-// Update user profile (including class fields)
-auth.put('/me', jwtMiddleware, userMiddleware, zValidator('json', z.object({
-  name: z.string().min(1).optional(),
-  className: z.string().optional(),
-  classDescription: z.string().optional(),
-})), async (c) => {
-  const user = c.get('user') as User;
-  const updateData = c.req.valid('json');
-  
-  const [updatedUser] = await db.update(users)
-    .set({ ...updateData, updatedAt: new Date() })
-    .where(eq(users.id, user.id))
-    .returning();
-  
-  if (!updatedUser) {
-    return c.json({ error: 'User not found' }, 404);
+// POST /api/auth/verify-token - Verify if token is valid
+app.post('/verify-token', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new HTTPException(401, { message: 'Authorization token required' })
+    }
+
+    const token = authHeader.substring(7)
+    const payload = await verify(token, JWT_SECRET) as any
+
+    // Check if user still exists
+    const [user] = await db
+      .select({ id: users.id, email: users.email })
+      .from(users)
+      .where(eq(users.id, payload.userId))
+      .limit(1)
+
+    if (!user) {
+      throw new HTTPException(401, { message: 'User not found' })
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        userId: payload.userId,
+        email: payload.email,
+        valid: true
+      }
+    })
+
+  } catch (error) {
+    return c.json({
+      success: false,
+      data: {
+        valid: false
+      }
+    }, 401)
   }
-  
-  const { password: _, ...userWithoutPassword } = updatedUser;
-  return c.json({ user: userWithoutPassword });
-});
+})
 
-export default auth;
+// Demo endpoint to create test users
+app.post('/create-demo-user', async (c) => {
+  try {
+    const demoEmail = `demo-${Date.now()}@example.com`
+    const demoPassword = 'demo123'
+    
+    // Hash the demo password
+    const hashedPassword = await hashPassword(demoPassword)
+    
+    const [demoUser] = await db
+      .insert(users)
+      .values({
+        email: demoEmail,
+        name: 'Demo User',
+        password: hashedPassword,
+        timezone: 'America/New_York',
+        zipCode: '10001',
+      })
+      .returning({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        timezone: users.timezone,
+        zipCode: users.zipCode,
+      })
+
+    // Generate token for immediate login
+    const token = await sign(
+      { 
+        userId: demoUser.id, 
+        email: demoUser.email,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 // 7 days
+      },
+      JWT_SECRET
+    )
+
+    return c.json({
+      success: true,
+      data: {
+        user: demoUser,
+        token,
+        credentials: {
+          email: demoEmail,
+          password: demoPassword
+        }
+      }
+    })
+
+  } catch (error) {
+    console.error('Demo user creation error:', error)
+    throw new HTTPException(500, { message: 'Failed to create demo user' })
+  }
+})
+
+export default app
+export type AuthAppType = typeof app

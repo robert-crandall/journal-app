@@ -1,3 +1,4 @@
+test-results
 node_modules
 
 # Output
@@ -7,7 +8,7 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
-/dist
+/backups
 
 # OS
 .DS_Store
@@ -22,8 +23,4 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-pre_clean_backup.sql
-
-# Database backups
-backups/*
-docker-build.sh
+.env.test

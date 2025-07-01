@@ -5,20 +5,24 @@ applyTo: "**/*"
 
 # Personal Development Guidelines
 
+## Copilot
+
+These are instructions for Copilot when interacting with terminal:
+
+- Do not issue `sleep` commands. By the time you want to run this, the time has already elapsed and the servers have started.
+- Always precede commands with `cd <full_path>`.
+
 ## UI/Design Guidelines
 
-- Use a consistent color palette across the application.
-- Use daisyUI for color and theme management
-- Target a clean, modern aesthetic with a focus on usability. Examples of good design are Superlist, Linear, and GitHub.
+- Use color description (ie, primary) instead of color names (blue), to support easy theming.
 - Use Lucide Icons (https://lucide.dev) for all icon needs.
 - Never use emojis in production UI - they're inconsistent across platforms.
 - Choose semantic icon names that clearly represent their function.
 - Use consistent icon sizes throughout the application (typically 16px, 20px, 24px).
-- Prefer outline icons over filled icons for better visual hierarchy.
 - Use modals sparingly. These are good for quick actions. They are not good for complex forms or workflows.
+- Create new pages for edit or new actions instead of using modals or in-line editing.
 - Use confirmation dialogs for destructive actions only.
-- Cards should be linked to their detail view. Do not include a "view" link or button inside the card.
-- Use left-border colors to indicate the status of an item (e.g., green for success, red for error).
+- Cards should be linked to their detail view like mobile apps. Do not include a "view" link or button inside the card.
 
 ## Target Browsers
 

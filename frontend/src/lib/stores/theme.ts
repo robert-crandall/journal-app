@@ -1,169 +1,142 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import { preferencesApi } from '$lib/api';
 
-// All available DaisyUI themes
-export const availableThemes = [
-	{ name: 'Auto', value: 'auto' },
-	{ name: 'Light', value: 'light' },
-	{ name: 'Dark', value: 'dark' },
-	{ name: 'Cupcake', value: 'cupcake' },
-	{ name: 'Bumblebee', value: 'bumblebee' },
-	{ name: 'Emerald', value: 'emerald' },
-	{ name: 'Corporate', value: 'corporate' },
-	{ name: 'Synthwave', value: 'synthwave' },
-	{ name: 'Retro', value: 'retro' },
-	{ name: 'Cyberpunk', value: 'cyberpunk' },
-	{ name: 'Valentine', value: 'valentine' },
-	{ name: 'Halloween', value: 'halloween' },
-	{ name: 'Garden', value: 'garden' },
-	{ name: 'Forest', value: 'forest' },
-	{ name: 'Aqua', value: 'aqua' },
-	{ name: 'Lofi', value: 'lofi' },
-	{ name: 'Pastel', value: 'pastel' },
-	{ name: 'Fantasy', value: 'fantasy' },
-	{ name: 'Wireframe', value: 'wireframe' },
-	{ name: 'Black', value: 'black' },
-	{ name: 'Luxury', value: 'luxury' },
-	{ name: 'Dracula', value: 'dracula' },
-	{ name: 'CMYK', value: 'cmyk' },
-	{ name: 'Autumn', value: 'autumn' },
-	{ name: 'Business', value: 'business' },
-	{ name: 'Acid', value: 'acid' },
-	{ name: 'Lemonade', value: 'lemonade' },
-	{ name: 'Night', value: 'night' },
-	{ name: 'Coffee', value: 'coffee' },
-	{ name: 'Winter', value: 'winter' },
-	{ name: 'Dim', value: 'dim' },
-	{ name: 'Nord', value: 'nord' },
-	{ name: 'Sunset', value: 'sunset' }
-] as const;
+// Theme types
+export type Theme = 'light' | 'dark' | 'system';
 
-export type Theme = (typeof availableThemes)[number]['value'];
+// Internal stores
+const theme = writable<Theme>('system');
+const resolvedTheme = writable<'light' | 'dark'>('light');
+const isSystemSupported = writable(false);
 
-function createThemeStore() {
-	// Get initial theme from localStorage or default to 'auto'
-	let initialTheme: Theme = 'auto';
+// Theme management functions
+function updateResolvedTheme() {
+  if (!browser) return;
 
-	if (browser) {
-		initialTheme = (localStorage.getItem('theme') as Theme) || 'auto';
-	}
+  theme.subscribe((currentTheme) => {
+    let newResolvedTheme: 'light' | 'dark' = 'light';
 
-	const { subscribe, set, update } = writable<Theme>(initialTheme);
+    if (currentTheme === 'system' && window.matchMedia !== undefined) {
+      newResolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches 
+        ? 'dark' 
+        : 'light';
+    } else if (currentTheme !== 'system') {
+      newResolvedTheme = currentTheme;
+    }
 
-	async function syncThemeToBackend(theme: Theme, isAuthenticated?: boolean) {
-		if (browser && isAuthenticated) {
-			try {
-				await preferencesApi.set('theme', theme);
-			} catch (error) {
-				console.warn('Failed to sync theme to backend:', error);
-				// Continue with local storage fallback for offline support
-			}
-		}
-	}
-
-	function applyTheme(theme: Theme) {
-		if (browser) {
-			// Update localStorage for offline support
-			localStorage.setItem('theme', theme);
-
-			const html = document.documentElement;
-
-			// Define which themes are considered dark for Tailwind dark mode
-			const darkThemes = [
-				'dark',
-				'synthwave',
-				'halloween',
-				'forest',
-				'black',
-				'luxury',
-				'dracula',
-				'night',
-				'coffee',
-				'dim'
-			];
-
-			// Handle daisyUI theme switching and Tailwind dark mode classes
-			if (theme === 'auto') {
-				// Use system preference for auto mode
-				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-				if (prefersDark) {
-					html.setAttribute('data-theme', 'dark');
-					html.classList.add('dark');
-				} else {
-					html.setAttribute('data-theme', 'light');
-					html.classList.remove('dark');
-				}
-			} else {
-				// Set the specific theme
-				html.setAttribute('data-theme', theme);
-
-				// Add/remove dark class based on theme
-				if (darkThemes.includes(theme)) {
-					html.classList.add('dark');
-				} else {
-					html.classList.remove('dark');
-				}
-			}
-		}
-	}
-
-	// Listen for system theme changes when in auto mode
-	let currentTheme: Theme = initialTheme;
-	if (browser) {
-		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-		mediaQuery.addEventListener('change', () => {
-			if (currentTheme === 'auto') {
-				applyTheme('auto');
-			}
-		});
-	}
-
-	return {
-		subscribe,
-		setTheme: async (theme: Theme, isAuthenticated = false) => {
-			currentTheme = theme;
-			applyTheme(theme);
-			set(theme);
-
-			// Sync to backend if user is authenticated
-			await syncThemeToBackend(theme, isAuthenticated);
-		},
-		init: async (isAuthenticated = false) => {
-			if (browser) {
-				let themeToUse: Theme = 'auto';
-
-				if (isAuthenticated) {
-					// Try to get theme from backend first
-					try {
-						const response = await preferencesApi.getAll();
-						const savedTheme = response.preferences?.theme as Theme;
-
-						if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
-							themeToUse = savedTheme;
-						}
-					} catch (error) {
-						console.warn('Failed to load theme from backend, using local storage:', error);
-						// Fall back to local storage
-						const localTheme = localStorage.getItem('theme') as Theme;
-						if (localTheme && availableThemes.some((t) => t.value === localTheme)) {
-							themeToUse = localTheme;
-						}
-					}
-				} else {
-					// Use local storage for non-authenticated users
-					const savedTheme = localStorage.getItem('theme') as Theme;
-					if (savedTheme && availableThemes.some((t) => t.value === savedTheme)) {
-						themeToUse = savedTheme;
-					}
-				}
-
-				currentTheme = themeToUse;
-				applyTheme(themeToUse);
-				set(themeToUse);
-			}
-		}
-	};
+    resolvedTheme.set(newResolvedTheme);
+    applyTheme(newResolvedTheme);
+  })();
 }
 
-export const theme = createThemeStore();
+function applyTheme(theme: 'light' | 'dark') {
+  if (!browser) return;
+
+  const html = document.documentElement;
+  
+  // Update DaisyUI theme attribute
+  html.setAttribute('data-theme', theme);
+  
+  // Update class for additional styling if needed
+  html.classList.remove('light', 'dark');
+  html.classList.add(theme);
+
+  // Update meta theme-color for mobile browsers and PWA
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    const themeColor = theme === 'dark' ? '#1f2937' : '#3b82f6';
+    themeColorMeta.setAttribute('content', themeColor);
+  }
+}
+
+function initializeTheme() {
+  if (!browser) return;
+
+  // Check if system preferences are supported
+  isSystemSupported.set(window.matchMedia !== undefined);
+
+  // Load saved theme preference, default to 'system'
+  const saved = localStorage.getItem('theme') as Theme | null;
+  if (saved && ['light', 'dark', 'system'].includes(saved)) {
+    theme.set(saved);
+  }
+
+  // Update resolved theme based on current theme
+  updateResolvedTheme();
+
+  // Listen for system theme changes
+  if (window.matchMedia !== undefined) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      updateResolvedTheme();
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+  }
+}
+
+// Theme store with actions and derived values
+export const themeStore = {
+  // Subscribe to theme state
+  subscribe: theme.subscribe,
+
+  // Derived stores
+  resolvedTheme: { subscribe: resolvedTheme.subscribe },
+  isSystemSupported: { subscribe: isSystemSupported.subscribe },
+  
+  // Derived reactive values
+  isDark: derived(resolvedTheme, ($resolvedTheme) => $resolvedTheme === 'dark'),
+  isLight: derived(resolvedTheme, ($resolvedTheme) => $resolvedTheme === 'light'),
+  isSystem: derived(theme, ($theme) => $theme === 'system'),
+
+  // Actions
+  setTheme(newTheme: Theme) {
+    theme.set(newTheme);
+    if (browser) {
+      localStorage.setItem('theme', newTheme);
+      updateResolvedTheme();
+    }
+  },
+
+  toggleTheme() {
+    theme.update((currentTheme) => {
+      // Cycle through: light -> dark -> system -> light
+      if (currentTheme === 'light') {
+        const newTheme = 'dark';
+        if (browser) localStorage.setItem('theme', newTheme);
+        updateResolvedTheme();
+        return newTheme;
+      } else if (currentTheme === 'dark') {
+        const newTheme = 'system';
+        if (browser) localStorage.setItem('theme', newTheme);
+        updateResolvedTheme();
+        return newTheme;
+      } else {
+        const newTheme = 'light';
+        if (browser) localStorage.setItem('theme', newTheme);
+        updateResolvedTheme();
+        return newTheme;
+      }
+    });
+  },
+
+  // Set theme to light
+  setLight() {
+    this.setTheme('light');
+  },
+
+  // Set theme to dark
+  setDark() {
+    this.setTheme('dark');
+  },
+
+  // Set theme to follow system
+  setSystem() {
+    this.setTheme('system');
+  },
+
+  // Initialize the theme system
+  initialize() {
+    initializeTheme();
+  }
+};
