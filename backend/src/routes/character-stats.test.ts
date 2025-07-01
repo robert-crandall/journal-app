@@ -7,9 +7,9 @@ import { createTestUser } from '../utils/test-helpers'
 import { eq, and } from 'drizzle-orm'
 
 describe('Character Stats Management API Integration Tests', () => {
-  const client = testClient<typeof app>(app)
   let testUserId: string
   let testCharacterId: string
+  let client: any
 
   beforeAll(async () => {
     // Create a test user
@@ -58,6 +58,11 @@ describe('Character Stats Management API Integration Tests', () => {
     if (testUserId) {
       await db.delete(users).where(eq(users.id, testUserId))
     }
+  })
+
+  beforeEach(async () => {
+    // Create a new test client for each test
+    client = testClient(app)
   })
 
   test('GET /api/characters/:id/stats should return all character stats', async () => {

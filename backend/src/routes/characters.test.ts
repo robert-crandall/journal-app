@@ -7,8 +7,8 @@ import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
 
 describe('Character API Integration Tests', () => {
-  const client = testClient(app)
   let testUserId: string
+  let client: any
 
   beforeAll(async () => {
     // Create a test user
@@ -28,6 +28,7 @@ describe('Character API Integration Tests', () => {
   })
 
   beforeEach(async () => {
+    client = testClient(app)
     // Clean up any existing characters for the test user
     await db.delete(characters).where(eq(characters.userId, testUserId))
   })
