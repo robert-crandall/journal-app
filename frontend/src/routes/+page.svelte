@@ -14,11 +14,6 @@
 		user = auth.user;
 	}
 
-	// Protect this route - require authentication
-	onMount(async () => {
-		await AuthGuard.requireAuth('/login');
-	});
-
 	// Handle logout
 	async function handleLogout() {
 		try {

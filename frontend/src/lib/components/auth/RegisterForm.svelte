@@ -241,6 +241,9 @@
 				Already have an account?
 				<a href="/login" class="link link-primary">Sign in here</a>
 			</p>
+			<p class="text-sm mt-2">
+				<a href="/" class="link link-secondary">← Back to Home</a>
+			</p>
 		</div>
 	</form>
 </div>
