@@ -1,6 +1,7 @@
 import { hc } from 'hono/client';
 import { browser } from '$app/environment';
 
+// Import backend types for type safety
 import type { AppType } from '../../../backend/src/index';
 
 // For SPA deployment, we need to handle different environments
