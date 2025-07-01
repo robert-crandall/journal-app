@@ -245,10 +245,11 @@ describe('AIContextService', () => {
       
       // Verify AI context conversion
       expect(result.aiContext!.familyMembers).toHaveLength(3)
-      const aiEmma = result.aiContext!.familyMembers.find(m => m.name === 'Emma')
+      const aiContext = result.aiContext!
+      const aiEmma = aiContext.familyMembers!.find(m => m.name === 'Emma')!
       expect(aiEmma).toBeDefined()
-      expect(aiEmma!.age).toBe(8)
-      expect(aiEmma!.interests).toEqual(['art', 'nature', 'reading'])
+      expect(aiEmma.age).toBe(8)
+      expect(aiEmma.interests).toEqual(['art', 'nature', 'reading'])
     })
 
     it('should get family interaction priorities', async () => {
@@ -479,12 +480,11 @@ describe('AIContextService', () => {
       
       // Verify AI context conversion
       expect(result.aiContext!.taskHistory).toHaveLength(3)
-      const aiHikeTask = result.aiContext!.taskHistory.find(t => t.title === 'Take a nature hike')
+      const aiContext = result.aiContext!
+      const aiHikeTask = aiContext.taskHistory!.find(t => t.title === 'Take a nature hike')!
       expect(aiHikeTask).toBeDefined()
-      if (aiHikeTask) {
-        expect(aiHikeTask.completed).toBe(true)
-        expect(aiHikeTask.feedback).toBe('Enjoyed the fresh air and exercise')
-      }
+      expect(aiHikeTask.completed).toBe(true)
+      expect(aiHikeTask.feedback).toBe('Enjoyed the fresh air and exercise')
     })
 
     it('should exclude task history when not requested', async () => {
