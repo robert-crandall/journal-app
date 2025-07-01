@@ -5,6 +5,13 @@
 	import { Button, Card } from '$lib/components/ui';
 	import { Sword, BookOpen, Target, Users } from 'lucide-svelte';
 	import { browser } from '$app/environment';
+	
+	// Import dashboard components
+	import DashboardLayout from '$lib/components/dashboard/DashboardLayout.svelte';
+	import TaskSummary from '$lib/components/dashboard/TaskSummary.svelte';
+	import CharacterStats from '$lib/components/dashboard/CharacterStats.svelte';
+	import ActiveQuests from '$lib/components/dashboard/ActiveQuests.svelte';
+	import JournalPrompt from '$lib/components/dashboard/JournalPrompt.svelte';
 
 	// Use reactive declarations for auth state
 	let isAuthenticated = false;
@@ -54,107 +61,45 @@
 		{#if isAuthenticated && user}
 			<!-- Welcome Hero Section -->
 			<div class="hero from-primary/10 to-secondary/10 mb-8 rounded-2xl bg-gradient-to-br">
-				<div class="hero-content py-12 text-center">
+				<div class="hero-content py-8 text-center">
 					<div class="max-w-2xl">
-						<h1 class="mb-4 text-5xl font-bold">
-							Welcome back, <span class="text-primary">Adventurer</span>!
+						<h1 class="mb-4 text-4xl font-bold">
+							Welcome back, <span class="text-primary">{user.name}</span>!
 						</h1>
 						<p class="mb-6 text-lg opacity-80">
-							Hello, {user.name}! Ready to continue your D&D life journey?
+							Ready to continue your D&D life journey?
 						</p>
-
-						<!-- User Stats -->
-						<div class="stats bg-base-100/80 shadow-lg backdrop-blur-sm">
-							<div class="stat">
-								<div class="stat-figure text-primary">
-									<Sword size={32} />
-								</div>
-								<div class="stat-title">Character</div>
-								<div class="stat-value text-primary">{user.name}</div>
-								<div class="stat-desc">{user.email}</div>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Feature Cards Grid -->
-			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-				<Card class="group transition-all duration-300 hover:shadow-xl">
-					<div class="flex items-start gap-4 p-6">
-						<div
-							class="bg-primary/10 text-primary rounded-lg p-3 transition-transform group-hover:scale-110"
-						>
-							<Target size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="mb-2 text-xl font-bold">Daily Quests</h3>
-							<p class="text-base-content/70 mb-4">
-								Complete daily tasks and challenges to level up your character and earn rewards.
-							</p>
-							<Button href="/tasks" variant="primary" size="sm">View Tasks</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group transition-all duration-300 hover:shadow-xl">
-					<div class="flex items-start gap-4 p-6">
-						<div
-							class="bg-secondary/10 text-secondary rounded-lg p-3 transition-transform group-hover:scale-110"
-						>
-							<BookOpen size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="mb-2 text-xl font-bold">Adventure Journal</h3>
-							<p class="text-base-content/70 mb-4">
-								Reflect on your daily adventures and track your personal growth journey.
-							</p>
-							<Button href="/journal" variant="secondary" size="sm">Start Writing</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group transition-all duration-300 hover:shadow-xl">
-					<div class="flex items-start gap-4 p-6">
-						<div
-							class="bg-accent/10 text-accent rounded-lg p-3 transition-transform group-hover:scale-110"
-						>
-							<Sword size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="mb-2 text-xl font-bold">Character Progress</h3>
-							<p class="text-base-content/70 mb-4">
-								Level up your character, unlock new abilities, and track your stats.
-							</p>
-							<Button href="/character" variant="outline" size="sm">View Character</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group transition-all duration-300 hover:shadow-xl">
-					<div class="flex items-start gap-4 p-6">
-						<div
-							class="bg-info/10 text-info rounded-lg p-3 transition-transform group-hover:scale-110"
-						>
-							<Users size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="mb-2 text-xl font-bold">Family Party</h3>
-							<p class="text-base-content/70 mb-4">
-								Connect with family members and embark on shared adventures together.
-							</p>
-							<Button href="/family" variant="outline" size="sm">View Family</Button>
-						</div>
-					</div>
-				</Card>
-			</div>
+			<!-- Dashboard Layout with Components -->
+			<DashboardLayout>
+				{#snippet mainContent()}
+					<TaskSummary />
+				{/snippet}
+				
+				{#snippet secondaryContent()}
+					<CharacterStats />
+				{/snippet}
+				
+				{#snippet tertiaryContent()}
+					<ActiveQuests />
+				{/snippet}
+				
+				{#snippet quaternaryContent()}
+					<JournalPrompt />
+				{/snippet}
+			</DashboardLayout>
 
 			<!-- Quick Actions -->
 			<div class="mt-8 text-center">
 				<h2 class="mb-4 text-2xl font-bold">Quick Actions</h2>
 				<div class="flex flex-wrap justify-center gap-4">
-					<Button href="/quests" variant="primary" size="lg">View Active Quests</Button>
-					<Button href="/settings" variant="outline" size="lg">Account Settings</Button>
+					<Button href="/quests" variant="primary" size="lg">View All Quests</Button>
+					<Button href="/tasks" variant="outline" size="lg">Manage Tasks</Button>
+					<Button href="/character" variant="outline" size="lg">Character Details</Button>
+					<Button href="/journal" variant="outline" size="lg">Full Journal</Button>
 				</div>
 			</div>
 		{:else}

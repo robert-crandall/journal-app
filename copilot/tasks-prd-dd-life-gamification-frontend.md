@@ -87,12 +87,12 @@ Based on: `prd-dd-life-gamification-frontend.md`
   - [x] 4.9 Write integration tests for API client with mock backend responses
   - [x] 4.10 Verify type safety and error handling across all API methods
 
-- [ ] 5.0 Dashboard Homepage with Task Overview
-  - [ ] 5.1 Create dashboard layout with responsive grid system
-  - [ ] 5.2 Build TaskSummary component showing daily task overview
-  - [ ] 5.3 Create CharacterStats component displaying XP and level progression
-  - [ ] 5.4 Implement ActiveQuests component with progress indicators
-  - [ ] 5.5 Build JournalPrompt component with quick entry access
+- [x] 5.0 Dashboard Homepage with Task Overview
+  - [x] 5.1 Create dashboard layout with responsive grid system
+  - [x] 5.2 Build TaskSummary component showing daily task overview
+  - [x] 5.3 Create CharacterStats component displaying XP and level progression
+  - [x] 5.4 Implement ActiveQuests component with progress indicators
+  - [x] 5.5 Build JournalPrompt component with quick entry access
   - [ ] 5.6 Add XP notification system for task completion
   - [ ] 5.7 Implement real-time dashboard updates using Svelte 5 reactivity
   - [ ] 5.8 Create dashboard page (`/`) integrating all components
