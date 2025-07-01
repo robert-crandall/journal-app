@@ -55,10 +55,10 @@ Based on: `prd-dd-life-gamification-frontend.md`
   - [x] 2.2 Implement JWT token storage and retrieval utilities
   - [x] 2.3 Build LoginForm component with validation using Svelte 5 patterns
   - [x] 2.4 Build RegisterForm component with email/password validation
-  - [ ] 2.5 Create login page (`/login`) with proper form handling
-  - [ ] 2.6 Create registration page (`/register`) with form validation
-  - [ ] 2.7 Implement authentication route guards and redirects
-  - [ ] 2.8 Add logout functionality with state cleanup
+  - [x] 2.5 Create login page (`/login`) with proper form handling
+  - [x] 2.6 Create registration page (`/register`) with form validation
+  - [x] 2.7 Implement authentication route guards and redirects
+  - [x] 2.8 Add logout functionality with state cleanup
   - [ ] 2.9 Write E2E tests for complete authentication flow (register, login, logout)
   - [ ] 2.10 Verify all authentication tests pass and JWT integration works
 

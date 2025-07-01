@@ -93,9 +93,27 @@ export class ApiClient {
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    return this.request<void>('/api/auth/logout', {
-      method: 'POST',
-    });
+    try {
+      const response = await this.request<void>('/api/auth/logout', {
+        method: 'POST',
+      });
+      
+      // Clear token from storage regardless of response
+      if (browser) {
+        localStorage.removeItem('token');
+      }
+      
+      return response;
+    } catch (err) {
+      // Even if logout fails on server, clear local storage
+      if (browser) {
+        localStorage.removeItem('token');
+      }
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Logout failed'
+      } as ApiResponse<void>;
+    }
   }
 
   async getCurrentUser(): Promise<ApiResponse<typeof users.$inferSelect>> {
