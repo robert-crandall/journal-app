@@ -12,7 +12,7 @@ export class ApiResponseHandler {
 			}
 
 			const data = await response.json();
-			
+
 			if (!response.ok) {
 				throw new Error(
 					data.error || data.message || `HTTP ${response.status}: ${response.statusText}`
@@ -65,7 +65,7 @@ export class ApiRequestHandler {
 	static getDefaultHeaders(): Record<string, string> {
 		return {
 			'Content-Type': 'application/json',
-			'Accept': 'application/json'
+			Accept: 'application/json'
 		};
 	}
 
@@ -73,7 +73,7 @@ export class ApiRequestHandler {
 		if (token) {
 			return {
 				...headers,
-				'Authorization': `Bearer ${token}`
+				Authorization: `Bearer ${token}`
 			};
 		}
 		return headers;
@@ -86,7 +86,7 @@ export class ApiRequestHandler {
 	): { url: string; options: RequestInit } {
 		const baseHeaders = ApiRequestHandler.getDefaultHeaders();
 		const authHeaders = ApiRequestHandler.addAuthHeader(baseHeaders, token);
-		
+
 		return {
 			url: endpoint,
 			options: {
@@ -127,7 +127,7 @@ export class ApiRetryHandler {
 
 				// Calculate delay with exponential backoff
 				const delay = baseDelay * Math.pow(2, attempt);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		}
 
@@ -144,7 +144,7 @@ export class LoadingStateManager {
 		this.loadingStates.set(key, isLoading);
 		const callbacks = this.callbacks.get(key);
 		if (callbacks) {
-			callbacks.forEach(callback => callback(isLoading));
+			callbacks.forEach((callback) => callback(isLoading));
 		}
 	}
 

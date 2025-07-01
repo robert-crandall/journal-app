@@ -34,9 +34,8 @@
 		if (event instanceof ErrorEvent) {
 			errorInstance = new Error(event.message);
 		} else {
-			errorInstance = event.reason instanceof Error 
-				? event.reason 
-				: new Error(String(event.reason));
+			errorInstance =
+				event.reason instanceof Error ? event.reason : new Error(String(event.reason));
 		}
 
 		error = errorInstance;
@@ -76,7 +75,7 @@
 		<div class="error-boundary">
 			<div class="error-content">
 				<h2>Something went wrong</h2>
-				
+
 				{#if error instanceof ApiError}
 					<div class="api-error">
 						<p class="error-message">{error.message}</p>
@@ -96,10 +95,8 @@
 				{:else}
 					<p class="error-message">{error.message}</p>
 				{/if}
-				
-				<button type="button" class="retry-button" onclick={retry}>
-					Try again
-				</button>
+
+				<button type="button" class="retry-button" onclick={retry}> Try again </button>
 			</div>
 		</div>
 	{/if}

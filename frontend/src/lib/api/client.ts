@@ -5,36 +5,31 @@ import { TokenManager } from '../utils/auth';
 
 // Import backend types
 import type { AppType } from '../../../../backend/src/index';
-import type { 
-  users, 
-  characters, 
-  characterStats, 
-  tasks, 
-  taskCompletions,
-  quests,
-  experiments,
-  journalConversations,
-  journalEntries,
-  familyMembers,
-  familyMemberInteractions,
-  dailyFocuses,
-  goals,
-  projects
+import type {
+	users,
+	characters,
+	characterStats,
+	tasks,
+	taskCompletions,
+	quests,
+	experiments,
+	journalConversations,
+	journalEntries,
+	familyMembers,
+	familyMemberInteractions,
+	dailyFocuses,
+	goals,
+	projects
 } from '../../../../backend/src/db/schema';
 
 // Import middleware and caching
-import { 
-  ApiResponseHandler, 
-  ApiRequestHandler, 
-  ApiRetryHandler,
-  loadingManager 
+import {
+	ApiResponseHandler,
+	ApiRequestHandler,
+	ApiRetryHandler,
+	loadingManager
 } from './middleware';
-import { 
-  apiCache, 
-  CacheKeys, 
-  CacheConfig,
-  type CacheEntry 
-} from './cache';
+import { apiCache, CacheKeys, CacheConfig, type CacheEntry } from './cache';
 
 // Task 4.4: Implement API response validation and error utilities
 export class ApiError extends Error {
@@ -85,7 +80,7 @@ const API_BASE_URL = isBrowser
 export class TypeSafeApiClient {
 	private client: ReturnType<typeof hc<AppType>>;
 	private baseUrl: string;
-	
+
 	constructor() {
 		this.baseUrl = API_BASE_URL;
 		this.client = hc<AppType>(this.baseUrl);
@@ -108,10 +103,14 @@ export class TypeSafeApiClient {
 	}
 
 	// Task 4.4: API response validation and error utilities with caching support
-	private async handleResponse<T>(response: Response, cacheKey?: string, cacheTTL?: number): Promise<ApiResponse<T>> {
+	private async handleResponse<T>(
+		response: Response,
+		cacheKey?: string,
+		cacheTTL?: number
+	): Promise<ApiResponse<T>> {
 		try {
 			const data = await response.json();
-			
+
 			if (!response.ok) {
 				throw new ApiError(
 					data.error || data.message || `HTTP ${response.status}`,
@@ -136,11 +135,8 @@ export class TypeSafeApiClient {
 			if (error instanceof ApiError) {
 				throw error;
 			}
-			
-			throw new ApiError(
-				error instanceof Error ? error.message : 'Unknown error',
-				response.status
-			);
+
+			throw new ApiError(error instanceof Error ? error.message : 'Unknown error', response.status);
 		}
 	}
 
@@ -169,7 +165,7 @@ export class TypeSafeApiClient {
 			const { url, options: requestOptions } = ApiRequestHandler.prepareRequest(
 				`${this.baseUrl}${endpoint}`,
 				options,
-				isBrowser ? (TokenManager.getValidToken() || undefined) : undefined
+				isBrowser ? TokenManager.getValidToken() || undefined : undefined
 			);
 
 			// Use retry mechanism for the request
@@ -216,25 +212,43 @@ export class TypeSafeApiClient {
 
 	// Task 4.5: Create authentication API methods (no caching for auth operations)
 	async register(data: RegisterRequest): Promise<ApiResponse<AuthResponse>> {
-		return this.makeRequest<AuthResponse>('/api/auth/register', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'auth:register');
+		return this.makeRequest<AuthResponse>(
+			'/api/auth/register',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'auth:register'
+		);
 	}
 
 	async login(data: LoginRequest): Promise<ApiResponse<AuthResponse>> {
-		return this.makeRequest<AuthResponse>('/api/auth/login', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'auth:login');
+		return this.makeRequest<AuthResponse>(
+			'/api/auth/login',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'auth:login'
+		);
 	}
 
 	async logout(): Promise<ApiResponse<void>> {
 		// Clear all cache on logout
 		apiCache.clear();
-		return this.makeRequest<void>('/api/auth/logout', {
-			method: 'POST'
-		}, undefined, undefined, 'auth:logout');
+		return this.makeRequest<void>(
+			'/api/auth/logout',
+			{
+				method: 'POST'
+			},
+			undefined,
+			undefined,
+			'auth:logout'
+		);
 	}
 
 	async getCurrentUser(): Promise<ApiResponse<typeof users.$inferSelect>> {
@@ -274,13 +288,21 @@ export class TypeSafeApiClient {
 		class: string;
 		backstory?: string;
 	}): Promise<ApiResponse<typeof characters.$inferSelect>> {
-		return this.makeRequest<typeof characters.$inferSelect>('/api/characters', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'characters:create');
+		return this.makeRequest<typeof characters.$inferSelect>(
+			'/api/characters',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'characters:create'
+		);
 	}
 
-	async getCharacterStats(characterId: string): Promise<ApiResponse<(typeof characterStats.$inferSelect)[]>> {
+	async getCharacterStats(
+		characterId: string
+	): Promise<ApiResponse<(typeof characterStats.$inferSelect)[]>> {
 		return this.makeRequest<(typeof characterStats.$inferSelect)[]>(
 			`/api/characters/${characterId}/stats`,
 			{},
@@ -302,14 +324,22 @@ export class TypeSafeApiClient {
 	}
 
 	async completeTask(taskId: string, feedback?: string): Promise<ApiResponse<any>> {
-		return this.makeRequest(`/api/tasks/${taskId}/complete`, {
-			method: 'POST',
-			body: JSON.stringify({ feedback })
-		}, undefined, undefined, `tasks:complete:${taskId}`);
+		return this.makeRequest(
+			`/api/tasks/${taskId}/complete`,
+			{
+				method: 'POST',
+				body: JSON.stringify({ feedback })
+			},
+			undefined,
+			undefined,
+			`tasks:complete:${taskId}`
+		);
 	}
 
 	// Journal API methods with minimal caching
-	async getJournalConversations(): Promise<ApiResponse<(typeof journalConversations.$inferSelect)[]>> {
+	async getJournalConversations(): Promise<
+		ApiResponse<(typeof journalConversations.$inferSelect)[]>
+	> {
 		return this.makeRequest<(typeof journalConversations.$inferSelect)[]>(
 			'/api/journal/conversations',
 			{},
@@ -320,19 +350,31 @@ export class TypeSafeApiClient {
 	}
 
 	async startJournalConversation(): Promise<ApiResponse<typeof journalConversations.$inferSelect>> {
-		return this.makeRequest<typeof journalConversations.$inferSelect>('/api/journal/quick-start', {
-			method: 'POST'
-		}, undefined, undefined, 'journal:startConversation');
+		return this.makeRequest<typeof journalConversations.$inferSelect>(
+			'/api/journal/quick-start',
+			{
+				method: 'POST'
+			},
+			undefined,
+			undefined,
+			'journal:startConversation'
+		);
 	}
 
 	async addJournalMessage(
-		conversationId: string, 
+		conversationId: string,
 		content: string
 	): Promise<ApiResponse<typeof journalEntries.$inferSelect>> {
-		return this.makeRequest<typeof journalEntries.$inferSelect>(`/api/journal/conversations/${conversationId}/messages`, {
-			method: 'POST',
-			body: JSON.stringify({ content })
-		}, undefined, undefined, `journal:addMessage:${conversationId}`);
+		return this.makeRequest<typeof journalEntries.$inferSelect>(
+			`/api/journal/conversations/${conversationId}/messages`,
+			{
+				method: 'POST',
+				body: JSON.stringify({ content })
+			},
+			undefined,
+			undefined,
+			`journal:addMessage:${conversationId}`
+		);
 	}
 
 	async getJournalHistory(search?: string): Promise<ApiResponse<any[]>> {
@@ -347,9 +389,15 @@ export class TypeSafeApiClient {
 	}
 
 	async endJournalConversation(conversationId: string): Promise<ApiResponse<any>> {
-		return this.makeRequest(`/api/journal/conversations/${conversationId}/end`, {
-			method: 'PUT'
-		}, undefined, undefined, `journal:endConversation:${conversationId}`);
+		return this.makeRequest(
+			`/api/journal/conversations/${conversationId}/end`,
+			{
+				method: 'PUT'
+			},
+			undefined,
+			undefined,
+			`journal:endConversation:${conversationId}`
+		);
 	}
 
 	// Quest API methods with caching
@@ -369,10 +417,16 @@ export class TypeSafeApiClient {
 		goalDescription?: string;
 		endDate?: string;
 	}): Promise<ApiResponse<typeof quests.$inferSelect>> {
-		return this.makeRequest<typeof quests.$inferSelect>('/api/quests', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'quests:create');
+		return this.makeRequest<typeof quests.$inferSelect>(
+			'/api/quests',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'quests:create'
+		);
 	}
 
 	async getQuest(questId: string): Promise<ApiResponse<typeof quests.$inferSelect>> {
@@ -385,17 +439,26 @@ export class TypeSafeApiClient {
 		);
 	}
 
-	async updateQuest(questId: string, data: Partial<{
-		title: string;
-		description: string;
-		goalDescription: string;
-		status: string;
-		endDate: string;
-	}>): Promise<ApiResponse<typeof quests.$inferSelect>> {
-		return this.makeRequest<typeof quests.$inferSelect>(`/api/quests/${questId}`, {
-			method: 'PUT',
-			body: JSON.stringify(data)
-		}, undefined, undefined, `quests:update:${questId}`);
+	async updateQuest(
+		questId: string,
+		data: Partial<{
+			title: string;
+			description: string;
+			goalDescription: string;
+			status: string;
+			endDate: string;
+		}>
+	): Promise<ApiResponse<typeof quests.$inferSelect>> {
+		return this.makeRequest<typeof quests.$inferSelect>(
+			`/api/quests/${questId}`,
+			{
+				method: 'PUT',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			`quests:update:${questId}`
+		);
 	}
 
 	// Family Members API methods with caching
@@ -415,14 +478,20 @@ export class TypeSafeApiClient {
 		interests?: string[];
 		interactionFrequency?: string;
 	}): Promise<ApiResponse<typeof familyMembers.$inferSelect>> {
-		return this.makeRequest<typeof familyMembers.$inferSelect>('/api/family-members', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'family:create');
+		return this.makeRequest<typeof familyMembers.$inferSelect>(
+			'/api/family-members',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'family:create'
+		);
 	}
 
 	async updateFamilyMember(
-		memberId: string, 
+		memberId: string,
 		data: Partial<{
 			name: string;
 			age: number;
@@ -430,10 +499,16 @@ export class TypeSafeApiClient {
 			interactionFrequency: string;
 		}>
 	): Promise<ApiResponse<typeof familyMembers.$inferSelect>> {
-		return this.makeRequest<typeof familyMembers.$inferSelect>(`/api/family-members/${memberId}`, {
-			method: 'PUT',
-			body: JSON.stringify(data)
-		}, undefined, undefined, `family:update:${memberId}`);
+		return this.makeRequest<typeof familyMembers.$inferSelect>(
+			`/api/family-members/${memberId}`,
+			{
+				method: 'PUT',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			`family:update:${memberId}`
+		);
 	}
 
 	// Goals API methods with caching
@@ -454,10 +529,16 @@ export class TypeSafeApiClient {
 		priority?: string;
 		relatedStats?: string[];
 	}): Promise<ApiResponse<typeof goals.$inferSelect>> {
-		return this.makeRequest<typeof goals.$inferSelect>('/api/goals', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'goals:create');
+		return this.makeRequest<typeof goals.$inferSelect>(
+			'/api/goals',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'goals:create'
+		);
 	}
 
 	// Projects API methods with caching
@@ -476,14 +557,22 @@ export class TypeSafeApiClient {
 		description?: string;
 		dueDate?: string;
 	}): Promise<ApiResponse<typeof projects.$inferSelect>> {
-		return this.makeRequest<typeof projects.$inferSelect>('/api/projects', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		}, undefined, undefined, 'projects:create');
+		return this.makeRequest<typeof projects.$inferSelect>(
+			'/api/projects',
+			{
+				method: 'POST',
+				body: JSON.stringify(data)
+			},
+			undefined,
+			undefined,
+			'projects:create'
+		);
 	}
 
 	// Health check endpoint (no caching)
-	async healthCheck(): Promise<ApiResponse<{ message: string; status: string; timestamp: string }>> {
+	async healthCheck(): Promise<
+		ApiResponse<{ message: string; status: string; timestamp: string }>
+	> {
 		return this.makeRequest('/api/health', {}, undefined, undefined, 'health:check');
 	}
 
