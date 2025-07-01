@@ -203,6 +203,8 @@
 		cursor: pointer;
 		font-weight: 500;
 		transition: background-color 0.15s ease-in-out;
+		min-width: 44px;
+		min-height: 44px;
 	}
 
 	.retry-button:hover {
@@ -347,7 +349,7 @@
 		cursor: pointer;
 		transition: background-color 0.15s ease-in-out;
 		min-width: 44px; /* iOS touch target */
-		min-height: 32px;
+		min-height: 44px; /* Ensure proper touch target */
 	}
 
 	.complete-button:hover {
@@ -378,6 +380,10 @@
 		font-weight: 500;
 		font-size: 0.875rem;
 		transition: color 0.15s ease-in-out;
+		display: inline-block;
+		min-height: 44px;
+		padding: 0.75rem 0;
+		line-height: 1.2;
 	}
 
 	.view-all-link:hover {

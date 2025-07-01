@@ -44,13 +44,10 @@ async function runMigrations() {
 }
 
 async function runSeed() {
-  const seedPath = path.resolve(__dirname, './seed.ts');
-  if (fs.existsSync(seedPath)) {
-    const { seed } = await import(seedPath);
-    if (typeof seed === 'function') {
-      await seed(db);
-    }
-  }
+  console.log('🌱 Running seed data...');
+  const { seedDatabase } = await import('../src/db/seed');
+  await seedDatabase();
+  console.log('✅ Seed data applied successfully');
 }
 
 async function checkDatabaseConnection() {

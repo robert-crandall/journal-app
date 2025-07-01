@@ -15,15 +15,8 @@
 			// Initialize theme system
 			themeStore.initialize();
 
-			// Initialize auth store
-			const token = localStorage.getItem('token');
-			if (token) {
-				// TODO: Validate token with backend and get user info
-				// For now, just mark as initialized
-				authStore.setInitialized(true);
-			} else {
-				authStore.setInitialized(true);
-			}
+			// Auth store auto-initializes itself when created, so we don't need to do anything here
+			// The auth store will automatically check for tokens and initialize user data
 		}
 	});
 

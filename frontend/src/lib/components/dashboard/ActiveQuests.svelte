@@ -336,6 +336,8 @@
 		text-decoration: none;
 		display: inline-block;
 		transition: background-color 0.15s ease-in-out;
+		min-width: 44px;
+		min-height: 44px;
 	}
 
 	.retry-button:hover,
@@ -481,6 +483,8 @@
 		display: inline-block;
 		cursor: pointer;
 		transition: background-color 0.15s ease-in-out;
+		min-width: 44px;
+		min-height: 44px;
 	}
 
 	.start-task-button:hover {
@@ -510,6 +514,10 @@
 		font-weight: 500;
 		font-size: 0.875rem;
 		transition: color 0.15s ease-in-out;
+		display: inline-block;
+		min-height: 44px;
+		padding: 0.75rem 0;
+		line-height: 1.2;
 	}
 
 	.view-rewards-link:hover,
@@ -610,6 +618,9 @@
 		text-align: center;
 		display: block;
 		transition: color 0.15s ease-in-out;
+		min-height: 44px;
+		padding: 0.75rem 0;
+		line-height: 1.2;
 	}
 
 	.view-all-quests-link:hover {

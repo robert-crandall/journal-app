@@ -13,26 +13,18 @@
 	import ActiveQuests from '$lib/components/dashboard/ActiveQuests.svelte';
 	import JournalPrompt from '$lib/components/dashboard/JournalPrompt.svelte';
 
-	// Use reactive declarations for auth state
+	// Reactive variables from auth store
 	let isAuthenticated = false;
 	let user: User | null = null;
+	let authLoading = false;
 	let authInitialized = false;
 
-	// Subscribe to auth changes
+	// Subscribe to auth store changes
 	authStore.subscribe((state) => {
 		isAuthenticated = state.initialized && state.user !== null && state.token !== null;
 		user = state.user;
+		authLoading = state.loading;
 		authInitialized = state.initialized;
-	});
-
-	// Initialize auth on mount
-	onMount(() => {
-		if (browser) {
-			// Ensure auth is initialized
-			if (!authInitialized) {
-				authStore.setInitialized(true);
-			}
-		}
 	});
 
 	// Handle logout
@@ -58,7 +50,20 @@
 <div class="bg-base-100 min-h-screen">
 	<!-- Main content -->
 	<div class="container mx-auto px-4 py-8">
-		{#if isAuthenticated && user}
+		{#if authLoading && !authInitialized}
+			<!-- Loading state during auth initialization -->
+			<div class="hero from-primary/10 to-secondary/10 rounded-2xl bg-gradient-to-br">
+				<div class="hero-content py-16 text-center">
+					<div class="max-w-2xl">
+						<div class="mb-6 text-6xl">⚔️</div>
+						<h1 class="mb-6 text-4xl font-bold">
+							Loading your adventure...
+						</h1>
+						<div class="loading loading-spinner loading-lg"></div>
+					</div>
+				</div>
+			</div>
+		{:else if isAuthenticated && user}
 			<!-- Welcome Hero Section -->
 			<div class="hero from-primary/10 to-secondary/10 mb-8 rounded-2xl bg-gradient-to-br">
 				<div class="hero-content py-8 text-center">

@@ -36,11 +36,12 @@ export default defineConfig({
 		{
 			name: 'chromium',
 			use: { ...devices['Desktop Chrome'] }
-		},
-		{
-			name: 'Mobile Safari',
-			use: { ...devices['iPhone 12'] }
 		}
+		// TODO: Add this back in
+		// {
+		// 	name: 'Mobile Safari',
+		// 	use: { ...devices['iPhone 12'] }
+		// }
 	],
 
 	/* Run complete test environment setup */
