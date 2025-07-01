@@ -14,7 +14,7 @@
 		if (browser) {
 			// Initialize theme system
 			themeStore.initialize();
-			
+
 			// Initialize auth store
 			const token = localStorage.getItem('token');
 			if (token) {
@@ -30,7 +30,7 @@
 	// Subscribe to auth state reactively using Svelte 5 runes
 	const authState = $derived($authStore);
 	const isAuthenticated = $derived(authState.user && authState.token);
-	
+
 	// Handle logout
 	async function handleLogout() {
 		authStore.clearAuth();
@@ -38,16 +38,14 @@
 </script>
 
 <!-- App-wide layout -->
-<div class="min-h-screen bg-base-100 text-base-content">
+<div class="bg-base-100 text-base-content min-h-screen">
 	<!-- Navigation bar (only show when authenticated) -->
 	{#if isAuthenticated}
-		<div class="navbar bg-base-100 border-base-200 border-b sticky top-0 z-50">
+		<div class="navbar bg-base-100 border-base-200 sticky top-0 z-50 border-b">
 			<div class="navbar-start">
-				<a href="/" class="btn btn-ghost text-xl font-bold">
-					D&D Life
-				</a>
+				<a href="/" class="btn btn-ghost text-xl font-bold"> D&D Life </a>
 			</div>
-			
+
 			<div class="navbar-center hidden lg:flex">
 				<ul class="menu menu-horizontal px-1">
 					<li><a href="/tasks" class="btn btn-ghost">Tasks</a></li>
@@ -57,18 +55,20 @@
 					<li><a href="/family" class="btn btn-ghost">Family</a></li>
 				</ul>
 			</div>
-			
+
 			<div class="navbar-end gap-2">
 				<!-- Theme toggle -->
 				<ThemeToggle />
-				
+
 				{#if authState.user}
 					<!-- User menu dropdown -->
 					<div class="dropdown dropdown-end">
 						<div tabindex="0" role="button" class="btn btn-ghost btn-circle">
 							<User size={20} />
 						</div>
-						<ul class="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow-lg border border-base-300">
+						<ul
+							class="dropdown-content menu bg-base-100 rounded-box border-base-300 w-52 border p-2 shadow-lg"
+						>
 							<li class="menu-title">
 								<span>{authState.user.name}</span>
 							</li>
@@ -87,11 +87,9 @@
 		<!-- Minimal header for unauthenticated pages -->
 		<div class="navbar bg-base-100 border-base-200 border-b">
 			<div class="navbar-start">
-				<a href="/" class="btn btn-ghost text-xl font-bold">
-					D&D Life
-				</a>
+				<a href="/" class="btn btn-ghost text-xl font-bold"> D&D Life </a>
 			</div>
-			
+
 			<div class="navbar-end gap-2">
 				<a href="/login" class="btn btn-primary">Login</a>
 				<a href="/register" class="btn btn-outline">Register</a>

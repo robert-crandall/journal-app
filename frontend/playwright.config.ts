@@ -48,18 +48,16 @@ export default defineConfig({
 	webServer: [
 		{
 			// Run database migrations
-			command:
-				'cd ../backend && NODE_ENV=test bun run test:setup',
+			command: 'cd ../backend && NODE_ENV=test bun run test:setup',
 			reuseExistingServer: false,
 			timeout: 15000
 		},
 		{
 			// Start backend with test database
-			command:
-				'cd ../backend && NODE_ENV=test bun run dev',
+			command: 'cd ../backend && NODE_ENV=test bun run dev',
 			port: 3000,
 			reuseExistingServer: !process.env.CI,
-			timeout: 30000,
+			timeout: 30000
 		},
 		{
 			// Start frontend dev server

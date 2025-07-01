@@ -5,12 +5,12 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
-	
+
 	// Environment variables configuration
 	define: {
-		'__APP_VERSION__': JSON.stringify(process.env['npm_package_version'] || '0.0.1'),
+		__APP_VERSION__: JSON.stringify(process.env['npm_package_version'] || '0.0.1')
 	},
-	
+
 	// Build optimization
 	build: {
 		target: 'es2022',
@@ -25,7 +25,7 @@ export default defineConfig({
 			}
 		}
 	},
-	
+
 	// Development server configuration
 	server: {
 		port: 5173,
@@ -35,13 +35,13 @@ export default defineConfig({
 			allow: ['..']
 		}
 	},
-	
+
 	// Optimize dependencies
 	optimizeDeps: {
 		include: ['lucide-svelte'],
 		exclude: ['@sveltejs/kit', 'svelte']
 	},
-	
+
 	test: {
 		projects: [
 			{

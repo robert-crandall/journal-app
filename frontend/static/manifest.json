@@ -1,51 +1,51 @@
 {
-  "name": "D&D Life Quest - Gamify Your Personal Development",
-  "short_name": "D&D Life Quest",
-  "description": "Transform your daily tasks and personal growth into an engaging RPG experience with character progression, quests, and achievements.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#1f2937",
-  "theme_color": "#3b82f6",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en",
-  "categories": ["productivity", "lifestyle", "games"],
-  "icons": [
-    {
-      "src": "/favicon.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your character and progress",
-      "url": "/",
-      "icons": [
-        {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    }
-  ]
+	"name": "D&D Life Quest - Gamify Your Personal Development",
+	"short_name": "D&D Life Quest",
+	"description": "Transform your daily tasks and personal growth into an engaging RPG experience with character progression, quests, and achievements.",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#1f2937",
+	"theme_color": "#3b82f6",
+	"orientation": "portrait-primary",
+	"scope": "/",
+	"lang": "en",
+	"categories": ["productivity", "lifestyle", "games"],
+	"icons": [
+		{
+			"src": "/favicon.png",
+			"sizes": "16x16",
+			"type": "image/png"
+		},
+		{
+			"src": "/icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/icons/apple-touch-icon.png",
+			"sizes": "180x180",
+			"type": "image/png"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Dashboard",
+			"short_name": "Dashboard",
+			"description": "View your character and progress",
+			"url": "/",
+			"icons": [
+				{
+					"src": "/icons/icon-192.png",
+					"sizes": "192x192"
+				}
+			]
+		}
+	]
 }

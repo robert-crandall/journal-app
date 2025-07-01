@@ -31,7 +31,7 @@ export const authApi = {
 				id: authData.user.id,
 				name: authData.user.name,
 				email: authData.user.email,
-				createdAt: authData.user.createdAt,
+				createdAt: authData.user.createdAt
 			},
 			token: authData.token
 		};
@@ -63,7 +63,7 @@ export const authApi = {
 				id: authData.user.id,
 				name: authData.user.name,
 				email: authData.user.email,
-				createdAt: authData.user.createdAt,
+				createdAt: authData.user.createdAt
 			},
 			token: authData.token
 		};
@@ -89,7 +89,10 @@ export const authApi = {
 	},
 
 	// Update user profile
-	async updateProfile(token: string, data: { name?: string; timezone?: string; zipCode?: string }): Promise<{
+	async updateProfile(
+		token: string,
+		data: { name?: string; timezone?: string; zipCode?: string }
+	): Promise<{
 		id: string;
 		name: string;
 		email: string;
@@ -147,7 +150,7 @@ export const authApi = {
 				id: 'demo-user-id',
 				name: 'Demo User',
 				email: 'demo@example.com',
-				createdAt: new Date().toISOString(),
+				createdAt: new Date().toISOString()
 			},
 			token: 'demo-token',
 			credentials: {

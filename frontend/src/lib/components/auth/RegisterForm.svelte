@@ -1,124 +1,130 @@
 <script lang="ts">
-  import { apiClient } from '$lib/api/client';
-  import { authStore } from '$lib/stores/auth';
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
-  import type { RegisterRequest } from '$lib/api/client';
+	import { apiClient } from '$lib/api/client';
+	import { authStore } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import type { RegisterRequest } from '$lib/api/client';
 
-  // Form state using Svelte 5 runes
-  let name = $state('');
-  let email = $state('');
-  let password = $state('');
-  let isLoading = $state(false);
-  let error = $state('');
+	// Form state using Svelte 5 runes
+	let name = $state('');
+	let email = $state('');
+	let password = $state('');
+	let isLoading = $state(false);
+	let error = $state('');
 
-  // Validation state
-  let nameError = $state('');
-  let emailError = $state('');
-  let passwordError = $state('');
+	// Validation state
+	let nameError = $state('');
+	let emailError = $state('');
+	let passwordError = $state('');
 
-  // Form validation using derived state
-  let nameValid = $derived(validateName(name));
-  let emailValid = $derived(validateEmail(email));
-  let passwordValid = $derived(validatePassword(password));
-  let formValid = $derived(nameValid && emailValid && passwordValid && 
-                           name.length > 0 && email.length > 0 && password.length > 0);
+	// Form validation using derived state
+	let nameValid = $derived(validateName(name));
+	let emailValid = $derived(validateEmail(email));
+	let passwordValid = $derived(validatePassword(password));
+	let formValid = $derived(
+		nameValid &&
+			emailValid &&
+			passwordValid &&
+			name.length > 0 &&
+			email.length > 0 &&
+			password.length > 0
+	);
 
-  // Validation functions
-  function validateName(name: string): boolean {
-    if (!name) return false;
-    return name.length >= 1 && name.length <= 100;
-  }
+	// Validation functions
+	function validateName(name: string): boolean {
+		if (!name) return false;
+		return name.length >= 1 && name.length <= 100;
+	}
 
-  function validateEmail(email: string): boolean {
-    if (!email) return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
+	function validateEmail(email: string): boolean {
+		if (!email) return false;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	}
 
-  function validatePassword(password: string): boolean {
-    return password.length >= 6;
-  }
+	function validatePassword(password: string): boolean {
+		return password.length >= 6;
+	}
 
-  // Real-time validation effects
-  $effect(() => {
-    if (name.length > 0 && !nameValid) {
-      if (name.length > 100) {
-        nameError = 'Name cannot exceed 100 characters';
-      } else {
-        nameError = 'Name is required';
-      }
-    } else {
-      nameError = '';
-    }
-  });
+	// Real-time validation effects
+	$effect(() => {
+		if (name.length > 0 && !nameValid) {
+			if (name.length > 100) {
+				nameError = 'Name cannot exceed 100 characters';
+			} else {
+				nameError = 'Name is required';
+			}
+		} else {
+			nameError = '';
+		}
+	});
 
-  $effect(() => {
-    if (email.length > 0 && !emailValid) {
-      emailError = 'Please enter a valid email address';
-    } else {
-      emailError = '';
-    }
-  });
+	$effect(() => {
+		if (email.length > 0 && !emailValid) {
+			emailError = 'Please enter a valid email address';
+		} else {
+			emailError = '';
+		}
+	});
 
-  $effect(() => {
-    if (password.length > 0 && !passwordValid) {
-      passwordError = 'Password must be at least 6 characters';
-    } else {
-      passwordError = '';
-    }
-  });
+	$effect(() => {
+		if (password.length > 0 && !passwordValid) {
+			passwordError = 'Password must be at least 6 characters';
+		} else {
+			passwordError = '';
+		}
+	});
 
-  // Form submission handler
-  async function handleSubmit(event: Event) {
-    event.preventDefault();
-    
-    if (!formValid) {
-      error = 'Please fix the form errors above';
-      return;
-    }
+	// Form submission handler
+	async function handleSubmit(event: Event) {
+		event.preventDefault();
 
-    try {
-      isLoading = true;
-      error = '';
+		if (!formValid) {
+			error = 'Please fix the form errors above';
+			return;
+		}
 
-      const registerData: RegisterRequest = {
-        name: name.trim(),
-        email: email.trim(),
-        password
-      };
+		try {
+			isLoading = true;
+			error = '';
 
-      const response = await apiClient.register(registerData);
+			const registerData: RegisterRequest = {
+				name: name.trim(),
+				email: email.trim(),
+				password
+			};
 
-      if (response.success && response.data) {
-        // Update auth store with user and token
-        authStore.setAuth(response.data.user, response.data.token);
-        
-        // Redirect to dashboard
-        await goto('/', { replaceState: true });
-      } else {
-        error = response.error || 'Registration failed. Please try again.';
-      }
-    } catch (err) {
-      console.error('Registration error:', err);
-      error = 'An unexpected error occurred. Please try again.';
-    } finally {
-      isLoading = false;
-    }
-  }
+			const response = await apiClient.register(registerData);
 
-  // Clear errors when user starts typing
-  $effect(() => {
-    if (name || email || password) {
-      error = '';
-    }
-  });
+			if (response.success && response.data) {
+				// Update auth store with user and token
+				authStore.setAuth(response.data.user, response.data.token);
 
-  // Focus name input on mount
-  let nameInput: HTMLInputElement;
-  onMount(() => {
-    nameInput?.focus();
-  });
+				// Redirect to dashboard
+				await goto('/', { replaceState: true });
+			} else {
+				error = response.error || 'Registration failed. Please try again.';
+			}
+		} catch (err) {
+			console.error('Registration error:', err);
+			error = 'An unexpected error occurred. Please try again.';
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Clear errors when user starts typing
+	$effect(() => {
+		if (name || email || password) {
+			error = '';
+		}
+	});
+
+	// Focus name input on mount
+	let nameInput: HTMLInputElement;
+	onMount(() => {
+		nameInput?.focus();
+	});
 </script>
 
 <div class="mx-auto w-full max-w-md p-4">
@@ -241,7 +247,7 @@
 				Already have an account?
 				<a href="/login" class="link link-primary">Sign in here</a>
 			</p>
-			<p class="text-sm mt-2">
+			<p class="mt-2 text-sm">
 				<a href="/" class="link link-secondary">← Back to Home</a>
 			</p>
 		</div>

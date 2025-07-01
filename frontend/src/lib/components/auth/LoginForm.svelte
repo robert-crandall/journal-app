@@ -1,102 +1,102 @@
 <script lang="ts">
-  import { apiClient } from '$lib/api/client';
-  import { authStore } from '$lib/stores/auth';
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
-  import type { LoginRequest } from '$lib/api/client';
+	import { apiClient } from '$lib/api/client';
+	import { authStore } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import type { LoginRequest } from '$lib/api/client';
 
-  // Form state using Svelte 5 runes
-  let email = $state('');
-  let password = $state('');
-  let isLoading = $state(false);
-  let error = $state('');
+	// Form state using Svelte 5 runes
+	let email = $state('');
+	let password = $state('');
+	let isLoading = $state(false);
+	let error = $state('');
 
-  // Validation state
-  let emailError = $state('');
-  let passwordError = $state('');
+	// Validation state
+	let emailError = $state('');
+	let passwordError = $state('');
 
-  // Form validation using derived state
-  let emailValid = $derived(validateEmail(email));
-  let passwordValid = $derived(validatePassword(password));
-  let formValid = $derived(emailValid && passwordValid && email.length > 0 && password.length > 0);
+	// Form validation using derived state
+	let emailValid = $derived(validateEmail(email));
+	let passwordValid = $derived(validatePassword(password));
+	let formValid = $derived(emailValid && passwordValid && email.length > 0 && password.length > 0);
 
-  // Validation functions
-  function validateEmail(email: string): boolean {
-    if (!email) return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
+	// Validation functions
+	function validateEmail(email: string): boolean {
+		if (!email) return false;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	}
 
-  function validatePassword(password: string): boolean {
-    return password.length >= 6;
-  }
+	function validatePassword(password: string): boolean {
+		return password.length >= 6;
+	}
 
-  // Real-time validation effects
-  $effect(() => {
-    if (email.length > 0 && !emailValid) {
-      emailError = 'Please enter a valid email address';
-    } else {
-      emailError = '';
-    }
-  });
+	// Real-time validation effects
+	$effect(() => {
+		if (email.length > 0 && !emailValid) {
+			emailError = 'Please enter a valid email address';
+		} else {
+			emailError = '';
+		}
+	});
 
-  $effect(() => {
-    if (password.length > 0 && !passwordValid) {
-      passwordError = 'Password must be at least 6 characters';
-    } else {
-      passwordError = '';
-    }
-  });
+	$effect(() => {
+		if (password.length > 0 && !passwordValid) {
+			passwordError = 'Password must be at least 6 characters';
+		} else {
+			passwordError = '';
+		}
+	});
 
-  // Form submission handler
-  async function handleSubmit(event: Event) {
-    event.preventDefault();
-    
-    if (!formValid) {
-      error = 'Please fix the form errors above';
-      return;
-    }
+	// Form submission handler
+	async function handleSubmit(event: Event) {
+		event.preventDefault();
 
-    try {
-      isLoading = true;
-      error = '';
+		if (!formValid) {
+			error = 'Please fix the form errors above';
+			return;
+		}
 
-      const loginData: LoginRequest = {
-        email: email.trim(),
-        password
-      };
+		try {
+			isLoading = true;
+			error = '';
 
-      const response = await apiClient.login(loginData);
+			const loginData: LoginRequest = {
+				email: email.trim(),
+				password
+			};
 
-      if (response.success && response.data) {
-        // Update auth store with user and token
-        authStore.setAuth(response.data.user, response.data.token);
-        
-        // Redirect to dashboard
-        await goto('/', { replaceState: true });
-      } else {
-        error = response.error || 'Login failed. Please try again.';
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      error = 'An unexpected error occurred. Please try again.';
-    } finally {
-      isLoading = false;
-    }
-  }
+			const response = await apiClient.login(loginData);
 
-  // Clear errors when user starts typing
-  $effect(() => {
-    if (email || password) {
-      error = '';
-    }
-  });
+			if (response.success && response.data) {
+				// Update auth store with user and token
+				authStore.setAuth(response.data.user, response.data.token);
 
-  // Focus email input on mount
-  let emailInput: HTMLInputElement;
-  onMount(() => {
-    emailInput?.focus();
-  });
+				// Redirect to dashboard
+				await goto('/', { replaceState: true });
+			} else {
+				error = response.error || 'Login failed. Please try again.';
+			}
+		} catch (err) {
+			console.error('Login error:', err);
+			error = 'An unexpected error occurred. Please try again.';
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Clear errors when user starts typing
+	$effect(() => {
+		if (email || password) {
+			error = '';
+		}
+	});
+
+	// Focus email input on mount
+	let emailInput: HTMLInputElement;
+	onMount(() => {
+		emailInput?.focus();
+	});
 </script>
 
 <div class="mx-auto w-full max-w-md p-4">

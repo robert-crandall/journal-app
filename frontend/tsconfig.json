@@ -2,7 +2,7 @@
 	"extends": "./.svelte-kit/tsconfig.json",
 	"include": [
 		"src/**/*.js",
-		"src/**/*.ts", 
+		"src/**/*.ts",
 		"src/**/*.svelte",
 		"tests/**/*.js",
 		"tests/**/*.ts",
@@ -36,7 +36,7 @@
 		"module": "ESNext",
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"verbatimModuleSyntax": true,
-		
+
 		// Additional strict type checking
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
