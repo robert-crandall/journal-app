@@ -59,8 +59,8 @@ Based on: `prd-dd-life-gamification-frontend.md`
   - [x] 2.6 Create registration page (`/register`) with form validation
   - [x] 2.7 Implement authentication route guards and redirects
   - [x] 2.8 Add logout functionality with state cleanup
-  - [ ] 2.9 Write E2E tests for complete authentication flow (register, login, logout)
-  - [ ] 2.10 Verify all authentication tests pass and JWT integration works
+  - [x] 2.9 Write E2E tests for complete authentication flow (register, login, logout)
+  - [x] 2.10 Verify all authentication tests pass and JWT integration works
 
 - [ ] 3.0 Theme System and Design Foundation
   - [ ] 3.1 Create theme store with dark/light mode using Svelte 5 runes
