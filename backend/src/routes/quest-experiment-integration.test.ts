@@ -3,6 +3,7 @@ import { db } from '../db/connection'
 import { users, characters } from '../db/schema'
 import { createTestUser } from '../utils/test-helpers'
 import { eq } from 'drizzle-orm'
+import app from '../index'
 
 /**
  * Quest and Experiment Management Integration Tests - Task 6.9
@@ -16,17 +17,11 @@ import { eq } from 'drizzle-orm'
  * - API integration
  */
 
-const BASE_URL = 'http://localhost:3000'
 let userId: string
 let characterId: string
 
 let testQuestId: string
 let testExperimentId: string
-
-// Generate UUIDs using crypto.randomUUID()
-function generateUUID(): string {
-  return crypto.randomUUID()
-}
 
 describe('Quest and Experiment Management End-to-End Integration - Task 6.9', () => {
   beforeAll(async () => {
@@ -40,7 +35,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     userId = user.id
     
     const [character] = await db.insert(characters).values({
-      id: generateUUID(),
+      id: crypto.randomUUID(),
       userId: userId,
       name: 'Test Adventurer',
       class: 'Explorer',
@@ -50,17 +45,17 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     characterId = character.id
     
     // Verify backend is running
-    const response = await fetch(`${BASE_URL}/api/quests?userId=${userId}`)
+    const response = await app.request(`/api/quests?userId=${userId}`)
     expect(response.ok).toBe(true)
   })
 
   afterAll(async () => {
     // Clean up test data
     if (testQuestId) {
-      await fetch(`${BASE_URL}/api/quests/${testQuestId}?userId=${userId}`, { method: 'DELETE' })
+      await app.request(`/api/quests/${testQuestId}?userId=${userId}`, { method: 'DELETE' })
     }
     if (testExperimentId) {
-      await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`, { method: 'DELETE' })
+      await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`, { method: 'DELETE' })
     }
     
     // Clean up test user and character
@@ -84,7 +79,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
         progressNotes: 'Starting with local hiking trails'
       }
 
-      const response = await fetch(`${BASE_URL}/api/quests`, {
+      const response = await app.request('/api/quests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(questData)
@@ -101,7 +96,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should retrieve quest details for viewing/editing', async () => {
-      const response = await fetch(`${BASE_URL}/api/quests/${testQuestId}?userId=${userId}`)
+      const response = await app.request(`/api/quests/${testQuestId}?userId=${userId}`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -113,7 +108,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should update quest status (simulating status management)', async () => {
-      const response = await fetch(`${BASE_URL}/api/quests/${testQuestId}`, {
+      const response = await app.request(`/api/quests/${testQuestId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -130,7 +125,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
 
     test('should update quest details (simulating edit functionality)', async () => {
       const updatedTitle = 'Complete 40 Outdoor Adventures - Updated Goal'
-      const response = await fetch(`${BASE_URL}/api/quests/${testQuestId}`, {
+      const response = await app.request(`/api/quests/${testQuestId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -147,7 +142,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should list all quests for dashboard view', async () => {
-      const response = await fetch(`${BASE_URL}/api/quests?userId=${userId}`)
+      const response = await app.request(`/api/quests?userId=${userId}`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -163,7 +158,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should filter quests by status for organized dashboard', async () => {
-      const response = await fetch(`${BASE_URL}/api/quests?userId=${userId}&status=paused`)
+      const response = await app.request(`/api/quests?userId=${userId}&status=paused`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -189,7 +184,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       }
 
-      const response = await fetch(`${BASE_URL}/api/experiments`, {
+      const response = await app.request('/api/experiments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(experimentData)
@@ -207,7 +202,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should retrieve experiment details for viewing/editing', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`)
+      const response = await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -220,7 +215,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should complete experiment with results (simulating completion workflow)', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}`, {
+      const response = await app.request(`/api/experiments/${testExperimentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -238,7 +233,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should update experiment details (simulating edit functionality)', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}`, {
+      const response = await app.request(`/api/experiments/${testExperimentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -255,7 +250,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should list all experiments for dashboard view', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments?userId=${userId}`)
+      const response = await app.request(`/api/experiments?userId=${userId}`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -271,7 +266,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should filter experiments by status for organized dashboard', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments?userId=${userId}&status=completed`)
+      const response = await app.request(`/api/experiments?userId=${userId}&status=completed`)
       
       expect(response.ok).toBe(true)
       const result = await response.json()
@@ -287,7 +282,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
 
   describe('User Interface Integration Validation', () => {
     test('should validate quest data structure matches UI requirements', async () => {
-      const response = await fetch(`${BASE_URL}/api/quests/${testQuestId}?userId=${userId}`)
+      const response = await app.request(`/api/quests/${testQuestId}?userId=${userId}`)
       const result = await response.json()
       
       expect(result.success).toBe(true)
@@ -310,7 +305,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should validate experiment data structure matches UI requirements', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`)
+      const response = await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`)
       const result = await response.json()
       
       expect(result.success).toBe(true)
@@ -339,7 +334,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     })
 
     test('should calculate timeline information for UI display', async () => {
-      const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`)
+      const response = await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`)
       const result = await response.json()
       
       const experiment = result.data.experiment
@@ -359,8 +354,8 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
   describe('Quest and Experiment Management Dashboard Features', () => {
     test('should maintain separate collections for dashboard tabs', async () => {
       // Get both quests and experiments for dashboard
-      const questsResponse = await fetch(`${BASE_URL}/api/quests?userId=${userId}`)
-      const experimentsResponse = await fetch(`${BASE_URL}/api/experiments?userId=${userId}`)
+      const questsResponse = await app.request(`/api/quests?userId=${userId}`)
+      const experimentsResponse = await app.request(`/api/experiments?userId=${userId}`)
       
       expect(questsResponse.ok).toBe(true)
       expect(experimentsResponse.ok).toBe(true)
@@ -382,8 +377,8 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
 
     test('should support status-based filtering for dashboard organization', async () => {
       // Test quest status filtering
-      const activeQuestsResponse = await fetch(`${BASE_URL}/api/quests?userId=${userId}&status=active`)
-      const pausedQuestsResponse = await fetch(`${BASE_URL}/api/quests?userId=${userId}&status=paused`)
+      const activeQuestsResponse = await app.request(`/api/quests?userId=${userId}&status=active`)
+      const pausedQuestsResponse = await app.request(`/api/quests?userId=${userId}&status=paused`)
       
       expect(activeQuestsResponse.ok).toBe(true)
       expect(pausedQuestsResponse.ok).toBe(true)
@@ -401,7 +396,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       })
       
       // Test experiment status filtering
-      const completedExperimentsResponse = await fetch(`${BASE_URL}/api/experiments?userId=${userId}&status=completed`)
+      const completedExperimentsResponse = await app.request(`/api/experiments?userId=${userId}&status=completed`)
       expect(completedExperimentsResponse.ok).toBe(true)
       
       const completedExperimentsResult = await completedExperimentsResponse.json()
@@ -413,19 +408,19 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
     test('should provide proper error responses for UI error handling', async () => {
       // Test 404 handling for non-existent quest
       const nonExistentId = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
-      const questResponse = await fetch(`${BASE_URL}/api/quests/${nonExistentId}?userId=${userId}`)
+      const questResponse = await app.request(`/api/quests/${nonExistentId}?userId=${userId}`)
       
       expect(questResponse.ok).toBe(false)
       expect(questResponse.status).toBe(404)
       
       // Test 404 handling for non-existent experiment
-      const experimentResponse = await fetch(`${BASE_URL}/api/experiments/${nonExistentId}?userId=${userId}`)
+      const experimentResponse = await app.request(`/api/experiments/${nonExistentId}?userId=${userId}`)
       
       expect(experimentResponse.ok).toBe(false)
       expect(experimentResponse.status).toBe(404)
       
       // Test validation errors for malformed data
-      const invalidQuestResponse = await fetch(`${BASE_URL}/api/quests`, {
+      const invalidQuestResponse = await app.request(`/api/quests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }) // Missing required fields
@@ -441,7 +436,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       const validStatuses = ['active', 'paused', 'completed', 'abandoned']
       
       for (const status of validStatuses) {
-        const response = await fetch(`${BASE_URL}/api/quests/${testQuestId}`, {
+        const response = await app.request(`/api/quests/${testQuestId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -461,7 +456,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       const validStatuses = ['active', 'paused', 'completed', 'abandoned']
       
       for (const status of validStatuses) {
-        const response = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}`, {
+        const response = await app.request(`/api/experiments/${testExperimentId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -483,11 +478,11 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       // CREATE - Already tested above
       
       // READ - Get quest details
-      const readResponse = await fetch(`${BASE_URL}/api/quests/${testQuestId}?userId=${userId}`)
+      const readResponse = await app.request(`/api/quests/${testQuestId}?userId=${userId}`)
       expect(readResponse.ok).toBe(true)
       
       // UPDATE - Update quest details
-      const updateResponse = await fetch(`${BASE_URL}/api/quests/${testQuestId}`, {
+      const updateResponse = await app.request(`/api/quests/${testQuestId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -498,7 +493,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       expect(updateResponse.ok).toBe(true)
       
       // Verify update worked
-      const verifyResponse = await fetch(`${BASE_URL}/api/quests/${testQuestId}?userId=${userId}`)
+      const verifyResponse = await app.request(`/api/quests/${testQuestId}?userId=${userId}`)
       const verifyResult = await verifyResponse.json()
       expect(verifyResult.data.quest.title).toBe('Final Updated Quest Title')
       
@@ -509,11 +504,11 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       // CREATE - Already tested above
       
       // READ - Get experiment details
-      const readResponse = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`)
+      const readResponse = await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`)
       expect(readResponse.ok).toBe(true)
       
       // UPDATE - Update experiment details
-      const updateResponse = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}`, {
+      const updateResponse = await app.request(`/api/experiments/${testExperimentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -524,7 +519,7 @@ describe('Quest and Experiment Management End-to-End Integration - Task 6.9', ()
       expect(updateResponse.ok).toBe(true)
       
       // Verify update worked
-      const verifyResponse = await fetch(`${BASE_URL}/api/experiments/${testExperimentId}?userId=${userId}`)
+      const verifyResponse = await app.request(`/api/experiments/${testExperimentId}?userId=${userId}`)
       const verifyResult = await verifyResponse.json()
       expect(verifyResult.data.experiment.title).toBe('Final Updated Experiment Title')
       

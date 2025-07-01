@@ -211,11 +211,12 @@ describe('Character Stats Management API Integration Tests', () => {
 
   test('Stats operations should verify character ownership', async () => {
     // Create another user
-    const [otherUser] = await db.insert(users).values({
+    const otherUserData = await createTestUser({
       email: 'other-stats-test@example.com',
       name: 'Other User',
       timezone: 'UTC',
-    }).returning()
+    })
+    const otherUser = otherUserData.user
 
     const res = await client.api.characters[':id'].stats.$get({
       param: { id: testCharacterId },

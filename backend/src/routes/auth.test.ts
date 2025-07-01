@@ -2,6 +2,7 @@ import { describe, expect, test, beforeAll, afterAll } from 'bun:test'
 import { db } from '../db/connection'
 import { users } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import app from '../index'
 
 describe('Authentication Integration Tests', () => {
   const testUsers: string[] = []
@@ -14,7 +15,7 @@ describe('Authentication Integration Tests', () => {
   })
 
   test('should register a new user with hashed password', async () => {
-    const response = await fetch('http://localhost:3000/api/auth/register', {
+    const response = await app.request('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -37,7 +38,7 @@ describe('Authentication Integration Tests', () => {
 
   test('should login with correct credentials', async () => {
     // First register a user
-    const registerResponse = await fetch('http://localhost:3000/api/auth/register', {
+    const registerResponse = await app.request('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -52,7 +53,7 @@ describe('Authentication Integration Tests', () => {
     testUsers.push(registerData.data.user.id)
 
     // Then try to login
-    const loginResponse = await fetch('http://localhost:3000/api/auth/login', {
+    const loginResponse = await app.request('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -70,7 +71,7 @@ describe('Authentication Integration Tests', () => {
 
   test('should reject login with incorrect password', async () => {
     // First register a user
-    const registerResponse = await fetch('http://localhost:3000/api/auth/register', {
+    const registerResponse = await app.request('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -85,7 +86,7 @@ describe('Authentication Integration Tests', () => {
     testUsers.push(registerData.data.user.id)
 
     // Then try to login with wrong password
-    const loginResponse = await fetch('http://localhost:3000/api/auth/login', {
+    const loginResponse = await app.request('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -98,7 +99,7 @@ describe('Authentication Integration Tests', () => {
   })
 
   test('should create demo user successfully', async () => {
-    const response = await fetch('http://localhost:3000/api/auth/create-demo-user', {
+    const response = await app.request('/api/auth/create-demo-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     })

@@ -284,10 +284,11 @@ describe('Character API Integration Tests', () => {
 
   test('Character operations should verify user ownership', async () => {
     // Create another test user with unique email
-    const [otherUser] = await db.insert(users).values({
+    const otherUserData = await createTestUser({
       email: `other-user-${Date.now()}@example.com`,
       name: 'Other User'
-    }).returning()
+    })
+    const otherUser = otherUserData.user
 
     // Create a character for the first user
     const characterData = {
