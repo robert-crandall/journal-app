@@ -12,13 +12,13 @@ describe('Character System Integration Tests - Task 2.10', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `integration-test-${Date.now()}@example.com`,
       name: 'Integration Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
-    cleanupUserIds.push(user.id)
+    })
+    testUserId = testUserData.user.id
+    cleanupUserIds.push(testUserId)
   })
 
   afterEach(async () => {
@@ -262,12 +262,12 @@ describe('Character System Integration Tests - Task 2.10', () => {
 
     it('should handle character ownership and access control across all endpoints', async () => {
       // Create two users
-      const [anotherUser] = await db.insert(users).values({
+      const anotherUserData = await createTestUser({
         email: `another-user-${Date.now()}@example.com`,
         name: 'Another User',
         timezone: 'UTC'
-      }).returning()
-      cleanupUserIds.push(anotherUser.id)
+      })
+      cleanupUserIds.push(anotherUserData.user.id)
 
       // User 1 creates a character
       const createResponse = await app.request(`/api/characters?userId=${testUserId}`, {
@@ -295,21 +295,21 @@ describe('Character System Integration Tests - Task 2.10', () => {
       
       // Dashboard access
       const dashboardResponse = await app.request(
-        `/api/characters/${characterId}/dashboard?userId=${anotherUser.id}`,
+        `/api/characters/${characterId}/dashboard?userId=${anotherUserData.user.id}`,
         { method: 'GET' }
       )
       expect(dashboardResponse.status).toBe(404)
 
       // Character details access
       const detailsResponse = await app.request(
-        `/api/characters/${characterId}?userId=${anotherUser.id}`,
+        `/api/characters/${characterId}?userId=${anotherUserData.user.id}`,
         { method: 'GET' }
       )
       expect(detailsResponse.status).toBe(404)
 
       // Stats access
       const statsAccessResponse = await app.request(
-        `/api/characters/${characterId}/stats?userId=${anotherUser.id}`,
+        `/api/characters/${characterId}/stats?userId=${anotherUserData.user.id}`,
         { method: 'GET' }
       )
       expect(statsAccessResponse.status).toBe(404)
@@ -321,7 +321,7 @@ describe('Character System Integration Tests - Task 2.10', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: anotherUser.id,
+            userId: anotherUserData.user.id,
             xpAmount: 100,
             reason: 'Unauthorized attempt'
           })
@@ -331,14 +331,14 @@ describe('Character System Integration Tests - Task 2.10', () => {
 
       // Stat progression access
       const progressionResponse = await app.request(
-        `/api/characters/${characterId}/stats/${statId}/progression?userId=${anotherUser.id}`,
+        `/api/characters/${characterId}/stats/${statId}/progression?userId=${anotherUserData.user.id}`,
         { method: 'GET' }
       )
       expect(progressionResponse.status).toBe(403)
 
       // Character update access
       const updateResponse = await app.request(
-        `/api/characters/${characterId}?userId=${anotherUser.id}`,
+        `/api/characters/${characterId}?userId=${anotherUserData.user.id}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

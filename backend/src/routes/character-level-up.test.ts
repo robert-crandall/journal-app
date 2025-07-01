@@ -17,11 +17,11 @@ describe('Character Level-Up System Integration Tests', () => {
     await db.delete(users)
 
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: 'levelup@test.com',
       name: 'Level Up Test User'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create test character
     const [character] = await db.insert(characters).values({
@@ -239,13 +239,13 @@ describe('Character Level-Up System Integration Tests', () => {
 
   test('Level-up operations should verify character ownership', async () => {
     // Create different user
-    const [otherUser] = await db.insert(users).values({
+    const otherUserData = await createTestUser({
       email: 'other@test.com',
       name: 'Other Test User'
-    }).returning()
-    
-    const res = await app.request(`/api/characters/${testCharacterId}/level-up-opportunities?userId=${otherUser.id}`)
-    
+    })
+
+    const res = await app.request(`/api/characters/${testCharacterId}/level-up-opportunities?userId=${otherUserData.user.id}`)
+
     expect(res.status).toBe(404)
     const errorText = await res.text()
     expect(errorText).toBe('Character not found')

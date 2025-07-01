@@ -12,12 +12,12 @@ describe('Character Stat Progression API', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create test character
     const [character] = await db.insert(characters).values({
@@ -126,11 +126,12 @@ describe('Character Stat Progression API', () => {
 
     it('should validate character ownership', async () => {
       // Create another user
-      const [anotherUser] = await db.insert(users).values({
+      const anotherUserData = await createTestUser({
         email: `other-${Date.now()}@example.com`,
         name: 'Other User',
         timezone: 'UTC'
-      }).returning()
+      })
+      const anotherUser = anotherUserData.user
 
       const response = await app.request(`/api/characters/${testCharacterId}/stats/${testStatId}/award-xp`, {
         method: 'POST',
@@ -240,11 +241,12 @@ describe('Character Stat Progression API', () => {
 
     it('should validate character ownership for progression view', async () => {
       // Create another user
-      const [anotherUser] = await db.insert(users).values({
+      const anotherUserData = await createTestUser({
         email: `other-${Date.now()}@example.com`,
         name: 'Other User',
         timezone: 'UTC'
-      }).returning()
+      })
+      const anotherUser = anotherUserData.user
 
       const response = await app.request(`/api/characters/${testCharacterId}/stats/${testStatId}/progression?userId=${anotherUser.id}`, {
         method: 'GET',

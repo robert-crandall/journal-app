@@ -3,6 +3,7 @@ import { test, expect, describe, beforeAll, afterAll } from 'bun:test'
 import { db, connection } from './connection'
 import { users, characters, characterStats, familyMembers, tasks, taskCompletions } from './schema'
 import { eq } from 'drizzle-orm'
+import { createTestUser } from '../utils/test-helpers'
 
 describe('Database Schema Integration Tests', () => {
   let testUserId: string
@@ -21,12 +22,13 @@ describe('Database Schema Integration Tests', () => {
   })
 
   test('should create user with UUID primary key', async () => {
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: 'test@schema.test',
       name: 'Test User',
       timezone: 'UTC',
       zipCode: '12345',
-    }).returning()
+    })
+    const user = testUserData.user
 
     testUserId = user.id
 
@@ -155,10 +157,11 @@ describe('Database Schema Integration Tests', () => {
 
   test('should handle timezone-aware timestamps correctly', async () => {
     const now = new Date()
-    const [user] = await db.insert(users).values({
+    const timezoneUserData = await createTestUser({
       email: 'timezone@test.com',
       name: 'Timezone Test',
-    }).returning()
+    })
+    const user = timezoneUserData.user
 
     // Check that timestamps are properly stored with timezone
     expect(user.createdAt).toBeInstanceOf(Date)
@@ -192,10 +195,11 @@ describe('Database Schema Integration Tests', () => {
 
   test('should cascade delete properly', async () => {
     // Create a temporary user
-    const [tempUser] = await db.insert(users).values({
+    const tempUserData = await createTestUser({
       email: 'cascade@test.com',
       name: 'Cascade Test',
-    }).returning()
+    })
+    const tempUser = tempUserData.user
 
     // Create a character for this user
     const [tempCharacter] = await db.insert(characters).values({

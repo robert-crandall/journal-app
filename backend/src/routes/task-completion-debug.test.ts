@@ -13,12 +13,12 @@ describe('Task Completion Debug', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-completion-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create test character
     const [character] = await db.insert(characters).values({

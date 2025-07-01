@@ -12,12 +12,12 @@ describe('Character API Integration Tests', () => {
 
   beforeAll(async () => {
     // Create a test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: 'character-test@example.com',
       name: 'Character Test User',
       timezone: 'UTC',
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
   })
 
   afterAll(async () => {

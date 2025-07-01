@@ -16,6 +16,7 @@ import { DailyTaskGenerationService } from './daily-task-generation-service'
 import { AIService } from './ai-service'
 import { AIContextService } from './ai-context-service'
 import { ScheduledTaskGenerationService } from './scheduled-task-generation-service'
+import { createTestUser } from '../utils/test-helpers'
 
 // Generate UUIDs using crypto.randomUUID()
 function generateUUID(): string {
@@ -68,13 +69,13 @@ describe('AI Task Generation Integration Tests - Task 4.12', () => {
     console.log('Setting up AI task generation integration tests...')
     
     // Create comprehensive test user
-    const [user] = await db.insert(usersTable).values({
-      id: generateUUID(),
+    const testUserData = await createTestUser({
       email: 'ai-integration-test@example.com',
       name: 'AI Task Integration Test User',
       timezone: 'America/New_York',
       zipCode: '10001' // NYC for weather testing
-    }).returning()
+    })
+    const user = testUserData.user
     
     testUserId = user.id
     cleanupUserIds.push(user.id)
@@ -329,11 +330,11 @@ describe('AI Task Generation Integration Tests - Task 4.12', () => {
 
     it('should handle context gathering for users without complete data', async () => {
       // Create minimal user without family/goals
-      const [minimalUser] = await db.insert(usersTable).values({
-        id: generateUUID(),
+      const minimalUserData = await createTestUser({
         email: 'minimal-user@example.com',
         name: 'Minimal User'
-      }).returning()
+      })
+      const minimalUser = minimalUserData.user
       cleanupUserIds.push(minimalUser.id)
 
       const [minimalChar] = await db.insert(charactersTable).values({
@@ -839,11 +840,11 @@ describe('AI Task Generation Integration Tests - Task 4.12', () => {
 
     it('should handle error scenarios gracefully across the pipeline', async () => {
       // Test with user that has minimal context
-      const [minimalUser] = await db.insert(usersTable).values({
-        id: generateUUID(),
+      const minimalUserData = await createTestUser({
         email: 'minimal-error-test@example.com',
         name: 'Error Test User'
-      }).returning()
+      })
+      const minimalUser = minimalUserData.user
       cleanupUserIds.push(minimalUser.id)
 
       // No character - should fail gracefully
@@ -915,11 +916,11 @@ describe('AI Task Generation Integration Tests - Task 4.12', () => {
       // Create additional test users
       const additionalUsers = []
       for (let i = 0; i < 3; i++) {
-        const [user] = await db.insert(usersTable).values({
-          id: generateUUID(),
+        const userData = await createTestUser({
           email: `concurrent-test-${i}@example.com`,
           name: `Concurrent Test User ${i}`
-        }).returning()
+        })
+        const user = userData.user
         cleanupUserIds.push(user.id)
 
         const [character] = await db.insert(charactersTable).values({

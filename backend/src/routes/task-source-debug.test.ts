@@ -17,12 +17,12 @@ describe('Task Source Debug Test', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-debug-${Date.now()}@example.com`,
       name: 'Debug Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
     cleanupUserIds.push(testUserId)
 
     // Create test character

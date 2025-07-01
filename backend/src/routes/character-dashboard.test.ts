@@ -12,12 +12,12 @@ describe('Character Dashboard API - Task 2.9', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-dashboard-${Date.now()}@example.com`,
       name: 'Dashboard Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create test character
     const [character] = await db.insert(characters).values({
@@ -192,11 +192,12 @@ describe('Character Dashboard API - Task 2.9', () => {
 
     it('should handle unauthorized access to character', async () => {
       // Create another user
-      const [anotherUser] = await db.insert(users).values({
+      const anotherUserData = await createTestUser({
         email: `another-user-${Date.now()}@example.com`,
         name: 'Another User',
         timezone: 'UTC'
-      }).returning()
+      })
+      const anotherUser = anotherUserData.user
 
       const response = await app.request(
         `/api/characters/${testCharacterId}/dashboard?userId=${anotherUser.id}`,

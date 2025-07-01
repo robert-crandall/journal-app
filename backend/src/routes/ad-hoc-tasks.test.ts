@@ -21,13 +21,13 @@ describe('Ad-Hoc Task Management API Integration Tests - Task 3.7', () => {
     console.log('Setting up ad-hoc task management integration tests...')
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-adhoc-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
-    cleanupUserIds.push(user.id)
+    })
+    testUserId = testUserData.user.id
+    cleanupUserIds.push(testUserId)
 
     // Create test character
     const [character] = await db.insert(characters).values({

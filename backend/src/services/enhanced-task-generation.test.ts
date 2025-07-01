@@ -13,6 +13,7 @@ import {
 import { eq, and } from 'drizzle-orm'
 import { DailyTaskGenerationService } from './daily-task-generation-service'
 import { AIService } from './ai-service'
+import { createTestUser } from '../utils/test-helpers'
 
 // Mock the AI service to avoid real API calls
 const mockAIService = {
@@ -131,10 +132,11 @@ describe('Enhanced Task Generation - Tasks 4.7, 4.8, 4.9', () => {
     ;(service as any).aiService = mockAIService
 
     // Create test user
-    const [user] = await db.insert(usersTable).values({
+    const testUserData = await createTestUser({
       email: `test-enhanced-${Date.now()}@example.com`,
       name: 'Enhanced Test User'
-    }).returning()
+    })
+    const user = testUserData.user
     testUserId = user.id
 
     // Create test character

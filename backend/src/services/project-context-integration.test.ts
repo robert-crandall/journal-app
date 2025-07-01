@@ -4,6 +4,7 @@ import { users, characters, characterStats, projects as projectsTable } from '..
 import { AIContextService } from './ai-context-service'
 import { AIService } from './ai-service'
 import { eq } from 'drizzle-orm'
+import { createTestUser } from '../utils/test-helpers'
 
 // Load environment variables
 import '../env'
@@ -111,13 +112,11 @@ describe('Project Context Integration (Task 4.10)', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db
-      .insert(users)
-      .values({
-        email: `test-project-context-${Date.now()}@example.com`,
-        name: 'Project Context Test User'
-      })
-      .returning()
+    const testUserData = await createTestUser({
+      email: `test-project-context-${Date.now()}@example.com`,
+      name: 'Project Context Test User'
+    })
+    const user = testUserData.user
     
     testUserId = user.id
     cleanupUserIds.push(testUserId)

@@ -18,13 +18,13 @@ describe('Dashboard API Integration Tests - Task 3.4', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-dashboard-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
-    cleanupUserIds.push(user.id)
+    })
+    testUserId = testUserData.user.id
+    cleanupUserIds.push(testUserId)
 
     // Create test character
     const [character] = await db.insert(characters).values({

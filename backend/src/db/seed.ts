@@ -1,5 +1,6 @@
 import { db } from './connection'
 import { users, characters, characterStats, familyMembers } from './schema'
+import bcrypt from 'bcrypt'
 
 export async function seedDatabase() {
   console.log('🌱 Seeding database...')
@@ -9,6 +10,7 @@ export async function seedDatabase() {
     const [user] = await db.insert(users).values({
       email: 'demo@example.com',
       name: 'Demo User',
+      password: await bcrypt.hash('demopassword123', 10),
       timezone: 'America/New_York',
       zipCode: '12345',
     }).returning()

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test'
 import app from '../index'
 import { db } from '../db/connection'
+import { createTestUser } from '../utils/test-helpers'
+
 import { 
   users, 
   characters, 
@@ -29,17 +31,17 @@ describe('Scheduled Task Generation API Integration Tests - Task 4.11', () => {
 
   beforeAll(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       id: generateUUID(),
       email: 'scheduled-api-test@example.com',
       name: 'Scheduled API Test User',
       timezone: 'UTC',
       zipCode: '10001'
-    }).returning()
-    
-    testUserId = user.id
-    cleanupUserIds.push(user.id)
-    
+    })
+
+    testUserId = testUserData.user.id
+    cleanupUserIds.push(testUserId)
+
     // Create test character
     const [character] = await db.insert(characters).values({
       id: generateUUID(),

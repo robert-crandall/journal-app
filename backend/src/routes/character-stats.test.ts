@@ -7,18 +7,18 @@ import { createTestUser } from '../utils/test-helpers'
 import { eq, and } from 'drizzle-orm'
 
 describe('Character Stats Management API Integration Tests', () => {
-  const client = testClient(app)
+  const client = testClient<typeof app>(app)
   let testUserId: string
   let testCharacterId: string
 
   beforeAll(async () => {
     // Create a test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: 'stats-test@example.com',
       name: 'Stats Test User',
       timezone: 'UTC',
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create a test character (which will auto-create default stats)
     const [character] = await db.insert(characters).values({

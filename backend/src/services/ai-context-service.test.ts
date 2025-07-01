@@ -13,10 +13,7 @@ import {
 } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import { AIContextService } from './ai-context-service'
-// Simple UUID generator for tests
-function generateUUID(): string {
-  return crypto.randomUUID()
-}
+import { createTestUser } from '../utils/test-helpers'
 
 describe('AIContextService', () => {
   let contextService: AIContextService
@@ -36,19 +33,18 @@ describe('AIContextService', () => {
     contextService = new AIContextService()
     
     // Create test user
-    const [user] = await db.insert(users).values({
-      id: generateUUID(),
+    const testUserData = await createTestUser({
       email: 'context-test@example.com',
       name: 'Context Test User',
       timezone: 'UTC'
-    }).returning()
+    })
     
-    testUserId = user.id
-    cleanupUserIds.push(user.id)
+    testUserId = testUserData.user.id
+    cleanupUserIds.push(testUserData.user.id)
     
     // Create test character
     const [character] = await db.insert(characters).values({
-      id: generateUUID(),
+      id: crypto.randomUUID(),
       userId: testUserId,
       name: 'Test Adventure Seeker',
       class: 'Life Explorer',
@@ -164,15 +160,15 @@ describe('AIContextService', () => {
 
     it('should handle character not found', async () => {
       // Create user without character
-      const [userWithoutChar] = await db.insert(users).values({
+      const userWithoutCharData = await createTestUser({
         email: 'no-char@example.com',
         name: 'No Character User',
         timezone: 'UTC'
-      }).returning()
-      cleanupUserIds.push(userWithoutChar.id)
+      })
+      cleanupUserIds.push(userWithoutCharData.user.id)
 
       const result = await contextService.gatherUserContext({
-        userId: userWithoutChar.id
+        userId: userWithoutCharData.user.id
       })
 
       expect(result.success).toBe(false)
@@ -539,15 +535,15 @@ describe('AIContextService', () => {
 
     it('should handle empty family members gracefully', async () => {
       // Create user with no family members
-      const [userNoFamily] = await db.insert(users).values({
+      const userNoFamilyData = await createTestUser({
         email: 'no-family@example.com',
         name: 'No Family User',
         timezone: 'UTC'
-      }).returning()
-      cleanupUserIds.push(userNoFamily.id)
+      })
+      cleanupUserIds.push(userNoFamilyData.user.id)
 
       const [charNoFamily] = await db.insert(characters).values({
-        userId: userNoFamily.id,
+        userId: userNoFamilyData.user.id,
         name: 'Solo Character',
         class: 'Independent Explorer',
         backstory: 'A self-reliant adventurer'
@@ -565,7 +561,7 @@ describe('AIContextService', () => {
       cleanupStatIds.push(stat.id)
 
       const result = await contextService.gatherUserContext({
-        userId: userNoFamily.id
+        userId: userNoFamilyData.user.id
       })
 
       expect(result.success).toBe(true)

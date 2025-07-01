@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import app from '../index'
 import { db } from '../db/connection'
+import { createTestUser } from '../utils/test-helpers'
+
 import { 
   users, 
   characters, 
@@ -35,12 +37,12 @@ describe('Task Management System Integration Tests - Task 3.12', () => {
     console.log('Setting up comprehensive task management system test...')
     
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-task-system-${Date.now()}@example.com`,
       name: 'Task System Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
     cleanupUserIds.push(testUserId)
 
     // Create test character

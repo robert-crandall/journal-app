@@ -11,11 +11,7 @@ import {
 } from '../db/schema'
 import { eq, and, gte, lte } from 'drizzle-orm'
 import { DailyTaskGenerationService } from './daily-task-generation-service'
-
-// Simple UUID generator for tests
-function generateUUID(): string {
-  return crypto.randomUUID()
-}
+import { createTestUser } from '../utils/test-helpers'
 
 describe('DailyTaskGenerationService', () => {
   let taskService: DailyTaskGenerationService
@@ -68,19 +64,19 @@ describe('DailyTaskGenerationService', () => {
     })
 
     // Create test user
-    const [user] = await db.insert(users).values({
-      id: generateUUID(),
+    const testUserData = await createTestUser({
       email: 'task-gen-test@example.com',
       name: 'Task Generation Test User',
       timezone: 'UTC'
-    }).returning()
+    })
+    const user = testUserData.user
     
     testUserId = user.id
     cleanupUserIds.push(user.id)
     
     // Create test character
     const [character] = await db.insert(characters).values({
-      id: generateUUID(),
+      id: crypto.randomUUID(),
       userId: testUserId,
       name: 'Test Adventure Hero',
       class: 'Adventure Explorer',
@@ -563,11 +559,12 @@ describe('DailyTaskGenerationService', () => {
   describe('Error Handling', () => {
     it('should handle user without character gracefully', async () => {
       // Create user without character
-      const [userWithoutChar] = await db.insert(users).values({
+      const userWithoutCharData = await createTestUser({
         email: 'no-char@example.com',
         name: 'No Character User',
         timezone: 'UTC'
-      }).returning()
+      })
+      const userWithoutChar = userWithoutCharData.user
       cleanupUserIds.push(userWithoutChar.id)
 
       const result = await taskService.generateDailyTasks({

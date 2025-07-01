@@ -21,11 +21,11 @@ describe('External Task Source Architecture - Task 3.9', () => {
 
   beforeAll(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: 'external-test@example.com',
       name: 'External Test User'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
 
     // Create test character with stats
     const [character] = await db.insert(characters).values({

@@ -14,12 +14,12 @@ describe('Simple Todos API Integration Tests - Task 3.8', () => {
 
   beforeEach(async () => {
     // Create test user
-    const [user] = await db.insert(users).values({
+    const testUserData = await createTestUser({
       email: `test-todos-${Date.now()}@example.com`,
       name: 'Test User',
       timezone: 'UTC'
-    }).returning()
-    testUserId = user.id
+    })
+    testUserId = testUserData.user.id
     cleanupUserIds.push(testUserId)
 
     // Create test character
