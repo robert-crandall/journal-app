@@ -50,11 +50,11 @@ Based on: `prd-dd-life-gamification-frontend.md`
   - [ ] 1.8 Write E2E test to verify basic SPA routing and build process
   - [ ] 1.9 Ensure all configuration tests pass
 
-- [ ] 2.0 Authentication System with JWT Integration
-  - [ ] 2.1 Create authentication store using Svelte 5 runes (`$state`, `$derived`)
-  - [ ] 2.2 Implement JWT token storage and retrieval utilities
-  - [ ] 2.3 Build LoginForm component with validation using Svelte 5 patterns
-  - [ ] 2.4 Build RegisterForm component with email/password validation
+- [x] 2.0 Authentication System with JWT Integration
+  - [x] 2.1 Create authentication store using Svelte 5 runes (`$state`, `$derived`)
+  - [x] 2.2 Implement JWT token storage and retrieval utilities
+  - [x] 2.3 Build LoginForm component with validation using Svelte 5 patterns
+  - [x] 2.4 Build RegisterForm component with email/password validation
   - [ ] 2.5 Create login page (`/login`) with proper form handling
   - [ ] 2.6 Create registration page (`/register`) with form validation
   - [ ] 2.7 Implement authentication route guards and redirects
