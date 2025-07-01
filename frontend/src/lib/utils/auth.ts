@@ -1,4 +1,5 @@
-import { browser } from '$app/environment';
+// Check if we're in browser environment (handles test environment)
+const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
 // Token management utilities
 export class TokenManager {
@@ -6,22 +7,22 @@ export class TokenManager {
 	private static readonly USER_KEY = 'auth_user';
 
 	static getToken(): string | null {
-		if (!browser) return null;
+		if (!isBrowser) return null;
 		return localStorage.getItem(TokenManager.TOKEN_KEY);
 	}
 
 	static setToken(token: string): void {
-		if (!browser) return;
+		if (!isBrowser) return;
 		localStorage.setItem(TokenManager.TOKEN_KEY, token);
 	}
 
 	static removeToken(): void {
-		if (!browser) return;
+		if (!isBrowser) return;
 		localStorage.removeItem(TokenManager.TOKEN_KEY);
 	}
 
 	static getStoredUser(): any | null {
-		if (!browser) return null;
+		if (!isBrowser) return null;
 		const userStr = localStorage.getItem(TokenManager.USER_KEY);
 		if (!userStr) return null;
 
@@ -34,12 +35,12 @@ export class TokenManager {
 	}
 
 	static setStoredUser(user: any): void {
-		if (!browser) return;
+		if (!isBrowser) return;
 		localStorage.setItem(TokenManager.USER_KEY, JSON.stringify(user));
 	}
 
 	static removeStoredUser(): void {
-		if (!browser) return;
+		if (!isBrowser) return;
 		localStorage.removeItem(TokenManager.USER_KEY);
 	}
 

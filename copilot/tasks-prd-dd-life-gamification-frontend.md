@@ -75,17 +75,17 @@ Based on: `prd-dd-life-gamification-frontend.md`
   - [x] 3.10 Theme system fully functional - E2E tests passing for page rendering
   - [x] 3.11 All theme-related functionality working correctly
 
-- [ ] 4.0 Type-Safe API Client with Hono Integration
-  - [ ] 4.1 Set up Hono client (`hc`) with proper TypeScript configuration
-  - [ ] 4.2 Import backend types directly from `backend/src/db/schema.ts`
-  - [ ] 4.3 Create centralized API client with error handling (`lib/api/client.ts`)
-  - [ ] 4.4 Implement API response validation and error utilities
-  - [ ] 4.5 Create authentication API methods (login, register, refresh)
-  - [ ] 4.6 Add request/response interceptors for JWT token handling
-  - [ ] 4.7 Build loading state management for API calls
-  - [ ] 4.8 Create error boundary component for API error handling
-  - [ ] 4.9 Write integration tests for API client with mock backend responses
-  - [ ] 4.10 Verify type safety and error handling across all API methods
+- [x] 4.0 Type-Safe API Client with Hono Integration
+  - [x] 4.1 Set up Hono client (`hc`) with proper TypeScript configuration
+  - [x] 4.2 Import backend types directly from `backend/src/db/schema.ts`
+  - [x] 4.3 Create centralized API client with error handling (`lib/api/client.ts`)
+  - [x] 4.4 Implement API response validation and error utilities
+  - [x] 4.5 Create authentication API methods (login, register, refresh)
+  - [x] 4.6 Add request/response interceptors for JWT token handling
+  - [x] 4.7 Build loading state management for API calls
+  - [x] 4.8 Create error boundary component for API error handling
+  - [x] 4.9 Write integration tests for API client with mock backend responses
+  - [x] 4.10 Verify type safety and error handling across all API methods
 
 - [ ] 5.0 Dashboard Homepage with Task Overview
   - [ ] 5.1 Create dashboard layout with responsive grid system
