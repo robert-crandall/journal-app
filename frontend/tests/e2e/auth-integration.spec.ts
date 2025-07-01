@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Authentication Integration', () => {
   test('should register and login a new user', async ({ page }) => {
     // Go to the register page
-    await page.goto('http://localhost:4173/register');
+    await page.goto('/register');
     
     // Check if the page loads
     await expect(page).toHaveTitle(/Register/);
@@ -22,10 +22,10 @@ test.describe('Authentication Integration', () => {
     await page.click('button[type="submit"]');
     
     // Should redirect to home page after successful registration
-    await page.waitForURL('http://localhost:4173/');
+    await page.waitForURL('/');
     
     // Now test login by going to login page
-    await page.goto('http://localhost:4173/login');
+    await page.goto('/login');
 
     // Fill out login form
     await page.fill('input[type="email"]', email);
@@ -35,11 +35,11 @@ test.describe('Authentication Integration', () => {
     await page.click('button[type="submit"]');
     
     // Should redirect to home page after successful login
-    await page.waitForURL('http://localhost:4173/');
+    await page.waitForURL('/');
   });
   
   test('should show error for invalid login', async ({ page }) => {
-    await page.goto('http://localhost:4173/login');
+    await page.goto('/login');
 
     // Try to login with invalid credentials
     await page.fill('input[type="email"]', 'invalid@example.com');
