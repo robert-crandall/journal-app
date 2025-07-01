@@ -41,7 +41,7 @@ async function createTestUser() {
 	console.log('Creating test user...');
 
 	// First try to register the user
-	const result = await apiRequest('/api/users', {
+	const result = await apiRequest('/api/auth/register', {
 		method: 'POST',
 		body: JSON.stringify({
 			name: TEST_CONFIG.USER.username,

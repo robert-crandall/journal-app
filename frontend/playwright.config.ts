@@ -46,32 +46,19 @@ export default defineConfig({
 	/* Run complete test environment setup */
 	webServer: [
 		{
-			// Start test database
-			command: 'docker-compose -f ../docker-compose.yml up test-db -d',
-			port: 5435,
-			reuseExistingServer: !process.env.CI,
-			timeout: 30000
-		},
-		{
 			// Run database migrations
 			command:
-				'cd ../backend && DATABASE_URL=postgresql://test:test@localhost:5435/example_app bun run db:migrate',
+				'cd ../backend && NODE_ENV=test bun run test:setup',
 			reuseExistingServer: false,
 			timeout: 15000
 		},
 		{
 			// Start backend with test database
 			command:
-				'cd ../backend && DATABASE_URL=postgresql://test:test@localhost:5435/example_app JWT_SECRET=test-secret-at-least-32-chars-long bun run src/index.ts',
+				'cd ../backend && NODE_ENV=test bun run dev',
 			port: 3000,
 			reuseExistingServer: !process.env.CI,
 			timeout: 30000,
-			env: {
-				DATABASE_URL: 'postgresql://test:test@localhost:5435/example_app',
-				JWT_SECRET: 'test-secret-at-least-32-chars-long',
-				FRONTEND_URL: 'http://localhost:4173',
-				NODE_ENV: 'test'
-			}
 		},
 		{
 			// Start frontend dev server
