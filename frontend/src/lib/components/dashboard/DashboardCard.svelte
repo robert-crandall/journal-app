@@ -11,19 +11,19 @@
 		fullWidth?: boolean;
 	}
 
-	let { 
-		children, 
-		title, 
-		status = 'neutral', 
-		href, 
+	let {
+		children,
+		title,
+		status = 'neutral',
+		href,
 		class: className = '',
-		fullWidth = false 
+		fullWidth = false
 	}: Props = $props();
 
 	// Status color mapping based on the design reference
 	const statusColors = {
 		active: 'var(--color-primary, #3b82f6)',
-		completed: 'var(--color-success, #10b981)', 
+		completed: 'var(--color-success, #10b981)',
 		pending: 'var(--color-warning, #f59e0b)',
 		warning: 'var(--color-warning, #f59e0b)',
 		error: 'var(--color-error, #ef4444)',
@@ -33,9 +33,9 @@
 
 <!-- Use anchor tag if href is provided, div otherwise -->
 {#if href}
-	<a 
-		{href} 
-		class="dashboard-card {className}" 
+	<a
+		{href}
+		class="dashboard-card {className}"
 		class:full-width={fullWidth}
 		style="--status-color: {statusColors[status]}"
 	>
@@ -47,8 +47,8 @@
 		</div>
 	</a>
 {:else}
-	<div 
-		class="dashboard-card {className}" 
+	<div
+		class="dashboard-card {className}"
 		class:full-width={fullWidth}
 		style="--status-color: {statusColors[status]}"
 	>
@@ -68,7 +68,9 @@
 		border-left: 4px solid var(--status-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
-		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 1px 3px 0 rgba(0, 0, 0, 0.1),
+			0 1px 2px 0 rgba(0, 0, 0, 0.06);
 		transition: all 0.2s ease-in-out;
 		text-decoration: none;
 		color: inherit;
@@ -76,13 +78,17 @@
 	}
 
 	.dashboard-card:hover {
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		transform: translateY(-1px);
 	}
 
 	.dashboard-card:active {
 		transform: translateY(0);
-		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+		box-shadow:
+			0 1px 3px 0 rgba(0, 0, 0, 0.1),
+			0 1px 2px 0 rgba(0, 0, 0, 0.06);
 	}
 
 	.full-width {

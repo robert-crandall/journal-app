@@ -4,11 +4,11 @@
 	import { api } from '../../api/client';
 	import DashboardCard from './DashboardCard.svelte';
 	import type { characters, characterStats } from '../../../../../backend/src/db/schema';
-	
+
 	// Types
 	type Character = typeof characters.$inferSelect;
 	type CharacterStat = typeof characterStats.$inferSelect;
-	
+
 	interface StatDisplay extends CharacterStat {
 		level: number;
 		xpInLevel: number;
@@ -29,15 +29,15 @@
 		// Simple level progression: each level requires 100 * level XP
 		let totalXpNeeded = 0;
 		let level = 1;
-		
-		while (totalXpNeeded + (level * 100) <= xp) {
+
+		while (totalXpNeeded + level * 100 <= xp) {
 			totalXpNeeded += level * 100;
 			level++;
 		}
-		
+
 		const xpInLevel = xp - totalXpNeeded;
-		const xpToNextLevel = (level * 100) - xpInLevel;
-		
+		const xpToNextLevel = level * 100 - xpInLevel;
+
 		return { level, xpInLevel, xpToNextLevel };
 	}
 
@@ -55,22 +55,29 @@
 		try {
 			isLoading = true;
 			error = '';
-			
+
 			// Get characters first
 			const charactersResponse = await api.getCharacters();
-			
-			if (charactersResponse.success && charactersResponse.data && charactersResponse.data.length > 0) {
-				character = charactersResponse.data.find(c => c.isActive) || charactersResponse.data[0] || null;
-				
+
+			if (
+				charactersResponse.success &&
+				charactersResponse.data &&
+				charactersResponse.data.length > 0
+			) {
+				character =
+					charactersResponse.data.find((c) => c.isActive) || charactersResponse.data[0] || null;
+
 				if (character) {
 					// Get character stats
 					const statsResponse = await api.getCharacterStats(character.id);
-					
+
 					if (statsResponse.success && statsResponse.data) {
-						stats = statsResponse.data.map(stat => {
+						stats = statsResponse.data.map((stat) => {
 							const levelInfo = calculateLevel(stat.currentXp);
-							const progressPercentage = Math.round((levelInfo.xpInLevel / (levelInfo.level * 100)) * 100);
-							
+							const progressPercentage = Math.round(
+								(levelInfo.xpInLevel / (levelInfo.level * 100)) * 100
+							);
+
 							return {
 								...stat,
 								...levelInfo,
@@ -78,10 +85,10 @@
 								levelDescription: getLevelDescription(levelInfo.level, stat.category)
 							};
 						});
-						
+
 						// Set the highest level stat as focused by default
-						focusedStat = stats.reduce((highest, current) => 
-							current.level > (highest?.level || 0) ? current : highest, 
+						focusedStat = stats.reduce(
+							(highest, current) => (current.level > (highest?.level || 0) ? current : highest),
 							stats[0] || null
 						);
 					}
@@ -115,9 +122,7 @@
 	{:else if error}
 		<div class="error-state">
 			<p class="error-message">{error}</p>
-			<button onclick={() => window.location.reload()} class="retry-button">
-				Try Again
-			</button>
+			<button onclick={() => window.location.reload()} class="retry-button"> Try Again </button>
 		</div>
 	{:else if !character || stats.length === 0}
 		<div class="empty-state">
@@ -133,29 +138,24 @@
 						<h3 class="stat-name">{focusedStat.category}</h3>
 						<div class="level-badge">Level {focusedStat.level}</div>
 					</div>
-					
+
 					<p class="stat-description">{focusedStat.levelDescription}</p>
-					
+
 					<!-- XP Progress -->
 					<div class="xp-progress">
 						<div class="xp-numbers">
 							<span class="current-xp">XP</span>
 							<span class="xp-values">{focusedStat.xpInLevel} / {focusedStat.level * 100}</span>
 						</div>
-						
+
 						<div class="progress-bar">
-							<div 
-								class="progress-fill" 
-								style="width: {focusedStat.progressPercentage}%"
-							></div>
+							<div class="progress-fill" style="width: {focusedStat.progressPercentage}%"></div>
 						</div>
-						
+
 						<p class="xp-to-next">"{focusedStat.levelDescription}"</p>
 					</div>
-					
-					<a href="/stats/{focusedStat.id}" class="view-details-link">
-						View Details →
-					</a>
+
+					<a href="/stats/{focusedStat.id}" class="view-details-link"> View Details → </a>
 				</div>
 			{/if}
 
@@ -165,33 +165,30 @@
 					<h4 class="all-stats-title">Your Stats</h4>
 					<div class="stats-grid">
 						{#each stats as stat (stat.id)}
-							<button 
-								class="stat-card" 
+							<button
+								class="stat-card"
 								class:focused={focusedStat?.id === stat.id}
-								onclick={() => focusedStat = stat}
+								onclick={() => (focusedStat = stat)}
 							>
 								<div class="stat-card-header">
 									<span class="stat-card-name">{stat.category}</span>
 									<span class="stat-card-level">Level {stat.level}</span>
 								</div>
-								
+
 								<div class="stat-card-description">
 									{stat.description || 'Building your skills in this area'}
 								</div>
-								
+
 								<div class="stat-card-progress">
 									<div class="mini-progress-bar">
-										<div 
-											class="mini-progress-fill" 
-											style="width: {stat.progressPercentage}%"
-										></div>
+										<div class="mini-progress-fill" style="width: {stat.progressPercentage}%"></div>
 									</div>
 									<span class="stat-card-xp">XP{stat.xpInLevel} / {stat.level * 100}</span>
 								</div>
 							</button>
 						{/each}
 					</div>
-					
+
 					<a href="/stats" class="view-all-stats-link">View All →</a>
 				</div>
 			{/if}
@@ -218,7 +215,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.error-message {
@@ -321,7 +320,11 @@
 
 	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6));
+		background: linear-gradient(
+			90deg,
+			var(--color-primary, #3b82f6),
+			var(--color-secondary, #8b5cf6)
+		);
 		border-radius: 9999px;
 		transition: width 0.3s ease-in-out;
 	}

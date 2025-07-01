@@ -12,9 +12,9 @@
 		quaternaryContent?: Snippet;
 	}
 
-	let { 
-		title, 
-		subtitle, 
+	let {
+		title,
+		subtitle,
 		class: className = '',
 		mainContent,
 		secondaryContent,
@@ -39,19 +39,19 @@
 				{@render mainContent()}
 			{/if}
 		</div>
-		
+
 		<div class="dashboard-card-secondary">
 			{#if secondaryContent}
 				{@render secondaryContent()}
 			{/if}
 		</div>
-		
+
 		<div class="dashboard-card-tertiary">
 			{#if tertiaryContent}
 				{@render tertiaryContent()}
 			{/if}
 		</div>
-		
+
 		<div class="dashboard-card-quaternary">
 			{#if quaternaryContent}
 				{@render quaternaryContent()}
@@ -120,24 +120,24 @@
 	@media (min-width: 1024px) {
 		.dashboard-grid {
 			grid-template-columns: repeat(2, 1fr);
-			grid-template-areas: 
-				"main main"
-				"secondary tertiary"
-				"quaternary quaternary";
+			grid-template-areas:
+				'main main'
+				'secondary tertiary'
+				'quaternary quaternary';
 		}
-		
+
 		.dashboard-card-main {
 			grid-area: main;
 		}
-		
+
 		.dashboard-card-secondary {
 			grid-area: secondary;
 		}
-		
+
 		.dashboard-card-tertiary {
 			grid-area: tertiary;
 		}
-		
+
 		.dashboard-card-quaternary {
 			grid-area: quaternary;
 		}

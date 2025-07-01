@@ -35,7 +35,7 @@ function createAuthStore() {
 	if (browser && initialToken) {
 		// Set loading immediately if we have a token
 		update((state) => ({ ...state, loading: true }));
-		
+
 		// Initialize user data from token
 		initializeFromToken();
 	} else {
@@ -48,9 +48,9 @@ function createAuthStore() {
 		try {
 			// Import apiClient here to avoid circular dependencies
 			const { apiClient } = await import('../api/client');
-			
+
 			const response = await apiClient.getCurrentUser();
-			
+
 			if (response.success && response.data) {
 				// Successfully got user data, update store
 				update((state) => ({
@@ -151,10 +151,10 @@ function createAuthStore() {
 
 			try {
 				update((state) => ({ ...state, loading: true, error: null }));
-				
+
 				const { apiClient } = await import('../api/client');
 				const response = await apiClient.getCurrentUser();
-				
+
 				if (response.success && response.data) {
 					update((state) => ({
 						...state,
@@ -177,10 +177,10 @@ function createAuthStore() {
 				}
 			} catch (err) {
 				console.warn('Failed to refresh user data:', err);
-				update((state) => ({ 
-					...state, 
-					loading: false, 
-					error: 'Failed to refresh user data' 
+				update((state) => ({
+					...state,
+					loading: false,
+					error: 'Failed to refresh user data'
 				}));
 			}
 		}

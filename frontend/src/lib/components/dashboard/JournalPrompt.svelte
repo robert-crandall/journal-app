@@ -4,17 +4,17 @@
 	import { api } from '../../api/client';
 	import DashboardCard from './DashboardCard.svelte';
 	import type { journalConversations, journalEntries } from '../../../../../backend/src/db/schema';
-	
+
 	// Types
 	type JournalConversation = typeof journalConversations.$inferSelect;
 	type JournalEntry = typeof journalEntries.$inferSelect;
-	
+
 	interface JournalPrompt {
 		question: string;
 		category: 'reflection' | 'gratitude' | 'goals' | 'daily' | 'random';
 		explanation?: string;
 	}
-	
+
 	interface JournalStatus {
 		hasActiveConversation: boolean;
 		todaysEntryCount: number;
@@ -39,7 +39,7 @@
 			explanation: 'Practicing gratitude can improve mood and overall well-being.'
 		},
 		{
-			question: "What did you learn about yourself today?",
+			question: 'What did you learn about yourself today?',
 			category: 'reflection',
 			explanation: 'Self-reflection helps build awareness and personal growth.'
 		},
@@ -54,17 +54,17 @@
 			explanation: 'Understanding your emotions helps develop emotional intelligence.'
 		},
 		{
-			question: "What challenged you today, and how did you handle it?",
+			question: 'What challenged you today, and how did you handle it?',
 			category: 'daily',
 			explanation: 'Reflecting on challenges helps build resilience and problem-solving skills.'
 		},
 		{
-			question: "What made you smile or laugh today?",
+			question: 'What made you smile or laugh today?',
 			category: 'gratitude',
 			explanation: 'Focusing on positive moments can boost happiness and mental health.'
 		},
 		{
-			question: "If today was a chapter in your life story, what would the title be?",
+			question: 'If today was a chapter in your life story, what would the title be?',
 			category: 'random',
 			explanation: 'Creative reflection can provide new perspectives on your experiences.'
 		},
@@ -80,14 +80,16 @@
 		if (journalPrompts.length === 0) {
 			// Fallback prompt if none available
 			return {
-				question: "How are you feeling today?",
+				question: 'How are you feeling today?',
 				category: 'daily',
 				explanation: 'Take a moment to reflect on your current state.'
 			};
 		}
-		
+
 		const today = new Date();
-		const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+		const dayOfYear = Math.floor(
+			(today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+		);
 		const index = dayOfYear % journalPrompts.length;
 		return journalPrompts[index]!; // Non-null assertion since we checked length above
 	}
@@ -95,23 +97,23 @@
 	// Calculate current journal streak
 	function calculateStreak(entries: JournalEntry[]): number {
 		if (entries.length === 0) return 0;
-		
+
 		const sortedEntries = entries
-			.map(entry => new Date(entry.createdAt))
+			.map((entry) => new Date(entry.createdAt))
 			.sort((a, b) => b.getTime() - a.getTime());
-		
+
 		let streak = 0;
 		let currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
-		
+
 		for (const entryDate of sortedEntries) {
 			const entryDateNormalized = new Date(entryDate);
 			entryDateNormalized.setHours(0, 0, 0, 0);
-			
+
 			const daysDiff = Math.floor(
 				(currentDate.getTime() - entryDateNormalized.getTime()) / (1000 * 60 * 60 * 24)
 			);
-			
+
 			if (daysDiff === streak) {
 				streak++;
 			} else if (daysDiff === streak + 1) {
@@ -121,7 +123,7 @@
 				break;
 			}
 		}
-		
+
 		return streak;
 	}
 
@@ -130,21 +132,21 @@
 		try {
 			isLoading = true;
 			error = '';
-			
+
 			// Check for active conversation
 			const conversationResponse = await api.getJournalConversations();
 			let hasActiveConversation = false;
-			
+
 			if (conversationResponse.success && conversationResponse.data) {
-				hasActiveConversation = conversationResponse.data.some(conv => conv.isActive);
+				hasActiveConversation = conversationResponse.data.some((conv) => conv.isActive);
 			}
-			
+
 			// Get recent journal entries to calculate stats
 			// Note: We'll need to implement getJournalEntries or use a different approach
 			let todaysEntryCount = 0;
 			let lastEntryDate: Date | null = null;
 			let currentStreak = 0;
-			
+
 			// For now, set basic defaults until we have proper journal entries endpoint
 			journalStatus = {
 				hasActiveConversation,
@@ -164,26 +166,26 @@
 	// Submit quick journal entry
 	async function submitQuickEntry() {
 		if (!quickResponse.trim() || !journalStatus) return;
-		
+
 		try {
 			isSubmitting = true;
 			error = '';
-			
+
 			// If no active conversation, start one
 			if (!journalStatus.hasActiveConversation) {
 				const startResponse = await api.startJournalConversation();
-				
+
 				if (!startResponse.success) {
 					throw new Error(startResponse.error || 'Failed to start journal conversation');
 				}
 			}
-			
+
 			// For now, just mark as completed since we need conversation ID
 			// In a full implementation, we'd need to get the conversation ID and add the entry
 			journalStatus.todaysEntryCount++;
 			journalStatus.hasActiveConversation = true;
 			journalStatus.lastEntryDate = new Date();
-			
+
 			// Clear form and hide quick entry
 			quickResponse = '';
 			showQuickEntry = false;
@@ -206,17 +208,17 @@
 	// Format last entry time
 	function formatLastEntry(date: Date | null): string {
 		if (!date) return 'No entries yet';
-		
+
 		const now = new Date();
 		const diffMs = now.getTime() - date.getTime();
 		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 		const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-		
+
 		if (diffHours < 1) return 'Just now';
 		if (diffHours < 24) return `${diffHours} hours ago`;
 		if (diffDays === 1) return 'Yesterday';
 		if (diffDays < 7) return `${diffDays} days ago`;
-		
+
 		return date.toLocaleDateString(undefined, {
 			month: 'short',
 			day: 'numeric'
@@ -233,9 +235,7 @@
 	{:else if error && !journalStatus}
 		<div class="error-state">
 			<p class="error-message">{error}</p>
-			<button onclick={() => window.location.reload()} class="retry-button">
-				Try Again
-			</button>
+			<button onclick={() => window.location.reload()} class="retry-button"> Try Again </button>
 		</div>
 	{:else if journalStatus}
 		<div class="journal-content">
@@ -245,14 +245,14 @@
 					<span class="stat-label">Today</span>
 					<span class="stat-value">{journalStatus.todaysEntryCount} entries</span>
 				</div>
-				
+
 				{#if journalStatus.currentStreak > 0}
 					<div class="stat-item">
 						<span class="stat-label">Streak</span>
 						<span class="stat-value">{journalStatus.currentStreak} days</span>
 					</div>
 				{/if}
-				
+
 				<div class="stat-item">
 					<span class="stat-label">Last entry</span>
 					<span class="stat-value">{formatLastEntry(journalStatus.lastEntryDate)}</span>
@@ -263,7 +263,7 @@
 			<div class="daily-prompt">
 				<h4 class="prompt-title">Today's Reflection</h4>
 				<p class="prompt-question">{journalStatus.promptOfTheDay.question}</p>
-				
+
 				{#if journalStatus.promptOfTheDay.explanation}
 					<p class="prompt-explanation">{journalStatus.promptOfTheDay.explanation}</p>
 				{/if}
@@ -279,21 +279,21 @@
 						disabled={isSubmitting}
 						class="quick-entry-input"
 					></textarea>
-					
+
 					{#if error}
 						<p class="error-message">{error}</p>
 					{/if}
-					
+
 					<div class="quick-entry-actions">
-						<button 
-							onclick={() => showQuickEntry = false}
+						<button
+							onclick={() => (showQuickEntry = false)}
 							disabled={isSubmitting}
 							class="cancel-button"
 						>
 							Cancel
 						</button>
-						
-						<button 
+
+						<button
 							onclick={submitQuickEntry}
 							disabled={isSubmitting || !quickResponse.trim()}
 							class="submit-button"
@@ -309,21 +309,15 @@
 			{:else}
 				<div class="journal-actions">
 					{#if journalStatus.todaysEntryCount === 0}
-						<button 
-							onclick={() => showQuickEntry = true}
-							class="primary-action"
-						>
+						<button onclick={() => (showQuickEntry = true)} class="primary-action">
 							Start Today's Journal
 						</button>
 					{:else}
-						<button 
-							onclick={() => showQuickEntry = true}
-							class="secondary-action"
-						>
+						<button onclick={() => (showQuickEntry = true)} class="secondary-action">
 							Add Quick Entry
 						</button>
 					{/if}
-					
+
 					<a href="/journal" class="view-journal-link">
 						{#if journalStatus.hasActiveConversation}
 							Continue Conversation →
@@ -355,7 +349,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.error-message {

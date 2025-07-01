@@ -5,7 +5,7 @@
 	import { Button, Card } from '$lib/components/ui';
 	import { Sword, BookOpen, Target, Users } from 'lucide-svelte';
 	import { browser } from '$app/environment';
-	
+
 	// Import dashboard components
 	import DashboardLayout from '$lib/components/dashboard/DashboardLayout.svelte';
 	import TaskSummary from '$lib/components/dashboard/TaskSummary.svelte';
@@ -56,9 +56,7 @@
 				<div class="hero-content py-16 text-center">
 					<div class="max-w-2xl">
 						<div class="mb-6 text-6xl">⚔️</div>
-						<h1 class="mb-6 text-4xl font-bold">
-							Loading your adventure...
-						</h1>
+						<h1 class="mb-6 text-4xl font-bold">Loading your adventure...</h1>
 						<div class="loading loading-spinner loading-lg"></div>
 					</div>
 				</div>
@@ -71,9 +69,7 @@
 						<h1 class="mb-4 text-4xl font-bold">
 							Welcome back, <span class="text-primary">{user.name}</span>!
 						</h1>
-						<p class="mb-6 text-lg opacity-80">
-							Ready to continue your D&D life journey?
-						</p>
+						<p class="mb-6 text-lg opacity-80">Ready to continue your D&D life journey?</p>
 					</div>
 				</div>
 			</div>
@@ -83,15 +79,15 @@
 				{#snippet mainContent()}
 					<TaskSummary />
 				{/snippet}
-				
+
 				{#snippet secondaryContent()}
 					<CharacterStats />
 				{/snippet}
-				
+
 				{#snippet tertiaryContent()}
 					<ActiveQuests />
 				{/snippet}
-				
+
 				{#snippet quaternaryContent()}
 					<JournalPrompt />
 				{/snippet}

@@ -4,11 +4,11 @@
 	import { api } from '../../api/client';
 	import DashboardCard from './DashboardCard.svelte';
 	import type { quests, tasks } from '../../../../../backend/src/db/schema';
-	
+
 	// Types
 	type Quest = typeof quests.$inferSelect;
 	type Task = typeof tasks.$inferSelect;
-	
+
 	interface QuestWithProgress extends Quest {
 		completedTasks: number;
 		totalTasks: number;
@@ -28,17 +28,17 @@
 	// Calculate quest urgency based on end date and progress
 	function calculateUrgency(quest: Quest, progressPercentage: number): 'low' | 'medium' | 'high' {
 		if (!quest.endDate) return 'low';
-		
+
 		const now = new Date();
 		const endDate = new Date(quest.endDate);
 		const daysUntilEnd = (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-		
+
 		// High urgency: less than 3 days and less than 75% complete
 		if (daysUntilEnd <= 3 && progressPercentage < 75) return 'high';
-		
+
 		// Medium urgency: less than 7 days and less than 50% complete
 		if (daysUntilEnd <= 7 && progressPercentage < 50) return 'medium';
-		
+
 		return 'low';
 	}
 
@@ -56,45 +56,42 @@
 		try {
 			isLoading = true;
 			error = '';
-			
+
 			// Get active quests
 			const questsResponse = await api.getQuests();
-			
+
 			if (questsResponse.success && questsResponse.data) {
 				// Filter for active quests and enhance with progress data
 				const activeQuestData = await Promise.all(
 					questsResponse.data
-						.filter(quest => quest.status === 'active')
+						.filter((quest) => quest.status === 'active')
 						.map(async (quest) => {
 							try {
 								// Get tasks for this quest
 								const tasksResponse = await api.getTasks();
 								let questTasks: Task[] = [];
-								
+
 								if (tasksResponse.success && tasksResponse.data) {
-									questTasks = tasksResponse.data.filter(task => 
-										task.sourceId === quest.id && task.source === 'quest'
+									questTasks = tasksResponse.data.filter(
+										(task) => task.sourceId === quest.id && task.source === 'quest'
 									);
 								}
-								
+
 								const totalTasks = questTasks.length;
-								const completedTasks = questTasks.filter(task => 
-									task.status === 'completed'
+								const completedTasks = questTasks.filter(
+									(task) => task.status === 'completed'
 								).length;
-								
-								const progressPercentage = totalTasks > 0 
-									? Math.round((completedTasks / totalTasks) * 100) 
-									: 0;
-								
-								const nextTask = questTasks.find(task => 
-									task.status === 'pending'
-								) || null;
-								
-								const isCompleted = quest.status === 'completed' || 
-									(totalTasks > 0 && completedTasks === totalTasks);
-								
+
+								const progressPercentage =
+									totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+								const nextTask = questTasks.find((task) => task.status === 'pending') || null;
+
+								const isCompleted =
+									quest.status === 'completed' || (totalTasks > 0 && completedTasks === totalTasks);
+
 								const urgencyLevel = calculateUrgency(quest, progressPercentage);
-								
+
 								const questWithProgress: QuestWithProgress = {
 									...quest,
 									completedTasks,
@@ -105,9 +102,9 @@
 									statusText: '',
 									urgencyLevel
 								};
-								
+
 								questWithProgress.statusText = getStatusText(questWithProgress);
-								
+
 								return questWithProgress;
 							} catch (err) {
 								console.error(`Error processing quest ${quest.id}:`, err);
@@ -115,7 +112,7 @@
 							}
 						})
 				);
-				
+
 				// Filter out failed quest processing and sort by urgency and progress
 				activeQuests = activeQuestData
 					.filter((quest): quest is QuestWithProgress => quest !== null)
@@ -124,11 +121,11 @@
 						const urgencyOrder = { high: 3, medium: 2, low: 1 };
 						const urgencyDiff = urgencyOrder[b.urgencyLevel] - urgencyOrder[a.urgencyLevel];
 						if (urgencyDiff !== 0) return urgencyDiff;
-						
+
 						// Then by progress (less complete first to encourage finishing)
 						return a.progressPercentage - b.progressPercentage;
 					});
-				
+
 				// Set the first quest as focused
 				focusedQuest = activeQuests[0] || null;
 			} else {
@@ -154,19 +151,19 @@
 	// Format end date for display
 	function formatEndDate(endDate: string | Date | null): string {
 		if (!endDate) return '';
-		
+
 		const date = new Date(endDate);
 		const now = new Date();
 		const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-		
+
 		if (daysUntil < 0) return 'Overdue!';
 		if (daysUntil === 0) return 'Due today';
 		if (daysUntil === 1) return 'Due tomorrow';
 		if (daysUntil <= 7) return `Due in ${daysUntil} days`;
-		
-		return date.toLocaleDateString(undefined, { 
-			month: 'short', 
-			day: 'numeric' 
+
+		return date.toLocaleDateString(undefined, {
+			month: 'short',
+			day: 'numeric'
 		});
 	}
 </script>
@@ -180,9 +177,7 @@
 	{:else if error}
 		<div class="error-state">
 			<p class="error-message">{error}</p>
-			<button onclick={() => window.location.reload()} class="retry-button">
-				Try Again
-			</button>
+			<button onclick={() => window.location.reload()} class="retry-button"> Try Again </button>
 		</div>
 	{:else if activeQuests.length === 0}
 		<div class="empty-state">
@@ -202,11 +197,11 @@
 							</div>
 						{/if}
 					</div>
-					
+
 					{#if focusedQuest.description}
 						<p class="quest-description">{focusedQuest.description}</p>
 					{/if}
-					
+
 					<!-- Progress Display -->
 					<div class="quest-progress">
 						<div class="progress-header">
@@ -215,25 +210,25 @@
 								{focusedQuest.completedTasks} / {focusedQuest.totalTasks} tasks
 							</span>
 						</div>
-						
+
 						<div class="progress-bar">
-							<div 
-								class="progress-fill" 
+							<div
+								class="progress-fill"
 								class:high-urgency={focusedQuest.urgencyLevel === 'high'}
 								class:medium-urgency={focusedQuest.urgencyLevel === 'medium'}
 								style="width: {focusedQuest.progressPercentage}%"
 							></div>
 						</div>
-						
+
 						<p class="status-text">{focusedQuest.statusText}</p>
 					</div>
-					
+
 					<!-- Next Task -->
 					{#if focusedQuest.nextTask && !focusedQuest.isCompleted}
 						<div class="next-task">
 							<h4 class="next-task-title">Next up:</h4>
 							<p class="next-task-description">{focusedQuest.nextTask.title}</p>
-							
+
 							<a href="/tasks/{focusedQuest.nextTask.id}" class="start-task-button">
 								Start Task →
 							</a>
@@ -241,15 +236,11 @@
 					{:else if focusedQuest.isCompleted}
 						<div class="quest-completed">
 							<p class="completion-message">🎉 Quest completed! Great work!</p>
-							<a href="/quests/{focusedQuest.id}" class="view-rewards-link">
-								View Rewards →
-							</a>
+							<a href="/quests/{focusedQuest.id}" class="view-rewards-link"> View Rewards → </a>
 						</div>
 					{/if}
-					
-					<a href="/quests/{focusedQuest.id}" class="view-quest-link">
-						View Full Quest →
-					</a>
+
+					<a href="/quests/{focusedQuest.id}" class="view-quest-link"> View Full Quest → </a>
 				</div>
 			{/if}
 
@@ -259,10 +250,10 @@
 					<h4 class="all-quests-title">Other Active Quests</h4>
 					<div class="quests-list">
 						{#each activeQuests.slice(1, 4) as quest (quest.id)}
-							<button 
-								class="quest-item" 
+							<button
+								class="quest-item"
 								class:urgent={quest.urgencyLevel === 'high'}
-								onclick={() => focusedQuest = quest}
+								onclick={() => (focusedQuest = quest)}
 							>
 								<div class="quest-item-header">
 									<span class="quest-item-title">{quest.title}</span>
@@ -270,11 +261,11 @@
 										<span class="quest-item-deadline">{formatEndDate(quest.endDate)}</span>
 									{/if}
 								</div>
-								
+
 								<div class="quest-item-progress">
 									<div class="mini-progress-bar">
-										<div 
-											class="mini-progress-fill" 
+										<div
+											class="mini-progress-fill"
 											style="width: {quest.progressPercentage}%"
 										></div>
 									</div>
@@ -285,7 +276,7 @@
 							</button>
 						{/each}
 					</div>
-					
+
 					{#if activeQuests.length > 4}
 						<a href="/quests" class="view-all-quests-link">
 							View All ({activeQuests.length - 3} more) →
@@ -316,7 +307,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.error-message {

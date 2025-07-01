@@ -4,11 +4,11 @@
 	import { api } from '../../api/client';
 	import DashboardCard from './DashboardCard.svelte';
 	import type { tasks, taskCompletions } from '../../../../../backend/src/db/schema';
-	
+
 	// Types
 	type Task = typeof tasks.$inferSelect;
 	type TaskCompletion = typeof taskCompletions.$inferSelect;
-	
+
 	interface TaskWithCompletion extends Task {
 		completion?: TaskCompletion;
 		isCompleted: boolean;
@@ -19,28 +19,30 @@
 	let isLoading = $state(true);
 	let error = $state<string>('');
 	let totalTasks = $derived(tasksToday.length);
-	let completedTasks = $derived(tasksToday.filter(task => task.isCompleted).length);
-	let completionPercentage = $derived(totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0);
+	let completedTasks = $derived(tasksToday.filter((task) => task.isCompleted).length);
+	let completionPercentage = $derived(
+		totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+	);
 
 	// Load tasks on mount
 	onMount(async () => {
 		try {
 			isLoading = true;
 			error = '';
-			
+
 			const response = await api.getTasks();
-			
+
 			if (response.success && response.data) {
 				// Filter for today's tasks and add completion status
 				const today = new Date().toISOString().split('T')[0];
 				tasksToday = response.data
-					.filter(task => {
+					.filter((task) => {
 						// Check if task is due today or overdue
 						if (!task.dueDate) return false;
 						const taskDate = new Date(task.dueDate).toISOString().split('T')[0];
 						return taskDate === today;
 					})
-					.map(task => ({
+					.map((task) => ({
 						...task,
 						isCompleted: task.status === 'completed'
 					}));
@@ -59,13 +61,11 @@
 	async function completeTask(taskId: string) {
 		try {
 			const response = await api.completeTask(taskId);
-			
+
 			if (response.success) {
 				// Update local state optimistically
-				tasksToday = tasksToday.map(task => 
-					task.id === taskId 
-						? { ...task, isCompleted: true, status: 'completed' }
-						: task
+				tasksToday = tasksToday.map((task) =>
+					task.id === taskId ? { ...task, isCompleted: true, status: 'completed' } : task
 				);
 			} else {
 				error = response.error || 'Failed to complete task';
@@ -94,9 +94,7 @@
 	{:else if error}
 		<div class="error-state">
 			<p class="error-message">{error}</p>
-			<button onclick={() => window.location.reload()} class="retry-button">
-				Try Again
-			</button>
+			<button onclick={() => window.location.reload()} class="retry-button"> Try Again </button>
 		</div>
 	{:else if totalTasks === 0}
 		<div class="empty-state">
@@ -113,15 +111,12 @@
 					<span class="stat-total">{totalTasks}</span>
 					<span class="stat-label">completed</span>
 				</div>
-				
+
 				<!-- Progress Bar -->
 				<div class="progress-bar">
-					<div 
-						class="progress-fill" 
-						style="width: {completionPercentage}%"
-					></div>
+					<div class="progress-fill" style="width: {completionPercentage}%"></div>
 				</div>
-				
+
 				<div class="progress-percentage">{completionPercentage}%</div>
 			</div>
 
@@ -139,9 +134,9 @@
 									<span class="xp-reward">+{task.estimatedXp} XP</span>
 								{/if}
 							</div>
-							
+
 							{#if !task.isCompleted}
-								<button 
+								<button
 									class="complete-button"
 									onclick={() => completeTask(task.id)}
 									aria-label="Complete {task.title}"
@@ -153,7 +148,7 @@
 							{/if}
 						</div>
 					{/each}
-					
+
 					{#if tasksToday.length > 3}
 						<div class="more-tasks">
 							<a href="/tasks" class="view-all-link">
@@ -186,7 +181,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.error-message {
@@ -268,7 +265,11 @@
 
 	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, var(--color-primary, #3b82f6), var(--color-success, #10b981));
+		background: linear-gradient(
+			90deg,
+			var(--color-primary, #3b82f6),
+			var(--color-success, #10b981)
+		);
 		border-radius: 9999px;
 		transition: width 0.3s ease-in-out;
 	}
