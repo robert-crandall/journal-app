@@ -1,17 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import LoginForm from '$lib/components/auth/LoginForm.svelte';
-	import { AuthGuard } from '$lib/utils/auth-guard';
 
-	// Check if user is already authenticated on mount
-	onMount(async () => {
-		await AuthGuard.requireGuest('/');
+	// Set page title for SPA mode
+	onMount(() => {
+		if (browser) {
+			document.title = 'Sign In | D&D Life Gamification';
+		}
 	});
 </script>
 
 <svelte:head>
-	<title>Sign In</title>
-	<meta name="description" content="Sign in to your account" />
+	<title>Sign In | D&D Life Gamification</title>
+	<meta name="description" content="Sign in to your D&D life adventure" />
 </svelte:head>
 
 <div class="bg-base-200 flex min-h-screen items-center justify-center">

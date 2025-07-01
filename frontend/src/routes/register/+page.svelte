@@ -1,11 +1,13 @@
 <script lang="ts">
-	import RegisterForm from '$lib/components/auth/RegisterForm.svelte';
 	import { onMount } from 'svelte';
-	import { AuthGuard } from '$lib/utils/auth-guard';
+	import { browser } from '$app/environment';
+	import RegisterForm from '$lib/components/auth/RegisterForm.svelte';
 
-	// Check if user is already authenticated on mount
-	onMount(async () => {
-		await AuthGuard.requireGuest('/');
+	// Set page title for SPA mode
+	onMount(() => {
+		if (browser) {
+			document.title = 'Create Account | D&D Life Gamification';
+		}
 	});
 </script>
 

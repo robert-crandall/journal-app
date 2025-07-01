@@ -50,6 +50,6 @@
 		"@tailwindcss/container-queries": "^0.1.1",
 		"daisyui": "^5.0.43",
 		"hono": "^4.8.3",
-		"lucide-svelte": "^0.523.0"
+		"lucide-svelte": "^0.525.0"
 	}
 }
