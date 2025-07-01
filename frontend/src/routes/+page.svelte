@@ -1,27 +1,28 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { authStore } from '$lib/stores/auth';
+	import { authStore, type User } from '$lib/stores/auth';
 	import { apiClient } from '$lib/api/client';
 	import { Button, Card } from '$lib/components/ui';
 	import { Sword, BookOpen, Target, Users } from 'lucide-svelte';
 	import { browser } from '$app/environment';
 
 	// Use reactive declarations for auth state
-	let auth = authStore;
 	let isAuthenticated = false;
-	let user = null;
+	let user: User | null = null;
+	let authInitialized = false;
 
 	// Subscribe to auth changes
 	authStore.subscribe((state) => {
 		isAuthenticated = state.initialized && state.user !== null && state.token !== null;
 		user = state.user;
+		authInitialized = state.initialized;
 	});
 
 	// Initialize auth on mount
 	onMount(() => {
 		if (browser) {
 			// Ensure auth is initialized
-			if (!auth.initialized) {
+			if (!authInitialized) {
 				authStore.setInitialized(true);
 			}
 		}

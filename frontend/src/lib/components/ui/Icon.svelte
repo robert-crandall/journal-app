@@ -1,30 +1,40 @@
 <script lang="ts">
   import type { ComponentType } from 'svelte';
 
-  // Icon props
-  export let icon: ComponentType;
-  export let size: number | string = 20;
-  export let strokeWidth: number = 2;
-  export let color: string = 'currentColor';
-  export let className: string = '';
-  
-  // Optional title for accessibility
-  export let title: string = '';
-  
-  // Additional Lucide icon props
-  export let absoluteStrokeWidth: boolean = false;
+  // Icon props using Svelte 5 syntax
+  let { 
+    icon,
+    size = 20,
+    strokeWidth = 2,
+    color = 'currentColor',
+    className = '',
+    title = '',
+    absoluteStrokeWidth = false,
+    ...restProps
+  }: {
+    icon: ComponentType;
+    size?: number | string;
+    strokeWidth?: number;
+    color?: string;
+    className?: string;
+    title?: string;
+    absoluteStrokeWidth?: boolean;
+    [key: string]: any;
+  } = $props();
 </script>
 
-<svelte:component 
-  this={icon}
-  {size}
-  stroke={color}
-  strokeWidth={absoluteStrokeWidth ? strokeWidth : undefined}
-  stroke-width={absoluteStrokeWidth ? undefined : strokeWidth}
-  class={className}
-  {title}
-  {...$$restProps}
-/>
+{#if icon}
+  {@const IconComponent = icon}
+  <IconComponent
+    {size}
+    stroke={color}
+    strokeWidth={absoluteStrokeWidth ? strokeWidth : undefined}
+    stroke-width={absoluteStrokeWidth ? undefined : strokeWidth}
+    class={className}
+    {title}
+    {...restProps}
+  />
+{/if}
 
 <!-- Add styles for consistent icon behavior -->
 <style>

@@ -8,7 +8,7 @@ export default defineConfig({
 	
 	// Environment variables configuration
 	define: {
-		'__APP_VERSION__': JSON.stringify(process.env.npm_package_version || '0.0.1'),
+		'__APP_VERSION__': JSON.stringify(process.env['npm_package_version'] || '0.0.1'),
 	},
 	
 	// Build optimization

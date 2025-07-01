@@ -22,7 +22,7 @@ async function apiRequest<T = any>(
 				'Content-Type': 'application/json',
 				...options.headers
 			},
-			body: options.body
+			...(options.body && { body: options.body })
 		});
 
 		if (!response.ok) {
