@@ -4,18 +4,17 @@ import { taskCompletions, tasks, familyMembers } from '../db/schema'
 import { eq, and, desc, gte, count, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
+import { jwtAuth, getUserId } from '../middleware/auth'
 
 const feedbackApp = new Hono()
 
 // Validation schemas
 const analyzeSchema = z.object({
-  userId: z.string().uuid(),
   timeframe: z.enum(['7days', '30days', '90days']).default('30days'),
   sourceFilter: z.enum(['ai', 'quest', 'user', 'all']).default('ai')
 })
 
 const contextSchema = z.object({
-  userId: z.string().uuid(),
   contextType: z.enum(['task_generation', 'difficulty_adjustment', 'timing_optimization'])
 })
 
@@ -90,9 +89,10 @@ function getTimeframeCutoff(timeframe: string): Date {
 }
 
 // POST /api/feedback/analyze - Analyze feedback patterns for AI learning
-feedbackApp.post('/analyze', zValidator('json', analyzeSchema), async (c) => {
+feedbackApp.post('/analyze', jwtAuth, zValidator('json', analyzeSchema), async (c) => {
   try {
-    const { userId, timeframe, sourceFilter } = c.req.valid('json')
+    const userId = getUserId(c)
+    const { timeframe, sourceFilter } = c.req.valid('json')
     const cutoffDate = getTimeframeCutoff(timeframe)
 
     // Build query conditions
@@ -230,9 +230,9 @@ feedbackApp.post('/analyze', zValidator('json', analyzeSchema), async (c) => {
 })
 
 // GET /api/feedback/preferences - Get user task preferences from feedback
-feedbackApp.get('/preferences', zValidator('json', z.object({ userId: z.string().uuid() })), async (c) => {
+feedbackApp.get('/preferences', jwtAuth, async (c) => {
   try {
-    const { userId } = c.req.valid('json')
+    const userId = getUserId(c)
     const cutoffDate = getTimeframeCutoff('90days')
 
     const feedbacks = await db
@@ -352,15 +352,19 @@ feedbackApp.get('/preferences', zValidator('json', z.object({ userId: z.string()
 })
 
 // GET /api/feedback/family/:familyMemberId - Get family member specific feedback patterns
-feedbackApp.get('/family/:familyMemberId', async (c) => {
+feedbackApp.get('/family/:familyMemberId', jwtAuth, async (c) => {
   try {
     const familyMemberId = c.req.param('familyMemberId')
+    const userId = getUserId(c)
 
-    // Get family member info
+    // Get family member info and verify ownership
     const [familyMember] = await db
       .select()
       .from(familyMembers)
-      .where(eq(familyMembers.id, familyMemberId))
+      .where(and(
+        eq(familyMembers.id, familyMemberId),
+        eq(familyMembers.userId, userId)
+      ))
 
     if (!familyMember) {
       return c.json({ success: false, error: 'Family member not found' }, 404)
@@ -442,9 +446,10 @@ feedbackApp.get('/family/:familyMemberId', async (c) => {
 })
 
 // POST /api/feedback/ai-context - Get AI context for future task generation
-feedbackApp.post('/ai-context', zValidator('json', contextSchema), async (c) => {
+feedbackApp.post('/ai-context', jwtAuth, zValidator('json', contextSchema), async (c) => {
   try {
-    const { userId, contextType } = c.req.valid('json')
+    const userId = getUserId(c)
+    const { contextType } = c.req.valid('json')
     const cutoffDate = getTimeframeCutoff('90days')
 
     const feedbacks = await db
@@ -609,14 +614,10 @@ feedbackApp.post('/sentiment', zValidator('json', sentimentSchema), async (c) =>
 })
 
 // GET /api/feedback/insights - Get aggregated feedback insights
-feedbackApp.get('/insights', async (c) => {
+feedbackApp.get('/insights', jwtAuth, async (c) => {
   try {
-    const userId = c.req.query('userId')
+    const userId = getUserId(c)
     
-    if (!userId) {
-      return c.json({ success: false, error: 'userId is required' }, 400)
-    }
-
     const cutoffDate = getTimeframeCutoff('90days')
 
     const feedbacks = await db

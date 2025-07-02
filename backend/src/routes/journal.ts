@@ -9,6 +9,7 @@ import { ContentTagService } from '../services/content-tag-service'
 import { CharacterStatTagService } from '../services/character-stat-tag-service'
 import { XpAwardService } from '../services/xp-award-service'
 import { JournalHistoryService } from '../services/journal-history-service'
+import { jwtAuth, getUserId } from '../middleware/auth'
 import { analyzeMoodAndContent, generateContextualQuestions, getFallbackQuestion, generateSystemPrompt, generateConversationMetadata } from '../utils/mood-content-analysis'
 
 // Initialize AI service
@@ -16,25 +17,24 @@ const aiService = new AIService()
 
 // Validation schemas
 const createConversationSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format')
+  // userId will come from JWT token
 })
 
 const addMessageSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
   content: z.string(),
   role: z.enum(['user', 'assistant'])
 })
 
 const endConversationSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format')
+  // userId will come from JWT token
 })
 
 const userIdQuerySchema = z.object({
-  userId: z.string().uuid('Invalid user ID format')
+  // userId will come from JWT token
 })
 
 const conversationListQuerySchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
+  // userId will come from JWT token
   limit: z.string().optional().default('20').transform(val => {
     const num = Number(val)
     if (isNaN(num) || num < 1 || num > 100) {
@@ -98,10 +98,11 @@ const journalSearchQuerySchema = z.object({
 const app = new Hono()
   // POST /api/journal/conversations - Start new journal conversation
   .post('/conversations',
+    jwtAuth,
     zValidator('json', createConversationSchema),
     async (c) => {
     try {
-      const { userId } = c.req.valid('json')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -141,11 +142,13 @@ const app = new Hono()
   })
   // POST /api/journal/conversations/:id/messages - Add message to conversation
   .post('/conversations/:id/messages',
+  jwtAuth,
   zValidator('json', addMessageSchema),
   async (c) => {
     try {
       const conversationId = c.req.param('id')
-      const { userId, content, role } = c.req.valid('json')
+      const userId = c.get('userId')
+      const { content, role } = c.req.valid('json')
 
       // First check if conversation exists at all
       const [conversationExists] = await db
@@ -325,11 +328,12 @@ const app = new Hono()
   })
   // PUT /api/journal/conversations/:id/end - End conversation and process with AI
   .put('/conversations/:id/end',
+  jwtAuth,
   zValidator('json', endConversationSchema),
   async (c) => {
     try {
       const conversationId = c.req.param('id')
-      const { userId } = c.req.valid('json')
+      const userId = c.get('userId')
 
       // Verify conversation exists and belongs to user
       const [conversation] = await db
@@ -528,11 +532,11 @@ const app = new Hono()
   })
   // GET /api/journal/conversations/:id - Get conversation details with messages
   .get('/conversations/:id',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
       const conversationId = c.req.param('id')
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // First check if conversation exists at all
       const [conversationExists] = await db
@@ -583,10 +587,12 @@ const app = new Hono()
   })
   // GET /api/journal/conversations - List user's conversations
   .get('/conversations',
+  jwtAuth,
   zValidator('query', conversationListQuerySchema),
   async (c) => {
     try {
-      const { userId, limit, offset } = c.req.valid('query')
+      const userId = c.get('userId')
+      const { limit, offset } = c.req.valid('query')
 
       // Verify user exists
       const [user] = await db
@@ -671,10 +677,10 @@ const app = new Hono()
   })
   // GET /api/journal/stats - Journal statistics and analytics
   .get('/stats',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -796,12 +802,13 @@ const app = new Hono()
   // Homepage journal integration endpoints
   // POST /api/journal/quick-start - Start journal with AI opening question
   .post('/quick-start',
+  jwtAuth,
   zValidator('json', z.object({
-    userId: z.string().uuid('Invalid user ID format')
+    // userId will come from JWT token
   })),
   async (c) => {
     try {
-      const { userId } = c.req.valid('json')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -991,10 +998,11 @@ const app = new Hono()
   })
   // GET /api/journal/status - Check active conversation status
   .get('/status',
+  jwtAuth,
   zValidator('query', userIdQuerySchema),
   async (c) => {
     try {
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -1058,10 +1066,10 @@ const app = new Hono()
   })
   // GET /api/journal/quick-continue - Continue active conversation
   .get('/quick-continue',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -1135,10 +1143,10 @@ const app = new Hono()
   })
   // GET /api/journal/quick-prompts - Get suggested journal starter prompts
   .get('/quick-prompts',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -1302,10 +1310,10 @@ Return as a JSON array of strings.`
   })
   // GET /api/journal/metrics - Homepage metrics and streak tracking
   .get('/metrics',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
-      const { userId } = c.req.valid('query')
+      const userId = c.get('userId')
 
       // Verify user exists
       const [user] = await db
@@ -1384,7 +1392,7 @@ Return as a JSON array of strings.`
         .limit(7)
 
       // Calculate average mood (if we have mood data)
-      let averageMood = null
+      let averageMood: number | null = null
       if (recentMoods.length > 0) {
         const moodSum = recentMoods.reduce((sum, entry) => {
           const moodValue = typeof entry.mood === 'number' ? entry.mood : 0

@@ -146,14 +146,11 @@ const app = new Hono()
 
   // Create a new character
   .post('/', 
+    jwtAuth,
     zValidator('json', createCharacterSchema),
     async (c) => {
       const data = c.req.valid('json')
-      const userId = c.req.query('userId') // TODO: Get from JWT token
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       try {
         // Verify user exists
@@ -258,15 +255,12 @@ const app = new Hono()
 
   // Update a character
   .put('/:id',
+    jwtAuth,
     zValidator('json', updateCharacterSchema),
     async (c) => {
       const characterId = c.req.param('id')
       const data = c.req.valid('json')
-      const userId = c.req.query('userId') // TODO: Get from JWT token
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       try {
         // Verify character exists and belongs to user
@@ -303,13 +297,9 @@ const app = new Hono()
   )
 
   // Delete a character (soft delete by setting isActive to false)
-  .delete('/:id', async (c) => {
+  .delete('/:id', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+    const userId = getUserId(c)
 
     try {
       // Verify character exists and belongs to user
@@ -384,14 +374,10 @@ const app = new Hono()
   })
 
   // Get individual stat by ID
-  .get('/:id/stats/:statId', async (c) => {
+  .get('/:id/stats/:statId', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
     const statId = c.req.param('statId')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+    const userId = getUserId(c)
 
     try {
       // Verify character exists and belongs to user
@@ -431,15 +417,12 @@ const app = new Hono()
 
   // Create new custom stat
   .post('/:id/stats',
+    jwtAuth,
     zValidator('json', createStatSchema),
     async (c) => {
       const characterId = c.req.param('id')
       const data = c.req.valid('json')
-      const userId = c.req.query('userId') // TODO: Get from JWT token
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       try {
         // Verify character exists and belongs to user
@@ -496,16 +479,13 @@ const app = new Hono()
 
   // Update existing stat
   .put('/:id/stats/:statId',
+    jwtAuth,
     zValidator('json', updateStatSchema),
     async (c) => {
       const characterId = c.req.param('id')
       const statId = c.req.param('statId')
       const data = c.req.valid('json')
-      const userId = c.req.query('userId') // TODO: Get from JWT token
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       try {
         // Verify character exists and belongs to user
@@ -572,14 +552,10 @@ const app = new Hono()
   )
 
   // Delete custom stat (prevent deletion of predefined stats)
-  .delete('/:id/stats/:statId', async (c) => {
+  .delete('/:id/stats/:statId', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
     const statId = c.req.param('statId')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+    const userId = getUserId(c)
 
     try {
       // Verify character exists and belongs to user
@@ -634,25 +610,20 @@ const app = new Hono()
 
   // Level-up validation schemas
   const levelUpSchema = z.object({
-    userId: z.string().uuid('Valid user ID is required'),
     statId: z.string().uuid('Valid stat ID is required'),
   })
 
   const levelUpAllSchema = z.object({
-    userId: z.string().uuid('Valid user ID is required'),
+    // No additional fields needed - userId comes from JWT
   })
 
   // Level-up endpoints
 
   // GET /api/characters/:id/level-up-opportunities - Check which stats can level up
-  app.get('/:id/level-up-opportunities', async (c) => {
+  app.get('/:id/level-up-opportunities', jwtAuth, async (c) => {
     try {
       const characterId = c.req.param('id')
-      const userId = c.req.query('userId')
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       // Verify character ownership
       const character = await db
@@ -706,10 +677,11 @@ const app = new Hono()
   })
 
   // POST /api/characters/:id/level-up - Level up a specific stat
-  app.post('/:id/level-up', zValidator('json', levelUpSchema), async (c) => {
+  app.post('/:id/level-up', jwtAuth, zValidator('json', levelUpSchema), async (c) => {
     try {
       const characterId = c.req.param('id')
-      const { userId, statId } = c.req.valid('json')
+      const { statId } = c.req.valid('json')
+      const userId = getUserId(c)
 
       // Verify character ownership
       const character = await db
@@ -802,10 +774,10 @@ const app = new Hono()
   })
 
   // POST /api/characters/:id/level-up-all - Level up all eligible stats
-  app.post('/:id/level-up-all', zValidator('json', levelUpAllSchema), async (c) => {
+  app.post('/:id/level-up-all', jwtAuth, zValidator('json', levelUpAllSchema), async (c) => {
     try {
       const characterId = c.req.param('id')
-      const { userId } = c.req.valid('json')
+      const userId = getUserId(c)
 
       // Verify character ownership
       const character = await db
@@ -904,13 +876,11 @@ const app = new Hono()
 
   // Validation schemas for stat progression
   const awardXpSchema = z.object({
-    userId: z.string().uuid('Valid user ID is required'),
     xpAmount: z.number().int().min(1, 'XP amount must be positive'),
     reason: z.string().min(1, 'Reason is required').max(500),
   })
 
   const updateStatProgressionSchema = z.object({
-    userId: z.string().uuid('Valid user ID is required'),
     currentXp: z.number().int().min(0).optional(),
     totalXp: z.number().int().min(0).optional(),
     currentLevel: z.number().int().min(1).optional(),
@@ -920,12 +890,14 @@ const app = new Hono()
 
   // POST /api/characters/:characterId/stats/:statId/award-xp - Award XP to a specific stat
   app.post('/:characterId/stats/:statId/award-xp', 
+    jwtAuth,
     zValidator('json', awardXpSchema),
     async (c) => {
       try {
         const characterId = c.req.param('characterId')
         const statId = c.req.param('statId')
-        const { userId, xpAmount, reason } = c.req.valid('json')
+        const { xpAmount, reason } = c.req.valid('json')
+        const userId = getUserId(c)
 
         // Verify character ownership
         const character = await db
@@ -1020,15 +992,11 @@ const app = new Hono()
   )
 
   // GET /api/characters/:characterId/stats/:statId/progression - Get stat progression details
-  app.get('/:characterId/stats/:statId/progression', async (c) => {
+  app.get('/:characterId/stats/:statId/progression', jwtAuth, async (c) => {
     try {
       const characterId = c.req.param('characterId')
       const statId = c.req.param('statId')
-      const userId = c.req.query('userId')
-
-      if (!userId) {
-        throw new HTTPException(400, { message: 'User ID is required' })
-      }
+      const userId = getUserId(c)
 
       // Verify character ownership
       const character = await db
@@ -1089,13 +1057,14 @@ const app = new Hono()
 
   // PUT /api/characters/:characterId/stats/:statId/progression - Update stat progression directly
   app.put('/:characterId/stats/:statId/progression',
+    jwtAuth,
     zValidator('json', updateStatProgressionSchema),
     async (c) => {
       try {
         const characterId = c.req.param('characterId')
         const statId = c.req.param('statId')
-        const data = c.req.valid('json')
-        const { userId, ...updateData } = data
+        const updateData = c.req.valid('json')
+        const userId = getUserId(c)
 
         // Verify character ownership
         const character = await db
@@ -1432,13 +1401,9 @@ const app = new Hono()
   })
 
   // Get character dashboard with comprehensive stats and progression - Task 2.9
-  .get('/:id/dashboard', async (c) => {
+  .get('/:id/dashboard', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+    const userId = getUserId(c)
 
     try {
       // Get character with user verification
