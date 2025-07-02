@@ -5,12 +5,12 @@ import { eq, and, desc, asc, sql, count, isNull, isNotNull, gte, lte, or } from 
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { HTTPException } from 'hono/http-exception'
+import { jwtAuth, getUserId } from '../middleware/auth'
 
 const questsApp = new Hono()
 
 // Validation schemas
 const createQuestSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
   description: z.string().optional(),
   goalDescription: z.string().optional(),
@@ -20,7 +20,6 @@ const createQuestSchema = z.object({
 })
 
 const updateQuestSchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
   title: z.string().min(1).max(500).optional(),
   description: z.string().optional(),
   goalDescription: z.string().optional(),
@@ -30,7 +29,6 @@ const updateQuestSchema = z.object({
 })
 
 const questQuerySchema = z.object({
-  userId: z.string().uuid('Invalid user ID format'),
   status: z.enum(['active', 'completed', 'paused', 'abandoned', 'all']).optional().default('all')
 })
 
@@ -103,15 +101,16 @@ async function getQuestProgress(questId: string): Promise<{
 }
 
 // POST /api/quests - Create new quest
-questsApp.post('/', zValidator('json', createQuestSchema), async (c) => {
+questsApp.post('/', jwtAuth, zValidator('json', createQuestSchema), async (c) => {
   try {
+    const userId = getUserId(c)
     const data = c.req.valid('json')
 
     // Verify user exists
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.id, data.userId))
+      .where(eq(users.id, userId))
 
     if (!user) {
       return c.json({ success: false, error: 'User not found' }, 404)
@@ -127,7 +126,7 @@ questsApp.post('/', zValidator('json', createQuestSchema), async (c) => {
 
     // Create quest
     const [quest] = await db.insert(quests).values({
-      userId: data.userId,
+      userId: userId,
       title: data.title,
       description: data.description,
       goalDescription: data.goalDescription,
@@ -154,9 +153,10 @@ questsApp.post('/', zValidator('json', createQuestSchema), async (c) => {
 })
 
 // GET /api/quests - List quests with progress and deadline monitoring
-questsApp.get('/', zValidator('query', questQuerySchema), async (c) => {
+questsApp.get('/', jwtAuth, zValidator('query', questQuerySchema), async (c) => {
   try {
-    const { userId, status } = c.req.valid('query')
+    const userId = getUserId(c)
+    const { status } = c.req.valid('query')
 
     // Build where conditions
     let whereConditions = [eq(quests.userId, userId)]
@@ -199,13 +199,9 @@ questsApp.get('/', zValidator('query', questQuerySchema), async (c) => {
 })
 
 // GET /api/quests/deadline-alerts - Get deadline monitoring alerts
-questsApp.get('/deadline-alerts', async (c) => {
+questsApp.get('/deadline-alerts', jwtAuth, async (c) => {
   try {
-    const userId = c.req.query('userId')
-
-    if (!userId) {
-      return c.json({ success: false, error: 'userId is required' }, 400)
-    }
+    const userId = getUserId(c)
 
     // Get active quests with deadlines
     const activeQuests = await db
@@ -256,14 +252,10 @@ questsApp.get('/deadline-alerts', async (c) => {
 })
 
 // GET /api/quests/:id - Get detailed quest information
-questsApp.get('/:id', async (c) => {
+questsApp.get('/:id', jwtAuth, async (c) => {
   try {
     const questId = c.req.param('id')
-    const userId = c.req.query('userId')
-
-    if (!userId) {
-      return c.json({ success: false, error: 'userId is required' }, 400)
-    }
+    const userId = getUserId(c)
 
     // Get quest (check existence first, then ownership)
     const [quest] = await db
@@ -321,9 +313,10 @@ questsApp.get('/:id', async (c) => {
 })
 
 // PUT /api/quests/:id - Update quest
-questsApp.put('/:id', zValidator('json', updateQuestSchema), async (c) => {
+questsApp.put('/:id', jwtAuth, zValidator('json', updateQuestSchema), async (c) => {
   try {
     const questId = c.req.param('id')
+    const userId = getUserId(c)
     const data = c.req.valid('json')
 
     // Verify quest exists and belongs to user
@@ -332,7 +325,7 @@ questsApp.put('/:id', zValidator('json', updateQuestSchema), async (c) => {
       .from(quests)
       .where(and(
         eq(quests.id, questId),
-        eq(quests.userId, data.userId)
+        eq(quests.userId, userId)
       ))
 
     if (!existingQuest) {

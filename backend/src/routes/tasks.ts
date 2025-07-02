@@ -5,10 +5,10 @@ import { HTTPException } from 'hono/http-exception'
 import { db } from '../db/connection'
 import { tasks, taskCompletions, users, quests, experiments } from '../db/schema'
 import { eq, and, or, inArray } from 'drizzle-orm'
+import { jwtAuth, getUserId } from '../middleware/auth'
 
 // Validation schemas
 const createTaskSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
   title: z.string().min(1, 'Title is required').max(500),
   description: z.string().optional(),
   source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external'], {
@@ -22,7 +22,6 @@ const createTaskSchema = z.object({
 })
 
 const updateTaskSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
   title: z.string().min(1).max(500).optional(),
   description: z.string().optional(),
   targetStats: z.array(z.string()).optional().nullable(),
@@ -33,7 +32,6 @@ const updateTaskSchema = z.object({
 })
 
 const taskQuerySchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
   status: z.enum(['pending', 'completed', 'skipped']).optional(),
   source: z.enum(['ai', 'quest', 'experiment', 'todo', 'ad-hoc', 'external']).optional(),
   dashboard: z.string().transform(val => val === 'true').optional(), // Filter for dashboard display
@@ -41,30 +39,17 @@ const taskQuerySchema = z.object({
   offset: z.string().transform(val => parseInt(val, 10)).optional(),
 })
 
-const userIdQuerySchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-})
-
 const app = new Hono()
 
 // POST /api/tasks - Create new task
 app.post('/',
+  jwtAuth,
   zValidator('json', createTaskSchema),
   async (c) => {
     try {
+      const userId = getUserId(c)
       const data = c.req.valid('json')
-      const { userId, sourceId, dueDate, source, ...taskData } = data
-
-      // Verify user exists
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1)
-
-      if (user.length === 0) {
-        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
-      }
+      const { sourceId, dueDate, source, ...taskData } = data
 
       // If sourceId is provided, verify it exists and belongs to user
       if (sourceId) {
@@ -116,22 +101,13 @@ app.post('/',
 
 // GET /api/tasks - List tasks with filtering
 app.get('/',
+  jwtAuth,
   zValidator('query', taskQuerySchema),
   async (c) => {
     try {
+      const userId = getUserId(c)
       const query = c.req.valid('query')
-      const { userId, status, source, dashboard, limit = 50, offset = 0 } = query
-
-      // Verify user exists
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1)
-
-      if (user.length === 0) {
-        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
-      }
+      const { status, source, dashboard, limit = 50, offset = 0 } = query
 
       // Build query conditions
       const conditions = [eq(tasks.userId, userId)]
@@ -178,11 +154,11 @@ app.get('/',
 
 // GET /api/tasks/:id - Get specific task
 app.get('/:id',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
       const taskId = c.req.param('id')
-      const { userId } = c.req.valid('query')
+      const userId = getUserId(c)
 
       // Validate UUID format for taskId
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -190,31 +166,18 @@ app.get('/:id',
         throw new HTTPException(404, { message: 'Task not found' })
       }
 
-      // Verify user exists
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1)
-
-      if (user.length === 0) {
-        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
-      }
-
-      // Check if task exists first
+      // Check if task exists and belongs to user
       const taskExists = await db
         .select()
         .from(tasks)
-        .where(eq(tasks.id, taskId))
+        .where(and(
+          eq(tasks.id, taskId),
+          eq(tasks.userId, userId)
+        ))
         .limit(1)
 
       if (taskExists.length === 0) {
         throw new HTTPException(404, { message: 'Task not found' })
-      }
-
-      // Check if task belongs to user
-      if (taskExists[0].userId !== userId) {
-        throw new HTTPException(403, { message: 'Unauthorized: Task does not belong to user' })
       }
 
       return c.json({
@@ -233,23 +196,14 @@ app.get('/:id',
 
 // PUT /api/tasks/:id - Update task
 app.put('/:id',
+  jwtAuth,
   zValidator('json', updateTaskSchema),
   async (c) => {
     try {
       const taskId = c.req.param('id')
+      const userId = getUserId(c)
       const data = c.req.valid('json')
-      const { userId, completedAt, dueDate, ...updateData } = data
-
-      // Verify user exists
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1)
-
-      if (user.length === 0) {
-        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
-      }
+      const { completedAt, dueDate, ...updateData } = data
 
       // Verify task exists and belongs to user
       const existingTask = await db
@@ -297,22 +251,11 @@ app.put('/:id',
 
 // DELETE /api/tasks/:id - Delete task (maintains loose coupling)
 app.delete('/:id',
-  zValidator('query', userIdQuerySchema),
+  jwtAuth,
   async (c) => {
     try {
       const taskId = c.req.param('id')
-      const { userId } = c.req.valid('query')
-
-      // Verify user exists
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1)
-
-      if (user.length === 0) {
-        throw new HTTPException(403, { message: 'Unauthorized: User not found' })
-      }
+      const userId = getUserId(c)
 
       // Verify task exists and belongs to user
       const existingTask = await db

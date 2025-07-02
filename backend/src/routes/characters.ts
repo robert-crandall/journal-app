@@ -5,6 +5,7 @@ import { HTTPException } from 'hono/http-exception'
 import { db } from '../db/connection'
 import { characters, characterStats, users } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { jwtAuth, getUserId } from '../middleware/auth'
 import { 
   calculateLevelFromTotalXp, 
   calculateLevelUpRewards, 
@@ -77,14 +78,8 @@ const app = new Hono()
   })
   
   // Get all characters for a user
-  .get('/', async (c) => {
-    // TODO: Get userId from JWT token in middleware
-    // For now, using query param for testing
-    const userId = c.req.query('userId')
-    
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+  .get('/', jwtAuth, async (c) => {
+    const userId = getUserId(c)
 
     try {
       const userCharacters = await db
@@ -108,9 +103,9 @@ const app = new Hono()
   })
 
   // Get a specific character with stats
-  .get('/:id', async (c) => {
+  .get('/:id', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
+    const userId = getUserId(c)
 
     if (!userId) {
       throw new HTTPException(400, { message: 'User ID is required' })
@@ -355,13 +350,9 @@ const app = new Hono()
   // Character Stats Management Routes
 
   // Get all stats for a character
-  .get('/:id/stats', async (c) => {
+  .get('/:id/stats', jwtAuth, async (c) => {
     const characterId = c.req.param('id')
-    const userId = c.req.query('userId') // TODO: Get from JWT token
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'User ID is required' })
-    }
+    const userId = getUserId(c)
 
     try {
       // Verify character exists and belongs to user

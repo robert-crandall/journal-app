@@ -56,7 +56,7 @@ export default defineConfig({
 			// Start backend with test database
 			command: 'cd ../backend && NODE_ENV=test bun run dev',
 			port: 3000,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: false, // The other server might be pointed at the wrong database
 			timeout: 30000
 		},
 		{
