@@ -46,6 +46,7 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
+		"daisyui": "^5.0.43",
 		"hono": "^4.8.3",
 		"lucide-svelte": "^0.523.0"
 	}

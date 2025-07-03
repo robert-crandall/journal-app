@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "cd frontend && bun run test:e2e",
+			"label": "Run frontend E2E tests to verify DaisyUI and dark mode integration"
+		}
+	]
+}

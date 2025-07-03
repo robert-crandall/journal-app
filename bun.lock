@@ -34,6 +34,7 @@
       "name": "frontend",
       "version": "0.0.1",
       "dependencies": {
+        "daisyui": "^5.0.43",
         "hono": "^4.8.3",
         "lucide-svelte": "^0.523.0",
       },
@@ -390,6 +391,8 @@
     "cross-spawn": ["cross-spawn@7.0.6", "", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
 
     "cssesc": ["cssesc@3.0.0", "", { "bin": { "cssesc": "bin/cssesc" } }, "sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg=="],
+
+    "daisyui": ["daisyui@5.0.43", "", {}, "sha512-2pshHJ73vetSpsbAyaOncGnNYL0mwvgseS1EWy1I9Qpw8D11OuBoDNIWrPIME4UFcq2xuff3A9x+eXbuFR9fUQ=="],
 
     "data-uri-to-buffer": ["data-uri-to-buffer@4.0.1", "", {}, "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A=="],
 
