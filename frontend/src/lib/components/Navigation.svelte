@@ -1,32 +1,10 @@
 <script lang="ts">
 	import { authStore, type User } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import ThemeToggle from './ThemeToggle.svelte';
+	import ThemeController from './ThemeController.svelte';
 
 	let user: User | null = null;
 	let token: string | null = null;
-	let menuOpen = false;
-
-	// Close menu on outside click
-	function handleClickOutside(event: MouseEvent) {
-		const menu = document.getElementById('nav-menu');
-		const button = document.getElementById('nav-menu-btn');
-		if (
-			menuOpen &&
-			menu &&
-			!menu.contains(event.target as Node) &&
-			button &&
-			!button.contains(event.target as Node)
-		) {
-			menuOpen = false;
-		}
-	}
-
-	onMount(() => {
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	});
 
 	// Subscribe to auth store
 	authStore.subscribe((state) => {
@@ -34,49 +12,32 @@
 		token = state.token;
 	});
 
-	// Handle logout
+	// Handle logout and close dropdown
 	function handleLogout() {
 		authStore.clearAuth();
+		// Close dropdown by removing the open attribute from details
+		const details = document.querySelector('details.dropdown');
+		if (details) {
+			details.removeAttribute('open');
+		}
 		goto('/');
 	}
 </script>
 
-<header
-	class="sticky top-0 z-30 flex items-center justify-between bg-indigo-600 px-6 py-4 shadow-sm"
->
-	<a href="/" class="flex items-center gap-2 text-xl font-semibold text-white hover:opacity-90">
-		<span>Journal App</span>
-	</a>
-	<nav class="flex items-center gap-4">
-		{#if user}
-			<a
-				href="/journal"
-				class="hidden px-4 py-2 font-medium text-white transition hover:text-indigo-100 md:inline-block"
-				>Journal</a
-			>
-			<a
-				href="/challenges"
-				class="hidden px-4 py-2 font-medium text-white transition hover:text-indigo-100 md:inline-block"
-				>Challenges</a
-			>
-			<a
-				href="/stats"
-				class="hidden px-4 py-2 font-medium text-white transition hover:text-indigo-100 md:inline-block"
-				>Stats</a
-			>
-			<!-- Theme toggle before hamburger menu -->
-			<ThemeToggle />
+<header class="navbar bg-base-100 border-base-200 sticky top-0 z-30 border-b shadow-sm">
+	<div class="navbar-start">
+		<a href="/" class="btn btn-ghost text-gradient text-xl font-semibold"> Auth Template </a>
+	</div>
 
-			<!-- Hamburger menu button -->
-			<button
-				id="nav-menu-btn"
-				class="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-700 text-white hover:bg-indigo-800 focus:ring-2 focus:ring-white focus:outline-none"
-				aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-				aria-expanded={menuOpen}
-				aria-controls="nav-menu"
-				on:click={() => (menuOpen = !menuOpen)}
-			>
-				{#if !menuOpen}
+	<div class="navbar-end">
+		<ThemeController />
+
+		{#if user}
+			<a href="/hello" class="btn btn-ghost">Hello World</a>
+
+			<!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
+			<details class="dropdown dropdown-end">
+				<summary id="nav-menu-btn" class="btn btn-ghost btn-circle avatar" aria-label="Open menu">
 					<!-- Lucide Menu Icon -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +48,7 @@
 						stroke-width="2"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="lucide lucide-menu"
+						class="h-5 w-5"
 						><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line
 							x1="4"
 							y1="18"
@@ -95,132 +56,20 @@
 							y2="18"
 						/></svg
 					>
-				{:else}
-					<!-- Lucide X Icon -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="lucide lucide-x"
-						><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg
-					>
-				{/if}
-			</button>
+				</summary>
 
-			<!-- Hamburger menu dropdown -->
-			{#if menuOpen}
 				<ul
 					id="nav-menu"
-					class="animate-in fade-in slide-in-from-top-2 absolute top-16 right-6 z-40 w-64 rounded-md bg-white py-2 shadow-lg"
-					tabindex="-1"
+					class="dropdown-content menu bg-base-100 rounded-box border-base-200 z-40 w-64 border p-2 shadow"
 					aria-label="User menu"
 				>
-					<li class="mb-1 border-b border-gray-100 px-3 py-2 text-xs text-gray-500">
-						Signed in as <span class="font-semibold text-gray-900">{user.email}</span>
+					<li class="menu-title">
+						<span class="text-xs">Signed in as <strong>{user.email}</strong></span>
 					</li>
-					<!-- Mobile navigation links -->
-					<li class="md:hidden">
-						<a
-							href="/journal"
-							class="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="lucide lucide-book-open text-gray-500"
-							>
-								<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-								<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-							</svg>
-							Journal
-						</a>
-					</li>
-					<li class="md:hidden">
-						<a
-							href="/challenges"
-							class="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="lucide lucide-target text-gray-500"
-							>
-								<circle cx="12" cy="12" r="10" />
-								<circle cx="12" cy="12" r="6" />
-								<circle cx="12" cy="12" r="2" />
-							</svg>
-							Challenges
-						</a>
-					</li>
-					<li class="md:hidden">
-						<a
-							href="/stats"
-							class="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="lucide lucide-bar-chart text-gray-500"
-							>
-								<line x1="12" y1="20" x2="12" y2="10" />
-								<line x1="18" y1="20" x2="18" y2="4" />
-								<line x1="6" y1="20" x2="6" y2="16" />
-							</svg>
-							Stats
-						</a>
-					</li>
-					<!-- Settings link -->
-					<li>
-						<a
-							href="/settings"
-							class="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="lucide lucide-settings text-gray-500"
-							>
-								<path
-									d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-								/>
-								<circle cx="12" cy="12" r="3" />
-							</svg>
-							Settings
-						</a>
-					</li>
-					<!-- Logout option -->
+					<div class="divider my-2"></div>
 					<li>
 						<button
-							class="group/item flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
+							class="text-error hover:bg-error hover:text-error-content"
 							on:click={handleLogout}
 						>
 							<!-- Lucide LogOut Icon -->
@@ -233,7 +82,7 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
-								class="lucide lucide-log-out text-gray-500 group-hover/item:text-red-500"
+								class="h-4 w-4"
 								><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline
 									points="16 17 21 12 16 7"
 								/><line x1="21" y1="12" x2="9" y2="12" /></svg
@@ -242,19 +91,10 @@
 						</button>
 					</li>
 				</ul>
-			{/if}
+			</details>
 		{:else}
-			<!-- Theme toggle for non-authenticated users -->
-			<ThemeToggle />
-
-			<a href="/login" class="px-4 py-2 font-medium text-white transition hover:text-indigo-100"
-				>Login</a
-			>
-			<a
-				href="/register"
-				class="rounded-md bg-white px-5 py-2 font-medium text-indigo-600 shadow-sm transition-all hover:bg-indigo-50"
-				>Register</a
-			>
+			<a href="/login" class="btn btn-ghost">Login</a>
+			<a href="/register" class="btn btn-primary">Register</a>
 		{/if}
-	</nav>
+	</div>
 </header>

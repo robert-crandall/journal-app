@@ -24,13 +24,13 @@ test.describe('Authentication Persistence', () => {
 		await page.waitForURL('/', { timeout: TEST_CONFIG.TIMEOUTS.LOGIN });
 
 		// Verify successful login after registration
-		await expect(page.locator('text=Your Dashboard')).toBeVisible();
+		await expect(page.locator("text=You're successfully logged in to your account.")).toBeVisible();
 
 		// Go to a different page and back
 		await page.goto('about:blank');
 		await page.goto('/');
 
 		// Verify still logged in
-		await expect(page.locator('text=Your Dashboard')).toBeVisible();
+		await expect(page.locator("text=You're successfully logged in to your account.")).toBeVisible();
 	});
 });

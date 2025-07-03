@@ -23,7 +23,7 @@ test.describe('User Registration', () => {
 		await page.waitForURL('/');
 
 		// Verify success - check for success message on the home page
-		await expect(page.locator('text=Your Dashboard')).toBeVisible();
+		await expect(page.locator("text=You're successfully logged in to your account.")).toBeVisible();
 	});
 
 	test('should display validation errors for invalid inputs', async ({ page }) => {
