@@ -33,6 +33,8 @@
 </div>
 
 <style>
+	@reference '../app.css'
+	
 	:global(body) {
 		background-color: var(--bg-primary);
 		color: var(--text-primary);
