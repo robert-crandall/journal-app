@@ -1,7 +1,5 @@
-
 @import 'tailwindcss';
 @plugin "daisyui";
-
 
 :root {
 	/* DaisyUI v5 theme variables */
@@ -31,7 +29,7 @@
 
 	/* Brand and status colors for custom utilities */
 	--color-brand-50: #eef2ff;
-	--color-brand-100: #e0e7ff; 
+	--color-brand-100: #e0e7ff;
 	--color-brand-200: #c7d2fe;
 	--color-brand-300: #a5b4fc;
 	--color-brand-400: #818cf8;
@@ -44,9 +42,9 @@
 	--color-accent-500: #10b981; /* Emerald */
 	--color-success: #10b981; /* Green */
 	--color-warning: #f59e0b; /* Amber */
-	--color-error: #ef4444;   /* Red */
-	--color-info: #3b82f6;    /* Blue */
-	--color-status-active: #10b981;  /* Green - Active */
+	--color-error: #ef4444; /* Red */
+	--color-info: #3b82f6; /* Blue */
+	--color-status-active: #10b981; /* Green - Active */
 	--color-status-pending: #3b82f6; /* Blue - Pending */
 	--color-status-inprogress: #f59e0b; /* Amber - In progress */
 	--color-status-completed: #10b981; /* Green - Completed */
@@ -91,7 +89,7 @@ html {
 
 /* Dark mode variables - following Material Design dark theme guidelines */
 @media (prefers-color-scheme: dark) {
-	:root:not([data-theme="light"]) {
+	:root:not([data-theme='light']) {
 		/* DaisyUI v5 dark mode variables */
 		--color-base-100: #1e1e1e; /* Card background (surface) */
 		--color-base-200: #23272b; /* Slightly lighter for elevation */
@@ -115,7 +113,7 @@ html {
 }
 
 /* Manual dark mode toggle */
-[data-theme="dark"] {
+[data-theme='dark'] {
 	--color-base-100: #1e1e1e;
 	--color-base-200: #23272b;
 	--color-base-300: #2a2e33;
@@ -135,7 +133,6 @@ html {
 	--color-info: #60a5fa;
 	--color-info-content: #18181b;
 }
-
 
 /* Card styling and elevation */
 .border-l-4 {
