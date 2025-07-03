@@ -17,5 +17,8 @@
   "devDependencies": {
     "concurrently": "^9.2.0",
     "node-fetch": "^3.3.2"
+  },
+  "dependencies": {
+    "task-master-ai": "^0.18.0"
   }
 }

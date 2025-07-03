@@ -44,6 +44,8 @@ The `handleApiError` utility:
 
 ### Testing Philosophy: NO MOCKS
 
+**Date Added: June 29, 2025**
+
 Tests should use real instances instead of mocks whenever possible:
 
 - **✅ DO**: Use real database connections with test databases
@@ -111,56 +113,31 @@ catch (error) {
 - Consistent response structure with `success`, `data`, `error` fields
 - Use HTTP status codes appropriately
 
-### Hono Client Usage
-
-The Hono client has a specific API that differs from standard fetch API:
-
-- **Use `header` (singular) not `headers` (plural)** when setting HTTP headers with the Hono client:
-
-```typescript
-// CORRECT: Use 'header' (singular) with Hono client
-const response = await api.route.$get({
-  header: {
-    Authorization: `Bearer ${token}`
-  }
-});
-
-// INCORRECT: Don't use 'headers' (plural) with Hono client
-const response = await api.route.$get({
-  headers: { // This won't work with Hono client
-    Authorization: `Bearer ${token}`
-  }
-});
-```
-
-- **JWT token field names**: When working with JWT tokens, ensure consistency between token creation and validation:
-  - Use `userId` field in JWT tokens
-
-### User ID Field Naming Convention
-
-We follow a standardized approach for user identification fields across the system:
-
-- **Database schema**: Uses `id` as the primary key field
-- **JWT tokens**: Use `userId` field internally for compatibility
-- **Backend API responses**: Always return `id` field for consistency
-- **Frontend models**: Use `id` consistently
-
-When working with JWT payload, remember to map the field name:
-
-```typescript
-// Map userId from JWT payload to id in our User model
-const user: User = {
-  id: payload.userId || '', // JWT payload uses userId
-  name: payload.name,
-  email: payload.email,
-  // other fields...
-};
-```
-
-This standardization simplifies our codebase by using a single field name (`id`) throughout our API responses and frontend models.
-
 ### Database Design
 - UUID primary keys for all entities
 - Proper foreign key relationships
 - Timestamp fields for audit trails
 - Snake_case for database, camelCase for TypeScript
+
+### JWT Authentication Standard
+
+We've standardized on `userId` as the key for user identification in JWT tokens:
+
+- **✅ DO**: Always use `userId` (not `id`) in JWT payload for user identification
+- **✅ DO**: Structure JWT payloads consistently:
+  ```typescript
+  {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + expirationTime
+  }
+  ```
+- **✅ DO**: Reference the `userId` property in all authentication middleware
+- **❌ DON'T**: Use `id` for user identification in JWT tokens
+
+**Reason for standardization:**
+- Having both `id` and `userId` as keys in different parts of the codebase led to authentication failures
+- Standardizing on `userId` makes the codebase more consistent and easier to maintain
+- This avoids confusion between entity IDs and user IDs in the JWT context
