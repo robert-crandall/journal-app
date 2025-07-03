@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+export NODE_ENV=test
+
 # Function to print section headers
 print_section() {
     echo ""
@@ -25,13 +27,16 @@ echo "🔧 Running Svelte check..."
 bun run check
 echo "🎨 Running formatter..."
 bun run format
+echo "- Building frontend..."
+bun run build
 
 print_section "Running expensive checks"
-echo "- Building frontend..."
-cd "../frontend"
-bun run build
 echo "- Backend tests..."
 cd "../backend"
-bun test
+bun run test
+
+echo "- Frontend tests..."
+cd "../frontend"
+bun run test:e2e
 
 print_section "All checks completed successfully! ✅"

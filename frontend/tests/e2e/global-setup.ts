@@ -21,9 +21,8 @@ async function waitForBackend(maxAttempts = 30, delayMs = 1000): Promise<boolean
 
 async function runSeeding(): Promise<void> {
 	// Import the seeding function
-	// TODO: Is this needed?
-	// const { seedTestDataViaAPI } = await import('./seed-data');
-	// await seedTestDataViaAPI();
+	const { seedTestDataViaAPI } = await import('./seed-data');
+	await seedTestDataViaAPI();
 }
 
 async function globalSetup(config: FullConfig) {

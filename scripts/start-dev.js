@@ -20,8 +20,8 @@ async function startDev() {
       '--prefix-colors', 'blue,green',
       '--kill-others',
       '--kill-others-on-fail',
-      '"cd backend && bun run dev"',
-      '"cd frontend && bun run dev"'
+      '"bun scripts/start-backend.js"',
+      '"bun scripts/start-frontend.js"'
     ], {
       stdio: 'inherit',
       shell: true
@@ -42,8 +42,8 @@ async function startDev() {
     console.error('❌ Could not start with concurrently. Make sure to install it:')
     console.error('   bun add -D concurrently')
     console.error('\n💡 Alternatively, run in separate terminals:')
-    console.error('   Terminal 1: bun run backend')
-    console.error('   Terminal 2: bun run frontend')
+    console.error('   Terminal 1: bun scripts/start-backend.js')
+    console.error('   Terminal 2: bun scripts/start-frontend.js')
     process.exit(1)
   }
 }

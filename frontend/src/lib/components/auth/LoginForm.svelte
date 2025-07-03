@@ -1,197 +1,177 @@
 <script lang="ts">
-  import { apiClient } from '$lib/api/client';
-  import { authStore } from '$lib/stores/auth';
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
-  import type { LoginRequest } from '$lib/api/client';
+	import { createEventDispatcher } from 'svelte';
 
-  // Form state using Svelte 5 runes
-  let email = $state('');
-  let password = $state('');
-  let isLoading = $state(false);
-  let error = $state('');
+	// Props
+	export let loading = false;
+	export let error: string | null = null;
 
-  // Validation state
-  let emailError = $state('');
-  let passwordError = $state('');
+	// Form data
+	let email = '';
+	let password = '';
+	let rememberMe = false;
 
-  // Form validation using derived state
-  let emailValid = $derived(validateEmail(email));
-  let passwordValid = $derived(validatePassword(password));
-  let formValid = $derived(emailValid && passwordValid && email.length > 0 && password.length > 0);
+	// Form validation
+	let emailError = '';
+	let passwordError = '';
+	let formValid = false;
 
-  // Validation functions
-  function validateEmail(email: string): boolean {
-    if (!email) return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
+	// Event dispatcher
+	const dispatch = createEventDispatcher<{
+		login: { email: string; password: string; rememberMe: boolean };
+	}>();
 
-  function validatePassword(password: string): boolean {
-    return password.length >= 6;
-  }
+	// Validate form input
+	function validateEmail() {
+		if (!email) {
+			emailError = 'Email is required';
+			return false;
+		}
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			emailError = 'Please enter a valid email address';
+			return false;
+		}
+		emailError = '';
+		return true;
+	}
 
-  // Real-time validation effects
-  $effect(() => {
-    if (email.length > 0 && !emailValid) {
-      emailError = 'Please enter a valid email address';
-    } else {
-      emailError = '';
-    }
-  });
+	function validatePassword() {
+		if (!password) {
+			passwordError = 'Password is required';
+			return false;
+		}
+		passwordError = '';
+		return true;
+	}
 
-  $effect(() => {
-    if (password.length > 0 && !passwordValid) {
-      passwordError = 'Password must be at least 6 characters';
-    } else {
-      passwordError = '';
-    }
-  });
+	function validateForm() {
+		const isEmailValid = validateEmail();
+		const isPasswordValid = validatePassword();
+		formValid = isEmailValid && isPasswordValid;
+		return formValid;
+	}
 
-  // Form submission handler
-  async function handleSubmit(event: Event) {
-    event.preventDefault();
-    
-    if (!formValid) {
-      error = 'Please fix the form errors above';
-      return;
-    }
-
-    try {
-      isLoading = true;
-      error = '';
-
-      const loginData: LoginRequest = {
-        email: email.trim(),
-        password
-      };
-
-      const response = await apiClient.login(loginData);
-
-      if (response.success && response.data) {
-        // Update auth store with user and token
-        authStore.setAuth(response.data.user, response.data.token);
-        
-        // Redirect to dashboard
-        await goto('/', { replaceState: true });
-      } else {
-        error = response.error || 'Login failed. Please try again.';
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      error = 'An unexpected error occurred. Please try again.';
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  // Clear errors when user starts typing
-  $effect(() => {
-    if (email || password) {
-      error = '';
-    }
-  });
-
-  // Focus email input on mount
-  let emailInput: HTMLInputElement;
-  onMount(() => {
-    emailInput?.focus();
-  });
+	// Handle form submission
+	function handleSubmit() {
+		if (validateForm()) {
+			dispatch('login', { email, password, rememberMe });
+		}
+	}
 </script>
 
 <div class="mx-auto w-full max-w-md p-4">
-	<h2 class="mb-6 text-center text-2xl font-bold">Sign In</h2>
+	<div class="mb-8 text-center">
+		<h1 class="mb-2 text-3xl font-bold">Welcome back</h1>
+		<p class="text-base-content/70">Sign in to continue to your account</p>
+	</div>
 
-	<form onsubmit={handleSubmit} class="space-y-6" novalidate>
-		<!-- Email Field -->
-		<div class="form-control">
-			<label class="label" for="email">
-				<span class="label-text">Email</span>
-			</label>
-			<input
-				bind:this={emailInput}
-				bind:value={email}
-				type="email"
-				id="email"
-				name="email"
-				autocomplete="email"
-				required
-				class="input input-bordered w-full"
-				class:input-error={emailError}
-				placeholder="Enter your email"
-				disabled={isLoading}
-			/>
-			{#if emailError}
-				<div class="label">
-					<span class="label-text-alt text-error">{emailError}</span>
-				</div>
-			{/if}
-		</div>
-
-		<!-- Password Field -->
-		<div class="form-control">
-			<label class="label" for="password">
-				<span class="label-text">Password</span>
-			</label>
-			<input
-				bind:value={password}
-				type="password"
-				id="password"
-				name="password"
-				autocomplete="current-password"
-				required
-				class="input input-bordered w-full"
-				class:input-error={passwordError}
-				placeholder="Enter your password"
-				disabled={isLoading}
-			/>
-			{#if passwordError}
-				<div class="label">
-					<span class="label-text-alt text-error">{passwordError}</span>
-				</div>
-			{/if}
-		</div>
-
-		<!-- Form Error -->
-		{#if error}
-			<div class="alert alert-error">
+	{#if error}
+		<div class="mb-6 rounded-lg border-l-4 border-red-500 bg-red-50 p-4">
+			<div class="flex items-start">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					class="h-6 w-6 shrink-0 stroke-current"
-					fill="none"
+					width="20"
+					height="20"
 					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="mt-0.5 mr-3 text-red-500"
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-					/>
+					<circle cx="12" cy="12" r="10" />
+					<line x1="12" x2="12" y1="8" y2="12" />
+					<line x1="12" x2="12.01" y1="16" y2="16" />
 				</svg>
-				<span>{error}</span>
+				<span class="text-red-700">{error}</span>
 			</div>
-		{/if}
+		</div>
+	{/if}
 
-		<!-- Submit Button -->
-		<button
-			type="submit"
-			disabled={!formValid || isLoading}
-			class="btn btn-primary w-full"
-			class:loading={isLoading}
-		>
-			{#if isLoading}
-				<span class="loading loading-spinner loading-sm"></span>
-				Signing in...
-			{:else}
-				Sign In
+	<form on:submit|preventDefault={handleSubmit} class="space-y-6">
+		<div>
+			<label for="email" class="mb-2 block text-sm font-medium"> Email address </label>
+			<input
+				type="email"
+				id="email"
+				bind:value={email}
+				on:blur={validateEmail}
+				placeholder="you@example.com"
+				class="border-base-300 focus:ring-brand-500 focus:border-brand-500 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
+				disabled={loading}
+				autocomplete="email"
+			/>
+			{#if emailError}
+				<p class="mt-1.5 text-sm text-red-600">{emailError}</p>
 			{/if}
-		</button>
+		</div>
 
-		<!-- Register Link -->
-		<div class="text-center">
-			<p class="text-sm">
+		<div>
+			<div class="mb-2 flex items-center justify-between">
+				<label for="password" class="block text-sm font-medium"> Password </label>
+				<button type="button" class="text-brand-600 hover:text-brand-500 text-sm"
+					>Forgot password?</button
+				>
+			</div>
+			<input
+				type="password"
+				id="password"
+				bind:value={password}
+				on:blur={validatePassword}
+				placeholder="••••••••"
+				class="border-base-300 focus:ring-brand-500 focus:border-brand-500 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
+				disabled={loading}
+				autocomplete="current-password"
+			/>
+			{#if passwordError}
+				<p class="mt-1.5 text-sm text-red-600">{passwordError}</p>
+			{/if}
+		</div>
+
+		<div class="flex items-center">
+			<input
+				id="remember"
+				type="checkbox"
+				bind:checked={rememberMe}
+				class="border-base-300 text-brand-600 focus:ring-brand-500 h-4 w-4 rounded"
+				disabled={loading}
+			/>
+			<label for="remember" class="ml-2 block text-sm"> Remember me for 30 days </label>
+		</div>
+
+		<div>
+			<button
+				type="submit"
+				class="hover-lift from-brand-500 to-brand-600 flex w-full items-center justify-center rounded-lg bg-gradient-to-br py-3 font-medium text-white shadow"
+				disabled={loading}
+			>
+				{#if loading}
+					<svg
+						class="mr-2 -ml-1 h-4 w-4 animate-spin text-white"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+						></circle>
+						<path
+							class="opacity-75"
+							fill="currentColor"
+							d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+						></path>
+					</svg>
+				{/if}
+				Sign in
+			</button>
+		</div>
+
+		<div class="mt-6 text-center">
+			<p class="text-base-content/70">
 				Don't have an account?
-				<a href="/register" class="link link-primary">Create one here</a>
+				<a href="/register" class="text-brand-600 hover:text-brand-500 font-medium">
+					Create one now
+				</a>
 			</p>
 		</div>
 	</form>

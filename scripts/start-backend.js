@@ -9,7 +9,7 @@ const execAsync = promisify(exec)
 // Check if backend is already running
 async function isBackendRunning() {
   try {
-    const response = await fetch('http://localhost:3000', { timeout: 2000 })
+    const response = await fetch('http://localhost:3000/api/health', { timeout: 2000 })
     return response.ok
   } catch {
     return false

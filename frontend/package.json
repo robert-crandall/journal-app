@@ -8,7 +8,7 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --no-tsconfig .",
+		"check": "svelte-kit sync && tsc -p tsconfig.backend-types.json --emitDeclarationOnly && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
@@ -46,10 +46,7 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
-		"@hono/client": "^0.0.3",
-		"@tailwindcss/container-queries": "^0.1.1",
-		"daisyui": "^5.0.43",
 		"hono": "^4.8.3",
-		"lucide-svelte": "^0.525.0"
+		"lucide-svelte": "^0.523.0"
 	}
 }

@@ -1,11 +1,14 @@
-import { apiClient } from './client';
+import { api } from '../api';
 
-// Type-safe authentication API using the existing API client
+// Type-safe authentication API using Hono client
 export const authApi = {
-	// Check if registration is enabled (always return true for now since backend doesn't have this endpoint)
+	// Check if registration is enabled
 	async getRegistrationStatus(): Promise<{ enabled: boolean }> {
-		// For now, registration is always enabled
-		return { enabled: true };
+		const response = await api.api.users['registration-status'].$get();
+		if (!response.ok) {
+			throw new Error('Failed to check registration status');
+		}
+		return response.json();
 	},
 
 	// Register a new user
@@ -18,22 +21,27 @@ export const authApi = {
 		};
 		token: string;
 	}> {
-		const response = await apiClient.register(data);
+		const response = await api.api.users.$post({
+			json: data
+		});
 
-		if (!response.success) {
-			throw new Error(response.error || 'Registration failed');
+		const result = await response.json();
+
+		if (!response.ok) {
+			// Type narrowing: if response is not ok, result has error property
+			const errorResult = result as { error: string };
+			throw new Error(errorResult.error || 'Registration failed');
 		}
 
-		// Type the response data properly
-		const authData = response.data as { user: any; token: string };
-		return {
+		// Type narrowing: if response is ok, result has user and token
+		return result as {
 			user: {
-				id: authData.user.id,
-				name: authData.user.name,
-				email: authData.user.email,
-				createdAt: authData.user.createdAt,
-			},
-			token: authData.token
+				id: string;
+				name: string;
+				email: string;
+				createdAt: string;
+			};
+			token: string;
 		};
 	},
 
@@ -47,114 +55,27 @@ export const authApi = {
 		};
 		token: string;
 	}> {
-		const response = await apiClient.login({
-			email: data.email,
-			password: data.password
+		const response = await api.api.users.login.$post({
+			json: data
 		});
 
-		if (!response.success) {
-			throw new Error(response.error || 'Login failed');
+		const result = await response.json();
+
+		if (!response.ok) {
+			// Type narrowing: if response is not ok, result has error property
+			const errorResult = result as { error: string };
+			throw new Error(errorResult.error || 'Login failed');
 		}
 
-		// Type the response data properly
-		const authData = response.data as { user: any; token: string };
-		return {
+		// Type narrowing: if response is ok, result has user and token
+		return result as {
 			user: {
-				id: authData.user.id,
-				name: authData.user.name,
-				email: authData.user.email,
-				createdAt: authData.user.createdAt,
-			},
-			token: authData.token
+				id: string;
+				name: string;
+				email: string;
+				createdAt: string;
+			};
+			token: string;
 		};
-	},
-
-	// Get current user profile
-	async getProfile(token: string): Promise<{
-		id: string;
-		name: string;
-		email: string;
-		timezone?: string;
-		zipCode?: string;
-		createdAt: string;
-		updatedAt?: string;
-	}> {
-		const response = await apiClient.getCurrentUser();
-
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to get profile');
-		}
-
-		return response.data as any;
-	},
-
-	// Update user profile
-	async updateProfile(token: string, data: { name?: string; timezone?: string; zipCode?: string }): Promise<{
-		id: string;
-		name: string;
-		email: string;
-		timezone?: string;
-		zipCode?: string;
-		createdAt: string;
-		updatedAt?: string;
-	}> {
-		// For now, return the same data since we don't have update endpoint implemented
-		const profileResponse = await this.getProfile(token);
-		return { ...profileResponse, ...data };
-	},
-
-	// Logout
-	async logout(token: string): Promise<void> {
-		await apiClient.logout();
-	},
-
-	// Verify token
-	async verifyToken(token: string): Promise<{ userId: string; email: string; valid: boolean }> {
-		try {
-			const response = await apiClient.getCurrentUser();
-			if (response.success && response.data) {
-				const user = response.data as any;
-				return {
-					userId: user.id,
-					email: user.email,
-					valid: true
-				};
-			}
-			return { userId: '', email: '', valid: false };
-		} catch {
-			return { userId: '', email: '', valid: false };
-		}
-	},
-
-	// Create demo user for testing
-	async createDemoUser(): Promise<{
-		user: {
-			id: string;
-			name: string;
-			email: string;
-			createdAt: string;
-		};
-		token: string;
-		credentials: {
-			email: string;
-			password: string;
-		};
-	}> {
-		// For now, create a mock demo user response
-		// This will be implemented properly in Task 4.0
-		const mockUser = {
-			user: {
-				id: 'demo-user-id',
-				name: 'Demo User',
-				email: 'demo@example.com',
-				createdAt: new Date().toISOString(),
-			},
-			token: 'demo-token',
-			credentials: {
-				email: 'demo@example.com',
-				password: 'demo123'
-			}
-		};
-		return mockUser;
 	}
 };

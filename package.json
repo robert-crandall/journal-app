@@ -1,7 +1,7 @@
 {
-  "name": "journal-app",
+  "name": "example_app",
   "version": "1.0.0",
-  "description": "D&D Life Gamification App",
+  "description": "Example application",
   "type": "module",
   "scripts": {
     "backend": "bun scripts/start-backend.js",

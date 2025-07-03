@@ -1,224 +1,206 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { authStore, type User } from '$lib/stores/auth';
-	import { apiClient } from '$lib/api/client';
-	import { Button, Card } from '$lib/components/ui';
-	import { Sword, BookOpen, Target, Users } from 'lucide-svelte';
-	import { browser } from '$app/environment';
+	import Navigation from '$lib/components/Navigation.svelte';
 
-	// Use reactive declarations for auth state
-	let isAuthenticated = false;
 	let user: User | null = null;
-	let authInitialized = false;
+	let token: string | null = null;
+	let loading = false;
 
-	// Subscribe to auth changes
+	// Subscribe to auth store
 	authStore.subscribe((state) => {
-		isAuthenticated = state.initialized && state.user !== null && state.token !== null;
 		user = state.user;
-		authInitialized = state.initialized;
+		token = state.token;
+		loading = state.loading;
 	});
-
-	// Initialize auth on mount
-	onMount(() => {
-		if (browser) {
-			// Ensure auth is initialized
-			if (!authInitialized) {
-				authStore.setInitialized(true);
-			}
-		}
-	});
-
-	// Handle logout
-	async function handleLogout() {
-		try {
-			// Call logout API
-			await apiClient.logout();
-		} catch (err) {
-			// Even if API fails, clear local auth
-			console.warn('Logout API failed, but clearing local auth:', err);
-		} finally {
-			// Always clear local auth state
-			authStore.clearAuth();
-		}
-	}
 </script>
 
 <svelte:head>
-	<title>Dashboard | D&D Life Gamification</title>
-	<meta name="description" content="Your D&D life adventure dashboard" />
+	<title>Home | Auth Template</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-100">
+<div class="from-base-100 to-base-200/30 flex min-h-screen flex-col bg-gradient-to-br">
 	<!-- Main content -->
-	<div class="container mx-auto px-4 py-8">
-		{#if isAuthenticated && user}
-			<!-- Welcome Hero Section -->
-			<div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl mb-8">
-				<div class="hero-content text-center py-12">
-					<div class="max-w-2xl">
-						<h1 class="text-5xl font-bold mb-4">
-							Welcome back, <span class="text-primary">Adventurer</span>!
-						</h1>
-						<p class="text-lg opacity-80 mb-6">
-							Hello, {user.name}! Ready to continue your D&D life journey?
-						</p>
-						
-						<!-- User Stats -->
-						<div class="stats shadow-lg bg-base-100/80 backdrop-blur-sm">
-							<div class="stat">
-								<div class="stat-figure text-primary">
-									<Sword size={32} />
+	<main class="flex flex-1 flex-col items-center justify-center px-6 py-20">
+		{#if user}
+			<!-- Logged-in View -->
+			<section class="flex w-full max-w-2xl flex-col items-center">
+				<div class="mb-8 text-center">
+					<h1
+						class="mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent"
+					>
+						Welcome back, {user.name}!
+					</h1>
+					<p class="text-base-content/70 max-w-lg text-xl">
+						You're successfully logged in to your account.
+					</p>
+				</div>
+
+				<div
+					class="bg-base-100 border-base-200/60 w-full overflow-hidden rounded-xl border shadow-lg backdrop-blur-sm"
+				>
+					<div class="flex flex-col gap-4 p-6">
+						<div class="flex items-center gap-4">
+							<div
+								class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-2xl font-bold text-white uppercase"
+							>
+								{user.name[0]}
+							</div>
+							<div>
+								<h2 class="text-2xl font-bold">{user.name}</h2>
+								<p class="text-base-content/70">{user.email}</p>
+							</div>
+						</div>
+
+						<div class="border-base-200 mt-4 border-t pt-4">
+							<h3 class="text-base-content/50 mb-3 text-sm font-semibold uppercase">
+								Account Information
+							</h3>
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+								<div class="bg-base-200/50 rounded-lg p-4">
+									<span class="text-base-content/60 mb-1 block text-xs">Username</span>
+									<span class="font-medium">{user.name}</span>
 								</div>
-								<div class="stat-title">Character</div>							<div class="stat-value text-primary">{user.name}</div>
-							<div class="stat-desc">{user.email}</div>
+								<div class="bg-base-200/50 rounded-lg p-4">
+									<span class="text-base-content/60 mb-1 block text-xs">Email</span>
+									<span class="font-medium">{user.email}</span>
+								</div>
+								<div class="bg-base-200/50 rounded-lg p-4">
+									<span class="text-base-content/60 mb-1 block text-xs">Status</span>
+									<div class="flex items-center gap-2">
+										<div class="h-2 w-2 rounded-full bg-green-500"></div>
+										<span class="font-medium">Active</span>
+									</div>
+								</div>
+								<div class="bg-base-200/50 rounded-lg p-4">
+									<span class="text-base-content/60 mb-1 block text-xs">Joined</span>
+									<span class="font-medium">{new Date().toLocaleDateString()}</span>
+								</div>
+							</div>
+
+							<div class="mt-6 flex justify-center">
+								<a
+									href="/hello"
+									class="flex items-center gap-2 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 px-6 py-2 font-medium text-white shadow-md transition-all hover:scale-105 hover:shadow active:scale-95"
+								>
+									<span>View Hello World Example</span>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="18"
+										height="18"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-external-link"
+										><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline
+											points="15 3 21 3 21 9"
+										/><line x1="10" x2="21" y1="14" y2="3" /></svg
+									>
+								</a>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<!-- Feature Cards Grid -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-							<Target size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Daily Quests</h3>
-							<p class="text-base-content/70 mb-4">
-								Complete daily tasks and challenges to level up your character and earn rewards.
-							</p>
-							<Button href="/tasks" variant="primary" size="sm">
-								View Tasks
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-secondary/10 text-secondary group-hover:scale-110 transition-transform">
-							<BookOpen size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Adventure Journal</h3>
-							<p class="text-base-content/70 mb-4">
-								Reflect on your daily adventures and track your personal growth journey.
-							</p>
-							<Button href="/journal" variant="secondary" size="sm">
-								Start Writing
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-accent/10 text-accent group-hover:scale-110 transition-transform">
-							<Sword size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Character Progress</h3>
-							<p class="text-base-content/70 mb-4">
-								Level up your character, unlock new abilities, and track your stats.
-							</p>
-							<Button href="/character" variant="outline" size="sm">
-								View Character
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
-							<Users size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Family Party</h3>
-							<p class="text-base-content/70 mb-4">
-								Connect with family members and embark on shared adventures together.
-							</p>
-							<Button href="/family" variant="outline" size="sm">
-								View Family
-							</Button>
-						</div>
-					</div>
-				</Card>
-			</div>
-
-			<!-- Quick Actions -->
-			<div class="mt-8 text-center">
-				<h2 class="text-2xl font-bold mb-4">Quick Actions</h2>
-				<div class="flex flex-wrap justify-center gap-4">
-					<Button href="/quests" variant="primary" size="lg">
-						View Active Quests
-					</Button>
-					<Button href="/settings" variant="outline" size="lg">
-						Account Settings
-					</Button>
-				</div>
-			</div>
+			</section>
 		{:else}
-			<!-- Landing page for unauthenticated users -->
-			<div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl">
-				<div class="hero-content text-center py-16">
-					<div class="max-w-2xl">
-						<div class="text-6xl mb-6">⚔️</div>
-						<h1 class="text-6xl font-bold mb-6">
-							Welcome to <span class="text-primary">D&D Life</span>
-						</h1>
-						<p class="text-xl opacity-80 mb-8">
-							Transform your daily life into an epic D&D adventure. Complete quests, level up your character, and track your real-world progress in this gamified life management system.
-						</p>
-						<div class="flex flex-col sm:flex-row justify-center gap-4">
-							<Button href="/register" variant="primary" size="lg">
-								🎲 Start Your Adventure
-							</Button>
-							<Button href="/login" variant="outline" size="lg">
-								⚔️ Login to Continue
-							</Button>
+			<!-- Landing Page View -->
+			<section
+				class="flex w-full max-w-5xl flex-col items-center justify-between gap-12 md:flex-row"
+			>
+				<!-- Left side content -->
+				<div class="max-w-xl flex-1">
+					<h1 class="mb-4 text-5xl leading-tight font-bold">
+						<span
+							class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+						>
+							Modern Auth Template
+						</span>
+					</h1>
+					<p class="text-base-content/80 mb-8 text-xl">
+						A sleek SvelteKit application with user authentication powered by Hono backend. The
+						perfect starting point for your next project.
+					</p>
+					<div class="flex items-center gap-4">
+						<a
+							href="/register"
+							class="flex items-center gap-2 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 px-8 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+						>
+							<span>Get Started</span>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="lucide lucide-arrow-right"
+								><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg
+							>
+						</a>
+						<a
+							href="/login"
+							class="bg-base-100 border-base-300 text-base-content rounded-full border px-8 py-3 font-medium shadow-sm transition-all hover:border-blue-400 hover:shadow"
+						>
+							Login
+						</a>
+					</div>
+
+					<!-- Feature badges -->
+					<div class="mt-8 flex flex-wrap gap-3">
+						<div class="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-800">Type-Safe</div>
+						<div class="rounded-full bg-purple-100 px-3 py-1 text-xs text-purple-800">
+							SvelteKit
+						</div>
+						<div class="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-800">
+							Hono Backend
+						</div>
+						<div class="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-800">JWT Auth</div>
+					</div>
+				</div>
+
+				<!-- Right side illustration/image -->
+				<div class="flex flex-1 items-center justify-center">
+					<div class="relative aspect-square w-full max-w-sm">
+						<!-- Abstract shapes for visual interest -->
+						<div
+							class="absolute top-0 right-0 h-48 w-48 rounded-full bg-blue-500/10 blur-2xl"
+						></div>
+						<div
+							class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-purple-500/10 blur-2xl"
+						></div>
+
+						<!-- App mockup -->
+						<div
+							class="border-base-200/60 bg-base-100 relative z-10 flex h-full w-full flex-col overflow-hidden rounded-2xl border shadow-2xl"
+						>
+							<!-- Mockup header -->
+							<div class="border-base-200 bg-base-100 flex h-14 items-center gap-3 border-b px-4">
+								<div class="h-3 w-3 rounded-full bg-red-400"></div>
+								<div class="h-3 w-3 rounded-full bg-yellow-400"></div>
+								<div class="h-3 w-3 rounded-full bg-green-400"></div>
+								<div class="bg-base-200 ml-4 h-5 flex-1 rounded-full"></div>
+							</div>
+
+							<!-- Mockup content -->
+							<div class="flex flex-1 flex-col gap-3 p-4">
+								<div class="bg-base-200 h-8 w-3/4 rounded-lg"></div>
+								<div class="bg-base-200 h-4 w-1/2 rounded-lg"></div>
+								<div class="bg-base-200 h-4 w-2/3 rounded-lg"></div>
+								<div class="mt-4 flex gap-2">
+									<div class="h-10 w-1/2 rounded-lg bg-blue-500"></div>
+									<div class="bg-base-200 h-10 w-1/4 rounded-lg"></div>
+								</div>
+								<div class="bg-base-200 mt-4 flex-1 rounded-lg"></div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<!-- Features Preview -->
-			<div class="mt-12">
-				<h2 class="text-3xl font-bold text-center mb-8">Adventure Features</h2>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">🎯</div>
-							<h3 class="text-xl font-bold mb-2">Daily Quests</h3>
-							<p class="text-base-content/70">
-								Turn your daily tasks into exciting quests with XP rewards and character progression.
-							</p>
-						</div>
-					</Card>
-
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">📖</div>
-							<h3 class="text-xl font-bold mb-2">Adventure Journal</h3>
-							<p class="text-base-content/70">
-								Reflect on your journey with guided journal prompts and track your personal growth.
-							</p>
-						</div>
-					</Card>
-
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">👥</div>
-							<h3 class="text-xl font-bold mb-2">Family Party</h3>
-							<p class="text-base-content/70">
-								Create a party with family members and share adventures together.
-							</p>
-						</div>
-					</Card>
-				</div>
-			</div>
+			</section>
 		{/if}
-	</div>
+	</main>
 </div>
