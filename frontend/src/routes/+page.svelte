@@ -37,7 +37,7 @@
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					<!-- Active Quest Card -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-2">
-						<div class="bg-base-100 rounded border-l-4 border-indigo-500 p-6 shadow-md transition-all hover:shadow-lg">
+						<div class="active-card border-l-4 border-indigo-500 p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Active Quest</h2>
 							
 							<div class="mb-4">
@@ -72,7 +72,7 @@
 					
 					<!-- Today's Journal Card -->
 					<div class="col-span-1">
-						<div class="border-l-4 border-amber-500 bg-base-100 flex h-full flex-col rounded p-6 shadow-md transition-all hover:shadow-lg">
+						<div class="active-card border-l-4 border-amber-500 flex h-full flex-col p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Journal</h2>
 							
 							<div class="mb-4">
@@ -98,7 +98,7 @@
 				
 					<!-- Today's Challenges -->
 					<div class="col-span-1">
-						<div class="border-l-4 border-emerald-500 bg-base-100 rounded p-6 shadow-md transition-all hover:shadow-lg">
+						<div class="active-card border-l-4 border-emerald-500 p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Challenges</h2>
 							
 							<div class="mb-4">
@@ -128,7 +128,7 @@
 					
 					<!-- Stat Focus -->
 					<div class="col-span-1">
-						<div class="border-l-4 border-purple-500 bg-base-100 rounded p-6 shadow-md transition-all hover:shadow-lg">
+						<div class="active-card border-l-4 border-purple-500 p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Stat Focus</h2>
 							
 							<div>
@@ -158,7 +158,7 @@
 					
 					<!-- Your Stats -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-3">
-						<div class="border-l-4 border-indigo-600 bg-base-100 rounded p-6 shadow-md transition-all hover:shadow-lg">
+						<div class="active-card border-l-4 border-indigo-600 p-6 transition-all hover:shadow-xl">
 							<div class="mb-6 flex items-center justify-between">
 								<h2 class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Your Stats</h2>
 								<a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">View All →</a>

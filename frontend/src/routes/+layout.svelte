@@ -25,7 +25,7 @@
 <!-- Route protection logic -->
 <ProtectedRoutes />
 
-<div class="flex min-h-screen flex-col bg-base-100 text-base-content font-sans antialiased">
+<div class="flex min-h-screen flex-col bg-base-200 text-base-content font-sans antialiased">
 	<Navigation />
 	<div class="container mx-auto px-4 py-8">
 		{@render children()}

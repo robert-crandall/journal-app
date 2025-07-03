@@ -1,3 +1,11 @@
+/* Active card utility for consistent card backgrounds in both light and dark mode */
+.active-card {
+	background-color: var(--card-elevated);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
+	/* Optional: add border for extra separation */
+	border: 1px solid var(--card-border);
+}
 @import 'tailwindcss';
 
 @theme {
