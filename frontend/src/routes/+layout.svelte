@@ -25,42 +25,17 @@
 <!-- Route protection logic -->
 <ProtectedRoutes />
 
-<div class="bg-base-200 text-base-content flex min-h-screen flex-col font-sans antialiased">
+<div class="bg-base-200 flex min-h-screen flex-col antialiased">
 	<Navigation />
-	<div class="container mx-auto px-4 py-8">
-		{@render children()}
-	</div>
+	{@render children()}
 </div>
 
 <style>
-	:global(body) {
-		background-color: inherit;
-		color: inherit;
-		min-height: 100vh;
-		transition:
-			background-color 0.3s,
-			color 0.3s;
-		font-family: inherit;
+	:global(button, a) {
+		transition: all 0.2s ease;
 	}
-	:global(button),
-	:global(a) {
-		transition:
-			color 0.2s,
-			background-color 0.2s;
-	}
-	:global(h1),
-	:global(h2),
-	:global(h3),
-	:global(h4),
-	:global(h5),
-	:global(h6) {
+
+	:global(h1, h2, h3, h4, h5, h6) {
 		line-height: 1.2;
-		font-weight: 700;
-		color: inherit;
-	}
-	/* DaisyUI classes are now used directly in markup for .card, .card-title, .btn-primary, .btn-secondary */
-	:global(p) {
-		color: inherit;
-		line-height: 1.6;
 	}
 </style>

@@ -1,53 +1,34 @@
 @import 'tailwindcss';
-@plugin "daisyui";
-
-:root {
-	/* DaisyUI v5 theme variables */
-	--color-primary: #6366f1;
-	--color-primary-content: #fff;
-	--color-secondary: #8b5cf6;
-	--color-secondary-content: #fff;
-	--color-accent: #10b981;
-	--color-accent-content: #fff;
-	--color-warning: #f59e0b;
-	--color-warning-content: #fff;
-	--color-error: #ef4444;
-	--color-error-content: #fff;
-	--color-success: #10b981;
-	--color-success-content: #fff;
-	--color-info: #3b82f6;
-	--color-info-content: #fff;
-	--color-base-100: #fff;
-	--color-base-200: #f3f4f6;
-	--color-base-300: #f9fafb;
-	--color-base-content: #111827;
+@plugin 'daisyui' {
+	themes:
+		light --default,
+		dark --prefersdark;
+	logs: false;
 }
 
 @theme {
 	/* Font family */
 	--font-sans: 'Inter', system-ui, sans-serif;
 
-	/* Brand and status colors for custom utilities */
-	--color-brand-50: #eef2ff;
-	--color-brand-100: #e0e7ff;
-	--color-brand-200: #c7d2fe;
-	--color-brand-300: #a5b4fc;
-	--color-brand-400: #818cf8;
-	--color-brand-500: #6366f1; /* Primary indigo color */
-	--color-brand-600: #4f46e5;
-	--color-brand-700: #4338ca;
-	--color-brand-800: #3730a3;
-	--color-brand-900: #312e81;
-	--color-secondary-500: #8b5cf6; /* Purple */
-	--color-accent-500: #10b981; /* Emerald */
-	--color-success: #10b981; /* Green */
-	--color-warning: #f59e0b; /* Amber */
-	--color-error: #ef4444; /* Red */
-	--color-info: #3b82f6; /* Blue */
-	--color-status-active: #10b981; /* Green - Active */
-	--color-status-pending: #3b82f6; /* Blue - Pending */
-	--color-status-inprogress: #f59e0b; /* Amber - In progress */
-	--color-status-completed: #10b981; /* Green - Completed */
+	/* DaisyUI semantic colors - these will override defaults */
+	--color-primary: oklch(0.637 0.237 25.331); /* Your brand color */
+	--color-primary-content: oklch(0.98 0.01 25.331); /* Light text on primary */
+	--color-secondary: oklch(0.637 0.237 330); /* Purple hue */
+	--color-secondary-content: oklch(0.98 0.01 330);
+	--color-accent: oklch(0.7 0.2 140); /* Green hue */
+	--color-accent-content: oklch(0.98 0.01 140);
+
+	/* Keep your custom brand colors for other uses */
+	--color-brand-50: oklch(0.94 0.03 25.331);
+	--color-brand-100: oklch(0.91 0.05 25.331);
+	--color-brand-200: oklch(0.86 0.08 25.331);
+	--color-brand-300: oklch(0.78 0.12 25.331);
+	--color-brand-400: oklch(0.71 0.18 25.331);
+	--color-brand-500: oklch(0.637 0.237 25.331); /* Primary brand color */
+	--color-brand-600: oklch(0.56 0.22 25.331);
+	--color-brand-700: oklch(0.49 0.19 25.331);
+	--color-brand-800: oklch(0.39 0.15 25.331);
+	--color-brand-900: oklch(0.32 0.12 25.331);
 
 	/* Layout */
 	--breakpoint-lg: 64rem;
@@ -55,28 +36,17 @@
 
 	/* Shadows */
 	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-	--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
-	/* Radius - using smaller values */
-	--radius-sm: 0.125rem;
-	--radius: 0.25rem;
-	--radius-md: 0.375rem;
-	--radius-lg: 0.5rem;
-	--radius-xl: 0.75rem;
+	/* Radius */
+	--radius-sm: 0.25rem;
+	--radius: 0.5rem;
+	--radius-md: 0.75rem;
+	--radius-lg: 1rem;
+	--radius-xl: 1.5rem;
 	--radius-full: 9999px;
-
-	/* Base theme - light mode (default) */
-	--bg-primary: #f9fafb; /* gray-50 - main background */
-	--bg-secondary: #f3f4f6; /* gray-100 - secondary background */
-	--text-primary: #111827; /* gray-900 - primary text */
-	--text-secondary: #4b5563; /* gray-600 - secondary text */
-	--card-bg: #ffffff; /* white - card background */
-	--card-elevated: #ffffff; /* white with shadow - elevated card */
-	--card-border: #e5e7eb; /* gray-200 - card border */
-	--card-hover: #f9fafb; /* gray-50 - card hover */
-	--nav-bg: #4f46e5; /* indigo-600 - navigation bar */
 }
 
 /* Custom styles */
@@ -87,80 +57,14 @@ html {
 	text-rendering: optimizeLegibility;
 }
 
-/* Dark mode variables - following Material Design dark theme guidelines */
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme='light']) {
-		/* DaisyUI v5 dark mode variables */
-		--color-base-100: #1e1e1e; /* Card background (surface) */
-		--color-base-200: #23272b; /* Slightly lighter for elevation */
-		--color-base-300: #2a2e33; /* Even lighter for elevation */
-		--color-base-content: #f3f4f6; /* Text on dark backgrounds */
-		--color-primary: #818cf8; /* Indigo 400 for better visibility */
-		--color-primary-content: #18181b; /* Text on primary */
-		--color-secondary: #a78bfa; /* Purple 400 */
-		--color-secondary-content: #18181b;
-		--color-accent: #34d399; /* Emerald 400 */
-		--color-accent-content: #18181b;
-		--color-warning: #fbbf24; /* Amber 400 */
-		--color-warning-content: #18181b;
-		--color-error: #f87171; /* Red 400 */
-		--color-error-content: #18181b;
-		--color-success: #34d399; /* Emerald 400 */
-		--color-success-content: #18181b;
-		--color-info: #60a5fa; /* Blue 400 */
-		--color-info-content: #18181b;
-	}
-}
-
-/* Manual dark mode toggle */
-[data-theme='dark'] {
-	--color-base-100: #1e1e1e;
-	--color-base-200: #23272b;
-	--color-base-300: #2a2e33;
-	--color-base-content: #f3f4f6;
-	--color-primary: #818cf8;
-	--color-primary-content: #18181b;
-	--color-secondary: #a78bfa;
-	--color-secondary-content: #18181b;
-	--color-accent: #34d399;
-	--color-accent-content: #18181b;
-	--color-warning: #fbbf24;
-	--color-warning-content: #18181b;
-	--color-error: #f87171;
-	--color-error-content: #18181b;
-	--color-success: #34d399;
-	--color-success-content: #18181b;
-	--color-info: #60a5fa;
-	--color-info-content: #18181b;
-}
-
-/* Card styling and elevation */
-.border-l-4 {
-	border-left-width: 4px !important;
-}
-
-/* Status border colors */
-.border-status-active {
-	border-left-color: var(--color-status-active);
-}
-.border-status-pending {
-	border-left-color: var(--color-status-pending);
-}
-.border-status-inprogress {
-	border-left-color: var(--color-status-inprogress);
-}
-.border-status-completed {
-	border-left-color: var(--color-status-completed);
-}
-
-/* Card elevation transitions */
-.border-l-4 {
+/* Animation classes */
+.hover-lift {
 	transition:
 		transform 0.2s ease,
 		box-shadow 0.2s ease;
 }
-.border-l-4:hover {
-	transform: translateY(-3px);
+.hover-lift:hover {
+	transform: translateY(-2px);
 	box-shadow: var(--shadow-md);
 }
 
@@ -169,29 +73,5 @@ html {
 	background-clip: text;
 	-webkit-background-clip: text;
 	color: transparent;
-	background-image: linear-gradient(to right, var(--color-brand-500), var(--color-brand-400));
-}
-
-/* Indigo text colors for consistent branding */
-.text-indigo-600 {
-	color: var(--color-brand-500);
-}
-.text-indigo-700 {
-	color: var(--color-brand-600);
-}
-.text-indigo-400 {
-	color: var(--color-brand-400);
-}
-
-/* Button hover effects */
-.hover\:bg-indigo-700:hover {
-	background-color: var(--color-brand-600);
-}
-.bg-indigo-600 {
-	background-color: var(--color-brand-500);
-}
-
-/* Card background with elevation */
-.bg-card-elevated {
-	background-color: var(--card-elevated);
+	background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
 }

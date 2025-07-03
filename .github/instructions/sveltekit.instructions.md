@@ -10,6 +10,7 @@ This project uses Svelte 5 for frontend. Svelte 5introduces runes, a set of adva
 ## UI/Design Guidelines
 
 - Use color description (ie, primary) instead of color names (blue), to support easy theming.
+- Use daisyUI for color and theme management. [DaisyUI Documentation](https://daisyui.com/llms.txt)
 - Use Lucide Icons (https://lucide.dev) for all icon needs.
 - Never use emojis in production UI - they're inconsistent across platforms.
 - Choose semantic icon names that clearly represent their function.
