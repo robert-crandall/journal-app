@@ -22,7 +22,7 @@ async function apiRequest<T = any>(
 				'Content-Type': 'application/json',
 				...options.headers
 			},
-			...(options.body && { body: options.body })
+			body: options.body
 		});
 
 		if (!response.ok) {
@@ -41,7 +41,7 @@ async function createTestUser() {
 	console.log('Creating test user...');
 
 	// First try to register the user
-	const result = await apiRequest('/api/auth/register', {
+	const result = await apiRequest('/api/users', {
 		method: 'POST',
 		body: JSON.stringify({
 			name: TEST_CONFIG.USER.username,

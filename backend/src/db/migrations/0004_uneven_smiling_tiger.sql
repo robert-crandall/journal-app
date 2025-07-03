@@ -1,1 +1,0 @@
-ALTER TABLE "family_member_interactions" ALTER COLUMN "task_id" DROP NOT NULL;

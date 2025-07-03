@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"skipLibCheck": true,
+		"composite": true,
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"module": "esnext",
+		"lib": ["esnext"],
+		"isolatedModules": true,
+		"verbatimModuleSyntax": false /* Changed to false to avoid type-only import issues */,
+		"rootDir": "../backend/src",
+		"outDir": "./.svelte-kit/backend-types"
+	},
+	"include": ["../backend/src/**/*.ts"],
+	"exclude": ["../backend/src/**/*.test.ts", "../backend/src/tests/**/*"]
+}

@@ -3,11 +3,11 @@
 
 export const TEST_CONFIG = {
 	// API Configuration
-	API_BASE_URL: process.env['API_BASE_URL'] || 'http://localhost:3000',
-	FRONTEND_BASE_URL: process.env['BASE_URL'] || 'http://localhost:4173',
+	API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:3000',
+	FRONTEND_BASE_URL: process.env.BASE_URL || 'http://localhost:4173',
 
 	// Database Configuration
-	DATABASE_URL: 'postgresql://test:test@localhost:5433/journal_app',
+	DATABASE_URL: 'postgresql://test:test@localhost:5432/journal_app',
 	JWT_SECRET: 'test-secret-at-least-32-chars-long',
 
 	// Test User Credentials

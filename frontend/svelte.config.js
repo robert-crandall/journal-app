@@ -11,20 +11,8 @@ const config = {
 			// SPA mode: serve index.html for all routes
 			fallback: 'index.html',
 			// Disable prerendering for SPA
-			precompress: false,
-			// Build configuration for SPA
-			pages: 'build',
-			assets: 'build',
-			strict: true
-		}),
-		// Disable SSR for SPA mode
-		prerender: {
-			handleHttpError: 'ignore'
-		},
-		// Configure path resolution
-		alias: {
-			$lib: 'src/lib'
-		}
+			precompress: false
+		})
 	}
 };
 

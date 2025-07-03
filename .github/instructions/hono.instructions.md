@@ -1,11 +1,33 @@
 ---
-description: Hono best practices
+description: Backend best practices
 applyTo: "backend/**/*.{js,ts}"
 ---
 
-# Hono Instructions
+## PostgreSQL
 
-## Core Principles
+- Use PostgreSQL as the primary database.
+- Use Drizzle ORM for database operations.
+- Use `uuid` for primary keys instead of auto-incrementing integers.
+- Store all datetime fields as `timestamptz` (timestamp with timezone) in PostgreSQL.
+- Always work with UTC in the backend and database layer.
+- Convert to user's local timezone only in the presentation layer (frontend).
+- Use ISO 8601 format for API responses: `2024-03-15T14:30:00Z`.
+- Use libraries like `date-fns-tz` or `Temporal` API for timezone conversions.
+- Store user's timezone preference in user settings or detect from browser.
+- For recurring events, store timezone information separately from the timestamp.
+- Use `Date.now()` or `new Date().toISOString()` for current timestamps.
+- Never rely on `new Date()` without timezone information for user-facing dates.
+- For date-only fields (birthdays, deadlines), use `date` type in PostgreSQL.
+- For date-only fields, do not convert them to or from UTC - keep them as the selected or stored date. For example, create a `parseLocalDate` function that takes a date string in the format `YYYY-MM-DD` and returns a Date object in the local timezone:
+
+```typescript
+function parseLocalDate(dateString: string): Date {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+```
+
+## Hono Best Practices
 
 ### Framework Philosophy
 - Hono is designed to be flexible and fast
@@ -13,9 +35,9 @@ applyTo: "backend/**/*.{js,ts}"
 - Leverage Hono's built-in features and middleware over external alternatives
 - Maintain type safety throughout the application stack
 
-## Project Structure and Organization
+### Project Structure and Organization
 
-### Avoid Ruby on Rails-style Controllers
+#### Avoid Ruby on Rails-style Controllers
 **❌ Don't create separate controller functions when possible:**
 ```typescript
 // 🙁 RoR-like Controller - avoid this pattern
@@ -43,7 +65,7 @@ app.get('/books/:id', (c) => {
 
 **Why:** Direct handlers provide better type inference for path parameters and maintain Hono's type safety benefits.
 
-### Use Factory Pattern for Reusable Handlers
+#### Use Factory Pattern for Reusable Handlers
 **✅ When you need reusable logic, use `factory.createHandlers()`:**
 ```typescript
 import { createFactory } from 'hono/factory'
@@ -63,9 +85,9 @@ const handlers = factory.createHandlers(logger(), middleware, (c) => {
 app.get('/api', ...handlers)
 ```
 
-## Building Larger Applications
+### Building Larger Applications
 
-### Use `app.route()` for Modular Architecture
+#### Use `app.route()` for Modular Architecture
 **✅ Separate concerns into different files:**
 
 ```typescript
@@ -109,7 +131,7 @@ app.route('/books', books)
 export default app
 ```
 
-### RPC (Remote Procedure Call) Features
+#### RPC (Remote Procedure Call) Features
 **✅ For type-safe client-server communication:**
 
 ```typescript
@@ -132,9 +154,9 @@ import { hc } from 'hono/client'
 const client = hc<typeof app>('http://localhost') // Fully typed
 ```
 
-## Middleware Best Practices
+### Middleware Best Practices
 
-### Use Hono's Built-in Middleware
+#### Use Hono's Built-in Middleware
 **✅ Prefer first-party middleware:**
 ```typescript
 import { Hono } from 'hono'
@@ -151,7 +173,7 @@ app.use('*', cors())
 app.use('/api/*', jwt({ secret: process.env.JWT_SECRET! }))
 ```
 
-### Custom Middleware Pattern
+#### Custom Middleware Pattern
 **✅ Create reusable custom middleware:**
 ```typescript
 import { createMiddleware } from 'hono/factory'
@@ -493,18 +515,5 @@ app.get('/health', (c) => {
 // Don't create complex class hierarchies
 // Keep it simple with Hono's functional approach
 ```
-
-## Summary
-
-1. **Embrace Hono's Philosophy**: Use direct handlers, avoid unnecessary abstractions
-2. **Leverage Type Safety**: Use Hono's type system for end-to-end safety
-3. **Modular Architecture**: Use `app.route()` for larger applications
-4. **Built-in Features**: Prefer Hono's middleware and utilities
-5. **RPC Integration**: Chain methods for type-safe client-server communication
-6. **Proper Error Handling**: Use HTTPException and global error handlers
-7. **Security**: Use Hono's JWT and CORS middleware
-8. **Testing**: Write integration tests with real HTTP requests
-
-Following these practices ensures your Hono application is maintainable, type-safe, and performant while staying true to Hono's design philosophy.
 
 > Reference: [Complete Hono Documentation](../references/hono-llms.md)

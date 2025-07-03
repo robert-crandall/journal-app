@@ -251,35 +251,6 @@ it('should handle custom headers', async () => {
 })
 ```
 
-## Testing with Environment Variables
-
-For applications that use `c.env` (like Cloudflare Workers):
-
-```typescript
-// app.ts
-const app = new Hono<{ Bindings: { API_HOST: string; DB: any } }>()
-
-app.get('/config', (c) => {
-  return c.json({ host: c.env.API_HOST })
-})
-
-// app.test.ts
-const MOCK_ENV = {
-  API_HOST: 'test.example.com',
-  DB: {
-    prepare: () => ({ all: () => [] }) // Mock D1 database
-  }
-}
-
-it('should use environment variables', async () => {
-  const res = await app.request('/config', {}, MOCK_ENV)
-  
-  expect(res.status).toBe(200)
-  const data = await res.json()
-  expect(data.host).toBe('test.example.com')
-})
-```
-
 ## Testing Middleware
 
 ### Authentication Middleware
@@ -459,7 +430,7 @@ src/
 ├── routes/
 │   ├── users.ts
 │   └── posts.ts
-├── __tests__/
+├── tests/
 │   ├── setup.ts
 │   ├── users.test.ts
 │   ├── posts.test.ts

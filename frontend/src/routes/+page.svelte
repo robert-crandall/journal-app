@@ -1,224 +1,327 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { authStore, type User } from '$lib/stores/auth';
-	import { apiClient } from '$lib/api/client';
-	import { Button, Card } from '$lib/components/ui';
-	import { Sword, BookOpen, Target, Users } from 'lucide-svelte';
-	import { browser } from '$app/environment';
+	import Navigation from '$lib/components/Navigation.svelte';
 
-	// Use reactive declarations for auth state
-	let isAuthenticated = false;
 	let user: User | null = null;
-	let authInitialized = false;
+	let token: string | null = null;
+	let loading = false;
 
-	// Subscribe to auth changes
+	// Subscribe to auth store
 	authStore.subscribe((state) => {
-		isAuthenticated = state.initialized && state.user !== null && state.token !== null;
 		user = state.user;
-		authInitialized = state.initialized;
+		token = state.token;
+		loading = state.loading;
 	});
-
-	// Initialize auth on mount
-	onMount(() => {
-		if (browser) {
-			// Ensure auth is initialized
-			if (!authInitialized) {
-				authStore.setInitialized(true);
-			}
-		}
-	});
-
-	// Handle logout
-	async function handleLogout() {
-		try {
-			// Call logout API
-			await apiClient.logout();
-		} catch (err) {
-			// Even if API fails, clear local auth
-			console.warn('Logout API failed, but clearing local auth:', err);
-		} finally {
-			// Always clear local auth state
-			authStore.clearAuth();
-		}
-	}
 </script>
 
 <svelte:head>
-	<title>Dashboard | D&D Life Gamification</title>
-	<meta name="description" content="Your D&D life adventure dashboard" />
+	<title>Dashboard | Journal App</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-100">
+<div class="flex flex-col">
 	<!-- Main content -->
-	<div class="container mx-auto px-4 py-8">
-		{#if isAuthenticated && user}
-			<!-- Welcome Hero Section -->
-			<div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl mb-8">
-				<div class="hero-content text-center py-12">
-					<div class="max-w-2xl">
-						<h1 class="text-5xl font-bold mb-4">
-							Welcome back, <span class="text-primary">Adventurer</span>!
-						</h1>
-						<p class="text-lg opacity-80 mb-6">
-							Hello, {user.name}! Ready to continue your D&D life journey?
-						</p>
-						
-						<!-- User Stats -->
-						<div class="stats shadow-lg bg-base-100/80 backdrop-blur-sm">
-							<div class="stat">
-								<div class="stat-figure text-primary">
-									<Sword size={32} />
+	<main class="flex flex-1 flex-col">
+		{#if user}
+			<!-- Logged-in Dashboard View -->
+			<section class="mx-auto w-full max-w-7xl">
+				<div class="mb-8">
+					<h1 class="text-base-content mb-2 text-3xl font-bold">Your Dashboard</h1>
+					<p class="text-base-content/70 text-lg">Today's progress at a glance</p>
+				</div>
+
+				<!-- Dashboard Grid Layout -->
+				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+					<!-- Active Quest Card -->
+					<div class="col-span-1 md:col-span-2 lg:col-span-2">
+						<div
+							class="bg-base-100 border-primary rounded-lg border-l-4 p-6 shadow-lg transition-all hover:shadow-xl"
+						>
+							<h2 class="text-primary mb-4 text-xl font-bold">Active Quest</h2>
+
+							<div class="mb-4">
+								<h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
+									2 weeks of Daily walks
+								</h3>
+								<p class="mb-3 text-gray-700 dark:text-gray-300">
+									Simple daily walks to boost your mood and energy levels.
+								</p>
+
+								<div class="bg-base-200 mb-4 rounded-lg p-4">
+									<h4 class="text-base-content mb-2 font-medium">Protocol:</h4>
+									<ul class="text-base-content/70 ml-5 list-disc space-y-1">
+										<li>Walk a mile before work</li>
+										<li>Optional: Resistance training during day</li>
+									</ul>
 								</div>
-								<div class="stat-title">Character</div>							<div class="stat-value text-primary">{user.name}</div>
-							<div class="stat-desc">{user.email}</div>
+							</div>
+
+							<div class="mt-6 flex items-center justify-between">
+								<span class="font-medium text-gray-600 dark:text-gray-400">1 day remaining</span>
+								<a href="#" class="btn btn-primary bg-primary gap-2">
+									View Details
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-arrow-right"
+										><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg
+									>
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<!-- Today's Journal Card -->
+					<div class="col-span-1">
+						<div
+							class="bg-base-100 border-warning flex h-full flex-col rounded-lg border-l-4 p-6 shadow-lg transition-all hover:shadow-xl"
+						>
+							<h2 class="text-primary mb-4 text-xl font-bold">Today's Journal</h2>
+
+							<div class="mb-4">
+								<span
+									class="mb-2 inline-block rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800 dark:bg-purple-900/20 dark:text-purple-300"
+								>
+									weekly
+								</span>
+								<p class="text-gray-700 dark:text-gray-300">How did today go?</p>
+							</div>
+
+							<div class="mt-auto">
+								<a href="#" class="btn btn-primary gap-2">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-pencil"
+										><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path
+											d="m15 5 4 4"
+										/></svg
+									>
+									Write Entry
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<!-- Today's Challenges -->
+					<div class="col-span-1">
+						<div
+							class="bg-base-100 border-success rounded-lg border-l-4 p-6 shadow-lg transition-all hover:shadow-xl"
+						>
+							<h2 class="text-primary mb-4 text-xl font-bold">Today's Challenges</h2>
+
+							<div class="mb-4">
+								<h3 class="mb-1 font-medium text-gray-600 dark:text-gray-400">Dexterity</h3>
+								<div class="bg-base-200 rounded border-l-4 border-emerald-500 p-4">
+									<h4 class="text-base-content font-medium">Mile walk</h4>
+									<p class="text-base-content/60 my-1 text-sm">Completed a mile walk before work</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">Progress</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+												>0 / 12 +50 XP</span
+											>
+										</div>
+										<div class="mt-1 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-emerald-500" style="width: 0%"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="mt-4 text-center">
+								<button class="text-primary hover:text-primary/80 font-medium">Complete</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- Your Stats -->
+					<div class="col-span-1 md:col-span-2 lg:col-span-3">
+						<div
+							class="bg-base-100 border-primary rounded-lg border border-l-4 p-6 shadow-lg transition-all hover:shadow-xl"
+						>
+							<div class="mb-6 flex items-center justify-between">
+								<h2 class="text-primary text-xl font-bold">Your Stats</h2>
+								<a href="#" class="text-primary hover:text-primary/80 text-sm font-medium"
+									>View All →</a
+								>
+							</div>
+
+							<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+								<!-- Physical Health Stat -->
+								<div class="border-primary bg-base-200 rounded border-l-4 p-4">
+									<h3 class="text-base-content font-medium">Physical Health</h3>
+									<p class="text-base-content/60 mt-1 text-sm">Level 3</p>
+									<p class="text-base-content/60 mt-2 text-xs">
+										Consistent movement, energizing meals, and good sleep will give me the energy to
+										thrive
+									</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+												>268 / 300</span
+											>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-indigo-600" style="width: 89%"></div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Stillness Stat -->
+								<div class="bg-base-200 rounded border-l-4 border-purple-500 p-4">
+									<h3 class="text-base-content font-medium">Stillness</h3>
+									<p class="text-base-content/60 mt-1 text-sm">Level 1</p>
+									<p class="text-base-content/60 mt-2 text-xs">
+										The ability to walk with my thoughts, to resist the squirrel in my head.
+									</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+												>333 / 100</span
+											>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-purple-500" style="width: 100%"></div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Nourishment Stat -->
+								<div class="bg-base-200 rounded border-l-4 border-emerald-500 p-4">
+									<h3 class="text-base-content font-medium">Nourishment</h3>
+									<p class="text-base-content/60 mt-1 text-sm">Level 1</p>
+									<p class="text-base-content/60 mt-2 text-xs">I eat the right foods for my life</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+												>280 / 100</span
+											>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<!-- Feature Cards Grid -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-							<Target size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Daily Quests</h3>
-							<p class="text-base-content/70 mb-4">
-								Complete daily tasks and challenges to level up your character and earn rewards.
-							</p>
-							<Button href="/tasks" variant="primary" size="sm">
-								View Tasks
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-secondary/10 text-secondary group-hover:scale-110 transition-transform">
-							<BookOpen size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Adventure Journal</h3>
-							<p class="text-base-content/70 mb-4">
-								Reflect on your daily adventures and track your personal growth journey.
-							</p>
-							<Button href="/journal" variant="secondary" size="sm">
-								Start Writing
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-accent/10 text-accent group-hover:scale-110 transition-transform">
-							<Sword size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Character Progress</h3>
-							<p class="text-base-content/70 mb-4">
-								Level up your character, unlock new abilities, and track your stats.
-							</p>
-							<Button href="/character" variant="outline" size="sm">
-								View Character
-							</Button>
-						</div>
-					</div>
-				</Card>
-
-				<Card class="group hover:shadow-xl transition-all duration-300">
-					<div class="flex items-start gap-4 p-6">
-						<div class="p-3 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
-							<Users size={24} />
-						</div>
-						<div class="flex-1">
-							<h3 class="text-xl font-bold mb-2">Family Party</h3>
-							<p class="text-base-content/70 mb-4">
-								Connect with family members and embark on shared adventures together.
-							</p>
-							<Button href="/family" variant="outline" size="sm">
-								View Family
-							</Button>
-						</div>
-					</div>
-				</Card>
-			</div>
-
-			<!-- Quick Actions -->
-			<div class="mt-8 text-center">
-				<h2 class="text-2xl font-bold mb-4">Quick Actions</h2>
-				<div class="flex flex-wrap justify-center gap-4">
-					<Button href="/quests" variant="primary" size="lg">
-						View Active Quests
-					</Button>
-					<Button href="/settings" variant="outline" size="lg">
-						Account Settings
-					</Button>
-				</div>
-			</div>
+			</section>
 		{:else}
-			<!-- Landing page for unauthenticated users -->
-			<div class="hero bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl">
-				<div class="hero-content text-center py-16">
-					<div class="max-w-2xl">
-						<div class="text-6xl mb-6">⚔️</div>
-						<h1 class="text-6xl font-bold mb-6">
-							Welcome to <span class="text-primary">D&D Life</span>
-						</h1>
-						<p class="text-xl opacity-80 mb-8">
-							Transform your daily life into an epic D&D adventure. Complete quests, level up your character, and track your real-world progress in this gamified life management system.
-						</p>
-						<div class="flex flex-col sm:flex-row justify-center gap-4">
-							<Button href="/register" variant="primary" size="lg">
-								🎲 Start Your Adventure
-							</Button>
-							<Button href="/login" variant="outline" size="lg">
-								⚔️ Login to Continue
-							</Button>
+			<!-- Landing Page View -->
+			<section
+				class="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-12 md:flex-row"
+			>
+				<!-- Left side content -->
+				<div class="max-w-xl flex-1">
+					<h1 class="mb-4 text-5xl leading-tight font-bold text-gray-900 dark:text-gray-50">
+						<span class="text-indigo-600 dark:text-indigo-400"> Journal App </span>
+					</h1>
+					<p class="mb-8 text-xl text-gray-700 dark:text-gray-300">
+						Track your habits, progress, and personal growth through guided journaling and
+						challenges.
+					</p>
+					<div class="flex items-center gap-4">
+						<a
+							href="/register"
+							class="flex items-center gap-2 rounded bg-indigo-600 px-8 py-3 font-medium text-white shadow transition-all hover:bg-indigo-700"
+						>
+							<span>Get Started</span>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="lucide lucide-arrow-right"
+								><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg
+							>
+						</a>
+						<a
+							href="/login"
+							class="rounded border border-gray-200 bg-white px-8 py-3 font-medium text-gray-800 shadow-sm transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+						>
+							Login
+						</a>
+					</div>
+
+					<!-- Feature badges -->
+					<div class="mt-8 flex flex-wrap gap-3">
+						<div class="bg-primary/10 text-primary rounded-md px-3 py-1 text-xs">
+							Journal Tracking
+						</div>
+						<div class="bg-primary/20 text-primary rounded-md px-3 py-1 text-xs">Challenges</div>
+						<div class="bg-success/10 text-success rounded-md px-3 py-1 text-xs">
+							Stats & Progress
+						</div>
+						<div class="bg-warning/10 text-warning rounded-md px-3 py-1 text-xs">Dark Mode</div>
+					</div>
+				</div>
+
+				<!-- Right side illustration/image -->
+				<div class="flex flex-1 items-center justify-center">
+					<div class="relative aspect-square w-full max-w-sm">
+						<!-- Abstract shapes for visual interest -->
+						<div
+							class="absolute top-0 right-0 h-48 w-48 rounded-full bg-indigo-500/10 blur-2xl"
+						></div>
+						<div
+							class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-indigo-400/10 blur-2xl"
+						></div>
+
+						<!-- App mockup -->
+						<div
+							class="border-base-200 bg-base-100 relative z-10 flex h-full w-full flex-col overflow-hidden rounded border shadow-lg"
+						>
+							<!-- Mockup header -->
+							<div class="border-base-200 bg-primary flex h-14 items-center gap-3 border-b px-4">
+								<div class="bg-error h-3 w-3 rounded-full"></div>
+								<div class="bg-warning h-3 w-3 rounded-full"></div>
+								<div class="bg-success h-3 w-3 rounded-full"></div>
+								<div class="bg-primary/80 ml-4 h-5 flex-1 rounded-full"></div>
+							</div>
+
+							<!-- Dashboard mockup content -->
+							<div class="flex flex-1 flex-col gap-3 p-4">
+								<div class="bg-base-200 h-6 w-1/3 rounded"></div>
+								<div class="mt-2 grid grid-cols-2 gap-2">
+									<div class="border-primary bg-base-200 col-span-2 h-24 rounded border-l-4"></div>
+									<div class="border-warning bg-base-200 h-20 rounded border-l-4"></div>
+									<div class="border-success bg-base-200 h-20 rounded border-l-4"></div>
+								</div>
+								<div class="bg-base-200 mt-2 h-4 w-1/4 rounded"></div>
+								<div class="bg-base-200 mt-1 h-4 w-3/4 rounded"></div>
+								<div class="mt-3 grid grid-cols-3 gap-2">
+									<div class="border-primary bg-base-200 h-10 rounded border-l-4"></div>
+									<div class="border-secondary bg-base-200 h-10 rounded border-l-4"></div>
+									<div class="border-success bg-base-200 h-10 rounded border-l-4"></div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<!-- Features Preview -->
-			<div class="mt-12">
-				<h2 class="text-3xl font-bold text-center mb-8">Adventure Features</h2>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">🎯</div>
-							<h3 class="text-xl font-bold mb-2">Daily Quests</h3>
-							<p class="text-base-content/70">
-								Turn your daily tasks into exciting quests with XP rewards and character progression.
-							</p>
-						</div>
-					</Card>
-
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">📖</div>
-							<h3 class="text-xl font-bold mb-2">Adventure Journal</h3>
-							<p class="text-base-content/70">
-								Reflect on your journey with guided journal prompts and track your personal growth.
-							</p>
-						</div>
-					</Card>
-
-					<Card>
-						<div class="text-center p-6">
-							<div class="text-4xl mb-4">👥</div>
-							<h3 class="text-xl font-bold mb-2">Family Party</h3>
-							<p class="text-base-content/70">
-								Create a party with family members and share adventures together.
-							</p>
-						</div>
-					</Card>
-				</div>
-			</div>
+			</section>
 		{/if}
-	</div>
+	</main>
 </div>

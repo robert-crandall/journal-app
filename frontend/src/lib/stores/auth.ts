@@ -1,9 +1,13 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { users } from '../../../../backend/src/db/schema';
 
-// User type definition from backend
-export type User = typeof users.$inferSelect;
+// User type definition
+export interface User {
+	id: string;
+	name: string;
+	email: string;
+	createdAt: string;
+}
 
 // Authentication store state
 interface AuthState {

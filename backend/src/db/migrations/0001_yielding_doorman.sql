@@ -1,1 +1,0 @@
-ALTER TABLE "character_stats" ADD COLUMN "level_title" varchar(100);
