@@ -37,7 +37,7 @@
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					<!-- Active Quest Card -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-2">
-						<div class="bg-base-100 rounded-lg shadow-lg border border-base-200 border-l-4 border-primary p-6 transition-all hover:shadow-xl">
+						<div class="bg-base-100 rounded-lg shadow-lg border-l-4 border-primary p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-primary">Active Quest</h2>
 							
 							<div class="mb-4">
@@ -72,7 +72,7 @@
 					
 					<!-- Today's Journal Card -->
 					<div class="col-span-1">
-						<div class="bg-base-100 rounded-lg shadow-lg border border-base-200 border-l-4 border-warning flex h-full flex-col p-6 transition-all hover:shadow-xl">
+						<div class="bg-base-100 rounded-lg shadow-lg border-l-4 border-warning flex h-full flex-col p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-primary">Today's Journal</h2>
 							
 							<div class="mb-4">
@@ -98,7 +98,7 @@
 				
 					<!-- Today's Challenges -->
 					<div class="col-span-1">
-						<div class="bg-base-100 rounded-lg shadow-lg border border-base-200 border-l-4 border-success p-6 transition-all hover:shadow-xl">
+						<div class="bg-base-100 rounded-lg shadow-lg border-l-4 border-success p-6 transition-all hover:shadow-xl">
 							<h2 class="mb-4 text-xl font-bold text-primary">Today's Challenges</h2>
 							
 							<div class="mb-4">
@@ -126,39 +126,10 @@
 						</div>
 					</div>
 					
-					<!-- Stat Focus -->
-					<div class="col-span-1">
-						<div class="bg-base-100 rounded-lg shadow-lg border border-base-200 border-l-4 border-secondary p-6 transition-all hover:shadow-xl">
-							<h2 class="mb-4 text-xl font-bold text-secondary">Stat Focus</h2>
-							
-							<div>
-								<h3 class="font-medium text-base-content">Physical Health<span class="ml-2 text-base-content/60">Level 3</span></h3>
-								<div class="mt-2">
-									<div class="flex items-center justify-between">
-										<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
-										<span class="text-xs font-medium text-gray-700 dark:text-gray-300">268 / 300</span>
-									</div>
-									<div class="mt-1 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-600">
-										<div class="h-full rounded-full bg-indigo-600" style="width: 89%"></div>
-									</div>
-								</div>
-								<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">"Level 3 - Keep pushing forward!"</p>
-							</div>
-							
-							<div class="mt-4 text-center">
-								<a 
-									href="#"
-									class="inline-flex items-center gap-1 font-medium text-secondary hover:text-secondary/80"
-								>
-									View Details →
-								</a>
-							</div>
-						</div>
-					</div>
 					
 					<!-- Your Stats -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-3">
-						<div class="bg-base-100 rounded-lg shadow-lg border border-base-200 border-l-4 border-primary p-6 transition-all hover:shadow-xl">
+						<div class="bg-base-100 rounded-lg shadow-lg border border-l-4 border-primary p-6 transition-all hover:shadow-xl">
 							<div class="mb-6 flex items-center justify-between">
 								<h2 class="text-xl font-bold text-primary">Your Stats</h2>
 								<a href="#" class="text-sm font-medium text-primary hover:text-primary/80">View All →</a>
