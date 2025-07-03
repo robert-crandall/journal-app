@@ -1,18 +1,42 @@
 /* Active card utility for consistent card backgrounds in both light and dark mode */
 .active-card {
-	background-color: var(--card-elevated);
+	background-color: var(--b2); /* DaisyUI card background */
 	border-radius: var(--radius-lg);
 	box-shadow: var(--shadow-lg);
-	/* Optional: add border for extra separation */
-	border: 1px solid var(--card-border);
+	border: 1px solid var(--bc, var(--card-border)); /* DaisyUI card border */
 }
+
 @import 'tailwindcss';
+@plugin "daisyui";
+
+
+:root {
+	/* DaisyUI v5 theme variables */
+	--color-primary: #6366f1;
+	--color-primary-content: #fff;
+	--color-secondary: #8b5cf6;
+	--color-secondary-content: #fff;
+	--color-accent: #10b981;
+	--color-accent-content: #fff;
+	--color-warning: #f59e0b;
+	--color-warning-content: #fff;
+	--color-error: #ef4444;
+	--color-error-content: #fff;
+	--color-success: #10b981;
+	--color-success-content: #fff;
+	--color-info: #3b82f6;
+	--color-info-content: #fff;
+	--color-base-100: #fff;
+	--color-base-200: #f3f4f6;
+	--color-base-300: #f9fafb;
+	--color-base-content: #111827;
+}
 
 @theme {
 	/* Font family */
 	--font-sans: 'Inter', system-ui, sans-serif;
 
-	/* Core brand colors - Indigo */
+	/* Brand and status colors for custom utilities */
 	--color-brand-50: #eef2ff;
 	--color-brand-100: #e0e7ff; 
 	--color-brand-200: #c7d2fe;
@@ -23,20 +47,12 @@
 	--color-brand-700: #4338ca;
 	--color-brand-800: #3730a3;
 	--color-brand-900: #312e81;
-
-	/* Secondary colors */
 	--color-secondary-500: #8b5cf6; /* Purple */
-
-	/* Accent colors */
 	--color-accent-500: #10b981; /* Emerald */
-
-	/* Status colors */
 	--color-success: #10b981; /* Green */
 	--color-warning: #f59e0b; /* Amber */
 	--color-error: #ef4444;   /* Red */
 	--color-info: #3b82f6;    /* Blue */
-	
-	/* Card status border colors */
 	--color-status-active: #10b981;  /* Green - Active */
 	--color-status-pending: #3b82f6; /* Blue - Pending */
 	--color-status-inprogress: #f59e0b; /* Amber - In progress */
@@ -59,7 +75,7 @@
 	--radius-lg: 0.5rem;
 	--radius-xl: 0.75rem;
 	--radius-full: 9999px;
-	
+
 	/* Base theme - light mode (default) */
 	--bg-primary: #f9fafb; /* gray-50 - main background */
 	--bg-secondary: #f3f4f6; /* gray-100 - secondary background */

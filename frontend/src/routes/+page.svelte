@@ -37,8 +37,8 @@
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					<!-- Active Quest Card -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-2">
-						<div class="active-card border-l-4 border-indigo-500 p-6 transition-all hover:shadow-xl">
-							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Active Quest</h2>
+						<div class="active-card border-l-4 border-primary p-6 transition-all hover:shadow-xl">
+							<h2 class="mb-4 text-xl font-bold text-primary">Active Quest</h2>
 							
 							<div class="mb-4">
 								<h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -59,10 +59,10 @@
 							
 							<div class="mt-6 flex items-center justify-between">
 								<span class="font-medium text-gray-600 dark:text-gray-400">1 day remaining</span>
-								<a 
-									href="#"
-									class="flex items-center gap-2 rounded bg-indigo-600 px-4 py-2 font-medium text-white transition-all hover:bg-indigo-700"
-								>
+														<a 
+															href="#"
+															class="btn btn-primary bg-primary gap-2"
+														>
 									View Details
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 								</a>
@@ -72,8 +72,8 @@
 					
 					<!-- Today's Journal Card -->
 					<div class="col-span-1">
-						<div class="active-card border-l-4 border-amber-500 flex h-full flex-col p-6 transition-all hover:shadow-xl">
-							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Journal</h2>
+						<div class="active-card border-l-4 border-warning flex h-full flex-col p-6 transition-all hover:shadow-xl">
+							<h2 class="mb-4 text-xl font-bold text-primary">Today's Journal</h2>
 							
 							<div class="mb-4">
 								<span class="mb-2 inline-block rounded-full bg-purple-100 dark:bg-purple-900/20 px-3 py-1 text-sm text-purple-800 dark:text-purple-300">
@@ -87,7 +87,7 @@
 							<div class="mt-auto">
 								<a 
 									href="#"
-									class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 font-medium"
+									class="btn btn-primary gap-2"
 								>
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
 									Write Entry
@@ -98,8 +98,8 @@
 				
 					<!-- Today's Challenges -->
 					<div class="col-span-1">
-						<div class="active-card border-l-4 border-emerald-500 p-6 transition-all hover:shadow-xl">
-							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Challenges</h2>
+						<div class="active-card border-l-4 border-success p-6 transition-all hover:shadow-xl">
+							<h2 class="mb-4 text-xl font-bold text-primary">Today's Challenges</h2>
 							
 							<div class="mb-4">
 								<h3 class="mb-1 font-medium text-gray-600 dark:text-gray-400">Dexterity</h3>
@@ -121,18 +121,18 @@
 							</div>
 							
 							<div class="mt-4 text-center">
-								<button class="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">Complete</button>
+								<button class="font-medium text-primary hover:text-primary/80">Complete</button>
 							</div>
 						</div>
 					</div>
 					
 					<!-- Stat Focus -->
 					<div class="col-span-1">
-						<div class="active-card border-l-4 border-purple-500 p-6 transition-all hover:shadow-xl">
-							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Stat Focus</h2>
+						<div class="active-card border-l-4 border-secondary p-6 transition-all hover:shadow-xl">
+							<h2 class="mb-4 text-xl font-bold text-secondary">Stat Focus</h2>
 							
 							<div>
-								<h3 class="font-medium text-gray-800 dark:text-gray-100">Physical Health<span class="ml-2 text-gray-500 dark:text-gray-400">Level 3</span></h3>
+								<h3 class="font-medium text-base-content">Physical Health<span class="ml-2 text-base-content/60">Level 3</span></h3>
 								<div class="mt-2">
 									<div class="flex items-center justify-between">
 										<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
@@ -148,7 +148,7 @@
 							<div class="mt-4 text-center">
 								<a 
 									href="#"
-									class="inline-flex items-center gap-1 font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+									class="inline-flex items-center gap-1 font-medium text-secondary hover:text-secondary/80"
 								>
 									View Details →
 								</a>
@@ -158,15 +158,15 @@
 					
 					<!-- Your Stats -->
 					<div class="col-span-1 md:col-span-2 lg:col-span-3">
-						<div class="active-card border-l-4 border-indigo-600 p-6 transition-all hover:shadow-xl">
+						<div class="active-card border-l-4 border-primary p-6 transition-all hover:shadow-xl">
 							<div class="mb-6 flex items-center justify-between">
-								<h2 class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Your Stats</h2>
-								<a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">View All →</a>
+								<h2 class="text-xl font-bold text-primary">Your Stats</h2>
+								<a href="#" class="text-sm font-medium text-primary hover:text-primary/80">View All →</a>
 							</div>
 							
 							<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 								<!-- Physical Health Stat -->
-								<div class="border-l-4 border-indigo-600 rounded bg-base-200 p-4">
+								<div class="border-l-4 border-primary rounded bg-base-200 p-4">
 									<h3 class="font-medium text-base-content">Physical Health</h3>
 									<p class="text-base-content/60 mt-1 text-sm">Level 3</p>
 									<p class="mt-2 text-xs text-base-content/60">Consistent movement, energizing meals, and good sleep will give me the energy to thrive</p>
