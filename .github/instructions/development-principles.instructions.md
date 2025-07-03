@@ -1,7 +1,6 @@
 ---
 description: Core development principles, patterns, and architectural decisions for the journal-app project
 applyTo: "**/*.{js,ts,jsx,tsx,svelte}"
-alwaysApply: true
 ---
 
 ## Type Safety Requirements (CRITICAL)
