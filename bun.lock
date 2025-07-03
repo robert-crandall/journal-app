@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "example_app",
+      "name": "journal_app",
       "devDependencies": {
         "concurrently": "^9.2.0",
         "node-fetch": "^3.3.2",

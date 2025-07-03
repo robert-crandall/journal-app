@@ -2,7 +2,7 @@ services:
   test-db:
     image: postgres:15
     environment:
-      POSTGRES_DB: example_app
+      POSTGRES_DB: journal_app
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
 
@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgres://test:test@test-db:5432/example_app
+      DATABASE_URL: postgres://test:test@test-db:5432/journal_app
       JWT_SECRET: your-super-secret-jwt-key-at-least-32-characters-long-for-testing
       ALLOW_REGISTRATION: true
       PORT: 3000

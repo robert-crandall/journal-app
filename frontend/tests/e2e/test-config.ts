@@ -7,7 +7,7 @@ export const TEST_CONFIG = {
 	FRONTEND_BASE_URL: process.env.BASE_URL || 'http://localhost:4173',
 
 	// Database Configuration
-	DATABASE_URL: 'postgresql://test:test@localhost:5433/example_app',
+	DATABASE_URL: 'postgresql://test:test@localhost:5432/journal_app',
 	JWT_SECRET: 'test-secret-at-least-32-chars-long',
 
 	// Test User Credentials

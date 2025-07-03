@@ -4,7 +4,7 @@ import { beforeEach, afterAll } from 'vitest';
 import * as schema from '../db/schema';
 
 // Create test database connection - function to create fresh connections
-const testDbUrl = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/example_app';
+const testDbUrl = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/journal_app';
 
 // Global connection that will be reused across tests in the same file
 let testClient: ReturnType<typeof postgres> | null = null;
