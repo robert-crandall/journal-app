@@ -15,90 +15,203 @@
 </script>
 
 <svelte:head>
-	<title>Home | Auth Template</title>
+	<title>Dashboard | Journal App</title>
 </svelte:head>
 
-<div class="from-base-100 to-base-200/30 flex min-h-screen flex-col bg-gradient-to-br">
+<div class="flex flex-col">
 	<!-- Main content -->
-	<main class="flex flex-1 flex-col items-center justify-center px-6 py-20">
+	<main class="flex flex-1 flex-col">
 		{#if user}
-			<!-- Logged-in View -->
-			<section class="flex w-full max-w-2xl flex-col items-center">
-				<div class="mb-8 text-center">
-					<h1
-						class="mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent"
-					>
-						Welcome back, {user.name}!
+			<!-- Logged-in Dashboard View -->
+			<section class="mx-auto w-full max-w-7xl">
+				<div class="mb-8">
+					<h1 class="mb-2 text-3xl font-bold text-base-content">
+						Your Dashboard
 					</h1>
-					<p class="text-base-content/70 max-w-lg text-xl">
-						You're successfully logged in to your account.
+					<p class="text-base-content/70 text-lg">
+						Today's progress at a glance
 					</p>
 				</div>
 
-				<div
-					class="bg-base-100 border-base-200/60 w-full overflow-hidden rounded-xl border shadow-lg backdrop-blur-sm"
-				>
-					<div class="flex flex-col gap-4 p-6">
-						<div class="flex items-center gap-4">
-							<div
-								class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-2xl font-bold text-white uppercase"
-							>
-								{user.name[0]}
+				<!-- Dashboard Grid Layout -->
+				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+					<!-- Active Quest Card -->
+					<div class="col-span-1 md:col-span-2 lg:col-span-2">
+						<div class="bg-white dark:bg-gray-800 rounded border-l-4 border-indigo-500 p-6 shadow-md transition-all hover:shadow-lg">
+							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Active Quest</h2>
+							
+							<div class="mb-4">
+								<h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
+									2 weeks of Daily walks
+								</h3>
+								<p class="mb-3 text-gray-700 dark:text-gray-300">
+									Simple daily walks to boost your mood and energy levels.
+								</p>
+								
+								<div class="mb-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4">
+									<h4 class="mb-2 font-medium text-gray-800 dark:text-gray-100">Protocol:</h4>
+									<ul class="ml-5 list-disc space-y-1 text-gray-700 dark:text-gray-300">
+										<li>Walk a mile before work</li>
+										<li>Optional: Resistance training during day</li>
+									</ul>
+								</div>
 							</div>
-							<div>
-								<h2 class="text-2xl font-bold">{user.name}</h2>
-								<p class="text-base-content/70">{user.email}</p>
+							
+							<div class="mt-6 flex items-center justify-between">
+								<span class="font-medium text-gray-600 dark:text-gray-400">1 day remaining</span>
+								<a 
+									href="#"
+									class="flex items-center gap-2 rounded bg-indigo-600 px-4 py-2 font-medium text-white transition-all hover:bg-indigo-700"
+								>
+									View Details
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+								</a>
 							</div>
 						</div>
-
-						<div class="border-base-200 mt-4 border-t pt-4">
-							<h3 class="text-base-content/50 mb-3 text-sm font-semibold uppercase">
-								Account Information
-							</h3>
-							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-								<div class="bg-base-200/50 rounded-lg p-4">
-									<span class="text-base-content/60 mb-1 block text-xs">Username</span>
-									<span class="font-medium">{user.name}</span>
-								</div>
-								<div class="bg-base-200/50 rounded-lg p-4">
-									<span class="text-base-content/60 mb-1 block text-xs">Email</span>
-									<span class="font-medium">{user.email}</span>
-								</div>
-								<div class="bg-base-200/50 rounded-lg p-4">
-									<span class="text-base-content/60 mb-1 block text-xs">Status</span>
-									<div class="flex items-center gap-2">
-										<div class="h-2 w-2 rounded-full bg-green-500"></div>
-										<span class="font-medium">Active</span>
+					</div>
+					
+					<!-- Today's Journal Card -->
+					<div class="col-span-1">
+						<div class="border-l-4 border-amber-500 bg-white dark:bg-gray-800 flex h-full flex-col rounded p-6 shadow-md transition-all hover:shadow-lg">
+							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Journal</h2>
+							
+							<div class="mb-4">
+								<span class="mb-2 inline-block rounded-full bg-purple-100 dark:bg-purple-900/20 px-3 py-1 text-sm text-purple-800 dark:text-purple-300">
+									weekly
+								</span>
+								<p class="text-gray-700 dark:text-gray-300">
+									How did today go?
+								</p>
+							</div>
+							
+							<div class="mt-auto">
+								<a 
+									href="#"
+									class="inline-flex items-center gap-2 rounded border border-gray-200 bg-white dark:bg-gray-700 dark:border-gray-600 px-4 py-2 font-medium text-gray-800 dark:text-gray-100 transition hover:bg-gray-50 dark:hover:bg-gray-600"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+									Write Entry
+								</a>
+							</div>
+						</div>
+					</div>
+				
+					<!-- Today's Challenges -->
+					<div class="col-span-1">
+						<div class="border-l-4 border-emerald-500 bg-white dark:bg-gray-800 rounded p-6 shadow-md transition-all hover:shadow-lg">
+							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Today's Challenges</h2>
+							
+							<div class="mb-4">
+								<h3 class="mb-1 font-medium text-gray-600 dark:text-gray-400">Dexterity</h3>
+								<div class="border-l-4 border-emerald-500 rounded bg-gray-50 dark:bg-gray-700/50 p-4">
+									<h4 class="font-medium text-gray-800 dark:text-gray-100">Mile walk</h4>
+									<p class="text-gray-600 dark:text-gray-400 my-1 text-sm">
+										Completed a mile walk before work
+									</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">Progress</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300">0 / 12 +50 XP</span>
+										</div>
+										<div class="mt-1 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-emerald-500" style="width: 0%"></div>
+										</div>
 									</div>
 								</div>
-								<div class="bg-base-200/50 rounded-lg p-4">
-									<span class="text-base-content/60 mb-1 block text-xs">Joined</span>
-									<span class="font-medium">{new Date().toLocaleDateString()}</span>
-								</div>
 							</div>
-
-							<div class="mt-6 flex justify-center">
-								<a
-									href="/hello"
-									class="flex items-center gap-2 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 px-6 py-2 font-medium text-white shadow-md transition-all hover:scale-105 hover:shadow active:scale-95"
+							
+							<div class="mt-4 text-center">
+								<button class="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">Complete</button>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Stat Focus -->
+					<div class="col-span-1">
+						<div class="border-l-4 border-purple-500 bg-white dark:bg-gray-800 rounded p-6 shadow-md transition-all hover:shadow-lg">
+							<h2 class="mb-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Stat Focus</h2>
+							
+							<div>
+								<h3 class="font-medium text-gray-800 dark:text-gray-100">Physical Health<span class="ml-2 text-gray-500 dark:text-gray-400">Level 3</span></h3>
+								<div class="mt-2">
+									<div class="flex items-center justify-between">
+										<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+										<span class="text-xs font-medium text-gray-700 dark:text-gray-300">268 / 300</span>
+									</div>
+									<div class="mt-1 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+										<div class="h-full rounded-full bg-indigo-600" style="width: 89%"></div>
+									</div>
+								</div>
+								<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">"Level 3 - Keep pushing forward!"</p>
+							</div>
+							
+							<div class="mt-4 text-center">
+								<a 
+									href="#"
+									class="inline-flex items-center gap-1 font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
 								>
-									<span>View Hello World Example</span>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="18"
-										height="18"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class="lucide lucide-external-link"
-										><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline
-											points="15 3 21 3 21 9"
-										/><line x1="10" x2="21" y1="14" y2="3" /></svg
-									>
+									View Details →
 								</a>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Your Stats -->
+					<div class="col-span-1 md:col-span-2 lg:col-span-3">
+						<div class="border-l-4 border-indigo-600 bg-white dark:bg-gray-800 rounded p-6 shadow-md transition-all hover:shadow-lg">
+							<div class="mb-6 flex items-center justify-between">
+								<h2 class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Your Stats</h2>
+								<a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">View All →</a>
+							</div>
+							
+							<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+								<!-- Physical Health Stat -->
+								<div class="border-l-4 border-indigo-600 rounded bg-gray-50 dark:bg-gray-700/50 p-4">
+									<h3 class="font-medium text-gray-800 dark:text-gray-100">Physical Health</h3>
+									<p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Level 3</p>
+									<p class="mt-2 text-xs text-gray-600 dark:text-gray-400">Consistent movement, energizing meals, and good sleep will give me the energy to thrive</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300">268 / 300</span>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-indigo-600" style="width: 89%"></div>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Stillness Stat -->
+								<div class="border-l-4 border-purple-500 rounded bg-gray-50 dark:bg-gray-700/50 p-4">
+									<h3 class="font-medium text-gray-800 dark:text-gray-100">Stillness</h3>
+									<p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Level 1</p>
+									<p class="mt-2 text-xs text-gray-600 dark:text-gray-400">The ability to walk with my thoughts, to resist the squirrel in my head.</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300">333 / 100</span>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-purple-500" style="width: 100%"></div>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Nourishment Stat -->
+								<div class="border-l-4 border-emerald-500 rounded bg-gray-50 dark:bg-gray-700/50 p-4">
+									<h3 class="font-medium text-gray-800 dark:text-gray-100">Nourishment</h3>
+									<p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">Level 1</p>
+									<p class="mt-2 text-xs text-gray-600 dark:text-gray-400">I eat the right foods for my life</p>
+									<div class="mt-3">
+										<div class="flex items-center justify-between">
+											<span class="text-xs text-gray-500 dark:text-gray-400">XP</span>
+											<span class="text-xs font-medium text-gray-700 dark:text-gray-300">280 / 100</span>
+										</div>
+										<div class="mt-1 h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-600">
+											<div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -107,25 +220,22 @@
 		{:else}
 			<!-- Landing Page View -->
 			<section
-				class="flex w-full max-w-5xl flex-col items-center justify-between gap-12 md:flex-row"
+				class="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-12 md:flex-row"
 			>
 				<!-- Left side content -->
 				<div class="max-w-xl flex-1">
-					<h1 class="mb-4 text-5xl leading-tight font-bold">
-						<span
-							class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-						>
-							Modern Auth Template
+					<h1 class="mb-4 text-5xl font-bold leading-tight text-gray-900 dark:text-gray-50">
+						<span class="text-indigo-600 dark:text-indigo-400">
+							Journal App
 						</span>
 					</h1>
-					<p class="text-base-content/80 mb-8 text-xl">
-						A sleek SvelteKit application with user authentication powered by Hono backend. The
-						perfect starting point for your next project.
+					<p class="mb-8 text-xl text-gray-700 dark:text-gray-300">
+						Track your habits, progress, and personal growth through guided journaling and challenges.
 					</p>
 					<div class="flex items-center gap-4">
 						<a
 							href="/register"
-							class="flex items-center gap-2 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 px-8 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+							class="flex items-center gap-2 rounded bg-indigo-600 px-8 py-3 font-medium text-white shadow transition-all hover:bg-indigo-700"
 						>
 							<span>Get Started</span>
 							<svg
@@ -144,7 +254,7 @@
 						</a>
 						<a
 							href="/login"
-							class="bg-base-100 border-base-300 text-base-content rounded-full border px-8 py-3 font-medium shadow-sm transition-all hover:border-blue-400 hover:shadow"
+							class="rounded border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 px-8 py-3 font-medium text-gray-800 dark:text-gray-200 shadow-sm transition-all hover:bg-gray-50 dark:hover:bg-gray-700"
 						>
 							Login
 						</a>
@@ -152,14 +262,14 @@
 
 					<!-- Feature badges -->
 					<div class="mt-8 flex flex-wrap gap-3">
-						<div class="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-800">Type-Safe</div>
-						<div class="rounded-full bg-purple-100 px-3 py-1 text-xs text-purple-800">
-							SvelteKit
+						<div class="rounded-md bg-indigo-100 px-3 py-1 text-xs text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">Journal Tracking</div>
+						<div class="rounded-md bg-indigo-100/70 px-3 py-1 text-xs text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300">
+							Challenges
 						</div>
-						<div class="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-800">
-							Hono Backend
+						<div class="rounded-md bg-emerald-100 px-3 py-1 text-xs text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+							Stats & Progress
 						</div>
-						<div class="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-800">JWT Auth</div>
+						<div class="rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">Dark Mode</div>
 					</div>
 				</div>
 
@@ -168,34 +278,39 @@
 					<div class="relative aspect-square w-full max-w-sm">
 						<!-- Abstract shapes for visual interest -->
 						<div
-							class="absolute top-0 right-0 h-48 w-48 rounded-full bg-blue-500/10 blur-2xl"
+							class="absolute right-0 top-0 h-48 w-48 rounded-full bg-indigo-500/10 blur-2xl"
 						></div>
 						<div
-							class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-purple-500/10 blur-2xl"
+							class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-indigo-400/10 blur-2xl"
 						></div>
 
 						<!-- App mockup -->
 						<div
-							class="border-base-200/60 bg-base-100 relative z-10 flex h-full w-full flex-col overflow-hidden rounded-2xl border shadow-2xl"
+							class="relative z-10 flex h-full w-full flex-col overflow-hidden rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
 						>
 							<!-- Mockup header -->
-							<div class="border-base-200 bg-base-100 flex h-14 items-center gap-3 border-b px-4">
+							<div class="flex h-14 items-center gap-3 border-b border-gray-200 dark:border-gray-700 bg-indigo-600 px-4">
 								<div class="h-3 w-3 rounded-full bg-red-400"></div>
 								<div class="h-3 w-3 rounded-full bg-yellow-400"></div>
 								<div class="h-3 w-3 rounded-full bg-green-400"></div>
-								<div class="bg-base-200 ml-4 h-5 flex-1 rounded-full"></div>
+								<div class="ml-4 h-5 flex-1 rounded-full bg-indigo-500"></div>
 							</div>
 
-							<!-- Mockup content -->
+							<!-- Dashboard mockup content -->
 							<div class="flex flex-1 flex-col gap-3 p-4">
-								<div class="bg-base-200 h-8 w-3/4 rounded-lg"></div>
-								<div class="bg-base-200 h-4 w-1/2 rounded-lg"></div>
-								<div class="bg-base-200 h-4 w-2/3 rounded-lg"></div>
-								<div class="mt-4 flex gap-2">
-									<div class="h-10 w-1/2 rounded-lg bg-blue-500"></div>
-									<div class="bg-base-200 h-10 w-1/4 rounded-lg"></div>
+								<div class="h-6 w-1/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+								<div class="mt-2 grid grid-cols-2 gap-2">
+									<div class="col-span-2 h-24 rounded border-l-4 border-indigo-500 bg-gray-100 dark:bg-gray-700"></div>
+									<div class="h-20 rounded border-l-4 border-amber-500 bg-gray-100 dark:bg-gray-700"></div>
+									<div class="h-20 rounded border-l-4 border-emerald-500 bg-gray-100 dark:bg-gray-700"></div>
 								</div>
-								<div class="bg-base-200 mt-4 flex-1 rounded-lg"></div>
+								<div class="mt-2 h-4 w-1/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+								<div class="mt-1 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+								<div class="mt-3 grid grid-cols-3 gap-2">
+									<div class="h-10 rounded border-l-4 border-indigo-500 bg-gray-100 dark:bg-gray-700"></div>
+									<div class="h-10 rounded border-l-4 border-purple-500 bg-gray-100 dark:bg-gray-700"></div>
+									<div class="h-10 rounded border-l-4 border-emerald-500 bg-gray-100 dark:bg-gray-700"></div>
+								</div>
 							</div>
 						</div>
 					</div>
