@@ -35,6 +35,25 @@ async function startDev() {
     killProcessesOnPorts([3000, 5173]);
   }
 
+  // Apply database migrations
+  console.log('🗄️  Applying database migrations...');
+  try {
+    const { spawnSync } = require('child_process');
+    const migrateResult = spawnSync('bun', ['run', 'db:migrate'], {
+      cwd: './backend',
+      stdio: 'inherit'
+    });
+    
+    if (migrateResult.status === 0) {
+      console.log('✅ Database migrations applied successfully\n');
+    } else {
+      console.warn('⚠️  Database migration failed, but continuing with server start...\n');
+    }
+  } catch (error) {
+    console.warn('⚠️  Could not run database migrations:', error.message);
+    console.warn('   Continuing with server start...\n');
+  }
+
   try {
     // Try to use concurrently if available
 
