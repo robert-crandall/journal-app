@@ -197,7 +197,10 @@ export const statsApi = {
 	},
 
 	// Update an existing stat
-	async updateStat(statId: string, data: UpdateCharacterStatInput): Promise<CharacterStatWithProgress> {
+	async updateStat(
+		statId: string,
+		data: UpdateCharacterStatInput
+	): Promise<CharacterStatWithProgress> {
 		try {
 			const response = await authenticatedClient.api.stats[':id'].$put({
 				param: { id: statId },
@@ -251,7 +254,13 @@ export const statsApi = {
 	},
 
 	// Grant XP to a stat
-	async grantXp(statId: string, xpAmount: number, sourceType: 'task' | 'journal' | 'adhoc' | 'quest' | 'experiment', reason?: string, sourceId?: string): Promise<CharacterStatWithProgress> {
+	async grantXp(
+		statId: string,
+		xpAmount: number,
+		sourceType: 'task' | 'journal' | 'adhoc' | 'quest' | 'experiment',
+		reason?: string,
+		sourceId?: string
+	): Promise<CharacterStatWithProgress> {
 		try {
 			const response = await authenticatedClient.api.stats[':id'].xp.$post({
 				param: { id: statId },
@@ -274,7 +283,7 @@ export const statsApi = {
 				);
 			}
 
-			const result = await response.json() as any;
+			const result = (await response.json()) as any;
 			// Extract the stat from the response and add progress info
 			return {
 				...result.data.stat,
@@ -302,7 +311,7 @@ export const statsApi = {
 				);
 			}
 
-			const result = await response.json() as any;
+			const result = (await response.json()) as any;
 			// Extract the stat from the response and add progress info
 			return {
 				...result.data.stat,
