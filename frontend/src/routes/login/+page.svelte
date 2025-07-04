@@ -43,7 +43,7 @@
 			<div class="card-body">
 				<!-- Logo at the top -->
 				<div class="mb-4 text-center">
-					<a href="/" class="btn btn-ghost text-gradient text-2xl font-bold"> Auth Template </a>
+					<a href="/" class="btn btn-ghost text-gradient text-2xl font-bold"> Life Quest </a>
 				</div>
 
 				<LoginForm {loading} {error} on:login={handleLogin} />

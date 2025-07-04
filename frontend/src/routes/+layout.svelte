@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { beforeNavigate } from '$app/navigation';
+	import { updated } from '$app/state';
 	import { authStore } from '$lib/stores/auth';
 	import { browser } from '$app/environment';
 	import { initializeAuth } from '$lib/services/auth-service';
@@ -18,6 +20,13 @@
 				console.error('Failed to initialize authentication:', error);
 				authStore.setInitialized(true);
 			}
+		}
+	});
+
+	// Handle version updates - force full page reload when new version detected
+	beforeNavigate(({ willUnload, to }) => {
+		if (updated.current && !willUnload && to?.url) {
+			location.href = to.url.href;
 		}
 	});
 </script>
