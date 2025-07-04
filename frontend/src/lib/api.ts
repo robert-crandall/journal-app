@@ -46,8 +46,17 @@ function createAuthenticatedClient() {
 	});
 }
 
-// Exports the authentication client
-export const authenticatedClient = createAuthenticatedClient();
-
+/**
+ * Lazy-initialized authenticated API client
+ * Access this as a property to get a fresh authenticated client
+ * Example: authApi.users.list.$get()
+ */
+export const authenticatedClient = new Proxy({} as ReturnType<typeof createAuthenticatedClient>, {
+	get(target, prop) {
+		// Create fresh client on each property access to get current auth state
+		const client = createAuthenticatedClient();
+		return client[prop as keyof typeof client];
+	}
+});
 // Types for API responses (inferred from backend)
 export type { AppType } from '../../../backend/src/index';
