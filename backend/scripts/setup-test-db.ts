@@ -56,12 +56,24 @@ async function runMigrations() {
 }
 
 async function runSeed() {
-  const seedPath = path.resolve(__dirname, './seed.ts');
+  const seedPath = path.resolve(__dirname, './seed-stats.ts');
+  console.log('Looking for seed file at:', seedPath);
   if (fs.existsSync(seedPath)) {
-    const { seed } = await import(seedPath);
-    if (typeof seed === 'function') {
-      await seed(db);
+    console.log('Seed file found, importing...');
+    try {
+      const seedModule = await import(seedPath);
+      if (typeof seedModule.seed === 'function') {
+        console.log('Running seed function...');
+        await seedModule.seed(db);
+        console.log('Seed data applied successfully.');
+      } else {
+        console.log('No seed function found in module. Available exports:', Object.keys(seedModule));
+      }
+    } catch (err) {
+      console.error('Error importing or running seed file:', err);
     }
+  } else {
+    console.log('No seed file found at path:', seedPath);
   }
 }
 
