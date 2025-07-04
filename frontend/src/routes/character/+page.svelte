@@ -55,72 +55,81 @@
 	<title>Character - Journal App</title>
 </svelte:head>
 
-<div class="min-h-screen">
-	<main class="container mx-auto p-4">
-		<div class="hero">
-			<div class="hero-content text-center">
-				<div class="w-full max-w-4xl">
-					<div class="badge badge-primary mb-4">Character System</div>
-					<h1 class="text-primary mb-6 text-3xl font-bold">Your Character</h1>
+<div class="min-h-screen bg-base-200">
+	<main class="container mx-auto px-4 py-8">
+		<!-- Header Section -->
+		<div class="mb-8 text-center">
+			<div class="badge badge-primary badge-lg mb-4">Character System</div>
+			<h1 class="text-4xl font-bold text-primary mb-2">Your Character</h1>
+			<p class="text-base-content/70 text-lg max-w-2xl mx-auto">
+				Create and manage your character to start your gamified life journey
+			</p>
+		</div>
 
-					{#if loading}
-						<div class="card bg-base-100 mb-6 shadow-xl">
-							<div class="card-body items-center">
-								<span class="loading loading-spinner loading-lg text-primary"></span>
-								<p>Loading character...</p>
-							</div>
-						</div>
-					{:else if error}
-						<div class="alert alert-error mb-6">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6 shrink-0 stroke-current"
-								fill="none"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<span>Error: {error}</span>
-							<div>
-								<button class="btn btn-sm btn-outline" on:click={loadCharacter}> Try Again </button>
-							</div>
-						</div>
-					{:else if character}
-						<CharacterView
-							{character}
-							on:characterUpdated={handleCharacterUpdated}
-							on:characterDeleted={handleCharacterDeleted}
-						/>
-					{:else}
-						<CharacterCreate on:characterCreated={handleCharacterCreated} />
-					{/if}
-
-					<div class="card-actions mt-6 justify-center">
-						<a href="/" class="btn btn-outline">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<path d="m12 19-7-7 7-7" />
-								<path d="M19 12H5" />
-							</svg>
-							Back to Home
-						</a>
+		<!-- Main Content Area -->
+		<div class="max-w-6xl mx-auto">
+			{#if loading}
+				<div class="flex justify-center items-center min-h-[400px]">
+					<div class="text-center">
+						<span class="loading loading-spinner loading-lg text-primary mb-4"></span>
+						<p class="text-lg">Loading character...</p>
 					</div>
 				</div>
-			</div>
+			{:else if error}
+				<div class="max-w-md mx-auto">
+					<div class="alert alert-error">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6 shrink-0 stroke-current"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+						<div>
+							<h3 class="font-bold">Error Loading Character</h3>
+							<div class="text-xs">{error}</div>
+						</div>
+						<button class="btn btn-sm btn-outline" on:click={loadCharacter}>
+							Try Again
+						</button>
+					</div>
+				</div>
+			{:else if character}
+				<CharacterView
+					{character}
+					on:characterUpdated={handleCharacterUpdated}
+					on:characterDeleted={handleCharacterDeleted}
+				/>
+			{:else}
+				<CharacterCreate on:characterCreated={handleCharacterCreated} />
+			{/if}
+		</div>
+
+		<!-- Navigation -->
+		<div class="mt-12 text-center">
+			<a href="/" class="btn btn-outline btn-lg gap-2">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="m12 19-7-7 7-7" />
+					<path d="M19 12H5" />
+				</svg>
+				Back to Home
+			</a>
 		</div>
 	</main>
 </div>

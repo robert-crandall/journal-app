@@ -13,7 +13,7 @@
   - [x] 2.3 Implement frontend character creation UI
   - [x] 2.4 Write frontend E2E tests for character creation
   - [x] 2.5 Ensure all character creation tests pass
-  - [ ] 2.6 Add a motto to the character
+  - [x] 2.6 Add a motto to the character
   - [x] 2.7 Left align goals on character view
   - [x] 2.8 Character edit screen, forms run into label and description
   - [x] 2.10 On mobile, the screen is just a little too wide
