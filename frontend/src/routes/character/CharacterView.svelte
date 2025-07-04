@@ -1,4 +1,5 @@
 <script lang="ts">
+import { marked } from 'marked';
 	import { createEventDispatcher } from 'svelte';
 	import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
 
@@ -293,25 +294,29 @@
 					</div>
 				</div>
 
-				<!-- Backstory -->
-				{#if character.backstory}
-					<div class="card bg-base-200">
-						<div class="card-body">
-							<h3 class="card-title text-lg">Backstory</h3>
-							<p class="text-base-content/80 whitespace-pre-wrap">{character.backstory}</p>
-						</div>
-					</div>
-				{/if}
+				   <!-- Backstory -->
+				   {#if character.backstory}
+					   <div class="card bg-base-200">
+						   <div class="card-body">
+							   <h3 class="card-title text-lg">Backstory</h3>
+							   <div class="markdown-content">
+								   {@html marked.parse(character.backstory || '')}
+							   </div>
+						   </div>
+					   </div>
+				   {/if}
 
-				<!-- Goals -->
-				{#if character.goals}
-					<div class="card bg-base-200">
-						<div class="card-body">
-							<h3 class="card-title text-lg">Goals</h3>
-							<p class="text-base-content/80 whitespace-pre-wrap">{character.goals}</p>
-						</div>
-					</div>
-				{/if}
+				   <!-- Goals -->
+				   {#if character.goals}
+					   <div class="card bg-base-200">
+						   <div class="card-body">
+							   <h3 class="card-title text-lg">Goals</h3>
+							   <div class="markdown-content">
+								   {@html marked.parse(character.goals || '')}
+							   </div>
+						   </div>
+					   </div>
+				   {/if}
 
 				<!-- Actions -->
 				<div class="card-actions justify-center gap-2">
@@ -380,3 +385,154 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.markdown-content {
+		color: rgb(71 85 105 / 0.8); /* slate-600 with opacity */
+	}
+	
+	.markdown-content :global(h1) {
+		font-size: 1.5rem; /* text-2xl */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 1rem; /* mb-4 */
+		margin-top: 1.5rem; /* mt-6 */
+	}
+	
+	.markdown-content :global(h1:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(h2) {
+		font-size: 1.25rem; /* text-xl */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 0.75rem; /* mb-3 */
+		margin-top: 1.25rem; /* mt-5 */
+	}
+	
+	.markdown-content :global(h2:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(h3) {
+		font-size: 1.125rem; /* text-lg */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 0.5rem; /* mb-2 */
+		margin-top: 1rem; /* mt-4 */
+	}
+	
+	.markdown-content :global(h3:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(h4) {
+		font-size: 1rem; /* text-base */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 0.5rem; /* mb-2 */
+		margin-top: 0.75rem; /* mt-3 */
+	}
+	
+	.markdown-content :global(h4:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(h5) {
+		font-size: 0.875rem; /* text-sm */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 0.25rem; /* mb-1 */
+		margin-top: 0.5rem; /* mt-2 */
+	}
+	
+	.markdown-content :global(h5:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(h6) {
+		font-size: 0.75rem; /* text-xs */
+		font-weight: 700; /* font-bold */
+		margin-bottom: 0.25rem; /* mb-1 */
+		margin-top: 0.5rem; /* mt-2 */
+	}
+	
+	.markdown-content :global(h6:first-child) {
+		margin-top: 0;
+	}
+	
+	.markdown-content :global(p) {
+		margin-bottom: 1rem; /* mb-4 */
+		line-height: 1.625; /* leading-relaxed */
+	}
+	
+	.markdown-content :global(ul) {
+		list-style-type: disc;
+		list-style-position: inside;
+		margin-bottom: 1rem; /* mb-4 */
+	}
+	
+	.markdown-content :global(ul li) {
+		margin-bottom: 0.25rem; /* space-y-1 */
+	}
+	
+	.markdown-content :global(ol) {
+		list-style-type: decimal;
+		list-style-position: inside;
+		margin-bottom: 1rem; /* mb-4 */
+	}
+	
+	.markdown-content :global(ol li) {
+		margin-bottom: 0.25rem; /* space-y-1 */
+	}
+	
+	.markdown-content :global(li) {
+		line-height: 1.625; /* leading-relaxed */
+	}
+	
+	.markdown-content :global(blockquote) {
+		border-left: 4px solid;
+		border-color: rgb(59 130 246 / 0.2); /* primary color with opacity */
+		padding-left: 1rem; /* pl-4 */
+		font-style: italic;
+		margin-bottom: 1rem; /* mb-4 */
+	}
+	
+	.markdown-content :global(code) {
+		background-color: rgb(212 212 216); /* bg-base-300 equivalent */
+		padding: 0.125rem 0.25rem; /* px-1 py-0.5 */
+		border-radius: 0.25rem; /* rounded */
+		font-size: 0.875rem; /* text-sm */
+	}
+	
+	.markdown-content :global(pre) {
+		background-color: rgb(212 212 216); /* bg-base-300 equivalent */
+		padding: 1rem; /* p-4 */
+		border-radius: 0.25rem; /* rounded */
+		margin-bottom: 1rem; /* mb-4 */
+		overflow-x: auto;
+	}
+	
+	.markdown-content :global(pre code) {
+		background-color: transparent;
+		padding: 0;
+	}
+	
+	.markdown-content :global(strong) {
+		font-weight: 700; /* font-bold */
+	}
+	
+	.markdown-content :global(em) {
+		font-style: italic;
+	}
+	
+	.markdown-content :global(a) {
+		color: rgb(59 130 246); /* text-primary equivalent */
+		text-decoration: underline;
+	}
+	
+	.markdown-content :global(a:hover) {
+		color: rgb(37 99 235); /* hover:text-primary-focus equivalent */
+	}
+	
+	.markdown-content :global(hr) {
+		border-top: 1px solid rgb(212 212 216); /* border-base-300 equivalent */
+		margin: 1.5rem 0; /* my-6 */
+	}
+</style>

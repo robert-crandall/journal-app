@@ -61,7 +61,7 @@
 			<div class="hero-content text-center">
 				<div class="max-w-4xl w-full">
 					<div class="badge badge-primary mb-4">Character System</div>
-					<h1 class="mb-6 text-3xl font-bold">Your Character</h1>
+					<h1 class="mb-6 text-3xl font-bold text-primary">Your Character</h1>
 
 					{#if loading}
 						<div class="card bg-base-100 mb-6 shadow-xl">
