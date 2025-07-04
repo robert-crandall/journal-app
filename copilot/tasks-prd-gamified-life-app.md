@@ -20,8 +20,8 @@
   - [x] 2.11 Character screen should be responsive, not mobile only
 
 - [ ] 3.0 Stats System (Predefined & Custom Stats, XP, Leveling)
-  - [ ] 3.1 Design and implement stats system (predefined/custom stats, XP, level calculation) (backend)
-  - [ ] 3.2 Write backend integration tests for stats system
+  - [x] 3.1 Design and implement stats system (predefined/custom stats, XP, level calculation) (backend)
+  - [x] 3.2 Write backend integration tests for stats system
   - [ ] 3.3 Implement frontend stats management UI
   - [ ] 3.4 Write frontend E2E tests for stats system
   - [ ] 3.5 Ensure all stats system tests pass
