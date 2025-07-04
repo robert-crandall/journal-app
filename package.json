@@ -6,6 +6,7 @@
   "scripts": {
     "backend": "bun scripts/start-backend.js",
     "frontend": "bun scripts/start-frontend.js",
+    "db:setup": "bun scripts/setup-db.js",
     "dev": "bun scripts/start-dev.js",
     "logs": "bun scripts/show-logs.js",
     "test": "scripts/test_pr"

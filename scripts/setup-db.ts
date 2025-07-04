@@ -1,4 +1,4 @@
-import { env } from '../src/env';
+import { env } from '../backend/src/env';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
@@ -31,7 +31,7 @@ async function cleanDatabase() {
 }
 
 async function runMigrations() {
-  const migrationsPath = path.resolve(__dirname, '../src/db/migrations');
+  const migrationsPath = path.resolve(__dirname, '../backend/src/db/migrations');
   console.log('Looking for migrations in:', migrationsPath);
   if (!fs.existsSync(migrationsPath)) {
     throw new Error(`Migrations folder not found: ${migrationsPath}`);
@@ -42,16 +42,6 @@ async function runMigrations() {
   } catch (err) {
     console.error('Error running migrations:', err);
     throw err;
-  }
-}
-
-async function runSeed() {
-  const seedPath = path.resolve(__dirname, './seed.ts');
-  if (fs.existsSync(seedPath)) {
-    const { seed } = await import(seedPath);
-    if (typeof seed === 'function') {
-      await seed(db);
-    }
   }
 }
 
@@ -123,8 +113,6 @@ async function main() {
     await cleanDatabase();
     console.log('Applying migrations...');
     await runMigrations();
-    console.log('Applying seed data (if any)...');
-    await runSeed();
     console.log('Test DB setup complete.');
   } catch (err) {
     console.error('Error setting up test DB:', err);
