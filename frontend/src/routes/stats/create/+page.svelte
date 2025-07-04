@@ -3,16 +3,19 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { authStore } from '$lib/stores/auth';
-	import { statsApi, type CreateCharacterStatInput, type CharacterStatExampleActivity, type PredefinedStat } from '$lib/api/stats';
+	import {
+		statsApi,
+		type CreateCharacterStatInput,
+		type CharacterStatExampleActivity,
+		type PredefinedStat
+	} from '$lib/api/stats';
 	import { ArrowLeft, Plus, Trash2, Lightbulb, Save, Zap } from 'lucide-svelte';
 
 	// Form state
 	let formData = $state<CreateCharacterStatInput>({
 		name: '',
 		description: '',
-		exampleActivities: [
-			{ description: '', suggestedXp: 25 }
-		]
+		exampleActivities: [{ description: '', suggestedXp: 25 }]
 	});
 
 	let predefinedStats: PredefinedStat[] = $state([]);
@@ -22,38 +25,26 @@
 
 	// Check for preset parameter on mount
 	onMount(async () => {
-		// Wait for auth to be initialized
-		if (!$authStore.initialized) {
-			const unsubscribe = authStore.subscribe((authState) => {
-				if (authState.initialized) {
-					unsubscribe();
-					initializePage();
-				}
-			});
-			return;
-		}
-
 		await initializePage();
 	});
 
 	// Separate function to initialize the page
 	async function initializePage() {
-		if (!$authStore.token) {
-			goto('/login');
-			return;
-		}
-
 		// Load predefined stats for reference
 		try {
 			predefinedStats = await statsApi.getPredefinedStats();
 		} catch (err) {
 			console.error('Failed to load predefined stats:', err);
+			if (err instanceof Error && err.message === 'Authentication required') {
+				goto('/login');
+				return;
+			}
 		}
 
 		// Check if we're creating from a preset
 		const presetName = $page.url.searchParams.get('preset');
 		if (presetName && predefinedStats.length > 0) {
-			const preset = predefinedStats.find(stat => stat.name === presetName);
+			const preset = predefinedStats.find((stat) => stat.name === presetName);
 			if (preset) {
 				formData = {
 					name: preset.name,
@@ -72,13 +63,15 @@
 		if (!formData.description.trim()) return 'Description is required';
 		if (formData.description.length > 500) return 'Description must be 500 characters or less';
 		if (formData.exampleActivities.length === 0) return 'At least one example activity is required';
-		
+
 		for (const activity of formData.exampleActivities) {
 			if (!activity.description.trim()) return 'All example activities must have descriptions';
-			if (activity.description.length > 200) return 'Activity descriptions must be 200 characters or less';
-			if (activity.suggestedXp < 1 || activity.suggestedXp > 100) return 'Suggested XP must be between 1 and 100';
+			if (activity.description.length > 200)
+				return 'Activity descriptions must be 200 characters or less';
+			if (activity.suggestedXp < 1 || activity.suggestedXp > 100)
+				return 'Suggested XP must be between 1 and 100';
 		}
-		
+
 		return null;
 	}
 
@@ -131,21 +124,26 @@
 
 <svelte:head>
 	<title>Create Stat - Gamified Life</title>
-	<meta name="description" content="Create a new character stat to track your personal development" />
+	<meta
+		name="description"
+		content="Create a new character stat to track your personal development"
+	/>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
+<div class="bg-base-200 min-h-screen">
 	<!-- Page Header -->
-	<div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-b border-primary/20">
-		<div class="max-w-7xl mx-auto px-4 py-8">
+	<div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
+		<div class="mx-auto max-w-7xl px-4 py-8">
 			<div class="flex items-center gap-4">
 				<button onclick={() => goto('/stats')} class="btn btn-circle btn-outline">
 					<ArrowLeft size={20} />
 				</button>
 				<div>
-					<h1 class="text-4xl font-bold text-primary mb-2">Create New Stat</h1>
+					<h1 class="text-primary mb-2 text-4xl font-bold">Create New Stat</h1>
 					<p class="text-base-content/70 text-lg">
-						{isPresetMode ? 'Customize this recommended stat for your character' : 'Design a custom stat to track your progress'}
+						{isPresetMode
+							? 'Customize this recommended stat for your character'
+							: 'Design a custom stat to track your progress'}
 					</p>
 				</div>
 			</div>
@@ -153,17 +151,17 @@
 	</div>
 
 	<!-- Main Content -->
-	<div class="max-w-7xl mx-auto px-4 py-8">
-		<div class="grid lg:grid-cols-3 gap-8">
+	<div class="mx-auto max-w-7xl px-4 py-8">
+		<div class="grid gap-8 lg:grid-cols-3">
 			<!-- Main Form (2/3 width) -->
 			<div class="lg:col-span-2">
-				<div class="card bg-base-100 shadow-2xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-2xl">
 					<div class="card-body p-8">
 						<form onsubmit={handleSubmit} class="space-y-8">
 							<!-- Stat Name -->
 							<div class="form-control">
 								<label class="label" for="stat-name">
-									<span class="label-text font-medium text-lg">Stat Name *</span>
+									<span class="label-text text-lg font-medium">Stat Name *</span>
 									<span class="label-text-alt text-xs opacity-60">{formData.name.length}/100</span>
 								</label>
 								<div class="relative">
@@ -171,7 +169,7 @@
 										id="stat-name"
 										type="text"
 										placeholder="e.g., Programming, Fitness, Creativity"
-										class="input input-bordered input-lg w-full transition-all duration-200 focus:input-primary focus:scale-[1.02]"
+										class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
 										bind:value={formData.name}
 										maxlength="100"
 										required
@@ -185,13 +183,15 @@
 							<!-- Description -->
 							<div class="form-control">
 								<label class="label" for="stat-description">
-									<span class="label-text font-medium text-lg">Description *</span>
-									<span class="label-text-alt text-xs opacity-60">{formData.description.length}/500</span>
+									<span class="label-text text-lg font-medium">Description *</span>
+									<span class="label-text-alt text-xs opacity-60"
+										>{formData.description.length}/500</span
+									>
 								</label>
 								<div class="relative">
 									<textarea
 										id="stat-description"
-										class="textarea textarea-bordered textarea-lg h-32 w-full resize-none transition-all duration-200 focus:textarea-primary focus:scale-[1.02]"
+										class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
 										placeholder="Describe what this stat represents and why it's important to your personal development..."
 										bind:value={formData.description}
 										maxlength="500"
@@ -203,14 +203,16 @@
 							<!-- Example Activities -->
 							<div class="form-control">
 								<div class="label">
-									<span class="label-text font-medium text-lg">Example Activities *</span>
+									<span class="label-text text-lg font-medium">Example Activities *</span>
 									<span class="label-text-alt text-xs opacity-60">How you'll earn XP</span>
 								</div>
 								<div class="space-y-4">
 									{#each formData.exampleActivities as activity, index}
-										<div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-base-200 rounded-lg">
+										<div class="bg-base-200 grid grid-cols-1 gap-3 rounded-lg p-4 md:grid-cols-4">
 											<div class="md:col-span-3">
-												<label class="sr-only" for="activity-{index}">Activity {index + 1} description</label>
+												<label class="sr-only" for="activity-{index}"
+													>Activity {index + 1} description</label
+												>
 												<input
 													id="activity-{index}"
 													type="text"
@@ -222,8 +224,10 @@
 												/>
 											</div>
 											<div class="flex gap-2">
-												<div class="flex items-center gap-2 flex-1">
-													<label class="sr-only" for="xp-{index}">Suggested XP for activity {index + 1}</label>
+												<div class="flex flex-1 items-center gap-2">
+													<label class="sr-only" for="xp-{index}"
+														>Suggested XP for activity {index + 1}</label
+													>
 													<input
 														id="xp-{index}"
 														type="number"
@@ -234,7 +238,7 @@
 														max="100"
 														required
 													/>
-													<span class="text-sm text-base-content/60">XP</span>
+													<span class="text-base-content/60 text-sm">XP</span>
 												</div>
 												{#if formData.exampleActivities.length > 1}
 													<button
@@ -249,7 +253,7 @@
 											</div>
 										</div>
 									{/each}
-									
+
 									<button
 										type="button"
 										class="btn btn-outline btn-sm gap-2"
@@ -265,8 +269,13 @@
 							{#if error}
 								<div class="alert alert-error">
 									<div class="flex items-center gap-3">
-										<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+											></path>
 										</svg>
 										<span>{error}</span>
 									</div>
@@ -277,7 +286,7 @@
 							<div class="flex gap-4 pt-4">
 								<button
 									type="submit"
-									class="btn btn-primary btn-lg flex-1 h-16 text-lg transition-all duration-200 hover:scale-[1.02] shadow-lg"
+									class="btn btn-primary btn-lg h-16 flex-1 text-lg shadow-lg transition-all duration-200 hover:scale-[1.02]"
 									disabled={loading}
 								>
 									{#if loading}
@@ -305,11 +314,13 @@
 			<div class="lg:col-span-1">
 				<div class="sticky top-8 space-y-6">
 					<!-- Tips Card -->
-					<div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+					<div
+						class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br"
+					>
 						<div class="card-body p-6">
-							<div class="flex items-center gap-2 mb-4">
+							<div class="mb-4 flex items-center gap-2">
 								<Lightbulb class="text-primary" size={20} />
-								<h3 class="font-semibold text-primary">Tips for Great Stats</h3>
+								<h3 class="text-primary font-semibold">Tips for Great Stats</h3>
 							</div>
 							<div class="space-y-3 text-sm">
 								<p class="text-base-content/70">
@@ -330,10 +341,10 @@
 
 					<!-- Preset Stats (if not in preset mode) -->
 					{#if !isPresetMode && predefinedStats.length > 0}
-						<div class="card bg-base-100 shadow-xl border border-base-300">
+						<div class="card bg-base-100 border-base-300 border shadow-xl">
 							<div class="card-body p-6">
-								<h3 class="font-semibold mb-4">🎯 Quick Start</h3>
-								<p class="text-sm text-base-content/70 mb-4">
+								<h3 class="mb-4 font-semibold">🎯 Quick Start</h3>
+								<p class="text-base-content/70 mb-4 text-sm">
 									Use one of these well-designed stat templates:
 								</p>
 								<div class="space-y-2">
@@ -352,9 +363,9 @@
 					{/if}
 
 					<!-- Form Progress -->
-					<div class="card bg-base-100 shadow-xl border border-base-300">
+					<div class="card bg-base-100 border-base-300 border shadow-xl">
 						<div class="card-body p-6">
-							<h3 class="font-semibold mb-4">Form Progress</h3>
+							<h3 class="mb-4 font-semibold">Form Progress</h3>
 							<div class="space-y-3">
 								<div class="flex justify-between text-sm">
 									<span>Name:</span>
@@ -370,8 +381,12 @@
 								</div>
 								<div class="flex justify-between text-sm">
 									<span>Activities:</span>
-									<span class="text-{formData.exampleActivities.some(a => a.description.trim()) ? 'success' : 'base-content/40'}">
-										{formData.exampleActivities.some(a => a.description.trim()) ? '✓' : '○'}
+									<span
+										class="text-{formData.exampleActivities.some((a) => a.description.trim())
+											? 'success'
+											: 'base-content/40'}"
+									>
+										{formData.exampleActivities.some((a) => a.description.trim()) ? '✓' : '○'}
 									</span>
 								</div>
 							</div>

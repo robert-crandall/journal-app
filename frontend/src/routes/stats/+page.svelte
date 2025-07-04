@@ -13,32 +13,15 @@
 
 	// Load data on component mount
 	onMount(async () => {
-		// Wait for auth to be initialized, then check token
-		if (!$authStore.initialized) {
-			const unsubscribe = authStore.subscribe((authState) => {
-				if (authState.initialized) {
-					unsubscribe();
-					loadStatsData(); // Call the data loading function
-				}
-			});
-			return;
-		}
-
-		// If auth is already initialized, load data
 		await loadStatsData();
 	});
 
 	// Separate function to load stats data
 	async function loadStatsData() {
-		if (!$authStore.token) {
-			goto('/login');
-			return;
-		}
-
 		try {
 			loading = true;
 			error = null;
-			
+
 			// Load both user stats and predefined stats in parallel
 			const [userStatsData, predefinedStatsData] = await Promise.all([
 				statsApi.getUserStats(),
@@ -49,6 +32,10 @@
 			predefinedStats = predefinedStatsData;
 		} catch (err) {
 			console.error('Failed to load stats:', err);
+			if (err instanceof Error && err.message === 'Authentication required') {
+				goto('/login');
+				return;
+			}
 			error = err instanceof Error ? err.message : 'Failed to load stats';
 		} finally {
 			loading = false;
@@ -67,7 +54,8 @@
 
 	function calculateProgress(stat: CharacterStatWithProgress): number {
 		const totalXpForLevel = Math.pow(stat.currentLevel, 2) * 100;
-		const currentLevelXp = stat.totalXp - (stat.currentLevel > 1 ? Math.pow(stat.currentLevel - 1, 2) * 100 : 0);
+		const currentLevelXp =
+			stat.totalXp - (stat.currentLevel > 1 ? Math.pow(stat.currentLevel - 1, 2) * 100 : 0);
 		const xpNeededForLevel = Math.pow(stat.currentLevel + 1, 2) * 100 - totalXpForLevel;
 		return Math.floor((currentLevelXp / xpNeededForLevel) * 100);
 	}
@@ -88,22 +76,27 @@
 
 <svelte:head>
 	<title>Character Stats - Gamified Life</title>
-	<meta name="description" content="Manage your character's stats and track your personal development progress" />
+	<meta
+		name="description"
+		content="Manage your character's stats and track your personal development progress"
+	/>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
+<div class="bg-base-200 min-h-screen">
 	<!-- Page Header -->
-	<div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-b border-primary/20">
-		<div class="max-w-7xl mx-auto px-4 py-8">
+	<div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
+		<div class="mx-auto max-w-7xl px-4 py-8">
 			<div class="flex items-center justify-between">
 				<div>
-					<h1 class="text-4xl font-bold text-primary mb-2">Stats Dashboard</h1>
-					<p class="text-base-content/70 text-lg">Track your progress and level up your abilities</p>
+					<h1 class="text-primary mb-2 text-4xl font-bold">Stats Dashboard</h1>
+					<p class="text-base-content/70 text-lg">
+						Track your progress and level up your abilities
+					</p>
 				</div>
 				<div class="flex gap-3">
 					<button
 						onclick={createCustomStat}
-						class="btn btn-primary btn-lg gap-2 transition-all duration-200 hover:scale-105 shadow-lg"
+						class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105"
 					>
 						<Plus size={20} />
 						Create Custom Stat
@@ -114,62 +107,67 @@
 	</div>
 
 	<!-- Main Content -->
-	<div class="max-w-7xl mx-auto px-4 py-8">
+	<div class="mx-auto max-w-7xl px-4 py-8">
 		{#if loading}
 			<!-- Loading State -->
 			<div class="flex items-center justify-center py-20">
-				<div class="text-center space-y-4">
+				<div class="space-y-4 text-center">
 					<span class="loading loading-spinner loading-lg text-primary"></span>
 					<p class="text-base-content/60">Loading your stats...</p>
 				</div>
 			</div>
 		{:else if error}
 			<!-- Error State -->
-			<div class="alert alert-error max-w-md mx-auto">
+			<div class="alert alert-error mx-auto max-w-md">
 				<div class="flex items-center gap-3">
-					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						></path>
 					</svg>
 					<span>{error}</span>
 				</div>
 			</div>
 		{:else}
 			<!-- Stats Grid Layout -->
-			<div class="grid lg:grid-cols-4 gap-8">
+			<div class="grid gap-8 lg:grid-cols-4">
 				<!-- Main Stats Content (3/4 width) -->
-				<div class="lg:col-span-3 space-y-8">
+				<div class="space-y-8 lg:col-span-3">
 					<!-- Current Stats Section -->
 					{#if userStats.length > 0}
 						<section>
-							<h2 class="text-2xl font-semibold text-primary border-b border-primary/20 pb-2 mb-6">
+							<h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">
 								Your Stats
 							</h2>
-							<div class="grid md:grid-cols-2 gap-6">
-				{#each userStats as stat}
-				  <button 
-					class="card bg-base-100 shadow-xl border border-base-300 hover:shadow-2xl transition-all duration-200 cursor-pointer hover:scale-[1.02] text-left w-full"
-					onclick={() => viewStatDetails(stat.id)}
-				  >
+							<div class="grid gap-6 md:grid-cols-2">
+								{#each userStats as stat}
+									<button
+										class="card bg-base-100 border-base-300 w-full cursor-pointer border text-left shadow-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl"
+										onclick={() => viewStatDetails(stat.id)}
+									>
 										<div class="card-body p-6">
-											<div class="flex items-start justify-between mb-4">
+											<div class="mb-4 flex items-start justify-between">
 												<div class="flex items-center gap-3">
 													<div class="avatar placeholder">
-														<div class="bg-primary text-primary-content rounded-full w-12">
+														<div class="bg-primary text-primary-content w-12 rounded-full">
 															<svelte:component this={getStatIcon(stat.name)} size={24} />
 														</div>
 													</div>
 													<div>
-														<h3 class="font-bold text-lg">{stat.name}</h3>
+														<h3 class="text-lg font-bold">{stat.name}</h3>
 														<p class="text-base-content/60 text-sm">Level {stat.currentLevel}</p>
 													</div>
 												</div>
 												<div class="text-right">
-													<div class="text-2xl font-bold text-primary">{stat.totalXp}</div>
-													<div class="text-xs text-base-content/60">XP</div>
+													<div class="text-primary text-2xl font-bold">{stat.totalXp}</div>
+													<div class="text-base-content/60 text-xs">XP</div>
 												</div>
 											</div>
 
-											<p class="text-sm text-base-content/80 mb-4">{stat.description}</p>
+											<p class="text-base-content/80 mb-4 text-sm">{stat.description}</p>
 
 											<!-- Progress Bar -->
 											<div class="space-y-2">
@@ -177,9 +175,9 @@
 													<span>Progress to Level {stat.currentLevel + 1}</span>
 													<span>{stat.xpToNextLevel} XP needed</span>
 												</div>
-												<div class="w-full bg-base-300 rounded-full h-3">
-													<div 
-														class="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-500"
+												<div class="bg-base-300 h-3 w-full rounded-full">
+													<div
+														class="from-primary to-secondary h-3 rounded-full bg-gradient-to-r transition-all duration-500"
 														style="width: {calculateProgress(stat)}%"
 													></div>
 												</div>
@@ -188,8 +186,8 @@
 											<!-- Level Up Button -->
 											{#if stat.canLevelUp}
 												<div class="mt-4">
-													<div 
-														class="btn btn-accent btn-sm w-full gap-2 cursor-pointer"
+													<div
+														class="btn btn-accent btn-sm w-full cursor-pointer gap-2"
 														onclick={(e) => {
 															e.stopPropagation();
 															goto(`/stats/${stat.id}/level-up`);
@@ -216,16 +214,17 @@
 					{:else}
 						<!-- Empty State for User Stats -->
 						<section>
-							<div class="card bg-base-100 shadow-xl border border-base-300">
-								<div class="card-body text-center py-12">
+							<div class="card bg-base-100 border-base-300 border shadow-xl">
+								<div class="card-body py-12 text-center">
 									<div class="avatar placeholder mb-6">
-										<div class="bg-base-300 text-base-content rounded-full w-20">
+										<div class="bg-base-300 text-base-content w-20 rounded-full">
 											<TrendingUp size={40} />
 										</div>
 									</div>
-									<h3 class="text-xl font-semibold mb-2">No Stats Yet</h3>
+									<h3 class="mb-2 text-xl font-semibold">No Stats Yet</h3>
 									<p class="text-base-content/60 mb-6">
-										Start your journey by creating a custom stat or choosing from our predefined options.
+										Start your journey by creating a custom stat or choosing from our predefined
+										options.
 									</p>
 									<button onclick={createCustomStat} class="btn btn-primary btn-lg gap-2">
 										<Plus size={20} />
@@ -239,38 +238,45 @@
 					<!-- Predefined Stats Section -->
 					{#if predefinedStats.length > 0}
 						<section>
-							<h2 class="text-2xl font-semibold text-primary border-b border-primary/20 pb-2 mb-6">
+							<h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">
 								Recommended Stats
 							</h2>
 							<p class="text-base-content/70 mb-6">
-								These are carefully designed stats that work well for personal development. Click to add them to your character.
+								These are carefully designed stats that work well for personal development. Click to
+								add them to your character.
 							</p>
-							<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+							<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 								{#each predefinedStats as predefinedStat}
-									<div class="card bg-gradient-to-br from-secondary/5 to-accent/5 border border-secondary/20 hover:shadow-lg transition-all duration-200">
+									<div
+										class="card from-secondary/5 to-accent/5 border-secondary/20 border bg-gradient-to-br transition-all duration-200 hover:shadow-lg"
+									>
 										<div class="card-body p-4">
-											<div class="flex items-center gap-3 mb-3">													<div class="avatar placeholder">
-														<div class="bg-secondary text-secondary-content rounded-full w-10">
-															<svelte:component this={getStatIcon(predefinedStat.name)} size={20} />
-														</div>
+											<div class="mb-3 flex items-center gap-3">
+												<div class="avatar placeholder">
+													<div class="bg-secondary text-secondary-content w-10 rounded-full">
+														<svelte:component this={getStatIcon(predefinedStat.name)} size={20} />
 													</div>
+												</div>
 												<h4 class="font-semibold">{predefinedStat.name}</h4>
 											</div>
-											
-											<p class="text-sm text-base-content/70 mb-3">{predefinedStat.description}</p>
-											
-											<div class="space-y-1 mb-4">
-												<div class="text-xs font-medium text-base-content/60">Example Activities:</div>
+
+											<p class="text-base-content/70 mb-3 text-sm">{predefinedStat.description}</p>
+
+											<div class="mb-4 space-y-1">
+												<div class="text-base-content/60 text-xs font-medium">
+													Example Activities:
+												</div>
 												{#each predefinedStat.exampleActivities.slice(0, 2) as activity}
-													<div class="text-xs text-base-content/50">
+													<div class="text-base-content/50 text-xs">
 														• {activity.description} ({activity.suggestedXp} XP)
 													</div>
 												{/each}
 											</div>
-											
-											<button 
+
+											<button
 												class="btn btn-secondary btn-sm w-full"
-												onclick={() => goto(`/stats/create?preset=${encodeURIComponent(predefinedStat.name)}`)}
+												onclick={() =>
+													goto(`/stats/create?preset=${encodeURIComponent(predefinedStat.name)}`)}
 											>
 												Add to Character
 											</button>
@@ -286,9 +292,11 @@
 				<div class="lg:col-span-1">
 					<div class="sticky top-8 space-y-6">
 						<!-- Quick Stats Card -->
-						<div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+						<div
+							class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br"
+						>
 							<div class="card-body p-6">
-								<h3 class="font-semibold text-primary mb-4">Quick Stats</h3>
+								<h3 class="text-primary mb-4 font-semibold">Quick Stats</h3>
 								<div class="space-y-3">
 									<div class="flex justify-between">
 										<span class="text-sm">Active Stats:</span>
@@ -296,20 +304,24 @@
 									</div>
 									<div class="flex justify-between">
 										<span class="text-sm">Total XP:</span>
-										<span class="font-medium">{userStats.reduce((sum, stat) => sum + stat.totalXp, 0)}</span>
+										<span class="font-medium"
+											>{userStats.reduce((sum, stat) => sum + stat.totalXp, 0)}</span
+										>
 									</div>
 									<div class="flex justify-between">
 										<span class="text-sm">Ready to Level:</span>
-										<span class="font-medium text-accent">{userStats.filter(stat => stat.canLevelUp).length}</span>
+										<span class="text-accent font-medium"
+											>{userStats.filter((stat) => stat.canLevelUp).length}</span
+										>
 									</div>
 								</div>
 							</div>
 						</div>
 
 						<!-- Tips Card -->
-						<div class="card bg-base-100 shadow-xl border border-base-300">
+						<div class="card bg-base-100 border-base-300 border shadow-xl">
 							<div class="card-body p-6">
-								<h3 class="font-semibold mb-4">💡 Tips</h3>
+								<h3 class="mb-4 font-semibold">💡 Tips</h3>
 								<div class="space-y-3 text-sm">
 									<p class="text-base-content/70">
 										Click on a stat card to view detailed progress and XP history.
@@ -325,15 +337,18 @@
 						</div>
 
 						<!-- Actions Card -->
-						<div class="card bg-base-100 shadow-xl border border-base-300">
+						<div class="card bg-base-100 border-base-300 border shadow-xl">
 							<div class="card-body p-6">
-								<h3 class="font-semibold mb-4">Quick Actions</h3>
+								<h3 class="mb-4 font-semibold">Quick Actions</h3>
 								<div class="space-y-2">
 									<button onclick={createCustomStat} class="btn btn-outline btn-sm w-full gap-2">
 										<Plus size={16} />
 										Create Custom Stat
 									</button>
-									<button onclick={() => goto('/stats/history')} class="btn btn-outline btn-sm w-full gap-2">
+									<button
+										onclick={() => goto('/stats/history')}
+										class="btn btn-outline btn-sm w-full gap-2"
+									>
 										<BarChart3 size={16} />
 										View XP History
 									</button>

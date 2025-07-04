@@ -4,16 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth.js';
 	import { statsApi } from '$lib/api/stats.js';
-	import { 
-		Edit, 
-		ArrowLeft, 
-		Save, 
-		Plus, 
-		Trash2,
-		Target,
-		Lightbulb
-	} from 'lucide-svelte';
-	
+	import { Edit, ArrowLeft, Save, Plus, Trash2, Target, Lightbulb } from 'lucide-svelte';
+
 	// Type definitions
 	interface Stat {
 		id: string;
@@ -41,7 +33,7 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let submitting = $state(false);
-	
+
 	// Form state
 	let formData = $state<EditStatData>({
 		name: '',
@@ -52,35 +44,43 @@
 	// Derived values
 	const statId = $derived($page.params.id);
 	const isValid = $derived(() => {
-		return formData.name.trim().length >= 2 &&
-			   formData.description.trim().length >= 10 &&
-			   formData.exampleActivities.length > 0 &&
-			   formData.exampleActivities.every(activity => 
-				   activity.description.trim().length > 0 && 
-				   activity.suggestedXp > 0 && 
-				   activity.suggestedXp <= 100
-			   );
+		return (
+			formData.name.trim().length >= 2 &&
+			formData.description.trim().length >= 10 &&
+			formData.exampleActivities.length > 0 &&
+			formData.exampleActivities.every(
+				(activity) =>
+					activity.description.trim().length > 0 &&
+					activity.suggestedXp > 0 &&
+					activity.suggestedXp <= 100
+			)
+		);
 	});
-	
+
 	// Functions
 	async function loadStat() {
-		if (!$authStore.token || !statId) return;
-		
+		if (!statId) return;
+
 		try {
 			loading = true;
 			error = null;
 			stat = await statsApi.getStat(statId);
-			
+
 			// Populate form with current stat data
 			formData = {
 				name: stat.name,
 				description: stat.description,
-				exampleActivities: stat.exampleActivities.length > 0 
-					? [...stat.exampleActivities]
-					: [{ description: '', suggestedXp: 10 }]
+				exampleActivities:
+					stat.exampleActivities.length > 0
+						? [...stat.exampleActivities]
+						: [{ description: '', suggestedXp: 10 }]
 			};
 		} catch (err) {
 			console.error('Error loading stat:', err);
+			if (err instanceof Error && err.message === 'Authentication required') {
+				goto('/login');
+				return;
+			}
 			error = 'Failed to load stat details';
 		} finally {
 			loading = false;
@@ -89,23 +89,22 @@
 
 	async function updateStat() {
 		if (!stat || !isValid()) return;
-		
+
 		try {
 			submitting = true;
 			error = null;
-			
+
 			await statsApi.updateStat(stat.id, {
 				name: formData.name.trim(),
 				description: formData.description.trim(),
-				exampleActivities: formData.exampleActivities.map(activity => ({
+				exampleActivities: formData.exampleActivities.map((activity) => ({
 					description: activity.description.trim(),
 					suggestedXp: activity.suggestedXp
 				}))
 			});
-			
+
 			// Redirect back to stat details
 			goto(`/stats/${stat.id}`);
-			
 		} catch (err) {
 			console.error('Error updating stat:', err);
 			error = 'Failed to update stat. Please try again.';
@@ -133,18 +132,14 @@
 
 	// Lifecycle
 	onMount(() => {
-		if (!$authStore.token) {
-			goto('/login');
-			return;
-		}
 		loadStat();
 	});
 </script>
 
 <!-- Page Header -->
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto max-w-4xl px-4 py-8">
 	<!-- Breadcrumb -->
-	<div class="breadcrumbs text-sm mb-6">
+	<div class="breadcrumbs mb-6 text-sm">
 		<ul>
 			<li><a href="/stats" class="text-primary hover:text-primary-focus">Stats</a></li>
 			<li>
@@ -161,7 +156,7 @@
 		<div class="flex items-center justify-center py-20">
 			<div class="text-center">
 				<span class="loading loading-spinner loading-lg text-primary"></span>
-				<p class="mt-4 text-base-content/60">Loading stat details...</p>
+				<p class="text-base-content/60 mt-4">Loading stat details...</p>
 			</div>
 		</div>
 	{:else if error && !stat}
@@ -181,22 +176,24 @@
 		</div>
 	{:else if stat}
 		<!-- Main Content -->
-		<div class="grid lg:grid-cols-3 gap-8">
+		<div class="grid gap-8 lg:grid-cols-3">
 			<!-- Edit Form - Spans 2 columns on large screens -->
 			<div class="lg:col-span-2">
-				<div class="card bg-base-100 shadow-xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-xl">
 					<div class="card-body">
 						<!-- Header -->
-						<div class="flex items-center gap-4 mb-6">
+						<div class="mb-6 flex items-center gap-4">
 							<button onclick={goBack} class="btn btn-circle btn-outline btn-sm">
 								<ArrowLeft size={16} />
 							</button>
 							<div>
-								<h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+								<h1 class="text-primary flex items-center gap-2 text-2xl font-bold">
 									<Edit size={24} />
 									Edit {stat.name}
 								</h1>
-								<p class="text-base-content/60">Update your stat's details and example activities</p>
+								<p class="text-base-content/60">
+									Update your stat's details and example activities
+								</p>
 							</div>
 						</div>
 
@@ -208,17 +205,17 @@
 						{/if}
 
 						<!-- Edit Form -->
-						<form 
+						<form
 							onsubmit={(e) => {
 								e.preventDefault();
 								updateStat();
-							}} 
+							}}
 							class="space-y-6"
 						>
 							<!-- Stat Name -->
 							<div class="form-control">
 								<label class="label" for="stat-name">
-									<span class="label-text font-medium text-lg">Stat Name *</span>
+									<span class="label-text text-lg font-medium">Stat Name *</span>
 								</label>
 								<input
 									id="stat-name"
@@ -240,7 +237,7 @@
 							<!-- Description -->
 							<div class="form-control">
 								<label class="label" for="description">
-									<span class="label-text font-medium text-lg">Description *</span>
+									<span class="label-text text-lg font-medium">Description *</span>
 									<span class="label-text-alt text-xs opacity-60">What this stat measures</span>
 								</label>
 								<textarea
@@ -262,14 +259,16 @@
 							<!-- Example Activities -->
 							<div class="form-control">
 								<div class="label">
-									<span class="label-text font-medium text-lg">Example Activities *</span>
+									<span class="label-text text-lg font-medium">Example Activities *</span>
 									<span class="label-text-alt text-xs opacity-60">How you'll earn XP</span>
 								</div>
 								<div class="space-y-4">
 									{#each formData.exampleActivities as activity, index}
-										<div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-base-200 rounded-lg">
+										<div class="bg-base-200 grid grid-cols-1 gap-3 rounded-lg p-4 md:grid-cols-4">
 											<div class="md:col-span-3">
-												<label class="sr-only" for="activity-{index}">Activity {index + 1} description</label>
+												<label class="sr-only" for="activity-{index}"
+													>Activity {index + 1} description</label
+												>
 												<input
 													id="activity-{index}"
 													type="text"
@@ -282,8 +281,10 @@
 												/>
 											</div>
 											<div class="flex gap-2">
-												<div class="flex items-center gap-2 flex-1">
-													<label class="sr-only" for="xp-{index}">Suggested XP for activity {index + 1}</label>
+												<div class="flex flex-1 items-center gap-2">
+													<label class="sr-only" for="xp-{index}"
+														>Suggested XP for activity {index + 1}</label
+													>
 													<input
 														id="xp-{index}"
 														type="number"
@@ -295,7 +296,7 @@
 														required
 														disabled={submitting}
 													/>
-													<span class="text-sm text-base-content/60">XP</span>
+													<span class="text-base-content/60 text-sm">XP</span>
 												</div>
 												{#if formData.exampleActivities.length > 1}
 													<button
@@ -311,7 +312,7 @@
 											</div>
 										</div>
 									{/each}
-									
+
 									<button
 										type="button"
 										class="btn btn-outline btn-sm gap-2"
@@ -327,7 +328,7 @@
 							<!-- Submit Button -->
 							<div class="form-control pt-4">
 								<div class="flex gap-4">
-									<button 
+									<button
 										type="button"
 										onclick={goBack}
 										class="btn btn-outline"
@@ -335,9 +336,9 @@
 									>
 										Cancel
 									</button>
-									<button 
+									<button
 										type="submit"
-										class="btn btn-primary gap-2 flex-1"
+										class="btn btn-primary flex-1 gap-2"
 										disabled={!isValid() || submitting}
 									>
 										{#if submitting}
@@ -357,19 +358,17 @@
 			<!-- Sidebar - Tips and Current Progress -->
 			<div class="space-y-6">
 				<!-- Current Progress -->
-				<div class="card bg-base-100 shadow-xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-xl">
 					<div class="card-body">
-						<h3 class="card-title text-lg border-b border-base-300 pb-2 mb-4">
-							Current Progress
-						</h3>
+						<h3 class="card-title border-base-300 mb-4 border-b pb-2 text-lg">Current Progress</h3>
 						<div class="space-y-3">
 							<div class="stat py-2">
 								<div class="stat-title text-xs">Current Level</div>
-								<div class="stat-value text-xl text-primary">{stat.currentLevel}</div>
+								<div class="stat-value text-primary text-xl">{stat.currentLevel}</div>
 							</div>
 							<div class="stat py-2">
 								<div class="stat-title text-xs">Total XP</div>
-								<div class="stat-value text-xl text-secondary">{stat.totalXp}</div>
+								<div class="stat-value text-secondary text-xl">{stat.totalXp}</div>
 							</div>
 							<div class="stat py-2">
 								<div class="stat-title text-xs">Created</div>
@@ -380,51 +379,61 @@
 				</div>
 
 				<!-- Editing Tips -->
-				<div class="card bg-base-100 shadow-xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-xl">
 					<div class="card-body">
-						<h3 class="card-title text-lg border-b border-base-300 pb-2 mb-4">
+						<h3 class="card-title border-base-300 mb-4 border-b pb-2 text-lg">
 							<Lightbulb size={18} />
 							Editing Tips
 						</h3>
 						<div class="space-y-3 text-sm">
-							<div class="p-3 bg-info/10 rounded-lg">
-								<p class="font-medium text-info">Be specific</p>
-								<p class="text-base-content/80">Clear stat names and descriptions help you stay focused on your goals.</p>
+							<div class="bg-info/10 rounded-lg p-3">
+								<p class="text-info font-medium">Be specific</p>
+								<p class="text-base-content/80">
+									Clear stat names and descriptions help you stay focused on your goals.
+								</p>
 							</div>
-							<div class="p-3 bg-success/10 rounded-lg">
-								<p class="font-medium text-success">Meaningful activities</p>
-								<p class="text-base-content/80">Example activities should represent realistic tasks you can complete.</p>
+							<div class="bg-success/10 rounded-lg p-3">
+								<p class="text-success font-medium">Meaningful activities</p>
+								<p class="text-base-content/80">
+									Example activities should represent realistic tasks you can complete.
+								</p>
 							</div>
-							<div class="p-3 bg-warning/10 rounded-lg">
-								<p class="font-medium text-warning">Balanced XP values</p>
-								<p class="text-base-content/80">Award 1-10 XP for small tasks, 10-25 for moderate efforts, 25+ for major achievements.</p>
+							<div class="bg-warning/10 rounded-lg p-3">
+								<p class="text-warning font-medium">Balanced XP values</p>
+								<p class="text-base-content/80">
+									Award 1-10 XP for small tasks, 10-25 for moderate efforts, 25+ for major
+									achievements.
+								</p>
 							</div>
-							<div class="p-3 bg-error/10 rounded-lg">
-								<p class="font-medium text-error">Progress preservation</p>
-								<p class="text-base-content/80">Your current level and XP will remain unchanged when you save edits.</p>
+							<div class="bg-error/10 rounded-lg p-3">
+								<p class="text-error font-medium">Progress preservation</p>
+								<p class="text-base-content/80">
+									Your current level and XP will remain unchanged when you save edits.
+								</p>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<!-- Example Activities Tips -->
-				<div class="card bg-base-100 shadow-xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-xl">
 					<div class="card-body">
-						<h3 class="card-title text-lg border-b border-base-300 pb-2 mb-4">
+						<h3 class="card-title border-base-300 mb-4 border-b pb-2 text-lg">
 							<Target size={18} />
 							Activity Ideas
 						</h3>
 						<div class="space-y-2 text-sm">
-							<div class="p-2 bg-base-200 rounded">
-								<strong>Learning:</strong> Read a chapter, complete a tutorial, watch an educational video
+							<div class="bg-base-200 rounded p-2">
+								<strong>Learning:</strong> Read a chapter, complete a tutorial, watch an educational
+								video
 							</div>
-							<div class="p-2 bg-base-200 rounded">
+							<div class="bg-base-200 rounded p-2">
 								<strong>Fitness:</strong> 30-min workout, 5K run, yoga session, strength training
 							</div>
-							<div class="p-2 bg-base-200 rounded">
+							<div class="bg-base-200 rounded p-2">
 								<strong>Creative:</strong> Write 500 words, sketch for 20 minutes, practice instrument
 							</div>
-							<div class="p-2 bg-base-200 rounded">
+							<div class="bg-base-200 rounded p-2">
 								<strong>Professional:</strong> Complete project task, learn new skill, networking event
 							</div>
 						</div>
