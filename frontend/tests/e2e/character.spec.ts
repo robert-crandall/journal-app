@@ -90,7 +90,7 @@ test.describe('Character Creation', () => {
 		// Wait for character to be created and page to update
 		await expect(page.getByRole('heading', { name: 'Custom Hero' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Nature Guardian' })).toBeVisible();
-		await expect(page.locator('text="One with nature, one with life"')).toBeVisible();
+		await expect(page.locator('text=One with nature, one with life')).toBeVisible();
 		await expect(page.locator('text=A person who loves the outdoors')).toBeVisible();
 		await expect(page.locator('text=Spend at least 3 hours outdoors')).toBeVisible();
 	});
@@ -139,7 +139,7 @@ test.describe('Character Creation', () => {
 
 		// Wait for character to be created and verify motto is displayed prominently
 		await expect(page.getByRole('heading', { name: 'Motivated Character' })).toBeVisible();
-		await expect(page.locator('text="Never give up, never surrender"')).toBeVisible();
+		await expect(page.locator('text=Never give up, never surrender')).toBeVisible();
 		await expect(page.locator('blockquote')).toContainText('Never give up, never surrender');
 	});
 
@@ -223,7 +223,7 @@ test.describe('Character Management', () => {
 		// Check that character info is displayed
 		await expect(page.getByRole('heading', { name: 'Test Character' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Adventurer' })).toBeVisible();
-		await expect(page.locator('text="Test motto"')).toBeVisible();
+		await expect(page.locator('text=Test motto')).toBeVisible();
 		await expect(page.locator('text=Test backstory')).toBeVisible();
 		await expect(page.locator('text=Test goals')).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Edit Character' })).toBeVisible();
@@ -253,7 +253,7 @@ test.describe('Character Management', () => {
 		// Verify updates are visible
 		await expect(page.getByRole('heading', { name: 'Updated Character' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Updated Class' })).toBeVisible();
-		await expect(page.locator('text="Updated motto"')).toBeVisible();
+		await expect(page.locator('text=Updated motto')).toBeVisible();
 		await expect(page.locator('text=Updated backstory')).toBeVisible();
 		await expect(page.locator('text=Updated goals')).toBeVisible();
 	});
