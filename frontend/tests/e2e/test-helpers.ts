@@ -30,32 +30,36 @@ export async function cleanupCharacter(page: Page): Promise<void> {
 	// Navigate to character page
 	await page.goto('/character');
 	await page.waitForLoadState('networkidle');
-	
+
 	// Check if character exists by looking for edit button
 	const editButton = page.getByRole('button', { name: 'Edit Character' });
-	
+
 	try {
 		// Wait briefly for the button to appear, if it exists
 		await editButton.waitFor({ timeout: 2000 });
-		
+
 		// If we get here, character exists - delete it
 		const deleteButton = page.getByRole('button', { name: 'Delete Character' });
 		await deleteButton.click();
-		
+
 		// Wait for confirmation modal to appear
 		await expect(page.locator('text=Are you sure you want to delete')).toBeVisible();
-		
+
 		// Confirm deletion using the specific modal button
 		await page.locator('.modal .btn-error').click();
-		
+
 		// Wait for the deletion to complete - the page should redirect/refresh
 		await page.waitForLoadState('networkidle');
-		
+
 		// Wait for the creation form to appear
-		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible({ timeout: 10000 });
+		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible({
+			timeout: 10000
+		});
 	} catch (error) {
 		// Character doesn't exist, which is what we want
 		// Just make sure the creation form is visible
-		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible({ timeout: 10000 });
+		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible({
+			timeout: 10000
+		});
 	}
 }

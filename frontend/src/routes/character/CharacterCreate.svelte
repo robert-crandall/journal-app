@@ -123,7 +123,7 @@
 
 <div class="card bg-base-100 shadow-xl">
 	<div class="card-body">
-		<h2 class="card-title justify-center text-2xl mb-4">Create Your Character</h2>
+		<h2 class="card-title mb-4 justify-center text-2xl">Create Your Character</h2>
 
 		<div class="alert alert-info mb-6">
 			<svg
@@ -140,7 +140,8 @@
 				/>
 			</svg>
 			<span>
-				Create your character to start your gamified life journey. Your character represents who you want to become!
+				Create your character to start your gamified life journey. Your character represents who you
+				want to become!
 			</span>
 		</div>
 
@@ -165,7 +166,7 @@
 
 		<form on:submit|preventDefault={handleSubmit}>
 			<!-- Character Name -->
-			<div class="form-control w-full mb-4">
+			<div class="form-control mb-4 w-full">
 				<label class="label" for="name">
 					<span class="label-text">Character Name <span class="text-error">*</span></span>
 				</label>
@@ -185,7 +186,7 @@
 			</div>
 
 			<!-- Character Class -->
-			<div class="form-control w-full mb-4">
+			<div class="form-control mb-4 w-full">
 				<label class="label" for="class">
 					<span class="label-text">Character Class <span class="text-error">*</span></span>
 				</label>
@@ -205,7 +206,7 @@
 					<input
 						type="text"
 						placeholder="Enter your custom class"
-						class="input input-bordered w-full mt-2"
+						class="input input-bordered mt-2 w-full"
 						bind:value={customClass}
 						on:input={handleCustomClassInput}
 						maxlength="100"
@@ -223,8 +224,8 @@
 			</div>
 
 			<!-- Backstory -->
-			<div class="form-control w-full mb-4">
-				<label class="label block w-full mb-1" for="backstory">
+			<div class="form-control mb-4 w-full">
+				<label class="label mb-1 block w-full" for="backstory">
 					<span class="label-text">Backstory</span>
 				</label>
 				<textarea
@@ -239,8 +240,8 @@
 			</div>
 
 			<!-- Goals -->
-			<div class="form-control w-full mb-6">
-				<label class="label block w-full mb-1" for="goals">
+			<div class="form-control mb-6 w-full">
+				<label class="label mb-1 block w-full" for="goals">
 					<span class="label-text">Goals</span>
 				</label>
 				<textarea
