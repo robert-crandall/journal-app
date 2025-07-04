@@ -9,6 +9,10 @@ This document outlines our implementation of Material Design 3 principles adapte
 
 ## Core Design Principles
 
+### 0. Primary User
+- **Target Audience**: INTJ user who will become bored of flashy interfaces and prefers a clean, efficient interface.
+- **Design Philosophy**: Focus on usability, clarity, and minimalism. Avoid unnecessary clutter.
+
 ### 1. Desktop-First Responsive Layout
 - **Primary Layout**: Optimize for desktop screens (1200px+) first
 - **Grid System**: Use CSS Grid with responsive breakpoints

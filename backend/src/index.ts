@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { serveStatic } from 'hono/bun';
 import usersRoutes from './routes/users';
 import charactersRoutes from './routes/characters';
+import statsRoutes from './routes/stats';
 
 // Create main app instance
 const app = new Hono();
@@ -35,7 +36,9 @@ const routes = app
   // Mount API routes
   .route('/api/users', usersRoutes)
   // Mount character routes
-  .route('/api/characters', charactersRoutes);
+  .route('/api/characters', charactersRoutes)
+  // Mount stats routes
+  .route('/api/stats', statsRoutes);
 
 // Serve static files from SvelteKit build output
 // Skip API routes and serve static assets first

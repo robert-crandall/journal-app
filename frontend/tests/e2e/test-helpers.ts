@@ -63,3 +63,65 @@ export async function cleanupCharacter(page: Page): Promise<void> {
 		});
 	}
 }
+
+/**
+ * Helper function to delete all stats if they exist
+ */
+export async function cleanupStats(page: Page): Promise<void> {
+	// Navigate to stats page
+	await page.goto('/stats');
+	await page.waitForLoadState('networkidle');
+
+	// Keep deleting stats until none remain, but limit attempts to prevent infinite loops
+	let attempts = 0;
+	const maxAttempts = 10;
+
+	while (attempts < maxAttempts) {
+		try {
+			// Look for any stat cards (look for Level text which appears in stat cards)
+			await page.waitForSelector('text=Level', { timeout: 2000 });
+
+			// Find the first stat card and click on it
+			const firstStatCard = page.locator('button:has-text("Level")').first();
+			await firstStatCard.click();
+
+			// Wait for navigation to stat details
+			await page.waitForURL(/\/stats\/[^\/]+$/, { timeout: 5000 });
+
+			// Click delete button
+			await page.click('button:has-text("Delete Stat")');
+
+			// Wait for confirmation modal
+			await expect(page.locator('text=Are you sure?')).toBeVisible({ timeout: 3000 });
+
+			// Confirm deletion
+			await page.click('button:has-text("Yes, Delete")');
+
+			// Wait for redirect back to stats page
+			await page.waitForURL('/stats', { timeout: 5000 });
+			await page.waitForLoadState('networkidle');
+
+			attempts++;
+		} catch (error) {
+			// No more stats found or some other error - break out of loop
+			break;
+		}
+	}
+}
+
+/**
+ * Helper function to create a basic stat for testing
+ */
+export async function createTestStat(
+	page: Page,
+	name: string = 'Test Stat',
+	description: string = 'Test description'
+): Promise<void> {
+	await page.goto('/stats/create');
+	await page.fill('input[placeholder="e.g., Programming, Fitness, Creativity"]', name);
+	await page.fill('textarea[placeholder*="Describe what this stat represents"]', description);
+	await page.fill('input[placeholder*="Complete a coding challenge"]', 'Test activity');
+	await page.fill('input[placeholder="XP"]', '10');
+	await page.click('button[type="submit"]:has-text("Create Stat")');
+	await page.waitForURL('/stats');
+}
