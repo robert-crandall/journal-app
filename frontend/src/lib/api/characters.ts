@@ -1,8 +1,6 @@
-import { api } from '../api';
-import { authStore } from '../stores/auth';
-import { get } from 'svelte/store';
+import { authenticatedClient } from '../api';
 
-// Type definitions for character data
+// Type definitions for character data (will be replaced with backend imports later)
 export interface Character {
 	id: string;
 	userId: string;
@@ -10,6 +8,7 @@ export interface Character {
 	characterClass: string;
 	backstory: string | null;
 	goals: string | null;
+	motto: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -19,6 +18,7 @@ export interface CreateCharacterData {
 	characterClass: string;
 	backstory?: string;
 	goals?: string;
+	motto?: string;
 }
 
 export interface UpdateCharacterData {
@@ -26,24 +26,15 @@ export interface UpdateCharacterData {
 	characterClass?: string;
 	backstory?: string;
 	goals?: string;
+	motto?: string;
 }
 
 // Type-safe character API using Hono client
 export const characterApi = {
 	// Get user's character
 	async getCharacter(): Promise<Character | null> {
-		const { token } = get(authStore);
-
-		if (!token) {
-			throw new Error('Authentication required');
-		}
-
 		try {
-			const response = await api.api.characters.$get({
-				header: {
-					Authorization: `Bearer ${token}`
-				}
-			});
+			const response = await authenticatedClient.api.characters.$get();
 
 			if (!response.ok) {
 				console.error('Character API error:', response.status, response.statusText);
@@ -63,19 +54,8 @@ export const characterApi = {
 
 	// Create a new character
 	async createCharacter(data: CreateCharacterData): Promise<Character> {
-		const { token } = get(authStore);
-
-		if (!token) {
-			throw new Error('Authentication required');
-		}
-
 		try {
-			const response = await api.api.characters.$post({
-				// @ts-expect-error Hono expects 'header', not 'headers'
-				header: {
-					Authorization: `Bearer ${token}`,
-					'Content-Type': 'application/json'
-				},
+			const response = await authenticatedClient.api.characters.$post({
 				json: data
 			});
 
@@ -105,19 +85,8 @@ export const characterApi = {
 
 	// Update user's character
 	async updateCharacter(data: UpdateCharacterData): Promise<Character> {
-		const { token } = get(authStore);
-
-		if (!token) {
-			throw new Error('Authentication required');
-		}
-
 		try {
-			const response = await api.api.characters.$put({
-				// @ts-expect-error Hono expects 'header', not 'headers'
-				header: {
-					Authorization: `Bearer ${token}`,
-					'Content-Type': 'application/json'
-				},
+			const response = await authenticatedClient.api.characters.$put({
 				json: data
 			});
 
@@ -147,18 +116,8 @@ export const characterApi = {
 
 	// Delete user's character
 	async deleteCharacter(): Promise<Character> {
-		const { token } = get(authStore);
-
-		if (!token) {
-			throw new Error('Authentication required');
-		}
-
 		try {
-			const response = await api.api.characters.$delete({
-				header: {
-					Authorization: `Bearer ${token}`
-				}
-			});
+			const response = await authenticatedClient.api.characters.$delete();
 
 			if (!response.ok) {
 				console.error('Delete character API error:', response.status, response.statusText);

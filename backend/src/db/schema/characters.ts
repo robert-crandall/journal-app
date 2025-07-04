@@ -8,6 +8,7 @@ export const characters = pgTable('characters', {
   characterClass: varchar('character_class', { length: 100 }).notNull(),
   backstory: text('backstory'),
   goals: text('goals'),
+  motto: varchar('motto', { length: 200 }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

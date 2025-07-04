@@ -103,17 +103,13 @@
 				autocomplete="email"
 			/>
 			{#if emailError}
-				<label class="label">
+				<label class="label" for="email">
 					<span class="label-text-alt text-error">{emailError}</span>
 				</label>
 			{/if}
 		</div>
 
 		<div class="form-control">
-			<label class="label" for="password">
-				<span class="label-text">Password</span>
-				<button type="button" class="label-text-alt link link-primary"> Forgot password? </button>
-			</label>
 			<input
 				type="password"
 				id="password"
@@ -125,7 +121,7 @@
 				autocomplete="current-password"
 			/>
 			{#if passwordError}
-				<label class="label">
+				<label class="label" for="password">
 					<span class="label-text-alt text-error">{passwordError}</span>
 				</label>
 			{/if}

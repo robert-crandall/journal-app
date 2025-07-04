@@ -29,7 +29,7 @@ fi
 PG_URL_POSTGRES=$(echo "$DATABASE_URL" | sed -E "s|/$DB_NAME(\?.*)?$|/postgres\1|")
 
 # Backup existing database
-pg_dump "$PRODUCTION_DATABASE_URL" > backups/production_clone_backup.sql
+pg_dump "$PRODUCTION_DATABASE_URL" > sqlbackups/production_clone_backup.sql
 
 # Terminate all connections to the dev DB
 psql "$PG_URL_POSTGRES" -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$DB_NAME';"
@@ -39,7 +39,7 @@ psql "$PG_URL_POSTGRES" -c "DROP DATABASE IF EXISTS \"$DB_NAME\";"
 psql "$PG_URL_POSTGRES" -c "CREATE DATABASE \"$DB_NAME\";"
 
 # Restore from production_clone_backup.sql
-psql "$DATABASE_URL" -f backups/production_clone_backup.sql
+psql "$DATABASE_URL" -f sqlbackups/production_clone_backup.sql
 
 # Remove the backup file
 rm backups/production_clone_backup.sql

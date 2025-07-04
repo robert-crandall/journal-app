@@ -20,7 +20,7 @@
 
 <div class="min-h-screen">
 	<!-- Main content -->
-	<main class="container mx-auto p-4">
+	<main class="mx-auto w-full max-w-7xl px-4">
 		<div class="flex flex-1 flex-col items-center justify-center py-20">
 			{#if user}
 				<!-- Logged-in View -->
