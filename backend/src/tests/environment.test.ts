@@ -24,7 +24,7 @@ describe('Environment Configuration Integration', () => {
       
       const userData = {
         name: 'Test User',
-        email: 'test@example.com',
+        email: `test-${Date.now()}@example.com`,
         password: 'password123'
       };
 
@@ -41,7 +41,6 @@ describe('Environment Configuration Integration', () => {
             'Content-Type': 'application/json'
           }
         });
-
         expect(res.status).toBe(201);
       } else {
         // If registration is disabled, user creation should fail
@@ -52,7 +51,6 @@ describe('Environment Configuration Integration', () => {
             'Content-Type': 'application/json'
           }
         });
-
         expect(res.status).toBe(403);
         const errorData = await res.json();
         expect(errorData).toHaveProperty('error');
