@@ -6,6 +6,17 @@ export interface CharacterStatExampleActivity {
 	suggestedXp: number;
 }
 
+export interface CharacterStatXpGrant {
+	id: string;
+	statId: string;
+	userId: string;
+	xpAmount: number;
+	sourceType: string;
+	sourceId?: string | null;
+	reason?: string | null;
+	createdAt: string;
+}
+
 export interface CharacterStat {
 	id: string;
 	userId: string;
@@ -23,16 +34,6 @@ export interface CharacterStatWithProgress extends CharacterStat {
 	canLevelUp: boolean;
 	currentLevelTitle?: string;
 	nextLevelTitle?: string;
-}
-
-export interface CharacterStatXpGrant {
-	id: string;
-	statId: string;
-	xpAmount: number;
-	sourceType: 'task' | 'journal' | 'adhoc' | 'quest' | 'experiment';
-	sourceId?: string;
-	reason?: string;
-	createdAt: string;
 }
 
 export interface PredefinedStat {
@@ -121,7 +122,9 @@ export const statsApi = {
 	// Get user's stats with progress information
 	async getUserStats(): Promise<CharacterStatWithProgress[]> {
 		try {
-			const response = await authenticatedClient.api.stats.$get();
+			const response = await authenticatedClient.api.stats.$get({
+				query: {}
+			});
 
 			if (!response.ok) {
 				console.error('Get user stats API error:', response.status, response.statusText);
