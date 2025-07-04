@@ -7,7 +7,7 @@
   - [x] 1.4 Write frontend E2E tests for authentication flows
   - [x] 1.5 Ensure all authentication tests pass
 
-- [ ] 2.0 Character Creation & Customization
+- [x] 2.0 Character Creation & Customization
   - [x] 2.1 Design and implement character creation (class selection, custom class, backstory) (backend)
   - [x] 2.2 Write backend integration tests for character creation
   - [x] 2.3 Implement frontend character creation UI
@@ -15,19 +15,19 @@
   - [x] 2.5 Ensure all character creation tests pass
 
 - [ ] 3.0 Stats System (Predefined & Custom Stats, XP, Leveling)
-  - [ ] 3.1 Design and implement stats system (custom stats, XP, level calculation) (backend)
-  - [ ] 3.2 Write backend integration tests for stats system
-  - [ ] 3.3 Implement frontend stats management UI
-  - [ ] 3.4 Have predefined stats in UI, grouped
-  - [ ] 3.5 Have recommended stats based on selected character
+  - [x] 3.1 Design and implement stats system (custom stats, XP, level calculation) (backend)
+  - [x] 3.2 Write backend integration tests for stats system
+  - [x] 3.3 Implement frontend stats management UI
+  - [x] 3.4 Have predefined stats in UI, grouped
+  - [x] 3.5 Have recommended stats based on selected character
   - [ ] 3.6 Write frontend E2E tests for stats system
-  - [ ] 3.5 Ensure all stats system tests pass
+  - [ ] 3.7 Ensure all stats system tests pass
 
 - [ ] 3.9 Fix before moving on
   - [ ] Add a motto to the character
   - [ ] Left align goals on character view
   - [ ] Character edit screen needs some work
-  
+
 - [ ] 4.0 Goals & Family Context Management
   - [ ] 4.1 Design and implement goals and family members management (backend)
   - [ ] 4.2 Write backend integration tests for goals/family
