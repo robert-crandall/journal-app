@@ -236,11 +236,6 @@
 											</svg>
 										</div>
 									</div>
-									<label class="label">
-										<span class="label-text-alt text-xs opacity-60">
-											What should we call your character?
-										</span>
-									</label>
 								</div>
 
 								<!-- Character Class -->
@@ -278,11 +273,6 @@
 											</svg>
 										</div>
 									</div>
-									<label class="label">
-										<span class="label-text-alt text-xs opacity-60">
-											What type of person are you becoming?
-										</span>
-									</label>
 								</div>
 
 								<!-- Character Motto -->
@@ -319,11 +309,6 @@
 											</svg>
 										</div>
 									</div>
-									<label class="label">
-										<span class="label-text-alt text-xs opacity-60">
-											Optional: A personal motto or guiding principle
-										</span>
-									</label>
 								</div>
 							</div>
 
@@ -346,11 +331,6 @@
 											bind:value={editData.backstory}
 										></textarea>
 									</div>
-									<label class="label">
-										<span class="label-text-alt text-xs opacity-60">
-											Optional: Describe your character's background
-										</span>
-									</label>
 								</div>
 
 								<!-- Goals -->
@@ -366,11 +346,6 @@
 											bind:value={editData.goals}
 										></textarea>
 									</div>
-									<label class="label">
-										<span class="label-text-alt text-xs opacity-60">
-											Optional: What are your character's goals?
-										</span>
-									</label>
 								</div>
 							</div>
 
