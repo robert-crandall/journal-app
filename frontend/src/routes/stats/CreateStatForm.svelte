@@ -81,9 +81,12 @@
       id="stat-description"
       class="textarea textarea-bordered" 
       bind:value={formData.description} 
-      placeholder="Describe what this stat represents"
+      placeholder="Describe what actions or activities earn XP for this stat"
       rows="3"
     ></textarea>
+    <div class="label">
+      <span class="label-text-alt">Example: "Earn XP by completing workouts or physical activities"</span>
+    </div>
   </div>
   
   <div class="form-control">

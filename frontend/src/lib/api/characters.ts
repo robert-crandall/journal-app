@@ -8,6 +8,7 @@ export interface Character {
 	userId: string;
 	name: string;
 	characterClass: string;
+	motto: string | null;
 	backstory: string | null;
 	goals: string | null;
 	createdAt: string;
@@ -17,6 +18,7 @@ export interface Character {
 export interface CreateCharacterData {
 	name: string;
 	characterClass: string;
+	motto?: string;
 	backstory?: string;
 	goals?: string;
 }
@@ -24,6 +26,7 @@ export interface CreateCharacterData {
 export interface UpdateCharacterData {
 	name?: string;
 	characterClass?: string;
+	motto?: string;
 	backstory?: string;
 	goals?: string;
 }

@@ -27,7 +27,9 @@
 
 <div class="bg-base-200 flex min-h-screen flex-col antialiased">
 	<Navigation />
-	{@render children()}
+	<div class="container mx-auto px-4 max-w-4xl">
+		{@render children()}
+	</div>
 </div>
 
 <style>

@@ -235,6 +235,8 @@
               
               {#if stat.description}
                 <p class="text-sm text-gray-500 mt-1">{stat.description}</p>
+              {:else}
+                <p class="text-xs text-gray-400 italic mt-1">No description. Edit to add what earns XP for this stat.</p>
               {/if}
               
               <div class="flex justify-between items-center mt-3">

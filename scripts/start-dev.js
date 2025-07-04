@@ -23,6 +23,64 @@ function killProcessesOnPorts(ports) {
   });
 }
 
+// Run database migrations before starting services
+async function runDatabaseMigrations() {
+  console.log('🗄️  Running database migrations...')
+  
+  return new Promise((resolve, reject) => {
+    const migrate = spawn('bun', ['run', 'db:migrate'], {
+      stdio: 'inherit',
+      shell: true,
+      cwd: './backend'
+    })
+    
+    migrate.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Database migrations completed successfully')
+        resolve()
+      } else {
+        console.error(`❌ Database migrations failed with code ${code}`)
+        reject(new Error(`Database migrations failed with code ${code}`))
+      }
+    })
+    
+    migrate.on('error', (err) => {
+      console.error('❌ Failed to run database migrations:', err)
+      reject(err)
+    })
+  })
+}
+
+// Seed database with predefined stats if needed
+async function seedPredefinedStats() {
+  console.log('🌱 Seeding predefined stats...')
+  
+  return new Promise((resolve, reject) => {
+    const seedStats = spawn('bun', ['run', 'db:seed:stats'], {
+      stdio: 'inherit',
+      shell: true,
+      cwd: './backend'
+    })
+    
+    seedStats.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Stats seeded successfully')
+        resolve()
+      } else {
+        console.warn(`⚠️  Stats seeding exited with code ${code}`)
+        // Don't reject - we want to continue even if seeding fails
+        resolve()
+      }
+    })
+    
+    seedStats.on('error', (err) => {
+      console.warn('⚠️  Failed to run stats seeding:', err)
+      // Don't reject - we want to continue even if seeding fails
+      resolve()
+    })
+  })
+}
+
 // Use concurrently to run both services with combined logs
 async function startDev() {
   console.log('🚀 Starting development environment...')
@@ -33,6 +91,22 @@ async function startDev() {
   if (process.argv.includes('--force')) {
     console.log('🛑 --force flag detected: Killing processes on ports 3000 and 5173...');
     killProcessesOnPorts([3000, 5173]);
+  }
+  
+  // Run migrations first
+  try {
+    await runDatabaseMigrations()
+    
+    // After migrations succeed, seed predefined stats
+    await seedPredefinedStats()
+  } catch (error) {
+    console.error('❌ Failed to run database migrations. Fix the issues before continuing.')
+    if (!process.argv.includes('--ignore-migration-errors')) {
+      console.log('💡 Use --ignore-migration-errors flag to start services despite migration failures')
+      process.exit(1)
+    } else {
+      console.log('⚠️  Ignoring migration errors due to --ignore-migration-errors flag')
+    }
   }
 
   try {
@@ -82,4 +156,8 @@ async function startDev() {
   }
 }
 
-startDev()
+// Run the start dev process
+startDev().catch(error => {
+  console.error('❌ Error during startup:', error)
+  process.exit(1)
+})

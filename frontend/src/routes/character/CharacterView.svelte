@@ -24,6 +24,7 @@
 		editData = {
 			name: character.name,
 			characterClass: character.characterClass,
+			motto: character.motto || '',
 			backstory: character.backstory || '',
 			goals: character.goals || ''
 		};
@@ -82,6 +83,10 @@
 				editData.characterClass.trim() !== character.characterClass
 			) {
 				updateData.characterClass = editData.characterClass.trim();
+			}
+            
+			if (editData.motto?.trim() !== (character.motto || '')) {
+				updateData.motto = editData.motto?.trim() || undefined;
 			}
 
 			if (editData.backstory?.trim() !== (character.backstory || '')) {
@@ -160,7 +165,7 @@
 
 			<form on:submit|preventDefault={saveChanges}>
 				<!-- Character Name -->
-				<div class="form-control mb-4 w-full">
+				<div class="form-control mb-6 w-full">
 					<label class="label" for="edit-name">
 						<span class="label-text">Character Name <span class="text-error">*</span></span>
 					</label>
@@ -180,7 +185,7 @@
 				</div>
 
 				<!-- Character Class -->
-				<div class="form-control mb-4 w-full">
+				<div class="form-control mb-6 w-full">
 					<label class="label" for="edit-class">
 						<span class="label-text">Character Class <span class="text-error">*</span></span>
 					</label>
@@ -198,9 +203,28 @@
 						<span class="label-text-alt">{(editData.characterClass || '').length}/100</span>
 					</div>
 				</div>
+                
+				<!-- Motto -->
+				<div class="form-control mb-6 w-full">
+					<label class="label" for="edit-motto">
+						<span class="label-text">Character Motto</span>
+					</label>
+					<input
+						id="edit-motto"
+						type="text"
+						placeholder="Enter your character's motto or life philosophy"
+						class="input input-bordered w-full"
+						bind:value={editData.motto}
+						maxlength="255"
+					/>
+					<div class="label">
+						<span class="label-text-alt">A short phrase that represents your character's values</span>
+						<span class="label-text-alt">{(editData.motto || '').length}/255</span>
+					</div>
+				</div>
 
 				<!-- Backstory -->
-				<div class="form-control mb-4 w-full">
+				<div class="form-control mb-6 w-full">
 					<label class="label" for="edit-backstory">
 						<span class="label-text">Backstory</span>
 					</label>
@@ -291,6 +315,12 @@
 						<div class="stat-title">Class</div>
 						<div class="stat-value text-lg">{character.characterClass}</div>
 					</div>
+					{#if character.motto}
+					<div class="stat">
+						<div class="stat-title">Motto</div>
+						<div class="stat-value text-lg font-italic">"{character.motto}"</div>
+					</div>
+					{/if}
 					<div class="stat">
 						<div class="stat-title">Created</div>
 						<div class="stat-value text-lg">{formatDate(character.createdAt)}</div>
@@ -314,7 +344,7 @@
 					<div class="card bg-base-200">
 						<div class="card-body">
 							<h3 class="card-title text-lg">Goals</h3>
-							<div class="prose prose-sm">
+							<div class="prose prose-sm text-left">
 								{@html marked.parse(character.goals)}
 							</div>
 						</div>

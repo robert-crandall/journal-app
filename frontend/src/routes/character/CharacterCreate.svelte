@@ -10,6 +10,7 @@
 	let formData: CreateCharacterData = {
 		name: '',
 		characterClass: '',
+		motto: '',
 		backstory: '',
 		goals: ''
 	};
@@ -102,6 +103,10 @@
 				characterClass: formData.characterClass.trim()
 			};
 
+			if (formData.motto?.trim()) {
+				submitData.motto = formData.motto.trim();
+			}
+            
 			if (formData.backstory?.trim()) {
 				submitData.backstory = formData.backstory.trim();
 			}
@@ -221,6 +226,25 @@
 						<span class="label-text-alt">What type of person do you want to become?</span>
 					</div>
 				{/if}
+			</div>
+            
+			<!-- Character Motto -->
+			<div class="form-control mb-4 w-full">
+				<label class="label" for="motto">
+					<span class="label-text">Character Motto</span>
+				</label>
+				<input
+					id="motto"
+					type="text"
+					placeholder="Enter your character's motto or life philosophy"
+					class="input input-bordered w-full"
+					bind:value={formData.motto}
+					maxlength="255"
+				/>
+				<div class="label">
+					<span class="label-text-alt">A short phrase that represents your character's values</span>
+					<span class="label-text-alt">{(formData.motto || '').length}/255</span>
+				</div>
 			</div>
 
 			<!-- Backstory -->

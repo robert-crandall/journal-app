@@ -6,6 +6,7 @@ export const characters = pgTable('characters', {
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   characterClass: varchar('character_class', { length: 100 }).notNull(),
+  motto: text('motto'),
   backstory: text('backstory'),
   goals: text('goals'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
