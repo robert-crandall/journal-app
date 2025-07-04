@@ -131,14 +131,14 @@
 </script>
 
 <!-- Character Creation Form with Material Design -->
-<div class="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+<div class="mx-auto grid max-w-7xl gap-4 lg:gap-8 lg:grid-cols-3">
 	<!-- Left Column: Form -->
 	<div class="lg:col-span-2">
-		<div class="card bg-base-100 shadow-2xl border border-base-300">
-			<div class="card-body p-8">
-				<div class="text-center mb-8">
+		<div class="card bg-base-100 border-base-300 border shadow-2xl">
+			<div class="card-body p-4 sm:p-6 lg:p-8">
+				<div class="mb-8 text-center">
 					<div class="avatar placeholder mb-4">
-						<div class="bg-primary text-primary-content rounded-full w-16">
+						<div class="bg-primary text-primary-content w-16 rounded-full">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -157,7 +157,7 @@
 							</svg>
 						</div>
 					</div>
-					<h2 class="text-3xl font-bold text-primary mb-2">Create Your Character</h2>
+					<h2 class="text-primary mb-2 text-3xl font-bold">Create Your Character</h2>
 					<p class="text-base-content/60">Build your alter ego for this gamified journey</p>
 				</div>
 
@@ -183,7 +183,7 @@
 				<form on:submit|preventDefault={handleSubmit} class="space-y-8">
 					<!-- Basic Info Section -->
 					<div class="space-y-6">
-						<h3 class="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+						<h3 class="text-primary border-primary/20 border-b pb-2 text-xl font-semibold">
 							Basic Information
 						</h3>
 
@@ -198,7 +198,7 @@
 									id="name"
 									type="text"
 									placeholder="What should we call your character?"
-									class="input input-bordered input-lg w-full transition-all duration-200 focus:input-primary focus:scale-[1.02]"
+									class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
 									bind:value={formData.name}
 									maxlength="100"
 									required
@@ -231,7 +231,7 @@
 							<div class="relative">
 								<select
 									id="class"
-									class="select select-bordered select-lg w-full transition-all duration-200 focus:select-primary focus:scale-[1.02]"
+									class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
 									bind:value={selectedClass}
 									on:change={handleClassSelection}
 									required
@@ -241,7 +241,7 @@
 										<option value={classOption}>{classOption}</option>
 									{/each}
 								</select>
-								<div class="absolute inset-y-0 right-10 flex items-center pointer-events-none">
+								<div class="pointer-events-none absolute inset-y-0 right-10 flex items-center">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="20"
@@ -263,7 +263,7 @@
 									<input
 										type="text"
 										placeholder="Enter your custom class"
-										class="input input-bordered input-lg w-full transition-all duration-200 focus:input-primary focus:scale-[1.02]"
+										class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
 										bind:value={customClass}
 										on:input={handleCustomClassInput}
 										maxlength="100"
@@ -286,7 +286,7 @@
 									id="motto"
 									type="text"
 									placeholder="A guiding principle or personal mantra"
-									class="input input-bordered input-lg w-full transition-all duration-200 focus:input-primary focus:scale-[1.02]"
+									class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
 									bind:value={formData.motto}
 									maxlength="200"
 								/>
@@ -303,7 +303,9 @@
 										stroke-linejoin="round"
 										class="text-base-content/40"
 									>
-										<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+										<path
+											d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+										/>
 									</svg>
 								</div>
 							</div>
@@ -312,7 +314,7 @@
 
 					<!-- Character Story Section -->
 					<div class="space-y-6">
-						<h3 class="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+						<h3 class="text-primary border-primary/20 border-b pb-2 text-xl font-semibold">
 							Character Story
 						</h3>
 
@@ -324,7 +326,7 @@
 							<div class="relative">
 								<textarea
 									id="backstory"
-									class="textarea textarea-bordered textarea-lg h-32 w-full resize-none transition-all duration-200 focus:textarea-primary focus:scale-[1.02]"
+									class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
 									placeholder="Tell us about your character's background and current situation. What experiences have shaped them? Where are they starting from?"
 									bind:value={formData.backstory}
 								></textarea>
@@ -339,7 +341,7 @@
 							<div class="relative">
 								<textarea
 									id="goals"
-									class="textarea textarea-bordered textarea-lg h-32 w-full resize-none transition-all duration-200 focus:textarea-primary focus:scale-[1.02]"
+									class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
 									placeholder="What does your character want to achieve? What are their dreams and aspirations? What would success look like?"
 									bind:value={formData.goals}
 								></textarea>
@@ -351,7 +353,7 @@
 					<div class="pt-6">
 						<button
 							type="submit"
-							class="btn btn-primary btn-lg w-full h-16 text-lg transition-all duration-200 hover:scale-[1.02] shadow-lg"
+							class="btn btn-primary btn-lg h-16 w-full text-lg shadow-lg transition-all duration-200 hover:scale-[1.02]"
 							disabled={loading}
 						>
 							{#if loading}
@@ -388,7 +390,7 @@
 	<div class="lg:col-span-1">
 		<div class="sticky top-8 space-y-6">
 			<!-- Tips Card -->
-			<div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+			<div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
 				<div class="card-body p-6">
 					<h3 class="card-title text-primary flex items-center gap-2">
 						<svg
@@ -410,19 +412,21 @@
 					</h3>
 					<div class="space-y-4 text-sm">
 						<div class="flex gap-3">
-							<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-							<p><strong>Name:</strong> Choose something that inspires you or represents your ideal self</p>
+							<div class="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
+							<p>
+								<strong>Name:</strong> Choose something that inspires you or represents your ideal self
+							</p>
 						</div>
 						<div class="flex gap-3">
-							<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+							<div class="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
 							<p><strong>Class:</strong> Pick an archetype that resonates with your life goals</p>
 						</div>
 						<div class="flex gap-3">
-							<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+							<div class="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
 							<p><strong>Motto:</strong> A short phrase that motivates and guides your character</p>
 						</div>
 						<div class="flex gap-3">
-							<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+							<div class="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
 							<p><strong>Story:</strong> Background and goals help create a compelling narrative</p>
 						</div>
 					</div>
@@ -430,7 +434,7 @@
 			</div>
 
 			<!-- Character Classes Info -->
-			<div class="card bg-base-100 border border-base-300">
+			<div class="card bg-base-100 border-base-300 border">
 				<div class="card-body p-6">
 					<h3 class="card-title text-secondary flex items-center gap-2">
 						<svg
@@ -450,19 +454,19 @@
 					</h3>
 					<div class="space-y-3 text-sm">
 						<div>
-							<span class="font-medium text-primary">Adventurer:</span>
+							<span class="text-primary font-medium">Adventurer:</span>
 							<span class="text-base-content/70"> For those who love new experiences</span>
 						</div>
 						<div>
-							<span class="font-medium text-primary">Fitness Enthusiast:</span>
+							<span class="text-primary font-medium">Fitness Enthusiast:</span>
 							<span class="text-base-content/70"> Focus on health and physical goals</span>
 						</div>
 						<div>
-							<span class="font-medium text-primary">Scholar:</span>
+							<span class="text-primary font-medium">Scholar:</span>
 							<span class="text-base-content/70"> Dedicated to learning and knowledge</span>
 						</div>
 						<div>
-							<span class="font-medium text-primary">Entrepreneur:</span>
+							<span class="text-primary font-medium">Entrepreneur:</span>
 							<span class="text-base-content/70"> Building businesses and innovation</span>
 						</div>
 					</div>
@@ -470,7 +474,7 @@
 			</div>
 
 			<!-- Progress Indicator -->
-			<div class="card bg-accent/10 border border-accent/20">
+			<div class="card bg-accent/10 border-accent/20 border">
 				<div class="card-body p-6">
 					<h3 class="card-title text-accent flex items-center gap-2">
 						<svg
@@ -489,10 +493,8 @@
 						What's Next?
 					</h3>
 					<div class="space-y-2 text-sm">
-						<p class="text-base-content/70">
-							After creating your character, you'll be able to:
-						</p>
-						<ul class="space-y-1 text-xs text-base-content/60">
+						<p class="text-base-content/70">After creating your character, you'll be able to:</p>
+						<ul class="text-base-content/60 space-y-1 text-xs">
 							<li>• Track your daily progress</li>
 							<li>• Set and complete quests</li>
 							<li>• Level up your character</li>

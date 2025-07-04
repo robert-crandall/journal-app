@@ -55,28 +55,28 @@
 	<title>Character - Journal App</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-200">
-	<main class="container mx-auto px-4 py-8">
+<div class="bg-base-200 min-h-screen">
+	<main class="mx-auto w-full max-w-7xl px-4 py-8">
 		<!-- Header Section -->
 		<div class="mb-8 text-center">
 			<div class="badge badge-primary badge-lg mb-4">Character System</div>
-			<h1 class="text-4xl font-bold text-primary mb-2">Your Character</h1>
-			<p class="text-base-content/70 text-lg max-w-2xl mx-auto">
+			<h1 class="text-primary mb-2 text-4xl font-bold">Your Character</h1>
+			<p class="text-base-content/70 mx-auto max-w-2xl text-lg">
 				Create and manage your character to start your gamified life journey
 			</p>
 		</div>
 
 		<!-- Main Content Area -->
-		<div class="max-w-6xl mx-auto">
+		<div class="mx-auto max-w-6xl">
 			{#if loading}
-				<div class="flex justify-center items-center min-h-[400px]">
+				<div class="flex min-h-[400px] items-center justify-center">
 					<div class="text-center">
 						<span class="loading loading-spinner loading-lg text-primary mb-4"></span>
 						<p class="text-lg">Loading character...</p>
 					</div>
 				</div>
 			{:else if error}
-				<div class="max-w-md mx-auto">
+				<div class="mx-auto max-w-md">
 					<div class="alert alert-error">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -95,9 +95,7 @@
 							<h3 class="font-bold">Error Loading Character</h3>
 							<div class="text-xs">{error}</div>
 						</div>
-						<button class="btn btn-sm btn-outline" on:click={loadCharacter}>
-							Try Again
-						</button>
+						<button class="btn btn-sm btn-outline" on:click={loadCharacter}> Try Again </button>
 					</div>
 				</div>
 			{:else if character}

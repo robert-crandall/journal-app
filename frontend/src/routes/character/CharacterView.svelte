@@ -143,17 +143,17 @@
 </script>
 
 <!-- Character View/Edit with Material Design -->
-<div class="max-w-7xl mx-auto">
+<div class="mx-auto max-w-7xl">
 	{#if isEditing}
 		<!-- Edit Mode - Material Design Form -->
-		<div class="grid lg:grid-cols-3 gap-8">
+		<div class="grid gap-8 lg:grid-cols-3">
 			<!-- Left Column: Edit Form -->
 			<div class="lg:col-span-2">
-				<div class="card bg-base-100 shadow-2xl border border-base-300">
+				<div class="card bg-base-100 border-base-300 border shadow-2xl">
 					<div class="card-body p-8">
-						<div class="text-center mb-8">
+						<div class="mb-8 text-center">
 							<div class="avatar placeholder mb-4">
-								<div class="bg-secondary text-secondary-content rounded-full w-16">
+								<div class="bg-secondary text-secondary-content w-16 rounded-full">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="32"
@@ -170,7 +170,7 @@
 									</svg>
 								</div>
 							</div>
-							<h2 class="text-3xl font-bold text-secondary mb-2">Edit Your Character</h2>
+							<h2 class="text-secondary mb-2 text-3xl font-bold">Edit Your Character</h2>
 							<p class="text-base-content/60">Update your character's details and story</p>
 						</div>
 
@@ -196,7 +196,7 @@
 						<form on:submit|preventDefault={saveChanges} class="space-y-8">
 							<!-- Basic Info Section -->
 							<div class="space-y-6">
-								<h3 class="text-xl font-semibold text-secondary border-b border-secondary/20 pb-2">
+								<h3 class="text-secondary border-secondary/20 border-b pb-2 text-xl font-semibold">
 									Basic Information
 								</h3>
 
@@ -213,7 +213,7 @@
 											id="edit-name"
 											type="text"
 											placeholder="Enter your character's name"
-											class="input input-bordered input-lg w-full transition-all duration-200 focus:input-secondary focus:scale-[1.02]"
+											class="input input-bordered input-lg focus:input-secondary w-full transition-all duration-200 focus:scale-[1.02]"
 											bind:value={editData.name}
 											maxlength="100"
 											required
@@ -251,7 +251,7 @@
 											id="edit-class"
 											type="text"
 											placeholder="Enter your character class"
-											class="input input-bordered input-lg w-full transition-all duration-200 focus:input-secondary focus:scale-[1.02]"
+											class="input input-bordered input-lg focus:input-secondary w-full transition-all duration-200 focus:scale-[1.02]"
 											bind:value={editData.characterClass}
 											maxlength="100"
 											required
@@ -288,7 +288,7 @@
 											id="edit-motto"
 											type="text"
 											placeholder="Enter your character's motto or guiding principle"
-											class="input input-bordered input-lg w-full transition-all duration-200 focus:input-secondary focus:scale-[1.02]"
+											class="input input-bordered input-lg focus:input-secondary w-full transition-all duration-200 focus:scale-[1.02]"
 											bind:value={editData.motto}
 											maxlength="200"
 										/>
@@ -305,7 +305,9 @@
 												stroke-linejoin="round"
 												class="text-base-content/40"
 											>
-												<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+												<path
+													d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+												/>
 											</svg>
 										</div>
 									</div>
@@ -314,7 +316,7 @@
 
 							<!-- Character Story Section -->
 							<div class="space-y-6">
-								<h3 class="text-xl font-semibold text-secondary border-b border-secondary/20 pb-2">
+								<h3 class="text-secondary border-secondary/20 border-b pb-2 text-xl font-semibold">
 									Character Story
 								</h3>
 
@@ -326,7 +328,7 @@
 									<div class="relative">
 										<textarea
 											id="edit-backstory"
-											class="textarea textarea-bordered textarea-lg h-32 w-full resize-none transition-all duration-200 focus:textarea-secondary focus:scale-[1.02]"
+											class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
 											placeholder="Tell us about your character's background..."
 											bind:value={editData.backstory}
 										></textarea>
@@ -341,7 +343,7 @@
 									<div class="relative">
 										<textarea
 											id="edit-goals"
-											class="textarea textarea-bordered textarea-lg h-32 w-full resize-none transition-all duration-200 focus:textarea-secondary focus:scale-[1.02]"
+											class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
 											placeholder="What does your character want to achieve?"
 											bind:value={editData.goals}
 										></textarea>
@@ -375,7 +377,7 @@
 								</button>
 								<button
 									type="submit"
-									class="btn btn-secondary btn-lg gap-2 min-w-40 transition-all duration-200 hover:scale-105 shadow-lg"
+									class="btn btn-secondary btn-lg min-w-40 gap-2 shadow-lg transition-all duration-200 hover:scale-105"
 									disabled={loading}
 								>
 									{#if loading}
@@ -409,9 +411,11 @@
 			<!-- Right Column: Live Preview -->
 			<div class="lg:col-span-1">
 				<div class="sticky top-8">
-					<div class="card bg-gradient-to-br from-secondary/10 to-accent/10 border border-secondary/20">
+					<div
+						class="card from-secondary/10 to-accent/10 border-secondary/20 border bg-gradient-to-br"
+					>
 						<div class="card-body p-6">
-							<h3 class="card-title text-secondary flex items-center gap-2 mb-4">
+							<h3 class="card-title text-secondary mb-4 flex items-center gap-2">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="20"
@@ -444,7 +448,7 @@
 								{#if editData.motto}
 									<div>
 										<span class="text-sm font-medium opacity-70">Motto:</span>
-										<p class="italic text-secondary">"{editData.motto}"</p>
+										<p class="text-secondary italic">"{editData.motto}"</p>
 									</div>
 								{/if}
 							</div>
@@ -455,14 +459,16 @@
 		</div>
 	{:else}
 		<!-- View Mode - Enhanced Layout -->
-		<div class="grid lg:grid-cols-4 gap-8">
+		<div class="grid gap-8 lg:grid-cols-4">
 			<!-- Left Column: Character Profile -->
 			<div class="lg:col-span-1">
-				<div class="card bg-gradient-to-br from-primary/10 to-secondary/10 shadow-2xl border border-primary/20 sticky top-8">
+				<div
+					class="card from-primary/10 to-secondary/10 border-primary/20 sticky top-8 border bg-gradient-to-br shadow-2xl"
+				>
 					<div class="card-body p-8 text-center">
 						<!-- Character Avatar -->
 						<div class="avatar placeholder mb-6">
-							<div class="bg-primary text-primary-content rounded-full w-24">
+							<div class="bg-primary text-primary-content w-24 rounded-full">
 								<span class="text-3xl font-bold">
 									{character.name.charAt(0).toUpperCase()}
 								</span>
@@ -470,11 +476,11 @@
 						</div>
 
 						<!-- Character Name & Class -->
-						<h2 class="text-2xl font-bold text-primary mb-2">{character.name}</h2>
+						<h2 class="text-primary mb-2 text-2xl font-bold">{character.name}</h2>
 						<div class="badge badge-primary badge-lg mb-4">{character.characterClass}</div>
 
 						<!-- Character Stats -->
-						<div class="stats stats-vertical shadow bg-base-100/50 mb-6">
+						<div class="stats stats-vertical bg-base-100/50 mb-6 shadow">
 							<div class="stat py-3">
 								<div class="stat-title text-xs">Created</div>
 								<div class="stat-value text-sm">{formatDate(character.createdAt)}</div>
@@ -487,7 +493,7 @@
 
 						<!-- Character Motto -->
 						{#if character.motto}
-							<blockquote class="text-primary text-lg font-medium italic leading-relaxed">
+							<blockquote class="text-primary text-lg leading-relaxed font-medium italic">
 								"{character.motto}"
 							</blockquote>
 						{/if}
@@ -496,7 +502,7 @@
 			</div>
 
 			<!-- Right Column: Character Details -->
-			<div class="lg:col-span-3 space-y-8">
+			<div class="space-y-8 lg:col-span-3">
 				{#if error}
 					<div class="alert alert-error">
 						<svg
@@ -519,7 +525,7 @@
 				<!-- Action Buttons -->
 				<div class="flex justify-start gap-4">
 					<button
-						class="btn btn-primary btn-lg gap-2 transition-all duration-200 hover:scale-105 shadow-lg"
+						class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105"
 						on:click={startEdit}
 						disabled={loading}
 					>
@@ -565,12 +571,12 @@
 				</div>
 
 				<!-- Character Story Content -->
-				<div class="grid md:grid-cols-1 xl:grid-cols-2 gap-6">
+				<div class="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
 					<!-- Backstory -->
 					{#if character.backstory}
-						<div class="card bg-base-100 shadow-xl border border-base-300">
+						<div class="card bg-base-100 border-base-300 border shadow-xl">
 							<div class="card-body p-6">
-								<h3 class="card-title text-xl text-secondary flex items-center gap-2 mb-4">
+								<h3 class="card-title text-secondary mb-4 flex items-center gap-2 text-xl">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="24"
@@ -596,9 +602,9 @@
 
 					<!-- Goals -->
 					{#if character.goals}
-						<div class="card bg-base-100 shadow-xl border border-base-300">
+						<div class="card bg-base-100 border-base-300 border shadow-xl">
 							<div class="card-body p-6">
-								<h3 class="card-title text-xl text-accent flex items-center gap-2 mb-4">
+								<h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="24"
@@ -623,9 +629,9 @@
 				</div>
 
 				<!-- Character Progress Section (Placeholder) -->
-				<div class="card bg-gradient-to-r from-accent/10 to-secondary/10 border border-accent/20">
+				<div class="card from-accent/10 to-secondary/10 border-accent/20 border bg-gradient-to-r">
 					<div class="card-body p-6">
-						<h3 class="card-title text-xl text-accent flex items-center gap-2 mb-4">
+						<h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="24"
@@ -642,21 +648,21 @@
 							</svg>
 							Character Progress
 						</h3>
-						<div class="grid md:grid-cols-3 gap-4 text-center">
+						<div class="grid gap-4 text-center md:grid-cols-3">
 							<div class="stat">
 								<div class="stat-title">Quests Completed</div>
-								<div class="stat-value text-2xl text-primary">0</div>
+								<div class="stat-value text-primary text-2xl">0</div>
 							</div>
 							<div class="stat">
 								<div class="stat-title">Experience Points</div>
-								<div class="stat-value text-2xl text-secondary">0</div>
+								<div class="stat-value text-secondary text-2xl">0</div>
 							</div>
 							<div class="stat">
 								<div class="stat-title">Achievements</div>
-								<div class="stat-value text-2xl text-accent">0</div>
+								<div class="stat-value text-accent text-2xl">0</div>
 							</div>
 						</div>
-						<p class="text-center text-base-content/60 mt-4">
+						<p class="text-base-content/60 mt-4 text-center">
 							Start completing quests to see your character's progress!
 						</p>
 					</div>
