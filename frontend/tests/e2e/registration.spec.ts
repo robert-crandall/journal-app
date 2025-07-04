@@ -79,9 +79,6 @@ test.describe('User Registration', () => {
 			window.location.href = '/';
 		});
 
-		// Wait for the redirect to complete
-		await page.waitForURL('/');
-
 		// Try to register with the same email
 		await page.goto('/register');
 
