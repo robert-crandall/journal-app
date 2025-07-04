@@ -1,6 +1,6 @@
 import { authenticatedClient } from '../api';
 
-// Type definitions for character data
+// Type definitions for character data (will be replaced with backend imports later)
 export interface Character {
 	id: string;
 	userId: string;
@@ -8,6 +8,7 @@ export interface Character {
 	characterClass: string;
 	backstory: string | null;
 	goals: string | null;
+	motto: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -17,6 +18,7 @@ export interface CreateCharacterData {
 	characterClass: string;
 	backstory?: string;
 	goals?: string;
+	motto?: string;
 }
 
 export interface UpdateCharacterData {
@@ -24,6 +26,7 @@ export interface UpdateCharacterData {
 	characterClass?: string;
 	backstory?: string;
 	goals?: string;
+	motto?: string;
 }
 
 // Type-safe character API using Hono client

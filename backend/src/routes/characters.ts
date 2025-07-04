@@ -66,6 +66,7 @@ const app = new Hono()
           characterClass: data.characterClass,
           backstory: data.backstory,
           goals: data.goals,
+          motto: data.motto,
         })
         .returning();
       

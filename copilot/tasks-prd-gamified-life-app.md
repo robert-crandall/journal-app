@@ -14,10 +14,10 @@
   - [x] 2.4 Write frontend E2E tests for character creation
   - [x] 2.5 Ensure all character creation tests pass
   - [ ] 2.6 Add a motto to the character
-  - [ ] 2.7 Left align goals on character view
-  - [ ] 2.8 Character edit screen, forms run into label and description
-  - [ ] 2.9 Stats should have a description for what gains XP
-  - [ ] 2.10 On mobile, the screen is just a little too wide
+  - [x] 2.7 Left align goals on character view
+  - [x] 2.8 Character edit screen, forms run into label and description
+  - [x] 2.10 On mobile, the screen is just a little too wide
+  - [ ] 2.11 Character screen should be responsive, not mobile only
 
 - [ ] 3.0 Stats System (Predefined & Custom Stats, XP, Leveling)
   - [ ] 3.1 Design and implement stats system (predefined/custom stats, XP, level calculation) (backend)

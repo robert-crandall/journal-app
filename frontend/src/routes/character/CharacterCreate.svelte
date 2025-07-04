@@ -11,7 +11,8 @@
 		name: '',
 		characterClass: '',
 		backstory: '',
-		goals: ''
+		goals: '',
+		motto: ''
 	};
 
 	let loading = false;
@@ -82,6 +83,10 @@
 			error = 'Character class must be 100 characters or less';
 			return false;
 		}
+		if (formData.motto && formData.motto.length > 200) {
+			error = 'Motto must be 200 characters or less';
+			return false;
+		}
 		return true;
 	}
 
@@ -108,6 +113,10 @@
 
 			if (formData.goals?.trim()) {
 				submitData.goals = formData.goals.trim();
+			}
+
+			if (formData.motto?.trim()) {
+				submitData.motto = formData.motto.trim();
 			}
 
 			const character = await characterApi.createCharacter(submitData);
@@ -167,32 +176,32 @@
 		<form on:submit|preventDefault={handleSubmit} class="space-y-6">
 			<!-- Character Name -->
 			<div class="space-y-2">
-				<label for="name" class="block text-sm font-semibold text-base-content">
+				<label for="name" class="text-base-content block text-sm font-semibold">
 					Character Name <span class="text-error">*</span>
 				</label>
 				<input
 					id="name"
 					type="text"
 					placeholder="Enter your character's name"
-					class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+					class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
 					bind:value={formData.name}
 					maxlength="100"
 					required
 				/>
-				<div class="flex justify-between items-center">
-					<p class="text-xs text-base-content/60">What should we call your character?</p>
-					<span class="text-xs text-base-content/40 font-mono">{formData.name.length}/100</span>
+				<div class="flex items-center justify-between">
+					<p class="text-base-content/60 text-xs">What should we call your character?</p>
+					<span class="text-base-content/40 font-mono text-xs">{formData.name.length}/100</span>
 				</div>
 			</div>
 
 			<!-- Character Class -->
 			<div class="space-y-2">
-				<label for="class" class="block text-sm font-semibold text-base-content">
+				<label for="class" class="text-base-content block text-sm font-semibold">
 					Character Class <span class="text-error">*</span>
 				</label>
 				<select
 					id="class"
-					class="select select-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+					class="select select-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
 					bind:value={selectedClass}
 					on:change={handleClassSelection}
 					required
@@ -206,52 +215,75 @@
 					<input
 						type="text"
 						placeholder="Enter your custom class"
-						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+						class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
 						bind:value={customClass}
 						on:input={handleCustomClassInput}
 						maxlength="100"
 						required
 					/>
-					<div class="flex justify-between items-center">
-						<p class="text-xs text-base-content/60">Custom class name</p>
-						<span class="text-xs text-base-content/40 font-mono">{customClass.length}/100</span>
+					<div class="flex items-center justify-between">
+						<p class="text-base-content/60 text-xs">Custom class name</p>
+						<span class="text-base-content/40 font-mono text-xs">{customClass.length}/100</span>
 					</div>
 				{:else}
-					<p class="text-xs text-base-content/60">What type of person do you want to become?</p>
+					<p class="text-base-content/60 text-xs">What type of person do you want to become?</p>
 				{/if}
+			</div>
+
+			<!-- Character Motto -->
+			<div class="space-y-2">
+				<label for="motto" class="text-base-content block text-sm font-semibold">
+					Character Motto
+				</label>
+				<input
+					id="motto"
+					type="text"
+					placeholder="Enter your character's motto or guiding principle"
+					class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
+					bind:value={formData.motto}
+					maxlength="200"
+				/>
+				<div class="flex items-center justify-between">
+					<p class="text-base-content/60 text-xs">
+						Optional: A personal motto or guiding principle
+					</p>
+					<span class="text-base-content/40 font-mono text-xs"
+						>{(formData.motto || '').length}/200</span
+					>
+				</div>
 			</div>
 
 			<!-- Backstory -->
 			<div class="space-y-2">
-				<label for="backstory" class="block text-sm font-semibold text-base-content">
+				<label for="backstory" class="text-base-content block text-sm font-semibold">
 					Backstory
 				</label>
 				<textarea
 					id="backstory"
-					class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+					class="textarea textarea-bordered focus:ring-primary focus:ring-opacity-50 h-24 w-full resize-none focus:ring-2"
 					placeholder="Tell us about your character's background and current situation..."
 					bind:value={formData.backstory}
 				></textarea>
-				<p class="text-xs text-base-content/60">Optional: Describe your character's background</p>
+				<p class="text-base-content/60 text-xs">Optional: Describe your character's background</p>
 			</div>
 
 			<!-- Goals -->
 			<div class="space-y-2">
-				<label for="goals" class="block text-sm font-semibold text-base-content">
-					Goals
-				</label>
+				<label for="goals" class="text-base-content block text-sm font-semibold"> Goals </label>
 				<textarea
 					id="goals"
-					class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+					class="textarea textarea-bordered focus:ring-primary focus:ring-opacity-50 h-24 w-full resize-none focus:ring-2"
 					placeholder="What does your character want to achieve? What are their aspirations?"
 					bind:value={formData.goals}
 				></textarea>
-				<p class="text-xs text-base-content/60">Optional: What are your character's goals and dreams?</p>
+				<p class="text-base-content/60 text-xs">
+					Optional: What are your character's goals and dreams?
+				</p>
 			</div>
 
 			<!-- Submit Button -->
 			<div class="pt-4">
-				<button type="submit" class="btn btn-primary w-full h-12" disabled={loading}>
+				<button type="submit" class="btn btn-primary h-12 w-full" disabled={loading}>
 					{#if loading}
 						<span class="loading loading-spinner loading-sm"></span>
 						Creating Character...

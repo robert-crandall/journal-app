@@ -25,7 +25,8 @@
 			name: character.name,
 			characterClass: character.characterClass,
 			backstory: character.backstory || '',
-			goals: character.goals || ''
+			goals: character.goals || '',
+			motto: character.motto || ''
 		};
 		isEditing = true;
 		error = null;
@@ -54,6 +55,10 @@
 		}
 		if (editData.characterClass.length > 100) {
 			error = 'Character class must be 100 characters or less';
+			return false;
+		}
+		if (editData.motto && editData.motto.length > 200) {
+			error = 'Motto must be 200 characters or less';
 			return false;
 		}
 		return true;
@@ -90,6 +95,10 @@
 
 			if (editData.goals?.trim() !== (character.goals || '')) {
 				updateData.goals = editData.goals?.trim() || undefined;
+			}
+
+			if (editData.motto?.trim() !== (character.motto || '')) {
+				updateData.motto = editData.motto?.trim() || undefined;
 			}
 
 			// Only make API call if there are changes
@@ -161,74 +170,101 @@
 			<form on:submit|preventDefault={saveChanges} class="space-y-6">
 				<!-- Character Name -->
 				<div class="space-y-2">
-					<label for="edit-name" class="block text-sm font-semibold text-base-content">
+					<label for="edit-name" class="text-base-content block text-sm font-semibold">
 						Character Name <span class="text-error">*</span>
 					</label>
 					<input
 						id="edit-name"
 						type="text"
 						placeholder="Enter your character's name"
-						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+						class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
 						bind:value={editData.name}
 						maxlength="100"
 						required
 					/>
-					<div class="flex justify-between items-center">
-						<p class="text-xs text-base-content/60">What should we call your character?</p>
-						<span class="text-xs text-base-content/40 font-mono">{(editData.name || '').length}/100</span>
+					<div class="flex items-center justify-between">
+						<p class="text-base-content/60 text-xs">What should we call your character?</p>
+						<span class="text-base-content/40 font-mono text-xs"
+							>{(editData.name || '').length}/100</span
+						>
 					</div>
 				</div>
 
 				<!-- Character Class -->
 				<div class="space-y-2">
-					<label for="edit-class" class="block text-sm font-semibold text-base-content">
+					<label for="edit-class" class="text-base-content block text-sm font-semibold">
 						Character Class <span class="text-error">*</span>
 					</label>
 					<input
 						id="edit-class"
 						type="text"
 						placeholder="Enter your character class"
-						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+						class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
 						bind:value={editData.characterClass}
 						maxlength="100"
 						required
 					/>
-					<div class="flex justify-between items-center">
-						<p class="text-xs text-base-content/60">What type of person are you becoming?</p>
-						<span class="text-xs text-base-content/40 font-mono">{(editData.characterClass || '').length}/100</span>
+					<div class="flex items-center justify-between">
+						<p class="text-base-content/60 text-xs">What type of person are you becoming?</p>
+						<span class="text-base-content/40 font-mono text-xs"
+							>{(editData.characterClass || '').length}/100</span
+						>
+					</div>
+				</div>
+
+				<!-- Character Motto -->
+				<div class="space-y-2">
+					<label for="edit-motto" class="text-base-content block text-sm font-semibold">
+						Character Motto
+					</label>
+					<input
+						id="edit-motto"
+						type="text"
+						placeholder="Enter your character's motto or guiding principle"
+						class="input input-bordered focus:ring-primary focus:ring-opacity-50 w-full focus:ring-2"
+						bind:value={editData.motto}
+						maxlength="200"
+					/>
+					<div class="flex items-center justify-between">
+						<p class="text-base-content/60 text-xs">
+							Optional: A personal motto or guiding principle
+						</p>
+						<span class="text-base-content/40 font-mono text-xs"
+							>{(editData.motto || '').length}/200</span
+						>
 					</div>
 				</div>
 
 				<!-- Backstory -->
 				<div class="space-y-2">
-					<label for="edit-backstory" class="block text-sm font-semibold text-base-content">
+					<label for="edit-backstory" class="text-base-content block text-sm font-semibold">
 						Backstory
 					</label>
 					<textarea
 						id="edit-backstory"
-						class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+						class="textarea textarea-bordered focus:ring-primary focus:ring-opacity-50 h-24 w-full resize-none focus:ring-2"
 						placeholder="Tell us about your character's background..."
 						bind:value={editData.backstory}
 					></textarea>
-					<p class="text-xs text-base-content/60">Optional: Describe your character's background</p>
+					<p class="text-base-content/60 text-xs">Optional: Describe your character's background</p>
 				</div>
 
 				<!-- Goals -->
 				<div class="space-y-2">
-					<label for="edit-goals" class="block text-sm font-semibold text-base-content">
+					<label for="edit-goals" class="text-base-content block text-sm font-semibold">
 						Goals
 					</label>
 					<textarea
 						id="edit-goals"
-						class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+						class="textarea textarea-bordered focus:ring-primary focus:ring-opacity-50 h-24 w-full resize-none focus:ring-2"
 						placeholder="What does your character want to achieve?"
 						bind:value={editData.goals}
 					></textarea>
-					<p class="text-xs text-base-content/60">Optional: What are your character's goals?</p>
+					<p class="text-base-content/60 text-xs">Optional: What are your character's goals?</p>
 				</div>
 
 				<!-- Actions -->
-				<div class="pt-4 flex justify-center gap-3">
+				<div class="flex justify-center gap-3 pt-4">
 					<button type="button" class="btn btn-outline" on:click={cancelEdit} disabled={loading}>
 						Cancel
 					</button>
@@ -261,6 +297,15 @@
 		{:else}
 			<!-- View Mode -->
 			<h2 class="card-title mb-4 justify-center text-2xl">{character.name}</h2>
+
+			<!-- Character Motto - Prominently displayed -->
+			{#if character.motto}
+				<div class="mb-6 text-center">
+					<blockquote class="text-primary text-lg font-medium italic">
+						"{character.motto}"
+					</blockquote>
+				</div>
+			{/if}
 
 			{#if error}
 				<div class="alert alert-error mb-4">

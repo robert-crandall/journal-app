@@ -27,6 +27,7 @@ test.describe('Character Creation', () => {
 		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible();
 		await expect(page.locator('input[id="name"]')).toBeVisible();
 		await expect(page.locator('select[id="class"]')).toBeVisible();
+		await expect(page.locator('input[id="motto"]')).toBeVisible();
 		await expect(page.locator('textarea[id="backstory"]')).toBeVisible();
 		await expect(page.locator('textarea[id="goals"]')).toBeVisible();
 		await expect(page.locator('button[type="submit"]')).toBeVisible();
@@ -73,6 +74,7 @@ test.describe('Character Creation', () => {
 		await expect(page.locator('input[placeholder="Enter your custom class"]')).toBeVisible();
 		await page.fill('input[placeholder="Enter your custom class"]', 'Nature Guardian');
 
+		await page.fill('input[id="motto"]', 'One with nature, one with life');
 		await page.fill(
 			'textarea[id="backstory"]',
 			'A person who loves the outdoors and wants to spend more time in nature.'
@@ -88,6 +90,7 @@ test.describe('Character Creation', () => {
 		// Wait for character to be created and page to update
 		await expect(page.getByRole('heading', { name: 'Custom Hero' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Nature Guardian' })).toBeVisible();
+		await expect(page.locator('text="One with nature, one with life"')).toBeVisible();
 		await expect(page.locator('text=A person who loves the outdoors')).toBeVisible();
 		await expect(page.locator('text=Spend at least 3 hours outdoors')).toBeVisible();
 	});
@@ -114,6 +117,56 @@ test.describe('Character Creation', () => {
 
 		// Form should still not submit
 		await expect(page.getByRole('heading', { name: 'Create Your Character' })).toBeVisible();
+	});
+
+	test('creates character with motto successfully', async ({ page }) => {
+		// Login first
+		await loginUser(page);
+
+		// Clean up any existing character
+		await cleanupCharacter(page);
+
+		// Navigate to the character page
+		await page.goto('/character');
+
+		// Fill out form with motto
+		await page.fill('input[id="name"]', 'Motivated Character');
+		await page.selectOption('select[id="class"]', 'Adventurer');
+		await page.fill('input[id="motto"]', 'Never give up, never surrender');
+
+		// Submit the form
+		await page.click('button[type="submit"]');
+
+		// Wait for character to be created and verify motto is displayed prominently
+		await expect(page.getByRole('heading', { name: 'Motivated Character' })).toBeVisible();
+		await expect(page.locator('text="Never give up, never surrender"')).toBeVisible();
+		await expect(page.locator('blockquote')).toContainText('Never give up, never surrender');
+	});
+
+	test('validates motto character limit', async ({ page }) => {
+		// Login first
+		await loginUser(page);
+
+		// Clean up any existing character
+		await cleanupCharacter(page);
+
+		// Navigate to the character page
+		await page.goto('/character');
+
+		// Fill out form with valid data first
+		await page.fill('input[id="name"]', 'Test Character');
+		await page.selectOption('select[id="class"]', 'Adventurer');
+
+		// Fill motto with exactly 200 characters (should be valid)
+		const motto200 = 'a'.repeat(200);
+		await page.fill('input[id="motto"]', motto200);
+
+		// Check that character count shows 200/200
+		await expect(page.locator('text=200/200')).toBeVisible();
+
+		// Should be able to submit successfully
+		await page.click('button[type="submit"]');
+		await expect(page.getByRole('heading', { name: 'Test Character' })).toBeVisible();
 	});
 
 	test('handles character creation error gracefully', async ({ page }) => {
@@ -157,6 +210,7 @@ test.describe('Character Management', () => {
 		await page.goto('/character');
 		await page.fill('input[id="name"]', 'Test Character');
 		await page.selectOption('select[id="class"]', 'Adventurer');
+		await page.fill('input[id="motto"]', 'Test motto');
 		await page.fill('textarea[id="backstory"]', 'Test backstory');
 		await page.fill('textarea[id="goals"]', 'Test goals');
 		await page.click('button[type="submit"]');
@@ -169,6 +223,7 @@ test.describe('Character Management', () => {
 		// Check that character info is displayed
 		await expect(page.getByRole('heading', { name: 'Test Character' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Adventurer' })).toBeVisible();
+		await expect(page.locator('text="Test motto"')).toBeVisible();
 		await expect(page.locator('text=Test backstory')).toBeVisible();
 		await expect(page.locator('text=Test goals')).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Edit Character' })).toBeVisible();
@@ -188,6 +243,7 @@ test.describe('Character Management', () => {
 		// Update character information
 		await page.fill('input[id="edit-name"]', 'Updated Character');
 		await page.fill('input[id="edit-class"]', 'Updated Class');
+		await page.fill('input[id="edit-motto"]', 'Updated motto');
 		await page.fill('textarea[id="edit-backstory"]', 'Updated backstory');
 		await page.fill('textarea[id="edit-goals"]', 'Updated goals');
 
@@ -197,6 +253,7 @@ test.describe('Character Management', () => {
 		// Verify updates are visible
 		await expect(page.getByRole('heading', { name: 'Updated Character' })).toBeVisible();
 		await expect(page.locator('.stat-value', { hasText: 'Updated Class' })).toBeVisible();
+		await expect(page.locator('text="Updated motto"')).toBeVisible();
 		await expect(page.locator('text=Updated backstory')).toBeVisible();
 		await expect(page.locator('text=Updated goals')).toBeVisible();
 	});

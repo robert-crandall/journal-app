@@ -51,7 +51,8 @@ describe('Characters API Integration Tests', () => {
         name: 'Aragorn',
         characterClass: 'Ranger',
         backstory: 'A wandering ranger from the north',
-        goals: 'Protect the realm and find adventure'
+        goals: 'Protect the realm and find adventure',
+        motto: 'Not all who wander are lost'
       };
 
       const createRes = await app.request('/api/characters', {
@@ -80,6 +81,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: characterData.characterClass,
         backstory: characterData.backstory,
         goals: characterData.goals,
+        motto: characterData.motto,
         userId: userId
       });
       expect(data.data).toHaveProperty('id');
@@ -99,7 +101,8 @@ describe('Characters API Integration Tests', () => {
         name: 'Legolas',
         characterClass: 'Archer',
         backstory: 'An elven prince with keen eyes',
-        goals: 'Master archery and protect nature'
+        goals: 'Master archery and protect nature',
+        motto: 'Swift as the wind, precise as starlight'
       };
 
       const res = await app.request('/api/characters', {
@@ -121,6 +124,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: characterData.characterClass,
         backstory: characterData.backstory,
         goals: characterData.goals,
+        motto: characterData.motto,
         userId: userId
       });
       expect(responseData.data).toHaveProperty('id');
@@ -140,6 +144,7 @@ describe('Characters API Integration Tests', () => {
       expect(dbCharacter[0].characterClass).toBe(characterData.characterClass);
       expect(dbCharacter[0].backstory).toBe(characterData.backstory);
       expect(dbCharacter[0].goals).toBe(characterData.goals);
+      expect(dbCharacter[0].motto).toBe(characterData.motto);
     });
 
     it('should create character with minimal data (name and class only)', async () => {
@@ -166,6 +171,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: characterData.characterClass,
         backstory: null,
         goals: null,
+        motto: null,
         userId: userId
       });
     });
@@ -270,6 +276,30 @@ describe('Characters API Integration Tests', () => {
       expect(Array.isArray(errorData.error.issues)).toBe(true);
       expect(errorData.error.issues.length).toBeGreaterThan(0);
     });
+
+    it('should validate motto length', async () => {
+      const invalidData = {
+        name: 'Valid Name',
+        characterClass: 'Valid Class',
+        motto: 'a'.repeat(201) // Too long
+      };
+
+      const res = await app.request('/api/characters', {
+        method: 'POST',
+        body: JSON.stringify(invalidData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      expect(res.status).toBe(400);
+      const errorData = await res.json();
+      expect(errorData.success).toBe(false);
+      expect(errorData.error).toHaveProperty('issues');
+      expect(Array.isArray(errorData.error.issues)).toBe(true);
+      expect(errorData.error.issues.length).toBeGreaterThan(0);
+    });
   });
 
   describe('PUT /api/characters', () => {
@@ -279,7 +309,8 @@ describe('Characters API Integration Tests', () => {
         name: 'Original Name',
         characterClass: 'Original Class',
         backstory: 'Original backstory',
-        goals: 'Original goals'
+        goals: 'Original goals',
+        motto: 'Original motto'
       };
 
       const res = await app.request('/api/characters', {
@@ -298,7 +329,8 @@ describe('Characters API Integration Tests', () => {
       const updateData = {
         name: 'Updated Name',
         backstory: 'Updated backstory',
-        goals: 'Updated goals'
+        goals: 'Updated goals',
+        motto: 'Updated motto'
       };
 
       const res = await app.request('/api/characters', {
@@ -319,6 +351,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: 'Original Class', // Should remain unchanged
         backstory: updateData.backstory,
         goals: updateData.goals,
+        motto: updateData.motto,
         userId: userId
       });
 
@@ -333,6 +366,7 @@ describe('Characters API Integration Tests', () => {
       expect(dbCharacter[0].name).toBe(updateData.name);
       expect(dbCharacter[0].backstory).toBe(updateData.backstory);
       expect(dbCharacter[0].goals).toBe(updateData.goals);
+      expect(dbCharacter[0].motto).toBe(updateData.motto);
     });
 
     it('should allow partial updates', async () => {
@@ -355,6 +389,7 @@ describe('Characters API Integration Tests', () => {
       expect(responseData.success).toBe(true);
       expect(responseData.data.goals).toBe(updateData.goals);
       expect(responseData.data.name).toBe('Original Name'); // Should remain unchanged
+      expect(responseData.data.motto).toBe('Original motto'); // Should remain unchanged
     });
 
     it('should return 404 when no character exists', async () => {
