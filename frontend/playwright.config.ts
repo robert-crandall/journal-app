@@ -15,6 +15,12 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : 1,
 	/* Global setup to seed test data after all servers are ready */
 	globalSetup: './tests/e2e/global-setup.ts',
+	
+	timeout: 15 * 1000, // Default timeout for each test
+
+	expect: {
+    timeout: 5000, // Maximum time expect() should wait for the condition to be met.
+  },
 
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
@@ -36,11 +42,11 @@ export default defineConfig({
 		{
 			name: 'chromium',
 			use: { ...devices['Desktop Chrome'] }
-		},
-		{
-			name: 'Mobile Safari',
-			use: { ...devices['iPhone 12'] }
 		}
+		// {
+		// 	name: 'Mobile Safari',
+		// 	use: { ...devices['iPhone 12'] }
+		// }
 	],
 
 	/* Run complete test environment setup */

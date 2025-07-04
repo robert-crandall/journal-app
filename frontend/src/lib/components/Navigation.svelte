@@ -34,6 +34,7 @@
 
 		{#if user}
 			<a href="/hello" class="btn btn-ghost">Hello World</a>
+			<a href="/character" class="btn btn-ghost">Character</a>
 
 			<!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
 			<details class="dropdown dropdown-end">

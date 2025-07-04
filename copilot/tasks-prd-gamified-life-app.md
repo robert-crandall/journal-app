@@ -8,8 +8,8 @@
   - [x] 1.5 Ensure all authentication tests pass
 
 - [ ] 2.0 Character Creation & Customization
-  - [ ] 2.1 Design and implement character creation (class selection, custom class, backstory) (backend)
-  - [ ] 2.2 Write backend integration tests for character creation
+  - [x] 2.1 Design and implement character creation (class selection, custom class, backstory) (backend)
+  - [x] 2.2 Write backend integration tests for character creation
   - [ ] 2.3 Implement frontend character creation UI
   - [ ] 2.4 Write frontend E2E tests for character creation
   - [ ] 2.5 Ensure all character creation tests pass
