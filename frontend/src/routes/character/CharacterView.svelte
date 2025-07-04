@@ -158,81 +158,77 @@
 				</div>
 			{/if}
 
-			<form on:submit|preventDefault={saveChanges}>
+			<form on:submit|preventDefault={saveChanges} class="space-y-6">
 				<!-- Character Name -->
-				<div class="form-control mb-4 w-full">
-					<label class="label" for="edit-name">
-						<span class="label-text">Character Name <span class="text-error">*</span></span>
+				<div class="space-y-2">
+					<label for="edit-name" class="block text-sm font-semibold text-base-content">
+						Character Name <span class="text-error">*</span>
 					</label>
 					<input
 						id="edit-name"
 						type="text"
 						placeholder="Enter your character's name"
-						class="input input-bordered w-full"
+						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						bind:value={editData.name}
 						maxlength="100"
 						required
 					/>
-					<div class="label">
-						<span class="label-text-alt">What should we call your character?</span>
-						<span class="label-text-alt">{(editData.name || '').length}/100</span>
+					<div class="flex justify-between items-center">
+						<p class="text-xs text-base-content/60">What should we call your character?</p>
+						<span class="text-xs text-base-content/40 font-mono">{(editData.name || '').length}/100</span>
 					</div>
 				</div>
 
 				<!-- Character Class -->
-				<div class="form-control mb-4 w-full">
-					<label class="label" for="edit-class">
-						<span class="label-text">Character Class <span class="text-error">*</span></span>
+				<div class="space-y-2">
+					<label for="edit-class" class="block text-sm font-semibold text-base-content">
+						Character Class <span class="text-error">*</span>
 					</label>
 					<input
 						id="edit-class"
 						type="text"
 						placeholder="Enter your character class"
-						class="input input-bordered w-full"
+						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						bind:value={editData.characterClass}
 						maxlength="100"
 						required
 					/>
-					<div class="label">
-						<span class="label-text-alt">What type of person are you becoming?</span>
-						<span class="label-text-alt">{(editData.characterClass || '').length}/100</span>
+					<div class="flex justify-between items-center">
+						<p class="text-xs text-base-content/60">What type of person are you becoming?</p>
+						<span class="text-xs text-base-content/40 font-mono">{(editData.characterClass || '').length}/100</span>
 					</div>
 				</div>
 
 				<!-- Backstory -->
-				<div class="form-control mb-4 w-full">
-					<label class="label" for="edit-backstory">
-						<span class="label-text">Backstory</span>
+				<div class="space-y-2">
+					<label for="edit-backstory" class="block text-sm font-semibold text-base-content">
+						Backstory
 					</label>
 					<textarea
 						id="edit-backstory"
-						class="textarea textarea-bordered h-24"
+						class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						placeholder="Tell us about your character's background..."
 						bind:value={editData.backstory}
 					></textarea>
-					<div class="label">
-						<span class="label-text-alt">Optional: Describe your character's background</span>
-					</div>
+					<p class="text-xs text-base-content/60">Optional: Describe your character's background</p>
 				</div>
 
 				<!-- Goals -->
-				<div class="form-control mb-6 w-full">
-					<label class="label" for="edit-goals">
-						<span class="label-text">Goals</span>
+				<div class="space-y-2">
+					<label for="edit-goals" class="block text-sm font-semibold text-base-content">
+						Goals
 					</label>
 					<textarea
 						id="edit-goals"
-						class="textarea textarea-bordered h-24"
+						class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						placeholder="What does your character want to achieve?"
 						bind:value={editData.goals}
 					></textarea>
-					<div class="label">
-						<span class="label-text-alt">Optional: What are your character's goals?</span>
-					</div>
+					<p class="text-xs text-base-content/60">Optional: What are your character's goals?</p>
 				</div>
 
 				<!-- Actions -->
-				<div class="card-actions justify-center gap-2">
+				<div class="pt-4 flex justify-center gap-3">
 					<button type="button" class="btn btn-outline" on:click={cancelEdit} disabled={loading}>
 						Cancel
 					</button>
@@ -251,6 +247,7 @@
 								stroke-width="2"
 								stroke-linecap="round"
 								stroke-linejoin="round"
+								class="mr-2"
 							>
 								<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
 								<polyline points="17,21 17,13 7,13 7,21" />
@@ -314,7 +311,7 @@
 					<div class="card bg-base-200">
 						<div class="card-body">
 							<h3 class="card-title text-lg">Goals</h3>
-							<div class="prose prose-sm">
+							<div class="prose prose-sm text-left">
 								{@html marked.parse(character.goals)}
 							</div>
 						</div>

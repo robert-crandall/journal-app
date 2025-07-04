@@ -164,35 +164,35 @@
 			</div>
 		{/if}
 
-		<form on:submit|preventDefault={handleSubmit}>
+		<form on:submit|preventDefault={handleSubmit} class="space-y-6">
 			<!-- Character Name -->
-			<div class="form-control mb-4 w-full">
-				<label class="label" for="name">
-					<span class="label-text">Character Name <span class="text-error">*</span></span>
+			<div class="space-y-2">
+				<label for="name" class="block text-sm font-semibold text-base-content">
+					Character Name <span class="text-error">*</span>
 				</label>
 				<input
 					id="name"
 					type="text"
 					placeholder="Enter your character's name"
-					class="input input-bordered w-full"
+					class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 					bind:value={formData.name}
 					maxlength="100"
 					required
 				/>
-				<div class="label">
-					<span class="label-text-alt">What should we call your character?</span>
-					<span class="label-text-alt">{formData.name.length}/100</span>
+				<div class="flex justify-between items-center">
+					<p class="text-xs text-base-content/60">What should we call your character?</p>
+					<span class="text-xs text-base-content/40 font-mono">{formData.name.length}/100</span>
 				</div>
 			</div>
 
 			<!-- Character Class -->
-			<div class="form-control mb-4 w-full">
-				<label class="label" for="class">
-					<span class="label-text">Character Class <span class="text-error">*</span></span>
+			<div class="space-y-2">
+				<label for="class" class="block text-sm font-semibold text-base-content">
+					Character Class <span class="text-error">*</span>
 				</label>
 				<select
 					id="class"
-					class="select select-bordered w-full"
+					class="select select-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 					bind:value={selectedClass}
 					on:change={handleClassSelection}
 					required
@@ -206,58 +206,52 @@
 					<input
 						type="text"
 						placeholder="Enter your custom class"
-						class="input input-bordered mt-2 w-full"
+						class="input input-bordered w-full focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 						bind:value={customClass}
 						on:input={handleCustomClassInput}
 						maxlength="100"
 						required
 					/>
-					<div class="label">
-						<span class="label-text-alt">Custom class name</span>
-						<span class="label-text-alt">{customClass.length}/100</span>
+					<div class="flex justify-between items-center">
+						<p class="text-xs text-base-content/60">Custom class name</p>
+						<span class="text-xs text-base-content/40 font-mono">{customClass.length}/100</span>
 					</div>
 				{:else}
-					<div class="label">
-						<span class="label-text-alt">What type of person do you want to become?</span>
-					</div>
+					<p class="text-xs text-base-content/60">What type of person do you want to become?</p>
 				{/if}
 			</div>
 
 			<!-- Backstory -->
-			<div class="form-control mb-4 w-full">
-				<label class="label mb-1 block w-full" for="backstory">
-					<span class="label-text">Backstory</span>
+			<div class="space-y-2">
+				<label for="backstory" class="block text-sm font-semibold text-base-content">
+					Backstory
 				</label>
 				<textarea
 					id="backstory"
-					class="textarea textarea-bordered h-24 w-full"
+					class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 					placeholder="Tell us about your character's background and current situation..."
 					bind:value={formData.backstory}
 				></textarea>
-				<div class="label">
-					<span class="label-text-alt">Optional: Describe your character's background</span>
-				</div>
+				<p class="text-xs text-base-content/60">Optional: Describe your character's background</p>
 			</div>
 
 			<!-- Goals -->
-			<div class="form-control mb-6 w-full">
-				<label class="label mb-1 block w-full" for="goals">
-					<span class="label-text">Goals</span>
+			<div class="space-y-2">
+				<label for="goals" class="block text-sm font-semibold text-base-content">
+					Goals
 				</label>
 				<textarea
 					id="goals"
-					class="textarea textarea-bordered h-24 w-full"
+					class="textarea textarea-bordered h-24 w-full resize-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
 					placeholder="What does your character want to achieve? What are their aspirations?"
 					bind:value={formData.goals}
 				></textarea>
-				<div class="label">
-					<span class="label-text-alt">Optional: What are your character's goals and dreams?</span>
-				</div>
+				<p class="text-xs text-base-content/60">Optional: What are your character's goals and dreams?</p>
 			</div>
 
 			<!-- Submit Button -->
-			<div class="card-actions justify-center">
-				<button type="submit" class="btn btn-primary btn-wide" disabled={loading}>
+			<div class="pt-4">
+				<button type="submit" class="btn btn-primary w-full h-12" disabled={loading}>
 					{#if loading}
 						<span class="loading loading-spinner loading-sm"></span>
 						Creating Character...
@@ -272,6 +266,7 @@
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-linejoin="round"
+							class="mr-2"
 						>
 							<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
 							<circle cx="9" cy="7" r="4" />
