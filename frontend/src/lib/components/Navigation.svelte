@@ -24,18 +24,22 @@
 	}
 </script>
 
-<header class="navbar bg-primary text-primary-content border-base-200 sticky top-0 z-30 border-b shadow-sm">
+<header
+	class="navbar bg-primary text-primary-content border-base-200 sticky top-0 z-30 border-b shadow-sm"
+>
 	<div class="navbar-start">
-		<a href="/" class="btn btn-ghost text-xl font-semibold text-primary-content">Life Quest</a>
+		<a href="/" class="btn btn-ghost text-primary-content text-xl font-semibold">Life Quest</a>
 	</div>
 
 	<div class="navbar-end">
-		   <div class="text-base-content">
-			   <ThemeController />
-		   </div>
+		<div class="text-base-content">
+			<ThemeController />
+		</div>
 
 		{#if user}
-			<a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
+			<a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80"
+				>Character</a
+			>
 
 			<!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
 			<details class="dropdown dropdown-end">

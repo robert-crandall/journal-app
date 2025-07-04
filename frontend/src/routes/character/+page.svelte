@@ -59,9 +59,9 @@
 	<main class="container mx-auto p-4">
 		<div class="hero">
 			<div class="hero-content text-center">
-				<div class="max-w-4xl w-full">
+				<div class="w-full max-w-4xl">
 					<div class="badge badge-primary mb-4">Character System</div>
-					<h1 class="mb-6 text-3xl font-bold text-primary">Your Character</h1>
+					<h1 class="text-primary mb-6 text-3xl font-bold">Your Character</h1>
 
 					{#if loading}
 						<div class="card bg-base-100 mb-6 shadow-xl">
@@ -87,14 +87,12 @@
 							</svg>
 							<span>Error: {error}</span>
 							<div>
-								<button class="btn btn-sm btn-outline" on:click={loadCharacter}>
-									Try Again
-								</button>
+								<button class="btn btn-sm btn-outline" on:click={loadCharacter}> Try Again </button>
 							</div>
 						</div>
 					{:else if character}
-						<CharacterView 
-							{character} 
+						<CharacterView
+							{character}
 							on:characterUpdated={handleCharacterUpdated}
 							on:characterDeleted={handleCharacterDeleted}
 						/>
@@ -102,7 +100,7 @@
 						<CharacterCreate on:characterCreated={handleCharacterCreated} />
 					{/if}
 
-					<div class="card-actions justify-center mt-6">
+					<div class="card-actions mt-6 justify-center">
 						<a href="/" class="btn btn-outline">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"

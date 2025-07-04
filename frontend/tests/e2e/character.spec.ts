@@ -68,13 +68,19 @@ test.describe('Character Creation', () => {
 		// Fill out the complete character creation form
 		await page.fill('input[id="name"]', 'Custom Hero');
 		await page.selectOption('select[id="class"]', 'Custom');
-		
+
 		// Wait for custom class input to appear
 		await expect(page.locator('input[placeholder="Enter your custom class"]')).toBeVisible();
 		await page.fill('input[placeholder="Enter your custom class"]', 'Nature Guardian');
-		
-		await page.fill('textarea[id="backstory"]', 'A person who loves the outdoors and wants to spend more time in nature.');
-		await page.fill('textarea[id="goals"]', 'Spend at least 3 hours outdoors each day and learn wilderness survival skills.');
+
+		await page.fill(
+			'textarea[id="backstory"]',
+			'A person who loves the outdoors and wants to spend more time in nature.'
+		);
+		await page.fill(
+			'textarea[id="goals"]',
+			'Spend at least 3 hours outdoors each day and learn wilderness survival skills.'
+		);
 
 		// Submit the form
 		await page.click('button[type="submit"]');
@@ -143,10 +149,10 @@ test.describe('Character Management', () => {
 	test.beforeEach(async ({ page }) => {
 		// Login and ensure we have a fresh character for each test
 		await loginUser(page);
-		
+
 		// Clean up any existing character first
 		await cleanupCharacter(page);
-		
+
 		// Now create a test character
 		await page.goto('/character');
 		await page.fill('input[id="name"]', 'Test Character');
