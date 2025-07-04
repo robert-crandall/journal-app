@@ -22,7 +22,22 @@
 
 	// Check for preset parameter on mount
 	onMount(async () => {
-		// Check authentication
+		// Wait for auth to be initialized
+		if (!$authStore.initialized) {
+			const unsubscribe = authStore.subscribe((authState) => {
+				if (authState.initialized) {
+					unsubscribe();
+					initializePage();
+				}
+			});
+			return;
+		}
+
+		await initializePage();
+	});
+
+	// Separate function to initialize the page
+	async function initializePage() {
 		if (!$authStore.token) {
 			goto('/login');
 			return;
@@ -48,7 +63,7 @@
 				isPresetMode = true;
 			}
 		}
-	});
+	}
 
 	// Form validation
 	function validateForm(): string | null {

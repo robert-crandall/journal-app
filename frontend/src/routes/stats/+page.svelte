@@ -13,13 +13,32 @@
 
 	// Load data on component mount
 	onMount(async () => {
-		// Check authentication
-		if (!$authStore.isAuthenticated) {
+		// Wait for auth to be initialized, then check token
+		if (!$authStore.initialized) {
+			const unsubscribe = authStore.subscribe((authState) => {
+				if (authState.initialized) {
+					unsubscribe();
+					loadStatsData(); // Call the data loading function
+				}
+			});
+			return;
+		}
+
+		// If auth is already initialized, load data
+		await loadStatsData();
+	});
+
+	// Separate function to load stats data
+	async function loadStatsData() {
+		if (!$authStore.token) {
 			goto('/login');
 			return;
 		}
 
 		try {
+			loading = true;
+			error = null;
+			
 			// Load both user stats and predefined stats in parallel
 			const [userStatsData, predefinedStatsData] = await Promise.all([
 				statsApi.getUserStats(),
@@ -34,7 +53,7 @@
 		} finally {
 			loading = false;
 		}
-	});
+	}
 
 	// Helper functions
 	function getStatIcon(statName: string) {
@@ -78,7 +97,7 @@
 		<div class="max-w-7xl mx-auto px-4 py-8">
 			<div class="flex items-center justify-between">
 				<div>
-					<h1 class="text-4xl font-bold text-primary mb-2">Character Stats</h1>
+					<h1 class="text-4xl font-bold text-primary mb-2">Stats Dashboard</h1>
 					<p class="text-base-content/70 text-lg">Track your progress and level up your abilities</p>
 				</div>
 				<div class="flex gap-3">
@@ -186,7 +205,7 @@
 													>
 														<Trophy size={16} />
 														Level Up Available!
-													</button>
+													</div>
 												</div>
 											{/if}
 										</div>
