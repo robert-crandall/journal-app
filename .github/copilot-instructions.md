@@ -48,12 +48,13 @@ These are the fundamental rules that support our development process.
 
 ---
 
-## External Resources & Tech Stack
+## Common Commands
 
-For detailed guidance on specific technologies, refer to these documents.
+Note: Always `cd` to the full path before running these commands.
 
--   **Knowledge Base**: For common patterns, architectural decisions, and tips, see [development-principles.instructions.md](./instructions/development-principles.instructions.md).
--   **Hono (Backend)**: For best practices, see [hono.instructions.md](./instructions/hono.instructions.md).
--   **SvelteKit (Frontend)**: For best practices, see [svelte5.instructions.md](./instructions/svelte5.instructions.md).
--   **Backend Testing**: For detailed guidance, see [hono.test.instructions.md](./testing/hono.test.instructions.md).
--   **Frontend Testing**: For detailed guidance, see [sveltekit.test.instructions.md](./testing/sveltekit.test.instructions.md).
+- **Start backend and frontend server**: `bun run dev --force`
+- **Run backend and frontend tests**: `bun run test`
+- **Run backend tests**: `cd backend && bun run test`
+- **Run frontend E2E tests**: `cd frontend && bun run test:e2e`
+- **Migrate databases for test**: This is taken care of when running `bun run test`
+- **Migrate databases for other environments**: `cd backend && bun run db:generate && bun run db:migrate`
