@@ -16,7 +16,7 @@ export default defineConfig({
 	/* Global setup to seed test data after all servers are ready */
 	globalSetup: './tests/e2e/global-setup.ts',
 
-	timeout: 15 * 1000, // Default timeout for each test
+	timeout: 10 * 1000, // Default timeout for each test
 
 	expect: {
 		timeout: 5000 // Maximum time expect() should wait for the condition to be met.
