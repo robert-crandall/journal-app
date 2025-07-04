@@ -145,7 +145,7 @@
 				autocomplete="name"
 			/>
 			{#if nameError}
-				<label class="label">
+				<label class="label" for="name">
 					<span class="label-text-alt text-error">{nameError}</span>
 				</label>
 			{/if}
@@ -166,7 +166,7 @@
 				autocomplete="email"
 			/>
 			{#if emailError}
-				<label class="label">
+				<label class="label" for="email">
 					<span class="label-text-alt text-error">{emailError}</span>
 				</label>
 			{/if}
@@ -187,7 +187,7 @@
 				min="6"
 				autocomplete="new-password"
 			/>
-			<label class="label">
+			<label class="label" for="password">
 				{#if passwordError}
 					<span class="label-text-alt text-error">{passwordError}</span>
 				{:else}
