@@ -131,7 +131,7 @@
 </script>
 
 <!-- Character Creation Form with Material Design -->
-<div class="mx-auto grid max-w-7xl gap-4 lg:gap-8 lg:grid-cols-3">
+<div class="mx-auto grid max-w-7xl gap-4 lg:grid-cols-3 lg:gap-8">
 	<!-- Left Column: Form -->
 	<div class="lg:col-span-2">
 		<div class="card bg-base-100 border-base-300 border shadow-2xl">
