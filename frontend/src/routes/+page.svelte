@@ -27,7 +27,7 @@
 				<section class="flex w-full max-w-2xl flex-col items-center">
 					<div class="hero-content mb-8 text-center">
 						<div>
-							<h1 class="text-gradient mb-3 text-4xl font-bold">
+							<h1 class="text-primary mb-3 text-4xl font-bold">
 								Welcome back, {user.name}!
 							</h1>
 							<p class="text-base-content/70 max-w-lg text-xl">

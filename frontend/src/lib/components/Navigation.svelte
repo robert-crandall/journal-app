@@ -24,16 +24,22 @@
 	}
 </script>
 
-<header class="navbar bg-base-100 border-base-200 sticky top-0 z-30 border-b shadow-sm">
+<header
+	class="navbar bg-primary text-primary-content border-base-200 sticky top-0 z-30 border-b shadow-sm"
+>
 	<div class="navbar-start">
-		<a href="/" class="btn btn-ghost text-gradient text-xl font-semibold"> Auth Template </a>
+		<a href="/" class="btn btn-ghost text-primary-content text-xl font-semibold">Life Quest</a>
 	</div>
 
 	<div class="navbar-end">
-		<ThemeController />
+		<div class="text-base-content">
+			<ThemeController />
+		</div>
 
 		{#if user}
-			<a href="/hello" class="btn btn-ghost">Hello World</a>
+			<a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80"
+				>Character</a
+			>
 
 			<!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
 			<details class="dropdown dropdown-end">
@@ -93,8 +99,8 @@
 				</ul>
 			</details>
 		{:else}
-			<a href="/login" class="btn btn-ghost">Login</a>
-			<a href="/register" class="btn btn-primary">Register</a>
+			<a href="/login" class="btn btn-ghost text-primary-content hover:bg-primary/80">Login</a>
+			<a href="/register" class="btn btn-secondary">Register</a>
 		{/if}
 	</div>
 </header>

@@ -22,7 +22,7 @@ Every new feature **must** follow this specific, sequential order. Do not skip o
 
 ### 3. Document Key Decisions
 - To ensure consistency, we document important architectural patterns and decisions.
-- When you encounter a situation with multiple valid approaches, make a decision, and then **document it in [knowledge-base.md](../copilot/knowledge-base.md)**.
+- When you encounter a situation with multiple valid approaches, make a decision, and then **document it following [self-improve.instructions.md](./instructions/self-improve.instructions.md)**.
 - **Example**: If you decide that API endpoints should always get the `UserID` from the JWT token rather than a query parameter, document this rule so we apply it everywhere.
 
 ---
@@ -52,7 +52,7 @@ These are the fundamental rules that support our development process.
 
 For detailed guidance on specific technologies, refer to these documents.
 
--   **Knowledge Base**: For common patterns, architectural decisions, and tips, see [knowledge-base.md](../copilot/knowledge-base.md).
+-   **Knowledge Base**: For common patterns, architectural decisions, and tips, see [development-principles.instructions.md](./instructions/development-principles.instructions.md).
 -   **Hono (Backend)**: For best practices, see [hono.instructions.md](./instructions/hono.instructions.md).
 -   **SvelteKit (Frontend)**: For best practices, see [svelte5.instructions.md](./instructions/svelte5.instructions.md).
 -   **Backend Testing**: For detailed guidance, see [hono.test.instructions.md](./testing/hono.test.instructions.md).

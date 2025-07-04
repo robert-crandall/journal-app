@@ -1,3 +1,8 @@
+---
+description: Guidelines for managing task lists in markdown files to track progress on completing a PRD
+applyTo: "**/*"
+---
+
 # Task List Management
 
 Guidelines for managing task lists in markdown files to track progress on completing a PRD

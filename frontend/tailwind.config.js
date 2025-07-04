@@ -44,9 +44,5 @@ export default {
 			}
 		}
 	},
-	plugins: [
-		require('@tailwindcss/typography'),
-		require('@tailwindcss/forms')
-		// Add other plugins here
-	]
+	plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms'), require('daisyui')]
 };
