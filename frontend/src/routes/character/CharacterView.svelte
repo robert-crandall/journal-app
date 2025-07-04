@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
-  import { marked } from 'marked';
+	import { marked } from 'marked';
 
 	const dispatch = createEventDispatcher<{
 		characterUpdated: Character;
@@ -302,9 +302,9 @@
 					<div class="card bg-base-200">
 						<div class="card-body">
 							<h3 class="card-title text-lg">Backstory</h3>
-              <div class="prose prose-sm text-left">
-                {@html marked.parse(character.backstory)}
-              </div>
+							<div class="prose prose-sm text-left">
+								{@html marked.parse(character.backstory)}
+							</div>
 						</div>
 					</div>
 				{/if}
@@ -314,9 +314,9 @@
 					<div class="card bg-base-200">
 						<div class="card-body">
 							<h3 class="card-title text-lg">Goals</h3>
-              <div class="prose prose-sm">
-                {@html marked.parse(character.goals)}
-              </div>
+							<div class="prose prose-sm">
+								{@html marked.parse(character.goals)}
+							</div>
 						</div>
 					</div>
 				{/if}
