@@ -7,7 +7,7 @@
   - [x] 1.4 Write frontend E2E tests for authentication flows
   - [x] 1.5 Ensure all authentication tests pass
 
-- [ ] 2.0 Character Creation & Customization
+- [x] 2.0 Character Creation & Customization
   - [x] 2.1 Design and implement character creation (class selection, custom class, backstory) (backend)
   - [x] 2.2 Write backend integration tests for character creation
   - [x] 2.3 Implement frontend character creation UI
@@ -17,7 +17,7 @@
   - [x] 2.7 Left align goals on character view
   - [x] 2.8 Character edit screen, forms run into label and description
   - [x] 2.10 On mobile, the screen is just a little too wide
-  - [ ] 2.11 Character screen should be responsive, not mobile only
+  - [x] 2.11 Character screen should be responsive, not mobile only
 
 - [ ] 3.0 Stats System (Predefined & Custom Stats, XP, Leveling)
   - [ ] 3.1 Design and implement stats system (predefined/custom stats, XP, level calculation) (backend)
