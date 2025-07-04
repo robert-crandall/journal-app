@@ -19,6 +19,18 @@
 
 	// Predefined character classes for easier selection
 	const predefinedClasses = [
+		// RPG-inspired
+		'Warrior',
+		'Mage',
+		'Rogue',
+		'Cleric',
+		'Paladin',
+		'Ranger',
+		'Bard',
+		'Druid',
+		'Monk',
+		'Barbarian',
+		// Life-inspired
 		'Adventurer',
 		'Explorer',
 		'Family Person',
@@ -212,12 +224,12 @@
 
 			<!-- Backstory -->
 			<div class="form-control w-full mb-4">
-				<label class="label" for="backstory">
+				<label class="label block w-full mb-1" for="backstory">
 					<span class="label-text">Backstory</span>
 				</label>
 				<textarea
 					id="backstory"
-					class="textarea textarea-bordered h-24"
+					class="textarea textarea-bordered h-24 w-full"
 					placeholder="Tell us about your character's background and current situation..."
 					bind:value={formData.backstory}
 				></textarea>
@@ -228,12 +240,12 @@
 
 			<!-- Goals -->
 			<div class="form-control w-full mb-6">
-				<label class="label" for="goals">
+				<label class="label block w-full mb-1" for="goals">
 					<span class="label-text">Goals</span>
 				</label>
 				<textarea
 					id="goals"
-					class="textarea textarea-bordered h-24"
+					class="textarea textarea-bordered h-24 w-full"
 					placeholder="What does your character want to achieve? What are their aspirations?"
 					bind:value={formData.goals}
 				></textarea>
