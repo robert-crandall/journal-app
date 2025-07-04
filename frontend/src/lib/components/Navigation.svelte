@@ -35,7 +35,6 @@
 		   </div>
 
 		{#if user}
-			<a href="/hello" class="btn btn-ghost text-primary-content hover:bg-primary/80">Hello World</a>
 			<a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
 
 			<!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->

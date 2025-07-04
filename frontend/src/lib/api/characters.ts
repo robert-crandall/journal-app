@@ -71,6 +71,7 @@ export const characterApi = {
 
 		try {
 			const response = await api.api.characters.$post({
+        // @ts-expect-error Hono expects 'header', not 'headers'
 				header: {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json'
@@ -94,7 +95,7 @@ export const characterApi = {
 				);
 			}
 
-			const result = await response.json();
+			const result = await response.json() as { data: Character };
 			return result.data;
 		} catch (error) {
 			console.error('Create character API request failed:', error);
@@ -112,6 +113,7 @@ export const characterApi = {
 
 		try {
 			const response = await api.api.characters.$put({
+        // @ts-expect-error Hono expects 'header', not 'headers'
 				header: {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json'
@@ -135,7 +137,7 @@ export const characterApi = {
 				);
 			}
 
-			const result = await response.json();
+			const result = await response.json() as { data: Character };
 			return result.data;
 		} catch (error) {
 			console.error('Update character API request failed:', error);
@@ -166,7 +168,7 @@ export const characterApi = {
 				);
 			}
 
-			const result = await response.json();
+			const result = await response.json() as { data: Character };
 			return result.data;
 		} catch (error) {
 			console.error('Delete character API request failed:', error);
