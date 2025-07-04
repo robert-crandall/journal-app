@@ -302,7 +302,7 @@
 					<div class="card bg-base-200">
 						<div class="card-body">
 							<h3 class="card-title text-lg">Backstory</h3>
-              <div class="prose prose-sm">
+              <div class="prose prose-sm text-left">
                 {@html marked.parse(character.backstory)}
               </div>
 						</div>
