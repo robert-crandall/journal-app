@@ -4,6 +4,10 @@ import { Pool } from 'pg';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 // Check for force flag in command line arguments
 const forceRun = process.argv.includes('--force');
@@ -11,6 +15,12 @@ const forceRun = process.argv.includes('--force');
 if (process.env.NODE_ENV !== 'test' && !forceRun) {
   throw new Error('This script must be run in a test environment or with --force flag');
 }
+
+// When run with --force flag, this script will:
+// 1. Create a backup of the database (if not on localhost) before cleaning
+// 2. Clean and reset the database structure
+// 3. Apply all migrations
+// 4. Apply seed data if available
 
 // 2. Connect to DB
 const pool = new Pool({ connectionString: env.DATABASE_URL });
@@ -115,10 +125,69 @@ async function createDatabaseIfNeeded() {
   }
 }
 
+async function createBackup() {
+  const dbUrl = new URL(env.DATABASE_URL);
+  const hostname = dbUrl.hostname;
+  
+  // Check if database is not on localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('🏠 Database is on localhost, skipping backup');
+    return;
+  }
+  
+  const dbName = dbUrl.pathname.slice(1); // Remove leading '/'
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' + 
+                   new Date().toISOString().replace(/[:.]/g, '-').split('T')[1].split('-')[0];
+  const backupFilename = `${dbName}_backup_${timestamp}.sql`;
+  
+  // Create sqlbackups directory if it doesn't exist
+  const sqlbackupsDir = path.resolve(__dirname, '../../sqlbackups');
+  if (!fs.existsSync(sqlbackupsDir)) {
+    fs.mkdirSync(sqlbackupsDir, { recursive: true });
+  }
+  
+  const backupPath = path.join(sqlbackupsDir, backupFilename);
+  
+  try {
+    console.log(`💾 Creating backup of database '${dbName}' to ${backupFilename}...`);
+    
+    // Build pg_dump command with connection string
+    const pgDumpCommand = `pg_dump "${env.DATABASE_URL}" --clean --if-exists --create --verbose`;
+    
+    // Execute pg_dump and write to file
+    const { stdout, stderr } = await execAsync(`${pgDumpCommand} > "${backupPath}"`);
+    
+    if (stderr && !stderr.includes('NOTICE:')) {
+      console.warn('⚠️ pg_dump warnings:', stderr);
+    }
+    
+    // Verify backup file was created and has content
+    if (fs.existsSync(backupPath)) {
+      const stats = fs.statSync(backupPath);
+      if (stats.size > 0) {
+        console.log(`✅ Backup created successfully: ${backupFilename} (${(stats.size / 1024).toFixed(2)} KB)`);
+      } else {
+        throw new Error('Backup file is empty');
+      }
+    } else {
+      throw new Error('Backup file was not created');
+    }
+  } catch (err) {
+    console.error('❌ Error creating backup:', (err as Error).message);
+    throw err;
+  }
+}
+
 async function main() {
   try {
     // Create database if needed (assumes PostgreSQL server is running)
     await createDatabaseIfNeeded();
+    
+    // Create backup if running with --force and database is not on localhost
+    if (forceRun) {
+      await createBackup();
+    }
+    
     console.log('Cleaning test database...');
     await cleanDatabase();
     console.log('Applying migrations...');
