@@ -1,19 +1,30 @@
-You are a product strategist and senior full-stack developer. I will give you a longform requirements document.
+You are a senior product strategist and full-stack engineer.
 
-Your job is to:
+I will give you a long-form requirements document describing a complex application. Your job is to break this into a clear development roadmap designed for a solo developer.
 
-1. Identify the **high-level features** or modules described
-2. Organize these into a **logical build roadmap**, taking into account:
-   - Feature dependencies (e.g., GPT task generation depends on character stats)
-   - MVP priorities (what’s required to use the app in a basic form)
-   - Solo developer constraints (build in layers, not all at once)
+Your roadmap should include:
 
-Output should be:
+1. A list of **high-level features or modules** (e.g., journal system, task engine, GPT orchestration). 
+   - Each feature should have a **brief description** (1–2 sentences max).
+   - If a feature **depends on another**, mention that clearly.
 
-- **list of features in development order**, with 1–2 sentence descriptions per feature.
-- Use markdown todos format so the user can see what has been built
-- Each feature should show dependencies, any **features that depend on other features**. Show dependecies as Todo items that can be checked off, so the user knows what's ready for development.
+2. Group these features into **logical development phases**, considering:
+   - Feature dependencies
+   - What’s required for a minimum viable product (MVP)
+   - ADHD-friendly development flow (build useful features early, layer in complexity)
+   - Solo development constraints (avoid building too many systems at once)
 
-Store this output in `copilot/todo.md`
+Output format:
 
-Do **not** break these into engineering tasks yet — I only want a roadmap of what to build and in what order.
+- [ ] **Feature Name**
+  - Description:
+  - Depends on:
+
+Then, at the end:
+
+### 🧩 Suggested Build Phases
+_Phase 1: ..._  
+_Phase 2: ..._
+
+
+Output this file to `copilot/roadmap.md`
