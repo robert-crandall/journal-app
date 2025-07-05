@@ -14,4 +14,6 @@ Output should be:
 - Use markdown todos format so the user can see what has been built
 - Each feature should show dependencies, any **features that depend on other features**. Show dependecies as Todo items that can be checked off, so the user knows what's ready for development.
 
+Store this output in `copilot/todo.md`
+
 Do **not** break these into engineering tasks yet — I only want a roadmap of what to build and in what order.
