@@ -41,6 +41,7 @@ export const stats = pgTable('stats', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
 	description: text('description'),
+	icon: text('icon'), // Lucide icon name (e.g., 'dumbbell', 'brain', 'heart')
 	currentXp: integer('current_xp').notNull().default(0),
 	currentLevel: integer('current_level').notNull().default(1),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

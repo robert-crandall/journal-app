@@ -1,6 +1,13 @@
 import type { PageServerLoad, Actions } from './$types.js';
 import { redirect, fail } from '@sveltejs/kit';
-import { getUserStats, createStat, updateStat, deleteStat, awardXp, addStatActivity } from '$lib/server/stats.js';
+import {
+	getUserStats,
+	createStat,
+	updateStat,
+	deleteStat,
+	awardXp,
+	addStatActivity
+} from '$lib/server/stats.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -24,6 +31,7 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const name = data.get('name') as string;
 		const description = data.get('description') as string;
+		const icon = data.get('icon') as string;
 		const exampleActivity = data.get('exampleActivity') as string;
 		const exampleXp = parseInt(data.get('exampleXp') as string) || 15;
 
@@ -32,19 +40,20 @@ export const actions: Actions = {
 				error: 'Name is required',
 				name,
 				description,
+				icon,
 				exampleActivity,
 				exampleXp: exampleXp.toString()
 			});
 		}
 
 		try {
-			const newStat = await createStat(locals.user.id, name, description);
-			
+			const newStat = await createStat(locals.user.id, name, description, icon);
+
 			// Add the example activity if provided
 			if (exampleActivity?.trim()) {
 				await addStatActivity(newStat.id, exampleActivity.trim(), exampleXp);
 			}
-			
+
 			return { success: true };
 		} catch (error) {
 			console.error('Error creating stat:', error);
@@ -52,6 +61,7 @@ export const actions: Actions = {
 				error: 'Failed to create stat',
 				name,
 				description,
+				icon,
 				exampleActivity,
 				exampleXp: exampleXp.toString()
 			});
@@ -67,6 +77,7 @@ export const actions: Actions = {
 		const statId = data.get('statId') as string;
 		const name = data.get('name') as string;
 		const description = data.get('description') as string;
+		const icon = data.get('icon') as string;
 
 		if (!statId || !name?.trim()) {
 			return fail(400, {
@@ -75,7 +86,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await updateStat(statId, locals.user.id, { name, description });
+			await updateStat(statId, locals.user.id, { name, description, icon });
 			return { success: true };
 		} catch (error) {
 			console.error('Error updating stat:', error);
@@ -128,8 +139,8 @@ export const actions: Actions = {
 
 		try {
 			const result = await awardXp(locals.user.id, statId, amount, 'adhoc', undefined, comment);
-			return { 
-				success: true, 
+			return {
+				success: true,
 				leveledUp: result.leveledUp,
 				newLevel: result.newLevel,
 				xpAwarded: amount

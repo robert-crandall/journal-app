@@ -60,7 +60,7 @@
 	<div class="container mx-auto p-6">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="text-4xl font-bold mb-2">Character Profile</h1>
+			<h1 class="mb-2 text-4xl font-bold">Character Profile</h1>
 			<p class="text-base-content/70">
 				Define your in-game persona to personalize your journey and AI-generated tasks.
 			</p>
@@ -103,13 +103,18 @@
 					<div class="card-body">
 						<h2 class="card-title mb-6">Character Details</h2>
 
-						<form method="POST" action="?/update" use:enhance={() => {
-							isSubmitting = true;
-							return async ({ result, update }) => {
-								isSubmitting = false;
-								await update();
-							};
-						}} class="space-y-6">
+						<form
+							method="POST"
+							action="?/update"
+							use:enhance={() => {
+								isSubmitting = true;
+								return async ({ result, update }) => {
+									isSubmitting = false;
+									await update();
+								};
+							}}
+							class="space-y-6"
+						>
 							<!-- Character Class -->
 							<div class="form-control">
 								<label for="characterClass" class="label">
@@ -211,7 +216,12 @@
 
 							<!-- Submit Button -->
 							<div class="card-actions justify-end pt-4">
-								<button type="submit" class="btn btn-primary" data-testid="save-character-btn" disabled={isSubmitting}>
+								<button
+									type="submit"
+									class="btn btn-primary"
+									data-testid="save-character-btn"
+									disabled={isSubmitting}
+								>
 									{#if isSubmitting}
 										<span class="loading loading-spinner loading-sm"></span>
 									{:else}
@@ -240,7 +250,7 @@
 						<h3 class="card-title text-lg">Character Preview</h3>
 						<div class="space-y-4">
 							<div>
-								<h4 class="font-semibold text-sm text-base-content/70 uppercase tracking-wide">
+								<h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
 									Class
 								</h4>
 								<p class="text-lg font-medium">
@@ -249,7 +259,7 @@
 							</div>
 							{#if backstory}
 								<div>
-									<h4 class="font-semibold text-sm text-base-content/70 uppercase tracking-wide">
+									<h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
 										Backstory
 									</h4>
 									<p class="text-sm leading-relaxed">
@@ -259,7 +269,7 @@
 							{/if}
 							{#if motto}
 								<div>
-									<h4 class="font-semibold text-sm text-base-content/70 uppercase tracking-wide">
+									<h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
 										Motto
 									</h4>
 									<p class="text-sm italic">
@@ -269,7 +279,7 @@
 							{/if}
 							{#if goals}
 								<div>
-									<h4 class="font-semibold text-sm text-base-content/70 uppercase tracking-wide">
+									<h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
 										Goals
 									</h4>
 									<div class="prose prose-sm max-w-none">
@@ -287,27 +297,60 @@
 						<h3 class="card-title text-lg">Tips</h3>
 						<div class="space-y-3 text-sm">
 							<div class="flex gap-3">
-								<svg class="h-5 w-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								<svg
+									class="text-primary mt-0.5 h-5 w-5 flex-shrink-0"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
 								</svg>
 								<div>
-									<strong>Character Class:</strong> This defines your role-playing identity and influences how the AI generates tasks for you.
+									<strong>Character Class:</strong> This defines your role-playing identity and influences
+									how the AI generates tasks for you.
 								</div>
 							</div>
 							<div class="flex gap-3">
-								<svg class="h-5 w-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								<svg
+									class="text-primary mt-0.5 h-5 w-5 flex-shrink-0"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
 								</svg>
 								<div>
-									<strong>Backstory:</strong> Share your real goals and context. The AI uses this to create meaningful, personalized daily tasks.
+									<strong>Backstory:</strong> Share your real goals and context. The AI uses this to
+									create meaningful, personalized daily tasks.
 								</div>
 							</div>
 							<div class="flex gap-3">
-								<svg class="h-5 w-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								<svg
+									class="text-primary mt-0.5 h-5 w-5 flex-shrink-0"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
 								</svg>
 								<div>
-									<strong>Motto:</strong> A guiding principle that keeps you focused on what matters most to you.
+									<strong>Motto:</strong> A guiding principle that keeps you focused on what matters
+									most to you.
 								</div>
 							</div>
 						</div>
@@ -318,7 +361,7 @@
 				<div class="card bg-base-100 shadow-xl">
 					<div class="card-body">
 						<h3 class="card-title text-lg">Coming Soon</h3>
-						<div class="space-y-2 text-sm text-base-content/70">
+						<div class="text-base-content/70 space-y-2 text-sm">
 							<p>• Character stats and leveling</p>
 							<p>• XP tracking and progression</p>
 							<p>• AI-generated daily tasks</p>

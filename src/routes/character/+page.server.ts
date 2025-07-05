@@ -32,7 +32,7 @@ export const actions: Actions = {
 
 		// Basic validation
 		if (!characterClass || characterClass.trim().length === 0) {
-			return fail(400, { 
+			return fail(400, {
 				error: 'Character class is required',
 				characterClass,
 				backstory,
@@ -57,7 +57,7 @@ export const actions: Actions = {
 			return { success: true };
 		} catch (error) {
 			console.error('Failed to update character:', error);
-			return fail(500, { 
+			return fail(500, {
 				error: 'Failed to update character',
 				characterClass,
 				backstory,

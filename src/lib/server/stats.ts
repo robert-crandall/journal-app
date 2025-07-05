@@ -18,7 +18,7 @@ export interface StatWithActivities extends Stat {
  */
 export function calculateXpForLevel(level: number): number {
 	if (level <= 1) return 0;
-	return 100 * ((level - 1) * level) / 2;
+	return (100 * ((level - 1) * level)) / 2;
 }
 
 /**
@@ -110,7 +110,7 @@ export async function getUserStats(userId: string): Promise<StatWithActivities[]
 		// Recalculate level based on current XP (in case formula changed)
 		const correctLevel = calculateLevelFromXp(stat.currentXp);
 		let updatedStat = stat;
-		
+
 		// Update level in database if it's incorrect
 		if (correctLevel !== stat.currentLevel) {
 			const [updated] = await db
@@ -132,10 +132,12 @@ export async function getUserStats(userId: string): Promise<StatWithActivities[]
 		const [levelTitle] = await db
 			.select()
 			.from(statLevelTitles)
-			.where(and(
-				eq(statLevelTitles.statId, updatedStat.id),
-				eq(statLevelTitles.level, updatedStat.currentLevel)
-			));
+			.where(
+				and(
+					eq(statLevelTitles.statId, updatedStat.id),
+					eq(statLevelTitles.level, updatedStat.currentLevel)
+				)
+			);
 
 		// Calculate XP info
 		const totalXpForCurrentLevel = calculateXpForLevel(updatedStat.currentLevel);
@@ -172,14 +174,16 @@ export async function getStatXpHistory(statId: string, userId: string): Promise<
 export async function createStat(
 	userId: string,
 	name: string,
-	description?: string
+	description?: string,
+	icon?: string
 ): Promise<Stat> {
 	const [newStat] = await db
 		.insert(stats)
 		.values({
 			userId,
 			name: name.trim(),
-			description: description?.trim()
+			description: description?.trim(),
+			icon: icon?.trim()
 		})
 		.returning();
 
@@ -192,7 +196,7 @@ export async function createStat(
 export async function updateStat(
 	statId: string,
 	userId: string,
-	updates: Partial<Pick<Stat, 'name' | 'description'>>
+	updates: Partial<Pick<Stat, 'name' | 'description' | 'icon'>>
 ): Promise<Stat> {
 	const [updatedStat] = await db
 		.update(stats)
@@ -214,9 +218,7 @@ export async function updateStat(
  * Delete a stat (and all related data)
  */
 export async function deleteStat(statId: string, userId: string): Promise<void> {
-	await db
-		.delete(stats)
-		.where(and(eq(stats.id, statId), eq(stats.userId, userId)));
+	await db.delete(stats).where(and(eq(stats.id, statId), eq(stats.userId, userId)));
 }
 
 /**
@@ -266,7 +268,5 @@ export async function updateStatActivity(
  * Delete a stat activity
  */
 export async function deleteStatActivity(activityId: string): Promise<void> {
-	await db
-		.delete(statActivities)
-		.where(eq(statActivities.id, activityId));
+	await db.delete(statActivities).where(eq(statActivities.id, activityId));
 }

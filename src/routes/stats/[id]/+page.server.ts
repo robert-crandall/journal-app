@@ -1,6 +1,12 @@
 import type { PageServerLoad, Actions } from './$types.js';
 import { redirect, fail, error } from '@sveltejs/kit';
-import { getUserStats, getStatXpHistory, addStatActivity, updateStatActivity, deleteStatActivity } from '$lib/server/stats.js';
+import {
+	getUserStats,
+	getStatXpHistory,
+	addStatActivity,
+	updateStatActivity,
+	deleteStatActivity
+} from '$lib/server/stats.js';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) {
@@ -14,7 +20,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	// Get the specific stat
 	const allStats = await getUserStats(locals.user.id);
-	const stat = allStats.find(s => s.id === statId);
+	const stat = allStats.find((s) => s.id === statId);
 
 	if (!stat) {
 		throw error(404, 'Stat not found');

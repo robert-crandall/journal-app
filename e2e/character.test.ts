@@ -85,40 +85,56 @@ test.describe('Character Profile', () => {
 		// Fill in character information with delays to allow reactive updates
 		await page.fill('input[name="characterClass"]', 'Test Ranger');
 		await page.waitForTimeout(200);
-		
-		await page.fill('textarea[name="backstory"]', 'A software developer trying to reconnect with nature and be present with family.');
+
+		await page.fill(
+			'textarea[name="backstory"]',
+			'A software developer trying to reconnect with nature and be present with family.'
+		);
 		await page.waitForTimeout(200);
-		
+
 		await page.fill('input[name="motto"]', 'Be an outdoor adventurer and an engaged dad');
 		await page.waitForTimeout(200);
-		
+
 		// Verify the first three fields are still filled before adding goals
 		await expect(page.locator('input[name="characterClass"]')).toHaveValue('Test Ranger');
-		await expect(page.locator('textarea[name="backstory"]')).toHaveValue('A software developer trying to reconnect with nature and be present with family.');
-		await expect(page.locator('input[name="motto"]')).toHaveValue('Be an outdoor adventurer and an engaged dad');
-		
-		await page.fill('textarea[name="goals"]', '- Spend more time outdoors\n- Be present with family\n- Build meaningful projects');
+		await expect(page.locator('textarea[name="backstory"]')).toHaveValue(
+			'A software developer trying to reconnect with nature and be present with family.'
+		);
+		await expect(page.locator('input[name="motto"]')).toHaveValue(
+			'Be an outdoor adventurer and an engaged dad'
+		);
+
+		await page.fill(
+			'textarea[name="goals"]',
+			'- Spend more time outdoors\n- Be present with family\n- Build meaningful projects'
+		);
 		await page.waitForTimeout(200);
 
 		// Verify all fields are still filled after adding goals
 		await expect(page.locator('input[name="characterClass"]')).toHaveValue('Test Ranger');
-		await expect(page.locator('textarea[name="backstory"]')).toHaveValue('A software developer trying to reconnect with nature and be present with family.');
-		await expect(page.locator('input[name="motto"]')).toHaveValue('Be an outdoor adventurer and an engaged dad');
-		await expect(page.locator('textarea[name="goals"]')).toHaveValue('- Spend more time outdoors\n- Be present with family\n- Build meaningful projects');
+		await expect(page.locator('textarea[name="backstory"]')).toHaveValue(
+			'A software developer trying to reconnect with nature and be present with family.'
+		);
+		await expect(page.locator('input[name="motto"]')).toHaveValue(
+			'Be an outdoor adventurer and an engaged dad'
+		);
+		await expect(page.locator('textarea[name="goals"]')).toHaveValue(
+			'- Spend more time outdoors\n- Be present with family\n- Build meaningful projects'
+		);
 
 		// Submit the form
 		await page.click('[data-testid="save-character-btn"]');
 
 		// Wait for form submission to complete and check for success indication
 		await expect(page.locator('[data-testid="save-character-btn"]')).not.toHaveText('Saving...');
-		
+
 		// Verify the data was saved by reloading and checking if it persists
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		
+
 		// Scroll to top to ensure preview elements are visible
 		await page.evaluate(() => window.scrollTo(0, 0));
-		
+
 		// Check that form values are preserved
 
 		// Verify the preview is updated (character preview should be visible in sidebar)
@@ -168,7 +184,9 @@ test.describe('Character Profile', () => {
 		await page.fill('input[name="motto"]', 'Knowledge is power');
 
 		// Motto should appear in preview with quotes
-		await expect(page.locator('p.italic').filter({ hasText: '"Knowledge is power"' })).toBeVisible();
+		await expect(
+			page.locator('p.italic').filter({ hasText: '"Knowledge is power"' })
+		).toBeVisible();
 	});
 
 	test('should persist character data after page reload', async ({ page }) => {
@@ -189,7 +207,9 @@ test.describe('Character Profile', () => {
 
 		// Verify data is still there
 		await expect(page.locator('input[name="characterClass"]')).toHaveValue('Persistent Monk');
-		await expect(page.locator('textarea[name="backstory"]')).toHaveValue('Seeking inner peace through discipline.');
+		await expect(page.locator('textarea[name="backstory"]')).toHaveValue(
+			'Seeking inner peace through discipline.'
+		);
 		await expect(page.locator('input[name="motto"]')).toHaveValue('Balance in all things');
 	});
 
