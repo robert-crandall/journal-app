@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Starting Example Application..."
+echo "Starting Journal Application..."
 
 # Parse DATABASE_URL to extract connection details
 if [ -z "$DATABASE_URL" ]; then
@@ -25,12 +25,8 @@ until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
   sleep 2
 done
 
-# Run database migrations
 echo "Running database migrations..."
-cd /app/backend
 bun run db:migrate
 
-# Start the combined backend + frontend server
-echo "Starting combined server (backend + static frontend)..."
-cd /app/backend
-exec bun run src/index.ts
+echo "Starting server..."
+exec bun run build/index.js

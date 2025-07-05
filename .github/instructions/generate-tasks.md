@@ -1,46 +1,30 @@
-# Rule: Generating a Task List from a PRD
+You are a senior product strategist and full-stack engineer.
 
-## Goal
+I will give you a long-form requirements document describing a complex application. Your job is to break this into a clear development roadmap designed for a solo developer.
 
-To guide an AI assistant in creating a detailed, step-by-step task list in Markdown format based on an existing Product Requirements Document (PRD). The task list should guide a developer through implementation.
+Your roadmap should include:
 
-## Output
+1. A list of **high-level features or modules** (e.g., journal system, task engine, GPT orchestration). 
+   - Each feature should have a **brief description** (1–2 sentences max).
+   - If a feature **depends on another**, mention that clearly.
 
-- **Format:** Markdown (`.md`)
-- **Location:** `/copilot/`
-- **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-prd-user-profile-editing.md`)
+2. Group these features into **logical development phases**, considering:
+   - Feature dependencies
+   - What’s required for a minimum viable product (MVP)
+   - ADHD-friendly development flow (build useful features early, layer in complexity)
+   - Solo development constraints (avoid building too many systems at once)
 
-## Process
+Output format:
 
-1.  **Receive PRD Reference:** The user points the AI to a specific PRD file
-2.  **Analyze PRD:** The AI reads and analyzes the functional requirements, user stories, and other sections of the specified PRD.
-3.  **Phase 1: Generate Parent Features:** Based on the PRD analysis, create the file and generate the main, high-level features required to implement the requirements. Use **scrum** type project management. That is, each parent feature is a **feature** that are usable and contain integration tests (backend) and end to end tests (frontend). 
- - **Do not** use waterfall - **do not** designate "complete backend" as feature 1. A feature is "complete user registration", subtasks are "complete backend", "write backend integration tests", "complete frontend", "write frontend end to end tests", "ensure all tests pass". Use your judgement on how many high-level features to use, there is no limit. 
- - Present these features to the user in the specified format (without sub-tasks yet). Inform the user: "I have generated the high-level features based on the PRD. Ready to generate the sub-tasks? Respond with 'Go' to proceed."
-4.  **Wait for Confirmation:** Pause and wait for the user to respond with "Go".
-5.  **Phase 2: Generate Sub-Tasks:** Once the user confirms, break down each parent feature into smaller, actionable sub-tasks necessary to complete the parent feature. Ensure sub-tasks logically follow from the parent feature and cover the implementation details implied by the PRD.
-7.  **Generate Final Output:** Combine the parent features, sub-tasks, relevant files, and notes into the final Markdown structure.
-8.  **Save Task List:** Save the generated document in the `/copilot/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file (e.g., if the input was `prd-user-profile-editing.md`, the output is `tasks-prd-user-profile-editing.md`).
+- [ ] **Feature Name**
+  - Description:
+  - Depends on:
 
-## Output Format
+Then, at the end:
 
-The generated feature list _must_ follow this structure:
+### 🧩 Suggested Build Phases
+_Phase 1: ..._  
+_Phase 2: ..._
 
-```markdown
-## Features
 
-- [ ] 1.0 Parent Feature Title
-  - [ ] 1.1 [Sub-task description 1.1]
-  - [ ] 1.2 [Sub-task description 1.2]
-- [ ] 2.0 Parent Feature Title
-  - [ ] 2.1 [Sub-task description 2.1]
-- [ ] 3.0 Parent Feature Title (may not require sub-tasks if purely structural or configuration)
-```
-
-## Interaction Model
-
-The process explicitly requires a pause after generating parent features to get user confirmation ("Go") before proceeding to generate the detailed sub-tasks. This ensures the high-level plan aligns with user expectations before diving into details.
-
-## Target Audience
-
-Assume the primary reader of the feature list is a **junior developer** who will implement the PRD.
+Output this file to `copilot/roadmap.md`

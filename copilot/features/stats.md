@@ -5,7 +5,7 @@
 Each stat tracks:
 
 * XP earned through tasks or journaling
-* Example activities that help GPT (and the user) understand what counts
+* Journal activities that help GPT (and the user) understand what counts
 * Current **level**, which reflects progress
 * An optional, GPT-generated **title** that makes leveling up fun (e.g., *"Strength Level 3: Tree Hauler"*).
 
@@ -25,14 +25,14 @@ Here’s what the **"Create or Edit Stat"** screen should include:
   *"The ability to lift heavy things."*
   *"The ability to be present and patient with my kids."*
 
-### 3. **Example Activities**
+### 3. **Journal Activities**
 
-* A list of examples (used as GPT context)
+* A list of journals (used as GPT context)
 * Each activity should include:
 
   * A short description: *“Deadlift session at gym”*
   * Suggested XP (e.g., `+20`)
-* User can add, edit, or delete examples
+* User can add, edit, or delete journals
   *(This helps GPT award XP fairly and consistently.)*
 
 ### 4. **Level & XP**
@@ -90,14 +90,14 @@ When generating tasks or analyzing journal entries:
 
   * Name
   * Description
-  * Example activities
+  * Journal activities
 * GPT is also given recently granted XP as memory/context:
 
   * *“Last week, you gained +100 XP in Strength from 3 workouts.”*
 
 When parsing a journal entry, GPT will:
 
-* Map events to one or more stats (via the stat name or examples)
+* Map events to one or more stats (via the stat name or journals)
 * Award XP accordingly
 * Optionally remove XP or flag a negative stat event (e.g., *“Neglected kids to play video games”* → loss of Fatherhood XP)
 

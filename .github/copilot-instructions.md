@@ -5,25 +5,21 @@
 Our goal is to build robust, maintainable features with a consistent and predictable workflow. Follow these core principles above all else.
 
 ### 1. One Feature at a Time
+
 - We work on one and only one feature from start to finish.
 - Do not make changes unrelated to the current feature. This keeps our commits focused and our work testable.
 
 ### 2. The Feature Development Cycle
+
 Every new feature **must** follow this specific, sequential order. Do not skip or reorder steps. Each step must be completed before starting the next.
 
-1.  **Database Schema & Migration**: Define the schema changes in Drizzle, then generate and apply the database migration.
-2.  **Backend API & Type Export**: Implement the Hono endpoints and business logic. Ensure all necessary types are exported for the frontend.
-3.  **Backend Integration Tests**: Write tests to validate the new API, logic, and database interactions.
-4.  **All backend tests must pass before moving on.** Run `bun run test` in backend
-4.  **Frontend Implementation**: Build the SvelteKit components, importing types directly from the backend to ensure type safety.
-5.  **Frontend E2E Tests**: Write end-to-end tests that simulate user interaction and verify the feature works from the browser to the database.
-6.  **All frontend tests must pass before finalizing the feature.** Run `bun run test:e2e` in frontend
-7.  **Test entire feature**: Run `scripts/test_pr` to validate the complete feature.
+- Features have multiple tasks. Read **all** feature tasks before starting any work.
+- Features are not complete until tests are written and pass. ALL tests must pass before merging.
 
 ### 3. Document Key Decisions
+
 - To ensure consistency, we document important architectural patterns and decisions.
 - When you encounter a situation with multiple valid approaches, make a decision, and then **document it following [self-improve.instructions.md](./instructions/self-improve.instructions.md)**.
-- **Example**: If you decide that API endpoints should always get the `UserID` from the JWT token rather than a query parameter, document this rule so we apply it everywhere.
 
 ---
 
@@ -32,29 +28,19 @@ Every new feature **must** follow this specific, sequential order. Do not skip o
 These are the fundamental rules that support our development process.
 
 ### Search First, Code Second
+
 - **DRY (Don't Repeat Yourself) is our most important code quality rule.**
 - **Before writing any code**, search the repository for existing implementations. Look for reusable components, utilities, and types.
 - Use semantic search for concepts (`"How is authentication handled?"`) and lexical search for specifics (`symbol:UserValidator`).
 
 ### Single Source of Truth for Types
-- **NEVER duplicate types.** The backend is the single source of truth.
-- The frontend **MUST** import all API and data types directly from the backend project.
-- This is critical for maintaining end-to-end type safety. If you have a type error, fix it by importing the correct type.
+
+- **NEVER duplicate types.** SvelteKit server modules are the single source of truth.
+- Client-side code **MUST** import all API and data types directly from server modules (`+page.server.ts`, `+layout.server.ts`, API routes).
+- This is critical for maintaining end-to-end type safety. If you have a type error, fix it by importing the correct type from the server side.
 
 ### Rigorous, Layered Testing
-- **Testing is a required step for every layer.** No feature is complete until it is fully tested according to the development cycle.
+
+- **Testing is a required step for user features.** E2E tests are required for all user-facing features.
 - Our primary focus is on **integration tests** that use real database connections and make real HTTP requests.
 - Business logic should be imported into tests, **never copied or reimplemented**.
-
----
-
-## Common Commands
-
-Note: Always `cd` to the full path before running these commands.
-
-- **Start backend and frontend server**: `bun run dev --force`
-- **Run backend and frontend tests**: `bun run test`
-- **Run backend tests**: `cd backend && bun run test`
-- **Run frontend E2E tests**: `cd frontend && bun run test:e2e`
-- **Migrate databases for test**: This is taken care of when running `bun run test`
-- **Migrate databases for other environments**: `cd backend && bun run db:generate && bun run db:migrate`
