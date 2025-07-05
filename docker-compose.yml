@@ -13,38 +13,38 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - ORIGIN=http://localhost:3000
-      - DATABASE_URL=postgresql://example_user:example_password@db:5432/example_db
+      - DATABASE_URL=postgresql://journal_user:journal_password@db:5432/journal_db
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - example-network
+      - journal-network
 
   db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=example_db
-      - POSTGRES_USER=example_user
-      - POSTGRES_PASSWORD=example_password
+      - POSTGRES_DB=journal_db
+      - POSTGRES_USER=journal_user
+      - POSTGRES_PASSWORD=journal_password
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U example_user -d example_db']
+      test: ['CMD-SHELL', 'pg_isready -U journal_user -d journal_db']
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
     networks:
-      - example-network
+      - journal-network
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
-  example-network:
+  journal-network:
     driver: bridge

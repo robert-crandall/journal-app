@@ -67,13 +67,13 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard - Example App</title>
+	<title>Dashboard - Journal App</title>
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
 	<div class="navbar bg-base-100 shadow-lg">
 		<div class="flex-1">
-			<a href="/dashboard" class="btn btn-ghost text-xl">Example App</a>
+			<a href="/dashboard" class="btn btn-ghost text-xl">Journal App</a>
 		</div>
 		<div class="flex-none gap-2">
 			<ThemeSelector />
@@ -113,7 +113,7 @@
 				<div class="max-w-md">
 					<h1 class="text-5xl font-bold">Welcome back!</h1>
 					<p class="py-6">
-						Hello, {data.user.name}! You're successfully logged in to your example app.
+						Hello, {data.user.name}! You're successfully logged in to your journal app.
 					</p>
 					<div class="stats shadow">
 						<div class="stat">
@@ -196,7 +196,7 @@
 				<div class="mx-auto max-w-md">
 					<h3 class="mb-4 text-xl font-semibold">No posts yet</h3>
 					<p class="text-base-content/60 mb-6">
-						Start your exampleing journey by creating your first post. You can write in Markdown and
+						Start your journaling journey by creating your first post. You can write in Markdown and
 						see it beautifully rendered!
 					</p>
 					<button class="btn btn-primary" onclick={handleCreateNew}>

@@ -15,7 +15,7 @@ export const GET: RequestHandler = async () => {
 
 	try {
 		// You can add database connectivity check here if needed
-		// Example:
+		// Journal:
 		// await db.select().from(users).limit(1);
 
 		return json(healthCheck, { status: 200 });

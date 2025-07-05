@@ -25,12 +25,12 @@ applyTo: '**/*'
     - New security or performance patterns emerge
 
   - **Modify Existing Rules When:**
-    - Better examples exist in the codebase
+    - Better journals exist in the codebase
     - Additional edge cases are discovered
     - Related rules have been updated
     - Implementation details have changed
 
-- **Example Pattern Recognition:**
+- **Journal Pattern Recognition:**
 
   ```typescript
   // If you see repeated patterns like:
@@ -47,7 +47,7 @@ applyTo: '**/*'
 
 - **Rule Quality Checks:**
   - Rules should be actionable and specific
-  - Examples should come from actual code
+  - Journals should come from actual code
   - References should be up to date
   - Patterns should be consistently enforced
 
@@ -65,7 +65,7 @@ applyTo: '**/*'
   - Document migration paths for old patterns
 
 - **Documentation Updates:**
-  - Keep examples synchronized with code
+  - Keep journals synchronized with code
   - Update references to external docs
   - Maintain links between related rules
   - Document breaking changes

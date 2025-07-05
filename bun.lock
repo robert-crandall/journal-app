@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "example-app-new",
+      "name": "journal-app-new",
       "dependencies": {
         "@node-rs/argon2": "^2.0.2",
         "commander": "^14.0.0",

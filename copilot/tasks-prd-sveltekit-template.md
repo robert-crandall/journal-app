@@ -95,7 +95,7 @@ Based on: `prd-sveltekit-template.md`
   - [ ] 9.1 Create comprehensive DaisyUI component demonstration page
   - [ ] 9.2 Implement responsive layouts across all screen sizes
   - [ ] 9.3 Add Material Design 3 patterns throughout the application
-  - [ ] 9.4 Create component examples with practical usage patterns
+  - [ ] 9.4 Create component journals with practical usage patterns
   - [ ] 9.5 Write unit tests for custom components and utilities
   - [ ] 9.6 Ensure consistent Lucide icon usage and accessibility
   - [ ] 9.7 Implement proper error handling and user feedback patterns

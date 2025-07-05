@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Register - Example App</title>
+	<title>Register - Journal App</title>
 </svelte:head>
 
 <div class="bg-base-200 flex min-h-screen items-center justify-center p-4">

@@ -10,7 +10,7 @@ test.describe('Content Management', () => {
 		const page = await context.newPage();
 
 		testUser = {
-			email: `content-test-${Date.now()}@example.com`,
+			email: `content-test-${Date.now()}@journal.com`,
 			password: 'contenttest123',
 			name: `Content User ${Date.now()}`
 		};
@@ -479,7 +479,7 @@ test.describe('Content Management', () => {
 
 			// Register a different user
 			const differentUser = {
-				email: `different-user-${Date.now()}@example.com`,
+				email: `different-user-${Date.now()}@journal.com`,
 				password: 'differentuser123',
 				name: `Different User ${Date.now()}`
 			};

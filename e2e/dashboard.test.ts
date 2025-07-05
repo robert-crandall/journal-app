@@ -10,7 +10,7 @@ test.describe('Dashboard', () => {
 		const page = await context.newPage();
 
 		testUser = {
-			email: `dashboard-test-${Date.now()}@example.com`,
+			email: `dashboard-test-${Date.now()}@journal.com`,
 			password: 'dashboardtest123',
 			name: `Dashboard User ${Date.now()}`
 		};
@@ -48,7 +48,7 @@ test.describe('Dashboard', () => {
 		await loginUser(page);
 
 		// Check navbar
-		await expect(page.getByRole('link', { name: 'Example App' })).toBeVisible();
+		await expect(page.getByRole('link', { name: 'Journal App' })).toBeVisible();
 
 		// Click on brand link should stay on dashboard
 		await page.click('a[href="/dashboard"]');

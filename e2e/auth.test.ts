@@ -9,7 +9,7 @@ test.describe('Authentication UI', () => {
 
 test.describe('Authentication Flow', () => {
 	const testUser = {
-		email: `test-${Date.now()}@example.com`,
+		email: `test-${Date.now()}@journal.com`,
 		password: 'testpassword123',
 		name: 'Test User'
 	};
@@ -35,7 +35,7 @@ test.describe('Authentication Flow', () => {
 
 	test('should show error for duplicate email registration', async ({ page }) => {
 		// First, register a user
-		const duplicateEmail = `duplicate-${Date.now()}@example.com`;
+		const duplicateEmail = `duplicate-${Date.now()}@journal.com`;
 		await page.goto('/register');
 		await page.fill('input[name="name"]', 'First User');
 		await page.fill('input[name="email"]', duplicateEmail);
@@ -65,7 +65,7 @@ test.describe('Authentication Flow', () => {
 	test('should login existing user successfully', async ({ page }) => {
 		// First register a user
 		const loginUser = {
-			email: `login-test-${Date.now()}@example.com`,
+			email: `login-test-${Date.now()}@journal.com`,
 			password: 'loginpassword123',
 			name: 'Login Test User'
 		};
@@ -97,7 +97,7 @@ test.describe('Authentication Flow', () => {
 		await page.goto('/login');
 
 		// Test with non-existent email
-		await page.fill('input[name="email"]', 'nonexistent@example.com');
+		await page.fill('input[name="email"]', 'nonexistent@journal.com');
 		await page.fill('input[name="password"]', 'wrongpassword');
 		await page.click('button[type="submit"]');
 
@@ -106,7 +106,7 @@ test.describe('Authentication Flow', () => {
 
 		// Test with existing email but wrong password
 		// First register a user
-		const testEmail = `wrong-password-${Date.now()}@example.com`;
+		const testEmail = `wrong-password-${Date.now()}@journal.com`;
 		await page.goto('/register');
 		await page.fill('input[name="name"]', 'Test User');
 		await page.fill('input[name="email"]', testEmail);
@@ -131,7 +131,7 @@ test.describe('Authentication Flow', () => {
 	test('should logout user successfully', async ({ page }) => {
 		// Register and login a user
 		const logoutUser = {
-			email: `logout-test-${Date.now()}@example.com`,
+			email: `logout-test-${Date.now()}@journal.com`,
 			password: 'logoutpassword123',
 			name: 'Logout Test User'
 		};
@@ -160,7 +160,7 @@ test.describe('Authentication Flow', () => {
 	}) => {
 		// Register and login a user
 		const redirectUser = {
-			email: `redirect-test-${Date.now()}@example.com`,
+			email: `redirect-test-${Date.now()}@journal.com`,
 			password: 'redirectpassword123',
 			name: 'Redirect Test User'
 		};

@@ -3,13 +3,13 @@
 </script>
 
 <svelte:head>
-	<title>Example App - Home</title>
+	<title>Journal App - Home</title>
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
 	<div class="navbar bg-base-100 shadow-lg">
 		<div class="flex-1">
-			<a href="/" class="btn btn-ghost text-xl">Example App</a>
+			<a href="/" class="btn btn-ghost text-xl">Journal App</a>
 		</div>
 		<div class="flex-none gap-2">
 			<ThemeSelector />
@@ -21,9 +21,9 @@
 	<div class="hero min-h-[calc(100vh-4rem)]">
 		<div class="hero-content text-center">
 			<div class="max-w-md">
-				<h1 class="text-5xl font-bold">Welcome to Example App</h1>
+				<h1 class="text-5xl font-bold">Welcome to Journal App</h1>
 				<p class="py-6">
-					A modern, secure example application built with SvelteKit. Create, save, and organize your
+					A modern, secure journal application built with SvelteKit. Create, save, and organize your
 					thoughts with markdown support.
 				</p>
 				<div class="flex justify-center gap-4">

@@ -17,7 +17,7 @@ To guide an AI assistant in creating a detailed Product Requirements Document (P
 3.  **Generate PRD:** Based on the initial prompt and the user's answers to the clarifying questions, generate a PRD using the structure outlined below.
 4.  **Save PRD:** Save the generated document as `prd-[feature-name].md` inside the `/tasks` directory.
 
-## Clarifying Questions (Examples)
+## Clarifying Questions (Journals)
 
 The AI should adapt its questions based on the prompt, but here are some common areas to explore:
 

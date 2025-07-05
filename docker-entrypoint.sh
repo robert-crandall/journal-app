@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Starting Example Application..."
+echo "Starting Journal Application..."
 
 # Parse DATABASE_URL to extract connection details
 if [ -z "$DATABASE_URL" ]; then

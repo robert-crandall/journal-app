@@ -113,7 +113,7 @@ The development will be phased to build foundational features first.
 
 ## 7. Technical Considerations
 
-*   **Database:** Data relationships should be loose to prevent cascading deletes. For example, deleting a Quest should not delete the tasks that were completed as part of it. `user_id` should be a foreign key for all user-generated data.
+*   **Database:** Data relationships should be loose to prevent cascading deletes. For journal, deleting a Quest should not delete the tasks that were completed as part of it. `user_id` should be a foreign key for all user-generated data.
 *   **API:** A real weather API must be integrated for task generation.
 *   **Type Safety:** The frontend must import all data types directly from the backend to ensure end-to-end type safety.
 

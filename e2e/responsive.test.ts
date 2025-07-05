@@ -4,7 +4,7 @@ test.describe('Responsive Design Tests', () => {
 	test('dashboard is responsive', async ({ page }) => {
 		// Register a user first
 		const testUser = {
-			email: `responsive-${Date.now()}@example.com`,
+			email: `responsive-${Date.now()}@journal.com`,
 			password: 'testpassword123',
 			name: 'Responsive Test User'
 		};
@@ -50,7 +50,7 @@ test.describe('UI Component Tests', () => {
 	test('dropdown component works', async ({ page }) => {
 		// Register and login to see user dropdown
 		const dropdownUser = {
-			email: `dropdown-${Date.now()}@example.com`,
+			email: `dropdown-${Date.now()}@journal.com`,
 			password: 'dropdowntest123',
 			name: 'Dropdown Test User'
 		};

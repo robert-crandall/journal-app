@@ -84,7 +84,7 @@ $effect(() => {
     /dashboard
     /stats
     /quests
-    /example
+    /journal
   /lib
     /components
     /server
@@ -111,7 +111,7 @@ $effect(() => {
 - Use `Date.now()` or `new Date().toISOString()` for current timestamps.
 - Never rely on `new Date()` without timezone information for user-facing dates.
 - For date-only fields (birthdays, deadlines), use `date` type in PostgreSQL.
-- For date-only fields, do not convert them to or from UTC - keep them as the selected or stored date. For example, create a `parseLocalDate` function that takes a date string in the format `YYYY-MM-DD` and returns a Date object in the local timezone:
+- For date-only fields, do not convert them to or from UTC - keep them as the selected or stored date. For journal, create a `parseLocalDate` function that takes a date string in the format `YYYY-MM-DD` and returns a Date object in the local timezone:
 
 ```typescript
 function parseLocalDate(dateString: string): Date {

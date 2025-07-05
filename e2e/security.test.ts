@@ -8,7 +8,7 @@ test.describe('Security Tests', () => {
 
 		// Try to inject XSS in display name
 		await page.fill('input[name="name"]', xssPayload);
-		await page.fill('input[name="email"]', `xss-${Date.now()}@example.com`);
+		await page.fill('input[name="email"]', `xss-${Date.now()}@journal.com`);
 		await page.fill('input[name="password"]', 'securepassword123');
 		await page.click('button[type="submit"]');
 
@@ -28,10 +28,10 @@ test.describe('Security Tests', () => {
 
 		const invalidEmails = [
 			'invalid-email',
-			'@example.com',
+			'@journal.com',
 			'user@',
 			'user@.com',
-			'user..name@example.com'
+			'user..name@journal.com'
 		];
 
 		for (const invalidEmail of invalidEmails) {
@@ -75,7 +75,7 @@ test.describe('Security Tests', () => {
 	test('enforces session security', async ({ page, context }) => {
 		// Register and login a user
 		const sessionUser = {
-			email: `session-security-${Date.now()}@example.com`,
+			email: `session-security-${Date.now()}@journal.com`,
 			password: 'securesession123',
 			name: 'Session Security User'
 		};
@@ -114,7 +114,7 @@ test.describe('Security Tests', () => {
 
 	test('handles concurrent login attempts gracefully', async ({ browser }) => {
 		const userCredentials = {
-			email: `concurrent-${Date.now()}@example.com`,
+			email: `concurrent-${Date.now()}@journal.com`,
 			password: 'concurrenttest123',
 			name: 'Concurrent Test User'
 		};
@@ -164,7 +164,7 @@ test.describe('Security Tests', () => {
 	test('logout properly destroys session', async ({ page }) => {
 		// Register and login
 		const logoutUser = {
-			email: `logout-security-${Date.now()}@example.com`,
+			email: `logout-security-${Date.now()}@journal.com`,
 			password: 'logoutsecurity123',
 			name: 'Logout Security User'
 		};
@@ -211,7 +211,7 @@ test.describe('Security Tests', () => {
 			}
 		});
 
-		await page.fill('input[name="email"]', 'test@example.com');
+		await page.fill('input[name="email"]', 'test@journal.com');
 		await page.fill('input[name="password"]', 'wrongpassword');
 		await page.click('button[type="submit"]');
 

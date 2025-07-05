@@ -15,7 +15,7 @@ The primary goal is to create a reusable template that showcases best practices 
 5. Include comprehensive theme management (light/dark/auto modes)
 6. Establish testing infrastructure for both unit and end-to-end testing
 7. Configure development tools for code quality and consistency
-8. Showcase DaisyUI component library with practical examples
+8. Showcase DaisyUI component library with practical journals
 
 ## User Stories
 
@@ -37,7 +37,7 @@ The primary goal is to create a reusable template that showcases best practices 
 - As a user, I want the application to automatically detect my system theme preference so that it matches my device settings
 - As a user, I want to manually override the theme selection so that I can choose my preferred appearance
 - As a user, I want the interface to be responsive so that it works well on both desktop and mobile devices
-- As a developer, I want to see examples of DaisyUI components so that I understand how to use them in future projects
+- As a developer, I want to see journals of DaisyUI components so that I understand how to use them in future projects
 
 ## Functional Requirements
 
@@ -115,7 +115,7 @@ The primary goal is to create a reusable template that showcases best practices 
 
 ### Component Library Showcase
 
-- Create example pages demonstrating various DaisyUI components (cards, forms, buttons, navigation, etc.)
+- Create journal pages demonstrating various DaisyUI components (cards, forms, buttons, navigation, etc.)
 - Show practical usage patterns rather than isolated component demos
 - Include both simple and complex component combinations
 - Demonstrate responsive behavior across different screen sizes
@@ -168,7 +168,7 @@ The primary goal is to create a reusable template that showcases best practices 
 1. **Content Organization**: Should the content be organized in any specific way (categories, tags, folders) or just a simple chronological list?
 2. **Theme Persistence**: Should theme preferences be stored per-user in the database or just in local storage?
 3. **Content Limits**: Should there be any limits on content length or number of entries per user?
-4. **Example Content**: Should the template include some sample content to demonstrate the markdown rendering?
+4. **Journal Content**: Should the template include some sample content to demonstrate the markdown rendering?
 5. **Error Pages**: Should custom error pages (404, 500, etc.) be included in the template?
 6. **PWA Features**: Should Progressive Web App features (service worker, offline capabilities) be included?
 7. **Development Data**: Should the template include database seeding for development/testing purposes?

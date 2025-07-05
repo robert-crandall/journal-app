@@ -15,41 +15,41 @@ alwaysApply: true
 
   - **Main Points in Bold**
     - Sub-points with details
-    - Examples and explanations
+    - Journals and explanations
   ```
 
 - **File References:**
   - Use `[filename](mdc:path/to/file)` ([filename](mdc:filename)) to reference files
-  - Example: [prisma.md](.github/instructions/prisma.md) for rule references
-  - Example: [schema.prisma](mdc:prisma/schema.prisma) for code references
+  - Journal: [prisma.md](.github/instructions/prisma.md) for rule references
+  - Journal: [schema.prisma](mdc:prisma/schema.prisma) for code references
 
-- **Code Examples:**
+- **Code Journals:**
   - Use language-specific code blocks
 
   ```typescript
-  // ✅ DO: Show good examples
-  const goodExample = true;
+  // ✅ DO: Show good journals
+  const goodJournal = true;
 
   // ❌ DON'T: Show anti-patterns
-  const badExample = false;
+  const badJournal = false;
   ```
 
 - **Rule Content Guidelines:**
   - Start with high-level overview
   - Include specific, actionable requirements
-  - Show examples of correct implementation
+  - Show journals of correct implementation
   - Reference existing code when possible
   - Keep rules DRY by referencing other rules
 
 - **Rule Maintenance:**
   - Update rules when new patterns emerge
-  - Add examples from actual codebase
+  - Add journals from actual codebase
   - Remove outdated patterns
   - Cross-reference related rules
 
 - **Best Practices:**
   - Use bullet points for clarity
   - Keep descriptions concise
-  - Include both DO and DON'T examples
-  - Reference actual code over theoretical examples
+  - Include both DO and DON'T journals
+  - Reference actual code over theoretical journals
   - Use consistent formatting across rules

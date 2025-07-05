@@ -113,7 +113,7 @@ To complete the implementation, you'll need to:
 
    ```bash
    # Update .env with your database URL
-   DATABASE_URL="postgres://username:password@localhost:5432/example_app"
+   DATABASE_URL="postgres://username:password@localhost:5432/journal_app"
    ```
 
 2. **Run database migrations**:

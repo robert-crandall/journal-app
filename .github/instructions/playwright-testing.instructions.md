@@ -128,15 +128,15 @@ applyTo: 'e2e/**/*.test.ts'
   ```typescript
   // ✅ DO: Create predictable test data with timestamps
   const testUser = {
-  	email: `test-${Date.now()}@example.com`,
+  	email: `test-${Date.now()}@journal.com`,
   	password: 'testpassword123',
   	name: 'Test User'
   };
   ```
 
-## Examples from Codebase
+## Journals from Codebase
 
-See these files for implementation examples:
+See these files for implementation journals:
 
 - [e2e/content-management.test.ts](mdc:e2e/content-management.test.ts) - Comprehensive CRUD testing with cleanup
 - [e2e/responsive.test.ts](mdc:e2e/responsive.test.ts) - Component interaction testing with scoped selectors
