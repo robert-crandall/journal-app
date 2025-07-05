@@ -84,7 +84,7 @@ async function setupDatabase() {
         // Drop the database
         await adminClient.unsafe(`DROP DATABASE IF EXISTS "${dbName}"`);
         console.log('✅ Database dropped successfully');
-      } catch (error) {
+      } catch {
         console.log('ℹ️  Database did not exist or could not be dropped');
       }
     }
@@ -94,7 +94,7 @@ async function setupDatabase() {
     try {
       await adminClient.unsafe(`CREATE DATABASE "${dbName}"`);
       console.log('✅ Database created successfully');
-    } catch (error: any) {
+    } catch (error) {
       if (error.message?.includes('already exists')) {
         console.log('ℹ️  Database already exists, continuing...');
       } else {
