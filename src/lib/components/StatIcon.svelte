@@ -37,7 +37,7 @@
 		class?: string;
 	} = $props();
 
-	const iconMap: Record<string, any> = {
+	const iconMap: Record<string, import('svelte').ComponentType> = {
 		dumbbell: Dumbbell,
 		brain: Brain,
 		heart: Heart,

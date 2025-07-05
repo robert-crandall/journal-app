@@ -39,7 +39,7 @@
 		return (currentLevelXp / nextLevelXp) * 100;
 	}
 
-	function startEditingStat(stat: any) {
+	function startEditingStat(stat: { id: string; icon?: string | null }) {
 		editingStat = stat.id;
 		editingIcon = stat.icon || '';
 	}
@@ -228,7 +228,7 @@
 			</div>
 		{:else}
 			<div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-				{#each data.stats as stat}
+				{#each data.stats as stat (stat.id)}
 					<div class="card bg-base-100 shadow-lg">
 						<div class="card-body">
 							<div class="mb-4 flex items-start justify-between">
@@ -309,7 +309,7 @@
 								<div class="mb-4">
 									<h4 class="text-base-content/80 mb-2 text-sm font-medium">Activities:</h4>
 									<div class="flex flex-wrap gap-1">
-										{#each stat.activities.slice(0, 3) as activity}
+										{#each stat.activities.slice(0, 3) as activity (activity.id)}
 											<span class="badge badge-outline badge-sm">
 												{activity.description} (+{activity.suggestedXp})
 											</span>

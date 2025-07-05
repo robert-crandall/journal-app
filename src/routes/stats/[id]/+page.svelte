@@ -209,7 +209,7 @@
 					</div>
 				{:else}
 					<div class="space-y-3">
-						{#each data.stat.activities as activity}
+						{#each data.stat.activities as activity (activity.id)}
 							<div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
 								{#if editingActivity === activity.id}
 									<!-- Edit Form -->
@@ -291,7 +291,7 @@
 					</div>
 				{:else}
 					<div class="max-h-96 space-y-3 overflow-y-auto">
-						{#each data.xpHistory as grant}
+						{#each data.xpHistory as grant (grant.id)}
 							<div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
 								<div class="flex items-center gap-3">
 									<span class="text-lg">{getSourceTypeIcon(grant.sourceType)}</span>

@@ -142,7 +142,7 @@
 									<span class="label-text">Quick Select</span>
 								</div>
 								<div class="flex flex-wrap gap-2">
-									{#each suggestedClasses as suggestedClass}
+									{#each suggestedClasses as suggestedClass (suggestedClass)}
 										<button
 											type="button"
 											class="btn btn-sm btn-outline"

@@ -28,7 +28,7 @@
 
 	interface IconOption {
 		name: string;
-		component: any;
+		component: import('svelte').ComponentType;
 		category: string;
 	}
 
@@ -96,11 +96,11 @@
 	{/if}
 
 	<div class="max-h-64 space-y-4 overflow-y-auto rounded-lg border p-3">
-		{#each categories as category}
+		{#each categories as category (category)}
 			<div>
 				<h4 class="text-base-content/70 mb-2 text-sm font-medium">{category}</h4>
 				<div class="grid grid-cols-6 gap-2">
-					{#each iconOptions.filter((icon) => icon.category === category) as icon}
+					{#each iconOptions.filter((icon) => icon.category === category) as icon (icon.name)}
 						{@const IconComponent = icon.component}
 						<button
 							type="button"
