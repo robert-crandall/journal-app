@@ -443,11 +443,6 @@ test.describe('Content Management', () => {
 
       // Click delete button
       await page.click('button[aria-label="Delete post"]');
-
-      // Should show loading spinner (briefly)
-      // Note: This might be too fast to catch reliably, so we'll just ensure the test doesn't fail
-      const loadingSpinner = page.locator('.loading-spinner');
-      // Don't assert visibility since it might be too quick
     });
   });
 
