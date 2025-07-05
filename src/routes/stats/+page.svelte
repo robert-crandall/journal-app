@@ -60,7 +60,7 @@
     if (form && 'exampleActivities' in form) {
       try {
         exampleActivities = JSON.parse((form.exampleActivities as string) || '{}');
-      } catch (e) {
+      } catch {
         exampleActivities = {};
       }
     }

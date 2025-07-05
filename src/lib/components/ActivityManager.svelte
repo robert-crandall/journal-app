@@ -146,7 +146,7 @@
         <div class="mt-3">
           <p class="text-base-content/60 mb-2 text-xs">Suggestions:</p>
           <div class="flex flex-wrap gap-1">
-            {#each suggestedCategories.filter((cat) => !activities[cat]) as category}
+            {#each suggestedCategories.filter((cat) => !activities[cat]) as category (category)}
               <button
                 type="button"
                 class="badge badge-outline badge-sm hover:badge-primary cursor-pointer"

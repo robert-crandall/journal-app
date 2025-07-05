@@ -59,7 +59,7 @@
     lastAction = null; // Clear any previous success state
   }
 
-  function handleDelete(content: Content) {
+  function handleDelete() {
     // The ContentCard component handles the actual deletion
     // This is just here for consistency
   }

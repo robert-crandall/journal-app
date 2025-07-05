@@ -41,7 +41,7 @@ export const actions: Actions = {
     }
 
     try {
-      const result = await db.insert(content).values({
+      await db.insert(content).values({
         userId: locals.user.id,
         title: title.trim(),
         content: contentText.trim(),
