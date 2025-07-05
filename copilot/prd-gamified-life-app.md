@@ -60,7 +60,7 @@ The development will be phased to build foundational features first.
 1.  **AI-Powered Level Titles:** The system will use GPT to generate humorous and creative titles for each stat level (e.g., Strength Level 1: "Weak Worm", Strength Level 20: "Barbarian Overlord").
 2.  **AI Daily Task Generation:**
     *   The system will generate two unique tasks for the user each day: one focused on personal goals and one focused on family connection.
-    *   The generation will use the following context: character class/backstory, goals, daily focus, family members, projects, and real-time weather data.
+    *   The generation will use the following context: character class/backstory, goals, daily focus, family members, projects, adventures, and real-time weather data.
 3.  **AI Journal Analysis:**
     *   After a user finishes a journal entry, the system will use GPT to process the conversation and extract:
         *   **Summary:** A stitched-together narrative of the user's day.
@@ -82,6 +82,7 @@ The development will be phased to build foundational features first.
     *   Upon completion, the user can add a `Conclusion` to the experiment (e.g., "This was successful, I want to do it again").
     *   Experiments can be associated with a Quest.
 3.  **Projects:** Users can define `Projects` with tasks. These do not grant XP but are used as context for the AI DM.
+4.  **Adventures:** Users can define `Adventures` with tasks. These do not grant XP but are used as context for the AI DM.
 4.  **Ad-Hoc Tasks:** Users can create repeatable, ad-hoc tasks tied to a specific stat (e.g., "Workout" -> "Strength") to log daily activities.
 5.  **Weather API:** The system must integrate with a real weather API to fetch the projected weather for the user's location.
 
