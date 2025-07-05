@@ -1,0 +1,67 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/"
+    # Check for updates once a week (on Monday)
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    # Specify labels for npm pull requests
+    labels:
+      - "npm"
+      - "dependencies"
+    # Set a limit on the number of open PRs Dependabot can have at once
+    open-pull-requests-limit: 5
+    versioning-strategy: auto
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Groups for related dependencies
+    groups:
+      svelte-packages:
+        patterns:
+          - "svelte*"
+          - "@sveltejs/*"
+        update-types:
+          - "minor"
+          - "patch"
+      test-packages:
+        patterns:
+          - "vitest"
+          - "@testing-library/*"
+        update-types:
+          - "minor"
+          - "patch"
+      drizzle-packages:
+        patterns:
+          - "drizzle-*"
+          - "@drizzle/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "docker"
+      - "dependencies"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "github-actions"
+      - "dependencies"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

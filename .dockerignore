@@ -1,0 +1,98 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+/test-results
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Production builds
+/build
+/.svelte-kit
+/dist
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Development tools
+.eslintrc*
+.prettierrc*
+.editorconfig
+.gitpod.yml
+
+# Playwright
+playwright-report/
+blob-report/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+.temp
+
+# Development scripts that shouldn't be in production
+scripts/start-dev.ts
+
+# GitHub
+.github/
+
+# Copilot files
+copilot/
