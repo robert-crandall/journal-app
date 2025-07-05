@@ -17,10 +17,10 @@ Here is what you need to know about Tailwind CSS v4 (May 2025)
       @import 'tailwindcss';
 
       @theme {
-      	--font-sans: 'Inter', system-ui, sans-serif;
-      	--color-brand-500: oklch(0.637 0.237 25.331); /* Journal OKLCH color */
-      	--breakpoint-lg: 64rem;
-      	--spacing: 0.25rem; /* Base for numeric spacing utilities */
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --color-brand-500: oklch(0.637 0.237 25.331); /* Journal OKLCH color */
+        --breakpoint-lg: 64rem;
+        --spacing: 0.25rem; /* Base for numeric spacing utilities */
       }
       ```
 
@@ -62,8 +62,8 @@ Here is what you need to know about Tailwind CSS v4 (May 2025)
     - `@utility` directive replaces `@layer components` or `@layer utilities` for defining custom, variant-aware utility classes. This ensures proper integration with Tailwind's engine and cascade layers.
       ```css
       @utility btn-primary {
-      	background-color: var(--color-brand-500);
-      	/* ... */
+        background-color: var(--color-brand-500);
+        /* ... */
       }
       ```
     - Functional utilities (e.g., `tab-*` matching `tab-2`, `tab-github`) are defined using `@utility` with a `--value()` function to parse arguments and match theme keys or arbitrary values.

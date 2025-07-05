@@ -24,7 +24,7 @@ tools:
     'testFailure',
     'updateUserPreferences',
     'usages',
-    'vscodeAPI'
+    'vscodeAPI',
   ]
 ---
 
