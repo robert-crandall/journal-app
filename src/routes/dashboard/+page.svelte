@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { PageData, ActionData } from './$types.js';
 	import type { Content } from '$lib/server/db/schema.js';
-	import ThemeSelector from '$lib/components/ThemeSelector.svelte';
 	import ContentForm from '$lib/components/ContentForm.svelte';
 	import ContentCard from '$lib/components/ContentCard.svelte';
 
@@ -71,42 +70,6 @@
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
-	<div class="navbar bg-base-100 shadow-lg">
-		<div class="flex-1">
-			<a href="/dashboard" class="btn btn-ghost text-xl">Journal App</a>
-		</div>
-		<div class="flex-none gap-2">
-			<ThemeSelector />
-			<div class="dropdown dropdown-end">
-				<div
-					tabindex="0"
-					role="button"
-					class="btn btn-ghost btn-circle avatar"
-					data-testid="user-avatar-button"
-				>
-					<div
-						class="bg-primary text-primary-content flex w-10 items-center justify-center rounded-full"
-					>
-						{data.user.name.charAt(0).toUpperCase()}
-					</div>
-				</div>
-				<ul
-					class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-					data-testid="user-dropdown-menu"
-				>
-					<li class="menu-title">{data.user.name}</li>
-					<li><a href="/dashboard">Dashboard</a></li>
-					<li><a href="/character">Character</a></li>
-					<li>
-						<form method="POST" action="/logout">
-							<button type="submit" class="w-full text-left">Logout</button>
-						</form>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-
 	<div class="container mx-auto p-6">
 		<!-- Welcome Section -->
 		<div class="hero bg-base-100 mb-6 rounded-lg shadow-xl">

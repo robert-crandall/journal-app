@@ -7,11 +7,11 @@
 	- Description: Users can register, log in, and log out securely.
 	- Depends on: None
 
-- [ ] **Character Creation**
+- [x] **Character Creation**
 	- Description: Users create a character with a class (predefined or custom) and a backstory.
 	- Depends on: User Authentication
 
-- [ ] **Stats System**
+- [x] **Stats System**
 	- Description: Users define and track personal stats (e.g., Strength, Wisdom, Fatherhood), each with XP and levels.
 	- Depends on: Character Creation
 

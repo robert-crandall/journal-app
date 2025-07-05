@@ -60,6 +60,7 @@
 		"daisyui": "^5.0.43",
 		"dotenv": "^17.0.1",
 		"drizzle-orm": "^0.40.0",
+		"lucide-svelte": "^0.525.0",
 		"marked": "^16.0.0",
 		"nanoid": "^5.1.5",
 		"postgres": "^3.4.5"
