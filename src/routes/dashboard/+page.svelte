@@ -96,6 +96,7 @@
 				>
 					<li class="menu-title">{data.user.name}</li>
 					<li><a href="/dashboard">Dashboard</a></li>
+					<li><a href="/character">Character</a></li>
 					<li>
 						<form method="POST" action="/logout">
 							<button type="submit" class="w-full text-left">Logout</button>

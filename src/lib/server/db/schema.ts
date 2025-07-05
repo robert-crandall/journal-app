@@ -5,6 +5,11 @@ export const users = pgTable('users', {
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
 	name: text('name').notNull(),
+	// Character fields for gamification
+	characterClass: text('character_class'),
+	backstory: text('backstory'),
+	motto: text('motto'),
+	goals: text('goals'),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 });

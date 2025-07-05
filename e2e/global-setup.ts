@@ -9,7 +9,7 @@ async function globalSetup() {
 	// Setup test database
 	try {
 		console.log('🗄️  Setting up test database...');
-		execSync('NODE_ENV=test tsx scripts/setup-db.ts --reset', {
+		execSync('NODE_ENV=test tsx scripts/setup-db.ts --reset --force', {
 			stdio: 'inherit',
 			env: { ...process.env, NODE_ENV: 'test' }
 		});
