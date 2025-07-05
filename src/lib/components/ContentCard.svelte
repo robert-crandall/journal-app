@@ -13,6 +13,15 @@
 
   let showFullContent = $state(false);
   let isDeleting = $state(false);
+  let currentContentId = $state(content.id);
+
+  // Reset showFullContent when content changes
+  $effect(() => {
+    if (content.id !== currentContentId) {
+      showFullContent = false;
+      currentContentId = content.id;
+    }
+  });
 
   function handleUpdate() {
     onUpdate?.(content);
@@ -48,11 +57,6 @@
       isDeleting = false;
     }
   }
-
-  $effect(() => {
-    // Reset state when content changes
-    showFullContent = false;
-  });
 </script>
 
 <div class="card bg-base-100 shadow-xl">
