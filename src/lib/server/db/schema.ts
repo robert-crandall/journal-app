@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, integer, json } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -42,6 +42,7 @@ export const stats = pgTable('stats', {
   name: text('name').notNull(),
   description: text('description'),
   icon: text('icon'), // Lucide icon name (e.g., 'dumbbell', 'brain', 'heart')
+  exampleActivities: json('example_activities').$type<Record<string, { description: string; suggestedXp: number }[]>>(), // JSON object with category keys and activity arrays
   currentXp: integer('current_xp').notNull().default(0),
   currentLevel: integer('current_level').notNull().default(1),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

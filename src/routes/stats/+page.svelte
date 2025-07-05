@@ -4,6 +4,7 @@
   import type { PageData, ActionData } from './$types.js';
   import IconSelector from '$lib/components/IconSelector.svelte';
   import StatIcon from '$lib/components/StatIcon.svelte';
+  import ActivityManager from '$lib/components/ActivityManager.svelte';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -12,6 +13,8 @@
   let awardingXpStat = $state<string | null>(null);
   let selectedIcon = $state<string>('');
   let editingIcon = $state<string>('');
+  let exampleActivities = $state<Record<string, { description: string; suggestedXp: number }[]>>({});
+  let editingExampleActivities = $state<Record<string, { description: string; suggestedXp: number }[]>>({});
 
   // Watch for form state changes
   $effect(() => {
@@ -21,11 +24,45 @@
       awardingXpStat = null;
       selectedIcon = '';
       editingIcon = '';
+      exampleActivities = {};
+      editingExampleActivities = {};
     }
 
-    // Restore icon selection on form error
+    // Restore form data on form error
     if (form && 'icon' in form) {
       selectedIcon = form.icon as string;
+    }
+    if (form && 'exampleActivities' in form) {
+      try {
+        exampleActivities = JSON.parse((form.exampleActivities as string) || '{}');
+      } catch {
+        exampleActivities = {};
+      }
+    }
+  });
+
+  // Watch for form state changes
+  $effect(() => {
+    if (form?.success) {
+      showCreateForm = false;
+      editingStat = null;
+      awardingXpStat = null;
+      selectedIcon = '';
+      editingIcon = '';
+      exampleActivities = {};
+      editingExampleActivities = {};
+    }
+
+    // Restore form data on form error
+    if (form && 'icon' in form) {
+      selectedIcon = form.icon as string;
+    }
+    if (form && 'exampleActivities' in form) {
+      try {
+        exampleActivities = JSON.parse((form.exampleActivities as string) || '{}');
+      } catch (e) {
+        exampleActivities = {};
+      }
     }
   });
 
@@ -35,9 +72,14 @@
     return (currentLevelXp / nextLevelXp) * 100;
   }
 
-  function startEditingStat(stat: { id: string; icon?: string | null }) {
+  function startEditingStat(stat: {
+    id: string;
+    icon?: string | null;
+    exampleActivities?: Record<string, { description: string; suggestedXp: number }[]> | null;
+  }) {
     editingStat = stat.id;
     editingIcon = stat.icon || '';
+    editingExampleActivities = stat.exampleActivities || {};
   }
 </script>
 
@@ -85,6 +127,7 @@
               <h2 class="card-title mb-6 text-2xl">Create New Stat</h2>
               <form method="POST" action="?/create" use:enhance class="space-y-6">
                 <input type="hidden" name="icon" value={selectedIcon} />
+                <input type="hidden" name="exampleActivities" value={JSON.stringify(exampleActivities)} />
 
                 <div class="form-control">
                   <input
@@ -116,35 +159,7 @@
 
                 <IconSelector value={selectedIcon} onSelect={(icon) => (selectedIcon = icon)} />
 
-                <div class="form-control">
-                  <input
-                    type="text"
-                    id="exampleActivity"
-                    name="exampleActivity"
-                    class="input input-bordered w-full"
-                    placeholder="Example activity (e.g., 30-minute workout, Read bedtime story)"
-                    value={form && 'exampleActivity' in form ? (form.exampleActivity as string) : ''}
-                  />
-                  <div class="label">
-                    <span class="label-text-alt">An example activity that would earn XP for this stat</span>
-                  </div>
-                </div>
-
-                <div class="form-control">
-                  <input
-                    type="number"
-                    id="exampleXp"
-                    name="exampleXp"
-                    class="input input-bordered w-full"
-                    placeholder="15"
-                    min="1"
-                    max="100"
-                    value={form && 'exampleXp' in form ? (form.exampleXp as string) : '15'}
-                  />
-                  <div class="label">
-                    <span class="label-text-alt">How much XP this example activity should award (1-100)</span>
-                  </div>
-                </div>
+                <ActivityManager value={exampleActivities} onUpdate={(activities) => (exampleActivities = activities)} />
 
                 <div class="flex gap-3 pt-4">
                   <button type="submit" class="btn btn-primary flex-1">
@@ -169,7 +184,8 @@
               <ul class="space-y-2 text-sm">
                 <li>• Choose stats that matter to your personal goals</li>
                 <li>• Be specific with descriptions to guide XP awards</li>
-                <li>• Example activities help maintain consistency</li>
+                <li>• Organize activities into logical categories</li>
+                <li>• Multiple examples help GPT give better recommendations</li>
                 <li>• Start with 3-5 core stats to avoid overwhelm</li>
               </ul>
             </div>
@@ -277,7 +293,31 @@
               </div>
 
               <!-- Activities -->
-              {#if stat.activities.length > 0}
+              {#if stat.exampleActivities && Object.keys(stat.exampleActivities).length > 0}
+                <div class="mb-4">
+                  <h4 class="text-base-content/80 mb-2 text-sm font-medium">Example Activities:</h4>
+                  <div class="space-y-2">
+                    {#each Object.entries(stat.exampleActivities).slice(0, 2) as [category, activities] (category)}
+                      <div>
+                        <span class="text-base-content/60 text-xs font-medium">{category}:</span>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                          {#each activities.slice(0, 3) as activity (activity.description)}
+                            <span class="badge badge-outline badge-sm">
+                              {activity.description} (+{activity.suggestedXp})
+                            </span>
+                          {/each}
+                          {#if activities.length > 3}
+                            <span class="badge badge-ghost badge-sm">+{activities.length - 3} more</span>
+                          {/if}
+                        </div>
+                      </div>
+                    {/each}
+                    {#if Object.keys(stat.exampleActivities).length > 2}
+                      <span class="text-base-content/40 text-xs">+{Object.keys(stat.exampleActivities).length - 2} more categories</span>
+                    {/if}
+                  </div>
+                </div>
+              {:else if stat.activities.length > 0}
                 <div class="mb-4">
                   <h4 class="text-base-content/80 mb-2 text-sm font-medium">Activities:</h4>
                   <div class="flex flex-wrap gap-1">
@@ -299,6 +339,7 @@
                   <form method="POST" action="?/update" use:enhance>
                     <input type="hidden" name="statId" value={stat.id} />
                     <input type="hidden" name="icon" value={editingIcon} />
+                    <input type="hidden" name="exampleActivities" value={JSON.stringify(editingExampleActivities)} />
                     <div class="form-control mb-4">
                       <input
                         type="text"
@@ -328,6 +369,9 @@
                     </div>
                     <div class="mb-4">
                       <IconSelector value={editingIcon} onSelect={(icon) => (editingIcon = icon)} />
+                    </div>
+                    <div class="mb-4">
+                      <ActivityManager value={editingExampleActivities} onUpdate={(activities) => (editingExampleActivities = activities)} />
                     </div>
                     <div class="flex gap-2">
                       <button type="submit" class="btn btn-primary btn-sm">Save</button>

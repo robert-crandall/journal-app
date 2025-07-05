@@ -58,3 +58,10 @@ bun run dev:force # Start development server.
 bun run db:setup # Run database migrations
 bun run db:reset # Reset the database
 ```
+
+DO NOT RUN:
+
+```
+bun run db:push # Use `bun run generate && bun run db:setup` instead
+bunx drizzle-kit push # Use `bun run generate && bun run db:setup` instead
+```

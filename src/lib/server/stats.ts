@@ -154,7 +154,13 @@ export async function getStatXpHistory(statId: string, userId: string): Promise<
 /**
  * Create a new stat for a user
  */
-export async function createStat(userId: string, name: string, description?: string, icon?: string): Promise<Stat> {
+export async function createStat(
+  userId: string,
+  name: string,
+  description?: string,
+  icon?: string,
+  exampleActivities?: Record<string, { description: string; suggestedXp: number }[]>,
+): Promise<Stat> {
   const [newStat] = await db
     .insert(stats)
     .values({
@@ -162,6 +168,7 @@ export async function createStat(userId: string, name: string, description?: str
       name: name.trim(),
       description: description?.trim(),
       icon: icon?.trim(),
+      exampleActivities,
     })
     .returning();
 
@@ -171,7 +178,11 @@ export async function createStat(userId: string, name: string, description?: str
 /**
  * Update a stat
  */
-export async function updateStat(statId: string, userId: string, updates: Partial<Pick<Stat, 'name' | 'description' | 'icon'>>): Promise<Stat> {
+export async function updateStat(
+  statId: string,
+  userId: string,
+  updates: Partial<Pick<Stat, 'name' | 'description' | 'icon' | 'exampleActivities'>>,
+): Promise<Stat> {
   const [updatedStat] = await db
     .update(stats)
     .set({

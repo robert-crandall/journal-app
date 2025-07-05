@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from './$types.js';
 import { redirect, fail } from '@sveltejs/kit';
-import { getUserStats, createStat, updateStat, deleteStat, awardXp, addStatActivity } from '$lib/server/stats.js';
+import { getUserStats, createStat, updateStat, deleteStat, awardXp } from '$lib/server/stats.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.user) {
@@ -25,8 +25,17 @@ export const actions: Actions = {
     const name = data.get('name') as string;
     const description = data.get('description') as string;
     const icon = data.get('icon') as string;
-    const exampleActivity = data.get('exampleActivity') as string;
-    const exampleXp = parseInt(data.get('exampleXp') as string) || 15;
+    const exampleActivitiesStr = data.get('exampleActivities') as string;
+
+    // Parse the JSON activities data
+    let exampleActivities: Record<string, { description: string; suggestedXp: number }[]> = {};
+    try {
+      if (exampleActivitiesStr) {
+        exampleActivities = JSON.parse(exampleActivitiesStr);
+      }
+    } catch (error) {
+      console.error('Error parsing example activities:', error);
+    }
 
     if (!name?.trim()) {
       return fail(400, {
@@ -34,19 +43,12 @@ export const actions: Actions = {
         name,
         description,
         icon,
-        exampleActivity,
-        exampleXp: exampleXp.toString(),
+        exampleActivities: exampleActivitiesStr,
       });
     }
 
     try {
-      const newStat = await createStat(locals.user.id, name, description, icon);
-
-      // Add the example activity if provided
-      if (exampleActivity?.trim()) {
-        await addStatActivity(newStat.id, exampleActivity.trim(), exampleXp);
-      }
-
+      await createStat(locals.user.id, name, description, icon, exampleActivities);
       return { success: true };
     } catch (error) {
       console.error('Error creating stat:', error);
@@ -55,8 +57,7 @@ export const actions: Actions = {
         name,
         description,
         icon,
-        exampleActivity,
-        exampleXp: exampleXp.toString(),
+        exampleActivities: exampleActivitiesStr,
       });
     }
   },
@@ -71,6 +72,17 @@ export const actions: Actions = {
     const name = data.get('name') as string;
     const description = data.get('description') as string;
     const icon = data.get('icon') as string;
+    const exampleActivitiesStr = data.get('exampleActivities') as string;
+
+    // Parse the JSON activities data
+    let exampleActivities: Record<string, { description: string; suggestedXp: number }[]> = {};
+    try {
+      if (exampleActivitiesStr) {
+        exampleActivities = JSON.parse(exampleActivitiesStr);
+      }
+    } catch (error) {
+      console.error('Error parsing example activities:', error);
+    }
 
     if (!statId || !name?.trim()) {
       return fail(400, {
@@ -79,7 +91,7 @@ export const actions: Actions = {
     }
 
     try {
-      await updateStat(statId, locals.user.id, { name, description, icon });
+      await updateStat(statId, locals.user.id, { name, description, icon, exampleActivities });
       return { success: true };
     } catch (error) {
       console.error('Error updating stat:', error);
