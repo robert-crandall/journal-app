@@ -85,7 +85,7 @@
               action="?/update"
               use:enhance={() => {
                 isSubmitting = true;
-                return async ({ result, update }) => {
+                return async ({ update }) => {
                   isSubmitting = false;
                   await update();
                 };
@@ -214,7 +214,8 @@
                 <div>
                   <h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">Backstory</h4>
                   <p class="text-sm leading-relaxed">
-                    {backstory}
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html markdownToHtml(backstory)}
                   </p>
                 </div>
               {/if}
@@ -230,6 +231,7 @@
                 <div>
                   <h4 class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">Goals</h4>
                   <div class="prose prose-sm max-w-none">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html markdownToHtml(goals)}
                   </div>
                 </div>

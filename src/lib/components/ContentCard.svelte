@@ -100,6 +100,7 @@
 
     <div class="prose prose-sm max-w-none">
       {#if showFullContent}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html markdownToHtml(content.content)}
       {:else}
         <p>{markdownToPlainText(content.content, 200)}</p>

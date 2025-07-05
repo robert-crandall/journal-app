@@ -14,6 +14,6 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
       const client = postgres(env.DATABASE_URL);
       _db = drizzle(client, { schema });
     }
-    return (_db as any)[prop];
+    return _db[prop as keyof typeof _db];
   },
 });

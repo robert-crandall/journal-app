@@ -2,11 +2,17 @@
   import type { Content } from '$lib/server/db/schema.js';
   import { enhance } from '$app/forms';
 
+  type FormActionResult = {
+    success?: boolean;
+    error?: string;
+    [key: string]: unknown; // Allow additional properties from form validation
+  };
+
   type Props = {
     content?: Content;
     mode: 'create' | 'update';
     onCancel?: () => void;
-    form?: any; // Form action result from parent
+    form?: FormActionResult | null; // Form action result from parent
   };
 
   let { content, mode, onCancel, form }: Props = $props();
