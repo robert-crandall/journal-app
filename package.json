@@ -10,7 +10,7 @@
     "dev": "bun scripts/start-dev.js",
     "dev:force": "bun scripts/start-dev.js --force",
     "logs": "bun scripts/show-logs.js",
-    "test:backend": "NODE_ENV=test && bun run db:reset && cd backend && bun run test",
+    "test:backend": "NODE_ENV=test bun run db:reset && cd backend && bun run test",
     "test:frontend": "cd frontend && bun run test",
     "test:e2e": "playwright test",
     "test": "scripts/test_pr",
