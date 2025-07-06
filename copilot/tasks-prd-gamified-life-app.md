@@ -27,8 +27,8 @@
   - [ ] 3.5 Ensure all stats system tests pass
 
 - [ ] 4.0 Goals & Family Context Management
-  - [ ] 4.1 Design and implement goals and family members management (backend)
-  - [ ] 4.2 Write backend integration tests for goals/family
+  - [x] 4.1 Design and implement goals and family members management (backend)
+  - [x] 4.2 Write backend integration tests for goals/family
   - [ ] 4.3 Implement frontend UI for goals and family members
   - [ ] 4.4 Write frontend E2E tests for goals/family
   - [ ] 4.5 Ensure all goals/family tests pass

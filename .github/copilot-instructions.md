@@ -62,5 +62,5 @@ Note: Always `cd` to the full path before running these commands.
 - **Run backend and frontend tests**: `bun run test`
 - **Run backend tests**: `bun run test:backend`
 - **Run E2E tests**: `bun run test:e2e`
-- **Migrate databases for test**: `NODE_ENV=test bun run db:setup`
+- **Migrate databases for test**: This is not needed when running backend tests. `NODE_ENV=test bun run db:setup`
 - **Reset database**: `NODE_ENV=test bun run db:reset`
