@@ -31,17 +31,17 @@ This document outlines development best practices for building the AI Life Coach
 // ❌ DEPRECATED: Using stores (Svelte 4 pattern)
 import { page } from '$app/stores';
 $effect(() => {
-	if ($page.form?.success) {
-		// Handle form success
-	}
+  if ($page.form?.success) {
+    // Handle form success
+  }
 });
 
 // ✅ MODERN: Using props (Svelte 5 pattern)
 let { data, form }: { data: PageData; form: ActionData } = $props();
 $effect(() => {
-	if (form?.success) {
-		// Handle form success
-	}
+  if (form?.success) {
+    // Handle form success
+  }
 });
 ```
 
@@ -115,8 +115,8 @@ $effect(() => {
 
 ```typescript
 function parseLocalDate(dateString: string): Date {
-	const [year, month, day] = dateString.split('-').map(Number);
-	return new Date(year, month - 1, day);
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
 }
 ```
 

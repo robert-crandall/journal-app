@@ -4,7 +4,7 @@ I will give you a long-form requirements document describing a complex applicati
 
 Your roadmap should include:
 
-1. A list of **high-level features or modules** (e.g., journal system, task engine, GPT orchestration). 
+1. A list of **high-level features or modules** (e.g., journal system, task engine, GPT orchestration).
    - Each feature should have a **brief description** (1–2 sentences max).
    - If a feature **depends on another**, mention that clearly.
 
@@ -23,8 +23,8 @@ Output format:
 Then, at the end:
 
 ### 🧩 Suggested Build Phases
+
 _Phase 1: ..._  
 _Phase 2: ..._
-
 
 Output this file to `copilot/roadmap.md`

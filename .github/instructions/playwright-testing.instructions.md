@@ -25,9 +25,7 @@ applyTo: 'e2e/**/*.test.ts'
 
   ```typescript
   // ✅ DO: Scope selectors within specific components
-  await expect(
-  	page.locator('[data-testid="user-dropdown-menu"] a[href="/dashboard"]')
-  ).toBeVisible();
+  await expect(page.locator('[data-testid="user-dropdown-menu"] a[href="/dashboard"]')).toBeVisible();
 
   // ❌ DON'T: Use global text selectors that match multiple elements
   await expect(page.locator('text=Dashboard')).toBeVisible(); // Matches page title AND link
@@ -52,9 +50,9 @@ applyTo: 'e2e/**/*.test.ts'
   ```typescript
   // ✅ DO: Create cleanup functions to prevent test interference
   async function deleteAllPosts(page) {
-  	await page.goto('/dashboard');
-  	page.removeAllListeners('dialog');
-  	// ... cleanup logic
+    await page.goto('/dashboard');
+    page.removeAllListeners('dialog');
+    // ... cleanup logic
   }
   ```
 
@@ -111,16 +109,81 @@ applyTo: 'e2e/**/*.test.ts'
 
 ## Test Structure
 
+### Single User Pattern (Preferred)
+- **Create one test user in `beforeAll` and reuse across all tests**
+- More reliable than creating new users per test
+- Prevents cross-test contamination and timing issues
+
+```typescript
+// ✅ DO: Single user with state cleanup
+test.describe('Feature Tests', () => {
+  const testUser = {
+    email: `test-${Date.now()}@app.com`,
+    password: 'password123',
+    name: 'Test User',
+  };
+  
+  test.beforeAll(async ({ browser }) => {
+    // Create single user for all tests
+    const page = await browser.newPage();
+    await page.goto('/register');
+    await page.fill('input[name="name"]', testUser.name);
+    await page.fill('input[name="email"]', testUser.email);
+    await page.fill('input[name="password"]', testUser.password);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/dashboard');
+    await page.close();
+  });
+
+  test.beforeEach(async ({ page }) => {
+    // Login with existing user and reset state
+    await page.goto('/login');
+    await page.fill('input[name="email"]', testUser.email);
+    await page.fill('input[name="password"]', testUser.password);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/dashboard');
+
+    // Clean up application state to reset to starting point
+    await page.goto('/feature');
+    
+    // Delete all existing items using scoped selectors
+    while (true) {
+      const items = page.locator('.card').filter({ has: page.locator('h3') });
+      const count = await items.count();
+      
+      if (count === 0) break;
+      
+      await items.first().locator('.dropdown .btn:has-text("⋮")').click();
+      await items.first().locator('.dropdown .dropdown-content').waitFor({ state: 'visible' });
+      
+      page.removeAllListeners('dialog');
+      page.once('dialog', (dialog) => dialog.accept());
+      
+      await page.click('button[type="submit"]:has-text("Delete")');
+      await page.waitForTimeout(100);
+    }
+    
+    await expect(page.locator('text=No items yet')).toBeVisible();
+  });
+});
+
+// ❌ DON'T: New user per test
+test.beforeEach(async ({ page }) => {
+  const testUser = { email: `test-${Date.now()}@app.com`, ... };
+  // Creates cross-test contamination and timing issues
+});
+```
+
 - **Group related tests with descriptive test.describe blocks**
 
   ```typescript
   test.describe('Content Management', () => {
-  	test.describe('Create Content', () => {
-  		// Related creation tests
-  	});
-  	test.describe('Edit Content', () => {
-  		// Related editing tests
-  	});
+    test.describe('Create Content', () => {
+      // Related creation tests
+    });
+    test.describe('Edit Content', () => {
+      // Related editing tests
+    });
   });
   ```
 
@@ -128,9 +191,9 @@ applyTo: 'e2e/**/*.test.ts'
   ```typescript
   // ✅ DO: Create predictable test data with timestamps
   const testUser = {
-  	email: `test-${Date.now()}@journal.com`,
-  	password: 'testpassword123',
-  	name: 'Test User'
+    email: `test-${Date.now()}@journal.com`,
+    password: 'testpassword123',
+    name: 'Test User',
   };
   ```
 

@@ -35,8 +35,8 @@ applyTo: '**/*'
   ```typescript
   // If you see repeated patterns like:
   const data = await prisma.user.findMany({
-  	select: { id: true, email: true },
-  	where: { status: 'ACTIVE' }
+    select: { id: true, email: true },
+    where: { status: 'ACTIVE' },
   });
 
   // Consider adding to [prisma.md](.github/instructions/prisma.md):

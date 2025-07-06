@@ -44,3 +44,24 @@ These are the fundamental rules that support our development process.
 - **Testing is a required step for user features.** E2E tests are required for all user-facing features.
 - Our primary focus is on **integration tests** that use real database connections and make real HTTP requests.
 - Business logic should be imported into tests, **never copied or reimplemented**.
+
+---
+
+## Commands
+
+```
+bun run test # Quick checks and linting. Should run after every change.
+bun run test:e2e # Run end-to-end tests. Should run when done with a feature.
+bun run test:all # Run all tests, including E2E. Should run before merging.
+
+bun run dev:force # Start development server.
+bun run db:setup # Run database migrations
+bun run db:reset # Reset the database
+```
+
+DO NOT RUN:
+
+```
+bun run db:push # Use `bun run generate && bun run db:setup` instead
+bunx drizzle-kit push # Use `bun run generate && bun run db:setup` instead
+```
