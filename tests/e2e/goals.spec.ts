@@ -25,7 +25,7 @@ test.describe('Goals Management', () => {
     await expect(page.locator('button:has-text("Create Goal")')).toBeVisible();
 
     // Should have filter controls
-    await expect(page.locator('text=Show Archived')).toBeVisible();
+    await expect(page.locator('label:has-text("Show Archived")')).toBeVisible();
     await expect(page.locator('input[type="checkbox"]')).toBeVisible();
   });
 

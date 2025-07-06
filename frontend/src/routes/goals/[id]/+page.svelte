@@ -145,7 +145,7 @@
               <ArrowLeft size={20} />
             </button>
             <div class="text-4xl">
-              {getGoalIcon(goal.parsedTags)}
+              {getGoalIcon(goal.tags)}
             </div>
             <div>
               <h1 class="text-primary text-3xl font-bold">{goal.title}</h1>
@@ -196,7 +196,7 @@
           {/if}
 
           <!-- Tags Card -->
-          {#if goal.parsedTags.length > 0}
+          {#if goal.tags.length > 0}
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
                 <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -204,7 +204,7 @@
                   Tags
                 </h2>
                 <div class="flex flex-wrap gap-3">
-                  {#each goal.parsedTags as tag}
+                  {#each goal.tags as tag}
                     <div class="badge badge-primary badge-lg gap-2">
                       <Tag size={14} />
                       {tag}
@@ -287,7 +287,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Tags:</span>
-                    <span class="font-medium text-sm">{goal.parsedTags.length}</span>
+                    <span class="font-medium text-sm">{goal.tags.length}</span>
                   </div>
                 </div>
               </div>

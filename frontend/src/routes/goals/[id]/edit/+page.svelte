@@ -44,7 +44,7 @@
       // Populate form with current values
       title = goal.title;
       description = goal.description || '';
-      tags = [...goal.parsedTags];
+      tags = [...goal.tags];
       isActive = goal.isActive;
       isArchived = goal.isArchived;
     } catch (err) {
@@ -84,7 +84,7 @@
     originalGoal && (
       title !== originalGoal.title ||
       description !== (originalGoal.description || '') ||
-      JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal.parsedTags.sort()) ||
+      JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal.tags.sort()) ||
       isActive !== originalGoal.isActive ||
       isArchived !== originalGoal.isArchived
     )
@@ -112,7 +112,7 @@
       if (description !== (originalGoal?.description || '')) {
         updates.description = description.trim() || undefined;
       }
-      if (JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal?.parsedTags.sort())) {
+      if (JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal?.tags.sort())) {
         updates.tags = tags.length > 0 ? tags : undefined;
       }
       if (isActive !== originalGoal?.isActive) {
