@@ -2,6 +2,7 @@
 set -euo pipefail
 
 export NODE_ENV=test
+export PARENT_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
 
 # Function to print section headers
 print_section() {
@@ -10,17 +11,23 @@ print_section() {
     echo "----------------------------------------"
 }
 
+print_section "Preparing for tests"
+cd "$PARENT_DIR"
+bun run db:setup:force
+
 # Run checks in backend
 print_section "Running backend checks"
-cd "$(dirname "$0")/../backend"
+cd "$PARENT_DIR/backend"
 echo "📦 Installing backend dependencies..."
 bun install --frozen-lockfile
 echo "🔧 Running checks..."
 bun run check
+echo "- Running tests..."
+bun run test
 
 # Run checks in frontend
 print_section "Running frontend checks"
-cd "../frontend"
+cd "$PARENT_DIR/frontend"
 echo "📦 Installing frontend dependencies..."
 bun install --frozen-lockfile
 echo "🔧 Running Svelte check..."
@@ -30,13 +37,8 @@ bun run format
 echo "- Building frontend..."
 bun run build
 
-print_section "Running expensive checks"
-echo "- Backend tests..."
-cd "../backend"
-bun run test
-
-echo "- Frontend tests..."
-cd "../frontend"
+print_section "Running E2E tests"
+cd "$PARENT_DIR"
 bun run test:e2e
 
 print_section "All checks completed successfully! ✅"
