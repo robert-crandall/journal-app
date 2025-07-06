@@ -8,6 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-t
 export interface JWTPayload {
   id: string;
   email: string;
+  name: string;
   exp: number;
 }
 
@@ -42,6 +43,7 @@ export const jwtAuth = async (c: Context, next: Next) => {
       const jwtPayload: JWTPayload = {
         id: userId,
         email: payload.email,
+        name: payload.name,
         exp: payload.exp,
       };
 
