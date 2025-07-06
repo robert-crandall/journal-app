@@ -43,6 +43,13 @@
       "when": 1751753721501,
       "tag": "0005_odd_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1751764139050,
+      "tag": "0006_adorable_lethal_legion",
+      "breakpoints": true
     }
   ]
 }

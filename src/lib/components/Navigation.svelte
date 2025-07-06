@@ -29,6 +29,9 @@
         <li class:disabled={$page.url.pathname.startsWith('/stats')}>
           <a href="/stats">Stats</a>
         </li>
+        <li class:disabled={$page.url.pathname.startsWith('/goals')}>
+          <a href="/goals">Goals</a>
+        </li>
         <li>
           <form method="POST" action="/logout">
             <button type="submit" class="w-full text-left">Logout</button>
