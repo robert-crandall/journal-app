@@ -1,7 +1,46 @@
 import { authenticatedClient } from '../api';
 
-// Import types directly from backend (following development principles)
-import type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags } from '../../../backend/src/types/goals';
+// Frontend types that match backend structure
+// TODO: Import these from backend once module resolution is fixed
+export interface Goal {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string | null;
+  tags?: string | null;
+  isActive: boolean;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GoalWithParsedTags {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string | null;
+  tags: string[];
+  isActive: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateGoalWithTags {
+  title: string;
+  description?: string;
+  tags?: string[];
+  isActive?: boolean;
+  isArchived?: boolean;
+}
+
+export interface UpdateGoalWithTags {
+  title?: string;
+  description?: string;
+  tags?: string[];
+  isActive?: boolean;
+  isArchived?: boolean;
+}
 
 // API response types
 interface ApiResponse<T> {
@@ -59,7 +98,7 @@ export const goalsApi = {
   },
 
   // Create a new goal
-  async createGoal(data: CreateGoal): Promise<GoalWithParsedTags> {
+  async createGoal(data: CreateGoalWithTags): Promise<GoalWithParsedTags> {
     try {
       const response = await authenticatedClient.api.goals.$post({
         json: data,
@@ -88,7 +127,7 @@ export const goalsApi = {
   },
 
   // Update an existing goal
-  async updateGoal(goalId: string, data: UpdateGoal): Promise<GoalWithParsedTags> {
+  async updateGoal(goalId: string, data: UpdateGoalWithTags): Promise<GoalWithParsedTags> {
     try {
       const response = await authenticatedClient.api.goals[':id'].$put({
         param: { id: goalId },
@@ -137,6 +176,3 @@ export const goalsApi = {
     }
   },
 };
-
-// Re-export types for convenient use
-export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags };
