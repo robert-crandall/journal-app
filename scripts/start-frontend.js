@@ -8,7 +8,7 @@ const execAsync = promisify(exec);
 
 // Check if frontend is already running (try common ports)
 async function isFrontendRunning() {
-  const ports = [5173, 4173, 3000, 5000];
+  const ports = [5173, 4173];
 
   for (const port of ports) {
     try {

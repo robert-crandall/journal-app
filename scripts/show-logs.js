@@ -34,11 +34,11 @@ async function showLogs() {
     // Show port usage
     console.log('\n🌐 Port usage:');
     try {
-      const { stdout: ports } = await execAsync(`lsof -i :3000,:5173,:4173 | grep LISTEN`);
+      const { stdout: ports } = await execAsync(`lsof -i :3030,:5173,:4173 | grep LISTEN`);
       if (ports.trim()) {
         console.log(ports);
       } else {
-        console.log('No services listening on common ports (3000, 5173, 4173)');
+        console.log('No services listening on common ports (3030, 5173, 4173)');
       }
     } catch {
       console.log('Could not check port usage');
@@ -49,12 +49,12 @@ async function showLogs() {
 
     // Check backend
     try {
-      const response = await fetch('http://localhost:3000');
+      const response = await fetch('http://localhost:3030');
       if (response.ok) {
-        console.log('✅ Backend: Running on http://localhost:3000');
+        console.log('✅ Backend: Running on http://localhost:3030');
       }
     } catch {
-      console.log('❌ Backend: Not responding on http://localhost:3000');
+      console.log('❌ Backend: Not responding on http://localhost:3030');
     }
 
     // Check frontend (try common ports)
