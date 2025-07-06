@@ -27,8 +27,8 @@ export default defineConfig({
     {
       // Start frontend dev server
       command: 'NODE_ENV=test bun run dev:force',
-      port: 5173,
-      reuseExistingServer: false,
+      // port: 5173,
+      // reuseExistingServer: false,
       timeout: 30000,
     },
   ],
