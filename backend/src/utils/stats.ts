@@ -2,15 +2,14 @@ import type { LevelCalculation } from '../types/stats';
 
 /**
  * Calculate the total XP required to reach a specific level
- * Formula: Total XP for level n = 100 × (n × (n + 1)) / 2
- * Level 1: 100 XP total
- * Level 2: 300 XP total (200 additional)
- * Level 3: 600 XP total (300 additional)
- * Level 4: 1000 XP total (400 additional)
+ * Formula: Total XP for level n = 100 × (n × (n - 1)) / 2
+ * Level 2: 100 XP total
+ * Level 3: 300 XP total (200 additional)
+ * Level 4: 600 XP total (300 additional)
  */
 export function getTotalXpForLevel(level: number): number {
-  if (level < 1) return 0;
-  return 100 * (level * (level + 1)) / 2;
+  if (level < 2) return 0;
+  return 100 * (level * (level - 1)) / 2;
 }
 
 /**
@@ -21,8 +20,8 @@ export function getTotalXpForLevel(level: number): number {
  * Level 3 to 4: 400 XP
  */
 export function getXpRequiredForLevel(level: number): number {
-  if (level < 1) return 0;
-  return level * 100;
+  if (level < 2) return 0;
+  return (level - 1) * 100;
 }
 
 /**
