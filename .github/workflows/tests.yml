@@ -54,7 +54,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run backend database migrations
-        working-directory: ./backend
+        working-directory: ./
         run: bun run db:migrate
 
       - name: Run backend type checking

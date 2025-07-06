@@ -16,6 +16,24 @@ async function isBackendRunning() {
   }
 }
 
+// Kill processes using specified ports (macOS/Linux)
+function killProcessesOnPorts(ports) {
+  const { spawnSync } = require('child_process');
+  ports.forEach((port) => {
+    try {
+      // lsof -ti tcp:<port> | xargs kill -9
+      const lsof = spawnSync('lsof', ['-ti', `tcp:${port}`], { encoding: 'utf-8' });
+      const pids = lsof.stdout.split('\n').filter(Boolean);
+      if (pids.length > 0) {
+        spawnSync('kill', ['-9', ...pids]);
+        console.log(`✅ Killed process(es) on port ${port}: ${pids.join(', ')}`);
+      }
+    } catch (e) {
+      console.warn(`⚠️  Could not kill process on port ${port}:`, e.message);
+    }
+  });
+}
+
 // Check if port is in use
 async function isPortInUse(port) {
   try {
@@ -29,6 +47,12 @@ async function isPortInUse(port) {
 async function startBackend() {
   console.log('🔍 Checking if backend is running...')
   
+    // Check for --force flag
+  if (process.argv.includes('--force')) {
+    console.log('🛑 --force flag detected: Killing processes on ports 3000');
+    killProcessesOnPorts([3000]);
+  }
+
   if (await isBackendRunning()) {
     console.log('✅ Backend is already running on http://localhost:3000')
     process.exit(0)

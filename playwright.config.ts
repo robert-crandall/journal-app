@@ -14,7 +14,7 @@ export default defineConfig({
 	/* Opt out of parallel tests on CI. */
 	workers: process.env.CI ? 1 : 1,
 	/* Global setup to seed test data after all servers are ready */
-	// globalSetup: './tests/e2e/global-setup.ts',
+	globalSetup: './tests/e2e/global-setup.ts',
 
 	timeout: 10 * 1000, // Default timeout for each test
 
@@ -58,14 +58,12 @@ export default defineConfig({
 		},
 		{
 			// Start backend with test database
-			command: 'NODE_ENV=test bun run backend',
-			port: 3000,
-			reuseExistingServer: true,
+			command: 'NODE_ENV=test bun run backend:force',
 			timeout: 30000
 		},
 		{
 			// Start frontend dev server
-			command: 'bun run build && bun run preview',
+			command: 'cd frontend && bun run build && bun run preview',
 			port: 4173,
 			reuseExistingServer: false,
 			timeout: 30000
