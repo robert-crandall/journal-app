@@ -110,6 +110,78 @@ export async function cleanupStats(page: Page): Promise<void> {
 }
 
 /**
+ * Helper function to delete all goals if they exist
+ */
+export async function cleanupGoals(page: Page): Promise<void> {
+  // Navigate to goals page
+  await page.goto('/goals');
+  await page.waitForLoadState('networkidle');
+
+  // Keep deleting goals until none remain, but limit attempts to prevent infinite loops
+  let attempts = 0;
+  const maxAttempts = 20; // Allow more attempts since we might have many goals
+
+  while (attempts < maxAttempts) {
+    try {
+      // Check if we're in the "No Active Goals" state
+      try {
+        await page.waitForSelector('text=No Active Goals', { timeout: 1000 });
+        // If we found "No Active Goals", check for archived goals
+        await page.check('input[type="checkbox"]:near(text="Show Archived")');
+        await page.waitForLoadState('networkidle');
+        
+        // Check if there are archived goals
+        try {
+          await page.waitForSelector('text=No Active Goals', { timeout: 1000 });
+          // No goals at all, we're done
+          break;
+        } catch {
+          // There are archived goals, continue to delete them
+        }
+      } catch {
+        // There are active goals, continue to delete them
+      }
+
+      // Look for any goal with a "Delete" button
+      const deleteButtons = page.locator('button:has-text("Delete")');
+      const deleteButtonCount = await deleteButtons.count();
+
+      if (deleteButtonCount === 0) {
+        // No delete buttons found, we're done
+        break;
+      }
+
+      // Click the first delete button
+      await deleteButtons.first().click();
+
+      // Handle the confirmation dialog
+      page.on('dialog', async dialog => {
+        await dialog.accept();
+      });
+
+      // Wait for the goal to be deleted
+      await page.waitForLoadState('networkidle');
+
+      attempts++;
+    } catch (error) {
+      // No more goals found or some other error - break out of loop
+      break;
+    }
+  }
+
+  // Make sure we're back to showing active goals (uncheck archived filter)
+  try {
+    const archivedCheckbox = page.locator('input[type="checkbox"]:near(text="Show Archived")');
+    if (await archivedCheckbox.isChecked()) {
+      await archivedCheckbox.uncheck();
+      await page.waitForLoadState('networkidle');
+    }
+  } catch {
+    // Checkbox might not be visible, that's fine
+  }
+}
+
+/**
  * Helper function to create a basic stat for testing
  */
 export async function createTestStat(page: Page, name: string = 'Test Stat', description: string = 'Test description'): Promise<void> {
