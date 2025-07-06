@@ -13,6 +13,9 @@
     "test:all": "scripts/test_pr",
     "test:e2e": "playwright test",
     "test": "scripts/test_pr",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "bun run format:check && cd backend && bun run lint && cd ../frontend && bun run lint",
     "db:push": "cd backend && drizzle-kit push",
     "db:generate": "cd backend && drizzle-kit generate",
     "db:migrate": "cd backend && drizzle-kit migrate",
@@ -28,7 +31,10 @@
   ],
   "devDependencies": {
     "concurrently": "^9.2.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "prettier": "^3.4.2",
+    "prettier-plugin-svelte": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.11"
   },
   "dependencies": {
     "commander": "^14.0.0",
