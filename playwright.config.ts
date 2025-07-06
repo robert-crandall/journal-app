@@ -10,7 +10,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Global setup to seed test data after all servers are ready */
@@ -51,6 +51,16 @@ export default defineConfig({
 
   /* Run complete test environment setup */
   webServer: [
+    {
+      // Verify types are correct. There's no point in running tests if types are broken
+      command: 'cd backend && bun run check',
+      timeout: 15000,
+    },
+    {
+      // Verify types are correct. There's no point in running tests if types are broken
+      command: 'cd frontend && bun run check',
+      timeout: 15000,
+    },
     {
       // Run database migrations
       command: 'NODE_ENV=test bun run db:setup:force',

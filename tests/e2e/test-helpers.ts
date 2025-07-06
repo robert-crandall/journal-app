@@ -110,6 +110,72 @@ export async function cleanupStats(page: Page): Promise<void> {
 }
 
 /**
+ * Helper function to delete all goals if they exist
+ */
+export async function cleanupGoals(page: Page): Promise<void> {
+  try {
+    // Navigate to goals page
+    await page.goto('/goals');
+    await page.waitForLoadState('networkidle');
+
+    // Simple approach: just delete any goals we find
+    for (let i = 0; i < 10; i++) {
+      // Max 10 attempts
+      try {
+        // Look for delete buttons
+        const deleteButton = page.locator('button:has-text("Delete")').first();
+        const isVisible = await deleteButton.isVisible();
+
+        if (!isVisible) {
+          // No delete buttons visible, check archived view
+          try {
+            const checkbox = page.locator('label:has-text("Show Archived")').locator('input[type="checkbox"]');
+            if (!(await checkbox.isChecked())) {
+              await checkbox.check();
+              await page.waitForLoadState('networkidle');
+              continue; // Try again to find goals in archived view
+            } else {
+              // Already showing archived and no delete buttons found
+              break;
+            }
+          } catch {
+            // No archived checkbox, we're done
+            break;
+          }
+        }
+
+        // Click delete and handle dialog
+        const dialogPromise = page.waitForEvent('dialog');
+        await deleteButton.click();
+        const dialog = await dialogPromise;
+        await dialog.accept();
+
+        // Wait for deletion to complete
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(200); // Small delay for UI update
+      } catch (error) {
+        // Error or no more goals, break out
+        break;
+      }
+    }
+
+    // Reset to active view
+    try {
+      const checkbox = page.locator('label:has-text("Show Archived")').locator('input[type="checkbox"]');
+      if (await checkbox.isChecked()) {
+        await checkbox.uncheck();
+        await page.waitForLoadState('networkidle');
+      }
+    } catch {
+      // Ignore any errors with checkbox
+    }
+  } catch (error) {
+    // If cleanup fails entirely, continue with tests
+    console.warn('Goal cleanup failed:', error);
+  }
+}
+
+/**
  * Helper function to create a basic stat for testing
  */
 export async function createTestStat(page: Page, name: string = 'Test Stat', description: string = 'Test description'): Promise<void> {

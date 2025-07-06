@@ -12,6 +12,8 @@ print_section() {
 }
 
 print_section "Preparing for tests"
+echo "Running formater..."
+bun run format
 cd "$PARENT_DIR"
 bun run db:setup:force
 
@@ -32,8 +34,6 @@ echo "📦 Installing frontend dependencies..."
 bun install --frozen-lockfile
 echo "🔧 Running Svelte check..."
 bun run check
-echo "🎨 Running formatter..."
-bun run format
 echo "- Building frontend..."
 bun run build
 

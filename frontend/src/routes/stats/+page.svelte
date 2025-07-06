@@ -49,6 +49,21 @@
     return TrendingUp;
   }
 
+  // Derived values for icons to avoid using svelte:component
+  let userStatsWithIcons = $derived(
+    userStats.map((stat) => ({
+      ...stat,
+      IconComponent: getStatIcon(stat.name),
+    })),
+  );
+
+  let predefinedStatsWithIcons = $derived(
+    predefinedStats.map((stat) => ({
+      ...stat,
+      IconComponent: getStatIcon(stat.name),
+    })),
+  );
+
   function calculateProgress(stat: CharacterStatWithProgress): number {
     const totalXpForLevel = Math.pow(stat.currentLevel, 2) * 100;
     const currentLevelXp = stat.totalXp - (stat.currentLevel > 1 ? Math.pow(stat.currentLevel - 1, 2) * 100 : 0);
@@ -124,7 +139,7 @@
             <section>
               <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">Your Stats</h2>
               <div class="grid gap-6 md:grid-cols-2">
-                {#each userStats as stat}
+                {#each userStatsWithIcons as stat}
                   <button
                     class="card bg-base-100 border-base-300 w-full cursor-pointer border text-left shadow-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl"
                     onclick={() => viewStatDetails(stat.id)}
@@ -134,7 +149,7 @@
                         <div class="flex items-center gap-3">
                           <div class="avatar placeholder">
                             <div class="bg-primary text-primary-content w-12 rounded-full">
-                              <svelte:component this={getStatIcon(stat.name)} size={24} />
+                              <stat.IconComponent size={24} />
                             </div>
                           </div>
                           <div>
@@ -221,13 +236,13 @@
                 These are carefully designed stats that work well for personal development. Click to add them to your character.
               </p>
               <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {#each predefinedStats as predefinedStat}
+                {#each predefinedStatsWithIcons as predefinedStat}
                   <div class="card from-secondary/5 to-accent/5 border-secondary/20 border bg-gradient-to-br transition-all duration-200 hover:shadow-lg">
                     <div class="card-body p-4">
                       <div class="mb-3 flex items-center gap-3">
                         <div class="avatar placeholder">
                           <div class="bg-secondary text-secondary-content w-10 rounded-full">
-                            <svelte:component this={getStatIcon(predefinedStat.name)} size={20} />
+                            <predefinedStat.IconComponent size={20} />
                           </div>
                         </div>
                         <h4 class="font-semibold">{predefinedStat.name}</h4>

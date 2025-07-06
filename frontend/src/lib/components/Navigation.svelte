@@ -37,6 +37,7 @@
     {#if user}
       <a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
       <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
+      <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
 
       <!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
       <details class="dropdown dropdown-end">
