@@ -14,12 +14,17 @@ const config = {
     },
     version: {
       // Use git commit hash for deterministic versioning in production
-      // Falls back to timestamp in development or when git is not available
+      // Falls back to environment variable (Docker) or timestamp in development
       name: (() => {
+        // First try environment variable (from Docker build)
+        if (process.env.GIT_COMMIT) {
+          return process.env.GIT_COMMIT;
+        }
+        // Then try git command (local development)
         try {
           return child_process.execSync('git rev-parse HEAD').toString().trim();
         } catch {
-          // Fallback to timestamp if git is not available (e.g., in Docker)
+          // Fallback to timestamp if git is not available
           return Date.now().toString();
         }
       })(),
