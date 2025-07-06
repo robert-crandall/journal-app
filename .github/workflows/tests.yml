@@ -11,7 +11,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    
+
     # Add PostgreSQL service
     services:
       postgres:
@@ -27,7 +27,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    
+
     env:
       # Test environment variables
       DATABASE_URL: postgres://test:test@localhost:5432/journal_app
@@ -54,7 +54,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run backend database migrations
-        working-directory: ./backend
+        working-directory: ./
         run: bun run db:migrate
 
       - name: Run backend type checking

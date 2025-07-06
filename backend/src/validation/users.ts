@@ -9,28 +9,20 @@ export const userValidationSchema = z.object({
 
 // Registration schema with detailed error messages
 export const registerSchema = z.object({
-  name: z.string()
-    .min(1, 'Name is required')
-    .max(100, 'Name cannot exceed 100 characters'),
-  
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Invalid email format'),
-  
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
+  name: z.string().min(1, 'Name is required').max(100, 'Name cannot exceed 100 characters'),
+
+  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 // Login schema
 export const loginSchema = z.object({
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Invalid email format'),
-  
-  password: z.string()
-    .min(1, 'Password is required'),
-  
-  rememberMe: z.boolean().optional().default(false)
+  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+
+  password: z.string().min(1, 'Password is required'),
+
+  rememberMe: z.boolean().optional().default(false),
 });
 
 export const updateUserValidationSchema = userValidationSchema.partial();

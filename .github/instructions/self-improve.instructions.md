@@ -1,6 +1,6 @@
 ---
 description: Guidelines for continuously improving VS Code rules based on emerging code patterns and best practices.
-applyTo: "**/*"
+applyTo: '**/*'
 ---
 
 - **Rule Improvement Triggers:**
@@ -31,13 +31,14 @@ applyTo: "**/*"
     - Implementation details have changed
 
 - **Example Pattern Recognition:**
+
   ```typescript
   // If you see repeated patterns like:
   const data = await prisma.user.findMany({
     select: { id: true, email: true },
-    where: { status: 'ACTIVE' }
+    where: { status: 'ACTIVE' },
   });
-  
+
   // Consider adding to [prisma.md](.github/instructions/prisma.md):
   // - Standard select fields
   // - Common where conditions
@@ -68,4 +69,4 @@ applyTo: "**/*"
   - Update references to external docs
   - Maintain links between related rules
   - Document breaking changes
-Follow [vscode_rules.md](.github/instructions/vscode_rules.md) for proper rule formatting and structure.
+    Follow [vscode_rules.md](.github/instructions/vscode_rules.md) for proper rule formatting and structure.

@@ -5,13 +5,13 @@ describe('App Integration Tests', () => {
   describe('Health Check', () => {
     it('should return health status', async () => {
       const res = await app.request('/api/health');
-      
+
       expect(res.status).toBe(200);
       const data = await res.json();
-      
+
       expect(data).toHaveProperty('status', 'ok');
       expect(data).toHaveProperty('timestamp');
-      
+
       // Verify timestamp is valid ISO string
       const timestamp = new Date(data.timestamp);
       expect(timestamp.getTime()).toBeLessThanOrEqual(Date.now());
@@ -32,18 +32,17 @@ describe('App Integration Tests', () => {
   describe('Middleware Integration', () => {
     it('should include CORS headers for all routes', async () => {
       const routes = ['/api/health', '/api/users/registration-status'];
-      
+
       for (const route of routes) {
         const res = await app.request(route, {
           headers: {
-            'Origin': 'http://localhost:5173'
-          }
+            Origin: 'http://localhost:5173',
+          },
         });
-        
+
         expect(res.status).not.toBe(500); // Should not fail due to CORS
         // CORS headers should be present (exact header depends on implementation)
-        const corsHeader = res.headers.get('Access-Control-Allow-Origin') || 
-                          res.headers.get('access-control-allow-origin');
+        const corsHeader = res.headers.get('Access-Control-Allow-Origin') || res.headers.get('access-control-allow-origin');
         expect(corsHeader).toBeTruthy();
       }
     });
@@ -52,28 +51,26 @@ describe('App Integration Tests', () => {
       const res = await app.request('/api/users', {
         method: 'OPTIONS',
         headers: {
-          'Origin': 'http://localhost:5173',
+          Origin: 'http://localhost:5173',
           'Access-Control-Request-Method': 'POST',
-          'Access-Control-Request-Headers': 'Content-Type'
-        }
+          'Access-Control-Request-Headers': 'Content-Type',
+        },
       });
 
       expect(res.status).toBe(204); // No Content is correct for OPTIONS preflight
-      
+
       // Check for CORS preflight headers
-      const allowMethods = res.headers.get('Access-Control-Allow-Methods') ||
-                          res.headers.get('access-control-allow-methods');
-      const allowHeaders = res.headers.get('Access-Control-Allow-Headers') ||
-                          res.headers.get('access-control-allow-headers');
-                          
+      const allowMethods = res.headers.get('Access-Control-Allow-Methods') || res.headers.get('access-control-allow-methods');
+      const allowHeaders = res.headers.get('Access-Control-Allow-Headers') || res.headers.get('access-control-allow-headers');
+
       expect(allowMethods || allowHeaders).toBeTruthy();
     });
 
     it('should reject requests from non-allowed origins', async () => {
       const res = await app.request('/api/health', {
         headers: {
-          'Origin': 'https://malicious-site.com'
-        }
+          Origin: 'https://malicious-site.com',
+        },
       });
 
       // Should either reject with CORS error or allow but not include CORS headers
@@ -90,7 +87,7 @@ describe('App Integration Tests', () => {
     it('should return JSON content-type for JSON responses', async () => {
       const res = await app.request('/api/health');
       expect(res.status).toBe(200);
-      
+
       const contentType = res.headers.get('Content-Type') || res.headers.get('content-type');
       expect(contentType).toContain('application/json');
     });
@@ -109,7 +106,7 @@ describe('App Integration Tests', () => {
 
     it('should reject unsupported methods on health endpoint', async () => {
       const unsupportedMethods = ['PUT', 'DELETE', 'PATCH'];
-      
+
       for (const method of unsupportedMethods) {
         const res = await app.request('/api/health', { method });
         expect(res.status).toBe(404); // Hono returns 404 for unsupported methods
@@ -120,12 +117,7 @@ describe('App Integration Tests', () => {
   describe('Error Handling', () => {
     it('should handle malformed URLs gracefully', async () => {
       // Test various edge cases
-      const malformedUrls = [
-        '/api/users/%',
-        '/api/users/\\',
-        '/api/users/<script>',
-        '/api/users/?malformed=query%'
-      ];
+      const malformedUrls = ['/api/users/%', '/api/users/\\', '/api/users/<script>', '/api/users/?malformed=query%'];
 
       for (const url of malformedUrls) {
         try {
@@ -145,15 +137,15 @@ describe('App Integration Tests', () => {
       const largePayload = {
         name: 'a'.repeat(10000),
         email: 'large@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(largePayload),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       // Should handle gracefully, either accepting or rejecting with appropriate status
@@ -166,7 +158,7 @@ describe('App Integration Tests', () => {
     it('should route to users API correctly', async () => {
       const res = await app.request('/api/users/registration-status');
       expect(res.status).toBe(200);
-      
+
       const data = await res.json();
       expect(data).toHaveProperty('enabled');
     });
@@ -184,15 +176,12 @@ describe('App Integration Tests', () => {
 
   describe('Response Format Consistency', () => {
     it('should return consistent JSON structure for successful responses', async () => {
-      const routes = [
-        '/api/health',
-        '/api/users/registration-status'
-      ];
+      const routes = ['/api/health', '/api/users/registration-status'];
 
       for (const route of routes) {
         const res = await app.request(route);
         expect(res.status).toBe(200);
-        
+
         const data = await res.json();
         expect(data).toBeDefined();
         expect(typeof data).toBe('object');
@@ -203,7 +192,7 @@ describe('App Integration Tests', () => {
     it('should return consistent error format for 404s', async () => {
       const res = await app.request('/non-existent');
       expect(res.status).toBe(404);
-      
+
       // Should either return JSON error or text, but should be consistent
       const contentType = res.headers.get('Content-Type') || res.headers.get('content-type');
       expect(contentType).toBeDefined();

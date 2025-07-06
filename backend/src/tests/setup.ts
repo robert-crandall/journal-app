@@ -12,7 +12,7 @@ let testDb: ReturnType<typeof drizzle> | null = null;
 
 export function getTestDb() {
   if (!testClient || !testDb) {
-    testClient = postgres(testDbUrl, { 
+    testClient = postgres(testDbUrl, {
       // Separate connection pool for each test file
       max: 5,
       idle_timeout: 60000,
@@ -20,8 +20,8 @@ export function getTestDb() {
       transform: postgres.camel,
       // Add unique connection id to prevent conflicts
       connection: {
-        application_name: `test_${process.pid}_${Date.now()}`
-      }
+        application_name: `test_${process.pid}_${Date.now()}`,
+      },
     });
     testDb = drizzle(testClient, { schema });
   }
@@ -60,7 +60,7 @@ afterAll(async () => {
   } catch (error) {
     // Ignore cleanup errors at shutdown
   }
-  
+
   // Close the connection with a longer delay to ensure all queries are complete
   if (testClient) {
     setTimeout(async () => {

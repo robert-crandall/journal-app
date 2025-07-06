@@ -3,13 +3,11 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "check": "bunx tsc --noEmit",
+    "lint": "cd .. && bun run format:check",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
-    "test:setup": "bun run scripts/setup-test-db.ts",
-    "test": "NODE_ENV=test bun run test:setup && bun test",
-    "test:watch": "vitest",
-    "test:only": "vitest run"
+    "test": "bun test"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",

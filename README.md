@@ -15,21 +15,29 @@ All documentation for the technology stack is in `.github/instructions/*`, with 
 This template tries to address several Agentic coding weaknesses:
 
 1. Inconsistencies when generating code. Addressed with:
-  - Strong emphasis on real endpoint testing
-  - Creating a knowledge base that's including in every request
-  - Using type-safe client
+
+- Strong emphasis on real endpoint testing
+- Creating a knowledge base that's including in every request
+- Using type-safe client
+
 2. Getting off task, or implementing part of requirements. Addressed with:
-  - "Instructions" for creating a PRD, generating tasks, and process task list. TODO: move to prompts?
+
+- "Instructions" for creating a PRD, generating tasks, and process task list. TODO: move to prompts?
+
 3. Weak GPT4.1 mode. Addressed with:
-  - Chat Mode for 4.1. Thanks to `burkeholland`! [source](https://gist.github.com/burkeholland/a232b706994aa2f4b2ddd3d97b11f9a7)
+
+- Chat Mode for 4.1. Thanks to `burkeholland`! [source](https://gist.github.com/burkeholland/a232b706994aa2f4b2ddd3d97b11f9a7)
+
 4. Creates new terminals that conflict with each other (Copilot only?)
-  - See `scripts/start-dev.js`. This checks if the backend or frontend are already in use, and skips if they are. This should make Copilot behave better.
-  
+
+- See `scripts/start-dev.js`. This checks if the backend or frontend are already in use, and skips if they are. This should make Copilot behave better.
+
 ## How to Use
 
 Copilot does best in an opinionated environment. This repo is an example of an opinionated application.
 
 It provides:
+
 - Database setup `bun run backend/scripts/setup-test-db.ts --force`
 - Backend integration testing `cd backend && bun run test`
 - Full E2E testing `cd frontend && bun run test:e2e`

@@ -5,10 +5,25 @@
   "type": "module",
   "scripts": {
     "backend": "bun scripts/start-backend.js",
+    "backend:force": "bun scripts/start-backend.js --force",
     "frontend": "bun scripts/start-frontend.js",
     "dev": "bun scripts/start-dev.js",
+    "dev:force": "bun scripts/start-dev.js --force",
     "logs": "bun scripts/show-logs.js",
-    "test": "scripts/test_pr"
+    "test:all": "scripts/test_pr",
+    "test:e2e": "playwright test",
+    "test": "scripts/test_pr",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "bun run format:check && cd backend && bun run lint && cd ../frontend && bun run lint",
+    "db:push": "cd backend && drizzle-kit push",
+    "db:generate": "cd backend && drizzle-kit generate",
+    "db:migrate": "cd backend && drizzle-kit migrate",
+    "db:studio": "cd backend && drizzle-kit studio",
+    "db:setup": "bun scripts/setup-db.ts",
+    "db:setup:force": "bun scripts/setup-db.ts --force",
+    "db:reset": "bun scripts/setup-db.ts --reset",
+    "db:reset:force": "bun scripts/setup-db.ts --reset --force"
   },
   "workspaces": [
     "backend",
@@ -16,6 +31,13 @@
   ],
   "devDependencies": {
     "concurrently": "^9.2.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "prettier": "^3.4.2",
+    "prettier-plugin-svelte": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.11"
+  },
+  "dependencies": {
+    "commander": "^14.0.0",
+    "playwright": "^1.53.2"
   }
 }

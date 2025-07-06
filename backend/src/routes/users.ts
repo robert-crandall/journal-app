@@ -35,7 +35,8 @@ const app = new Hono()
       const hashedPassword = await hashPassword(password);
 
       // Create user
-      const [newUser] = await db.insert(users)
+      const [newUser] = await db
+        .insert(users)
         .values({
           name,
           email,
@@ -50,20 +51,23 @@ const app = new Hono()
 
       // Generate JWT token
       const token = await sign(
-        { 
+        {
           id: newUser.id,
           email: newUser.email,
           name: newUser.name,
           iat: Math.floor(Date.now() / 1000), // issued at
-          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // expires in 24 hours
+          exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // expires in 24 hours
         },
-        env.JWT_SECRET
+        env.JWT_SECRET,
       );
 
-      return c.json({ 
-        user: newUser,
-        token
-      }, 201);
+      return c.json(
+        {
+          user: newUser,
+          token,
+        },
+        201,
+      );
     } catch (error) {
       console.error('Registration error:', error);
       return c.json({ error: 'Failed to register user' }, 500);
@@ -92,25 +96,28 @@ const app = new Hono()
       // Generate JWT token with appropriate expiration
       const expirationTime = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days or 24 hours
       const token = await sign(
-        { 
+        {
           id: user.id,
           email: user.email,
           name: user.name,
           iat: Math.floor(Date.now() / 1000), // issued at
-          exp: Math.floor(Date.now() / 1000) + expirationTime
+          exp: Math.floor(Date.now() / 1000) + expirationTime,
         },
-        env.JWT_SECRET
+        env.JWT_SECRET,
       );
 
-      return c.json({ 
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
+      return c.json(
+        {
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt,
+          },
+          token,
         },
-        token
-      }, 200);
+        200,
+      );
     } catch (error) {
       console.error('Login error:', error);
       return c.json({ error: 'Failed to login user' }, 500);

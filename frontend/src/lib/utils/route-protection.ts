@@ -5,10 +5,10 @@ import { get } from 'svelte/store';
 
 // List of public routes that don't require authentication
 const publicRoutes: string[] = [
-	'/', // Home page
-	'/login', // Login page
-	'/register' // Registration page
-	// Add other public routes here if needed
+  '/', // Home page
+  '/login', // Login page
+  '/register', // Registration page
+  // Add other public routes here if needed
 ];
 
 /**
@@ -17,8 +17,8 @@ const publicRoutes: string[] = [
  * @returns True if the route is public and doesn't require auth
  */
 export function isPublicRoute(path: string): boolean {
-	// Check if the path exactly matches any of the public routes
-	return publicRoutes.some((route) => path === route);
+  // Check if the path exactly matches any of the public routes
+  return publicRoutes.some((route) => path === route);
 }
 
 /**
@@ -28,8 +28,8 @@ export function isPublicRoute(path: string): boolean {
  * @returns True if the route requires authentication
  */
 export function isProtectedRoute(path: string): boolean {
-	// By default, all routes except public ones are protected
-	return !isPublicRoute(path);
+  // By default, all routes except public ones are protected
+  return !isPublicRoute(path);
 }
 
 /**
@@ -39,24 +39,24 @@ export function isProtectedRoute(path: string): boolean {
  * @returns True if navigation should proceed, false if redirected
  */
 export function handleProtectedRoute(path: string): boolean {
-	// Only run in browser
-	if (!browser) return true;
+  // Only run in browser
+  if (!browser) return true;
 
-	// If route is public, allow navigation regardless of auth state
-	if (isPublicRoute(path)) return true;
+  // If route is public, allow navigation regardless of auth state
+  if (isPublicRoute(path)) return true;
 
-	// For all other routes (protected by default)
-	// Get authentication state
-	const { token, initialized } = get(authStore);
+  // For all other routes (protected by default)
+  // Get authentication state
+  const { token, initialized } = get(authStore);
 
-	// If authenticated, allow navigation
-	if (token && initialized) return true;
+  // If authenticated, allow navigation
+  if (token && initialized) return true;
 
-	// If authentication is initialized and there's no token, redirect to login
-	if (initialized) {
-		goto(`/login?redirectTo=${encodeURIComponent(path)}`);
-		return false;
-	}
+  // If authentication is initialized and there's no token, redirect to login
+  if (initialized) {
+    goto(`/login?redirectTo=${encodeURIComponent(path)}`);
+    return false;
+  }
 
-	return true;
+  return true;
 }

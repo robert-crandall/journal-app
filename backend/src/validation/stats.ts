@@ -8,13 +8,10 @@ export const characterStatExampleActivitySchema = z.object({
 
 // Character stat creation validation
 export const createCharacterStatSchema = z.object({
-  name: z.string()
-    .min(1, 'Stat name is required')
-    .max(100, 'Stat name must be 100 characters or less'),
-  description: z.string()
-    .min(1, 'Stat description is required')
-    .max(500, 'Stat description must be 500 characters or less'),
-  exampleActivities: z.array(characterStatExampleActivitySchema)
+  name: z.string().min(1, 'Stat name is required').max(100, 'Stat name must be 100 characters or less'),
+  description: z.string().min(1, 'Stat description is required').max(500, 'Stat description must be 500 characters or less'),
+  exampleActivities: z
+    .array(characterStatExampleActivitySchema)
     .min(1, 'At least one example activity is required')
     .max(10, 'Maximum 10 example activities allowed'),
 });
@@ -43,11 +40,25 @@ export const createPredefinedStatsSchema = z.object({
 
 // Query validation for stats endpoints
 export const statsQuerySchema = z.object({
-  includeXpHistory: z.string().optional().transform(val => val === 'true'),
-  includeLevelTitles: z.string().optional().transform(val => val === 'true'),
+  includeXpHistory: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true'),
+  includeLevelTitles: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true'),
 });
 
 export const xpHistoryQuerySchema = z.object({
-  limit: z.string().optional().transform(val => val ? parseInt(val) : 50).pipe(z.number().int().min(1).max(100)),
-  offset: z.string().optional().transform(val => val ? parseInt(val) : 0).pipe(z.number().int().min(0)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val) : 50))
+    .pipe(z.number().int().min(1).max(100)),
+  offset: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val) : 0))
+    .pipe(z.number().int().min(0)),
 });

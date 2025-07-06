@@ -1,0 +1,38 @@
+# Build outputs
+build/
+dist/
+.svelte-kit/
+node_modules/
+
+# Generated files
+**/*.generated.*
+**/*-generated.*
+
+# SvelteKit generated files
+frontend/.svelte-kit/
+frontend/build/
+
+# Backend build outputs
+backend/dist/
+backend/build/
+
+# Test results
+test-results/
+coverage/
+
+# Docs and references with syntax errors
+.github/references/
+.github/testing/
+
+# Temporary and cache files
+*.tmp
+*.cache
+.DS_Store
+
+# Migration files
+backend/src/db/migrations/
+
+# Package lock files
+package-lock.json
+yarn.lock
+bun.lockb

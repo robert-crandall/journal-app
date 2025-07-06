@@ -4,21 +4,16 @@ import { eq, desc, and } from 'drizzle-orm';
 import { db } from '../db';
 import { characterStats, characterStatXpGrants, characterStatLevelTitles } from '../db/schema/stats';
 import { jwtAuth } from '../middleware/auth';
-import { 
-  createCharacterStatSchema, 
-  updateCharacterStatSchema, 
-  grantXpSchema, 
+import {
+  createCharacterStatSchema,
+  updateCharacterStatSchema,
+  grantXpSchema,
   levelUpSchema,
   createPredefinedStatsSchema,
   statsQuerySchema,
-  xpHistoryQuerySchema
+  xpHistoryQuerySchema,
 } from '../validation/stats';
-import { 
-  PREDEFINED_STATS, 
-  type CharacterStatWithProgress,
-  type CharacterStatXpGrant,
-  type LevelCalculation 
-} from '../types/stats';
+import { PREDEFINED_STATS, type CharacterStatWithProgress, type CharacterStatXpGrant, type LevelCalculation } from '../types/stats';
 import { calculateLevelInfo, canLevelUp as canLevelUpUtil } from '../utils/stats';
 import logger, { handleApiError } from '../utils/logger';
 
@@ -35,26 +30,22 @@ const app = new Hono()
       const enhancedStats: CharacterStatWithProgress[] = await Promise.all(
         stats.map(async (stat) => {
           const levelInfo = calculateLevelInfo(stat.currentLevel, stat.totalXp);
-          
+
           let currentLevelTitle: string | undefined;
           let nextLevelTitle: string | undefined;
-          
+
           if (includeLevelTitles) {
-            const titles = await db.select()
+            const titles = await db
+              .select()
               .from(characterStatLevelTitles)
-              .where(and(
-                eq(characterStatLevelTitles.statId, stat.id),
-                eq(characterStatLevelTitles.level, stat.currentLevel)
-              ));
+              .where(and(eq(characterStatLevelTitles.statId, stat.id), eq(characterStatLevelTitles.level, stat.currentLevel)));
             currentLevelTitle = titles[0]?.title;
 
             if (levelInfo.canLevelUp) {
-              const nextTitles = await db.select()
+              const nextTitles = await db
+                .select()
                 .from(characterStatLevelTitles)
-                .where(and(
-                  eq(characterStatLevelTitles.statId, stat.id),
-                  eq(characterStatLevelTitles.level, stat.currentLevel + 1)
-                ));
+                .where(and(eq(characterStatLevelTitles.statId, stat.id), eq(characterStatLevelTitles.level, stat.currentLevel + 1)));
               nextLevelTitle = nextTitles[0]?.title;
             }
           }
@@ -66,7 +57,7 @@ const app = new Hono()
             currentLevelTitle,
             nextLevelTitle,
           };
-        })
+        }),
       );
 
       return c.json({ success: true, data: enhancedStats });
@@ -93,21 +84,22 @@ const app = new Hono()
       console.log('Creating stat with data:', statData, 'for user:', userId);
 
       // Check if stat name already exists for this user
-      const existingStat = await db.select()
+      const existingStat = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.userId, userId),
-          eq(characterStats.name, statData.name)
-        ));
+        .where(and(eq(characterStats.userId, userId), eq(characterStats.name, statData.name)));
 
       if (existingStat.length > 0) {
         return c.json({ success: false, error: 'A stat with this name already exists' }, 400);
       }
 
-      const [newStat] = await db.insert(characterStats).values({
-        userId,
-        ...statData,
-      }).returning();
+      const [newStat] = await db
+        .insert(characterStats)
+        .values({
+          userId,
+          ...statData,
+        })
+        .returning();
 
       return c.json({ success: true, data: newStat }, 201);
     } catch (error) {
@@ -123,36 +115,33 @@ const app = new Hono()
       const { statNames } = c.req.valid('json');
 
       // Find the predefined stats
-      const predefinedToCreate = PREDEFINED_STATS.filter(stat => 
-        statNames.includes(stat.name)
-      );
+      const predefinedToCreate = PREDEFINED_STATS.filter((stat) => statNames.includes(stat.name));
 
       if (predefinedToCreate.length === 0) {
         return c.json({ success: false, error: 'No valid predefined stats found' }, 400);
       }
 
       // Check for existing stats
-      const existingStats = await db.select()
-        .from(characterStats)
-        .where(eq(characterStats.userId, userId));
-      
-      const existingStatNames = existingStats.map(stat => stat.name);
-      const statsToCreate = predefinedToCreate.filter(stat => 
-        !existingStatNames.includes(stat.name)
-      );
+      const existingStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
+
+      const existingStatNames = existingStats.map((stat) => stat.name);
+      const statsToCreate = predefinedToCreate.filter((stat) => !existingStatNames.includes(stat.name));
 
       if (statsToCreate.length === 0) {
         return c.json({ success: false, error: 'All selected stats already exist' }, 400);
       }
 
-      const newStats = await db.insert(characterStats).values(
-        statsToCreate.map(stat => ({
-          userId,
-          name: stat.name,
-          description: stat.description,
-          exampleActivities: stat.exampleActivities,
-        }))
-      ).returning();
+      const newStats = await db
+        .insert(characterStats)
+        .values(
+          statsToCreate.map((stat) => ({
+            userId,
+            name: stat.name,
+            description: stat.description,
+            exampleActivities: stat.exampleActivities,
+          })),
+        )
+        .returning();
 
       return c.json({ success: true, data: newStats }, 201);
     } catch (error) {
@@ -166,19 +155,17 @@ const app = new Hono()
       const userId = c.get('userId');
       const statId = c.req.param('id');
 
-      const [stat] = await db.select()
+      const [stat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!stat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
       const levelInfo = calculateLevelInfo(stat.currentLevel, stat.totalXp);
-      
+
       const enhancedStat: CharacterStatWithProgress = {
         ...stat,
         xpToNextLevel: levelInfo.xpToNextLevel,
@@ -199,12 +186,10 @@ const app = new Hono()
       const updateData = c.req.valid('json');
 
       // Verify ownership
-      const [existingStat] = await db.select()
+      const [existingStat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!existingStat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
@@ -212,19 +197,18 @@ const app = new Hono()
 
       // Check for name conflicts if name is being updated
       if (updateData.name && updateData.name !== existingStat.name) {
-        const conflictingStat = await db.select()
+        const conflictingStat = await db
+          .select()
           .from(characterStats)
-          .where(and(
-            eq(characterStats.userId, userId),
-            eq(characterStats.name, updateData.name)
-          ));
+          .where(and(eq(characterStats.userId, userId), eq(characterStats.name, updateData.name)));
 
         if (conflictingStat.length > 0) {
           return c.json({ success: false, error: 'A stat with this name already exists' }, 400);
         }
       }
 
-      const [updatedStat] = await db.update(characterStats)
+      const [updatedStat] = await db
+        .update(characterStats)
         .set({
           ...updateData,
           updatedAt: new Date(),
@@ -245,19 +229,16 @@ const app = new Hono()
       const statId = c.req.param('id');
 
       // Verify ownership
-      const [existingStat] = await db.select()
+      const [existingStat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!existingStat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
-      await db.delete(characterStats)
-        .where(eq(characterStats.id, statId));
+      await db.delete(characterStats).where(eq(characterStats.id, statId));
 
       return c.json({ success: true, message: 'Stat deleted successfully' });
     } catch (error) {
@@ -273,30 +254,32 @@ const app = new Hono()
       const { xpAmount, sourceType, sourceId, reason } = c.req.valid('json');
 
       // Verify stat ownership
-      const [stat] = await db.select()
+      const [stat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!stat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
       // Create XP grant record
-      const [xpGrant] = await db.insert(characterStatXpGrants).values({
-        userId,
-        statId,
-        xpAmount,
-        sourceType,
-        sourceId,
-        reason,
-      }).returning();
+      const [xpGrant] = await db
+        .insert(characterStatXpGrants)
+        .values({
+          userId,
+          statId,
+          xpAmount,
+          sourceType,
+          sourceId,
+          reason,
+        })
+        .returning();
 
       // Update stat total XP
       const newTotalXp = stat.totalXp + xpAmount;
-      const [updatedStat] = await db.update(characterStats)
+      const [updatedStat] = await db
+        .update(characterStats)
         .set({
           totalXp: newTotalXp,
           updatedAt: new Date(),
@@ -306,13 +289,13 @@ const app = new Hono()
 
       const levelInfo = calculateLevelInfo(updatedStat.currentLevel, updatedStat.totalXp);
 
-      return c.json({ 
-        success: true, 
+      return c.json({
+        success: true,
         data: {
           xpGrant,
           stat: updatedStat,
           levelInfo,
-        }
+        },
       });
     } catch (error) {
       return handleApiError(error, 'Failed to grant XP');
@@ -326,12 +309,10 @@ const app = new Hono()
       const statId = c.req.param('id');
 
       // Verify stat ownership
-      const [stat] = await db.select()
+      const [stat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!stat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
@@ -343,7 +324,8 @@ const app = new Hono()
       }
 
       // Update stat level
-      const [updatedStat] = await db.update(characterStats)
+      const [updatedStat] = await db
+        .update(characterStats)
         .set({
           currentLevel: stat.currentLevel + 1,
           updatedAt: new Date(),
@@ -353,13 +335,13 @@ const app = new Hono()
 
       const levelInfo = calculateLevelInfo(updatedStat.currentLevel, updatedStat.totalXp);
 
-      return c.json({ 
-        success: true, 
+      return c.json({
+        success: true,
         data: {
           stat: updatedStat,
           levelInfo,
           leveledUp: true,
-        }
+        },
       });
     } catch (error) {
       return handleApiError(error, 'Failed to level up stat');
@@ -374,18 +356,17 @@ const app = new Hono()
       const { limit, offset } = c.req.valid('query');
 
       // Verify stat ownership
-      const [stat] = await db.select()
+      const [stat] = await db
+        .select()
         .from(characterStats)
-        .where(and(
-          eq(characterStats.id, statId),
-          eq(characterStats.userId, userId)
-        ));
+        .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
 
       if (!stat) {
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
-      const xpHistory = await db.select()
+      const xpHistory = await db
+        .select()
         .from(characterStatXpGrants)
         .where(eq(characterStatXpGrants.statId, statId))
         .orderBy(desc(characterStatXpGrants.createdAt))

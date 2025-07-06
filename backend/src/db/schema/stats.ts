@@ -4,7 +4,9 @@ import { users } from './users';
 // Character stats table - defines the stats for a user's character
 export const characterStats = pgTable('character_stats', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description').notNull(),
   // Example activities stored as JSON array: [{ description: "Deadlift session", suggestedXp: 20 }]
@@ -18,8 +20,12 @@ export const characterStats = pgTable('character_stats', {
 // XP grants table - tracks all XP grants for auditing and history
 export const characterStatXpGrants = pgTable('character_stat_xp_grants', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  statId: uuid('stat_id').notNull().references(() => characterStats.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  statId: uuid('stat_id')
+    .notNull()
+    .references(() => characterStats.id, { onDelete: 'cascade' }),
   xpAmount: integer('xp_amount').notNull(),
   sourceType: varchar('source_type', { length: 50 }).notNull(), // 'task', 'journal', 'adhoc', 'quest'
   sourceId: uuid('source_id'), // Optional reference to the source (task ID, journal entry ID, etc.)
@@ -30,7 +36,9 @@ export const characterStatXpGrants = pgTable('character_stat_xp_grants', {
 // Level titles table - GPT-generated humorous titles for each level
 export const characterStatLevelTitles = pgTable('character_stat_level_titles', {
   id: uuid('id').primaryKey().defaultRandom(),
-  statId: uuid('stat_id').notNull().references(() => characterStats.id, { onDelete: 'cascade' }),
+  statId: uuid('stat_id')
+    .notNull()
+    .references(() => characterStats.id, { onDelete: 'cascade' }),
   level: integer('level').notNull(),
   title: varchar('title', { length: 200 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

@@ -3,7 +3,9 @@ import { users } from './users';
 
 export const characters = pgTable('characters', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   characterClass: varchar('character_class', { length: 100 }).notNull(),
   backstory: text('backstory'),
