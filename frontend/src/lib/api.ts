@@ -6,7 +6,7 @@ import { authStore } from './stores/auth';
 import type { AppType } from '../../../backend/src/index';
 
 // For SPA deployment, we need to handle different environments
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   if (browser) {
     // In browser: use current origin for production, localhost for development
     const origin = window.location.origin;
@@ -30,7 +30,7 @@ export const api = hc<AppType>(baseUrl);
  * Creates a new API client with auth token set in headers
  * Use this function when you need to make authenticated API calls
  */
-function createAuthenticatedClient() {
+export function createAuthenticatedClient() {
   const { token } = get(authStore);
 
   if (!token) {
@@ -44,6 +44,32 @@ function createAuthenticatedClient() {
       'Content-Type': 'application/json',
     },
   });
+}
+
+/**
+ * Creates authenticated fetch function with auth headers
+ * Use this for direct fetch calls when Hono client doesn't have the route
+ */
+export function createAuthenticatedFetch() {
+  const { token } = get(authStore);
+
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const baseUrl = getBaseUrl();
+
+  // Return a fetch function with auth headers pre-configured
+  return async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+    return fetch(`${baseUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+  };
 }
 
 /**

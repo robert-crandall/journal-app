@@ -17,7 +17,8 @@ export interface CreateFamilyMemberRequest {
   birthday?: string; // ISO date string (YYYY-MM-DD)
   likes?: string;
   dislikes?: string;
-  energyLevel?: string;
+  energyLevel: number;
+  notes?: string;
 }
 
 export interface UpdateFamilyMemberRequest extends Partial<CreateFamilyMemberRequest> {}

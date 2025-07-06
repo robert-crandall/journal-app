@@ -92,8 +92,10 @@ app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) =
         birthday: data.birthday || null,
         likes: data.likes || null,
         dislikes: data.dislikes || null,
-        energyLevel: data.energyLevel || null,
-        lastInteractionDate: null,
+        energyLevel: data.energyLevel,
+        connectionXp: 0,
+        connectionLevel: 1,
+        notes: data.notes || null,
       })
       .returning();
 
@@ -260,6 +262,11 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
       }, 404);
     }
 
+    // Calculate XP based on feedback
+    const baseXp = 10; // Base XP for completing a task
+    const enjoymentBonus = data.enjoyedIt === 'yes' ? 5 : 0;
+    const xpGranted = baseXp + enjoymentBonus;
+
     // Create the feedback record
     const newFeedback = await db
       .insert(familyTaskFeedback)
@@ -270,13 +277,20 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
         feedback: data.feedback || null,
         enjoyedIt: data.enjoyedIt || null,
         notes: data.notes || null,
+        xpGranted,
       })
       .returning();
 
-    // Update the family member's last interaction date
+    // Calculate new level based on XP
+    const newXp = familyMember[0].connectionXp + xpGranted;
+    const newLevel = Math.floor(newXp / 100) + 1; // Level up every 100 XP
+
+    // Update the family member's XP, level, and last interaction date
     await db
       .update(familyMembers)
       .set({
+        connectionXp: newXp,
+        connectionLevel: newLevel,
         lastInteractionDate: new Date(),
         updatedAt: new Date(),
       })

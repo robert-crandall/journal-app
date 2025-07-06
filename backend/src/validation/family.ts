@@ -7,7 +7,8 @@ export const createFamilyMemberSchema = z.object({
   birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Birthday must be in YYYY-MM-DD format').optional(),
   likes: z.string().max(1000, 'Likes must be 1000 characters or less').optional(),
   dislikes: z.string().max(1000, 'Dislikes must be 1000 characters or less').optional(),
-  energyLevel: z.string().max(50, 'Energy level must be 50 characters or less').optional(),
+  energyLevel: z.number().int().min(1).max(100).default(50),
+  notes: z.string().max(1000, 'Notes must be 1000 characters or less').optional(),
 });
 
 export const updateFamilyMemberSchema = createFamilyMemberSchema.partial();

@@ -50,7 +50,7 @@ describe('Family API', () => {
         birthday: '2010-05-15',
         likes: 'soccer, video games',
         dislikes: 'vegetables',
-        energyLevel: 'active',
+        energyLevel: 75,
       };
 
       const response = await app.request('/api/family', {
@@ -61,6 +61,11 @@ describe('Family API', () => {
           'Authorization': `Bearer ${authToken}`,
         },
       });
+
+      if (response.status !== 201) {
+        const errorData = await response.text();
+        console.log('Error response:', response.status, errorData);
+      }
 
       expect(response.status).toBe(201);
       const data = await response.json();
@@ -97,7 +102,7 @@ describe('Family API', () => {
       expect(data.data.birthday).toBe(null);
       expect(data.data.likes).toBe(null);
       expect(data.data.dislikes).toBe(null);
-      expect(data.data.energyLevel).toBe(null);
+      expect(data.data.energyLevel).toBe(50);
     });
 
     test('should require authentication', async () => {
@@ -256,7 +261,7 @@ describe('Family API', () => {
         name: 'John Jr.',
         likes: 'soccer, basketball',
         dislikes: 'homework',
-        energyLevel: 'very active',
+        energyLevel: 90,
       };
 
       const response = await app.request(`/api/family/${familyMemberId}`, {
@@ -274,7 +279,7 @@ describe('Family API', () => {
       expect(data.data.name).toBe('John Jr.');
       expect(data.data.likes).toBe('soccer, basketball');
       expect(data.data.dislikes).toBe('homework');
-      expect(data.data.energyLevel).toBe('very active');
+      expect(data.data.energyLevel).toBe(90);
       expect(data.data.relationship).toBe('son'); // Unchanged field
     });
 

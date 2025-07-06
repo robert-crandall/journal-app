@@ -1,5 +1,5 @@
-import { get } from 'svelte/store';
-import { authStore } from '../stores/auth';
+// Import shared authentication utilities
+import { createAuthenticatedFetch } from '../api';
 
 // Import types from backend
 // TODO: Once module resolution is fixed, import directly from backend
@@ -70,45 +70,13 @@ interface ApiError {
   error: string;
 }
 
-// Get base URL helper
-function getBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    const origin = window.location.origin;
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return 'http://localhost:3000';
-    }
-    return origin;
-  }
-  return 'http://localhost:3000';
-}
-
-// Helper function to make authenticated requests
-async function makeAuthenticatedRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
-  const { token } = get(authStore);
-  
-  if (!token) {
-    throw new Error('Authentication required');
-  }
-
-  const baseUrl = getBaseUrl();
-  const url = `${baseUrl}${endpoint}`;
-
-  return fetch(url, {
-    ...options,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-}
-
-// Type-safe family API using direct fetch calls
+// Type-safe family API using shared authentication pattern
 export const familyApi = {
   // Get user's family members
   async getFamilyMembers(): Promise<FamilyMember[]> {
     try {
-      const response = await makeAuthenticatedRequest('/api/family');
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch('/api/family');
 
       if (!response.ok) {
         console.error('Get family members API error:', response.status, response.statusText);
@@ -127,7 +95,8 @@ export const familyApi = {
   // Get specific family member by ID
   async getFamilyMember(memberId: string): Promise<FamilyMember> {
     try {
-      const response = await makeAuthenticatedRequest(`/api/family/${memberId}`);
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(`/api/family/${memberId}`);
 
       if (!response.ok) {
         console.error('Get family member API error:', response.status, response.statusText);
@@ -146,7 +115,8 @@ export const familyApi = {
   // Create a new family member
   async createFamilyMember(data: CreateFamilyMemberRequest): Promise<FamilyMember> {
     try {
-      const response = await makeAuthenticatedRequest('/api/family', {
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch('/api/family', {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -176,7 +146,8 @@ export const familyApi = {
   // Update an existing family member
   async updateFamilyMember(memberId: string, data: UpdateFamilyMemberRequest): Promise<FamilyMember> {
     try {
-      const response = await makeAuthenticatedRequest(`/api/family/${memberId}`, {
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(`/api/family/${memberId}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       });
@@ -206,7 +177,8 @@ export const familyApi = {
   // Delete a family member
   async deleteFamilyMember(memberId: string): Promise<void> {
     try {
-      const response = await makeAuthenticatedRequest(`/api/family/${memberId}`, {
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(`/api/family/${memberId}`, {
         method: 'DELETE',
       });
 
@@ -226,7 +198,8 @@ export const familyApi = {
   // Add task feedback for a family member
   async addTaskFeedback(memberId: string, data: CreateFamilyTaskFeedbackRequest): Promise<FamilyTaskFeedback> {
     try {
-      const response = await makeAuthenticatedRequest(`/api/family/${memberId}/feedback`, {
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(`/api/family/${memberId}/feedback`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -264,7 +237,8 @@ export const familyApi = {
       const query = queryParams.toString();
       const endpoint = `/api/family/${memberId}/feedback${query ? `?${query}` : ''}`;
       
-      const response = await makeAuthenticatedRequest(endpoint);
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(endpoint);
 
       if (!response.ok) {
         console.error('Get task feedback API error:', response.status, response.statusText);
