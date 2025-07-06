@@ -85,6 +85,20 @@ export const statLevelTitles = pgTable('stat_level_titles', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const goals = pgTable('goals', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  tags: json('tags').$type<string[]>(),
+  active: integer('active').notNull().default(1), // SQLite-style boolean (0/1)
+  archived: integer('archived').notNull().default(0), // SQLite-style boolean (0/1)
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Content = typeof content.$inferSelect;
@@ -92,3 +106,4 @@ export type Stat = typeof stats.$inferSelect;
 export type StatActivity = typeof statActivities.$inferSelect;
 export type XpGrant = typeof xpGrants.$inferSelect;
 export type StatLevelTitle = typeof statLevelTitles.$inferSelect;
+export type Goal = typeof goals.$inferSelect;
