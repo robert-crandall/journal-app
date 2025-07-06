@@ -47,11 +47,12 @@ async function startDev() {
     if (migrateResult.status === 0) {
       console.log('✅ Database migrations applied successfully\n');
     } else {
-      console.warn('⚠️  Database migration failed, but continuing with server start...\n');
+      console.warn('⚠️  Database migration failed.\n');
+      throw new Error('Database migration failed');
     }
   } catch (error) {
     console.warn('⚠️  Could not run database migrations:', error.message);
-    console.warn('   Continuing with server start...\n');
+    throw new Error('Database migration error');
   }
 
   try {
