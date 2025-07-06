@@ -14,7 +14,7 @@
   - Description: Users define and track personal stats (e.g., Strength, Wisdom, Fatherhood), each with XP and levels.
   - Depends on: Character Creation
 
-- [ ] **Goals Management**
+- [x] **Goals Management**
   - Description: Users set high-level goals for personal growth and context.
   - Depends on: User Authentication
 
