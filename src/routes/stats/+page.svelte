@@ -41,31 +41,6 @@
     }
   });
 
-  // Watch for form state changes
-  $effect(() => {
-    if (form?.success) {
-      showCreateForm = false;
-      editingStat = null;
-      awardingXpStat = null;
-      selectedIcon = '';
-      editingIcon = '';
-      exampleActivities = {};
-      editingExampleActivities = {};
-    }
-
-    // Restore form data on form error
-    if (form && 'icon' in form) {
-      selectedIcon = form.icon as string;
-    }
-    if (form && 'exampleActivities' in form) {
-      try {
-        exampleActivities = JSON.parse((form.exampleActivities as string) || '{}');
-      } catch {
-        exampleActivities = {};
-      }
-    }
-  });
-
   function calculateXpProgress(currentXp: number, totalXpForCurrentLevel: number, totalXpForNextLevel: number) {
     const currentLevelXp = currentXp - totalXpForCurrentLevel;
     const nextLevelXp = totalXpForNextLevel - totalXpForCurrentLevel;
@@ -94,7 +69,7 @@
         <h1 class="text-base-content text-3xl font-bold">Character Stats</h1>
         <p class="text-base-content/70 mt-2">Track your personal growth and level up your life</p>
       </div>
-      <button class="btn btn-primary" onclick={() => (showCreateForm = true)}>
+      <button class="btn btn-primary" onclick={() => (showCreateForm = true)} data-testid="create-stat-btn">
         <Plus size={20} />
         Create Stat
       </button>
@@ -125,7 +100,7 @@
           <div class="card bg-base-100 shadow-lg">
             <div class="card-body">
               <h2 class="card-title mb-6 text-2xl">Create New Stat</h2>
-              <form method="POST" action="?/create" use:enhance class="space-y-6">
+              <form method="POST" action="?/create" use:enhance class="space-y-6" data-testid="create-stat-form">
                 <input type="hidden" name="icon" value={selectedIcon} />
                 <input type="hidden" name="exampleActivities" value={JSON.stringify(exampleActivities)} />
 
@@ -215,7 +190,7 @@
         <BarChart3 size={48} class="text-base-content/50 mx-auto mb-4" />
         <h3 class="text-base-content/70 mb-2 text-xl font-semibold">No stats yet</h3>
         <p class="text-base-content/50 mb-4">Create your first stat to start tracking your personal growth</p>
-        <button class="btn btn-primary" onclick={() => (showCreateForm = true)}>
+        <button class="btn btn-primary" onclick={() => (showCreateForm = true)} data-testid="create-first-stat-btn">
           <Plus size={20} />
           Create Your First Stat
         </button>

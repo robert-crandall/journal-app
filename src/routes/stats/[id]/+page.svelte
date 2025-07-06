@@ -57,7 +57,7 @@
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
   <div class="mb-8 flex items-center gap-4">
-    <button class="btn btn-ghost btn-sm" onclick={() => goto('/stats')}>
+    <button class="btn btn-ghost btn-sm" onclick={() => goto('/stats')} data-testid="back-to-stats-btn">
       <ArrowLeft size={20} />
     </button>
     <StatIcon icon={data.stat.icon} size={32} class="text-primary" />
