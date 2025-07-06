@@ -7,12 +7,14 @@ import { goals } from '../db/schema/goals';
 import { createGoalSchema, updateGoalSchema } from '../validation/goals';
 import { HTTPException } from 'hono/http-exception';
 import { handleApiError } from '../utils/logger';
-import type { GoalWithParsedTags, CreateGoalWithTags } from '../types/goals';
+import type { GoalWithParsedTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
 
-// Helper function to parse tags from JSON string
+// Helper function to parse tags from JSON string and serialize dates
 const parseGoalTags = (goal: any): GoalWithParsedTags => ({
   ...goal,
   tags: goal.tags ? JSON.parse(goal.tags) : [],
+  createdAt: goal.createdAt.toISOString(),
+  updatedAt: goal.updatedAt.toISOString(),
 });
 
 // Helper function to serialize tags to JSON string
@@ -87,7 +89,7 @@ const app = new Hono()
         .values({
           userId,
           title: data.title,
-          description: data.description,
+          description: data.description || null,
           tags: serializeGoalTags(data.tags),
           isActive: data.isActive ?? true,
           isArchived: data.isArchived ?? false,
@@ -114,7 +116,7 @@ const app = new Hono()
     try {
       const userId = getUserId(c);
       const goalId = c.req.param('id');
-      const data = c.req.valid('json') as Partial<CreateGoalWithTags>;
+      const data = c.req.valid('json') as UpdateGoalWithTags;
 
       // Check if goal exists and belongs to the user
       const existingGoal = await db
@@ -134,13 +136,24 @@ const app = new Hono()
       }
 
       const updateData: any = {
-        ...data,
         updatedAt: new Date(),
       };
 
-      // Handle tags serialization if tags are provided
+      // Only update provided fields
+      if (data.title !== undefined) {
+        updateData.title = data.title;
+      }
+      if (data.description !== undefined) {
+        updateData.description = data.description || null;
+      }
       if (data.tags !== undefined) {
         updateData.tags = serializeGoalTags(data.tags);
+      }
+      if (data.isActive !== undefined) {
+        updateData.isActive = data.isActive;
+      }
+      if (data.isArchived !== undefined) {
+        updateData.isArchived = data.isArchived;
       }
 
       const updatedGoal = await db
