@@ -58,9 +58,9 @@ These are the fundamental rules that support our development process.
 
 Note: Always `cd` to the full path before running these commands.
 
-- **Start backend and frontend server**: `bun run dev --force`
+- **Start backend and frontend server**: `bun run dev:force`
 - **Run backend and frontend tests**: `bun run test`
-- **Run backend tests**: `cd backend && bun run test`
-- **Run frontend E2E tests**: `cd frontend && bun run test:e2e`
-- **Migrate databases for test**: This is taken care of when running `bun run test`
-- **Migrate databases for other environments**: `cd backend && bun run db:generate && bun run db:migrate`
+- **Run backend tests**: `bun run test:backend`
+- **Run E2E tests**: `bun run test:e2e`
+- **Migrate databases for test**: `NODE_ENV=test bun run db:setup`
+- **Reset database**: `NODE_ENV=test bun run db:reset`

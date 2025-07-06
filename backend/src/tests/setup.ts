@@ -37,6 +37,7 @@ export async function cleanDatabase() {
     await db.delete(schema.characterStatXpGrants);
     await db.delete(schema.characterStatLevelTitles);
     await db.delete(schema.characterStats);
+    await db.delete(schema.goals);
     await db.delete(schema.characters);
     await db.delete(schema.users);
   } catch (error) {
