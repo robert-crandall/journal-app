@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Stats Management', () => {
-  test.beforeEach(async ({ page }) => {
-    // Register a test user
-    const testUser = {
-      email: `stats-test-${Date.now()}@journal.com`,
-      password: 'password123',
-      name: 'Stats Test User',
-    };
+  const testUser = {
+    email: `stats-test-${Date.now()}@journal.com`,
+    password: 'password123',
+    name: 'Stats Test User',
+  };
 
+  test.beforeAll(async ({ browser }) => {
+    // Create a single test user for all tests
+    const page = await browser.newPage();
     await page.goto('/register');
     await page.fill('input[name="name"]', testUser.name);
     await page.fill('input[name="email"]', testUser.email);
@@ -17,6 +18,45 @@ test.describe('Stats Management', () => {
 
     // Should be logged in and on dashboard
     await expect(page).toHaveURL('/dashboard');
+    await page.close();
+  });
+
+  test.beforeEach(async ({ page }) => {
+    // Login with the existing user
+    await page.goto('/login');
+    await page.fill('input[name="email"]', testUser.email);
+    await page.fill('input[name="password"]', testUser.password);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL('/dashboard');
+
+    // Clean up any existing stats
+    await page.goto('/stats');
+
+    // Delete all existing stats
+    while (true) {
+      const statCards = page.locator('.card').filter({ has: page.locator('h3') });
+      const count = await statCards.count();
+
+      if (count === 0) {
+        break; // No more stats to delete
+      }
+
+      // Delete the first stat - use more specific scoped selector
+      await statCards.first().locator('.dropdown .btn:has-text("⋮")').click();
+      await statCards.first().locator('.dropdown .dropdown-content').waitFor({ state: 'visible' });
+
+      // Handle the delete confirmation dialog
+      page.removeAllListeners('dialog');
+      page.once('dialog', (dialog) => dialog.accept());
+
+      await page.click('button[type="submit"]:has-text("Delete")');
+
+      // Wait a bit for the deletion to process
+      await page.waitForTimeout(100);
+    }
+
+    // Ensure we're in empty state
+    await expect(page.locator('text=No stats yet')).toBeVisible();
   });
 
   test('should show empty state when no stats exist', async ({ page }) => {
@@ -55,9 +95,12 @@ test.describe('Stats Management', () => {
   test('should award XP and level up', async ({ page }) => {
     await page.goto('/stats');
 
+    // Ensure we're in empty state first
+    await expect(page.locator('[data-testid="create-first-stat-btn"]')).toBeVisible();
+
     // Create a stat first using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
     await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
     await page.fill('input[name="name"]', 'Test Stat');
@@ -87,10 +130,10 @@ test.describe('Stats Management', () => {
 
     // Create a stat using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
     await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
-    
+
     await page.fill('input[name="name"]', 'Fitness');
     await page.click('button[type="submit"]:has-text("Create Stat")');
 
@@ -121,10 +164,10 @@ test.describe('Stats Management', () => {
 
     // Create a stat using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
     await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
-    
+
     await page.fill('input[name="name"]', 'Test Stat');
     await page.click('button[type="submit"]:has-text("Create Stat")');
 
@@ -157,10 +200,10 @@ test.describe('Stats Management', () => {
 
     // Create a stat using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
-    await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
-    
+    await page.waitForSelector('[data-testid="create-stat-form"]');
+
     await page.fill('input[name="name"]', 'Original Name');
     await page.fill('textarea[name="description"]', 'Original description');
     await page.click('button[type="submit"]:has-text("Create Stat")');
@@ -202,10 +245,10 @@ test.describe('Stats Management', () => {
 
     // Create a stat and navigate to detail page using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
     await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
-    
+
     await page.fill('input[name="name"]', 'Navigation Test');
     await page.click('button[type="submit"]:has-text("Create Stat")');
 
@@ -230,10 +273,10 @@ test.describe('Stats Management', () => {
 
     // Create a stat using data-testid
     await page.click('[data-testid="create-first-stat-btn"]');
-    
+
     // Wait for the form to appear using data-testid
     await page.waitForSelector('[data-testid="create-stat-form"]', { state: 'visible' });
-    
+
     await page.fill('input[name="name"]', 'XP Test');
     await page.click('button[type="submit"]:has-text("Create Stat")');
 

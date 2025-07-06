@@ -18,6 +18,7 @@
 
   // Watch for form state changes
   $effect(() => {
+    // Only reset form state if we have a successful form submission
     if (form?.success) {
       showCreateForm = false;
       editingStat = null;
@@ -28,11 +29,11 @@
       editingExampleActivities = {};
     }
 
-    // Restore form data on form error
-    if (form && 'icon' in form) {
+    // Restore form data on form error (but don't close the form)
+    if (form && 'icon' in form && !form.success) {
       selectedIcon = form.icon as string;
     }
-    if (form && 'exampleActivities' in form) {
+    if (form && 'exampleActivities' in form && !form.success) {
       try {
         exampleActivities = JSON.parse((form.exampleActivities as string) || '{}');
       } catch {
