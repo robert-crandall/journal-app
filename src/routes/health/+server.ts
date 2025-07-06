@@ -1,16 +1,25 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { getBuildInfo, formatBuildTime, getShortCommit } from '$lib/server/build-info.js';
 
 export const GET: RequestHandler = async () => {
   // Basic health check - you can add more sophisticated checks here
   // such as database connectivity, external service availability, etc.
+
+  const buildInfo = getBuildInfo();
 
   const healthCheck = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    buildTime: process.env.BUILD_TIME || 'unknown',
+    build: {
+      time: buildInfo.buildTime,
+      timeFormatted: formatBuildTime(buildInfo.buildTime),
+      gitCommit: buildInfo.gitCommit,
+      gitCommitShort: getShortCommit(buildInfo.gitCommit),
+      version: buildInfo.version,
+    },
   };
 
   try {
@@ -24,6 +33,11 @@ export const GET: RequestHandler = async () => {
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
+        build: {
+          time: buildInfo.buildTime,
+          gitCommit: buildInfo.gitCommit,
+          gitCommitShort: getShortCommit(buildInfo.gitCommit),
+        },
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 503 },

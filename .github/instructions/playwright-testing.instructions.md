@@ -110,6 +110,7 @@ applyTo: 'e2e/**/*.test.ts'
 ## Test Structure
 
 ### Single User Pattern (Preferred)
+
 - **Create one test user in `beforeAll` and reuse across all tests**
 - More reliable than creating new users per test
 - Prevents cross-test contamination and timing issues
@@ -122,7 +123,7 @@ test.describe('Feature Tests', () => {
     password: 'password123',
     name: 'Test User',
   };
-  
+
   test.beforeAll(async ({ browser }) => {
     // Create single user for all tests
     const page = await browser.newPage();
@@ -145,24 +146,24 @@ test.describe('Feature Tests', () => {
 
     // Clean up application state to reset to starting point
     await page.goto('/feature');
-    
+
     // Delete all existing items using scoped selectors
     while (true) {
       const items = page.locator('.card').filter({ has: page.locator('h3') });
       const count = await items.count();
-      
+
       if (count === 0) break;
-      
+
       await items.first().locator('.dropdown .btn:has-text("⋮")').click();
       await items.first().locator('.dropdown .dropdown-content').waitFor({ state: 'visible' });
-      
+
       page.removeAllListeners('dialog');
       page.once('dialog', (dialog) => dialog.accept());
-      
+
       await page.click('button[type="submit"]:has-text("Delete")');
       await page.waitForTimeout(100);
     }
-    
+
     await expect(page.locator('text=No items yet')).toBeVisible();
   });
 });

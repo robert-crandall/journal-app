@@ -25,9 +25,11 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Set build timestamp
+# Set build timestamp and git commit
 ARG BUILD_TIME
+ARG GIT_COMMIT
 ENV BUILD_TIME=${BUILD_TIME}
+ENV GIT_COMMIT=${GIT_COMMIT}
 
 # Copy built application and dependencies
 COPY --from=builder /app/build ./build
