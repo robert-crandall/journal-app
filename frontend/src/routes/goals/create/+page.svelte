@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { goalsApi, type CreateGoal } from '$lib/api/goals';
+  import { goalsApi, type CreateGoalWithTags } from '$lib/api/goals';
   import { Target, Plus, X, Save } from 'lucide-svelte';
 
   // Form state
@@ -51,7 +51,7 @@
       loading = true;
       error = null;
 
-      const goalData: CreateGoal = {
+      const goalData: CreateGoalWithTags = {
         title: title.trim(),
         description: description.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,

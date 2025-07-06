@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { goalsApi, type GoalWithParsedTags, type UpdateGoal } from '$lib/api/goals';
+  import { goalsApi, type GoalWithParsedTags, type UpdateGoalWithTags } from '$lib/api/goals';
   import { Target, Plus, X, Save, ArrowLeft } from 'lucide-svelte';
 
   // Get goal ID from route params
@@ -80,15 +80,19 @@
   }
 
   // Check if form has changes
-  let hasChanges = $derived(
-    originalGoal && (
+  function checkChanges(): boolean {
+    if (!originalGoal) return false;
+    
+    return (
       title !== originalGoal.title ||
       description !== (originalGoal.description || '') ||
       JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal.tags.sort()) ||
       isActive !== originalGoal.isActive ||
       isArchived !== originalGoal.isArchived
-    )
-  );
+    );
+  }
+  
+  let hasChanges = $derived(checkChanges());
 
   // Form submission
   async function handleSubmit() {
@@ -103,7 +107,7 @@
       loading = true;
       error = null;
 
-      const updates: UpdateGoal = {};
+      const updates: UpdateGoalWithTags = {};
       
       // Only include fields that have changed
       if (title !== originalGoal?.title) {
