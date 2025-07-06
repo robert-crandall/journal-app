@@ -119,12 +119,13 @@ export async function cleanupGoals(page: Page): Promise<void> {
     await page.waitForLoadState('networkidle');
 
     // Simple approach: just delete any goals we find
-    for (let i = 0; i < 10; i++) { // Max 10 attempts
+    for (let i = 0; i < 10; i++) {
+      // Max 10 attempts
       try {
         // Look for delete buttons
         const deleteButton = page.locator('button:has-text("Delete")').first();
         const isVisible = await deleteButton.isVisible();
-        
+
         if (!isVisible) {
           // No delete buttons visible, check archived view
           try {
@@ -148,7 +149,7 @@ export async function cleanupGoals(page: Page): Promise<void> {
         await deleteButton.click();
         const dialog = await dialogPromise;
         await dialog.accept();
-        
+
         // Wait for deletion to complete
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(200); // Small delay for UI update
