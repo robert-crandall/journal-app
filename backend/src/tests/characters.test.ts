@@ -9,20 +9,20 @@ describe('Characters API Integration Tests', () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-    
+
     // Create a test user and get auth token for protected routes
     const userData = {
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     const registerRes = await app.request('/api/users', {
       method: 'POST',
       body: JSON.stringify(userData),
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     expect(registerRes.status).toBe(201);
@@ -35,8 +35,8 @@ describe('Characters API Integration Tests', () => {
     it('should return null when user has no character', async () => {
       const res = await app.request('/api/characters', {
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(200);
@@ -52,7 +52,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: 'Ranger',
         backstory: 'A wandering ranger from the north',
         goals: 'Protect the realm and find adventure',
-        motto: 'Not all who wander are lost'
+        motto: 'Not all who wander are lost',
       };
 
       const createRes = await app.request('/api/characters', {
@@ -60,8 +60,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(createRes.status).toBe(201);
@@ -69,8 +69,8 @@ describe('Characters API Integration Tests', () => {
       // Now get the character
       const getRes = await app.request('/api/characters', {
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(getRes.status).toBe(200);
@@ -82,7 +82,7 @@ describe('Characters API Integration Tests', () => {
         backstory: characterData.backstory,
         goals: characterData.goals,
         motto: characterData.motto,
-        userId: userId
+        userId: userId,
       });
       expect(data.data).toHaveProperty('id');
       expect(data.data).toHaveProperty('createdAt');
@@ -102,7 +102,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: 'Archer',
         backstory: 'An elven prince with keen eyes',
         goals: 'Master archery and protect nature',
-        motto: 'Swift as the wind, precise as starlight'
+        motto: 'Swift as the wind, precise as starlight',
       };
 
       const res = await app.request('/api/characters', {
@@ -110,13 +110,13 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(201);
       const responseData = await res.json();
-      
+
       // Check response structure
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
@@ -125,7 +125,7 @@ describe('Characters API Integration Tests', () => {
         backstory: characterData.backstory,
         goals: characterData.goals,
         motto: characterData.motto,
-        userId: userId
+        userId: userId,
       });
       expect(responseData.data).toHaveProperty('id');
       expect(responseData.data).toHaveProperty('createdAt');
@@ -133,11 +133,7 @@ describe('Characters API Integration Tests', () => {
 
       // Verify character was actually created in database
       const db = testDb();
-      const dbCharacter = await db
-        .select()
-        .from(schema.characters)
-        .where(eq(schema.characters.userId, userId))
-        .limit(1);
+      const dbCharacter = await db.select().from(schema.characters).where(eq(schema.characters.userId, userId)).limit(1);
 
       expect(dbCharacter).toHaveLength(1);
       expect(dbCharacter[0].name).toBe(characterData.name);
@@ -150,7 +146,7 @@ describe('Characters API Integration Tests', () => {
     it('should create character with minimal data (name and class only)', async () => {
       const characterData = {
         name: 'Gimli',
-        characterClass: 'Warrior'
+        characterClass: 'Warrior',
       };
 
       const res = await app.request('/api/characters', {
@@ -158,13 +154,13 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(201);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
         name: characterData.name,
@@ -172,14 +168,14 @@ describe('Characters API Integration Tests', () => {
         backstory: null,
         goals: null,
         motto: null,
-        userId: userId
+        userId: userId,
       });
     });
 
     it('should prevent creating multiple characters for same user', async () => {
       const characterData = {
         name: 'First Character',
-        characterClass: 'Mage'
+        characterClass: 'Mage',
       };
 
       // Create first character
@@ -188,8 +184,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(firstRes.status).toBe(201);
@@ -197,7 +193,7 @@ describe('Characters API Integration Tests', () => {
       // Try to create second character
       const secondCharacterData = {
         name: 'Second Character',
-        characterClass: 'Rogue'
+        characterClass: 'Rogue',
       };
 
       const secondRes = await app.request('/api/characters', {
@@ -205,8 +201,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(secondCharacterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(secondRes.status).toBe(400);
@@ -218,15 +214,15 @@ describe('Characters API Integration Tests', () => {
     it('should require authentication', async () => {
       const characterData = {
         name: 'Test Character',
-        characterClass: 'Test Class'
+        characterClass: 'Test Class',
       };
 
       const res = await app.request('/api/characters', {
         method: 'POST',
         body: JSON.stringify(characterData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(401);
@@ -234,7 +230,7 @@ describe('Characters API Integration Tests', () => {
 
     it('should validate required fields', async () => {
       const invalidData = {
-        backstory: 'Missing name and class'
+        backstory: 'Missing name and class',
       };
 
       const res = await app.request('/api/characters', {
@@ -242,8 +238,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(invalidData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(400);
@@ -257,7 +253,7 @@ describe('Characters API Integration Tests', () => {
     it('should validate field lengths', async () => {
       const invalidData = {
         name: 'a'.repeat(101), // Too long
-        characterClass: 'Valid Class'
+        characterClass: 'Valid Class',
       };
 
       const res = await app.request('/api/characters', {
@@ -265,8 +261,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(invalidData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(400);
@@ -281,7 +277,7 @@ describe('Characters API Integration Tests', () => {
       const invalidData = {
         name: 'Valid Name',
         characterClass: 'Valid Class',
-        motto: 'a'.repeat(201) // Too long
+        motto: 'a'.repeat(201), // Too long
       };
 
       const res = await app.request('/api/characters', {
@@ -289,8 +285,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(invalidData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(400);
@@ -310,7 +306,7 @@ describe('Characters API Integration Tests', () => {
         characterClass: 'Original Class',
         backstory: 'Original backstory',
         goals: 'Original goals',
-        motto: 'Original motto'
+        motto: 'Original motto',
       };
 
       const res = await app.request('/api/characters', {
@@ -318,8 +314,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(201);
@@ -330,7 +326,7 @@ describe('Characters API Integration Tests', () => {
         name: 'Updated Name',
         backstory: 'Updated backstory',
         goals: 'Updated goals',
-        motto: 'Updated motto'
+        motto: 'Updated motto',
       };
 
       const res = await app.request('/api/characters', {
@@ -338,13 +334,13 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(updateData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
         name: updateData.name,
@@ -352,16 +348,12 @@ describe('Characters API Integration Tests', () => {
         backstory: updateData.backstory,
         goals: updateData.goals,
         motto: updateData.motto,
-        userId: userId
+        userId: userId,
       });
 
       // Verify in database
       const db = testDb();
-      const dbCharacter = await db
-        .select()
-        .from(schema.characters)
-        .where(eq(schema.characters.userId, userId))
-        .limit(1);
+      const dbCharacter = await db.select().from(schema.characters).where(eq(schema.characters.userId, userId)).limit(1);
 
       expect(dbCharacter[0].name).toBe(updateData.name);
       expect(dbCharacter[0].backstory).toBe(updateData.backstory);
@@ -371,7 +363,7 @@ describe('Characters API Integration Tests', () => {
 
     it('should allow partial updates', async () => {
       const updateData = {
-        goals: 'Only updating goals'
+        goals: 'Only updating goals',
       };
 
       const res = await app.request('/api/characters', {
@@ -379,13 +371,13 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(updateData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data.goals).toBe(updateData.goals);
       expect(responseData.data.name).toBe('Original Name'); // Should remain unchanged
@@ -397,12 +389,12 @@ describe('Characters API Integration Tests', () => {
       await app.request('/api/characters', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       const updateData = {
-        name: 'Updated Name'
+        name: 'Updated Name',
       };
 
       const res = await app.request('/api/characters', {
@@ -410,8 +402,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(updateData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(404);
@@ -422,15 +414,15 @@ describe('Characters API Integration Tests', () => {
 
     it('should require authentication', async () => {
       const updateData = {
-        name: 'Updated Name'
+        name: 'Updated Name',
       };
 
       const res = await app.request('/api/characters', {
         method: 'PUT',
         body: JSON.stringify(updateData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(401);
@@ -442,7 +434,7 @@ describe('Characters API Integration Tests', () => {
       // Create a character for delete tests
       const characterData = {
         name: 'Character to Delete',
-        characterClass: 'Doomed Class'
+        characterClass: 'Doomed Class',
       };
 
       const res = await app.request('/api/characters', {
@@ -450,8 +442,8 @@ describe('Characters API Integration Tests', () => {
         body: JSON.stringify(characterData),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(201);
@@ -461,27 +453,23 @@ describe('Characters API Integration Tests', () => {
       const res = await app.request('/api/characters', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
         name: 'Character to Delete',
         characterClass: 'Doomed Class',
-        userId: userId
+        userId: userId,
       });
 
       // Verify character was actually deleted from database
       const db = testDb();
-      const dbCharacter = await db
-        .select()
-        .from(schema.characters)
-        .where(eq(schema.characters.userId, userId))
-        .limit(1);
+      const dbCharacter = await db.select().from(schema.characters).where(eq(schema.characters.userId, userId)).limit(1);
 
       expect(dbCharacter).toHaveLength(0);
     });
@@ -491,16 +479,16 @@ describe('Characters API Integration Tests', () => {
       await app.request('/api/characters', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       // Try to delete again
       const res = await app.request('/api/characters', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(res.status).toBe(404);
@@ -511,7 +499,7 @@ describe('Characters API Integration Tests', () => {
 
     it('should require authentication', async () => {
       const res = await app.request('/api/characters', {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       expect(res.status).toBe(401);

@@ -58,13 +58,13 @@ async function runSeed() {
 async function checkDatabaseConnection() {
   try {
     console.log('Checking database connection...');
-    const testPool = new Pool({ 
+    const testPool = new Pool({
       connectionString: env.DATABASE_URL,
       // Short timeout for quick connection check
       connectionTimeoutMillis: 5000,
       idleTimeoutMillis: 1000,
     });
-    
+
     await testPool.query('SELECT 1');
     await testPool.end();
     console.log('✅ Database is already online');
@@ -79,20 +79,17 @@ async function createDatabaseIfNeeded() {
   // Parse the DATABASE_URL to get connection details
   const dbUrl = new URL(env.DATABASE_URL);
   const dbName = dbUrl.pathname.slice(1); // Remove leading '/'
-  
+
   // Create connection to postgres database (not the target database)
   const postgresUrl = new URL(env.DATABASE_URL);
   postgresUrl.pathname = '/postgres';
-  
+
   const adminPool = new Pool({ connectionString: postgresUrl.toString() });
-  
+
   try {
     // Check if target database exists
-    const result = await adminPool.query(
-      'SELECT 1 FROM pg_database WHERE datname = $1',
-      [dbName]
-    );
-    
+    const result = await adminPool.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);
+
     if (result.rows.length === 0) {
       console.log(`🗃️ Creating database '${dbName}'...`);
       await adminPool.query(`CREATE DATABASE "${dbName}"`);
@@ -106,7 +103,7 @@ async function createDatabaseIfNeeded() {
   } finally {
     await adminPool.end();
   }
-  
+
   // Now verify we can connect to the target database
   const isOnline = await checkDatabaseConnection();
   if (!isOnline) {

@@ -53,7 +53,7 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Go for a challenging hike', suggestedXp: 30 },
       { description: 'Heavy lifting or moving furniture', suggestedXp: 20 },
       { description: 'Sports or physical activity', suggestedXp: 35 },
-    ]
+    ],
   },
   {
     name: 'Wisdom',
@@ -63,7 +63,7 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Solve a complex problem', suggestedXp: 30 },
       { description: 'Meditate or practice mindfulness', suggestedXp: 15 },
       { description: 'Learn a new skill', suggestedXp: 40 },
-    ]
+    ],
   },
   {
     name: 'Fatherhood',
@@ -73,7 +73,7 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Help with homework or learning', suggestedXp: 30 },
       { description: 'Have a meaningful conversation', suggestedXp: 35 },
       { description: 'Take kids on an adventure', suggestedXp: 40 },
-    ]
+    ],
   },
   {
     name: 'Adventure',
@@ -83,7 +83,7 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Try a new outdoor activity', suggestedXp: 40 },
       { description: 'Visit a new place', suggestedXp: 30 },
       { description: 'Plan an adventure', suggestedXp: 20 },
-    ]
+    ],
   },
   {
     name: 'Self-Control',
@@ -93,7 +93,7 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Avoid unhealthy habits', suggestedXp: 30 },
       { description: 'Complete a difficult but important task', suggestedXp: 35 },
       { description: 'Practice delayed gratification', suggestedXp: 20 },
-    ]
+    ],
   },
   {
     name: 'Creativity',
@@ -103,6 +103,6 @@ export const PREDEFINED_STATS: PredefinedStat[] = [
       { description: 'Write, draw, or make music', suggestedXp: 25 },
       { description: 'Brainstorm new ideas', suggestedXp: 20 },
       { description: 'Learn a creative skill', suggestedXp: 35 },
-    ]
+    ],
   },
 ];

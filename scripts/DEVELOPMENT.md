@@ -19,24 +19,28 @@ bun run logs
 ## Available Commands
 
 ### `bun dev`
+
 - Starts both backend and frontend simultaneously
 - Shows combined logs with color-coded prefixes
 - Automatically stops all services when you press Ctrl+C
 - Uses `concurrently` to manage multiple processes
 
 ### `bun run backend`
+
 - Checks if backend is already running on port 3000
 - If running: exits with success (code 0)
 - If not running: starts the backend
 - If port is occupied but backend not responding: exits with error (code 1)
 
-### `bun run frontend` 
+### `bun run frontend`
+
 - Checks if frontend is already running on common ports (5173, 4173, etc.)
 - If running: exits with success (code 0)
 - If not running: starts the frontend
 - If port is occupied but frontend not responding: exits with error (code 1)
 
 ### `bun run logs`
+
 - Shows status of all running services
 - Displays process information
 - Shows port usage
@@ -51,6 +55,7 @@ bun run logs
 ## Troubleshooting
 
 ### Services won't start
+
 ```bash
 # Check what's running
 bun run logs
@@ -61,13 +66,17 @@ lsof -ti :5173 | xargs kill -9  # Kill frontend
 ```
 
 ### Combined logs not working
+
 Make sure `concurrently` is installed:
+
 ```bash
 bun add -D concurrently
 ```
 
 ### Health checks failing
+
 Install `node-fetch` for better service detection:
+
 ```bash
 bun add node-fetch
 ```

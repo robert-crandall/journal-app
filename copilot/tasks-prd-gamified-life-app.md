@@ -98,11 +98,13 @@
 ---
 
 **Relevant files:**
+
 - `/copilot/prd-gamified-life-app.md`
 - `/copilot/requirements.md`
 - `/copilot/tasks-prd-gamified-life-app.md`
 
 **Notes:**
+
 - Each feature must include backend integration tests and frontend E2E tests before being considered complete.
 - Type safety: Frontend must import all types directly from backend.
 - Data relationships: Use loose lookups, avoid cascading deletes.

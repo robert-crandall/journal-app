@@ -9,7 +9,7 @@ import type { LevelCalculation } from '../types/stats';
  */
 export function getTotalXpForLevel(level: number): number {
   if (level < 2) return 0;
-  return 100 * (level * (level - 1)) / 2;
+  return (100 * (level * (level - 1))) / 2;
 }
 
 /**
@@ -29,7 +29,7 @@ export function getXpRequiredForLevel(level: number): number {
  */
 export function getLevelFromTotalXp(totalXp: number): number {
   if (totalXp < 100) return 1;
-  
+
   let level = 1;
   while (getTotalXpForLevel(level + 1) <= totalXp) {
     level++;
@@ -43,18 +43,18 @@ export function getLevelFromTotalXp(totalXp: number): number {
 export function calculateLevelInfo(currentLevel: number, totalXp: number): LevelCalculation {
   // Calculate what level they should actually be at based on XP
   const actualLevel = getLevelFromTotalXp(totalXp);
-  
+
   // Current level XP is the XP they have beyond what was needed for the current level
   const currentLevelStartXp = currentLevel > 1 ? getTotalXpForLevel(currentLevel - 1) : 0;
   const currentLevelXp = totalXp - currentLevelStartXp;
-  
+
   // XP required for next level
   const nextLevelTotalXp = getTotalXpForLevel(currentLevel + 1);
   const xpToNextLevel = Math.max(0, nextLevelTotalXp - totalXp);
-  
+
   // Can level up if they have enough XP for the next level
   const canLevelUp = totalXp >= getTotalXpForLevel(currentLevel + 1);
-  
+
   return {
     level: currentLevel,
     totalXpRequired: getTotalXpForLevel(currentLevel + 1),
@@ -87,7 +87,7 @@ export function getXpProgressPercentage(currentLevel: number, totalXp: number): 
   const nextLevelStartXp = getTotalXpForLevel(currentLevel + 1);
   const levelXpRange = nextLevelStartXp - currentLevelStartXp;
   const currentLevelXp = totalXp - currentLevelStartXp;
-  
+
   if (levelXpRange === 0) return 100;
   return Math.min(100, Math.max(0, (currentLevelXp / levelXpRange) * 100));
 }

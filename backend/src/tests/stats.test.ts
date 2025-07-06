@@ -33,7 +33,7 @@ describe('Stats API', () => {
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
       },
-      JWT_SECRET
+      JWT_SECRET,
     );
   });
 

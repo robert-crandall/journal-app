@@ -1,6 +1,6 @@
 ---
 description: Core development principles, patterns, and architectural decisions for the journal-app project
-applyTo: "**/*.{js,ts,jsx,tsx,svelte}"
+applyTo: '**/*.{js,ts,jsx,tsx,svelte}'
 ---
 
 ## Type Safety Requirements (CRITICAL)
@@ -13,17 +13,18 @@ applyTo: "**/*.{js,ts,jsx,tsx,svelte}"
 
 ```typescript
 // ✅ DO: Import types from backend
-import type { User } from '../../backend/src/db/schema'
+import type { User } from '../../backend/src/db/schema';
 
 interface UserProfileProps {
-  user: User  // Use imported backend type
+  user: User; // Use imported backend type
 }
 
 // ❌ DON'T: Duplicate backend types
-interface User {  // Never rewrite existing types
-  id: string
-  email: string
-  name: string
+interface User {
+  // Never rewrite existing types
+  id: string;
+  email: string;
+  name: string;
 }
 ```
 
@@ -67,22 +68,25 @@ catch (error) {
 
 ```typescript
 // ✅ DO: Use real database in tests
-import { db } from '../db'
-import { users } from '../db/schema'
+import { db } from '../db';
+import { users } from '../db/schema';
 
 test('should create user', async () => {
-  const user = await db.insert(users).values({
-    name: 'Test User',
-    email: 'test@example.com'
-  }).returning()
-  
-  expect(user[0].name).toBe('Test User')
-})
+  const user = await db
+    .insert(users)
+    .values({
+      name: 'Test User',
+      email: 'test@example.com',
+    })
+    .returning();
+
+  expect(user[0].name).toBe('Test User');
+});
 
 // ❌ DON'T: Mock database operations
 const mockDb = {
-  insert: jest.fn().mockResolvedValue([{ id: '1', name: 'Test User' }])
-}
+  insert: jest.fn().mockResolvedValue([{ id: '1', name: 'Test User' }]),
+};
 ```
 
 ## JWT Authentication Standards
@@ -118,19 +122,25 @@ const mockDb = {
 
 ```typescript
 // ✅ DO: Consistent API responses
-return c.json({ 
-  success: true, 
-  data: users 
-}, 200)
+return c.json(
+  {
+    success: true,
+    data: users,
+  },
+  200,
+);
 
-return c.json({ 
-  success: false, 
-  error: 'User not found' 
-}, 404)
+return c.json(
+  {
+    success: false,
+    error: 'User not found',
+  },
+  404,
+);
 
 // ❌ DON'T: Inconsistent response structure
-return c.json(users)  // Missing success/error wrapper
-return c.json({ result: users, ok: true })  // Non-standard fields
+return c.json(users); // Missing success/error wrapper
+return c.json({ result: users, ok: true }); // Non-standard fields
 ```
 
 ## Database Design Standards
@@ -147,15 +157,15 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
-  updated_at: timestamp('updated_at').defaultNow().notNull()
-})
+  updated_at: timestamp('updated_at').defaultNow().notNull(),
+});
 
 // ❌ DON'T: Auto-incrementing integers or inconsistent naming
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),  // Don't use serial
-  Email: varchar('Email'),        // Don't use PascalCase
-  createdAt: timestamp('createdAt')  // Don't use camelCase in DB
-})
+  id: serial('id').primaryKey(), // Don't use serial
+  Email: varchar('Email'), // Don't use PascalCase
+  createdAt: timestamp('createdAt'), // Don't use camelCase in DB
+});
 ```
 
 ## State Management Guidelines
@@ -166,17 +176,18 @@ export const users = pgTable('users', {
 
 ```typescript
 // ✅ DO: Type-safe Svelte stores
-import type { User } from '../../backend/src/db/schema'
-import { writable } from 'svelte/store'
+import type { User } from '../../backend/src/db/schema';
+import { writable } from 'svelte/store';
 
-export const currentUser = writable<User | null>(null)
+export const currentUser = writable<User | null>(null);
 
 // ❌ DON'T: Untyped or duplicated type definitions
-export const currentUser = writable(null)  // No type safety
+export const currentUser = writable(null); // No type safety
 
-interface LocalUser {  // Don't duplicate backend types
-  id: string
-  name: string
+interface LocalUser {
+  // Don't duplicate backend types
+  id: string;
+  name: string;
 }
 ```
 

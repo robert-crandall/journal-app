@@ -1,4 +1,4 @@
-import { HTTPException } from 'hono/http-exception'
+import { HTTPException } from 'hono/http-exception';
 
 /**
  * Log levels in order of severity
@@ -8,7 +8,7 @@ export enum LogLevel {
   INFO = 'info',
   WARN = 'warn',
   ERROR = 'error',
-  SILENT = 'silent'
+  SILENT = 'silent',
 }
 
 // Default log level configuration by environment
@@ -16,7 +16,7 @@ const DEFAULT_LOG_LEVELS = {
   production: LogLevel.INFO,
   development: LogLevel.DEBUG,
   test: LogLevel.SILENT, // Suppress logs in test environment
-}
+};
 
 /**
  * Logger configuration
@@ -32,10 +32,10 @@ interface LoggerConfig {
  */
 class Logger {
   private config: LoggerConfig;
-  
+
   constructor() {
     const environment = process.env.NODE_ENV || 'development';
-    
+
     // Default configuration
     this.config = {
       level: DEFAULT_LOG_LEVELS[environment as keyof typeof DEFAULT_LOG_LEVELS] || LogLevel.INFO,
@@ -58,7 +58,7 @@ class Logger {
     const levels = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR];
     const configIndex = levels.indexOf(this.config.level);
     const messageIndex = levels.indexOf(level);
-    
+
     return messageIndex >= configIndex && this.config.level !== LogLevel.SILENT;
   }
 
@@ -91,20 +91,20 @@ class Logger {
    */
   error(message: string, error?: any, ...args: any[]): void {
     if (!this.isLevelEnabled(LogLevel.ERROR)) return;
-    
+
     // Special handling for HTTPExceptions
     if (error instanceof HTTPException) {
       // Skip 4xx errors if configured to be silent
       if (error.status >= 400 && error.status < 500 && this.config.silent4xx) {
         return;
       }
-      
+
       // Skip 5xx errors if configured to be silent
       if (error.status >= 500 && this.config.silent5xx) {
         return;
       }
     }
-    
+
     console.error(`[ERROR] ${message}`, error, ...args);
   }
 
@@ -116,7 +116,7 @@ class Logger {
     if (error.status >= 400 && error.status < 500 && this.config.silent4xx) {
       return;
     }
-    
+
     // Skip server errors if configured
     if (error.status >= 500 && this.config.silent5xx) {
       return;
@@ -141,7 +141,7 @@ if (process.env.LOG_LEVEL) {
 /**
  * Standard error handler function for API routes
  * Logs the error and throws an HTTPException
- * 
+ *
  * @param error - The caught error
  * @param message - User-friendly error message to return in the response
  * @param status - HTTP status code (defaults to 500)
@@ -159,7 +159,7 @@ export function handleApiError(error: unknown | null | undefined, message: strin
     logger.httpError(message, error);
     throw error;
   }
-  
+
   // For other errors, log and throw a new HTTPException
   logger.error(message, error);
   throw new HTTPException(status as any, { message, cause: error });

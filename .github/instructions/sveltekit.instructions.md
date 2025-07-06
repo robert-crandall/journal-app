@@ -1,6 +1,6 @@
 ---
 description: UI Design Guidelines
-applyTo: "frontend/**/*.{js,ts,svelte}"
+applyTo: 'frontend/**/*.{js,ts,svelte}'
 ---
 
 ## Overview
@@ -40,16 +40,16 @@ Hono Stacks work great with Svelte:
 **Client (SvelteKit)**
 
 ```tsx
-import { hc } from 'hono/client'
-import type { AppType } from '../functions/api/[[route]]'
+import { hc } from 'hono/client';
+import type { AppType } from '../functions/api/[[route]]';
 
-const client = hc<AppType>('/api')
+const client = hc<AppType>('/api');
 
 // Inside component:
 const todos = useQuery({
   queryKey: ['todos'],
-  queryFn: () => client.todo.$get().then(r => r.json()),
-})
+  queryFn: () => client.todo.$get().then((r) => r.json()),
+});
 ```
 
 You get full type checking and API safety from front to back.

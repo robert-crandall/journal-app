@@ -11,7 +11,7 @@ describe('Users API Integration Tests', () => {
   describe('GET /api/users/registration-status', () => {
     it('should return registration status', async () => {
       const res = await app.request('/api/users/registration-status');
-      
+
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(data).toHaveProperty('enabled');
@@ -24,20 +24,20 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'John Doe',
         email: 'john.doe@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(201);
       const responseData = await res.json();
-      
+
       // Check response structure
       expect(responseData).toHaveProperty('user');
       expect(responseData).toHaveProperty('token');
@@ -60,7 +60,7 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Jane Doe',
         email: 'jane.doe@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       // Create first user
@@ -68,8 +68,8 @@ describe('Users API Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
       expect(firstRes.status).toBe(201);
 
@@ -78,11 +78,11 @@ describe('Users API Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           ...userData,
-          name: 'Different Name'
+          name: 'Different Name',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(secondRes.status).toBe(409);
@@ -99,15 +99,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Invalid User',
         email: 'invalid-email',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(400);
@@ -124,7 +124,7 @@ describe('Users API Integration Tests', () => {
         { name: 'John', email: 'john@example.com' }, // Missing password
         { name: 'John', password: 'password123' }, // Missing email
         { email: 'john@example.com', password: 'password123' }, // Missing name
-        {} // Missing all fields
+        {}, // Missing all fields
       ];
 
       for (const userData of testCases) {
@@ -132,8 +132,8 @@ describe('Users API Integration Tests', () => {
           method: 'POST',
           body: JSON.stringify(userData),
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
 
         expect(res.status).toBe(400);
@@ -143,7 +143,7 @@ describe('Users API Integration Tests', () => {
         // Verify no user was created in database
         const dbUsers = await testDb().select().from(schema.users);
         expect(dbUsers).toHaveLength(0);
-        
+
         // Clean up for next iteration
         await cleanDatabase();
       }
@@ -153,15 +153,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Short Password User',
         email: 'short@example.com',
-        password: '12345'
+        password: '12345',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(400);
@@ -177,15 +177,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'a'.repeat(101), // 101 characters
         email: 'long@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(400);
@@ -202,8 +202,8 @@ describe('Users API Integration Tests', () => {
         method: 'POST',
         body: 'invalid json{',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(400);
@@ -217,12 +217,12 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'No Content Type',
         email: 'nocontent@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
         // No Content-Type header
       });
 
@@ -233,9 +233,9 @@ describe('Users API Integration Tests', () => {
         const responseData = await res.json();
         expect(responseData).toHaveProperty('user');
         expect(responseData).toHaveProperty('token');
-           // Verify user was created in database
-      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
-      expect(dbUsers).toHaveLength(1);
+        // Verify user was created in database
+        const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
+        expect(dbUsers).toHaveLength(1);
       }
     });
   });
@@ -245,31 +245,31 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'JWT Test User',
         email: 'jwt@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(201);
       const responseData = await res.json();
-      
+
       // Verify JWT token format (should have 3 parts separated by dots)
       const token = responseData.token;
       expect(typeof token).toBe('string');
       expect(token.split('.')).toHaveLength(3);
-      
+
       // Verify user data in response matches what was sent
       expect(responseData.user.name).toBe(userData.name);
       expect(responseData.user.email).toBe(userData.email);
       expect(responseData.user.id).toBeDefined();
       expect(responseData.user.createdAt).toBeDefined();
-      
+
       // Verify timestamps are valid
       const createdAt = new Date(responseData.user.createdAt);
       expect(createdAt.getTime()).toBeLessThanOrEqual(Date.now());
@@ -280,15 +280,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Password Hash Test',
         email: 'users-hash@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(201);
@@ -296,7 +296,7 @@ describe('Users API Integration Tests', () => {
       // Check database directly
       const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
       expect(dbUsers).toHaveLength(1);
-      
+
       const dbUser = dbUsers[0];
       expect(dbUser.password).not.toBe(userData.password); // Should be hashed
       expect(dbUser.password).toHaveLength(60); // Bcrypt hash length
@@ -308,8 +308,8 @@ describe('Users API Integration Tests', () => {
     it('should include CORS headers', async () => {
       const res = await app.request('/api/users/registration-status', {
         headers: {
-          'Origin': 'http://localhost:5173'
-        }
+          Origin: 'http://localhost:5173',
+        },
       });
 
       expect(res.status).toBe(200);
@@ -320,10 +320,10 @@ describe('Users API Integration Tests', () => {
       const res = await app.request('/api/users', {
         method: 'OPTIONS',
         headers: {
-          'Origin': 'http://localhost:5173',
+          Origin: 'http://localhost:5173',
           'Access-Control-Request-Method': 'POST',
-          'Access-Control-Request-Headers': 'Content-Type'
-        }
+          'Access-Control-Request-Headers': 'Content-Type',
+        },
       });
 
       expect(res.status).toBe(204); // No Content is correct for OPTIONS preflight
@@ -335,19 +335,19 @@ describe('Users API Integration Tests', () => {
     it('should handle database connection errors gracefully', async () => {
       // This test might be hard to implement without actually breaking the DB
       // but it's important to consider how the app handles DB failures
-      
+
       const userData = {
         name: 'DB Error Test',
         email: 'dberror@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       // Should either succeed or fail gracefully with 500
@@ -356,7 +356,7 @@ describe('Users API Integration Tests', () => {
 
     it('should return appropriate error for unsupported methods', async () => {
       const res = await app.request('/api/users', {
-        method: 'PATCH'
+        method: 'PATCH',
       });
 
       expect(res.status).toBe(404); // Hono returns 404 for unsupported methods
@@ -369,15 +369,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Jane Doe',
         email: 'jane.doe@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const registerRes = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(registerRes.status).toBe(201);
@@ -386,20 +386,20 @@ describe('Users API Integration Tests', () => {
       const loginData = {
         email: userData.email,
         password: userData.password,
-        rememberMe: false
+        rememberMe: false,
       };
 
       const loginRes = await app.request('/api/users/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(loginRes.status).toBe(200);
       const responseData = await loginRes.json();
-      
+
       // Check response structure
       expect(responseData).toHaveProperty('user');
       expect(responseData).toHaveProperty('token');
@@ -414,15 +414,15 @@ describe('Users API Integration Tests', () => {
     it('should reject login with invalid email', async () => {
       const loginData = {
         email: 'nonexistent@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const res = await app.request('/api/users/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(401);
@@ -436,15 +436,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'John Test',
         email: 'john.test@example.com',
-        password: 'correct123'
+        password: 'correct123',
       };
 
       const registerRes = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(registerRes.status).toBe(201);
@@ -452,15 +452,15 @@ describe('Users API Integration Tests', () => {
       // Try to login with wrong password
       const loginData = {
         email: userData.email,
-        password: 'wrong123'
+        password: 'wrong123',
       };
 
       const loginRes = await app.request('/api/users/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(loginRes.status).toBe(401);
@@ -474,15 +474,15 @@ describe('Users API Integration Tests', () => {
       const userData = {
         name: 'Remember Test',
         email: 'remember.test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const registerRes = await app.request('/api/users', {
         method: 'POST',
         body: JSON.stringify(userData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(registerRes.status).toBe(201);
@@ -491,15 +491,15 @@ describe('Users API Integration Tests', () => {
       const loginData = {
         email: userData.email,
         password: userData.password,
-        rememberMe: true
+        rememberMe: true,
       };
 
       const loginRes = await app.request('/api/users/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(loginRes.status).toBe(200);
@@ -513,8 +513,8 @@ describe('Users API Integration Tests', () => {
         method: 'POST',
         body: '{ invalid json',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(res.status).toBe(400);
@@ -534,8 +534,8 @@ describe('Users API Integration Tests', () => {
           method: 'POST',
           body: JSON.stringify(loginData),
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
 
         expect(res.status).toBe(400);

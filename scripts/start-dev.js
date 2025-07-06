@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { spawn } from 'child_process'
-import { createRequire } from 'module'
+import { spawn } from 'child_process';
+import { createRequire } from 'module';
 
-const require = createRequire(import.meta.url)
+const require = createRequire(import.meta.url);
 
 // Kill processes using specified ports (macOS/Linux)
 function killProcessesOnPorts(ports) {
@@ -25,9 +25,9 @@ function killProcessesOnPorts(ports) {
 
 // Use concurrently to run both services with combined logs
 async function startDev() {
-  console.log('🚀 Starting development environment...')
-  console.log('📝 This will show logs from both backend and frontend')
-  console.log('🔍 Press Ctrl+C to stop all services\n')
+  console.log('🚀 Starting development environment...');
+  console.log('📝 This will show logs from both backend and frontend');
+  console.log('🔍 Press Ctrl+C to stop all services\n');
 
   // Check for --force flag
   if (process.argv.includes('--force')) {
@@ -41,9 +41,9 @@ async function startDev() {
     const { spawnSync } = require('child_process');
     const migrateResult = spawnSync('bun', ['run', 'db:migrate'], {
       cwd: './backend',
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
-    
+
     if (migrateResult.status === 0) {
       console.log('✅ Database migrations applied successfully\n');
     } else {
@@ -58,48 +58,54 @@ async function startDev() {
   try {
     // Try to use concurrently if available
 
-    const concurrently = spawn('npx', [
-      'concurrently',
-      '--prefix', '[{name}]',
-      '--names', 'backend,frontend',
-      '--prefix-colors', 'blue,green',
-      '--kill-others',
-      '--kill-others-on-fail',
-      '"bun scripts/start-backend.js"',
-      '"bun scripts/start-frontend.js"'
-    ], {
-      stdio: 'inherit',
-      shell: true,
-      detached: true // Start in a new process group
-    })
+    const concurrently = spawn(
+      'npx',
+      [
+        'concurrently',
+        '--prefix',
+        '[{name}]',
+        '--names',
+        'backend,frontend',
+        '--prefix-colors',
+        'blue,green',
+        '--kill-others',
+        '--kill-others-on-fail',
+        '"bun scripts/start-backend.js"',
+        '"bun scripts/start-frontend.js"',
+      ],
+      {
+        stdio: 'inherit',
+        shell: true,
+        detached: true, // Start in a new process group
+      },
+    );
 
     concurrently.on('exit', (code) => {
-      console.log(`\n🛑 Development environment stopped (exit code: ${code})`)
-      process.exit(code)
-    })
+      console.log(`\n🛑 Development environment stopped (exit code: ${code})`);
+      process.exit(code);
+    });
 
     // Handle Ctrl+C gracefully and kill the process group
     process.on('SIGINT', () => {
-      console.log('\n🛑 Stopping development environment...')
+      console.log('\n🛑 Stopping development environment...');
       if (concurrently.pid) {
         // Kill the entire process group (negative PID)
         try {
-          process.kill(-concurrently.pid, 'SIGINT')
+          process.kill(-concurrently.pid, 'SIGINT');
         } catch (e) {
           // fallback: kill the main process if group kill fails
-          concurrently.kill('SIGINT')
+          concurrently.kill('SIGINT');
         }
       }
-    })
-
+    });
   } catch (error) {
-    console.error('❌ Could not start with concurrently. Make sure to install it:')
-    console.error('   bun add -D concurrently')
-    console.error('\n💡 Alternatively, run in separate terminals:')
-    console.error('   Terminal 1: bun scripts/start-backend.js')
-    console.error('   Terminal 2: bun scripts/start-frontend.js')
-    process.exit(1)
+    console.error('❌ Could not start with concurrently. Make sure to install it:');
+    console.error('   bun add -D concurrently');
+    console.error('\n💡 Alternatively, run in separate terminals:');
+    console.error('   Terminal 1: bun scripts/start-backend.js');
+    console.error('   Terminal 2: bun scripts/start-frontend.js');
+    process.exit(1);
   }
 }
 
-startDev()
+startDev();

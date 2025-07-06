@@ -13,5 +13,5 @@ export default defineConfig({
     },
     // Ensure proper test isolation
     isolate: true,
-  }
+  },
 });
