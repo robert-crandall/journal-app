@@ -32,7 +32,10 @@ test.describe('Goals Management', () => {
     // Fill out the create goal form with a unique title
     const uniqueTitle = `Test Goal ${Date.now()}`;
     await page.fill('input#title', uniqueTitle);
-    await page.fill('textarea#description', 'Spend more quality time with family members and strengthen our bonds through regular activities and meaningful conversations.');
+    await page.fill(
+      'textarea#description',
+      'Spend more quality time with family members and strengthen our bonds through regular activities and meaningful conversations.',
+    );
 
     // Add tags
     await page.fill('input#tag-input', 'family');
@@ -73,7 +76,7 @@ test.describe('Goals Management', () => {
     // Find the specific goal card and click its View button
     const goalCard = page.locator('.card').filter({ hasText: uniqueTitle });
     await goalCard.locator('button:has-text("View")').click();
-    
+
     // Should show goal details page with our specific goal
     await expect(page.locator('h1')).toContainText(uniqueTitle);
     await expect(page.locator('text=Test description for viewing')).toBeVisible();
@@ -92,14 +95,14 @@ test.describe('Goals Management', () => {
     // Find the specific goal card and click its Edit button
     const goalCard = page.locator('.card').filter({ hasText: uniqueTitle });
     await goalCard.locator('button:has-text("Edit")').click();
-    
+
     // Should be on edit page
     await expect(page.locator('h1')).toContainText('Edit Goal');
-    
+
     // Update the goal
     await page.fill('input#title', `${uniqueTitle} updated`);
     await page.fill('textarea#description', 'Go to gym 3 times per week and focus on progressive overload training');
-    
+
     // Add a tag
     await page.fill('input#tag-input', 'health');
     await page.click('button:has-text("Add")');
@@ -126,13 +129,13 @@ test.describe('Goals Management', () => {
     // Find the specific goal and archive it
     const goalCard = page.locator('.card').filter({ hasText: uniqueTitle });
     await goalCard.locator('button:has-text("Archive")').click();
-    
+
     // Goal should disappear from active goals (default view)
     await expect(page.locator('.card').filter({ hasText: uniqueTitle })).not.toBeVisible();
 
     // Switch to archived view
     await page.locator('label:has-text("Show Archived")').locator('input[type="checkbox"]').check();
-    
+
     // Should show archived goal
     await expect(page.locator('.card').filter({ hasText: uniqueTitle })).toBeVisible();
     await expect(goalCard.locator('.badge:has-text("Archived")')).toBeVisible();
@@ -142,7 +145,7 @@ test.describe('Goals Management', () => {
 
     // Switch back to active view
     await page.locator('label:has-text("Show Archived")').locator('input[type="checkbox"]').uncheck();
-    
+
     // Goal should be visible again in active view
     await expect(page.locator('.card').filter({ hasText: uniqueTitle })).toBeVisible();
   });
@@ -158,15 +161,15 @@ test.describe('Goals Management', () => {
 
     // Find the specific goal card and delete it
     const goalCard = page.locator('.card').filter({ hasText: uniqueTitle });
-    
+
     // Set up dialog handler to accept deletion
-    page.on('dialog', async dialog => {
+    page.on('dialog', async (dialog) => {
       expect(dialog.message()).toContain('Are you sure you want to delete');
       await dialog.accept();
     });
-    
+
     await goalCard.locator('button:has-text("Delete")').click();
-    
+
     // Goal should be gone
     await expect(page.locator('.card').filter({ hasText: uniqueTitle })).not.toBeVisible();
   });
@@ -176,20 +179,20 @@ test.describe('Goals Management', () => {
 
     // Try to submit empty form - button should be disabled
     await expect(page.locator('button[type="submit"]:has-text("Create Goal")')).toBeDisabled();
-    
+
     // Focus and blur title field to trigger validation
     await page.click('input#title');
     await page.locator('input#title').blur();
-    
+
     // Should show validation error after field is touched
     await expect(page.locator('text=Title is required')).toBeVisible();
-    
+
     // Button should be disabled for invalid form
     await expect(page.locator('button[type="submit"]:has-text("Create Goal")')).toBeDisabled();
 
     // Fill title to make form valid
     await page.fill('input#title', 'Valid goal title');
-    
+
     // Button should now be enabled
     await expect(page.locator('button[type="submit"]:has-text("Create Goal")')).toBeEnabled();
 
@@ -197,10 +200,10 @@ test.describe('Goals Management', () => {
     // Note: The input has maxlength="255" so it won't actually accept more
     const longTitle = 'a'.repeat(255); // Exactly 255 characters
     await page.fill('input#title', longTitle);
-    
+
     // Button should be enabled for exactly 255 characters
     await expect(page.locator('button[type="submit"]:has-text("Create Goal")')).toBeEnabled();
-    
+
     // The browser maxlength attribute prevents entering more than 255 chars
     // So we can't test the "Title must be 255 characters or less" validation message
     // through user input. The validation logic exists in the code but is redundant with maxlength.
@@ -229,7 +232,7 @@ test.describe('Goals Management', () => {
     // Try to add duplicate tag
     await page.fill('input#tag-input', 'family');
     await page.click('button:has-text("Add")');
-    
+
     // Should only have one family tag
     await expect(page.locator('.badge:has-text("family")')).toHaveCount(1);
 
