@@ -10,7 +10,7 @@
     "dev:force": "bun scripts/start-dev.js --force",
     "logs": "bun scripts/show-logs.js",
     "test:all": "scripts/test_pr",
-    "test:e2e": "cd frontend && playwright test",
+    "test:e2e": "playwright test",
     "test": "cd backend && bun run format && bun run check && bun run lint",
     "db:push": "cd backend && drizzle-kit push",
     "db:generate": "cd backend && drizzle-kit generate",
@@ -30,6 +30,7 @@
     "node-fetch": "^3.3.2"
   },
   "dependencies": {
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "playwright": "^1.53.2"
   }
 }

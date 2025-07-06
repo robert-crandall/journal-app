@@ -10,11 +10,11 @@ export default defineConfig({
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: !!process.env.CI,
 	/* Retry on CI only */
-	retries: process.env.CI ? 2 : 0,
+	retries: process.env.CI ? 2 : 1,
 	/* Opt out of parallel tests on CI. */
 	workers: process.env.CI ? 1 : 1,
 	/* Global setup to seed test data after all servers are ready */
-	globalSetup: './tests/e2e/global-setup.ts',
+	// globalSetup: './tests/e2e/global-setup.ts',
 
 	timeout: 10 * 1000, // Default timeout for each test
 
@@ -53,15 +53,14 @@ export default defineConfig({
 	webServer: [
 		{
 			// Run database migrations
-			command: 'cd ../backend && NODE_ENV=test bun run test:setup',
-			reuseExistingServer: false,
+			command: 'NODE_ENV=test bun run db:setup:force',
 			timeout: 15000
 		},
 		{
 			// Start backend with test database
-			command: 'cd ../backend && NODE_ENV=test bun run dev',
+			command: 'NODE_ENV=test bun run backend',
 			port: 3000,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: true,
 			timeout: 30000
 		},
 		{
