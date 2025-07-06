@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { loginUser } from './test-helpers';
+import { loginUser, cleanupGoals } from './test-helpers';
 
 test.describe('Goals Management', () => {
   test.beforeEach(async ({ page }) => {
-    // Login before each test
     await loginUser(page);
+    await cleanupGoals(page);
   });
 
   test('should display goals dashboard with navigation', async ({ page }) => {
