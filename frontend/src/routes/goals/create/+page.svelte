@@ -28,7 +28,7 @@
   }
 
   function removeTag(tagToRemove: string) {
-    tags = tags.filter(tag => tag !== tagToRemove);
+    tags = tags.filter((tag) => tag !== tagToRemove);
   }
 
   function handleTagKeydown(event: KeyboardEvent) {
@@ -41,7 +41,7 @@
   // Form submission
   async function handleSubmit() {
     titleTouched = true;
-    
+
     if (!isValid) {
       error = 'Please fix the validation errors before submitting.';
       return;
@@ -55,11 +55,11 @@
         title: title.trim(),
         description: description.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,
-        isActive
+        isActive,
       };
 
       await goalsApi.createGoal(goalData);
-      
+
       // Redirect to goals page on success
       goto('/goals');
     } catch (err) {
@@ -118,7 +118,7 @@
                   id="title"
                   type="text"
                   bind:value={title}
-                  onblur={() => titleTouched = true}
+                  onblur={() => (titleTouched = true)}
                   class="input input-bordered w-full {titleTouched && !isValid ? 'input-error' : ''}"
                   placeholder="e.g., Improve my relationship with family"
                   maxlength="255"
@@ -156,7 +156,7 @@
                   <span class="label-text text-base font-medium">Tags</span>
                   <span class="label-text-alt text-xs">Organize by life area</span>
                 </label>
-                
+
                 <!-- Tag Input -->
                 <div class="flex gap-2">
                   <input
@@ -167,12 +167,7 @@
                     class="input input-bordered flex-1"
                     placeholder="e.g., family, health, career"
                   />
-                  <button
-                    type="button"
-                    onclick={addTag}
-                    class="btn btn-outline gap-2"
-                    disabled={!tagInput.trim()}
-                  >
+                  <button type="button" onclick={addTag} class="btn btn-outline gap-2" disabled={!tagInput.trim()}>
                     <Plus size={16} />
                     Add
                   </button>
@@ -184,11 +179,7 @@
                     {#each tags as tag}
                       <div class="badge badge-primary gap-2">
                         {tag}
-                        <button
-                          type="button"
-                          onclick={() => removeTag(tag)}
-                          class="btn btn-ghost btn-xs p-0 h-auto min-h-0"
-                        >
+                        <button type="button" onclick={() => removeTag(tag)} class="btn btn-ghost btn-xs h-auto min-h-0 p-0">
                           <X size={12} />
                         </button>
                       </div>
@@ -203,9 +194,7 @@
                   <input type="checkbox" bind:checked={isActive} class="checkbox checkbox-primary" />
                   <div>
                     <span class="label-text text-base font-medium">Active Goal</span>
-                    <div class="text-sm text-base-content/60">
-                      Active goals appear in your main dashboard and can receive XP
-                    </div>
+                    <div class="text-base-content/60 text-sm">Active goals appear in your main dashboard and can receive XP</div>
                   </div>
                 </label>
               </div>
@@ -222,11 +211,7 @@
 
               <!-- Action Buttons -->
               <div class="flex gap-4 pt-4">
-                <button
-                  type="submit"
-                  class="btn btn-primary btn-lg flex-1 gap-2"
-                  disabled={loading || !isValid}
-                >
+                <button type="submit" class="btn btn-primary btn-lg flex-1 gap-2" disabled={loading || !isValid}>
                   {#if loading}
                     <span class="loading loading-spinner loading-sm"></span>
                     Creating...
@@ -235,14 +220,7 @@
                     Create Goal
                   {/if}
                 </button>
-                <button
-                  type="button"
-                  onclick={handleCancel}
-                  class="btn btn-outline btn-lg"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
+                <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg" disabled={loading}> Cancel </button>
               </div>
             </form>
           </div>
@@ -258,15 +236,15 @@
               <h3 class="mb-4 font-semibold">🎯 Goal Setting Tips</h3>
               <div class="space-y-4 text-sm">
                 <div>
-                  <h4 class="font-medium text-primary">Be Specific</h4>
+                  <h4 class="text-primary font-medium">Be Specific</h4>
                   <p class="text-base-content/70">Instead of "exercise more," try "go to gym 3 times per week"</p>
                 </div>
                 <div>
-                  <h4 class="font-medium text-primary">Make it Measurable</h4>
+                  <h4 class="text-primary font-medium">Make it Measurable</h4>
                   <p class="text-base-content/70">Define what success looks like so you can track progress</p>
                 </div>
                 <div>
-                  <h4 class="font-medium text-primary">Use Tags</h4>
+                  <h4 class="text-primary font-medium">Use Tags</h4>
                   <p class="text-base-content/70">Organize goals by life area: family, health, career, spiritual, growth</p>
                 </div>
               </div>
@@ -278,17 +256,17 @@
             <div class="card-body p-6">
               <h3 class="mb-4 font-semibold">💡 Example Goals</h3>
               <div class="space-y-3 text-sm">
-                <div class="p-3 bg-base-200 rounded-lg">
+                <div class="bg-base-200 rounded-lg p-3">
                   <div class="font-medium">"Strengthen family relationships"</div>
-                  <div class="text-xs text-base-content/60 mt-1">Tags: family, growth</div>
+                  <div class="text-base-content/60 mt-1 text-xs">Tags: family, growth</div>
                 </div>
-                <div class="p-3 bg-base-200 rounded-lg">
+                <div class="bg-base-200 rounded-lg p-3">
                   <div class="font-medium">"Read 12 books this year"</div>
-                  <div class="text-xs text-base-content/60 mt-1">Tags: learning, growth</div>
+                  <div class="text-base-content/60 mt-1 text-xs">Tags: learning, growth</div>
                 </div>
-                <div class="p-3 bg-base-200 rounded-lg">
+                <div class="bg-base-200 rounded-lg p-3">
                   <div class="font-medium">"Develop stronger prayer life"</div>
-                  <div class="text-xs text-base-content/60 mt-1">Tags: spiritual, growth</div>
+                  <div class="text-base-content/60 mt-1 text-xs">Tags: spiritual, growth</div>
                 </div>
               </div>
             </div>

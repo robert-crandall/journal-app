@@ -22,7 +22,7 @@
     try {
       loading = true;
       error = null;
-      
+
       goal = await goalsApi.getGoal(goalId);
     } catch (err) {
       console.error('Failed to load goal:', err);
@@ -55,7 +55,7 @@
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -74,7 +74,7 @@
     try {
       const updatedGoal = await goalsApi.updateGoal(goal.id, {
         isArchived: !goal.isArchived,
-        isActive: goal.isArchived // If unarchiving, make it active
+        isActive: goal.isArchived, // If unarchiving, make it active
       });
       goal = updatedGoal;
     } catch (err) {
@@ -149,18 +149,18 @@
             </div>
             <div>
               <h1 class="text-primary text-3xl font-bold">{goal.title}</h1>
-              <div class="flex items-center gap-4 mt-2">
+              <div class="mt-2 flex items-center gap-4">
                 <div class="badge {goal.isArchived ? 'badge-neutral' : goal.isActive ? 'badge-success' : 'badge-warning'}">
                   {goal.isArchived ? 'Archived' : goal.isActive ? 'Active' : 'Inactive'}
                 </div>
-                <div class="text-base-content/60 text-sm flex items-center gap-1">
+                <div class="text-base-content/60 flex items-center gap-1 text-sm">
                   <Calendar size={14} />
                   Created {formatDate(goal.createdAt)}
                 </div>
               </div>
             </div>
           </div>
-          
+
           <!-- Action Buttons -->
           <div class="flex gap-2">
             <button onclick={editGoal} class="btn btn-primary gap-2">
@@ -184,12 +184,12 @@
     <div class="mx-auto max-w-4xl px-4 py-8">
       <div class="grid gap-8 lg:grid-cols-3">
         <!-- Main Content (2/3 width) -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="space-y-6 lg:col-span-2">
           <!-- Description Card -->
           {#if goal.description}
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h2 class="text-xl font-semibold mb-4">Description</h2>
+                <h2 class="mb-4 text-xl font-semibold">Description</h2>
                 <p class="text-base-content/80 whitespace-pre-wrap">{goal.description}</p>
               </div>
             </div>
@@ -199,7 +199,7 @@
           {#if goal.tags.length > 0}
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold">
                   <Tag size={20} />
                   Tags
                 </h2>
@@ -218,14 +218,10 @@
           <!-- Integration Info Card -->
           <div class="card from-accent/10 to-primary/10 border-accent/20 border bg-gradient-to-br">
             <div class="card-body p-6">
-              <h2 class="text-xl font-semibold mb-4">⚡ Goal Integration</h2>
+              <h2 class="mb-4 text-xl font-semibold">⚡ Goal Integration</h2>
               <div class="space-y-3 text-sm">
-                <p class="text-base-content/70">
-                  This goal influences your AI-generated daily tasks and journal prompts.
-                </p>
-                <p class="text-base-content/70">
-                  When active, it appears in your character profile and helps shape your personalized experience.
-                </p>
+                <p class="text-base-content/70">This goal influences your AI-generated daily tasks and journal prompts.</p>
+                <p class="text-base-content/70">When active, it appears in your character profile and helps shape your personalized experience.</p>
                 {#if goal.isArchived}
                   <p class="text-warning">
                     <strong>Note:</strong> Archived goals don't influence task generation but are kept for reference.
@@ -238,25 +234,21 @@
           <!-- Related Features Card -->
           <div class="card bg-base-100 border-base-300 border shadow-xl">
             <div class="card-body p-6">
-              <h2 class="text-xl font-semibold mb-4">🔗 Related Features</h2>
+              <h2 class="mb-4 text-xl font-semibold">🔗 Related Features</h2>
               <div class="space-y-4">
-                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                <div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
                   <div>
                     <div class="font-medium">Character Profile</div>
-                    <div class="text-sm text-base-content/60">View how this goal appears in your character</div>
+                    <div class="text-base-content/60 text-sm">View how this goal appears in your character</div>
                   </div>
-                  <button onclick={() => goto('/character')} class="btn btn-outline btn-sm">
-                    View
-                  </button>
+                  <button onclick={() => goto('/character')} class="btn btn-outline btn-sm"> View </button>
                 </div>
-                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                <div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
                   <div>
                     <div class="font-medium">Stats Dashboard</div>
-                    <div class="text-sm text-base-content/60">Track progress with related stats</div>
+                    <div class="text-base-content/60 text-sm">Track progress with related stats</div>
                   </div>
-                  <button onclick={() => goto('/stats')} class="btn btn-outline btn-sm">
-                    View
-                  </button>
+                  <button onclick={() => goto('/stats')} class="btn btn-outline btn-sm"> View </button>
                 </div>
               </div>
             </div>
@@ -269,7 +261,7 @@
             <!-- Goal Status Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="font-semibold mb-4">Goal Status</h3>
+                <h3 class="mb-4 font-semibold">Goal Status</h3>
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-sm">Status:</span>
@@ -279,15 +271,15 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Created:</span>
-                    <span class="font-medium text-sm">{new Date(goal.createdAt).toLocaleDateString()}</span>
+                    <span class="text-sm font-medium">{new Date(goal.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Last Updated:</span>
-                    <span class="font-medium text-sm">{new Date(goal.updatedAt).toLocaleDateString()}</span>
+                    <span class="text-sm font-medium">{new Date(goal.updatedAt).toLocaleDateString()}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Tags:</span>
-                    <span class="font-medium text-sm">{goal.tags.length}</span>
+                    <span class="text-sm font-medium">{goal.tags.length}</span>
                   </div>
                 </div>
               </div>
@@ -296,7 +288,7 @@
             <!-- Quick Actions Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="font-semibold mb-4">Quick Actions</h3>
+                <h3 class="mb-4 font-semibold">Quick Actions</h3>
                 <div class="space-y-2">
                   <button onclick={editGoal} class="btn btn-outline btn-sm w-full gap-2">
                     <Edit3 size={16} />
@@ -322,7 +314,7 @@
             <!-- Tips Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="font-semibold mb-4">💡 Tips</h3>
+                <h3 class="mb-4 font-semibold">💡 Tips</h3>
                 <div class="space-y-3 text-sm">
                   <p class="text-base-content/70">Archive goals when completed to track your achievements over time.</p>
                   <p class="text-base-content/70">Use the edit function to refine your goal as you progress.</p>

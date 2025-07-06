@@ -39,9 +39,7 @@
   }
 
   // Filter goals based on archived status
-  let filteredGoals = $derived(userGoals.filter(goal => 
-    showArchived ? goal.isArchived : goal.isActive && !goal.isArchived
-  ));
+  let filteredGoals = $derived(userGoals.filter((goal) => (showArchived ? goal.isArchived : goal.isActive && !goal.isArchived)));
 
   // Helper functions
   function getGoalIcon(goal: GoalWithParsedTags) {
@@ -61,7 +59,7 @@
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -83,7 +81,7 @@
     try {
       await goalsApi.updateGoal(goal.id, {
         isArchived: !goal.isArchived,
-        isActive: goal.isArchived // If unarchiving, make it active
+        isActive: goal.isArchived, // If unarchiving, make it active
       });
       await loadGoalsData(); // Refresh the list
     } catch (err) {
@@ -182,7 +180,7 @@
                             <p class="text-base-content/60 text-sm">Created {formatDate(goal.createdAt)}</p>
                           </div>
                         </div>
-                        
+
                         <!-- Status Badge -->
                         <div class="badge {goal.isArchived ? 'badge-neutral' : goal.isActive ? 'badge-success' : 'badge-warning'}">
                           {goal.isArchived ? 'Archived' : goal.isActive ? 'Active' : 'Inactive'}
@@ -207,31 +205,19 @@
 
                       <!-- Action Buttons -->
                       <div class="flex flex-wrap gap-2">
-                        <button
-                          class="btn btn-ghost btn-sm gap-1"
-                          onclick={() => viewGoalDetails(goal.id)}
-                        >
+                        <button class="btn btn-ghost btn-sm gap-1" onclick={() => viewGoalDetails(goal.id)}>
                           <Eye size={14} />
                           View
                         </button>
-                        <button
-                          class="btn btn-ghost btn-sm gap-1"
-                          onclick={() => editGoal(goal.id)}
-                        >
+                        <button class="btn btn-ghost btn-sm gap-1" onclick={() => editGoal(goal.id)}>
                           <Edit3 size={14} />
                           Edit
                         </button>
-                        <button
-                          class="btn btn-ghost btn-sm gap-1"
-                          onclick={() => toggleGoalArchive(goal)}
-                        >
+                        <button class="btn btn-ghost btn-sm gap-1" onclick={() => toggleGoalArchive(goal)}>
                           <Archive size={14} />
                           {goal.isArchived ? 'Unarchive' : 'Archive'}
                         </button>
-                        <button
-                          class="btn btn-ghost btn-sm gap-1 text-error hover:bg-error hover:text-error-content"
-                          onclick={() => deleteGoal(goal)}
-                        >
+                        <button class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content gap-1" onclick={() => deleteGoal(goal)}>
                           <Trash2 size={14} />
                           Delete
                         </button>
@@ -255,10 +241,7 @@
                     {showArchived ? 'No Archived Goals' : 'No Active Goals'}
                   </h3>
                   <p class="text-base-content/60 mb-6">
-                    {showArchived 
-                      ? 'You haven\'t archived any goals yet.' 
-                      : 'Start defining your objectives and working towards achieving them.'
-                    }
+                    {showArchived ? "You haven't archived any goals yet." : 'Start defining your objectives and working towards achieving them.'}
                   </p>
                   {#if !showArchived}
                     <button onclick={createGoal} class="btn btn-primary btn-lg gap-2">
@@ -282,7 +265,7 @@
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-sm">Active Goals:</span>
-                    <span class="font-medium">{userGoals.filter(g => g.isActive && !g.isArchived).length}</span>
+                    <span class="font-medium">{userGoals.filter((g) => g.isActive && !g.isArchived).length}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Total Goals:</span>
@@ -290,16 +273,21 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Archived:</span>
-                    <span class="font-medium">{userGoals.filter(g => g.isArchived).length}</span>
+                    <span class="font-medium">{userGoals.filter((g) => g.isArchived).length}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Most Used Tag:</span>
                     <span class="font-medium">
                       {(() => {
-                        const tagCounts: Record<string, number> = userGoals.flatMap(g => g.tags).reduce((acc, tag) => {
-                          acc[tag] = (acc[tag] || 0) + 1;
-                          return acc;
-                        }, {} as Record<string, number>);
+                        const tagCounts: Record<string, number> = userGoals
+                          .flatMap((g) => g.tags)
+                          .reduce(
+                            (acc, tag) => {
+                              acc[tag] = (acc[tag] || 0) + 1;
+                              return acc;
+                            },
+                            {} as Record<string, number>,
+                          );
                         const entries = Object.entries(tagCounts);
                         const topTag = entries.sort((a, b) => b[1] - a[1])[0];
                         return topTag ? topTag[0] : 'None';
@@ -331,7 +319,7 @@
                     <Plus size={16} />
                     Create New Goal
                   </button>
-                  <button onclick={() => showArchived = !showArchived} class="btn btn-outline btn-sm w-full gap-2">
+                  <button onclick={() => (showArchived = !showArchived)} class="btn btn-outline btn-sm w-full gap-2">
                     <Archive size={16} />
                     {showArchived ? 'Show Active' : 'Show Archived'}
                   </button>

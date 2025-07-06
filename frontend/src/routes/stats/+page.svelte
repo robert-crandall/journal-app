@@ -51,17 +51,17 @@
 
   // Derived values for icons to avoid using svelte:component
   let userStatsWithIcons = $derived(
-    userStats.map(stat => ({
+    userStats.map((stat) => ({
       ...stat,
-      IconComponent: getStatIcon(stat.name)
-    }))
+      IconComponent: getStatIcon(stat.name),
+    })),
   );
 
   let predefinedStatsWithIcons = $derived(
-    predefinedStats.map(stat => ({
+    predefinedStats.map((stat) => ({
       ...stat,
-      IconComponent: getStatIcon(stat.name)
-    }))
+      IconComponent: getStatIcon(stat.name),
+    })),
   );
 
   function calculateProgress(stat: CharacterStatWithProgress): number {

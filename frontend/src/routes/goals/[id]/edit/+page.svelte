@@ -37,10 +37,10 @@
     try {
       loadingGoal = true;
       error = null;
-      
+
       const goal = await goalsApi.getGoal(goalId);
       originalGoal = goal;
-      
+
       // Populate form with current values
       title = goal.title;
       description = goal.description || '';
@@ -69,7 +69,7 @@
   }
 
   function removeTag(tagToRemove: string) {
-    tags = tags.filter(tag => tag !== tagToRemove);
+    tags = tags.filter((tag) => tag !== tagToRemove);
   }
 
   function handleTagKeydown(event: KeyboardEvent) {
@@ -82,7 +82,7 @@
   // Check if form has changes
   function checkChanges(): boolean {
     if (!originalGoal) return false;
-    
+
     return (
       title !== originalGoal.title ||
       description !== (originalGoal.description || '') ||
@@ -91,13 +91,13 @@
       isArchived !== originalGoal.isArchived
     );
   }
-  
+
   let hasChanges = $derived(checkChanges());
 
   // Form submission
   async function handleSubmit() {
     titleTouched = true;
-    
+
     if (!isValid) {
       error = 'Please fix the validation errors before submitting.';
       return;
@@ -108,7 +108,7 @@
       error = null;
 
       const updates: UpdateGoalWithTags = {};
-      
+
       // Only include fields that have changed
       if (title !== originalGoal?.title) {
         updates.title = title.trim();
@@ -127,7 +127,7 @@
       }
 
       await goalsApi.updateGoal(goalId, updates);
-      
+
       // Redirect to goal detail page on success
       goto(`/goals/${goalId}`);
     } catch (err) {
@@ -223,7 +223,7 @@
                     id="title"
                     type="text"
                     bind:value={title}
-                    onblur={() => titleTouched = true}
+                    onblur={() => (titleTouched = true)}
                     class="input input-bordered w-full {titleTouched && !isValid ? 'input-error' : ''}"
                     placeholder="e.g., Improve my relationship with family"
                     maxlength="255"
@@ -261,7 +261,7 @@
                     <span class="label-text text-base font-medium">Tags</span>
                     <span class="label-text-alt text-xs">Organize by life area</span>
                   </label>
-                  
+
                   <!-- Tag Input -->
                   <div class="flex gap-2">
                     <input
@@ -272,12 +272,7 @@
                       class="input input-bordered flex-1"
                       placeholder="e.g., family, health, career"
                     />
-                    <button
-                      type="button"
-                      onclick={addTag}
-                      class="btn btn-outline gap-2"
-                      disabled={!tagInput.trim()}
-                    >
+                    <button type="button" onclick={addTag} class="btn btn-outline gap-2" disabled={!tagInput.trim()}>
                       <Plus size={16} />
                       Add
                     </button>
@@ -289,11 +284,7 @@
                       {#each tags as tag}
                         <div class="badge badge-primary gap-2">
                           {tag}
-                          <button
-                            type="button"
-                            onclick={() => removeTag(tag)}
-                            class="btn btn-ghost btn-xs p-0 h-auto min-h-0"
-                          >
+                          <button type="button" onclick={() => removeTag(tag)} class="btn btn-ghost btn-xs h-auto min-h-0 p-0">
                             <X size={12} />
                           </button>
                         </div>
@@ -309,9 +300,7 @@
                       <input type="checkbox" bind:checked={isActive} class="checkbox checkbox-primary" />
                       <div>
                         <span class="label-text text-base font-medium">Active Goal</span>
-                        <div class="text-sm text-base-content/60">
-                          Active goals appear in your main dashboard and can receive XP
-                        </div>
+                        <div class="text-base-content/60 text-sm">Active goals appear in your main dashboard and can receive XP</div>
                       </div>
                     </label>
                   </div>
@@ -321,9 +310,7 @@
                       <input type="checkbox" bind:checked={isArchived} class="checkbox checkbox-neutral" />
                       <div>
                         <span class="label-text text-base font-medium">Archived Goal</span>
-                        <div class="text-sm text-base-content/60">
-                          Archived goals are preserved for reference but don't influence task generation
-                        </div>
+                        <div class="text-base-content/60 text-sm">Archived goals are preserved for reference but don't influence task generation</div>
                       </div>
                     </label>
                   </div>
@@ -341,11 +328,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-4 pt-4">
-                  <button
-                    type="submit"
-                    class="btn btn-primary btn-lg flex-1 gap-2"
-                    disabled={loading || !isValid || !hasChanges}
-                  >
+                  <button type="submit" class="btn btn-primary btn-lg flex-1 gap-2" disabled={loading || !isValid || !hasChanges}>
                     {#if loading}
                       <span class="loading loading-spinner loading-sm"></span>
                       Saving...
@@ -354,25 +337,14 @@
                       Save Changes
                     {/if}
                   </button>
-                  <button
-                    type="button"
-                    onclick={handleCancel}
-                    class="btn btn-outline btn-lg"
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
+                  <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg" disabled={loading}> Cancel </button>
                 </div>
 
                 <!-- Changes indicator -->
                 {#if hasChanges}
-                  <div class="text-sm text-warning">
-                    ⚠️ You have unsaved changes
-                  </div>
+                  <div class="text-warning text-sm">⚠️ You have unsaved changes</div>
                 {:else if originalGoal}
-                  <div class="text-sm text-success">
-                    ✓ All changes saved
-                  </div>
+                  <div class="text-success text-sm">✓ All changes saved</div>
                 {/if}
               </form>
             </div>
@@ -396,11 +368,11 @@
                     </div>
                     <div class="flex justify-between">
                       <span class="text-sm">Created:</span>
-                      <span class="font-medium text-sm">{new Date(originalGoal.createdAt).toLocaleDateString()}</span>
+                      <span class="text-sm font-medium">{new Date(originalGoal.createdAt).toLocaleDateString()}</span>
                     </div>
                     <div class="flex justify-between">
                       <span class="text-sm">Last Updated:</span>
-                      <span class="font-medium text-sm">{new Date(originalGoal.updatedAt).toLocaleDateString()}</span>
+                      <span class="text-sm font-medium">{new Date(originalGoal.updatedAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -413,15 +385,15 @@
                 <h3 class="mb-4 font-semibold">✏️ Editing Tips</h3>
                 <div class="space-y-4 text-sm">
                   <div>
-                    <h4 class="font-medium text-primary">Refine Over Time</h4>
+                    <h4 class="text-primary font-medium">Refine Over Time</h4>
                     <p class="text-base-content/70">Update your goal description as you learn more about what success looks like</p>
                   </div>
                   <div>
-                    <h4 class="font-medium text-primary">Archive vs Delete</h4>
+                    <h4 class="text-primary font-medium">Archive vs Delete</h4>
                     <p class="text-base-content/70">Archive completed goals to preserve your history; delete only if truly irrelevant</p>
                   </div>
                   <div>
-                    <h4 class="font-medium text-primary">Tag Organization</h4>
+                    <h4 class="text-primary font-medium">Tag Organization</h4>
                     <p class="text-base-content/70">Use consistent tags across goals to better organize and track progress</p>
                   </div>
                 </div>
@@ -431,7 +403,7 @@
             <!-- Quick Actions Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="font-semibold mb-4">Quick Actions</h3>
+                <h3 class="mb-4 font-semibold">Quick Actions</h3>
                 <div class="space-y-2">
                   <button onclick={() => goto(`/goals/${goalId}`)} class="btn btn-outline btn-sm w-full gap-2">
                     <Target size={16} />
