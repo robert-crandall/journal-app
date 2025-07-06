@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, json } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, date, uuid, integer, json } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -99,6 +99,46 @@ export const goals = pgTable('goals', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const familyMembers = pgTable('family_members', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  relationship: text('relationship').notNull(), // e.g., 'eldest son', 'wife', 'daughter'
+  birthday: date('birthday'), // Optional
+  likes: json('likes').$type<string[]>().default([]), // Array of likes
+  dislikes: json('dislikes').$type<string[]>().default([]), // Array of dislikes
+  energyLevel: text('energy_level'), // Optional: 'active', 'creative', 'low-key', etc.
+  lastInteraction: timestamp('last_interaction', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const familyTaskFeedback = pgTable('family_task_feedback', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  familyMemberId: uuid('family_member_id')
+    .notNull()
+    .references(() => familyMembers.id, { onDelete: 'cascade' }),
+  taskId: uuid('task_id'), // Optional reference to task (when tasks are implemented)
+  date: timestamp('date', { withTimezone: true }).defaultNow().notNull(),
+  liked: integer('liked').notNull(), // SQLite-style boolean (0/1)
+  notes: text('notes'), // Freeform feedback
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const familyConnectionXp = pgTable('family_connection_xp', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  familyMemberId: uuid('family_member_id')
+    .notNull()
+    .references(() => familyMembers.id, { onDelete: 'cascade' }),
+  date: timestamp('date', { withTimezone: true }).defaultNow().notNull(),
+  source: text('source').notNull(), // 'task' | 'journal'
+  xp: integer('xp').notNull(),
+  comment: text('comment'), // Optional comment about the interaction
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Content = typeof content.$inferSelect;
@@ -107,3 +147,6 @@ export type StatActivity = typeof statActivities.$inferSelect;
 export type XpGrant = typeof xpGrants.$inferSelect;
 export type StatLevelTitle = typeof statLevelTitles.$inferSelect;
 export type Goal = typeof goals.$inferSelect;
+export type FamilyMember = typeof familyMembers.$inferSelect;
+export type FamilyTaskFeedback = typeof familyTaskFeedback.$inferSelect;
+export type FamilyConnectionXp = typeof familyConnectionXp.$inferSelect;
