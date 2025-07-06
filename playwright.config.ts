@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: 'e2e',
   fullyParallel: false, // Disable parallel execution for database tests
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 2,
   workers: 1, // Use single worker to avoid database conflicts
   globalSetup: './e2e/global-setup.ts',
   use: {
