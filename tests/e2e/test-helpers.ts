@@ -176,6 +176,58 @@ export async function cleanupGoals(page: Page): Promise<void> {
 }
 
 /**
+ * Helper function to delete all family members if they exist
+ */
+export async function cleanupFamily(page: Page): Promise<void> {
+  try {
+    // Navigate to family page
+    await page.goto('/family');
+    await page.waitForLoadState('networkidle');
+
+    // Simple approach: delete any family members we find
+    for (let i = 0; i < 10; i++) { // Max 10 attempts
+      try {
+        // Look for family member cards and delete buttons
+        const deleteButton = page.locator('button:has-text("Delete")').first();
+        const isVisible = await deleteButton.isVisible();
+
+        if (!isVisible) {
+          // No delete buttons visible, check if we need to enter a family member detail page
+          const familyMemberCard = page.locator('.card').filter({ hasText: /Level|Connection/ }).first();
+          if (await familyMemberCard.isVisible()) {
+            // Click on the family member to enter details page
+            await familyMemberCard.click();
+            await page.waitForLoadState('networkidle');
+            continue; // Try again to find delete button on details page
+          } else {
+            // No family member cards found
+            break;
+          }
+        }
+
+        // Click delete and handle dialog
+        const dialogPromise = page.waitForEvent('dialog');
+        await deleteButton.click();
+        const dialog = await dialogPromise;
+        await dialog.accept();
+
+        // Wait for deletion to complete and return to family page
+        await page.waitForLoadState('networkidle');
+        await page.goto('/family'); // Ensure we're back on the main family page
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(200); // Small delay for UI update
+      } catch (error) {
+        // Error or no more family members, break out
+        break;
+      }
+    }
+  } catch (error) {
+    // If cleanup fails entirely, continue with tests
+    console.warn('Family cleanup failed:', error);
+  }
+}
+
+/**
  * Helper function to create a basic stat for testing
  */
 export async function createTestStat(page: Page, name: string = 'Test Stat', description: string = 'Test description'): Promise<void> {

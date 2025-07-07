@@ -33,7 +33,11 @@ export async function cleanDatabase() {
   try {
     const db = getTestDb();
     // Delete all data from tables in the correct order (respecting foreign keys)
-    // Stats tables first (they reference characters and users)
+    // Family task feedback first (references family members)
+    await db.delete(schema.familyTaskFeedback);
+    // Family members next (reference users)
+    await db.delete(schema.familyMembers);
+    // Stats tables (they reference characters and users)
     await db.delete(schema.characterStatXpGrants);
     await db.delete(schema.characterStatLevelTitles);
     await db.delete(schema.characterStats);

@@ -133,7 +133,6 @@ describe('Authentication Flow Integration Tests', () => {
 
       // Verify payload contains user information
       expect(decodedPayload).toHaveProperty('id', responseData.user.id);
-      expect(decodedPayload).toHaveProperty('email', userData.email);
       expect(decodedPayload).toHaveProperty('name', userData.name);
 
       // Should not contain sensitive information

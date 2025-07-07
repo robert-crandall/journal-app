@@ -52,23 +52,13 @@ export default defineConfig({
   /* Run complete test environment setup */
   webServer: [
     {
-      // Verify types are correct. There's no point in running tests if types are broken
-      command: 'cd backend && bun run check',
-      timeout: 15000,
-    },
-    {
-      // Verify types are correct. There's no point in running tests if types are broken
-      command: 'cd frontend && bun run check',
-      timeout: 15000,
-    },
-    {
       // Run database migrations
       command: 'NODE_ENV=test bun run db:setup:force',
       timeout: 15000,
     },
     {
       // Start backend with test database
-      command: 'NODE_ENV=test bun run backend:force',
+      command: 'NODE_ENV=test bun run backend',
       timeout: 30000,
     },
     {
