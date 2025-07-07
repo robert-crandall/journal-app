@@ -81,8 +81,6 @@ const app = new Hono()
       const userId = c.get('userId');
       const statData = c.req.valid('json');
 
-      console.log('Creating stat with data:', statData, 'for user:', userId);
-
       // Check if stat name already exists for this user
       const existingStat = await db
         .select()

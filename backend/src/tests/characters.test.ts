@@ -1,7 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import app from '../index';
+import appExport from '../index';
 import { testDb, cleanDatabase, schema } from './setup';
 import { eq } from 'drizzle-orm';
+
+// Create wrapper to maintain compatibility with test expectations
+const app = {
+  request: (url: string, init?: RequestInit) => {
+    const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return appExport.fetch(new Request(absoluteUrl, init));
+  },
+};
 
 describe('Characters API Integration Tests', () => {
   let authToken: string;

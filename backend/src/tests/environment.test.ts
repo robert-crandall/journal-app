@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import appExport from '../index';
+
+// Create wrapper to maintain compatibility with test expectations
+const app = {
+  request: (url: string, init?: RequestInit) => {
+    const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return appExport.fetch(new Request(absoluteUrl, init));
+  },
+};
 
 describe('Environment Configuration Integration', () => {
   describe('Registration Control', () => {

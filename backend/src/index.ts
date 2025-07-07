@@ -19,7 +19,10 @@ if (process.env.FRONTEND_URL) {
 }
 
 // Middleware for logging and CORS
-app.use('*', logger());
+// Only use logger in development
+if (process.env.NODE_ENV === 'development') {
+  app.use('*', logger());
+}
 app.use(
   '*',
   cors({
@@ -84,4 +87,10 @@ app.get(
 // Export the app type for RPC
 export type AppType = typeof routes;
 
-export default app;
+// Get port from environment variable, default to 3001
+const port = parseInt(process.env.PORT || '3001', 10);
+
+export default {
+  port,
+  fetch: app.fetch,
+};
