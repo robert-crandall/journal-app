@@ -1,8 +1,17 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import app from '../index';
+import appExport from '../index';
 import { testDb, cleanDatabase, schema } from './setup';
 import { eq } from 'drizzle-orm';
 import { sign } from 'hono/jwt';
+
+// Extract the fetch function from the exported object and create proper wrapper
+const app = { 
+  request: (url: string, init?: RequestInit) => {
+    // Convert relative URLs to absolute URLs for Request constructor
+    const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return appExport.fetch(new Request(absoluteUrl, init));
+  }
+};
 
 // Test setup data
 const testUser = {
