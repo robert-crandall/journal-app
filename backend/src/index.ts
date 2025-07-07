@@ -84,4 +84,10 @@ app.get(
 // Export the app type for RPC
 export type AppType = typeof routes;
 
-export default app;
+// Get port from environment variable, default to 3001
+const port = parseInt(process.env.PORT || '3001', 10);
+
+export default {
+  port,
+  fetch: app.fetch,
+};

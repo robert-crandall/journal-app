@@ -6,10 +6,13 @@ import fetch from 'node-fetch';
 
 const execAsync = promisify(exec);
 
+// Get the port from environment variable, default to 3001
+const BACKEND_PORT = process.env.PORT || '3001';
+
 // Check if backend is already running
 async function isBackendRunning() {
   try {
-    const response = await fetch('http://localhost:3000/api/health', { timeout: 2000 });
+    const response = await fetch(`http://localhost:${BACKEND_PORT}/api/health`, { timeout: 2000 });
     return response.ok;
   } catch {
     return false;
@@ -34,6 +37,22 @@ function killProcessesOnPorts(ports) {
   });
 }
 
+function killBackendProcesses() {
+  const { spawnSync } = require('child_process');
+  try {
+    // Find processes running the backend specifically
+    // Look for "bun run --hot src/index.ts" or "bun run dev" in backend directory
+    const pgrep = spawnSync('pgrep', ['-f', 'bun.*run.*dev|bun.*run.*--hot.*src/index.ts'], { encoding: 'utf-8' });
+    const pids = pgrep.stdout.split('\n').filter(Boolean);
+    if (pids.length > 0) {
+      spawnSync('kill', ['-9', ...pids]);
+      console.log(`✅ Killed backend process(es): ${pids.join(', ')}`);
+    }
+  } catch (e) {
+    console.warn(`⚠️  Could not kill backend processes:`, e.message);
+  }
+} 
+
 // Check if port is in use
 async function isPortInUse(port) {
   try {
@@ -49,17 +68,17 @@ async function startBackend() {
 
   // Check for --force flag
   if (process.argv.includes('--force')) {
-    console.log('🛑 --force flag detected: Killing processes on ports 3000');
-    killProcessesOnPorts([3000]);
+    console.log('🛑 --force flag detected: Killing backend processes');
+    killBackendProcesses();
   }
 
   if (await isBackendRunning()) {
-    console.log('✅ Backend is already running on http://localhost:3000');
+    console.log(`✅ Backend is already running on http://localhost:${BACKEND_PORT}`);
     process.exit(0);
   }
 
-  if (await isPortInUse(3000)) {
-    console.log('❌ Port 3000 is in use but backend is not responding');
+  if (await isPortInUse(BACKEND_PORT)) {
+    console.log(`❌ Port ${BACKEND_PORT} is in use but backend is not responding`);
     process.exit(1);
   }
 
@@ -69,13 +88,14 @@ async function startBackend() {
     cwd: './backend',
     stdio: 'inherit',
     shell: true,
+    env: { ...process.env, PORT: BACKEND_PORT },
   });
 
   // Wait a moment for startup
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
   if (await isBackendRunning()) {
-    console.log('✅ Backend started successfully on http://localhost:3000');
+    console.log(`✅ Backend started successfully on http://localhost:${BACKEND_PORT}`);
     process.exit(0);
   } else {
     console.log('❌ Backend failed to start');
