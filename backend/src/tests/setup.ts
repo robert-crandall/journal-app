@@ -30,26 +30,41 @@ export function getTestDb() {
 
 // Clean database function with better error handling
 export async function cleanDatabase() {
-  try {
-    const db = getTestDb();
-    // Delete all data from tables in the correct order (respecting foreign keys)
-    // Family task feedback first (references family members)
-    await db.delete(schema.familyTaskFeedback);
-    // Family members next (reference users)
-    await db.delete(schema.familyMembers);
-    // Stats tables (they reference characters and users)
-    await db.delete(schema.characterStatXpGrants);
-    await db.delete(schema.characterStatLevelTitles);
-    await db.delete(schema.characterStats);
-    await db.delete(schema.goals);
-    await db.delete(schema.characters);
-    await db.delete(schema.users);
-  } catch (error) {
-    // Only log actual errors, not warnings about missing tables
-    if (error instanceof Error && error.message && !error.message.includes('CONNECTION_ENDED')) {
-      console.warn('Error cleaning database:', error.message);
+  const db = getTestDb();
+  
+  // Helper function to safely delete from a table
+  const safeDelete = async (table: any, tableName: string) => {
+    try {
+      await db.delete(table);
+    } catch (error) {
+      if (error instanceof Error && !error.message.includes('does not exist')) {
+        console.error(`Error cleaning table ${tableName}:`, error.message);
+      }
+      // Ignore errors for tables that don't exist yet
     }
-    // If delete fails, the table might not exist yet, which is fine for tests
+  };
+
+  // Delete all data from tables in the correct order (respecting foreign keys)
+  try {
+    // Family task feedback first (references family members)
+    await safeDelete(schema.familyTaskFeedback, 'family_task_feedback');
+    // Family members next (reference users)
+    await safeDelete(schema.familyMembers, 'family_members');
+    // Goal tags (references goals and tags)
+    await safeDelete(schema.goalTags, 'goal_tags');
+    // Tags (referenced by goal_tags)
+    await safeDelete(schema.tags, 'tags');
+    // Stats tables (they reference characters and users)
+    await safeDelete(schema.characterStatXpGrants, 'character_stat_xp_grants');
+    await safeDelete(schema.characterStatLevelTitles, 'character_stat_level_titles');
+    await safeDelete(schema.characterStats, 'character_stats');
+    await safeDelete(schema.goals, 'goals');
+    await safeDelete(schema.characters, 'characters');
+    await safeDelete(schema.users, 'users');
+  } catch (error) {
+    if (error instanceof Error && !error.message.includes('CONNECTION_ENDED')) {
+      console.error('Error cleaning database:', error);
+    }
   }
 }
 

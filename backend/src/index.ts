@@ -7,6 +7,7 @@ import charactersRoutes from './routes/characters';
 import statsRoutes from './routes/stats';
 import goalsRoutes from './routes/goals';
 import familyRoutes from './routes/family';
+import tagsRoutes from './routes/tags';
 
 // Create main app instance
 const app = new Hono();
@@ -46,7 +47,9 @@ const routes = app
   // Mount goals routes
   .route('/api/goals', goalsRoutes)
   // Mount family routes
-  .route('/api/family', familyRoutes);
+  .route('/api/family', familyRoutes)
+  // Mount tags routes
+  .route('/api/tags', tagsRoutes);
 
 // Serve static files from SvelteKit build output
 // Skip API routes and serve static assets first

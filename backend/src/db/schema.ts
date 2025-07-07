@@ -8,7 +8,8 @@ export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFee
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
-export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, CreateGoalWithTags } from '../types/goals';
+export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
+export type { Tag, CreateTag, UpdateTag, GoalTag, CreateGoalTag, TagWithCount, CreateTagWithName } from '../types/tags';
 export type {
   FamilyMember,
   NewFamilyMember,

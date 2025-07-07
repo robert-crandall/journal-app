@@ -57,6 +57,20 @@
       "when": 1751827854860,
       "tag": "0007_serious_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1751918802237,
+      "tag": "0008_polite_dagger",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1751918827397,
+      "tag": "0009_big_mikhail_rasputin",
+      "breakpoints": true
     }
   ]
 }

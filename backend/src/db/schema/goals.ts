@@ -8,7 +8,6 @@ export const goals = pgTable('goals', {
     .references(() => users.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  tags: text('tags'), // JSON string array for tags like ["family", "growth", "spirituality"]
   isActive: boolean('is_active').default(true).notNull(),
   isArchived: boolean('is_archived').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

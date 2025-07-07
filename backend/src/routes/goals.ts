@@ -5,22 +5,15 @@ import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { goals } from '../db/schema/goals';
 import { createGoalSchema, updateGoalSchema } from '../validation/goals';
-import { HTTPException } from 'hono/http-exception';
 import { handleApiError } from '../utils/logger';
-import type { GoalWithParsedTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
+import { getGoalTags, setGoalTags, serializeGoalWithTags } from '../utils/tags';
+import type { GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
 
-// Helper function to parse tags from JSON string and serialize dates
-const parseGoalTags = (goal: any): GoalWithParsedTags => ({
-  ...goal,
-  tags: goal.tags ? JSON.parse(goal.tags) : [],
-  createdAt: goal.createdAt.toISOString(),
-  updatedAt: goal.updatedAt.toISOString(),
+// Helper function for backwards compatibility - converts GoalWithTags to GoalWithParsedTags
+const convertToLegacyFormat = (goalWithTags: GoalWithTags): GoalWithParsedTags => ({
+  ...goalWithTags,
+  tags: goalWithTags.tags.map(tag => tag.name), // Convert Tag objects to string array
 });
-
-// Helper function to serialize tags to JSON string
-const serializeGoalTags = (tags?: string[]): string | null => {
-  return tags && tags.length > 0 ? JSON.stringify(tags) : null;
-};
 
 // Chain methods for RPC compatibility
 const app = new Hono()
@@ -31,12 +24,18 @@ const app = new Hono()
 
       const userGoals = await db.select().from(goals).where(eq(goals.userId, userId));
 
-      // Parse tags from JSON strings
-      const goalsWithParsedTags = userGoals.map(parseGoalTags);
+      // Get tags for each goal and serialize
+      const goalsWithTags: GoalWithParsedTags[] = [];
+      
+      for (const goal of userGoals) {
+        const goalTags = await getGoalTags(goal.id);
+        const goalWithTags = serializeGoalWithTags(goal, goalTags);
+        goalsWithTags.push(convertToLegacyFormat(goalWithTags));
+      }
 
       return c.json({
         success: true,
-        data: goalsWithParsedTags,
+        data: goalsWithTags,
       });
     } catch (error) {
       handleApiError(error, 'Failed to fetch goals');
@@ -66,11 +65,12 @@ const app = new Hono()
         );
       }
 
-      const goalWithParsedTags = parseGoalTags(goal[0]);
+      const goalTags = await getGoalTags(goal[0].id);
+      const goalWithTags = serializeGoalWithTags(goal[0], goalTags);
 
       return c.json({
         success: true,
-        data: goalWithParsedTags,
+        data: convertToLegacyFormat(goalWithTags),
       });
     } catch (error) {
       handleApiError(error, 'Failed to fetch goal');
@@ -90,18 +90,19 @@ const app = new Hono()
           userId,
           title: data.title,
           description: data.description || null,
-          tags: serializeGoalTags(data.tags),
           isActive: data.isActive ?? true,
           isArchived: data.isArchived ?? false,
         })
         .returning();
 
-      const goalWithParsedTags = parseGoalTags(newGoal[0]);
+      // Set tags for the new goal
+      const goalTags = await setGoalTags(newGoal[0].id, userId, data.tags || []);
+      const goalWithTags = serializeGoalWithTags(newGoal[0], goalTags);
 
       return c.json(
         {
           success: true,
-          data: goalWithParsedTags,
+          data: convertToLegacyFormat(goalWithTags),
         },
         201,
       );
@@ -146,9 +147,6 @@ const app = new Hono()
       if (data.description !== undefined) {
         updateData.description = data.description || null;
       }
-      if (data.tags !== undefined) {
-        updateData.tags = serializeGoalTags(data.tags);
-      }
       if (data.isActive !== undefined) {
         updateData.isActive = data.isActive;
       }
@@ -162,11 +160,19 @@ const app = new Hono()
         .where(and(eq(goals.id, goalId), eq(goals.userId, userId)))
         .returning();
 
-      const goalWithParsedTags = parseGoalTags(updatedGoal[0]);
+      // Update tags if provided
+      let goalTags;
+      if (data.tags !== undefined) {
+        goalTags = await setGoalTags(goalId, userId, data.tags);
+      } else {
+        goalTags = await getGoalTags(goalId);
+      }
+
+      const goalWithTags = serializeGoalWithTags(updatedGoal[0], goalTags);
 
       return c.json({
         success: true,
-        data: goalWithParsedTags,
+        data: convertToLegacyFormat(goalWithTags),
       });
     } catch (error) {
       handleApiError(error, 'Failed to update goal');
@@ -180,12 +186,14 @@ const app = new Hono()
       const userId = getUserId(c);
       const goalId = c.req.param('id');
 
-      const deletedGoal = await db
-        .delete(goals)
+      // Get goal with tags before deletion for response
+      const goalToDelete = await db
+        .select()
+        .from(goals)
         .where(and(eq(goals.id, goalId), eq(goals.userId, userId)))
-        .returning();
+        .limit(1);
 
-      if (deletedGoal.length === 0) {
+      if (goalToDelete.length === 0) {
         return c.json(
           {
             success: false,
@@ -195,11 +203,18 @@ const app = new Hono()
         );
       }
 
-      const goalWithParsedTags = parseGoalTags(deletedGoal[0]);
+      const goalTags = await getGoalTags(goalId);
+
+      // Delete the goal (cascade will handle goal_tags cleanup)
+      await db
+        .delete(goals)
+        .where(and(eq(goals.id, goalId), eq(goals.userId, userId)));
+
+      const goalWithTags = serializeGoalWithTags(goalToDelete[0], goalTags);
 
       return c.json({
         success: true,
-        data: goalWithParsedTags,
+        data: convertToLegacyFormat(goalWithTags),
       });
     } catch (error) {
       handleApiError(error, 'Failed to delete goal');
