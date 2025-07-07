@@ -9,12 +9,11 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 
 ## Design Philosophy
 
-### Target User & Aesthetic
+### Color Scheme
 
-- **Primary User**: INTJ personality who prefers clean, efficient interfaces over flashy designs
-- **Core Philosophy**: Minimalist productivity interface with maximum information density
-- **Visual Style**: "Clean Material Dashboard" - elevated cards, subtle gradients, semantic colors
-- **Inspiration**: Modern productivity apps like Linear, Notion, Google Workspace
+- **Primary**: `#6200ea` (deep purple)
+- **Secondary**: `#D700EA` (pinkish purple)
+- **Accent**: `#0013EA` (blue)
 
 ### Key Design Characteristics
 
@@ -23,6 +22,7 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 3. **Desktop-First Grid System** - Makes full use of wide screens with intelligent sidebars
 4. **Micro-Interactions** - Gentle hover effects and transitions that feel responsive
 5. **Semantic Color System** - Colors have meaning (primary for actions, accent for progress, etc.)
+6. **Material-Style Components** - Inputs, buttons, and cards follow Material Design principles
 
 ## Layout Patterns
 
@@ -236,5 +236,3 @@ This design system creates what can be called:
 - **"Modern Productivity Interface"** 
 - **"Elevated Card Interface"**
 - **"Desktop-First Material Design"**
-
-The aesthetic prioritizes clarity, efficiency, and professional appearance over flashy visual effects - perfect for productivity applications where users need to focus on content and tasks rather than interface decoration.
