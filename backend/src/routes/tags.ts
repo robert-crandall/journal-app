@@ -32,11 +32,7 @@ const app = new Hono()
       const userId = getUserId(c);
       const tagId = c.req.param('id');
 
-      const tag = await db
-        .select()
-        .from(tags)
-        .where(eq(tags.id, tagId))
-        .limit(1);
+      const tag = await db.select().from(tags).where(eq(tags.id, tagId)).limit(1);
 
       if (tag.length === 0 || tag[0].userId !== userId) {
         return c.json(
@@ -99,7 +95,7 @@ const app = new Hono()
         createdTags.push(tag);
       }
 
-      const serializedTags = createdTags.map(tag => ({
+      const serializedTags = createdTags.map((tag) => ({
         ...tag,
         createdAt: tag.createdAt.toISOString(),
         updatedAt: tag.updatedAt.toISOString(),
@@ -126,11 +122,7 @@ const app = new Hono()
       const data = c.req.valid('json') as UpdateTag;
 
       // Check if tag exists and belongs to user
-      const existingTag = await db
-        .select()
-        .from(tags)
-        .where(eq(tags.id, tagId))
-        .limit(1);
+      const existingTag = await db.select().from(tags).where(eq(tags.id, tagId)).limit(1);
 
       if (existingTag.length === 0 || existingTag[0].userId !== userId) {
         return c.json(
@@ -150,11 +142,7 @@ const app = new Hono()
         updateData.name = data.name.trim().toLowerCase();
       }
 
-      const updatedTag = await db
-        .update(tags)
-        .set(updateData)
-        .where(eq(tags.id, tagId))
-        .returning();
+      const updatedTag = await db.update(tags).set(updateData).where(eq(tags.id, tagId)).returning();
 
       return c.json({
         success: true,
@@ -176,10 +164,7 @@ const app = new Hono()
       const userId = getUserId(c);
       const tagId = c.req.param('id');
 
-      const deletedTag = await db
-        .delete(tags)
-        .where(eq(tags.id, tagId))
-        .returning();
+      const deletedTag = await db.delete(tags).where(eq(tags.id, tagId)).returning();
 
       if (deletedTag.length === 0 || deletedTag[0].userId !== userId) {
         return c.json(

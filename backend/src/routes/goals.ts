@@ -12,7 +12,7 @@ import type { GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWi
 // Helper function for backwards compatibility - converts GoalWithTags to GoalWithParsedTags
 const convertToLegacyFormat = (goalWithTags: GoalWithTags): GoalWithParsedTags => ({
   ...goalWithTags,
-  tags: goalWithTags.tags.map(tag => tag.name), // Convert Tag objects to string array
+  tags: goalWithTags.tags.map((tag) => tag.name), // Convert Tag objects to string array
 });
 
 // Chain methods for RPC compatibility
@@ -26,7 +26,7 @@ const app = new Hono()
 
       // Get tags for each goal and serialize
       const goalsWithTags: GoalWithParsedTags[] = [];
-      
+
       for (const goal of userGoals) {
         const goalTags = await getGoalTags(goal.id);
         const goalWithTags = serializeGoalWithTags(goal, goalTags);
@@ -206,9 +206,7 @@ const app = new Hono()
       const goalTags = await getGoalTags(goalId);
 
       // Delete the goal (cascade will handle goal_tags cleanup)
-      await db
-        .delete(goals)
-        .where(and(eq(goals.id, goalId), eq(goals.userId, userId)));
+      await db.delete(goals).where(and(eq(goals.id, goalId), eq(goals.userId, userId)));
 
       const goalWithTags = serializeGoalWithTags(goalToDelete[0], goalTags);
 

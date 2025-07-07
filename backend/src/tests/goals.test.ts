@@ -19,8 +19,8 @@ async function getGoalTags(goalId: string): Promise<string[]> {
     .from(schema.goalTags)
     .innerJoin(schema.tags, eq(schema.tags.id, schema.goalTags.tagId))
     .where(eq(schema.goalTags.goalId, goalId));
-  
-  return goalTags.map(tag => tag.name).sort();
+
+  return goalTags.map((tag) => tag.name).sort();
 }
 
 describe('Goals API Integration Tests', () => {
@@ -244,11 +244,11 @@ describe('Goals API Integration Tests', () => {
       expect(dbGoal).toHaveLength(1);
       expect(dbGoal[0].title).toBe(goalData.title);
       expect(dbGoal[0].description).toBe(goalData.description);
-      
+
       // Check tags in normalized tables
       const dbTags = await getGoalTags(responseData.data.id);
       expect(dbTags).toEqual(goalData.tags.sort());
-      
+
       expect(dbGoal[0].isActive).toBe(goalData.isActive);
       expect(dbGoal[0].isArchived).toBe(goalData.isArchived);
     });
@@ -464,11 +464,11 @@ describe('Goals API Integration Tests', () => {
 
       expect(dbGoal[0].title).toBe(updateData.title);
       expect(dbGoal[0].description).toBe(updateData.description);
-      
+
       // Check tags in normalized tables
       const dbTags = await getGoalTags(goalId);
       expect(dbTags).toEqual(updateData.tags.sort());
-      
+
       expect(dbGoal[0].isActive).toBe(updateData.isActive);
       expect(dbGoal[0].isArchived).toBe(updateData.isArchived);
     });

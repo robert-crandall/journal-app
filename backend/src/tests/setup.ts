@@ -31,7 +31,7 @@ export function getTestDb() {
 // Clean database function with better error handling
 export async function cleanDatabase() {
   const db = getTestDb();
-  
+
   // Helper function to safely delete from a table
   const safeDelete = async (table: any, tableName: string) => {
     try {

@@ -12,7 +12,7 @@ import type { Tag, CreateTag, TagWithCount, GoalWithTags } from '../types';
  */
 export async function createOrGetTag(userId: string, tagName: string): Promise<Tag> {
   const trimmedName = tagName.trim().toLowerCase();
-  
+
   // Try to find existing tag
   const existingTag = await db
     .select()
@@ -120,7 +120,7 @@ export async function addGoalTags(goalId: string, userId: string, tagNames: stri
     if (!tagName || !tagName.trim()) continue;
 
     const tag = await createOrGetTag(userId, tagName);
-    
+
     // Check if relationship already exists
     const existingRelation = await db
       .select()
@@ -131,7 +131,7 @@ export async function addGoalTags(goalId: string, userId: string, tagNames: stri
     if (existingRelation.length === 0) {
       goalTagsToCreate.push({ goalId, tagId: tag.id });
     }
-    
+
     resultTags.push(tag);
   }
 
@@ -149,14 +149,7 @@ export async function addGoalTags(goalId: string, userId: string, tagNames: stri
 export async function removeGoalTags(goalId: string, tagIds: string[]): Promise<void> {
   if (tagIds.length === 0) return;
 
-  await db
-    .delete(goalTags)
-    .where(
-      and(
-        eq(goalTags.goalId, goalId),
-        inArray(goalTags.tagId, tagIds)
-      )
-    );
+  await db.delete(goalTags).where(and(eq(goalTags.goalId, goalId), inArray(goalTags.tagId, tagIds)));
 }
 
 /**
@@ -173,7 +166,7 @@ export async function deleteUnusedTags(userId: string): Promise<number> {
     return 0;
   }
 
-  const tagIds = unusedTags.map(tag => tag.id);
+  const tagIds = unusedTags.map((tag) => tag.id);
   await db.delete(tags).where(inArray(tags.id, tagIds));
 
   return unusedTags.length;
