@@ -52,13 +52,10 @@ export default defineConfig({
   /* Run complete test environment setup */
   webServer: [
     {
-      // Run database migrations
-      command: 'NODE_ENV=test bun run db:setup:force',
-      timeout: 15000,
-    },
-    {
       // Start backend with test database
       command: 'NODE_ENV=test bun run backend',
+      port: 3001,
+      reuseExistingServer: !process.env.CI,
       timeout: 30000,
     },
     {
