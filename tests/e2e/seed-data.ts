@@ -76,25 +76,6 @@ async function createTestUser() {
   return userData;
 }
 
-async function clearExistingData(authToken: string) {
-  console.log('Clearing existing test data...');
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/test/cleanup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Optionally add an auth header if you want extra security
-        // 'Authorization': `Bearer ${authToken}`
-      },
-    });
-    if (!response.ok) throw new Error(`Cleanup failed: ${response.statusText}`);
-    console.log('✅ Existing data cleared');
-  } catch (error) {
-    console.log('⚠️ Could not clear all existing data, continuing...');
-  }
-}
-
 async function seedTestDataViaAPI() {
   console.log('🌱 Seeding test data via API...');
 
@@ -106,9 +87,6 @@ async function seedTestDataViaAPI() {
     if (!authToken) {
       throw new Error('No auth token received from user creation/login');
     }
-
-    // Clear existing data
-    await clearExistingData(authToken);
     console.log('✅ Existing data cleared');
   } catch (error) {
     console.error('❌ Error seeding test data:', error);
