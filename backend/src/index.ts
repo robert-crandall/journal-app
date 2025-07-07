@@ -19,7 +19,10 @@ if (process.env.FRONTEND_URL) {
 }
 
 // Middleware for logging and CORS
-app.use('*', logger());
+// Only use logger in development
+if (process.env.NODE_ENV === 'development') {
+  app.use('*', logger());
+}
 app.use(
   '*',
   cors({
