@@ -1,3 +1,22 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  themes: light, dark, cupcake --default;
+  prefix: "";
+  logs: true;
+}
 
-/* DaisyUI and custom styles will be handled by Tailwind */
+/* TailwindCSS 4 Theme Configuration */
+@theme {
+  /* Custom colors matching your design system */
+  --color-primary: #6200ea;
+  --color-secondary: #D700EA;
+  --color-accent: #0013EA;
+  --color-neutral: #3d4451;
+  --color-base-100: #ffffff;
+  --color-base-200: #f9fafb;
+  --color-base-300: #e5e7eb;
+  --color-base-content: #1f2937;
+  
+  /* Custom breakpoints if needed */
+  --breakpoint-3xl: 120rem;
+}
