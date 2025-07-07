@@ -4,7 +4,6 @@ import { db } from '@/lib/db'
 import { users, characters, stats, familyMembers, todos } from '@/lib/db/schema'
 import { 
   signUpSchema, 
-  signInSchema, 
   characterSchema, 
   statSchema, 
   familyMemberSchema, 

@@ -200,7 +200,7 @@ function DashboardContent() {
   )
 }
 
-function TodoCard({ todo }: { todo: any }) {
+function TodoCard({ todo }: { todo: { id: string; title: string; description?: string | null; completed: boolean; xpReward: number } }) {
   const utils = trpc.useUtils()
   const updateTodo = trpc.todos.update.useMutation({
     onSuccess: () => {

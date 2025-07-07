@@ -7,13 +7,12 @@ import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db) as any,
+  adapter: DrizzleAdapter(db),
   session: {
     strategy: 'jwt',
   },
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
   },
   providers: [
     CredentialsProvider({

@@ -47,7 +47,7 @@ try {
     console.log('  ℹ️  Update .env.local with real PostgreSQL credentials')
   }
 } catch (error) {
-  console.log(`  ❌ Database connection failed: ${error.message}`)
+  console.log(`  ❌ Database connection failed: ${error instanceof Error ? error.message : String(error)}`)
 }
 
 console.log('')

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn, getSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +13,17 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Check for success message from signup
+  useEffect(() => {
+    const message = searchParams.get('message')
+    if (message) {
+      setSuccessMessage(message)
+    }
+  }, [searchParams])
 
   const {
     register,
@@ -42,7 +52,7 @@ export default function SignInPage() {
         router.push('/')
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
@@ -57,6 +67,12 @@ export default function SignInPage() {
             <h1 className="text-3xl font-bold text-primary mb-2">Welcome Back</h1>
             <p className="text-base-content/70">Sign in to continue your adventure</p>
           </div>
+
+          {successMessage && (
+            <div className="alert alert-success mb-4">
+              <span>{successMessage}</span>
+            </div>
+          )}
 
           {error && (
             <div className="alert alert-error mb-4">
@@ -141,7 +157,7 @@ export default function SignInPage() {
 
           <div className="text-center">
             <p className="text-base-content/70">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/auth/signup" className="link link-primary font-medium">
                 Sign up here
               </Link>

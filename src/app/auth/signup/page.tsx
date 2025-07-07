@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -24,20 +23,9 @@ export default function SignUpPage() {
   })
 
   const signUpMutation = trpc.auth.signUp.useMutation({
-    onSuccess: async (data) => {
-      // Auto sign in after successful registration
-      const result = await signIn('credentials', {
-        email: data.user.email,
-        password: '', // We can't pass the password here for security
-        redirect: false,
-      })
-
-      if (result?.ok) {
-        router.push('/')
-        router.refresh()
-      } else {
-        router.push('/auth/signin')
-      }
+    onSuccess: async () => {
+      // Redirect to sign in page after successful registration
+      router.push('/auth/signin?message=Account created successfully! Please sign in.')
     },
     onError: (error) => {
       setError(error.message)
