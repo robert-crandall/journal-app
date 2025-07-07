@@ -22,14 +22,14 @@ async function waitForBackend(maxAttempts = 30, delayMs = 1000): Promise<boolean
 async function runDatabaseSetup(): Promise<void> {
   console.log('🗄️ Setting up test database...');
   const { spawn } = await import('child_process');
-  
+
   return new Promise((resolve, reject) => {
     const env = { ...process.env };
     env.NODE_ENV = 'test';
-    
+
     const setupProcess = spawn('bun', ['scripts/setup-db.ts', '--force'], {
       stdio: 'inherit',
-      env
+      env,
     });
 
     setupProcess.on('close', (code: number | null) => {

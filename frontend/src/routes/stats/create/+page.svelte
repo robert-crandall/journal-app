@@ -80,7 +80,9 @@
   }
 
   // Form submission
-  async function handleSubmit() {
+  async function handleSubmit(event: Event) {
+    event.preventDefault();
+
     const validationError = validateForm();
     if (validationError) {
       error = validationError;

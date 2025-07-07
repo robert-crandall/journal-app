@@ -51,7 +51,7 @@ function killBackendProcesses() {
   } catch (e) {
     console.warn(`⚠️  Could not kill backend processes:`, e.message);
   }
-} 
+}
 
 // Check if port is in use
 async function isPortInUse(port) {
