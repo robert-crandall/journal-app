@@ -1,8 +1,17 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light, dark, cupcake --default;
+  themes: light --default, dark, cupcake;
   prefix: "";
-  logs: true;
+  logs: false;
+}
+
+/* Ensure proper theme initialization */
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 /* TailwindCSS 4 Theme Configuration */
