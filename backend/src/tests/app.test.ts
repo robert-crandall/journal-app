@@ -6,7 +6,7 @@ const app = {
   request: (url: string, init?: RequestInit) => {
     const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
     return appExport.fetch(new Request(absoluteUrl, init));
-  }
+  },
 };
 
 describe('App Integration Tests', () => {
