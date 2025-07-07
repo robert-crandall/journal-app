@@ -22,7 +22,8 @@ You are assisting with the development of a solo-developer, full-stack TypeScrip
 
 - MVP testing approach: focus on end-to-end user flows rather than unit tests.
 - Focus on **testing meaningful user flows**. Only CRUD operations that users interact with directly.
-- Only write tests for things a user would actually see or care about.
+- Do not write unit tests. Assume all libraries and utilities work as intended.
+- Use type checking and Zod validation to ensure data integrity.
 
 ### ✅ Test These
 
