@@ -1,6 +1,6 @@
 ---
 description: Clean Material Dashboard design principles and component patterns for desktop-first responsive interfaces
-applyTo: 'frontend/**/*.{js,ts,svelte}'
+applyTo: '**/*.{js,ts,css}'
 ---
 
 # Clean Material Dashboard Guidelines
@@ -19,7 +19,7 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 ### Key Design Characteristics
 
 1. **Elevated Card-Based Layout** - Content feels like it floats above the background
-2. **Subtle Gradient Accents** - Soft color washes for visual hierarchy without distraction
+2. **Subtle Gradient Accents** - Soft color washes for visual hierarchy without distraction  
 3. **Desktop-First Grid System** - Makes full use of wide screens with intelligent sidebars
 4. **Micro-Interactions** - Gentle hover effects and transitions that feel responsive
 5. **Semantic Color System** - Colors have meaning (primary for actions, accent for progress, etc.)
@@ -57,7 +57,7 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
       </div>
 
       <!-- Contextual sidebar: 1/4 width -->
-      <div class="space-y-6 lg:col-span-1">
+      <div class="lg:col-span-1 space-y-6">
         <!-- Stats, tips, actions -->
       </div>
     </div>
@@ -117,7 +117,9 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 </button>
 
 <!-- Secondary action -->
-<button class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105"> Content </button>
+<button class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105">
+  Content
+</button>
 ```
 
 ### Form Components
@@ -146,7 +148,7 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 ### Semantic Color Usage
 
 - **Primary (`text-primary`, `btn-primary`)**: Main actions, headers, key interactive elements
-- **Secondary (`text-secondary`)**: Edit modes, secondary actions, supporting elements
+- **Secondary (`text-secondary`)**: Edit modes, secondary actions, supporting elements  
 - **Accent (`text-accent`)**: Progress indicators, achievements, highlights
 - **Base Content (`text-base-content`)**: Regular text with opacity variations for hierarchy
 - **Error**: Validation errors, destructive actions
@@ -214,7 +216,6 @@ class="hover:shadow-2xl transition-all duration-200"
 ## Example Implementations
 
 ### Goals Dashboard ✅
-
 - 4-column responsive grid layout
 - Elevated goal cards with hover effects
 - Contextual sidebar with stats and actions
@@ -222,7 +223,6 @@ class="hover:shadow-2xl transition-all duration-200"
 - Semantic color usage throughout
 
 ### Character Forms ✅
-
 - 2/3 + 1/3 column split for desktop
 - Material-style form components
 - Live preview and contextual tips
@@ -232,9 +232,8 @@ class="hover:shadow-2xl transition-all duration-200"
 ## Style References
 
 This design system creates what can be called:
-
 - **"Clean Material Dashboard"**
-- **"Modern Productivity Interface"**
+- **"Modern Productivity Interface"** 
 - **"Elevated Card Interface"**
 - **"Desktop-First Material Design"**
 

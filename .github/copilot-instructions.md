@@ -1,66 +1,54 @@
-# Copilot Instructions
+# Copilot Instructions for This Project
 
-## How We Work: The Core Philosophy
+You are assisting with the development of a solo-developer, full-stack TypeScript web app using the T3 stack:
 
-Our goal is to build robust, maintainable features with a consistent and predictable workflow. Follow these core principles above all else.
+- Next.js (App Router)
+- TypeScript
+- tRPC
+- Prisma (PostgreSQL)
+- Zod
+- Material UI (v5 or Joy UI)
 
-### 1. One Feature at a Time
+## Project Philosophy
 
-- We work on one and only one feature from start to finish.
-- Do not make changes unrelated to the current feature. This keeps our commits focused and our work testable.
+- Minimize code duplication between backend, frontend, and tests.
+- Minimize integration points between backend and frontend.
+- Use lucid icons, never emojis
+- Prioritize developer speed and flow — this project will be largely co-developed with LLMs like Copilot.
+- Use type-safe patterns. Zod schemas should be shared and reused across layers.
+- The UI uses Material UI with theme switching (light, dark, system).
 
-### 2. The Feature Development Cycle
+## Testing Philosophy
 
-Every new feature **must** follow this specific, sequential order. Do not skip or reorder steps. Each step must be completed before starting the next.
+- MVP testing approach: focus on end-to-end user flows rather than unit tests.
+- Focus on **testing meaningful user flows**. Only CRUD operations that users interact with directly.
+- Only write tests for things a user would actually see or care about.
 
-1.  **Database Schema & Migration**: Define the schema changes in Drizzle, then generate and apply the database migration.
-2.  **Backend API & Type Export**: Implement the Hono endpoints and business logic. Ensure all necessary types are exported for the frontend.
-3.  **Backend Integration Tests**: Write tests to validate the new API, logic, and database interactions.
-4.  **All backend tests must pass before moving on.** Run `bun run test` in backend
-5.  **Frontend Implementation**: Build the SvelteKit components, importing types directly from the backend to ensure type safety.
-6.  **Frontend E2E Tests**: Write end-to-end tests that simulate user interaction and verify the feature works from the browser to the database.
-7.  **All frontend tests must pass before finalizing the feature.** Run `bun run test:e2e` in frontend
-8.  **Test entire feature**: Run `scripts/test_pr` to validate the complete feature.
+### ✅ Test These
 
-### 3. Document Key Decisions
+- Form submission and visible success/failure messages
+- Session-aware UI (e.g. login/logout behavior)
+- Theme toggle (dark/light/system) from the user's perspective
+- Completing a task and seeing XP granted
+- Creating a post and seeing it rendered on the homepage
+- Routing between authenticated views (e.g. protected routes)
 
-- To ensure consistency, we document important architectural patterns and decisions.
-- When you encounter a situation with multiple valid approaches, make a decision, and then **document it following [self-improve.instructions.md](./instructions/self-improve.instructions.md)**.
-- **Example**: If you decide that API endpoints should always get the `UserID` from the JWT token rather than a query parameter, document this rule so we apply it everywhere.
+### ❌ Do Not Test These
 
----
+- UI styling or layout details (e.g. spacing, color)
+- Third-party libraries (e.g. Material UI, NextAuth) — unless integrating custom logic
+- Database queries (assume Prisma works)
+- Internal helper functions (formatters, string functions, etc.)
+- Static type validation (assume Zod works)
 
-## Guiding Principles
+## Development Guidelines
 
-These are the fundamental rules that support our development process.
+- Use `tRPC` for all backend logic; avoid REST or GraphQL.
+- Always co-locate Zod schemas and use them for validation + type inference.
+- Keep code readable and practical — avoid abstractions unless they reduce duplication.
+- Prefer simple, self-contained components and pages.
+- Avoid overengineering. This is a personal project, not a product for scale.
 
-### Search First, Code Second
+## Tone
 
-- **DRY (Don't Repeat Yourself) is our most important code quality rule.**
-- **Before writing any code**, search the repository for existing implementations. Look for reusable components, utilities, and types.
-- Use semantic search for concepts (`"How is authentication handled?"`) and lexical search for specifics (`symbol:UserValidator`).
-
-### Single Source of Truth for Types
-
-- **NEVER duplicate types.** The backend is the single source of truth.
-- The frontend **MUST** import all API and data types directly from the backend project.
-- This is critical for maintaining end-to-end type safety. If you have a type error, fix it by importing the correct type.
-
-### Rigorous, Layered Testing
-
-- **Testing is a required step for every layer.** No feature is complete until it is fully tested according to the development cycle.
-- Our primary focus is on **integration tests** that use real database connections and make real HTTP requests.
-- Business logic should be imported into tests, **never copied or reimplemented**.
-
----
-
-## Common Commands
-
-Note: Always `cd` to the full path before running these commands.
-
-- **Start backend and frontend server**: `bun run dev:force`
-- **Run backend and frontend tests**: `bun run test`
-- **Run backend tests**: `bun run test:backend`
-- **Run E2E tests**: `bun run test:e2e`
-- **Migrate databases for test**: This is not needed when running backend tests. `NODE_ENV=test bun run db:setup`
-- **Reset database**: `NODE_ENV=test bun run db:reset`
+You’re not building a startup MVP. You’re helping a solo dev build a vibe-coded productivity RPG. Optimize for clarity, simplicity, and developer momentum.
