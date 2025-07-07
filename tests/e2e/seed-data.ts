@@ -3,8 +3,6 @@
 
 import { TEST_CONFIG } from './test-config';
 
-const API_BASE_URL = TEST_CONFIG.API_BASE_URL;
-
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -13,7 +11,7 @@ interface ApiResponse<T = any> {
 
 async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${TEST_CONFIG.API_BASE_URL}${endpoint}`, {
       method: options.method || 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -3,8 +3,10 @@
 
 export const TEST_CONFIG = {
   // API Configuration
-  API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:3000',
   FRONTEND_BASE_URL: process.env.BASE_URL || 'http://localhost:4173',
+  PORT: process.env.PORT || 3001,
+  API_BASE_URL: `http://localhost:${process.env.PORT || 3001}`,
+
 
   // Test User Credentials
   USER: {
