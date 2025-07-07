@@ -11,7 +11,7 @@
     likes: '',
     dislikes: '',
     energyLevel: 5,
-    notes: ''
+    notes: '',
   });
 
   let loading = $state(false);
@@ -59,7 +59,7 @@
     { value: 7, label: 'Energizing' },
     { value: 8, label: 'Very Energizing' },
     { value: 9, label: 'Highly Energizing' },
-    { value: 10, label: 'Extremely Energizing' }
+    { value: 10, label: 'Extremely Energizing' },
   ];
 
   // Handle form submission
@@ -83,7 +83,7 @@
       };
 
       await familyApi.createFamilyMember(submitData);
-      
+
       // Redirect to family dashboard on success
       goto('/family');
     } catch (err) {
@@ -142,7 +142,7 @@
               <!-- Basic Information Section -->
               <section>
                 <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>
-                
+
                 <div class="grid gap-6 md:grid-cols-2">
                   <!-- Name Field -->
                   <div class="form-control">
@@ -186,17 +186,13 @@
                         <Users class="text-base-content/40" size="20" />
                       </div>
                     </div>
-                    
+
                     <!-- Relationship Quick Select -->
                     <div class="mt-2">
-                      <p class="text-xs text-base-content/60 mb-2">Quick select:</p>
+                      <p class="text-base-content/60 mb-2 text-xs">Quick select:</p>
                       <div class="flex flex-wrap gap-1">
                         {#each relationshipOptions as option}
-                          <button
-                            type="button"
-                            class="btn btn-xs btn-outline"
-                            onclick={() => selectRelationship(option)}
-                          >
+                          <button type="button" class="btn btn-xs btn-outline" onclick={() => selectRelationship(option)}>
                             {option}
                           </button>
                         {/each}
@@ -228,7 +224,7 @@
               <!-- Preferences Section -->
               <section>
                 <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Preferences</h3>
-                
+
                 <div class="space-y-6">
                   <!-- Likes Field -->
                   <div class="form-control">
@@ -334,17 +330,13 @@
           <!-- Help Card -->
           <div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
             <div class="card-body p-6">
-              <h3 class="text-primary mb-4 font-semibold flex items-center gap-2">
+              <h3 class="text-primary mb-4 flex items-center gap-2 font-semibold">
                 <Heart size={20} />
                 Building Connections
               </h3>
               <div class="space-y-3 text-sm">
-                <p class="text-base-content/80">
-                  Family profiles help GPT understand each person's unique preferences and suggest meaningful activities.
-                </p>
-                <p class="text-base-content/80">
-                  The more details you provide about their likes and dislikes, the better GPT can tailor connection tasks.
-                </p>
+                <p class="text-base-content/80">Family profiles help GPT understand each person's unique preferences and suggest meaningful activities.</p>
+                <p class="text-base-content/80">The more details you provide about their likes and dislikes, the better GPT can tailor connection tasks.</p>
               </div>
             </div>
           </div>
@@ -375,15 +367,9 @@
             <div class="card-body p-6">
               <h3 class="mb-4 font-semibold">🎯 Connection System</h3>
               <div class="space-y-3 text-sm">
-                <p class="text-base-content/70">
-                  New family members start at Connection Level 1 with 0 XP.
-                </p>
-                <p class="text-base-content/70">
-                  Complete activities and provide feedback to earn Connection XP and level up your relationships.
-                </p>
-                <p class="text-base-content/70">
-                  Higher connection levels unlock deeper interaction suggestions from GPT.
-                </p>
+                <p class="text-base-content/70">New family members start at Connection Level 1 with 0 XP.</p>
+                <p class="text-base-content/70">Complete activities and provide feedback to earn Connection XP and level up your relationships.</p>
+                <p class="text-base-content/70">Higher connection levels unlock deeper interaction suggestions from GPT.</p>
               </div>
             </div>
           </div>

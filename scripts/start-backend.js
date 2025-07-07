@@ -9,7 +9,7 @@ const execAsync = promisify(exec);
 // Check if backend is already running
 async function isBackendRunning() {
   try {
-    const response = await fetch('http://localhost:3030/api/health', { timeout: 2000 });
+    const response = await fetch('http://localhost:3000/api/health', { timeout: 2000 });
     return response.ok;
   } catch {
     return false;
@@ -49,17 +49,17 @@ async function startBackend() {
 
   // Check for --force flag
   if (process.argv.includes('--force')) {
-    console.log('🛑 --force flag detected: Killing processes on ports 3030');
-    killProcessesOnPorts([3030]);
+    console.log('🛑 --force flag detected: Killing processes on ports 3000');
+    killProcessesOnPorts([3000]);
   }
 
   if (await isBackendRunning()) {
-    console.log('✅ Backend is already running on http://localhost:3030');
+    console.log('✅ Backend is already running on http://localhost:3000');
     process.exit(0);
   }
 
-  if (await isPortInUse(3030)) {
-    console.log('❌ Port 3030 is in use but backend is not responding');
+  if (await isPortInUse(3000)) {
+    console.log('❌ Port 3000 is in use but backend is not responding');
     process.exit(1);
   }
 
@@ -75,7 +75,7 @@ async function startBackend() {
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
   if (await isBackendRunning()) {
-    console.log('✅ Backend started successfully on http://localhost:3030');
+    console.log('✅ Backend started successfully on http://localhost:3000');
     process.exit(0);
   } else {
     console.log('❌ Backend failed to start');

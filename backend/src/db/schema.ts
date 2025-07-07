@@ -9,4 +9,13 @@ export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFee
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
 export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, CreateGoalWithTags } from '../types/goals';
-export type { FamilyMember, NewFamilyMember, UpdateFamilyMember, FamilyTaskFeedback, NewFamilyTaskFeedback, CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
+export type {
+  FamilyMember,
+  NewFamilyMember,
+  UpdateFamilyMember,
+  FamilyTaskFeedback,
+  NewFamilyTaskFeedback,
+  CreateFamilyMemberRequest,
+  UpdateFamilyMemberRequest,
+  CreateFamilyTaskFeedbackRequest,
+} from '../types/family';

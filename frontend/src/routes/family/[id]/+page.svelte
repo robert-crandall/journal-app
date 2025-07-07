@@ -4,18 +4,7 @@
   import { onMount } from 'svelte';
   import { getFamilyMember, deleteFamilyMember } from '$lib/api/family.js';
   import type { FamilyMember } from '$lib/api/family.js';
-  import { 
-    Calendar, 
-    Edit3, 
-    Trash2, 
-    User, 
-    Heart, 
-    MessageCircle,
-    ArrowLeft,
-    TrendingUp,
-    Clock,
-    Star
-  } from 'lucide-svelte';
+  import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
 
   // State
   let familyMember = $state<FamilyMember | null>(null);
@@ -71,7 +60,7 @@
       friend: MessageCircle,
       colleague: User,
       mentor: Star,
-      other: User
+      other: User,
     };
     return icons[relationship as keyof typeof icons] || User;
   }
@@ -85,7 +74,7 @@
       friend: 'text-yellow-600',
       colleague: 'text-gray-600',
       mentor: 'text-indigo-600',
-      other: 'text-slate-600'
+      other: 'text-slate-600',
     };
     return colors[relationship as keyof typeof colors] || 'text-slate-600';
   }
@@ -108,7 +97,7 @@
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 </script>
@@ -120,47 +109,40 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-  <div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
     <header class="mb-8">
-      <div class="flex items-center gap-4 mb-4">
-        <button
-          onclick={() => goto('/family')}
-          class="btn btn-ghost btn-sm gap-2 text-slate-600 hover:text-slate-800"
-          aria-label="Back to family"
-        >
+      <div class="mb-4 flex items-center gap-4">
+        <button onclick={() => goto('/family')} class="btn btn-ghost btn-sm gap-2 text-slate-600 hover:text-slate-800" aria-label="Back to family">
           <ArrowLeft size={16} />
           Back to Family
         </button>
       </div>
-      
+
       {#if loading}
         <div class="flex items-center gap-3">
-          <div class="skeleton w-8 h-8 rounded-full"></div>
+          <div class="skeleton h-8 w-8 rounded-full"></div>
           <div class="skeleton h-8 w-48"></div>
         </div>
       {:else if familyMember}
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-4">
             <div class="avatar placeholder">
-              <div class="bg-primary text-primary-content rounded-full w-16 h-16">
+              <div class="bg-primary text-primary-content h-16 w-16 rounded-full">
                 <span class="text-2xl font-bold">
                   {familyMember.name.charAt(0).toUpperCase()}
                 </span>
               </div>
             </div>
             <div>
-              <h1 class="text-3xl font-bold text-slate-800 mb-2">
+              <h1 class="mb-2 text-3xl font-bold text-slate-800">
                 {familyMember.name}
               </h1>
               <div class="flex items-center gap-4 text-sm text-slate-600">
                 {#if familyMember}
                   {@const RelationshipIcon = getRelationshipIcon(familyMember.relationship)}
                   <div class="flex items-center gap-1">
-                    <RelationshipIcon 
-                      size={16} 
-                      class={getRelationshipColor(familyMember.relationship)}
-                    />
+                    <RelationshipIcon size={16} class={getRelationshipColor(familyMember.relationship)} />
                     <span class="capitalize">{familyMember.relationship}</span>
                   </div>
                 {/if}
@@ -171,7 +153,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="flex gap-2">
             <button
               onclick={() => familyMember && goto(`/family/${familyMember.id}/edit`)}
@@ -207,12 +189,12 @@
     {/if}
 
     {#if loading}
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <!-- Profile skeleton -->
         <div class="lg:col-span-2">
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <div class="skeleton h-6 w-32 mb-4"></div>
+              <div class="skeleton mb-4 h-6 w-32"></div>
               <div class="space-y-3">
                 <div class="skeleton h-4 w-full"></div>
                 <div class="skeleton h-4 w-3/4"></div>
@@ -221,12 +203,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Stats skeleton -->
         <div>
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <div class="skeleton h-6 w-24 mb-4"></div>
+              <div class="skeleton mb-4 h-6 w-24"></div>
               <div class="space-y-4">
                 <div class="skeleton h-16 w-full"></div>
                 <div class="skeleton h-16 w-full"></div>
@@ -236,39 +218,36 @@
         </div>
       </div>
     {:else if familyMember}
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <!-- Main Content -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="space-y-6 lg:col-span-2">
           <!-- Profile Information -->
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <h2 class="card-title text-xl mb-4 flex items-center gap-2">
+              <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <User size={20} />
                 Profile Information
               </h2>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <h4 class="font-medium text-slate-600 mb-1">Name</h4>
+                  <h4 class="mb-1 font-medium text-slate-600">Name</h4>
                   <p class="text-slate-800">{familyMember.name}</p>
                 </div>
-                
+
                 <div>
-                  <h4 class="font-medium text-slate-600 mb-1">Relationship</h4>
+                  <h4 class="mb-1 font-medium text-slate-600">Relationship</h4>
                   {#if familyMember}
                     {@const RelationshipIcon = getRelationshipIcon(familyMember.relationship)}
                     <div class="flex items-center gap-2">
-                      <RelationshipIcon 
-                        size={16} 
-                        class={getRelationshipColor(familyMember.relationship)}
-                      />
+                      <RelationshipIcon size={16} class={getRelationshipColor(familyMember.relationship)} />
                       <span class="capitalize">{familyMember.relationship}</span>
                     </div>
                   {/if}
                 </div>
-                
+
                 <div>
-                  <h4 class="font-medium text-slate-600 mb-1">Energy Level</h4>
+                  <h4 class="mb-1 font-medium text-slate-600">Energy Level</h4>
                   <div class="flex items-center gap-2">
                     <div class="flex items-center gap-1">
                       <span class={`font-bold ${getEnergyColor(familyMember.energyLevel)}`}>
@@ -280,86 +259,76 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
-                  <h4 class="font-medium text-slate-600 mb-1">Connection Level</h4>
+                  <h4 class="mb-1 font-medium text-slate-600">Connection Level</h4>
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-blue-600">{familyMember.connectionLevel}/10</span>
                     <div class="flex-1">
-                      <progress 
-                        class="progress progress-primary w-full max-w-32" 
-                        value={familyMember.connectionLevel} 
-                        max="10"
-                      ></progress>
+                      <progress class="progress progress-primary w-full max-w-32" value={familyMember.connectionLevel} max="10"></progress>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {#if familyMember.notes}
                 <div class="mt-6">
-                  <h4 class="font-medium text-slate-600 mb-2">Notes</h4>
-                  <div class="bg-slate-50 rounded-lg p-4">
-                    <p class="text-slate-700 whitespace-pre-wrap">{familyMember.notes}</p>
+                  <h4 class="mb-2 font-medium text-slate-600">Notes</h4>
+                  <div class="rounded-lg bg-slate-50 p-4">
+                    <p class="whitespace-pre-wrap text-slate-700">{familyMember.notes}</p>
                   </div>
                 </div>
               {/if}
             </div>
           </div>
-          
+
           <!-- Interaction History -->
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <h2 class="card-title text-xl mb-4 flex items-center gap-2">
+              <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <MessageCircle size={20} />
                 Recent Interactions
               </h2>
-              
-              <div class="text-center py-8">
-                <MessageCircle size={48} class="mx-auto text-slate-300 mb-4" />
-                <p class="text-slate-500 mb-4">No interactions recorded yet</p>
-                <p class="text-sm text-slate-400">
-                  Start tracking your interactions to see them here
-                </p>
+
+              <div class="py-8 text-center">
+                <MessageCircle size={48} class="mx-auto mb-4 text-slate-300" />
+                <p class="mb-4 text-slate-500">No interactions recorded yet</p>
+                <p class="text-sm text-slate-400">Start tracking your interactions to see them here</p>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Stats -->
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <h3 class="card-title text-lg mb-4 flex items-center gap-2">
+              <h3 class="card-title mb-4 flex items-center gap-2 text-lg">
                 <TrendingUp size={18} />
                 Quick Stats
               </h3>
-              
+
               <div class="space-y-4">
-                <div class="stat bg-blue-50 rounded-lg p-4">
+                <div class="stat rounded-lg bg-blue-50 p-4">
                   <div class="stat-title text-xs">Connection Progress</div>
                   <div class="stat-value text-2xl text-blue-600">
                     {familyMember.connectionLevel}/10
                   </div>
                   <div class="stat-desc">
-                    <progress 
-                      class="progress progress-primary w-full" 
-                      value={familyMember.connectionLevel} 
-                      max="10"
-                    ></progress>
+                    <progress class="progress progress-primary w-full" value={familyMember.connectionLevel} max="10"></progress>
                   </div>
                 </div>
-                
-                <div class="stat bg-green-50 rounded-lg p-4">
+
+                <div class="stat rounded-lg bg-green-50 p-4">
                   <div class="stat-title text-xs">Energy Impact</div>
                   <div class={`stat-value text-2xl ${getEnergyColor(familyMember.energyLevel)}`}>
                     {getEnergyLabel(familyMember.energyLevel)}
                   </div>
                   <div class="stat-desc">{familyMember.energyLevel}/10 rating</div>
                 </div>
-                
-                <div class="stat bg-purple-50 rounded-lg p-4">
+
+                <div class="stat rounded-lg bg-purple-50 p-4">
                   <div class="stat-title text-xs">Member Since</div>
                   <div class="stat-value text-lg text-purple-600">
                     {formatDate(familyMember.createdAt)}
@@ -372,36 +341,29 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Quick Actions -->
           <div class="card bg-white shadow-sm">
             <div class="card-body">
-              <h3 class="card-title text-lg mb-4">Quick Actions</h3>
-              
+              <h3 class="card-title mb-4 text-lg">Quick Actions</h3>
+
               <div class="space-y-3">
                 <button
                   onclick={() => familyMember && goto(`/family/${familyMember.id}/edit`)}
-                  class="btn btn-outline w-full gap-2 justify-start"
+                  class="btn btn-outline w-full justify-start gap-2"
                   disabled={!familyMember}
                 >
                   <Edit3 size={16} />
                   Edit Profile
                 </button>
-                
-                <button
-                  class="btn btn-outline w-full gap-2 justify-start"
-                  disabled
-                >
+
+                <button class="btn btn-outline w-full justify-start gap-2" disabled>
                   <MessageCircle size={16} />
                   Record Interaction
                   <div class="badge badge-xs">Coming Soon</div>
                 </button>
-                
-                <button
-                  onclick={handleDelete}
-                  disabled={deletingMember}
-                  class="btn btn-error btn-outline w-full gap-2 justify-start"
-                >
+
+                <button onclick={handleDelete} disabled={deletingMember} class="btn btn-error btn-outline w-full justify-start gap-2">
                   {#if deletingMember}
                     <span class="loading loading-spinner loading-xs"></span>
                   {:else}

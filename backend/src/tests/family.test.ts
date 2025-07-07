@@ -36,7 +36,7 @@ describe('Family API', () => {
       headers: { 'Content-Type': 'application/json' },
     });
     expect(loginResponse.status).toBe(200);
-    
+
     const loginData = await loginResponse.json();
     authToken = loginData.token;
     userId = loginData.user.id;
@@ -56,9 +56,9 @@ describe('Family API', () => {
       const response = await app.request('/api/family', {
         method: 'POST',
         body: JSON.stringify(familyMemberData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -88,9 +88,9 @@ describe('Family API', () => {
       const response = await app.request('/api/family', {
         method: 'POST',
         body: JSON.stringify(familyMemberData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -124,9 +124,9 @@ describe('Family API', () => {
       const response = await app.request('/api/family', {
         method: 'POST',
         body: JSON.stringify({ name: 'John' }), // missing relationship
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -147,9 +147,9 @@ describe('Family API', () => {
           relationship: 'eldest son',
           likes: 'soccer',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const member1Data = await member1Response.json();
@@ -162,9 +162,9 @@ describe('Family API', () => {
           relationship: 'wife',
           likes: 'reading',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const member2Data = await member2Response.json();
@@ -173,7 +173,7 @@ describe('Family API', () => {
 
     test('should return all family members for user', async () => {
       const response = await app.request('/api/family', {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(200);
@@ -201,9 +201,9 @@ describe('Family API', () => {
           relationship: 'son',
           likes: 'soccer',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const data = await response.json();
@@ -212,7 +212,7 @@ describe('Family API', () => {
 
     test('should return specific family member', async () => {
       const response = await app.request(`/api/family/${familyMemberId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(200);
@@ -224,7 +224,7 @@ describe('Family API', () => {
 
     test('should return 404 for non-existent family member', async () => {
       const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000', {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(404);
@@ -247,9 +247,9 @@ describe('Family API', () => {
           relationship: 'son',
           likes: 'soccer',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const data = await response.json();
@@ -267,9 +267,9 @@ describe('Family API', () => {
       const response = await app.request(`/api/family/${familyMemberId}`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -291,9 +291,9 @@ describe('Family API', () => {
       const response = await app.request(`/api/family/${familyMemberId}`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -308,9 +308,9 @@ describe('Family API', () => {
       const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000', {
         method: 'PUT',
         body: JSON.stringify({ name: 'Updated' }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -338,9 +338,9 @@ describe('Family API', () => {
           name: 'John',
           relationship: 'son',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const data = await response.json();
@@ -350,7 +350,7 @@ describe('Family API', () => {
     test('should delete family member', async () => {
       const response = await app.request(`/api/family/${familyMemberId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(200);
@@ -359,7 +359,7 @@ describe('Family API', () => {
 
       // Verify deletion
       const getResponse = await app.request(`/api/family/${familyMemberId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       expect(getResponse.status).toBe(404);
     });
@@ -373,32 +373,29 @@ describe('Family API', () => {
           taskDescription: 'Played soccer',
           feedback: 'Great fun!',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
       // Delete family member
       const deleteResponse = await app.request(`/api/family/${familyMemberId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       expect(deleteResponse.status).toBe(200);
 
       // Verify feedback is also deleted
       const db = testDb();
-      const remainingFeedback = await db
-        .select()
-        .from(familyTaskFeedback)
-        .where(eq(familyTaskFeedback.familyMemberId, familyMemberId));
+      const remainingFeedback = await db.select().from(familyTaskFeedback).where(eq(familyTaskFeedback.familyMemberId, familyMemberId));
       expect(remainingFeedback).toHaveLength(0);
     });
 
     test('should return 404 for non-existent family member', async () => {
       const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000', {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(404);
@@ -423,9 +420,9 @@ describe('Family API', () => {
           name: 'John',
           relationship: 'son',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const data = await response.json();
@@ -444,9 +441,9 @@ describe('Family API', () => {
       const response = await app.request(`/api/family/${familyMemberId}/feedback`, {
         method: 'POST',
         body: JSON.stringify(feedbackData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -469,15 +466,15 @@ describe('Family API', () => {
           familyMemberId,
           taskDescription: 'Played soccer',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
       // Check that lastInteractionDate was updated
       const memberResponse = await app.request(`/api/family/${familyMemberId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       const memberData = await memberResponse.json();
       const lastInteraction = new Date(memberData.data.lastInteractionDate);
@@ -493,9 +490,9 @@ describe('Family API', () => {
       const response = await app.request(`/api/family/${familyMemberId}/feedback`, {
         method: 'POST',
         body: JSON.stringify(feedbackData),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -515,9 +512,9 @@ describe('Family API', () => {
           familyMemberId: '00000000-0000-0000-0000-000000000000',
           taskDescription: 'Test task',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -548,9 +545,9 @@ describe('Family API', () => {
           name: 'John',
           relationship: 'son',
         }),
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       const data = await response.json();
@@ -570,9 +567,9 @@ describe('Family API', () => {
             familyMemberId,
             ...feedback,
           }),
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
       }
@@ -580,7 +577,7 @@ describe('Family API', () => {
 
     test('should return feedback history for family member', async () => {
       const response = await app.request(`/api/family/${familyMemberId}/feedback`, {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(200);
@@ -592,7 +589,7 @@ describe('Family API', () => {
 
     test('should limit results when requested', async () => {
       const response = await app.request(`/api/family/${familyMemberId}/feedback?limit=2`, {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(200);
@@ -603,7 +600,7 @@ describe('Family API', () => {
 
     test('should return 404 for non-existent family member', async () => {
       const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000/feedback', {
-        headers: { 'Authorization': `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       expect(response.status).toBe(404);

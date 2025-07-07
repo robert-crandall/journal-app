@@ -12,13 +12,13 @@ export const getBaseUrl = () => {
     const origin = window.location.origin;
     // If we're on localhost:4173 (SvelteKit preview) or other dev ports, use backend port
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return 'http://localhost:3030';
+      return 'http://localhost:3000';
     }
     // In production, assume API is on same origin or configure via env
     return origin;
   }
   // Fallback for SSR (though we've disabled SSR)
-  return 'http://localhost:3030';
+  return 'http://localhost:3000';
 };
 
 const baseUrl = getBaseUrl();
@@ -64,7 +64,7 @@ export function createAuthenticatedFetch() {
     return fetch(`${baseUrl}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },

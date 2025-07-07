@@ -4,7 +4,10 @@ import { z } from 'zod';
 export const createFamilyMemberSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name must be 100 characters or less'),
   relationship: z.string().min(1, 'Relationship is required').max(100, 'Relationship must be 100 characters or less'),
-  birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Birthday must be in YYYY-MM-DD format').optional(),
+  birthday: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Birthday must be in YYYY-MM-DD format')
+    .optional(),
   likes: z.string().max(1000, 'Likes must be 1000 characters or less').optional(),
   dislikes: z.string().max(1000, 'Dislikes must be 1000 characters or less').optional(),
   energyLevel: z.number().int().min(1).max(100).default(50),

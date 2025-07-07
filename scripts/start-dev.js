@@ -31,8 +31,8 @@ async function startDev() {
 
   // Check for --force flag
   if (process.argv.includes('--force')) {
-    console.log('🛑 --force flag detected: Killing processes on ports 3030 and 5173...');
-    killProcessesOnPorts([3030, 5173]);
+    console.log('🛑 --force flag detected: Killing processes on ports 3000 and 5173...');
+    killProcessesOnPorts([3000, 5173]);
   }
 
   // Apply database migrations

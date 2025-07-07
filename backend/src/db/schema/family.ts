@@ -3,7 +3,9 @@ import { users } from './users';
 
 export const familyMembers = pgTable('family_members', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   name: varchar('name', { length: 100 }).notNull(),
   relationship: varchar('relationship', { length: 100 }).notNull(), // e.g., "eldest son", "wife", "mother"
   birthday: date('birthday'), // Optional birthday (date only, no time)
@@ -21,8 +23,12 @@ export const familyMembers = pgTable('family_members', {
 // Family task feedback for tracking task outcomes
 export const familyTaskFeedback = pgTable('family_task_feedback', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id),
-  familyMemberId: uuid('family_member_id').notNull().references(() => familyMembers.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  familyMemberId: uuid('family_member_id')
+    .notNull()
+    .references(() => familyMembers.id),
   taskDescription: text('task_description').notNull(), // What was done
   feedback: text('feedback'), // "How did it go?" - freeform
   enjoyedIt: varchar('enjoyed_it', { length: 10 }), // "yes", "no", or null

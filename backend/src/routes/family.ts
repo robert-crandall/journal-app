@@ -4,19 +4,15 @@ import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
 import { familyMembers, familyTaskFeedback } from '../db/schema/family';
 import { jwtAuth } from '../middleware/auth';
-import { 
-  createFamilyMemberSchema, 
+import {
+  createFamilyMemberSchema,
   updateFamilyMemberSchema,
   createFamilyTaskFeedbackSchema,
   updateFamilyTaskFeedbackSchema,
   familyQuerySchema,
-  familyFeedbackQuerySchema
+  familyFeedbackQuerySchema,
 } from '../validation/family';
-import type { 
-  CreateFamilyMemberRequest, 
-  UpdateFamilyMemberRequest,
-  CreateFamilyTaskFeedbackRequest
-} from '../types/family';
+import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
 import logger, { handleApiError } from '../utils/logger';
 
 const app = new Hono();
@@ -27,18 +23,14 @@ app.get('/', jwtAuth, zValidator('query', familyQuerySchema), async (c) => {
     const userId = c.get('userId');
     const { includeFeedback } = c.req.valid('query');
 
-    const userFamilyMembers = await db
-      .select()
-      .from(familyMembers)
-      .where(eq(familyMembers.userId, userId))
-      .orderBy(familyMembers.name);
+    const userFamilyMembers = await db.select().from(familyMembers).where(eq(familyMembers.userId, userId)).orderBy(familyMembers.name);
 
     let result = userFamilyMembers;
 
     // If requested, include recent feedback for each family member
     if (includeFeedback) {
-      const familyMemberIds = userFamilyMembers.map(fm => fm.id);
-      
+      const familyMemberIds = userFamilyMembers.map((fm) => fm.id);
+
       if (familyMemberIds.length > 0) {
         const recentFeedback = await db
           .select()
@@ -47,23 +39,26 @@ app.get('/', jwtAuth, zValidator('query', familyQuerySchema), async (c) => {
             and(
               eq(familyTaskFeedback.userId, userId),
               // Only get most recent feedback per family member
-            )
+            ),
           )
           .orderBy(desc(familyTaskFeedback.completedAt))
           .limit(familyMemberIds.length * 3); // 3 most recent per member
 
         // Group feedback by family member
-        const feedbackByMember = recentFeedback.reduce((acc, feedback) => {
-          if (!acc[feedback.familyMemberId]) {
-            acc[feedback.familyMemberId] = [];
-          }
-          acc[feedback.familyMemberId].push(feedback);
-          return acc;
-        }, {} as Record<string, typeof recentFeedback>);
+        const feedbackByMember = recentFeedback.reduce(
+          (acc, feedback) => {
+            if (!acc[feedback.familyMemberId]) {
+              acc[feedback.familyMemberId] = [];
+            }
+            acc[feedback.familyMemberId].push(feedback);
+            return acc;
+          },
+          {} as Record<string, typeof recentFeedback>,
+        );
 
-        result = userFamilyMembers.map(member => ({
+        result = userFamilyMembers.map((member) => ({
           ...member,
-          recentFeedback: feedbackByMember[member.id] || []
+          recentFeedback: feedbackByMember[member.id] || [],
         }));
       }
     }
@@ -101,10 +96,13 @@ app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) =
 
     logger.info(`Family member created: ${newFamilyMember[0].name} (${newFamilyMember[0].relationship})`);
 
-    return c.json({
-      success: true,
-      data: newFamilyMember[0],
-    }, 201);
+    return c.json(
+      {
+        success: true,
+        data: newFamilyMember[0],
+      },
+      201,
+    );
   } catch (error) {
     return handleApiError(error, 'Failed to create family member');
   }
@@ -119,17 +117,17 @@ app.get('/:id', jwtAuth, async (c) => {
     const familyMember = await db
       .select()
       .from(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .limit(1);
 
     if (familyMember.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Family member not found',
-      }, 404);
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
     }
 
     return c.json({
@@ -152,17 +150,17 @@ app.put('/:id', jwtAuth, zValidator('json', updateFamilyMemberSchema), async (c)
     const existingMember = await db
       .select()
       .from(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .limit(1);
 
     if (existingMember.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Family member not found',
-      }, 404);
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
     }
 
     const updatedMember = await db
@@ -171,10 +169,7 @@ app.put('/:id', jwtAuth, zValidator('json', updateFamilyMemberSchema), async (c)
         ...data,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .returning();
 
     logger.info(`Family member updated: ${updatedMember[0].name} (${updatedMember[0].relationship})`);
@@ -198,34 +193,24 @@ app.delete('/:id', jwtAuth, async (c) => {
     const existingMember = await db
       .select()
       .from(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .limit(1);
 
     if (existingMember.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Family member not found',
-      }, 404);
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
     }
 
     // Delete associated feedback first
-    await db
-      .delete(familyTaskFeedback)
-      .where(and(
-        eq(familyTaskFeedback.familyMemberId, familyMemberId),
-        eq(familyTaskFeedback.userId, userId)
-      ));
+    await db.delete(familyTaskFeedback).where(and(eq(familyTaskFeedback.familyMemberId, familyMemberId), eq(familyTaskFeedback.userId, userId)));
 
     // Delete the family member
-    await db
-      .delete(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ));
+    await db.delete(familyMembers).where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
 
     logger.info(`Family member deleted: ${existingMember[0].name} (${existingMember[0].relationship})`);
 
@@ -249,17 +234,17 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
     const familyMember = await db
       .select()
       .from(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .limit(1);
 
     if (familyMember.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Family member not found',
-      }, 404);
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
     }
 
     // Calculate XP based on feedback
@@ -298,10 +283,13 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
 
     logger.info(`Family task feedback added for ${familyMember[0].name}: ${data.taskDescription}`);
 
-    return c.json({
-      success: true,
-      data: newFeedback[0],
-    }, 201);
+    return c.json(
+      {
+        success: true,
+        data: newFeedback[0],
+      },
+      201,
+    );
   } catch (error) {
     return handleApiError(error, 'Failed to add family task feedback');
   }
@@ -318,26 +306,23 @@ app.get('/:id/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema)
     const familyMember = await db
       .select()
       .from(familyMembers)
-      .where(and(
-        eq(familyMembers.id, familyMemberId),
-        eq(familyMembers.userId, userId)
-      ))
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .limit(1);
 
     if (familyMember.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Family member not found',
-      }, 404);
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
     }
 
     const feedback = await db
       .select()
       .from(familyTaskFeedback)
-      .where(and(
-        eq(familyTaskFeedback.familyMemberId, familyMemberId),
-        eq(familyTaskFeedback.userId, userId)
-      ))
+      .where(and(eq(familyTaskFeedback.familyMemberId, familyMemberId), eq(familyTaskFeedback.userId, userId)))
       .orderBy(desc(familyTaskFeedback.completedAt))
       .limit(limit);
 

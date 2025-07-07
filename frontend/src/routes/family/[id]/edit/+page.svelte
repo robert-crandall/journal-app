@@ -16,7 +16,7 @@
     likes: '',
     dislikes: '',
     energyLevel: 5,
-    notes: ''
+    notes: '',
   });
 
   let originalMember: FamilyMember | null = $state(null);
@@ -66,7 +66,7 @@
     { value: 7, label: 'Energizing' },
     { value: 8, label: 'Very Energizing' },
     { value: 9, label: 'Highly Energizing' },
-    { value: 10, label: 'Extremely Energizing' }
+    { value: 10, label: 'Extremely Energizing' },
   ];
 
   // Load existing family member data
@@ -90,7 +90,7 @@
         likes: member.likes || '',
         dislikes: member.dislikes || '',
         energyLevel: member.energyLevel || 5,
-        notes: member.notes || ''
+        notes: member.notes || '',
       };
     } catch (err) {
       console.error('Failed to load family member:', err);
@@ -115,7 +115,7 @@
 
       // Clean up form data - remove empty strings, only send changed fields
       const submitData: UpdateFamilyMemberRequest = {};
-      
+
       if (formData.name && formData.name.trim() !== originalMember?.name) {
         submitData.name = formData.name.trim();
       }
@@ -136,7 +136,7 @@
       }
 
       await familyApi.updateFamilyMember(memberId, submitData);
-      
+
       // Redirect to family member detail on success
       goto(`/family/${memberId}`);
     } catch (err) {
@@ -216,7 +216,7 @@
                 <!-- Basic Information Section -->
                 <section>
                   <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>
-                  
+
                   <div class="grid gap-6 md:grid-cols-2">
                     <!-- Name Field -->
                     <div class="form-control">
@@ -260,17 +260,13 @@
                           <Users class="text-base-content/40" size="20" />
                         </div>
                       </div>
-                      
+
                       <!-- Relationship Quick Select -->
                       <div class="mt-2">
-                        <p class="text-xs text-base-content/60 mb-2">Quick select:</p>
+                        <p class="text-base-content/60 mb-2 text-xs">Quick select:</p>
                         <div class="flex flex-wrap gap-1">
                           {#each relationshipOptions as option}
-                            <button
-                              type="button"
-                              class="btn btn-xs btn-outline"
-                              onclick={() => selectRelationship(option)}
-                            >
+                            <button type="button" class="btn btn-xs btn-outline" onclick={() => selectRelationship(option)}>
                               {option}
                             </button>
                           {/each}
@@ -302,7 +298,7 @@
                 <!-- Preferences Section -->
                 <section>
                   <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Preferences</h3>
-                  
+
                   <div class="space-y-6">
                     <!-- Likes Field -->
                     <div class="form-control">
@@ -409,7 +405,7 @@
             {#if originalMember}
               <div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
                 <div class="card-body p-6">
-                  <h3 class="text-primary mb-4 font-semibold flex items-center gap-2">
+                  <h3 class="text-primary mb-4 flex items-center gap-2 font-semibold">
                     <Heart size={20} />
                     Current Profile
                   </h3>
@@ -448,12 +444,8 @@
               <div class="card-body p-6">
                 <h3 class="mb-4 font-semibold">📈 Connection Progress</h3>
                 <div class="space-y-3 text-sm">
-                  <p class="text-base-content/70">
-                    Updates to preferences will improve future GPT suggestions for meaningful activities.
-                  </p>
-                  <p class="text-base-content/70">
-                    Connection XP and level are preserved when updating profile information.
-                  </p>
+                  <p class="text-base-content/70">Updates to preferences will improve future GPT suggestions for meaningful activities.</p>
+                  <p class="text-base-content/70">Connection XP and level are preserved when updating profile information.</p>
                 </div>
               </div>
             </div>

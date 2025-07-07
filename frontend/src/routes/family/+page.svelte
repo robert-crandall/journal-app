@@ -57,12 +57,12 @@
 
   function formatLastInteraction(dateString: string | null | undefined): string {
     if (!dateString) return 'No interactions recorded';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -164,14 +164,18 @@
           <!-- Family Members Section -->
           {#if familyMembers.length > 0}
             <section>
-              <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">
-                Family Members
-              </h2>
+              <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">Family Members</h2>
               <div class="grid gap-6 md:grid-cols-2">
                 {#each familyMembers as member}
                   <!-- svelte-ignore a11y-click-events-have-key-events -->
                   <!-- svelte-ignore a11y-no-static-element-interactions -->
-                  <div class="card bg-base-100 border-base-300 border shadow-xl transition-all duration-200 hover:shadow-2xl cursor-pointer" role="button" tabindex="0" onclick={() => viewFamilyMemberDetails(member.id)} onkeydown={(e) => e.key === 'Enter' && viewFamilyMemberDetails(member.id)}>
+                  <div
+                    class="card bg-base-100 border-base-300 cursor-pointer border shadow-xl transition-all duration-200 hover:shadow-2xl"
+                    role="button"
+                    tabindex="0"
+                    onclick={() => viewFamilyMemberDetails(member.id)}
+                    onkeydown={(e) => e.key === 'Enter' && viewFamilyMemberDetails(member.id)}
+                  >
                     <div class="card-body p-6">
                       <div class="mb-4 flex items-start justify-between">
                         <div class="flex items-center gap-3">
@@ -192,7 +196,7 @@
 
                       <!-- Connection Progress -->
                       <div class="mb-4">
-                        <div class="flex justify-between text-xs text-base-content/60 mb-1">
+                        <div class="text-base-content/60 mb-1 flex justify-between text-xs">
                           <span>Connection Progress</span>
                           <span>{member.connectionXp} XP</span>
                         </div>
@@ -209,7 +213,7 @@
                             <span>Birthday: {formatDate(member.birthday)}</span>
                           </div>
                         {/if}
-                        
+
                         <div class="flex items-center gap-2">
                           <Heart size={14} class="text-base-content/40" />
                           <span>Last interaction: {formatLastInteraction(member.lastInteractionDate)}</span>
@@ -227,13 +231,15 @@
                       {#if member.likes || member.dislikes}
                         <div class="mt-4 space-y-1">
                           {#if member.likes}
-                            <p class="text-xs text-success">
-                              <span class="font-medium">Likes:</span> {member.likes}
+                            <p class="text-success text-xs">
+                              <span class="font-medium">Likes:</span>
+                              {member.likes}
                             </p>
                           {/if}
                           {#if member.dislikes}
-                            <p class="text-xs text-error">
-                              <span class="font-medium">Dislikes:</span> {member.dislikes}
+                            <p class="text-error text-xs">
+                              <span class="font-medium">Dislikes:</span>
+                              {member.dislikes}
                             </p>
                           {/if}
                         </div>
@@ -242,7 +248,13 @@
                       <!-- Action Buttons -->
                       <!-- svelte-ignore a11y-click-events-have-key-events -->
                       <!-- svelte-ignore a11y-no-static-element-interactions -->
-                      <div class="flex flex-wrap gap-2 mt-4" role="button" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+                      <div
+                        class="mt-4 flex flex-wrap gap-2"
+                        role="button"
+                        tabindex="0"
+                        onclick={(e) => e.stopPropagation()}
+                        onkeydown={(e) => e.stopPropagation()}
+                      >
                         <button class="btn btn-ghost btn-sm gap-1" onclick={() => viewFamilyMemberDetails(member.id)}>
                           <Eye size={14} />
                           View
@@ -255,7 +267,10 @@
                           <MessageCircle size={14} />
                           Feedback
                         </button>
-                        <button class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content gap-1" onclick={() => deleteFamilyMember(member)}>
+                        <button
+                          class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content gap-1"
+                          onclick={() => deleteFamilyMember(member)}
+                        >
                           <Trash2 size={14} />
                           Delete
                         </button>
@@ -314,7 +329,7 @@
                   <div class="flex justify-between">
                     <span class="text-sm">Recently Interacted:</span>
                     <span class="font-medium">
-                      {familyMembers.filter(m => {
+                      {familyMembers.filter((m) => {
                         if (!m.lastInteractionDate) return false;
                         const days = Math.ceil(Math.abs(new Date().getTime() - new Date(m.lastInteractionDate).getTime()) / (1000 * 60 * 60 * 24));
                         return days <= 7;
@@ -368,7 +383,7 @@
     border-radius: 0.75rem;
     overflow: hidden;
   }
-  
+
   .progress-bar {
     background-color: hsl(var(--p));
     height: 100%;

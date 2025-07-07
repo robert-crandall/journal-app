@@ -233,10 +233,10 @@ export const familyApi = {
       if (limit) {
         queryParams.set('limit', limit.toString());
       }
-      
+
       const query = queryParams.toString();
       const endpoint = `/api/family/${memberId}/feedback${query ? `?${query}` : ''}`;
-      
+
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(endpoint);
 
