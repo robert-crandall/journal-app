@@ -7,7 +7,6 @@ export const TEST_CONFIG = {
   PORT: process.env.PORT || 3001,
   API_BASE_URL: `http://localhost:${process.env.PORT || 3001}`,
 
-
   // Test User Credentials
   USER: {
     email: 'user@example.com',
