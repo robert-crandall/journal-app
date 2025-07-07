@@ -45,7 +45,7 @@ test.describe('Goals Management', () => {
 
     // Click the create first goal button
     await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="create-first-goal-btn"]').click({ force: true });
+    await page.click('[data-testid="create-first-goal-btn"]');
 
     // Should show the create form
     await expect(page.locator('[data-testid="create-goal-form"]')).toBeVisible();
@@ -88,8 +88,8 @@ test.describe('Goals Management', () => {
     await expect(page.locator('[data-testid="create-goal-btn"]')).toBeVisible();
     await expect(page.locator('[data-testid="create-goal-btn"]')).toBeEnabled();
 
-    // Click create goal button using force and ensure it's actionable
-    await page.locator('[data-testid="create-goal-btn"]').click({ force: true });
+    // Click create goal button - let Playwright handle actionability naturally
+    await page.click('[data-testid="create-goal-btn"]');
 
     // Wait for the form to appear
     await page.waitForSelector('[data-testid="create-goal-form"]', {
@@ -104,6 +104,9 @@ test.describe('Goals Management', () => {
 
     // Submit the form
     await page.click('button[type="submit"]:has-text("Create Goal")');
+
+    // Wait for form to close and success state
+    await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'detached' });
 
     // Should see success message
     await expect(page.locator('.alert-success')).toContainText('Goal action completed successfully!');
@@ -124,7 +127,7 @@ test.describe('Goals Management', () => {
 
     // Create a goal first
     await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="create-goal-btn"]').click({ force: true });
+    await page.click('[data-testid="create-goal-btn"]');
     await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'visible', timeout: 15000 });
     await page.fill('input[name="title"]', 'Test Goal');
     await page.fill('textarea[name="description"]', 'Original description');
@@ -161,7 +164,7 @@ test.describe('Goals Management', () => {
 
     // Create a goal first
     await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="create-goal-btn"]').click({ force: true });
+    await page.click('[data-testid="create-goal-btn"]');
     await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'visible', timeout: 15000 });
     await page.fill('input[name="title"]', 'Toggle Test Goal');
     await page.click('button[type="submit"]:has-text("Create Goal")');
@@ -191,7 +194,7 @@ test.describe('Goals Management', () => {
 
     // Create a goal first
     await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="create-goal-btn"]').click({ force: true });
+    await page.click('[data-testid="create-goal-btn"]');
     await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'visible', timeout: 15000 });
     await page.fill('input[name="title"]', 'Archive Test Goal');
     await page.click('button[type="submit"]:has-text("Create Goal")');
@@ -236,7 +239,7 @@ test.describe('Goals Management', () => {
 
     // Create a goal first
     await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="create-goal-btn"]').click({ force: true });
+    await page.click('[data-testid="create-goal-btn"]');
     await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'visible', timeout: 15000 });
     await page.fill('input[name="title"]', 'Delete Test Goal');
     await page.click('button[type="submit"]:has-text("Create Goal")');
@@ -247,6 +250,11 @@ test.describe('Goals Management', () => {
     // Delete the goal
     const goalCard = page.locator('.card:has(h3:has-text("Delete Test Goal"))');
     await goalCard.locator('[data-testid^="goal-menu-"]').click();
+
+    // Handle any potential delete confirmation dialog
+    page.removeAllListeners('dialog');
+    page.once('dialog', (dialog) => dialog.accept());
+
     await goalCard.locator('[data-testid^="delete-goal-"]:has-text("Delete")').click();
 
     // Goal should no longer be visible
@@ -257,8 +265,15 @@ test.describe('Goals Management', () => {
     await loginUser(page);
     await page.goto('/goals');
 
+    // Wait for page to be ready
+    await page.waitForLoadState('networkidle');
+
     // Click create goal button
+    await expect(page.locator('[data-testid="create-goal-btn"]')).toBeVisible();
     await page.click('[data-testid="create-goal-btn"]');
+
+    // Wait for form to appear
+    await page.waitForSelector('[data-testid="create-goal-form"]', { state: 'visible' });
 
     // Try to submit empty form
     await page.click('button[type="submit"]:has-text("Create Goal")');
