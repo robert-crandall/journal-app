@@ -1,108 +1,75 @@
 ---
-description: Material Design 3 principles and component patterns for desktop-first responsive forms
+description: Clean Material Dashboard design principles and component patterns for desktop-first responsive interfaces
 applyTo: 'frontend/**/*.{js,ts,svelte}'
 ---
 
-# Material Design 3 (Material You) Guidelines
+# Clean Material Dashboard Guidelines
 
-This document outlines our implementation of Material Design 3 principles adapted for desktop-first responsive web applications using Tailwind CSS and DaisyUI.
+This document outlines our "Clean Material Dashboard" design system - a modern productivity interface that combines Material Design 3 principles with clean dashboard aesthetics, optimized for desktop-first responsive web applications.
 
-## Core Design Principles
+## Design Philosophy
 
-### 0. Primary User
+### Target User & Aesthetic
 
-- **Target Audience**: INTJ user who will become bored of flashy interfaces and prefers a clean, efficient interface.
-- **Design Philosophy**: Focus on usability, clarity, and minimalism. Avoid unnecessary clutter.
+- **Primary User**: INTJ personality who prefers clean, efficient interfaces over flashy designs
+- **Core Philosophy**: Minimalist productivity interface with maximum information density
+- **Visual Style**: "Clean Material Dashboard" - elevated cards, subtle gradients, semantic colors
+- **Inspiration**: Modern productivity apps like Linear, Notion, Google Workspace
 
-### 1. Desktop-First Responsive Layout
+### Key Design Characteristics
 
-- **Primary Layout**: Optimize for desktop screens (1200px+) first
-- **Grid System**: Use CSS Grid with responsive breakpoints
-- **Sidebars**: Utilize desktop space with informational sidebars and context panels
-- **Mobile Adaptation**: Stack layouts vertically on smaller screens
+1. **Elevated Card-Based Layout** - Content feels like it floats above the background
+2. **Subtle Gradient Accents** - Soft color washes for visual hierarchy without distraction  
+3. **Desktop-First Grid System** - Makes full use of wide screens with intelligent sidebars
+4. **Micro-Interactions** - Gentle hover effects and transitions that feel responsive
+5. **Semantic Color System** - Colors have meaning (primary for actions, accent for progress, etc.)
 
-### 2. Material Design 3 Form Components
+## Layout Patterns
 
-#### Input Fields (Material Design Style)
+### Goals Dashboard Layout (4-Column Grid)
 
 ```svelte
-<!-- Standard Material Input Pattern -->
-<div class="form-control">
-  <label class="label" for="input-id">
-    <span class="label-text font-medium">Field Label *</span>
-    <span class="label-text-alt text-xs opacity-60">0/100</span>
-  </label>
-  <div class="relative">
-    <input
-      id="input-id"
-      type="text"
-      placeholder="Descriptive placeholder text"
-      class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
-      bind:value={formData.field}
-      maxlength="100"
-      required
-    />
-    <!-- Icon positioned inside input -->
-    <div class="absolute inset-y-0 right-3 flex items-center">
-      <svg class="text-base-content/40" width="20" height="20">
-        <!-- Icon SVG -->
-      </svg>
+<div class="bg-base-200 min-h-screen">
+  <!-- Header with gradient accent -->
+  <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
+    <div class="mx-auto max-w-7xl px-4 py-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-primary mb-2 text-4xl font-bold">Goals Dashboard</h1>
+          <p class="text-base-content/70 text-lg">Define and track your personal objectives</p>
+        </div>
+        <button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
+          <Plus size={20} />
+          Create Goal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="mx-auto max-w-7xl px-4 py-8">
+    <div class="grid gap-8 lg:grid-cols-4">
+      <!-- Goals grid: 3/4 width -->
+      <div class="lg:col-span-3">
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Goal cards -->
+        </div>
+      </div>
+
+      <!-- Contextual sidebar: 1/4 width -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Stats, tips, actions -->
+      </div>
     </div>
   </div>
 </div>
 ```
 
-#### Textarea Fields
-
-```svelte
-<div class="form-control">
-  <label class="label" for="textarea-id">
-    <span class="label-text font-medium">Field Label</span>
-  </label>
-  <div class="relative">
-    <textarea
-      id="textarea-id"
-      class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
-      placeholder="Detailed placeholder explaining what to write here..."
-      bind:value={formData.field}
-    ></textarea>
-  </div>
-</div>
-```
-
-#### Select Dropdowns
-
-```svelte
-<div class="form-control">
-  <label class="label" for="select-id">
-    <span class="label-text font-medium">Selection Label *</span>
-  </label>
-  <div class="relative">
-    <select
-      id="select-id"
-      class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
-      bind:value={selectedValue}
-      required
-    >
-      <option value="">Choose an option...</option>
-      <!-- Options -->
-    </select>
-    <div class="pointer-events-none absolute inset-y-0 right-10 flex items-center">
-      <svg class="text-base-content/40" width="20" height="20">
-        <!-- Icon SVG -->
-      </svg>
-    </div>
-  </div>
-</div>
-```
-
-### 3. Material Design Layout Patterns
-
-#### Two-Column Form Layout
+### Form Layout (2/3 + 1/3 Split)
 
 ```svelte
 <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-3">
-  <!-- Main Content: 2/3 width on desktop -->
+  <!-- Main form: 2/3 width -->
   <div class="lg:col-span-2">
     <div class="card bg-base-100 border-base-300 border shadow-2xl">
       <div class="card-body p-8">
@@ -111,220 +78,163 @@ This document outlines our implementation of Material Design 3 principles adapte
     </div>
   </div>
 
-  <!-- Sidebar: 1/3 width on desktop -->
+  <!-- Contextual sidebar: 1/3 width -->
   <div class="lg:col-span-1">
     <div class="sticky top-8 space-y-6">
-      <!-- Contextual information panels -->
+      <!-- Tips, preview, related info -->
     </div>
   </div>
 </div>
 ```
 
-#### Four-Column View Layout (Character View)
+## Component Patterns
+
+### Elevated Cards
 
 ```svelte
-<div class="grid gap-8 lg:grid-cols-4">
-  <!-- Profile Sidebar: 1/4 width -->
-  <div class="lg:col-span-1">
-    <div class="card sticky top-8">
-      <!-- Character profile -->
-    </div>
-  </div>
-
-  <!-- Main Content: 3/4 width -->
-  <div class="space-y-8 lg:col-span-3">
-    <!-- Detailed content -->
-  </div>
-</div>
-```
-
-### 4. Material Design Visual Elements
-
-#### Section Headers
-
-```svelte
-<h3 class="text-primary border-primary/20 border-b pb-2 text-xl font-semibold">Section Title</h3>
-```
-
-#### Elevated Cards with Gradients
-
-```svelte
-<!-- Primary Information Card -->
+<!-- Primary information card with gradient -->
 <div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
   <div class="card-body p-6">
-    <!-- Content -->
+    <!-- Important content -->
   </div>
 </div>
 
-<!-- Standard Content Card -->
-<div class="card bg-base-100 border-base-300 border shadow-xl">
+<!-- Standard content card -->
+<div class="card bg-base-100 border-base-300 border shadow-xl transition-all duration-200 hover:shadow-2xl">
   <div class="card-body p-6">
-    <!-- Content -->
+    <!-- Regular content -->
   </div>
 </div>
 ```
 
-#### Avatar Components
+### Interactive Buttons
 
 ```svelte
-<!-- Character Avatar -->
-<div class="avatar placeholder mb-6">
-  <div class="bg-primary text-primary-content w-24 rounded-full">
-    <span class="text-3xl font-bold">
-      {character.name.charAt(0).toUpperCase()}
-    </span>
-  </div>
-</div>
-
-<!-- Action Avatar (for forms) -->
-<div class="avatar placeholder mb-4">
-  <div class="bg-primary text-primary-content w-16 rounded-full">
-    <svg width="32" height="32">
-      <!-- Icon SVG -->
-    </svg>
-  </div>
-</div>
-```
-
-#### Material Buttons
-
-```svelte
-<!-- Primary Action Button -->
-<button type="submit" class="btn btn-primary btn-lg h-16 w-full text-lg shadow-lg transition-all duration-200 hover:scale-[1.02]" disabled={loading}>
-  <!-- Button content -->
+<!-- Primary action with lift effect -->
+<button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
+  <Icon size={20} />
+  Action Text
 </button>
 
-<!-- Secondary Actions -->
+<!-- Secondary action -->
 <button class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105">
-  <!-- Button content -->
+  Content
 </button>
 ```
 
-### 5. Interactive Animations
-
-#### Micro-interactions
-
-- **Form Focus**: `focus:scale-[1.02]` - Subtle scale on focus
-- **Button Hover**: `hover:scale-105` - Lift effect on hover
-- **Transitions**: `transition-all duration-200` - Smooth state changes
-
-#### Loading States
+### Form Components
 
 ```svelte
-{#if loading}
-  <span class="loading loading-spinner loading-md"></span>
-  Loading text...
-{:else}
-  <!-- Normal content -->
-{/if}
+<!-- Material-style input with subtle focus scaling -->
+<div class="form-control">
+  <label class="label" for="input-id">
+    <span class="label-text font-medium">Field Label *</span>
+    <span class="label-text-alt text-xs opacity-60">0/100</span>
+  </label>
+  <input
+    id="input-id"
+    type="text"
+    placeholder="Clear, helpful placeholder text"
+    class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+    bind:value={formData.field}
+    maxlength="100"
+    required
+  />
+</div>
 ```
 
-### 6. Information Architecture
+## Color & Visual System
 
-#### Contextual Sidebars
+### Semantic Color Usage
 
-- **Tips & Guidance**: Help users understand form fields
-- **Live Preview**: Show real-time updates as users type
-- **Related Information**: Provide context without cluttering main form
-- **Progress Indicators**: Show what comes next
-
-#### Content Hierarchy
-
-1. **Page Header**: Large title with description
-2. **Section Headers**: Clear separation of form sections
-3. **Field Labels**: Descriptive and consistent
-4. **Helper Text**: Contextual guidance
-5. **Character Counts**: For limited fields
-
-### 7. Responsive Behavior
-
-#### Breakpoint Strategy
-
-- **Desktop First**: Design for `lg:` (1024px+) screens primarily
-- **Tablet**: Stack columns vertically on medium screens
-- **Mobile**: Single column with full-width components
-
-#### Grid Transformations
-
-```svelte
-<!-- Desktop: 3-column, Tablet/Mobile: 1-column -->
-<div class="grid lg:grid-cols-3 gap-8">
-
-<!-- Desktop: 4-column, Tablet/Mobile: 1-column -->
-<div class="grid lg:grid-cols-4 gap-8">
-```
-
-### 8. Color and Theming
-
-#### Color Semantic Usage
-
-- **Primary**: Main actions, headers, key elements
-- **Secondary**: Edit modes, secondary actions
-- **Accent**: Progress, achievements, highlights
-- **Base Content**: Regular text with opacity variations
+- **Primary (`text-primary`, `btn-primary`)**: Main actions, headers, key interactive elements
+- **Secondary (`text-secondary`)**: Edit modes, secondary actions, supporting elements  
+- **Accent (`text-accent`)**: Progress indicators, achievements, highlights
+- **Base Content (`text-base-content`)**: Regular text with opacity variations for hierarchy
 - **Error**: Validation errors, destructive actions
 
-#### Background Patterns
+### Background Hierarchy
 
-- **Page Background**: `bg-base-200` - Subtle contrast
-- **Card Background**: `bg-base-100` - Clean content areas
-- **Gradient Accents**: `from-primary/10 to-secondary/10` - Subtle highlights
+```svelte
+<!-- Page background: subtle contrast -->
+<div class="bg-base-200 min-h-screen">
 
-## Implementation Examples
+<!-- Card backgrounds: clean content areas -->
+<div class="bg-base-100">
 
-### Character Creation Form
+<!-- Accent gradients: gentle visual emphasis -->
+<div class="from-primary/10 to-secondary/10 bg-gradient-to-br">
+```
 
-✅ **Implemented Features:**
+### Micro-Interactions
 
-- Desktop-first 2/3 + 1/3 column layout
-- Material Design form components with icons
-- Contextual sidebar with tips and information
-- Micro-animations and focus states
-- Section-based form organization
-- Live character count feedback
+```svelte
+<!-- Form focus: subtle scale increase -->
+class="focus:scale-[1.02] transition-all duration-200"
 
-### Character View Page
+<!-- Button hover: gentle lift effect -->
+class="hover:scale-105 transition-all duration-200"
 
-✅ **Implemented Features:**
+<!-- Card hover: enhanced elevation -->
+class="hover:shadow-2xl transition-all duration-200"
+```
 
-- Desktop-first 1/4 + 3/4 column layout
-- Character profile sidebar with avatar
-- Content cards with proper elevation
-- Action buttons with hover effects
-- Progress and stats visualization
-- Edit mode with live preview
+## Information Architecture
 
-## Best Practices
+### Content Hierarchy
+
+1. **Page Headers**: Large titles with descriptive subtitles
+2. **Section Separation**: Clean borders and spacing
+3. **Card Organization**: Related content grouped in elevated containers
+4. **Contextual Sidebars**: Supporting information without main content clutter
+5. **Progressive Disclosure**: Important info visible, details accessible
+
+### Responsive Strategy
+
+- **Desktop First**: Optimize for 1200px+ screens with multi-column layouts
+- **Tablet Adaptation**: Stack columns vertically, maintain card structure
+- **Mobile Optimization**: Single column, full-width components, touch-friendly sizing
+
+## Implementation Guidelines
 
 ### DO:
 
-- Use the full width of desktop screens effectively
-- Provide contextual information in sidebars
-- Implement smooth micro-animations
-- Use semantic color meanings consistently
-- Group related form fields in sections
-- Provide helpful placeholder text and guidance
+- **Maximize Desktop Real Estate**: Use full screen width with intelligent sidebars
+- **Create Visual Hierarchy**: Use elevation, color, and spacing to guide attention
+- **Implement Gentle Interactions**: Subtle hover effects that feel responsive
+- **Group Related Content**: Use cards to create clear content boundaries
+- **Provide Contextual Information**: Use sidebars for tips, stats, and related data
 
 ### DON'T:
 
-- Center narrow forms in the middle of wide screens
-- Add redundant labels. A title and helper text are sufficient
-- Overuse icons that don't add value
-- Hide helpful information to save space
-- Use jarring transitions or animations
-- Mix different visual styles within the same component
-- Create forms that are too wide for comfortable reading
-- Forget to test on mobile devices
+- **Center Narrow Content**: Avoid wasting desktop screen space
+- **Overuse Animations**: Keep interactions subtle and purposeful
+- **Mix Visual Styles**: Maintain consistency in elevation, spacing, and color usage
+- **Hide Important Information**: Make key actions and data easily discoverable
+- **Create Jarring Transitions**: All animations should feel smooth and natural
 
-## Future Enhancements
+## Example Implementations
 
-Consider implementing:
+### Goals Dashboard ✅
+- 4-column responsive grid layout
+- Elevated goal cards with hover effects
+- Contextual sidebar with stats and actions
+- Gradient header with clear hierarchy
+- Semantic color usage throughout
 
-- Progressive disclosure for complex forms
-- Step-by-step wizards for longer processes
-- Auto-save functionality with visual feedback
-- Advanced validation with inline error messages
-- Dark mode optimizations
-- Accessibility improvements (ARIA labels, keyboard navigation)
+### Character Forms ✅
+- 2/3 + 1/3 column split for desktop
+- Material-style form components
+- Live preview and contextual tips
+- Section-based organization
+- Micro-animations on focus/hover
 
-This design system creates a modern, desktop-friendly interface that makes efficient use of screen real estate while maintaining excellent usability across all device sizes.
+## Style References
+
+This design system creates what can be called:
+- **"Clean Material Dashboard"**
+- **"Modern Productivity Interface"** 
+- **"Elevated Card Interface"**
+- **"Desktop-First Material Design"**
+
+The aesthetic prioritizes clarity, efficiency, and professional appearance over flashy visual effects - perfect for productivity applications where users need to focus on content and tasks rather than interface decoration.
