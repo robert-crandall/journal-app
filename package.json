@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "validate": "bun run scripts/validate-setup.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
