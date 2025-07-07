@@ -15,8 +15,6 @@ const config = {
       precompress: false,
     }),
     version: {
-      // Use git commit hash for deterministic versioning
-      name: process.env.NODE_ENV === 'production' ? child_process.execSync('git rev-parse HEAD').toString().trim() : Date.now().toString(),
       // Poll for version changes every 30 seconds
       pollInterval: 30000,
     },

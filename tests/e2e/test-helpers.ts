@@ -185,7 +185,8 @@ export async function cleanupFamily(page: Page): Promise<void> {
     await page.waitForLoadState('networkidle');
 
     // Simple approach: delete any family members we find
-    for (let i = 0; i < 10; i++) { // Max 10 attempts
+    for (let i = 0; i < 10; i++) {
+      // Max 10 attempts
       try {
         // Look for family member cards and delete buttons
         const deleteButton = page.locator('button:has-text("Delete")').first();
@@ -193,7 +194,10 @@ export async function cleanupFamily(page: Page): Promise<void> {
 
         if (!isVisible) {
           // No delete buttons visible, check if we need to enter a family member detail page
-          const familyMemberCard = page.locator('.card').filter({ hasText: /Level|Connection/ }).first();
+          const familyMemberCard = page
+            .locator('.card')
+            .filter({ hasText: /Level|Connection/ })
+            .first();
           if (await familyMemberCard.isVisible()) {
             // Click on the family member to enter details page
             await familyMemberCard.click();

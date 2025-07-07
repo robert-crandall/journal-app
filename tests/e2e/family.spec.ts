@@ -18,13 +18,13 @@ test.describe('Family Management', () => {
     // Handle both empty state and existing members
     const addFirstButton = page.locator('button:has-text("Add Your First Family Member")');
     const addButton = page.locator('button:has-text("Add Family Member")').first();
-    
+
     if (await addFirstButton.isVisible()) {
       await addFirstButton.click();
     } else {
       await addButton.click();
     }
-    
+
     await expect(page).toHaveURL('/family/create');
 
     // Fill form
@@ -43,16 +43,16 @@ test.describe('Family Management', () => {
 
     // Create a member first
     const uniqueName = `Details ${Date.now()}`;
-    
+
     const addFirstButton = page.locator('button:has-text("Add Your First Family Member")');
     const addButton = page.locator('button:has-text("Add Family Member")').first();
-    
+
     if (await addFirstButton.isVisible()) {
       await addFirstButton.click();
     } else {
       await addButton.click();
     }
-    
+
     await page.fill('input[placeholder="Their name"]', uniqueName);
     await page.fill('input[placeholder="How they\'re related to you"]', 'Daughter');
     await page.click('button[type="submit"]:has-text("Create Family Member")');
@@ -88,16 +88,16 @@ test.describe('Family Management', () => {
 
     // Create member
     const uniqueName = `Delete ${Date.now()}`;
-    
+
     const addFirstButton = page.locator('button:has-text("Add Your First Family Member")');
     const addButton = page.locator('button:has-text("Add Family Member")').first();
-    
+
     if (await addFirstButton.isVisible()) {
       await addFirstButton.click();
     } else {
       await addButton.click();
     }
-    
+
     await page.fill('input[placeholder="Their name"]', uniqueName);
     await page.fill('input[placeholder="How they\'re related to you"]', 'Brother');
     await page.click('button[type="submit"]:has-text("Create Family Member")');
@@ -107,7 +107,7 @@ test.describe('Family Management', () => {
     await page.click(`text=${uniqueName}`);
 
     // Handle confirmation dialog
-    page.on('dialog', dialog => dialog.accept());
+    page.on('dialog', (dialog) => dialog.accept());
     await page.click('button:has-text("Delete")');
 
     // Should redirect back
