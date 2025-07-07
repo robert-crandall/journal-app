@@ -5,18 +5,18 @@ You are assisting with the development of a solo-developer, full-stack TypeScrip
 - Next.js (App Router)
 - TypeScript
 - tRPC
-- Prisma (PostgreSQL)
+- Drizzle (PostgreSQL)
 - Zod
-- Material UI (v5 or Joy UI)
+- Tailwind CSS 4, with DaisyUI 5 for themes and components
 
 ## Project Philosophy
 
 - Minimize code duplication between backend, frontend, and tests.
 - Minimize integration points between backend and frontend.
-- Use lucid icons, never emojis
+- Use icons, never emojis
 - Prioritize developer speed and flow — this project will be largely co-developed with LLMs like Copilot.
 - Use type-safe patterns. Zod schemas should be shared and reused across layers.
-- The UI uses Material UI with theme switching (light, dark, system).
+- The UI uses DaisyUI with theme switching (light, dark, system).
 
 ## Testing Philosophy
 
@@ -37,8 +37,8 @@ You are assisting with the development of a solo-developer, full-stack TypeScrip
 ### ❌ Do Not Test These
 
 - UI styling or layout details (e.g. spacing, color)
-- Third-party libraries (e.g. Material UI, NextAuth) — unless integrating custom logic
-- Database queries (assume Prisma works)
+- Third-party libraries (e.g. Tailwind CSS, NextAuth) — unless integrating custom logic
+- Database queries (assume Drizzle works)
 - Internal helper functions (formatters, string functions, etc.)
 - Static type validation (assume Zod works)
 
