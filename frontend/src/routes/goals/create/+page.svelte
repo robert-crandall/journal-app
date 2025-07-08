@@ -46,7 +46,7 @@
       .filter(tag => 
         tag.name.toLowerCase().includes(input) && 
         !tags.includes(tag.name.toLowerCase()))
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 5);
     
     showSuggestions = filteredSuggestions.length > 0;
@@ -230,7 +230,7 @@
                         >
                           <div class="flex justify-between items-center">
                             <span>{suggestion.name}</span>
-                            <span class="text-xs text-base-content/60">Used {suggestion.count} {suggestion.count === 1 ? 'time' : 'times'}</span>
+                            <span class="text-xs text-base-content/60">Used {suggestion.usageCount} {suggestion.usageCount === 1 ? 'time' : 'times'}</span>
                           </div>
                         </button>
                       {/each}
