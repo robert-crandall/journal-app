@@ -70,7 +70,7 @@ async function startDev() {
         'blue,green',
         '--kill-others',
         '--kill-others-on-fail',
-        '"bun scripts/start-backend.js"',
+        '"bun scripts/start-backend.js --force"',
         '"bun scripts/start-frontend.js"',
       ],
       {

@@ -18,11 +18,11 @@
   - Description: Users set high-level goals for personal growth and context.
   - Depends on: User Authentication
 
-- [ ] **Family Management**
+- [x] **Family Management**
   - Description: Users add family members with names and descriptions for context.
   - Depends on: User Authentication
 
-- [ ] **Simple Todos**
+- [x] **Simple Todos**
   - Description: Users can create, view, and complete simple, one-off todo items.
   - Depends on: User Authentication
 

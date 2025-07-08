@@ -1,0 +1,15 @@
+#/bin/bash
+
+# This script cleans out build directories when switching branches.
+
+rm -rf build/
+rm -rf .next/
+rm -rf .svelte-kit/
+rm -rf node_modules/
+rm -rf frontend/node_modules/
+rm -rf frontend/.svelte-kit/
+rm -rf frontend/build/
+
+echo "Done cleaning up build directories."
+echo " - Set .env file for the new branch"
+echo " - Run bun install when ready!"
