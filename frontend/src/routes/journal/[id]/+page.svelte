@@ -113,7 +113,11 @@
             <div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
               <div class="chat-image avatar">
                 <div class="w-10 rounded-full {message.role === 'user' ? 'bg-base-300' : 'bg-primary'}">
-                  <div class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user' ? 'text-base-content' : 'text-primary-content'}">
+                  <div
+                    class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user'
+                      ? 'text-base-content'
+                      : 'text-primary-content'}"
+                  >
                     {message.role === 'user' ? '👤' : '🤖'}
                   </div>
                 </div>
@@ -122,7 +126,9 @@
                 {message.role === 'user' ? 'You' : 'AI Guide'}
                 <time class="ml-1 text-xs opacity-50">{formatTime(message.createdAt)}</time>
               </div>
-              <div class="chat-bubble {message.role === 'user' ? 'bg-base text-base-content' : 'bg-primary text-primary-content'} max-w-none whitespace-pre-wrap">
+              <div
+                class="chat-bubble {message.role === 'user' ? 'bg-base text-base-content' : 'bg-primary text-primary-content'} max-w-none whitespace-pre-wrap"
+              >
                 {message.content}
               </div>
             </div>

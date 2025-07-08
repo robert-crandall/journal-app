@@ -15,7 +15,7 @@ test.describe('Journal Feature', () => {
     // Check page loads with basic structure
     await expect(page.locator('h1')).toContainText('Journal');
     await expect(page.locator('button:has-text("Start New Session")')).toBeVisible();
-    
+
     // Should show empty state initially
     await expect(page.locator('text=No journal entries yet')).toBeVisible();
   });
@@ -33,12 +33,12 @@ test.describe('Journal Feature', () => {
 
     // Wait for initial AI message to appear
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
-    
+
     // Check AI message is visible and has proper styling
     const aiMessage = page.locator('.chat.chat-start .chat-bubble').first();
     await expect(aiMessage).toBeVisible();
     await expect(aiMessage).toHaveClass(/bg-primary/);
-    
+
     // Check textarea is ready for input
     await expect(page.locator('textarea[placeholder*="Share whatever\'s on your mind"]')).toBeVisible();
   });
@@ -46,12 +46,12 @@ test.describe('Journal Feature', () => {
   test('should send messages and receive AI responses', async ({ page }) => {
     // Start a session first
     await page.goto('/journal/session');
-    
+
     // Wait for initial AI message
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
     // Send a user message
-    const userMessage = "I had a really productive day today. Finished my project and felt accomplished.";
+    const userMessage = 'I had a really productive day today. Finished my project and felt accomplished.';
     await page.fill('textarea', userMessage);
     await page.click('button:has-text("Send")');
 
@@ -65,7 +65,7 @@ test.describe('Journal Feature', () => {
 
     // Wait for AI response
     await expect(page.locator('.chat.chat-start .chat-bubble').nth(1)).toBeVisible({ timeout: 15000 });
-    
+
     // Check AI response has proper styling
     const aiResponse = page.locator('.chat.chat-start .chat-bubble').nth(1);
     await expect(aiResponse).toHaveClass(/bg-primary/);
@@ -78,15 +78,15 @@ test.describe('Journal Feature', () => {
 
     // Send multiple messages to make save button appear
     const messages = [
-      "Today was a great day at work.",
-      "I completed my main project and got positive feedback from my manager.",
-      "I'm feeling really accomplished and motivated for tomorrow."
+      'Today was a great day at work.',
+      'I completed my main project and got positive feedback from my manager.',
+      "I'm feeling really accomplished and motivated for tomorrow.",
     ];
 
     for (const message of messages) {
       await page.fill('textarea', message);
       await page.click('button:has-text("Send")');
-      
+
       // Wait for AI response before sending next message
       await expect(page.locator('.loading.loading-dots')).toBeVisible();
       await expect(page.locator('.loading.loading-dots')).not.toBeVisible({ timeout: 15000 });
@@ -103,7 +103,7 @@ test.describe('Journal Feature', () => {
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
     // Send a meaningful message
-    await page.fill('textarea', "Today I reflected on my goals and made progress on my personal growth.");
+    await page.fill('textarea', 'Today I reflected on my goals and made progress on my personal growth.');
     await page.click('button:has-text("Send")');
 
     // Wait for AI response and save button to appear at bottom
@@ -114,14 +114,14 @@ test.describe('Journal Feature', () => {
 
     // Should navigate to the saved entry view
     await expect(page).toHaveURL(/\/journal\/[a-f0-9-]+$/);
-    
+
     // Check entry view page structure
     await expect(page.locator('h1')).toContainText('Journal Entry');
-    
+
     // Check that we have multiple chat bubbles (at least 2 - initial AI + user message)
     const chatBubbles = page.locator('.chat .chat-bubble');
     await expect(chatBubbles).toHaveCount(2, { timeout: 10000 });
-    
+
     // Check that we can see the conversation
     await expect(page.locator('text=Today I reflected on my goals')).toBeVisible();
   });
@@ -146,7 +146,7 @@ test.describe('Journal Feature', () => {
     // Should see the saved entry in the list
     const entryCards = page.locator('.card');
     await expect(entryCards.first()).toBeVisible();
-    
+
     // Should contain our test message in one of the entries
     await expect(page.locator(`text=${testMessage}`)).toBeVisible();
   });
@@ -156,7 +156,7 @@ test.describe('Journal Feature', () => {
     await page.goto('/journal/session');
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
-    await page.fill('textarea', "Navigation test entry");
+    await page.fill('textarea', 'Navigation test entry');
     await page.click('button:has-text("Send")');
     await expect(page.locator('button:has-text("💾 Save Entry")')).toBeVisible({ timeout: 20000 });
     await page.click('button:has-text("💾 Save Entry")');
@@ -180,7 +180,7 @@ test.describe('Journal Feature', () => {
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
     // Send a message
-    await page.fill('textarea', "This session will be discarded");
+    await page.fill('textarea', 'This session will be discarded');
     await page.click('button:has-text("Send")');
 
     // Wait for save button to appear at bottom
@@ -202,13 +202,13 @@ test.describe('Journal Feature', () => {
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
     // Send a message
-    await page.fill('textarea', "Testing timestamps");
+    await page.fill('textarea', 'Testing timestamps');
     await page.click('button:has-text("Send")');
 
     // Check that timestamps are visible and properly formatted
     const timeElements = page.locator('.chat-header time');
     await expect(timeElements.first()).toBeVisible();
-    
+
     // Should have HH:MM format
     const timeText = await timeElements.first().textContent();
     expect(timeText).toMatch(/^\d{1,2}:\d{2}$/);
@@ -220,19 +220,19 @@ test.describe('Journal Feature', () => {
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
     const textarea = page.locator('textarea');
-    
+
     // Test Enter key sends message
-    await textarea.fill("Testing Enter key");
+    await textarea.fill('Testing Enter key');
     await textarea.press('Enter');
 
     // Should send the message
     await expect(page.locator('text=Testing Enter key')).toBeVisible();
 
     // Test Shift+Enter adds new line (when we have text in textarea)
-    await textarea.fill("Line 1");
+    await textarea.fill('Line 1');
     await textarea.press('Shift+Enter');
-    await textarea.type("Line 2");
-    
+    await textarea.type('Line 2');
+
     // The textarea should contain both lines
     const textareaValue = await textarea.inputValue();
     expect(textareaValue).toContain('Line 1\nLine 2');

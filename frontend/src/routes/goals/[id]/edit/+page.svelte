@@ -411,7 +411,7 @@
                 </div>
 
                 <!-- Changes indicator -->
-                {#if hasChanges}
+                {#if hasChanges()}
                   <div class="text-warning text-sm">⚠️ You have unsaved changes</div>
                 {:else if originalGoal}
                   <div class="text-success text-sm">✓ All changes saved</div>

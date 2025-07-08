@@ -156,7 +156,11 @@
           <div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
             <div class="chat-image avatar">
               <div class="w-10 rounded-full {message.role === 'user' ? 'bg-base-300' : 'bg-primary'}">
-                <div class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user' ? 'text-base-content' : 'text-primary-content'}">
+                <div
+                  class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user'
+                    ? 'text-base-content'
+                    : 'text-primary-content'}"
+                >
                   {message.role === 'user' ? '👤' : '🤖'}
                 </div>
               </div>
@@ -175,7 +179,7 @@
           <div class="chat chat-start">
             <div class="chat-image avatar">
               <div class="bg-primary w-10 rounded-full">
-                <div class="flex h-full w-full items-center justify-center text-sm font-bold text-primary-content">🤖</div>
+                <div class="text-primary-content flex h-full w-full items-center justify-center text-sm font-bold">🤖</div>
               </div>
             </div>
             <div class="chat-header">AI Guide</div>
