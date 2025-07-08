@@ -22,7 +22,7 @@
   - Description: Users add family members with names and descriptions for context.
   - Depends on: User Authentication
 
-- [x] **Simple Todos**
+- [ ] **Simple Todos**
   - Description: Users can create, view, and complete simple, one-off todo items.
   - Depends on: User Authentication
 
@@ -30,7 +30,7 @@
   - Description: Completing tasks grants XP to stats; users can manually level up stats when enough XP is earned.
   - Depends on: Stats System, Simple Todos
 
-- [ ] **Basic Journaling**
+- [x] **Basic Journaling**
   - Description: Users can launch a conversational journal with predefined questions and save entries.
   - Depends on: User Authentication
 
