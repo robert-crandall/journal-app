@@ -1,20 +1,19 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { goto } from '$app/navigation';
-  import { ArrowLeft, Plus, Edit, Trash2, Calendar, Zap, TrendingUp, Award } from 'lucide-svelte';
+  import { ArrowLeft, Edit, Trash2, Zap, TrendingUp, Award, BarChart3 } from 'lucide-svelte';
   import type { PageData, ActionData } from './$types.js';
   import StatIcon from '$lib/components/StatIcon.svelte';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 
-  let showAddActivityForm = $state(false);
-  let editingActivity = $state<string | null>(null);
+  let showGrantXpForm = $state(false);
+  let showEditForm = $state(false);
 
   // Watch for form state changes
   $effect(() => {
     if (form?.success) {
-      showAddActivityForm = false;
-      editingActivity = null;
+      showGrantXpForm = false;
+      showEditForm = false;
     }
   });
 
@@ -29,260 +28,361 @@
     return dateObj.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
   }
-
-  function getSourceTypeIcon(sourceType: string) {
-    switch (sourceType) {
-      case 'task':
-        return '✓';
-      case 'journal':
-        return '📝';
-      case 'quest':
-        return '⚔️';
-      case 'adhoc':
-        return '⭐';
-      default:
-        return '•';
-    }
-  }
 </script>
 
 <svelte:head>
-  <title>{data.stat.name} - Stats - Journal App</title>
+  <title>{data.stat.name} - Stats - Life Quest</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
-  <!-- Header -->
-  <div class="mb-8 flex items-center gap-4">
-    <button class="btn btn-ghost btn-sm" onclick={() => goto('/stats')} data-testid="back-to-stats-btn">
-      <ArrowLeft size={20} />
-    </button>
-    <StatIcon icon={data.stat.icon} size={32} class="text-primary" />
-    <div class="flex-1">
-      <h1 class="text-base-content text-3xl font-bold">{data.stat.name}</h1>
+<!-- Dark background with gradient -->
+<div class="min-h-screen bg-gradient-to-br from-base-300 to-base-100">
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-primary/10 border-b border-primary/20 px-4 py-3">
+    <div class="container mx-auto">
+      <div class="breadcrumbs text-sm">
+        <ul>
+          <li><a href="/stats" class="text-primary hover:text-primary/80">Stats</a></li>
+          <li class="text-base-content">{data.stat.name}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Stat Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+          <StatIcon icon={data.stat.icon} size={32} class="text-primary" />
+        </div>
+        <div class="flex-1">
+          <h1 class="text-4xl font-bold text-primary mb-1">{data.stat.name}</h1>
+          <div class="badge badge-primary badge-lg">Level {data.stat.currentLevel}</div>
+        </div>
+      </div>
       {#if data.stat.description}
-        <p class="text-base-content/70 mt-2">{data.stat.description}</p>
+        <p class="text-base-content/70 max-w-2xl">{data.stat.description}</p>
       {/if}
     </div>
-  </div>
 
-  <!-- Success/Error Messages -->
-  {#if form?.success}
-    <div class="alert alert-success mb-6">
-      <span>Action completed successfully!</span>
+    <!-- Action Buttons -->
+    <div class="flex gap-4 mb-8">
+      <button
+        onclick={() => showGrantXpForm = !showGrantXpForm}
+        class="btn btn-primary"
+      >
+        <Zap size={16} />
+        Grant XP
+      </button>
+      <button
+        onclick={() => showEditForm = !showEditForm}
+        class="btn btn-outline"
+      >
+        <Edit size={16} />
+        Edit Stat
+      </button>
+      <form method="POST" action="?/delete" use:enhance class="inline">
+        <button type="submit" class="btn btn-error btn-outline">
+          <Trash2 size={16} />
+          Delete
+        </button>
+      </form>
     </div>
-  {:else if form?.error}
-    <div class="alert alert-error mb-6">
-      <span>{form.error}</span>
-    </div>
-  {/if}
 
-  <!-- Stat Overview Card -->
-  <div class="card bg-base-100 mb-8 shadow-lg">
-    <div class="card-body">
-      <div class="grid gap-6 md:grid-cols-3">
-        <!-- Level Info -->
-        <div class="text-center">
-          <div class="mb-2 flex items-center justify-center gap-2">
-            <Award size={24} class="text-primary" />
-            <span class="text-2xl font-bold">Level {data.stat.currentLevel}</span>
-          </div>
-          {#if data.stat.currentLevelTitle}
-            <p class="text-base-content/80 font-medium">{data.stat.currentLevelTitle}</p>
-          {/if}
-        </div>
-
-        <!-- XP Info -->
-        <div class="text-center">
-          <div class="mb-2 flex items-center justify-center gap-2">
-            <Zap size={24} class="text-warning" />
-            <span class="text-2xl font-bold">{data.stat.currentXp} XP</span>
-          </div>
-          <p class="text-base-content/70">{data.stat.xpForNextLevel} to next level</p>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="flex flex-col justify-center">
-          <div class="mb-2 text-center">
-            <TrendingUp size={20} class="text-success inline" />
-            <span class="ml-2 font-medium">Progress</span>
-          </div>
-          <progress
-            class="progress progress-primary w-full"
-            value={calculateXpProgress(data.stat.currentXp, data.stat.totalXpForCurrentLevel, data.stat.totalXpForNextLevel)}
-            max="100"
-          ></progress>
-          <div class="text-base-content/60 mt-1 text-center text-xs">
-            {Math.round(calculateXpProgress(data.stat.currentXp, data.stat.totalXpForCurrentLevel, data.stat.totalXpForNextLevel))}%
-          </div>
+    <!-- Grant XP Form -->
+    {#if showGrantXpForm}
+      <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+          <h3 class="card-title">Grant XP</h3>
+          <form method="POST" action="?/awardXp" use:enhance class="space-y-4">
+            <input type="hidden" name="statId" value={data.stat.id} />
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">XP Amount</span>
+              </label>
+              <input
+                type="number"
+                name="amount"
+                class="input input-bordered"
+                placeholder="Enter XP amount"
+                min="1"
+                max="100"
+                value="25"
+                required
+              />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Comment (optional)</span>
+              </label>
+              <input
+                type="text"
+                name="comment"
+                class="input input-bordered"
+                placeholder="What did you do to earn this XP?"
+              />
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="btn btn-primary">Grant XP</button>
+              <button type="button" class="btn" onclick={() => showGrantXpForm = false}>Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
-  </div>
+    {/if}
 
-  <div class="grid gap-8 lg:grid-cols-2">
-    <!-- Activities Section -->
-    <div class="card bg-base-100 shadow-lg">
-      <div class="card-body">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="card-title">Activities</h2>
-          <button class="btn btn-primary btn-sm" onclick={() => (showAddActivityForm = true)}>
-            <Plus size={16} />
-            Add Activity
-          </button>
+    <!-- Edit Form -->
+    {#if showEditForm}
+      <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+          <h3 class="card-title">Edit Stat</h3>
+          <form method="POST" action="?/update" use:enhance class="space-y-4">
+            <input type="hidden" name="statId" value={data.stat.id} />
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Name</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                class="input input-bordered"
+                value={data.stat.name}
+                required
+              />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Description</span>
+              </label>
+              <textarea
+                name="description"
+                class="textarea textarea-bordered"
+                value={data.stat.description || ''}
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+              <button type="button" class="btn" onclick={() => showEditForm = false}>Cancel</button>
+            </div>
+          </form>
         </div>
-
-        <!-- Add Activity Form -->
-        {#if showAddActivityForm}
-          <div class="bg-base-200 mb-4 rounded-lg p-4">
-            <form method="POST" action="?/addActivity" use:enhance>
-              <div class="form-control mb-4">
-                <input
-                  type="text"
-                  id="description"
-                  name="description"
-                  class="input input-bordered w-full"
-                  placeholder="Activity description (e.g., Deadlift session at gym)"
-                  required
-                />
-                <div class="label">
-                  <span class="label-text-alt">Describe the specific activity that earns XP</span>
-                </div>
-              </div>
-              <div class="form-control mb-4">
-                <input
-                  type="number"
-                  id="suggestedXp"
-                  name="suggestedXp"
-                  class="input input-bordered w-full"
-                  placeholder="Suggested XP amount"
-                  value="10"
-                  min="1"
-                  max="100"
-                  required
-                />
-                <div class="label">
-                  <span class="label-text-alt">How much XP this activity should typically award (1-100)</span>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">Add Activity</button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick={() => (showAddActivityForm = false)}> Cancel </button>
-              </div>
-            </form>
-          </div>
-        {/if}
-
-        <!-- Activities List -->
-        {#if data.stat.activities.length === 0}
-          <div class="py-8 text-center">
-            <p class="text-base-content/60 mb-4">No activities yet</p>
-            <button class="btn btn-outline btn-sm" onclick={() => (showAddActivityForm = true)}>
-              <Plus size={16} />
-              Add First Activity
-            </button>
-          </div>
-        {:else}
-          <div class="space-y-3">
-            {#each data.stat.activities as activity (activity.id)}
-              <div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
-                {#if editingActivity === activity.id}
-                  <!-- Edit Form -->
-                  <form method="POST" action="?/updateActivity" use:enhance class="flex-1">
-                    <input type="hidden" name="activityId" value={activity.id} />
-                    <div class="flex items-end gap-2">
-                      <div class="form-control flex-1">
-                        <input type="text" name="description" class="input input-bordered input-sm" value={activity.description} required />
-                      </div>
-                      <div class="form-control w-24">
-                        <input type="number" name="suggestedXp" class="input input-bordered input-sm" value={activity.suggestedXp} min="1" required />
-                      </div>
-                      <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                      <button type="button" class="btn btn-ghost btn-sm" onclick={() => (editingActivity = null)}> Cancel </button>
-                    </div>
-                  </form>
-                {:else}
-                  <!-- Display -->
-                  <div class="flex-1">
-                    <span class="font-medium">{activity.description}</span>
-                    <span class="badge badge-primary badge-sm ml-2">+{activity.suggestedXp} XP</span>
-                  </div>
-                  <div class="flex gap-1">
-                    <button class="btn btn-ghost btn-xs" onclick={() => (editingActivity = activity.id)}>
-                      <Edit size={14} />
-                    </button>
-                    <form method="POST" action="?/deleteActivity" use:enhance>
-                      <input type="hidden" name="activityId" value={activity.id} />
-                      <button type="submit" class="btn btn-ghost btn-xs text-error">
-                        <Trash2 size={14} />
-                      </button>
-                    </form>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {/if}
       </div>
-    </div>
+    {/if}
 
-    <!-- XP History Section -->
-    <div class="card bg-base-100 shadow-lg">
-      <div class="card-body">
-        <h2 class="card-title mb-4">
-          <Calendar size={20} />
-          XP History
-        </h2>
-
-        {#if data.xpHistory.length === 0}
-          <div class="py-8 text-center">
-            <p class="text-base-content/60">No XP history yet</p>
-            <p class="text-base-content/50 mt-2 text-sm">Complete tasks or journal entries to start earning XP</p>
-          </div>
-        {:else}
-          <div class="max-h-96 space-y-3 overflow-y-auto">
-            {#each data.xpHistory as grant (grant.id)}
-              <div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
-                <div class="flex items-center gap-3">
-                  <span class="text-lg">{getSourceTypeIcon(grant.sourceType)}</span>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="text-success font-medium">+{grant.amount} XP</span>
-                      <span class="badge badge-outline badge-xs">{grant.sourceType}</span>
-                    </div>
-                    {#if grant.comment}
-                      <p class="text-base-content/70 mt-1 text-sm">{grant.comment}</p>
-                    {/if}
-                  </div>
-                </div>
-                <span class="text-base-content/50 text-xs">
-                  {formatDate(grant.createdAt)}
+    <!-- Main Content Grid -->
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Left Column: Progress and Activities -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- Progress Section -->
+        <div class="card bg-base-100 shadow-xl border border-base-300">
+          <div class="card-body">
+            <h3 class="card-title text-lg mb-4">Progress to Level {data.stat.currentLevel + 1}</h3>
+            
+            <!-- XP Progress Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-primary font-bold">{data.stat.currentXp - data.stat.totalXpForCurrentLevel} XP</span>
+                <span class="text-base-content/60">
+                  {data.stat.totalXpForNextLevel - data.stat.totalXpForCurrentLevel} XP needed for next level
                 </span>
               </div>
-            {/each}
-          </div>
-
-          <!-- Summary Stats -->
-          <div class="mt-4 border-t pt-4">
-            <div class="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <div class="text-primary text-lg font-bold">
-                  {data.xpHistory.reduce((sum, grant) => sum + grant.amount, 0)}
+              <div class="relative">
+                <progress
+                  class="progress progress-primary w-full h-4"
+                  value={calculateXpProgress(data.stat.currentXp, data.stat.totalXpForCurrentLevel, data.stat.totalXpForNextLevel)}
+                  max="100"
+                ></progress>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs font-bold text-primary-content drop-shadow">
+                    {Math.round(calculateXpProgress(data.stat.currentXp, data.stat.totalXpForCurrentLevel, data.stat.totalXpForNextLevel))}%
+                  </span>
                 </div>
-                <div class="text-base-content/60 text-xs">Total XP Earned</div>
               </div>
+            </div>
+            
+            <div class="flex justify-between text-sm text-base-content/60">
+              <span>Current Level: {data.stat.currentLevel}</span>
+              <span>{data.stat.xpForNextLevel} XP needed for next level</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Example Activities -->
+        <div class="card bg-base-100 shadow-xl border border-base-300">
+          <div class="card-body">
+            <h3 class="card-title flex items-center gap-2 mb-4">
+              <TrendingUp size={20} />
+              Example Activities
+            </h3>
+            
+            {#if data.stat.exampleActivities && Object.keys(data.stat.exampleActivities).length > 0}
+              <div class="space-y-4">
+                {#each Object.entries(data.stat.exampleActivities) as [category, activities]}
+                  <div>
+                    <h4 class="font-semibold text-base-content/80 mb-2">{category}</h4>
+                    <div class="grid md:grid-cols-2 gap-2">
+                      {#each activities as activity}
+                        <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                          <span class="text-sm">{activity.description}</span>
+                          <span class="badge badge-primary">+{activity.suggestedXp} XP</span>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {:else if data.stat.activities && data.stat.activities.length > 0}
+              <div class="grid md:grid-cols-2 gap-2">
+                {#each data.stat.activities as activity}
+                  <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span class="text-sm">{activity.description}</span>
+                    <span class="badge badge-primary">+{activity.suggestedXp} XP</span>
+                  </div>
+                {/each}
+              </div>
+            {:else}
+              <div class="text-center py-8 text-base-content/60">
+                <TrendingUp size={48} class="mx-auto mb-4 opacity-50" />
+                <p>No activities defined yet</p>
+                <button class="btn btn-outline btn-sm mt-2" onclick={() => showEditForm = true}>
+                  Add Activities
+                </button>
+              </div>
+            {/if}
+          </div>
+        </div>
+
+        <!-- Recent XP History -->
+        <div class="card bg-base-100 shadow-xl border border-base-300">
+          <div class="card-body">
+            <h3 class="card-title flex items-center gap-2 mb-4">
+              <BarChart3 size={20} />
+              Recent XP History
+            </h3>
+            
+            {#if data.xpHistory.length === 0}
+              <div class="text-center py-8">
+                <BarChart3 size={48} class="mx-auto mb-4 text-base-content/30" />
+                <p class="text-base-content/60 mb-2">No XP history yet. Start earning XP to see your progress!</p>
+              </div>
+            {:else}
+              <div class="space-y-3 max-h-96 overflow-y-auto">
+                {#each data.xpHistory.slice(0, 10) as grant (grant.id)}
+                  <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-success font-bold">+{grant.amount} XP</span>
+                        <span class="badge badge-outline badge-xs">{grant.sourceType}</span>
+                      </div>
+                      {#if grant.comment}
+                        <p class="text-sm text-base-content/70 mt-1">{grant.comment}</p>
+                      {/if}
+                    </div>
+                    <span class="text-xs text-base-content/50">
+                      {formatDate(grant.createdAt)}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="space-y-6">
+        <!-- Quick Stats -->
+        <div class="card bg-gradient-to-br from-base-300 to-base-200 shadow-xl">
+          <div class="card-body">
+            <h3 class="card-title flex items-center gap-2 text-lg">
+              <BarChart3 size={20} />
+              Quick Stats
+            </h3>
+            
+            <div class="space-y-4">
               <div>
-                <div class="text-secondary text-lg font-bold">
-                  {data.xpHistory.length}
+                <div class="text-2xl font-bold text-primary">{data.stat.currentLevel}</div>
+                <div class="text-sm text-base-content/60">Current Level</div>
+              </div>
+              
+              <div>
+                <div class="text-2xl font-bold text-secondary">{data.stat.currentXp}</div>
+                <div class="text-sm text-base-content/60">Total XP</div>
+              </div>
+              
+              <div>
+                <div class="text-2xl font-bold text-accent">{data.stat.xpForNextLevel}</div>
+                <div class="text-sm text-base-content/60">XP to Next Level</div>
+              </div>
+              
+              <div>
+                <div class="text-sm text-base-content/60">Created</div>
+                <div class="font-mono text-sm">
+                  {formatDate(data.stat.createdAt)}
                 </div>
-                <div class="text-base-content/60 text-xs">XP Grants</div>
               </div>
             </div>
           </div>
-        {/if}
+        </div>
+
+        <!-- Level Progression -->
+        <div class="card bg-gradient-to-br from-base-300 to-base-200 shadow-xl">
+          <div class="card-body">
+            <h3 class="card-title flex items-center gap-2 text-lg">
+              <Award size={20} />
+              Level Progression
+            </h3>
+            
+            <div class="space-y-3">
+              <!-- Current Level -->
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                  {data.stat.currentLevel}
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium">Level {data.stat.currentLevel}</span>
+                    <span class="badge badge-primary badge-xs">Current</span>
+                  </div>
+                  <div class="text-xs text-base-content/60">{data.stat.totalXpForCurrentLevel} XP required</div>
+                </div>
+              </div>
+              
+              <!-- Next Level -->
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-warning flex items-center justify-center text-white font-bold text-sm">
+                  {data.stat.currentLevel + 1}
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium">Level {data.stat.currentLevel + 1}</span>
+                    <span class="badge badge-warning badge-xs">Next</span>
+                  </div>
+                  <div class="text-xs text-base-content/60">{data.stat.totalXpForNextLevel} XP required</div>
+                </div>
+              </div>
+              
+              <!-- Future Levels -->
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-base-content font-bold text-sm">
+                  {data.stat.currentLevel + 2}
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium">Level {data.stat.currentLevel + 2}</span>
+                  </div>
+                  <div class="text-xs text-base-content/60">Future milestone</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
