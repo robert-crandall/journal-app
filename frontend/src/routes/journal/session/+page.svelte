@@ -137,19 +137,9 @@
         <h1 class="text-xl font-semibold">Journal Session</h1>
       </div>
 
-      {#if shouldOfferSave}
-        <div class="flex gap-2">
-          <button class="btn btn-outline btn-sm" onclick={discardSession} disabled={savingEntry}> Discard </button>
-          <button class="btn btn-primary btn-sm" onclick={saveEntry} disabled={savingEntry}>
-            {#if savingEntry}
-              <span class="loading loading-spinner loading-sm"></span>
-              Saving...
-            {:else}
-              💾 Save Entry
-            {/if}
-          </button>
-        </div>
-      {/if}
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm" onclick={discardSession} disabled={savingEntry}> Discard </button>
+      </div>
     </div>
   </div>
 
@@ -242,6 +232,20 @@
             <span class="text-primary font-medium">Ready to save this journal entry</span>
           {/if}
         </div>
+
+        <!-- Save Entry Button - Always visible when we have messages -->
+        {#if messages.length > 1}
+          <div class="mt-4 flex justify-center">
+            <button class="btn btn-primary btn-lg gap-2" onclick={saveEntry} disabled={savingEntry}>
+              {#if savingEntry}
+                <span class="loading loading-spinner loading-sm"></span>
+                Saving...
+              {:else}
+                💾 Save Entry
+              {/if}
+            </button>
+          </div>
+        {/if}
       </div>
     </div>
   </div>

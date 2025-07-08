@@ -76,7 +76,7 @@ test.describe('Journal Feature', () => {
     await page.goto('/journal/session');
     await expect(page.locator('.chat .chat-bubble').first()).toBeVisible({ timeout: 10000 });
 
-    // Send multiple messages to trigger save offer
+    // Send multiple messages to make save button appear
     const messages = [
       "Today was a great day at work.",
       "I completed my main project and got positive feedback from my manager.",
@@ -92,7 +92,7 @@ test.describe('Journal Feature', () => {
       await expect(page.locator('.loading.loading-dots')).not.toBeVisible({ timeout: 15000 });
     }
 
-    // Should eventually show save option
+    // Should show save button at bottom after conversation starts
     await expect(page.locator('button:has-text("💾 Save Entry")')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('text=Ready to save this journal entry')).toBeVisible();
   });
@@ -106,7 +106,7 @@ test.describe('Journal Feature', () => {
     await page.fill('textarea', "Today I reflected on my goals and made progress on my personal growth.");
     await page.click('button:has-text("Send")');
 
-    // Wait for AI response and save option
+    // Wait for AI response and save button to appear at bottom
     await expect(page.locator('button:has-text("💾 Save Entry")')).toBeVisible({ timeout: 20000 });
 
     // Save the entry
@@ -183,7 +183,7 @@ test.describe('Journal Feature', () => {
     await page.fill('textarea', "This session will be discarded");
     await page.click('button:has-text("Send")');
 
-    // Wait for save option to appear
+    // Wait for save button to appear at bottom
     await expect(page.locator('button:has-text("💾 Save Entry")')).toBeVisible({ timeout: 20000 });
 
     // Click discard instead
