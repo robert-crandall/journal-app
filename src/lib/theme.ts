@@ -22,7 +22,7 @@ export function useColorMode() {
 
 export const baseThemeOptions = {
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Comic-Sans", system-ui, sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 700,

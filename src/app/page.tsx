@@ -1,13 +1,15 @@
-import { Container, Grid, Box, Typography, Button, Card, CardContent, Stack, Paper } from "@mui/material";
+'use client';
+
+import { Container, Box, Typography, Button, Card, CardContent, Stack, Paper } from "@mui/material";
 import { ArrowForward, EmojiEvents, Psychology, FamilyRestroom } from "@mui/icons-material";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <Container maxWidth="lg" sx={{ pt: 8, pb: 6 }}>
-      <Grid container spacing={4}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 4 }}>
         {/* Main Content - 2 columns */}
-        <Grid item xs={12} md={8}>
+        <Box>
           <Box sx={{ mb: 6 }}>
             <Typography
               component="h1"
@@ -47,68 +49,60 @@ export default function Home() {
             </Stack>
           </Box>
 
-          <Grid container spacing={4}>
-            <Grid item xs={12} sm={6}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent>
-                  <EmojiEvents fontSize="large" color="primary" sx={{ mb: 2 }} />
-                  <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
-                    Track Your Progress
-                  </Typography>
-                  <Typography>
-                    Level up various stats like Strength, Wisdom, and more as you complete tasks.
-                    Watch yourself grow in real-time.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent>
-                  <Psychology fontSize="large" color="primary" sx={{ mb: 2 }} />
-                  <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
-                    Daily Challenges
-                  </Typography>
-                  <Typography>
-                    Receive personalized daily tasks from your AI Dungeon Master to help you
-                    grow and improve.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent>
-                  <FamilyRestroom fontSize="large" color="primary" sx={{ mb: 2 }} />
-                  <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
-                    Family Connection
-                  </Typography>
-                  <Typography>
-                    Strengthen family bonds with quests designed specifically 
-                    to create meaningful moments with your loved ones.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent>
-                  <Psychology fontSize="large" color="primary" sx={{ mb: 2 }} />
-                  <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
-                    Reflective Journal
-                  </Typography>
-                  <Typography>
-                    Process your day through an AI-assisted journal that helps you 
-                    gain insights and awards XP for your reflections.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Grid>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 4 }}>
+            <Card elevation={3} sx={{ height: '100%' }}>
+              <CardContent>
+                <EmojiEvents fontSize="large" color="primary" sx={{ mb: 2 }} />
+                <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
+                  Track Your Progress
+                </Typography>
+                <Typography>
+                  Level up various stats like Strength, Wisdom, and more as you complete tasks.
+                  Watch yourself grow in real-time.
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card elevation={3} sx={{ height: '100%' }}>
+              <CardContent>
+                <Psychology fontSize="large" color="primary" sx={{ mb: 2 }} />
+                <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
+                  Daily Challenges
+                </Typography>
+                <Typography>
+                  Receive personalized daily tasks from your AI Dungeon Master to help you
+                  grow and improve.
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card elevation={3} sx={{ height: '100%' }}>
+              <CardContent>
+                <FamilyRestroom fontSize="large" color="primary" sx={{ mb: 2 }} />
+                <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
+                  Family Connection
+                </Typography>
+                <Typography>
+                  Strengthen family bonds with quests designed specifically 
+                  to create meaningful moments with your loved ones.
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card elevation={3} sx={{ height: '100%' }}>
+              <CardContent>
+                <Psychology fontSize="large" color="primary" sx={{ mb: 2 }} />
+                <Typography variant="h5" component="h2" fontWeight="500" gutterBottom>
+                  Reflective Journal
+                </Typography>
+                <Typography>
+                  Process your day through an AI-assisted journal that helps you 
+                  gain insights and awards XP for your reflections.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </Box>
 
         {/* Right Sidebar - 1 column */}
-        <Grid item xs={12} md={4}>
+        <Box>
           <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography variant="h5" component="h3" gutterBottom color="primary" fontWeight="bold">
               Latest Updates
@@ -168,8 +162,8 @@ export default function Home() {
               Register Now
             </Button>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   );
 }

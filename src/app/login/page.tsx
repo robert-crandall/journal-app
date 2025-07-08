@@ -14,7 +14,6 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Alert,
   Paper,
 } from '@mui/material';
@@ -138,22 +137,22 @@ export default function LoginPage() {
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
-            <Grid container>
-              <Grid item xs>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <Box>
                 <Link href="/forgot-password" passHref>
                   <Typography variant="body2" color="primary" component="a">
                     Forgot password?
                   </Typography>
                 </Link>
-              </Grid>
-              <Grid item>
+              </Box>
+              <Box>
                 <Link href="/register" passHref>
                   <Typography variant="body2" color="primary" component="a">
                     {"Don't have an account? Sign Up"}
                   </Typography>
                 </Link>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Box>
         </Paper>
       </Box>
