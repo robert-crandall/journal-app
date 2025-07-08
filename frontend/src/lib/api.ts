@@ -81,13 +81,13 @@ export function createAuthenticatedFetch() {
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const fetchFn = createAuthenticatedFetch();
   const response = await fetchFn(endpoint, options);
-  
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     const errorMessage = errorData.error || `Request failed with status ${response.status}`;
     throw new Error(errorMessage);
   }
-  
+
   return response.json();
 }
 

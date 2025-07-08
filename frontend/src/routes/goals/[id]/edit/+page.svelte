@@ -34,10 +34,7 @@
 
   // Load goal data and tag suggestions on mount
   onMount(async () => {
-    await Promise.all([
-      loadGoal(),
-      loadTagSuggestions()
-    ]);
+    await Promise.all([loadGoal(), loadTagSuggestions()]);
   });
 
   async function loadTagSuggestions() {
@@ -83,14 +80,12 @@
       showSuggestions = false;
       return;
     }
-    
+
     filteredSuggestions = tagSuggestions
-      .filter(tag => 
-        tag.name.toLowerCase().includes(input) && 
-        !tags.includes(tag.name.toLowerCase()))
+      .filter((tag) => tag.name.toLowerCase().includes(input) && !tags.includes(tag.name.toLowerCase()))
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 5);
-    
+
     showSuggestions = filteredSuggestions.length > 0;
   }
 
@@ -308,7 +303,7 @@
                   </label>
 
                   <!-- Tag Input -->
-                  <div class="flex gap-2 relative">
+                  <div class="relative flex gap-2">
                     <input
                       id="tag-input"
                       type="text"
@@ -324,19 +319,19 @@
                       <Plus size={16} />
                       Add
                     </button>
-                    
+
                     <!-- Tag Suggestions Dropdown -->
                     {#if showSuggestions && tagInput.trim()}
-                      <div class="absolute top-full left-0 right-0 mt-1 bg-base-200 rounded-md shadow-lg z-10 max-h-52 overflow-y-auto">
+                      <div class="bg-base-200 absolute top-full right-0 left-0 z-10 mt-1 max-h-52 overflow-y-auto rounded-md shadow-lg">
                         {#each filteredSuggestions as suggestion}
                           <button
                             type="button"
                             onclick={() => selectSuggestion(suggestion.name)}
-                            class="block w-full text-left px-4 py-2 hover:bg-base-300 transition-colors"
+                            class="hover:bg-base-300 block w-full px-4 py-2 text-left transition-colors"
                           >
-                            <div class="flex justify-between items-center">
+                            <div class="flex items-center justify-between">
                               <span>{suggestion.name}</span>
-                              <span class="text-xs text-base-content/60">Used {suggestion.usageCount} {suggestion.usageCount === 1 ? 'time' : 'times'}</span>
+                              <span class="text-base-content/60 text-xs">Used {suggestion.usageCount} {suggestion.usageCount === 1 ? 'time' : 'times'}</span>
                             </div>
                           </button>
                         {/each}

@@ -51,55 +51,54 @@ const routes = app
   // Mount tags routes
   .route('/api/tags', tagsRoutes);
 
-
 // Serve static files - but exclude API routes using a custom condition
-app.use("*", async (c, next) => {
+app.use('*', async (c, next) => {
   const path = c.req.path;
-  
+
   // Skip static serving for API routes
-  if (path.startsWith("/api/") || path.startsWith("/cron") ) {
+  if (path.startsWith('/api/') || path.startsWith('/cron')) {
     await next();
     return;
   }
-  
+
   // For non-API routes, try to serve static files first (CSS, JS, images, etc.)
   try {
     // Use the Bun-specific serveStatic middleware
     return serveStatic({
-      root: "../frontend",
-      rewriteRequestPath: (path) => path
+      root: '../frontend',
+      rewriteRequestPath: (path) => path,
     })(c, next);
   } catch (error) {
-    console.error("Error serving static file:", error);
+    console.error('Error serving static file:', error);
     await next();
   }
 });
 
 // SPA fallback - serve index.html for all non-API routes that don't have static files
-app.get("*", async (c) => {
+app.get('*', async (c) => {
   const path = c.req.path;
-  
+
   // Skip for API routes
-  if (path.startsWith("/api/") || path.startsWith("/cron") || path.startsWith("/docs")) {
-    return c.json({ error: "Not found" }, 404);
+  if (path.startsWith('/api/') || path.startsWith('/cron') || path.startsWith('/docs')) {
+    return c.json({ error: 'Not found' }, 404);
   }
-  
+
   // For SPA, always serve index.html for routes that don't match static files
   try {
     // Use Bun's file API to serve the index.html file
-    const file = Bun.file("../frontend/index.html");
+    const file = Bun.file('../frontend/index.html');
     const exists = await file.exists();
-    
+
     if (exists) {
       const content = await file.text();
       return c.html(content);
     } else {
-      console.error("index.html file not found");
-      return c.json({ error: "Frontend not found" }, 404);
+      console.error('index.html file not found');
+      return c.json({ error: 'Frontend not found' }, 404);
     }
   } catch (error) {
-    console.error("Error serving index.html:", error);
-    return c.json({ error: "Frontend not found" }, 404);
+    console.error('Error serving index.html:', error);
+    return c.json({ error: 'Frontend not found' }, 404);
   }
 });
 

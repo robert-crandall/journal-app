@@ -17,9 +17,9 @@ const LOG_FILE = path.join(os.tmpdir(), 'journal-app-backend.log');
 // Check if backend is already running
 async function isBackendRunning() {
   try {
-    const response = await fetch(`http://localhost:${BACKEND_PORT}/api/health`, { 
+    const response = await fetch(`http://localhost:${BACKEND_PORT}/api/health`, {
       timeout: 2000,
-      headers: { 'Cache-Control': 'no-cache' }
+      headers: { 'Cache-Control': 'no-cache' },
     });
     return response.ok;
   } catch {
@@ -47,7 +47,7 @@ function killProcessesOnPorts(ports) {
 
 function killBackendProcesses() {
   const { spawnSync } = require('child_process');
-  
+
   // First try to kill by saved PID if available
   try {
     if (fs.existsSync(PID_FILE)) {
@@ -66,7 +66,7 @@ function killBackendProcesses() {
   } catch (e) {
     console.warn(`⚠️  Could not kill process from PID file:`, e.message);
   }
-  
+
   // Fallback to searching for processes
   try {
     // Find processes running the backend specifically
@@ -126,11 +126,11 @@ async function startBackend() {
   }
 
   const backendRunning = await isBackendRunning();
-  
+
   if (backendRunning) {
     console.log(`✅ Backend is already running on http://localhost:${BACKEND_PORT}`);
     displayBackendStatus();
-    
+
     // Keep this terminal attached to the backend
     if (process.argv.includes('--attach')) {
       console.log('🔄 Attaching to running backend process. Press Ctrl+C to detach.');
@@ -138,7 +138,7 @@ async function startBackend() {
       process.stdin.resume();
       return;
     }
-    
+
     return;
   }
 
@@ -149,22 +149,22 @@ async function startBackend() {
   }
 
   console.log('🚀 Starting backend...');
-  
+
   // Open log file for writing
   const logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
   logStream.write(`\n\n--- Backend started at ${new Date().toISOString()} ---\n\n`);
-  
+
   const backend = spawn('bun', ['run', 'dev'], {
     cwd: './backend',
     stdio: ['ignore', 'pipe', 'pipe'],
     shell: true,
     env: { ...process.env, PORT: BACKEND_PORT },
-    detached: !process.argv.includes('--attach')
+    detached: !process.argv.includes('--attach'),
   });
-  
+
   // Save PID for future reference
   savePid(backend.pid);
-  
+
   // Pipe output to both console and log file
   backend.stdout.pipe(process.stdout);
   backend.stderr.pipe(process.stderr);
@@ -174,20 +174,20 @@ async function startBackend() {
   // Wait for backend to start
   let attempts = 0;
   const maxAttempts = 10;
-  
+
   while (attempts < maxAttempts) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     attempts++;
-    
+
     if (await isBackendRunning()) {
       console.log(`✅ Backend started successfully on http://localhost:${BACKEND_PORT}`);
-      
+
       if (!process.argv.includes('--attach')) {
         console.log('ℹ️  Backend is running in the background. To view logs run:');
         console.log(`   cat ${LOG_FILE}`);
         console.log('To attach to this process, run:');
         console.log('   bun run start-backend --attach');
-        
+
         // Detach process if not in --attach mode
         backend.unref();
         return;
@@ -197,10 +197,10 @@ async function startBackend() {
         return;
       }
     }
-    
+
     console.log(`⏳ Waiting for backend to start... (${attempts}/${maxAttempts})`);
   }
-  
+
   console.log('❌ Backend failed to start after multiple attempts');
   backend.kill();
 }
