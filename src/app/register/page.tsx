@@ -54,23 +54,42 @@ export default function RegisterPage() {
     const { name, email, password } = data;
 
     try {
-      // Normally we would use tRPC here, but we'll just implement a basic registration
-      // For now, simulate registration success
-      const result = await signIn('credentials', {
+      // Step 1: Register the user
+      const registerResponse = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const registerData = await registerResponse.json();
+      
+      if (!registerResponse.ok) {
+        setError(registerData.error || 'Registration failed. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Sign in the user
+      const signInResult = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
 
-      if (!result?.ok) {
-        setError('An error occurred while signing in. Please try logging in.');
+      if (!signInResult?.ok) {
+        setError('Registration successful, but automatic login failed. Please try logging in.');
         setIsSubmitting(false);
+        router.push('/login');
         return;
       }
 
+      // Success - redirect to home page
       router.push('/');
       router.refresh();
     } catch (err) {
+      console.error('Registration error:', err);
       setError('An error occurred. Please try again.');
       setIsSubmitting(false);
     }
