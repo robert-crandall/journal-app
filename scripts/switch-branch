@@ -1,0 +1,9 @@
+#/bin/bash
+
+# This script cleans out build directories when switching branches.
+
+rm -rf build/
+rm -rf .next/
+rm -rf .svelte-kit/
+rm -rf node_modules/
+rm -rf frontend/node_modules/
