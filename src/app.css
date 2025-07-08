@@ -78,3 +78,73 @@ html {
   color: transparent;
   background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
 }
+
+/* Enhanced gradient backgrounds */
+.bg-gradient-modern {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.1) 0%, 
+    rgba(219, 39, 119, 0.1) 25%, 
+    rgba(147, 51, 234, 0.1) 50%, 
+    rgba(59, 130, 246, 0.1) 75%, 
+    rgba(16, 185, 129, 0.1) 100%);
+}
+
+/* Smooth transitions for interactive elements */
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Enhanced mockup styling */
+.mockup-phone .display {
+  overflow: hidden;
+}
+
+.mockup-phone .artboard {
+  border-radius: 1.5rem;
+  background: var(--fallback-b1, oklch(var(--b1)));
+}
+
+/* Badge enhancements */
+.badge-lg {
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  .text-4xl {
+    font-size: 2.5rem;
+  }
+  
+  .lg\:text-6xl {
+    font-size: 3rem;
+  }
+}
+
+/* Backdrop blur support */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Custom shadow for elevated elements */
+.shadow-modern {
+  box-shadow: 
+    0 10px 25px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced focus states */
+.btn:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

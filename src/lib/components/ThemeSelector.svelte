@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Sun, Moon, Settings } from 'lucide-svelte';
 
   type Theme = 'light' | 'dark' | 'auto';
   let currentTheme = $state<Theme>('auto');
@@ -48,73 +49,31 @@
 </script>
 
 <div class="dropdown dropdown-end">
-  <div tabindex="0" role="button" class="btn btn-ghost btn-circle" data-testid="theme-selector-button">
+  <div tabindex="0" role="button" class="btn btn-ghost btn-circle text-primary-content hover:bg-primary-content/10" data-testid="theme-selector-button">
     {#if currentTheme === 'light'}
-      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-        />
-      </svg>
+      <Sun class="h-5 w-5" />
     {:else if currentTheme === 'dark'}
-      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M20.354 15.354A9 9 0 718.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-        />
-      </svg>
+      <Moon class="h-5 w-5" />
     {:else}
-      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2 2v10a2 2 0 002 2z"
-        />
-      </svg>
+      <Settings class="h-5 w-5" />
     {/if}
   </div>
-  <ul class="dropdown-content menu bg-base-100 rounded-box z-[2] w-32 p-2 shadow" data-testid="theme-selector-dropdown">
+  <ul class="dropdown-content menu bg-base-100 text-base-content rounded-box z-[2] w-32 p-2 shadow-lg border border-base-300" data-testid="theme-selector-dropdown">
     <li>
-      <button onclick={() => setTheme('light')} class:active={currentTheme === 'light'}>
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
+      <button onclick={() => setTheme('light')} class="flex items-center gap-2 text-base-content hover:bg-base-200" class:active={currentTheme === 'light'}>
+        <Sun class="h-4 w-4" />
         Light
       </button>
     </li>
     <li>
-      <button onclick={() => setTheme('dark')} class:active={currentTheme === 'dark'}>
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M20.354 15.354A9 9 0 718.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-          />
-        </svg>
+      <button onclick={() => setTheme('dark')} class="flex items-center gap-2 text-base-content hover:bg-base-200" class:active={currentTheme === 'dark'}>
+        <Moon class="h-4 w-4" />
         Dark
       </button>
     </li>
     <li>
-      <button onclick={() => setTheme('auto')} class:active={currentTheme === 'auto'}>
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
+      <button onclick={() => setTheme('auto')} class="flex items-center gap-2 text-base-content hover:bg-base-200" class:active={currentTheme === 'auto'}>
+        <Settings class="h-4 w-4" />
         Auto
       </button>
     </li>
