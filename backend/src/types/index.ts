@@ -3,6 +3,7 @@ export * from './characters';
 export * from './stats';
 export * from './goals';
 export * from './family';
+export * from './tags';
 // Future exports:
 // export * from './posts';
 // export * from './auth';

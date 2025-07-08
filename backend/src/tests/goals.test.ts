@@ -11,6 +11,18 @@ const app = {
   },
 };
 
+// Helper function to get tags for a goal from the normalized tables
+async function getGoalTags(goalId: string): Promise<string[]> {
+  const db = testDb();
+  const goalTags = await db
+    .select({ name: schema.tags.name })
+    .from(schema.goalTags)
+    .innerJoin(schema.tags, eq(schema.tags.id, schema.goalTags.tagId))
+    .where(eq(schema.goalTags.goalId, goalId));
+
+  return goalTags.map((tag) => tag.name).sort();
+}
+
 describe('Goals API Integration Tests', () => {
   let authToken: string;
   let userId: string;
@@ -18,10 +30,11 @@ describe('Goals API Integration Tests', () => {
   beforeEach(async () => {
     await cleanDatabase();
 
-    // Create a test user and get auth token for protected routes
+    // Create a test user with unique email and get auth token for protected routes
+    const testId = Date.now() + Math.random();
     const userData = {
       name: 'Test User',
-      email: 'test@example.com',
+      email: `test${testId}@example.com`,
       password: 'password123',
     };
 
@@ -104,14 +117,14 @@ describe('Goals API Integration Tests', () => {
       expect(data.data[0]).toMatchObject({
         title: goalData1.title,
         description: goalData1.description,
-        tags: goalData1.tags,
+        tags: goalData1.tags.sort(), // API returns tags in sorted order
         isActive: goalData1.isActive,
         isArchived: false,
       });
       expect(data.data[1]).toMatchObject({
         title: goalData2.title,
         description: goalData2.description,
-        tags: goalData2.tags,
+        tags: goalData2.tags.sort(), // API returns tags in sorted order
         isActive: goalData2.isActive,
         isArchived: false,
       });
@@ -231,7 +244,11 @@ describe('Goals API Integration Tests', () => {
       expect(dbGoal).toHaveLength(1);
       expect(dbGoal[0].title).toBe(goalData.title);
       expect(dbGoal[0].description).toBe(goalData.description);
-      expect(JSON.parse(dbGoal[0].tags || '[]')).toEqual(goalData.tags);
+
+      // Check tags in normalized tables
+      const dbTags = await getGoalTags(responseData.data.id);
+      expect(dbTags).toEqual(goalData.tags.sort());
+
       expect(dbGoal[0].isActive).toBe(goalData.isActive);
       expect(dbGoal[0].isArchived).toBe(goalData.isArchived);
     });
@@ -447,7 +464,11 @@ describe('Goals API Integration Tests', () => {
 
       expect(dbGoal[0].title).toBe(updateData.title);
       expect(dbGoal[0].description).toBe(updateData.description);
-      expect(JSON.parse(dbGoal[0].tags || '[]')).toEqual(updateData.tags);
+
+      // Check tags in normalized tables
+      const dbTags = await getGoalTags(goalId);
+      expect(dbTags).toEqual(updateData.tags.sort());
+
       expect(dbGoal[0].isActive).toBe(updateData.isActive);
       expect(dbGoal[0].isArchived).toBe(updateData.isArchived);
     });
