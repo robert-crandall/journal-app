@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { goalsApi, type CreateGoalWithTags } from '$lib/api/goals';
+  import tagsApi, { type TagWithCount } from '$lib/api/tags';
+  import { onMount } from 'svelte';
   import { Target, Plus, X, Save } from 'lucide-svelte';
 
   // Form state
@@ -13,18 +15,58 @@
   // UI state
   let loading = $state(false);
   let error = $state<string | null>(null);
+  let tagSuggestions = $state<TagWithCount[]>([]);
+  let filteredSuggestions = $state<TagWithCount[]>([]);
+  let showSuggestions = $state(false);
+
+  // Load user's existing tags for suggestions
+  onMount(async () => {
+    try {
+      tagSuggestions = await tagsApi.getUserTags();
+    } catch (err) {
+      console.error('Failed to load tag suggestions:', err);
+      // Non-critical error, don't show to user
+    }
+  });
 
   // Form validation
   let titleTouched = $state(false);
   let isValid = $derived(title.trim().length > 0 && title.length <= 255);
 
-  // Handle tag input
+  // Handle tag input and suggestions
+  function updateSuggestions() {
+    const input = tagInput.trim().toLowerCase();
+    if (!input) {
+      filteredSuggestions = [];
+      showSuggestions = false;
+      return;
+    }
+    
+    filteredSuggestions = tagSuggestions
+      .filter(tag => 
+        tag.name.toLowerCase().includes(input) && 
+        !tags.includes(tag.name.toLowerCase()))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+    
+    showSuggestions = filteredSuggestions.length > 0;
+  }
+
   function addTag() {
     const trimmedTag = tagInput.trim().toLowerCase();
     if (trimmedTag && !tags.includes(trimmedTag)) {
       tags = [...tags, trimmedTag];
       tagInput = '';
+      showSuggestions = false;
     }
+  }
+
+  function selectSuggestion(tagName: string) {
+    if (!tags.includes(tagName)) {
+      tags = [...tags, tagName];
+    }
+    tagInput = '';
+    showSuggestions = false;
   }
 
   function removeTag(tagToRemove: string) {
@@ -35,6 +77,8 @@
     if (event.key === 'Enter') {
       event.preventDefault();
       addTag();
+    } else {
+      updateSuggestions();
     }
   }
 
@@ -158,19 +202,40 @@
                 </label>
 
                 <!-- Tag Input -->
-                <div class="flex gap-2">
+                <div class="flex gap-2 relative">
                   <input
                     id="tag-input"
                     type="text"
                     bind:value={tagInput}
                     onkeydown={handleTagKeydown}
+                    oninput={updateSuggestions}
+                    onfocus={updateSuggestions}
                     class="input input-bordered flex-1"
                     placeholder="e.g., family, health, career"
+                    autocomplete="off"
                   />
                   <button type="button" onclick={addTag} class="btn btn-outline gap-2" disabled={!tagInput.trim()}>
                     <Plus size={16} />
                     Add
                   </button>
+                  
+                  <!-- Tag Suggestions Dropdown -->
+                  {#if showSuggestions && tagInput.trim()}
+                    <div class="absolute top-full left-0 right-0 mt-1 bg-base-200 rounded-md shadow-lg z-10 max-h-52 overflow-y-auto">
+                      {#each filteredSuggestions as suggestion}
+                        <button
+                          type="button"
+                          onclick={() => selectSuggestion(suggestion.name)}
+                          class="block w-full text-left px-4 py-2 hover:bg-base-300 transition-colors"
+                        >
+                          <div class="flex justify-between items-center">
+                            <span>{suggestion.name}</span>
+                            <span class="text-xs text-base-content/60">Used {suggestion.count} {suggestion.count === 1 ? 'time' : 'times'}</span>
+                          </div>
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
                 </div>
 
                 <!-- Current Tags -->
