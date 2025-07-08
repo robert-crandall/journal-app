@@ -51,41 +51,57 @@ const routes = app
   // Mount tags routes
   .route('/api/tags', tagsRoutes);
 
-// Serve static files from SvelteKit build output
-// Skip API routes and serve static assets first
-app.use('*', async (c, next) => {
-  const path = c.req.path;
 
+// Serve static files - but exclude API routes using a custom condition
+app.use("*", async (c, next) => {
+  const path = c.req.path;
+  
   // Skip static serving for API routes
-  if (path.startsWith('/api/')) {
+  if (path.startsWith("/api/") || path.startsWith("/cron") ) {
     await next();
     return;
   }
-
-  // Try to serve static files (JS, CSS, images, etc.)
-  const staticHandler = serveStatic({
-    root: '../frontend',
-    onNotFound: () => {
-      // Don't log here, just continue to next middleware
-    },
-  });
-
-  return staticHandler(c, next);
+  
+  // For non-API routes, try to serve static files first (CSS, JS, images, etc.)
+  try {
+    // Use the Bun-specific serveStatic middleware
+    return serveStatic({
+      root: "../frontend",
+      rewriteRequestPath: (path) => path
+    })(c, next);
+  } catch (error) {
+    console.error("Error serving static file:", error);
+    await next();
+  }
 });
 
-// SPA fallback - serve index.html for all remaining non-API routes
-app.get(
-  '*',
-  serveStatic({
-    path: '../frontend/index.html',
-    onFound: (path, c) => {
-      console.log(`🏠 Serving SPA for: ${c.req.path}`);
-    },
-    onNotFound: (path, c) => {
-      console.error(`❌ Frontend not found: ${path}`);
-    },
-  }),
-);
+// SPA fallback - serve index.html for all non-API routes that don't have static files
+app.get("*", async (c) => {
+  const path = c.req.path;
+  
+  // Skip for API routes
+  if (path.startsWith("/api/") || path.startsWith("/cron") || path.startsWith("/docs")) {
+    return c.json({ error: "Not found" }, 404);
+  }
+  
+  // For SPA, always serve index.html for routes that don't match static files
+  try {
+    // Use Bun's file API to serve the index.html file
+    const file = Bun.file("../frontend/index.html");
+    const exists = await file.exists();
+    
+    if (exists) {
+      const content = await file.text();
+      return c.html(content);
+    } else {
+      console.error("index.html file not found");
+      return c.json({ error: "Frontend not found" }, 404);
+    }
+  } catch (error) {
+    console.error("Error serving index.html:", error);
+    return c.json({ error: "Frontend not found" }, 404);
+  }
+});
 
 // Export the app type for RPC
 export type AppType = typeof routes;
