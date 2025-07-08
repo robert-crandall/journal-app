@@ -175,7 +175,7 @@
               {message.role === 'user' ? 'You' : 'AI Guide'}
               <time class="ml-1 text-xs opacity-50">{formatTime(message.timestamp)}</time>
             </div>
-            <div class="chat-bubble {message.role === 'user' ? 'bg-base-200 text-base-content' : 'bg-primary text-primary-content'} whitespace-pre-wrap">
+            <div class="chat-bubble {message.role === 'user' ? 'bg-base text-base-content' : 'bg-primary text-primary-content'} whitespace-pre-wrap">
               {message.content}
             </div>
           </div>
