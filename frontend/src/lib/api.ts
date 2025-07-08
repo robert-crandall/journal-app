@@ -76,6 +76,22 @@ export function createAuthenticatedFetch() {
 }
 
 /**
+ * Generic API fetch function with authentication and JSON response handling
+ */
+export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+  const fetchFn = createAuthenticatedFetch();
+  const response = await fetchFn(endpoint, options);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.error || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+
+/**
  * Lazy-initialized authenticated API client
  * Access this as a property to get a fresh authenticated client
  * Example: authApi.users.list.$get()
