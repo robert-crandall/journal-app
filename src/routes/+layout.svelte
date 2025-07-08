@@ -3,6 +3,7 @@
   import { beforeNavigate } from '$app/navigation';
   import { updated } from '$app/state';
   import Navigation from '$lib/components/Navigation.svelte';
+  import ThemeSelector from '$lib/components/ThemeSelector.svelte';
   import type { LayoutData } from './$types.js';
 
   let { children, data }: { children: import('svelte').Snippet; data: LayoutData } = $props();
@@ -29,6 +30,18 @@
 
 {#if data?.user}
   <Navigation user={data.user} />
+{:else}
+  <!-- Public Navigation for unauthenticated users -->
+  <div class="navbar bg-primary text-primary-content shadow-lg">
+    <div class="navbar-start">
+      <a href="/" class="btn btn-ghost text-xl font-bold text-primary-content hover:bg-primary-content/10">Life Quest</a>
+    </div>
+    <div class="navbar-end gap-2">
+      <ThemeSelector />
+      <a href="/login" class="btn btn-ghost text-primary-content hover:bg-primary-content/10">Login</a>
+      <a href="/register" class="btn btn-secondary">Register</a>
+    </div>
+  </div>
 {/if}
 
 {@render children()}

@@ -9,7 +9,7 @@
   <title>Login - Journal App</title>
 </svelte:head>
 
-<div class="bg-base-200 flex min-h-screen items-center justify-center p-4">
+<div class="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center p-4">
   <div class="card bg-base-100 w-full max-w-md shadow-xl">
     <div class="card-body">
       <h1 class="card-title mb-6 text-center text-2xl font-bold">Sign In</h1>
