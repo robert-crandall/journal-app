@@ -12,8 +12,6 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 ### Color Scheme
 
 - **Primary**: `#6200ea` (deep purple)
-- **Secondary**: `#D700EA` (pinkish purple)
-- **Accent**: `#0013EA` (blue)
 
 ### Key Design Characteristics
 
@@ -23,125 +21,45 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 4. **Micro-Interactions** - Gentle hover effects and transitions that feel responsive
 5. **Semantic Color System** - Colors have meaning (primary for actions, accent for progress, etc.)
 6. **Material-Style Components** - Inputs, buttons, and cards follow Material Design principles
+7. **Bold Color Choices** - Use of dark purple as a base color with complementary accents
+8. **Whitespace and Typography** - Generous spacing and large, readable fonts for clarity
+9. **Responsive Design** - Adapts gracefully to different screen sizes, maintaining usability
+10. **Contextual Sidebars** - Provide additional information without cluttering main content
 
 ## Layout Patterns
 
 ### Goals Dashboard Layout (4-Column Grid)
-
-```svelte
-<div class="bg-base-200 min-h-screen">
-  <!-- Header with gradient accent -->
-  <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
-    <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-primary mb-2 text-4xl font-bold">Goals Dashboard</h1>
-          <p class="text-base-content/70 text-lg">Define and track your personal objectives</p>
-        </div>
-        <button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
-          <Plus size={20} />
-          Create Goal
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main content area -->
-  <div class="mx-auto max-w-7xl px-4 py-8">
-    <div class="grid gap-8 lg:grid-cols-4">
-      <!-- Goals grid: 3/4 width -->
-      <div class="lg:col-span-3">
-        <div class="grid gap-6 md:grid-cols-2">
-          <!-- Goal cards -->
-        </div>
-      </div>
-
-      <!-- Contextual sidebar: 1/4 width -->
-      <div class="lg:col-span-1 space-y-6">
-        <!-- Stats, tips, actions -->
-      </div>
-    </div>
-  </div>
-</div>
-```
+  - Header with gradient accent
+  - Main content area
+    - Goals grid: 3/4 width
+      - Goal cards
+    - Contextual sidebar: 1/4 width
+      - Stats, tips, actions
 
 ### Form Layout (2/3 + 1/3 Split)
 
-```svelte
-<div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-3">
-  <!-- Main form: 2/3 width -->
-  <div class="lg:col-span-2">
-    <div class="card bg-base-100 border-base-300 border shadow-2xl">
-      <div class="card-body p-8">
-        <!-- Form content -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Contextual sidebar: 1/3 width -->
-  <div class="lg:col-span-1">
-    <div class="sticky top-8 space-y-6">
-      <!-- Tips, preview, related info -->
-    </div>
-  </div>
-</div>
-```
+- Main form: 2/3 width
+  - Form content (Material-style inputs, buttons)
+- Contextual sidebar: 1/3 width
+  - Tips, preview, related info
 
 ## Component Patterns
 
 ### Elevated Cards
 
-```svelte
-<!-- Primary information card with gradient -->
-<div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
-  <div class="card-body p-6">
-    <!-- Important content -->
-  </div>
-</div>
-
-<!-- Standard content card -->
-<div class="card bg-base-100 border-base-300 border shadow-xl transition-all duration-200 hover:shadow-2xl">
-  <div class="card-body p-6">
-    <!-- Regular content -->
-  </div>
-</div>
-```
+- Primary information card with gradient
+  - Important content
+- Standard content card, different color than background
+  - Regular content
 
 ### Interactive Buttons
 
-```svelte
-<!-- Primary action with lift effect -->
-<button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
-  <Icon size={20} />
-  Action Text
-</button>
-
-<!-- Secondary action -->
-<button class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105">
-  Content
-</button>
-```
+- Primary action with lift effect
+- Secondary action without lift
 
 ### Form Components
 
-```svelte
-<!-- Material-style input with subtle focus scaling -->
-<div class="form-control">
-  <label class="label" for="input-id">
-    <span class="label-text font-medium">Field Label *</span>
-    <span class="label-text-alt text-xs opacity-60">0/100</span>
-  </label>
-  <input
-    id="input-id"
-    type="text"
-    placeholder="Clear, helpful placeholder text"
-    class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
-    bind:value={formData.field}
-    maxlength="100"
-    required
-  />
-</div>
-```
+- Material-style input with subtle focus scaling
 
 ## Color & Visual System
 
@@ -155,29 +73,15 @@ This document outlines our "Clean Material Dashboard" design system - a modern p
 
 ### Background Hierarchy
 
-```svelte
-<!-- Page background: subtle contrast -->
-<div class="bg-base-200 min-h-screen">
-
-<!-- Card backgrounds: clean content areas -->
-<div class="bg-base-100">
-
-<!-- Accent gradients: gentle visual emphasis -->
-<div class="from-primary/10 to-secondary/10 bg-gradient-to-br">
-```
+- Page background: subtle contrast
+- Card backgrounds: clean content areas
+- Accent gradients: gentle visual emphasis
 
 ### Micro-Interactions
 
-```svelte
-<!-- Form focus: subtle scale increase -->
-class="focus:scale-[1.02] transition-all duration-200"
-
-<!-- Button hover: gentle lift effect -->
-class="hover:scale-105 transition-all duration-200"
-
-<!-- Card hover: enhanced elevation -->
-class="hover:shadow-2xl transition-all duration-200"
-```
+- Form focus: subtle scale increase
+- Button hover: gentle lift effect
+- Card hover: enhanced elevation
 
 ## Information Architecture
 
