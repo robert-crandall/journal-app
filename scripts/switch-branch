@@ -7,3 +7,5 @@ rm -rf .next/
 rm -rf .svelte-kit/
 rm -rf node_modules/
 rm -rf frontend/node_modules/
+
+echo "Run bun install when ready!"
