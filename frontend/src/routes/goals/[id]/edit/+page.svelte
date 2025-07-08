@@ -119,20 +119,22 @@
     }
   }
 
-  // Check if form has changes
-  function checkChanges(): boolean {
+  // Calculate if form has changes - this is a reactive value
+  let hasChanges = $derived(() => {
     if (!originalGoal) return false;
-
+    
+    // We need to create copies of arrays before sorting to avoid mutating them
+    const currentTagsCopy = [...tags].sort();
+    const originalTagsCopy = originalGoal.tags ? [...originalGoal.tags].sort() : [];
+    
     return (
       title !== originalGoal.title ||
       description !== (originalGoal.description || '') ||
-      JSON.stringify(tags.sort()) !== JSON.stringify(originalGoal.tags.sort()) ||
+      JSON.stringify(currentTagsCopy) !== JSON.stringify(originalTagsCopy) ||
       isActive !== originalGoal.isActive ||
       isArchived !== originalGoal.isArchived
     );
-  }
-
-  let hasChanges = $derived(checkChanges());
+  });
 
   // Form submission
   async function handleSubmit() {
@@ -190,9 +192,7 @@
 <svelte:head>
   <title>Edit Goal - Gamified Life</title>
   <meta name="description" content="Edit your personal goal" />
-</svelte:head>
-
-<div class="bg-base-200 min-h-screen">
+</svelte:head>  <div class="bg-base-200 min-h-screen pb-12">
   {#if loadingGoal}
     <!-- Loading State -->
     <div class="flex items-center justify-center py-20">
@@ -249,26 +249,22 @@
         <!-- Form Section (2/3 width) -->
         <div class="lg:col-span-2">
           <div class="card bg-base-100 border-base-300 border shadow-xl">
-            <div class="card-body p-8">
+            <div class="card-body p-4 sm:p-6 lg:p-8">
               <form onsubmit={handleSubmit} class="space-y-6">
                 <!-- Title Field -->
                 <div class="form-control">
                   <label class="label" for="title">
-                    <span class="label-text text-base font-medium">Goal Title *</span>
-                    <span class="label-text-alt text-xs {title.length > 255 ? 'text-error' : 'text-base-content/60'}">
-                      {title.length}/255
-                    </span>
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    bind:value={title}
-                    onblur={() => (titleTouched = true)}
-                    class="input input-bordered w-full {titleTouched && !isValid ? 'input-error' : ''}"
-                    placeholder="e.g., Improve my relationship with family"
-                    maxlength="255"
-                    required
-                  />
+                    <span class="label-text text-base font-medium">Title</span>
+                  </label>                <input
+                  id="title"
+                  type="text"
+                  bind:value={title}
+                  onblur={() => (titleTouched = true)}
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {titleTouched && !isValid ? 'input-error' : ''}"
+                  placeholder="e.g., Improve my relationship with family"
+                  maxlength="255"
+                  required
+                />
                   {#if titleTouched && title.trim().length === 0}
                     <div class="label">
                       <span class="label-text-alt text-error">Title is required</span>
@@ -285,50 +281,44 @@
                 <div class="form-control">
                   <label class="label" for="description">
                     <span class="label-text text-base font-medium">Description</span>
-                    <span class="label-text-alt text-xs">Optional</span>
-                  </label>
-                  <textarea
-                    id="description"
-                    bind:value={description}
-                    class="textarea textarea-bordered h-24 resize-none"
-                    placeholder="Describe what this goal means to you and how you plan to achieve it..."
-                  ></textarea>
+                  </label>                <textarea
+                  id="description"
+                  bind:value={description}
+                  class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
+                  placeholder="Describe what this goal means to you and how you plan to achieve it..."
+                ></textarea>
                 </div>
 
                 <!-- Tags Field -->
                 <div class="form-control">
                   <label class="label" for="tag-input">
                     <span class="label-text text-base font-medium">Tags</span>
-                    <span class="label-text-alt text-xs">Organize by life area</span>
                   </label>
 
-                  <!-- Tag Input -->
-                  <div class="relative flex gap-2">
-                    <input
-                      id="tag-input"
-                      type="text"
-                      bind:value={tagInput}
-                      onkeydown={handleTagKeydown}
-                      oninput={updateSuggestions}
-                      onfocus={updateSuggestions}
-                      class="input input-bordered flex-1"
-                      placeholder="e.g., family, health, career"
-                      autocomplete="off"
-                    />
-                    <button type="button" onclick={addTag} class="btn btn-outline gap-2" disabled={!tagInput.trim()}>
-                      <Plus size={16} />
-                      Add
-                    </button>
+                  <!-- Tag Input -->                <div class="relative flex gap-2">
+                  <input
+                    id="tag-input"
+                    type="text"
+                    bind:value={tagInput}
+                    onkeydown={handleTagKeydown}
+                    oninput={updateSuggestions}
+                    onfocus={updateSuggestions}
+                    class="input input-bordered input-lg focus:input-primary flex-1 transition-all duration-200 focus:scale-[1.02]"
+                    placeholder="e.g., family, health, career"
+                    autocomplete="off"
+                  />                <button type="button" onclick={addTag} class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105" disabled={!tagInput.trim()}>
+                    <Plus size={16} />
+                    Add
+                  </button>
 
                     <!-- Tag Suggestions Dropdown -->
-                    {#if showSuggestions && tagInput.trim()}
-                      <div class="bg-base-200 absolute top-full right-0 left-0 z-10 mt-1 max-h-52 overflow-y-auto rounded-md shadow-lg">
-                        {#each filteredSuggestions as suggestion}
-                          <button
-                            type="button"
-                            onclick={() => selectSuggestion(suggestion.name)}
-                            class="hover:bg-base-300 block w-full px-4 py-2 text-left transition-colors"
-                          >
+                    {#if showSuggestions && tagInput.trim()}                    <div class="bg-base-200 absolute top-full right-0 left-0 z-10 mt-1 max-h-52 overflow-y-auto rounded-lg shadow-xl">
+                      {#each filteredSuggestions as suggestion}
+                        <button
+                          type="button"
+                          onclick={() => selectSuggestion(suggestion.name)}
+                          class="block w-full text-left px-4 py-2 hover:bg-base-300 transition-colors"
+                        >
                             <div class="flex items-center justify-between">
                               <span>{suggestion.name}</span>
                               <span class="text-base-content/60 text-xs">Used {suggestion.usageCount} {suggestion.usageCount === 1 ? 'time' : 'times'}</span>
@@ -389,7 +379,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-4 pt-4">
-                  <button type="submit" class="btn btn-primary btn-lg flex-1 gap-2" disabled={loading || !isValid || !hasChanges}>
+                  <button type="submit" class="btn btn-primary btn-lg flex-1 gap-2 shadow-lg transition-all duration-200 hover:scale-105" disabled={loading || !isValid || !hasChanges}>
                     {#if loading}
                       <span class="loading loading-spinner loading-sm"></span>
                       Saving...
@@ -398,7 +388,7 @@
                       Save Changes
                     {/if}
                   </button>
-                  <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg" disabled={loading}> Cancel </button>
+                  <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg transition-all duration-200 hover:scale-105" disabled={loading}> Cancel </button>
                 </div>
 
                 <!-- Changes indicator -->
@@ -417,9 +407,9 @@
           <div class="sticky top-8 space-y-6">
             <!-- Current Status Card -->
             {#if originalGoal}
-              <div class="card bg-base-100 border-base-300 border shadow-xl">
+              <div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br shadow-xl">
                 <div class="card-body p-6">
-                  <h3 class="mb-4 font-semibold">Current Status</h3>
+                  <h3 class="card-title text-primary mb-4 flex items-center gap-2 text-xl">Current Status</h3>
                   <div class="space-y-3">
                     <div class="flex justify-between">
                       <span class="text-sm">Status:</span>
@@ -440,10 +430,9 @@
               </div>
             {/if}
 
-            <!-- Edit Tips Card -->
-            <div class="card bg-base-100 border-base-300 border shadow-xl">
-              <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold">✏️ Editing Tips</h3>
+            <!-- Edit Tips Card -->          <div class="card from-secondary/10 to-accent/10 border-secondary/20 border bg-gradient-to-br shadow-xl">
+            <div class="card-body p-6">
+              <h3 class="mb-4 font-semibold">✏️ Editing Tips</h3>
                 <div class="space-y-4 text-sm">
                   <div>
                     <h4 class="text-primary font-medium">Refine Over Time</h4>
@@ -461,16 +450,15 @@
               </div>
             </div>
 
-            <!-- Quick Actions Card -->
-            <div class="card bg-base-100 border-base-300 border shadow-xl">
-              <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold">Quick Actions</h3>
+            <!-- Quick Actions Card -->          <div class="card bg-base-100 border-base-300 border shadow-xl">
+            <div class="card-body p-6">
+              <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">Quick Actions</h3>
                 <div class="space-y-2">
-                  <button onclick={() => goto(`/goals/${goalId}`)} class="btn btn-outline btn-sm w-full gap-2">
+                  <button onclick={() => goto(`/goals/${goalId}`)} class="btn btn-outline btn-sm w-full gap-2 transition-all duration-200 hover:scale-105">
                     <Target size={16} />
                     View Goal
                   </button>
-                  <button onclick={() => goto('/goals')} class="btn btn-outline btn-sm w-full gap-2">
+                  <button onclick={() => goto('/goals')} class="btn btn-outline btn-sm w-full gap-2 transition-all duration-200 hover:scale-105">
                     <ArrowLeft size={16} />
                     Back to Goals
                   </button>
