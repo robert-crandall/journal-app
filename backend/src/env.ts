@@ -10,6 +10,7 @@ const envSchema = z.object({
     .transform((val) => val === 'true')
     .default('true'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  OPENAI_API_KEY: z.string().optional(),
 });
 
 export function loadEnv() {
