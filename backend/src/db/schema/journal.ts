@@ -59,11 +59,15 @@ export const journalSessions = pgTable('journal_sessions', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   // Store conversation state as JSON
-  messages: jsonb('messages').$type<Array<{
-    role: 'user' | 'assistant';
-    content: string;
-    timestamp: string;
-  }>>().default([]),
+  messages: jsonb('messages')
+    .$type<
+      Array<{
+        role: 'user' | 'assistant';
+        content: string;
+        timestamp: string;
+      }>
+    >()
+    .default([]),
   isActive: jsonb('is_active').$type<boolean>().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

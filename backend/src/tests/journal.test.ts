@@ -78,11 +78,7 @@ describe('Journal API Integration Tests', () => {
 
       // Verify session was created in database
       const db = testDb();
-      const dbSession = await db
-        .select()
-        .from(schema.journalSessions)
-        .where(eq(schema.journalSessions.id, data.data.sessionId))
-        .limit(1);
+      const dbSession = await db.select().from(schema.journalSessions).where(eq(schema.journalSessions.id, data.data.sessionId)).limit(1);
 
       expect(dbSession).toHaveLength(1);
       expect(dbSession[0].userId).toBe(userId);
@@ -153,11 +149,7 @@ describe('Journal API Integration Tests', () => {
 
       // Verify session was updated in database
       const db = testDb();
-      const dbSession = await db
-        .select()
-        .from(schema.journalSessions)
-        .where(eq(schema.journalSessions.id, sessionId))
-        .limit(1);
+      const dbSession = await db.select().from(schema.journalSessions).where(eq(schema.journalSessions.id, sessionId)).limit(1);
 
       const messages = dbSession[0].messages as any[];
       expect(messages).toHaveLength(3); // Welcome + user message + assistant response
@@ -167,11 +159,7 @@ describe('Journal API Integration Tests', () => {
     });
 
     it('should handle multiple messages in conversation', async () => {
-      const messages = [
-        'I had a really great day today!',
-        'I went hiking with my family.',
-        'It made me feel so connected to nature.',
-      ];
+      const messages = ['I had a really great day today!', 'I went hiking with my family.', 'It made me feel so connected to nature.'];
 
       let conversationLength = 0;
       for (const message of messages) {
@@ -338,11 +326,7 @@ describe('Journal API Integration Tests', () => {
 
       // Verify entry was created in database
       const db = testDb();
-      const dbEntry = await db
-        .select()
-        .from(schema.journalEntries)
-        .where(eq(schema.journalEntries.id, data.data.entryId))
-        .limit(1);
+      const dbEntry = await db.select().from(schema.journalEntries).where(eq(schema.journalEntries.id, data.data.entryId)).limit(1);
 
       expect(dbEntry).toHaveLength(1);
       expect(dbEntry[0].userId).toBe(userId);
@@ -360,11 +344,7 @@ describe('Journal API Integration Tests', () => {
       expect(dbMessages.length).toBeGreaterThan(1); // Should have multiple messages
 
       // Verify session was marked inactive
-      const dbSession = await db
-        .select()
-        .from(schema.journalSessions)
-        .where(eq(schema.journalSessions.id, sessionId))
-        .limit(1);
+      const dbSession = await db.select().from(schema.journalSessions).where(eq(schema.journalSessions.id, sessionId)).limit(1);
 
       expect(dbSession[0].isActive).toBe(false);
     });

@@ -1,11 +1,5 @@
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import type {
-  journalEntries,
-  journalConversationMessages,
-  journalEntryTags,
-  journalEntryStatTags,
-  journalSessions,
-} from '../db/schema/journal';
+import type { journalEntries, journalConversationMessages, journalEntryTags, journalEntryStatTags, journalSessions } from '../db/schema/journal';
 
 // Basic types
 export type JournalEntry = InferSelectModel<typeof journalEntries>;

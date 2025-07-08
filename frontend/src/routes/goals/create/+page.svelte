@@ -120,7 +120,8 @@
 <svelte:head>
   <title>Create Goal - Gamified Life</title>
   <meta name="description" content="Create a new personal goal to track and achieve" />
-</svelte:head>  <div class="bg-base-200 min-h-screen pb-12">
+</svelte:head>
+<div class="bg-base-200 min-h-screen pb-12">
   <!-- Page Header -->
   <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
     <div class="mx-auto max-w-4xl px-4 py-8">
@@ -143,8 +144,9 @@
     <div class="grid gap-8 lg:grid-cols-3">
       <!-- Form Section (2/3 width) -->
       <div class="lg:col-span-2">
-        <div class="card bg-base-100 border-base-300 border shadow-xl">            <div class="card-body p-4 sm:p-6 lg:p-8">
-              <form onsubmit={handleSubmit} class="space-y-6">
+        <div class="card bg-base-100 border-base-300 border shadow-xl">
+          <div class="card-body p-4 sm:p-6 lg:p-8">
+            <form onsubmit={handleSubmit} class="space-y-6">
               <!-- Title Field -->
               <div class="form-control">
                 <label class="label" for="title">
@@ -155,7 +157,9 @@
                   type="text"
                   bind:value={title}
                   onblur={() => (titleTouched = true)}
-                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {titleTouched && !isValid ? 'input-error' : ''}"
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {titleTouched && !isValid
+                    ? 'input-error'
+                    : ''}"
                   placeholder="e.g., Improve my relationship with family"
                   maxlength="255"
                   required
@@ -204,7 +208,12 @@
                     placeholder="e.g., family, health, career"
                     autocomplete="off"
                   />
-                  <button type="button" onclick={addTag} class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105" disabled={!tagInput.trim()}>
+                  <button
+                    type="button"
+                    onclick={addTag}
+                    class="btn btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105"
+                    disabled={!tagInput.trim()}
+                  >
                     <Plus size={16} />
                     Add
                   </button>
@@ -216,7 +225,7 @@
                         <button
                           type="button"
                           onclick={() => selectSuggestion(suggestion.name)}
-                          class="block w-full text-left px-4 py-2 hover:bg-base-300 transition-colors"
+                          class="hover:bg-base-300 block w-full px-4 py-2 text-left transition-colors"
                         >
                           <div class="flex items-center justify-between">
                             <span>{suggestion.name}</span>
@@ -266,7 +275,11 @@
 
               <!-- Action Buttons -->
               <div class="flex gap-4 pt-4">
-                <button type="submit" class="btn btn-primary btn-lg flex-1 gap-2 shadow-lg transition-all duration-200 hover:scale-105" disabled={loading || !isValid}>
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg flex-1 gap-2 shadow-lg transition-all duration-200 hover:scale-105"
+                  disabled={loading || !isValid}
+                >
                   {#if loading}
                     <span class="loading loading-spinner loading-sm"></span>
                     Creating...
@@ -275,7 +288,9 @@
                     Create Goal
                   {/if}
                 </button>
-                <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg transition-all duration-200 hover:scale-105" disabled={loading}> Cancel </button>
+                <button type="button" onclick={handleCancel} class="btn btn-outline btn-lg transition-all duration-200 hover:scale-105" disabled={loading}>
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -328,8 +343,9 @@
           </div>
 
           <!-- Integration Info Card -->
-          <div class="card from-accent/10 to-primary/10 border-accent/20 border bg-gradient-to-br">              <div class="card-body p-6">
-                <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">⚡ How Goals Work</h3>
+          <div class="card from-accent/10 to-primary/10 border-accent/20 border bg-gradient-to-br">
+            <div class="card-body p-6">
+              <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">⚡ How Goals Work</h3>
               <div class="space-y-3 text-sm">
                 <p class="text-base-content/70">Goals influence your AI-generated daily tasks and journal prompts</p>
                 <p class="text-base-content/70">Active goals appear in your character profile and dashboard</p>

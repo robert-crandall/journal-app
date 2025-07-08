@@ -74,26 +74,9 @@
                 </div>
               </div>
 
-              <div class="card-actions mt-6 justify-center">
-                <a href="/hello" class="btn btn-primary btn-wide">
-                  View Hello World Example
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="h-4 w-4"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" x2="21" y1="14" y2="3" />
-                  </svg>
-                </a>
+              <div class="card-actions mt-6 justify-center gap-3">
+                <a href="/journal/session" class="btn btn-primary"> 📖 Start Journal </a>
+                <a href="/journal" class="btn btn-outline"> View Journal Entries </a>
               </div>
             </div>
           </div>

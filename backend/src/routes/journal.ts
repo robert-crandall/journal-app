@@ -13,12 +13,7 @@ import {
   characterStats,
   characters,
 } from '../db/schema';
-import {
-  startJournalSessionSchema,
-  sendJournalMessageSchema,
-  saveJournalEntrySchema,
-  getJournalEntrySchema,
-} from '../validation/journal';
+import { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
 import type {
   StartJournalSessionResponse,
@@ -31,12 +26,7 @@ import type {
 
 // GPT service (mock for now - will be replaced with real OpenAI integration)
 class GPTService {
-  async generateWelcomeMessage(userContext: {
-    name: string;
-    characterClass?: string;
-    backstory?: string;
-    goals?: string;
-  }): Promise<string> {
+  async generateWelcomeMessage(userContext: { name: string; characterClass?: string; backstory?: string; goals?: string }): Promise<string> {
     // Mock welcome message
     return `Hi ${userContext.name}! I'm here to help you reflect on whatever's on your mind today. What would you like to share?`;
   }
@@ -271,10 +261,7 @@ const app = new Hono()
       const updatedMessages = [...currentMessages, userMessage];
 
       // Generate GPT response
-      const { response: gptResponse, shouldOfferSave } = await gptService.generateFollowUpResponse(
-        updatedMessages,
-        userContext,
-      );
+      const { response: gptResponse, shouldOfferSave } = await gptService.generateFollowUpResponse(updatedMessages, userContext);
 
       // Add GPT response
       const assistantMessage: ChatMessage = {
@@ -418,11 +405,7 @@ const app = new Hono()
       const userId = getUserId(c);
 
       // Get entries with their messages and tags
-      const entries = await db
-        .select()
-        .from(journalEntries)
-        .where(eq(journalEntries.userId, userId))
-        .orderBy(desc(journalEntries.createdAt));
+      const entries = await db.select().from(journalEntries).where(eq(journalEntries.userId, userId)).orderBy(desc(journalEntries.createdAt));
 
       const entriesWithDetails: JournalEntryWithDetails[] = [];
 
