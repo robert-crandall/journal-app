@@ -6,6 +6,7 @@ export { userValidationSchema, registerSchema, loginSchema } from '../validation
 export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
+export { createQuestSchema, updateQuestSchema, createQuestTaskSchema, updateQuestTaskSchema } from '../validation/quests';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -38,3 +39,17 @@ export type {
   JournalEntryWithDetails,
   ChatMessage,
 } from '../types/journal';
+export type {
+  Quest,
+  NewQuest,
+  QuestTask,
+  NewQuestTask,
+  QuestWithTasks,
+  QuestWithProgress,
+  CreateQuestRequest,
+  CreateQuestResponse,
+  GetQuestsResponse,
+  GetQuestResponse,
+  UpdateQuestResponse,
+  CompleteQuestTaskResponse,
+} from '../types/quests';
