@@ -35,10 +35,12 @@
     </div>
 
     {#if user}
-      <a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
-      <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
+      <a href="/tasks" class="btn btn-ghost text-primary-content hover:bg-primary/80">Tasks</a>
+      <a href="/quests" class="btn btn-ghost text-primary-content hover:bg-primary/80">Quests</a>
+      <a href="/projects" class="btn btn-ghost text-primary-content hover:bg-primary/80">Projects</a>
+      <a href="/journal" class="btn btn-ghost text-primary-content hover:bg-primary/80">Journal</a>
       <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
-      <a href="/family" class="btn btn-ghost text-primary-content hover:bg-primary/80">Family</a>
+      <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
 
       <!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
       <details class="dropdown dropdown-end">
