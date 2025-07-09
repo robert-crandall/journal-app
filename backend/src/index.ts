@@ -8,6 +8,10 @@ import statsRoutes from './routes/stats';
 import goalsRoutes from './routes/goals';
 import familyRoutes from './routes/family';
 import tagsRoutes from './routes/tags';
+import tasksRoutes from './routes/tasks';
+import questsRoutes from './routes/quests';
+import projectsRoutes from './routes/projects';
+import journalRoutes from './routes/journal';
 
 // Create main app instance
 const app = new Hono();
@@ -49,7 +53,12 @@ const routes = app
   // Mount family routes
   .route('/api/family', familyRoutes)
   // Mount tags routes
-  .route('/api/tags', tagsRoutes);
+  .route('/api/tags', tagsRoutes)
+  // Mount new Core Models routes
+  .route('/api/tasks', tasksRoutes)
+  .route('/api/quests', questsRoutes)
+  .route('/api/projects', projectsRoutes)
+  .route('/api/journal', journalRoutes);
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {

@@ -1,4 +1,7 @@
 import type { LevelCalculation } from '../types/stats';
+import { db } from '../db';
+import { characterStats, characterStatXpGrants } from '../db/schema/stats';
+import { eq } from 'drizzle-orm';
 
 /**
  * Calculate the total XP required to reach a specific level
@@ -90,4 +93,47 @@ export function getXpProgressPercentage(currentLevel: number, totalXp: number): 
 
   if (levelXpRange === 0) return 100;
   return Math.min(100, Math.max(0, (currentLevelXp / levelXpRange) * 100));
+}
+
+/**
+ * Grant XP to a specific stat for a user
+ */
+export async function grantXpToStat(
+  userId: string,
+  statId: string | null,
+  xpAmount: number,
+  sourceType: string,
+  sourceId?: string,
+  reason?: string
+): Promise<void> {
+  if (!statId || xpAmount <= 0) {
+    return;
+  }
+
+  // Create XP grant record for audit trail
+  await db.insert(characterStatXpGrants).values({
+    userId,
+    statId,
+    xpAmount,
+    sourceType,
+    sourceId,
+    reason,
+  });
+
+  // Update the stat's total XP
+  const [stat] = await db
+    .select()
+    .from(characterStats)
+    .where(eq(characterStats.id, statId));
+
+  if (stat) {
+    const newTotalXp = stat.totalXp + xpAmount;
+    await db
+      .update(characterStats)
+      .set({
+        totalXp: newTotalXp,
+        updatedAt: new Date(),
+      })
+      .where(eq(characterStats.id, statId));
+  }
 }

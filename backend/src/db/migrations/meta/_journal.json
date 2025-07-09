@@ -71,6 +71,13 @@
       "when": 1751918827397,
       "tag": "0009_big_mikhail_rasputin",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1752074905408,
+      "tag": "0010_worthless_shriek",
+      "breakpoints": true
     }
   ]
 }

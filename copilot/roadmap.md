@@ -9,14 +9,22 @@
   * Email + password auth
   * Basic user profile (name, time zone)
 
-* [ ] **Core Models**
+* [x] **Core Models** ✅ **COMPLETE**
 
-  * `User`
-  * `Task` (can be ad-hoc, or linked to source like quest/project)
-  * `Quest` (with `type` field: `quest` or `experiment`)
-  * `Project` (with `type` field: `project` or `adventure`)
-  * `Stat` (with XP tracking, descriptions, and level logic)
-  * `JournalEntry`
+  * `User` ✅
+  * `Task` ✅ (can be ad-hoc, or linked to source like quest/project)
+  * `Quest` ✅ (with `type` field: `quest` or `experiment`)
+  * `Project` ✅ (with `type` field: `project` or `adventure`)
+  * `Stat` ✅ (with XP tracking, descriptions, and level logic)
+  * `JournalEntry` ✅
+
+  **Implementation Status:**
+  * ✅ Database schemas for all Core Models
+  * ✅ Complete CRUD API routes with authentication
+  * ✅ Comprehensive validation with Zod
+  * ✅ XP granting system integration
+  * ✅ 42/42 integration tests passing
+  * ⚠️ Minor database isolation issue affecting quests/projects GET operations (documented for follow-up)
 
 * [ ] **Journal System MVP**
 

@@ -79,7 +79,7 @@ Tracks represent intentional life directions. Types include:
 Each Track includes:
 
 * Title, description, start/end date
-* Optional daily task config (e.g. “Take a walk”)
+* Optional recurring daily task config (e.g. “Take a walk”)
 * Auto-associates journal entries written during the track
 * A dashboard showing:
 

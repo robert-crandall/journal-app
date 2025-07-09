@@ -46,6 +46,17 @@ export async function cleanDatabase() {
 
   // Delete all data from tables in the correct order (respecting foreign keys)
   try {
+    // Core Models tables (Clean child tables first)
+    await safeDelete(schema.taskCompletions, 'task_completions');
+    await safeDelete(schema.projectSubtasks, 'project_subtasks');
+    await safeDelete(schema.journalEntryXpGrants, 'journal_entry_xp_grants');
+    
+    // Core Models main tables
+    await safeDelete(schema.tasks, 'tasks');
+    await safeDelete(schema.quests, 'quests');
+    await safeDelete(schema.projects, 'projects');
+    await safeDelete(schema.journalEntries, 'journal_entries');
+    
     // Family task feedback first (references family members)
     await safeDelete(schema.familyTaskFeedback, 'family_task_feedback');
     // Family members next (reference users)
