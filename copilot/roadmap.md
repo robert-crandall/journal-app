@@ -1,91 +1,116 @@
-# Gamified Life App Roadmap
+## 🚧 Development Roadmap
 
-## 📦 Features Checklist
+### 🧱 Phase 1: Foundation
 
-- [x] **User Authentication**
-  - Description: Users can register, log in, and log out securely.
-  - Depends on: None
+**Goal:** Set up infrastructure, core entities, and enable basic user workflows.
 
-- [x] **Character Creation**
-  - Description: Users create a character with a class (predefined or custom) and a backstory.
-  - Depends on: User Authentication
+* [x] **User Authentication**
 
-- [x] **Stats System**
-  - Description: Users define and track personal stats (e.g., Strength, Wisdom, Fatherhood), each with XP and levels.
-  - Depends on: Character Creation
+  * Email + password auth
+  * Basic user profile (name, time zone)
 
-- [x] **Goals Management**
-  - Description: Users set high-level goals for personal growth and context.
-  - Depends on: User Authentication
+* [ ] **Core Models**
 
-- [ ] **Family Management**
-  - Description: Users add family members with names and descriptions for context.
-  - Depends on: User Authentication
+  * `User`
+  * `Task` (can be ad-hoc, or linked to source like quest/project)
+  * `Quest` (with `type` field: `quest` or `experiment`)
+  * `Project` (with `type` field: `project` or `adventure`)
+  * `Stat` (with XP tracking, descriptions, and level logic)
+  * `JournalEntry`
 
-- [ ] **Simple Todos**
-  - Description: Users can create, view, and complete simple, one-off todo items.
-  - Depends on: User Authentication
+* [ ] **Journal System MVP**
 
-- [ ] **XP & Leveling System**
-  - Description: Completing tasks grants XP to stats; users can manually level up stats when enough XP is earned.
-  - Depends on: Stats System, Simple Todos
+  * Freeform journal entry
+  * Journal is linked to the user and date
+  * View past entries
 
-- [ ] **Basic Journaling**
-  - Description: Users can launch a conversational journal with predefined questions and save entries.
-  - Depends on: User Authentication
+---
 
-- [ ] **AI-Powered Level Titles**
-  - Description: GPT generates creative, humorous titles for each stat level.
-  - Depends on: Stats System
+### 🧠 Phase 2: GPT Integration
 
-- [ ] **AI Daily Task Generation**
-  - Description: GPT generates two daily tasks (personal and family) using user context and weather data.
-  - Depends on: Character Creation, Goals Management, Family Management, Stats System, Weather API
+**Goal:** Make journaling smart and insightful.
 
-- [ ] **AI Journal Analysis**
-  - Description: GPT processes journal entries to extract summaries, synopses, titles, content tags, and stat tags; XP is granted to relevant stats.
-  - Depends on: Basic Journaling, Stats System
+* [ ] **Conversational Journal Interface**
 
-- [ ] **Quests**
-  - Description: Users create long-term quests with multiple tasks; context is provided to AI for task generation.
-  - Depends on: AI Daily Task Generation
+  * GPT-assisted reflection (chat interface)
+  * Store full conversation
 
-- [ ] **Experiments**
-  - Description: Users create short-term experiments with tasks and conclusions; can be linked to quests.
-  - Depends on: Quests
+* [ ] **Journal Analysis**
 
-- [ ] **Projects**
-  - Description: Users define projects with tasks (no XP); used as context for AI DM.
-  - Depends on: AI Daily Task Generation
+  * GPT extracts:
 
-- [ ] **Adventures**
-  - Description: Users define adventures with tasks (no XP); used as context for AI DM.
-  - Depends on: AI Daily Task Generation
+    * Summary
+    * Synopsis
+    * Title
+    * Content tags
+    * Stat tags (+ XP)
+  * Display results in entry view
 
-- [ ] **Ad-Hoc Tasks**
-  - Description: Users create repeatable, stat-tied tasks (e.g., "Workout" for Strength) to log daily activities.
-  - Depends on: Stats System
+* [ ] **Stat Leveling Logic**
 
-- [ ] **Weather API Integration**
-  - Description: Integrate a real weather API to provide context for daily task generation.
-  - Depends on: AI Daily Task Generation
+  * XP formula:
+    * Total XP required for level: `TotalXP = ((Level * (Level -1))/2) * 100`
+    * Incremental XP required for level upgrade: `IncrementalXP = Level * 100`
+  * Manual level-up (reward moment)
 
-- [ ] **Main Dashboard**
-  - Description: Dashboard displays today's actionable tasks, XP animations, running XP total, and quick journal entry access.
-  - Depends on: All task and journaling features
+---
 
-- [ ] **Quest & Experiment Dashboards**
-  - Description: Dedicated pages for each quest/experiment showing progress, tasks, journal entries, and XP gained.
-  - Depends on: Quests, Experiments, Basic Journaling, XP & Leveling
+### 🧭 Phase 3: Task Management (Weeks 5–6)
 
-## 🧩 Suggested Build Phases
+**Goal:** Enable task tracking and stat progression.
 
-_Phase 1: User Authentication, Character Creation, Stats System, Goals & Family Management_
+* [ ] **Task Views**
 
-_Phase 2: Simple Todos, XP & Leveling System, Basic Journaling_
+  * Daily view: tasks due today
+  * Completion feedback → XP gain
 
-_Phase 3: AI-Powered Level Titles, AI Daily Task Generation, AI Journal Analysis, Weather API Integration_
+* [ ] **Task Sources**
 
-_Phase 4: Quests, Experiments, Projects, Adventures, Ad-Hoc Tasks_
+  * Quests/Experiments (repeat daily tasks)
+  * Projects/Adventures (non-XP subtasks)
+  * Ad-hoc tasks (XP-tied, like “Workout”)
+  * Simple todos (no XP)
 
-_Phase 5: Main Dashboard, Quest & Experiment Dashboards_
+* [ ] **Stat Dashboard**
+
+  * Show current XP and level
+  * Breakdown: recent tasks that gained XP
+
+---
+
+### 🧙 Phase 4: Life-as-RPG Intelligence (Weeks 7–8)
+
+**Goal:** GPT starts acting like your Dungeon Master.
+
+* [ ] **Character System**
+
+  * Class, backstory, and goals
+  * Focuses (by day of week)
+  * Family members (names, interests)
+
+* [ ] **GPT Task Generation**
+
+  * Uses all context to assign:
+
+    * Personal task
+    * Family-oriented task
+  * GPT can access:
+
+    * Projects, weather, last family task
+
+---
+
+### 📊 Phase 5: Insights & Retrospectives (Weeks 9–10)
+
+**Goal:** Learn from your data. What’s working?
+
+* [ ] **Quest/Experiment Pages**
+
+  * Task completion rate
+  * Stat XP gained
+  * Journal entries during timeframe
+
+* [ ] **Reflection Tools**
+
+  * "What helped my strength most this month?"
+  * "Which experiments improved my mood?"
