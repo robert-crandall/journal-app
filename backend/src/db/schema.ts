@@ -6,6 +6,7 @@ export { userValidationSchema, registerSchema, loginSchema } from '../validation
 export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
+export { createJournalSchema, updateJournalSchema, finalizeJournalSchema } from '../validation/journals';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -22,3 +23,17 @@ export type {
   CreateFamilyTaskFeedbackRequest,
 } from '../types/family';
 export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../types/focus';
+export type {
+  Journal,
+  NewJournal,
+  JournalUpdate,
+  JournalContentTag,
+  JournalToneTag,
+  JournalStatTag,
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  FinalizeJournalRequest,
+  JournalWithTags,
+  JournalWithUser,
+  FullJournal,
+} from '../types/journals';
