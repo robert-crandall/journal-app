@@ -1,5 +1,6 @@
 // Export all API clients here
 export { goalsApi } from './goals';
+export { journalApi } from './journal';
 export { default as tagsApi } from './tags';
 
 // Re-export types from API clients
