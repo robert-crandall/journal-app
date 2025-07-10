@@ -4,11 +4,10 @@
   "description": "Example application",
   "type": "module",
   "scripts": {
-    "backend": "bun scripts/start-backend.js",
-    "backend:force": "bun scripts/start-backend.js --force",
-    "frontend": "bun scripts/start-frontend.js",
     "dev": "bun scripts/start-dev.js",
     "dev:force": "bun scripts/start-dev.js --force",
+    "backend": "bun scripts/start-dev.js --backend-only",
+    "frontend": "bun scripts/start-dev.js --frontend-only",
     "logs": "bun scripts/show-logs.js",
     "test:backend": "NODE_ENV=test bun run db:reset && cd backend && bun run test",
     "test:frontend": "cd frontend && bun run test",
