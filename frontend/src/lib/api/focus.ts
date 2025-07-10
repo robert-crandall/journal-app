@@ -35,17 +35,17 @@ type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
  */
 export async function getAllFocuses(): Promise<Focus[]> {
   const response = await authenticatedClient.api.focus.$get();
-  const data = await response.json() as ApiResponse<any[]>;
-  
+  const data = (await response.json()) as ApiResponse<any[]>;
+
   if (!data.success) {
     throw new Error('error' in data ? data.error : 'Failed to fetch focuses');
   }
-  
+
   // Convert date strings to Date objects
   return data.data.map((focus) => ({
     ...focus,
     createdAt: new Date(focus.createdAt),
-    updatedAt: new Date(focus.updatedAt)
+    updatedAt: new Date(focus.updatedAt),
   }));
 }
 
@@ -57,17 +57,17 @@ export async function getFocusByDayOfWeek(dayOfWeek: number): Promise<Focus | nu
     const response = await authenticatedClient.api.focus[':dayOfWeek'].$get({
       param: { dayOfWeek: dayOfWeek.toString() },
     });
-    const data = await response.json() as ApiResponse<any>;
-    
+    const data = (await response.json()) as ApiResponse<any>;
+
     if (!data.success) {
       return null;
     }
-    
+
     // Convert date strings to Date objects
     return {
       ...data.data,
       createdAt: new Date(data.data.createdAt),
-      updatedAt: new Date(data.data.updatedAt)
+      updatedAt: new Date(data.data.updatedAt),
     };
   } catch (error) {
     // Return null for 404 (no focus for this day)
@@ -86,17 +86,17 @@ export async function createOrUpdateFocus(focus: CreateFocusRequest): Promise<Fo
     param: { dayOfWeek: focus.dayOfWeek.toString() },
     json: focus,
   });
-  const data = await response.json() as ApiResponse<any>;
-  
+  const data = (await response.json()) as ApiResponse<any>;
+
   if (!data.success) {
     throw new Error('error' in data ? data.error : 'Failed to create/update focus');
   }
-  
+
   // Convert date strings to Date objects
   return {
     ...data.data,
     createdAt: new Date(data.data.createdAt),
-    updatedAt: new Date(data.data.updatedAt)
+    updatedAt: new Date(data.data.updatedAt),
   };
 }
 
@@ -107,17 +107,17 @@ export async function batchUpdateFocuses(focuses: CreateFocusRequest[]): Promise
   const response = await authenticatedClient.api.focus.batch.$post({
     json: focuses,
   });
-  const data = await response.json() as ApiResponse<any[]>;
-  
+  const data = (await response.json()) as ApiResponse<any[]>;
+
   if (!data.success) {
     throw new Error('error' in data ? data.error : 'Failed to batch update focuses');
   }
-  
+
   // Convert date strings to Date objects for each focus
   return data.data.map((focus) => ({
     ...focus,
     createdAt: new Date(focus.createdAt),
-    updatedAt: new Date(focus.updatedAt)
+    updatedAt: new Date(focus.updatedAt),
   }));
 }
 
@@ -128,8 +128,8 @@ export async function deleteFocus(dayOfWeek: number): Promise<void> {
   const response = await authenticatedClient.api.focus[':dayOfWeek'].$delete({
     param: { dayOfWeek: dayOfWeek.toString() },
   });
-  const data = await response.json() as ApiResponse<void>;
-  
+  const data = (await response.json()) as ApiResponse<void>;
+
   if (!data.success) {
     throw new Error('error' in data ? data.error : 'Failed to delete focus');
   }

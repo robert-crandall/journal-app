@@ -23,5 +23,5 @@ export const batchUpdateFocusesSchema = z.array(
     dayOfWeek: z.number().int().min(0).max(6),
     title: z.string().min(1).max(100),
     description: z.string().min(1).max(500),
-  })
+  }),
 );

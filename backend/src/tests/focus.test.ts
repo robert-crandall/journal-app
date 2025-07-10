@@ -343,7 +343,7 @@ describe('Focus API', () => {
       const dbFocuses = await db.select().from(focuses).where(eq(focuses.userId, userId));
       expect(dbFocuses).toHaveLength(2);
 
-      const wednesday = dbFocuses.find(f => f.dayOfWeek === 3);
+      const wednesday = dbFocuses.find((f) => f.dayOfWeek === 3);
       expect(wednesday?.title).toBe('Updated Wednesday');
     });
 
@@ -393,12 +393,10 @@ describe('Focus API', () => {
 
       // Verify in database
       const db = testDb();
-      const dbFocuses = await db.select().from(focuses).where(
-        and(
-          eq(focuses.userId, userId),
-          eq(focuses.dayOfWeek, 5)
-        )
-      );
+      const dbFocuses = await db
+        .select()
+        .from(focuses)
+        .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, 5)));
       expect(dbFocuses).toHaveLength(0);
     });
 

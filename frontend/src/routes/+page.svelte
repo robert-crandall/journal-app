@@ -50,7 +50,7 @@
               </div>
 
               <div class="divider"></div>
-              
+
               <!-- Daily Focus Widget -->
               <div class="mb-6">
                 <DailyFocusWidget />

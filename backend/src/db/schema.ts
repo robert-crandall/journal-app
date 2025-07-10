@@ -21,11 +21,4 @@ export type {
   UpdateFamilyMemberRequest,
   CreateFamilyTaskFeedbackRequest,
 } from '../types/family';
-export type {
-  Focus,
-  NewFocus,
-  FocusUpdate,
-  CreateFocusRequest,
-  UpdateFocusRequest,
-  BatchUpdateFocusesRequest
-} from '../types/focus';
+export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../types/focus';

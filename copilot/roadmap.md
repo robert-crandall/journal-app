@@ -4,114 +4,97 @@
 
 > Core entities, authentication, and user dashboard
 
-* [x] **User Auth & Setup**
+- [x] **User Auth & Setup**
+  - Email/password sign-up
+  - Profile creation (class, backstory, goals)
+  - Select character class and description
 
-  * Email/password sign-up
-  * Profile creation (class, backstory, goals)
-  * Select character class and description
+- [x] **Character Stats**
+  - Create/view stats with descriptions, example activities, XP tracking
+  - Manual level-up flow (with XP required formula)
+  - XP log table for source tracking (used in future analytics)
 
-* [x] **Character Stats**
+- [x] **Stat Page**
+  - View current level, XP progress, and XP history
 
-  * Create/view stats with descriptions, example activities, XP tracking
-  * Manual level-up flow (with XP required formula)
-  * XP log table for source tracking (used in future analytics)
+- [x] **Family Management**
+  - Add family members (name, relationship, likes/dislikes)
+  - Track interactions (dates, task feedback)
 
-* [x] **Stat Page**
+- [ ] **Daily Focus System**
+  - Define custom focuses per day (e.g. "Call to Adventure")
+  - Provide title + description
+  - Editable schedule
 
-  * View current level, XP progress, and XP history
+- [ ] **Simple Todos**
+  - Create/view/complete simple one-off tasks
+  - Display on homepage only
 
-* [x] **Family Management**
-
-  * Add family members (name, relationship, likes/dislikes)
-  * Track interactions (dates, task feedback)
-
-* [ ] **Daily Focus System**
-
-  * Define custom focuses per day (e.g. "Call to Adventure")
-  * Provide title + description
-  * Editable schedule
-
-* [ ] **Simple Todos**
-
-  * Create/view/complete simple one-off tasks
-  * Display on homepage only
-
-* [ ] **Homepage (Dashboard v1)**
-
-  * Show today’s tasks (DM tasks, experiment tasks, simple todos)
-  * Show completed tasks + XP gained
-  * Quick journal entry launcher
+- [ ] **Homepage (Dashboard v1)**
+  - Show today’s tasks (DM tasks, experiment tasks, simple todos)
+  - Show completed tasks + XP gained
+  - Quick journal entry launcher
 
 ---
 
 ### 🧠 Phase 2: GPT + Journal Integration (Weeks 3–4)
 
-* [ ] **Journal System**
+- [ ] **Journal System**
+  - Freeform conversational journal
+  - Save entry after session
 
-  * Freeform conversational journal
-  * Save entry after session
+- [ ] **GPT Journal Analysis**
+  - Extract summary, synopsis, title
+  - Assign content tags, tone tags, stat tags (and grant XP)
+  - Store GPT log + metadata per entry
 
-* [ ] **GPT Journal Analysis**
-
-  * Extract summary, synopsis, title
-  * Assign content tags, tone tags, stat tags (and grant XP)
-  * Store GPT log + metadata per entry
-
-* [ ] **Stat XP Source Breakdown**
-
-  * “What earned me XP in Strength this week?”
+- [ ] **Stat XP Source Breakdown**
+  - “What earned me XP in Strength this week?”
 
 ---
 
 ### 🗺️ Phase 3: Experiments & Tasks (Weeks 5–6)
 
-* [ ] **Experiments**
+- [ ] **Experiments**
+  - Create/edit short-lived experiments
+  - Daily task generation
+  - Journal and XP dashboard for each experiment
+  - Task completion tracking (per day)
+  - Auto-regenerate next day's task
 
-  * Create/edit short-lived experiments
-  * Daily task generation
-  * Journal and XP dashboard for each experiment
-  * Task completion tracking (per day)
-  * Auto-regenerate next day's task
+- [ ] **Ad-Hoc Tasks**
+  - Manual log of repeatable activities tied to stats (e.g. “Workout”)
+  - Grants XP to associated stat
+  - Logged in a separate tab (not dashboard)
 
-* [ ] **Ad-Hoc Tasks**
-
-  * Manual log of repeatable activities tied to stats (e.g. “Workout”)
-  * Grants XP to associated stat
-  * Logged in a separate tab (not dashboard)
-
-* [ ] **Dungeon Master GPT Task Generator**
-
-  * Use character, goals, focus, family, weather, projects/adventures, past tasks
-  * Generate 2 tasks per day (personal + family)
+- [ ] **Dungeon Master GPT Task Generator**
+  - Use character, goals, focus, family, weather, projects/adventures, past tasks
+  - Generate 2 tasks per day (personal + family)
 
 ---
 
 ### 📚 Phase 4: Quests, Projects, & Adventure Tracking (Weeks 7–8)
 
-* [ ] **Quests**
+- [ ] **Quests**
+  - Long-term goal container
+  - Can include summary, timeframe, and reflection
+  - Dashboard includes: linked experiments, journal entries, XP stats
 
-  * Long-term goal container
-  * Can include summary, timeframe, and reflection
-  * Dashboard includes: linked experiments, journal entries, XP stats
-
-* [ ] **Projects & Adventures**
-
-  * Unified model with `type` field
-  * Add subtasks, mark completed
-  * Not shown on dashboard, but available in GPT task context
+- [ ] **Projects & Adventures**
+  - Unified model with `type` field
+  - Add subtasks, mark completed
+  - Not shown on dashboard, but available in GPT task context
 
 ---
 
 ### 🧼 Phase 5: UX Polish & Review Tools (Weeks 9–10)
 
-* [ ] **Quest & Experiment Review Tools**
+- [ ] **Quest & Experiment Review Tools**
+  - Graphs/charts of XP gained, tag breakdown, stats gained
+  - Journal highlights by tag/tone
+  - Export options (Markdown or PDF)
 
-  * Graphs/charts of XP gained, tag breakdown, stats gained
-  * Journal highlights by tag/tone
-  * Export options (Markdown or PDF)
-
-* [ ] **Visual Feedback & Delight**
-
-  * Task completion XP animations
-  * GPT-generated level title badges
-  * Optional journal reflection recap
+- [ ] **Visual Feedback & Delight**
+  - Task completion XP animations
+  - GPT-generated level title badges
+  - Optional journal reflection recap

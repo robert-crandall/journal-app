@@ -9,9 +9,9 @@ import { get } from 'svelte/store';
  */
 export function requireAuth(): void {
   if (!browser) return; // Only run in browser
-  
+
   const { token, initialized } = get(authStore);
-  
+
   // If not authenticated and initialization is complete, redirect to login
   if (initialized && !token) {
     const currentPath = window.location.pathname;

@@ -14,13 +14,9 @@ const app = new Hono()
   .get('/', jwtAuth, async (c) => {
     try {
       const userId = getUserId(c);
-      
-      const userFocuses = await db
-        .select()
-        .from(focuses)
-        .where(eq(focuses.userId, userId))
-        .orderBy(focuses.dayOfWeek);
-      
+
+      const userFocuses = await db.select().from(focuses).where(eq(focuses.userId, userId)).orderBy(focuses.dayOfWeek);
+
       return c.json({ success: true, data: userFocuses });
     } catch (error) {
       return handleApiError(error, 'Failed to get focuses');
@@ -35,30 +31,27 @@ const app = new Hono()
 
       if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
         return c.json(
-          { 
-            success: false, 
-            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)' 
+          {
+            success: false,
+            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)',
           },
-          400
+          400,
         );
       }
 
       const userFocus = await db
         .select()
         .from(focuses)
-        .where(and(
-          eq(focuses.userId, userId),
-          eq(focuses.dayOfWeek, dayOfWeek)
-        ))
+        .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, dayOfWeek)))
         .limit(1);
 
       if (userFocus.length === 0) {
         return c.json(
-          { 
-            success: false, 
-            error: 'Focus not found for this day of week' 
+          {
+            success: false,
+            error: 'Focus not found for this day of week',
           },
-          404
+          404,
         );
       }
 
@@ -74,14 +67,14 @@ const app = new Hono()
       const userId = getUserId(c);
       const dayOfWeek = parseInt(c.req.param('dayOfWeek'), 10);
       const data = c.req.valid('json');
-      
+
       if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
         return c.json(
-          { 
-            success: false, 
-            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)' 
+          {
+            success: false,
+            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)',
           },
-          400
+          400,
         );
       }
 
@@ -89,10 +82,7 @@ const app = new Hono()
       const existingFocus = await db
         .select()
         .from(focuses)
-        .where(and(
-          eq(focuses.userId, userId),
-          eq(focuses.dayOfWeek, dayOfWeek)
-        ))
+        .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, dayOfWeek)))
         .limit(1);
 
       let result;
@@ -140,10 +130,7 @@ const app = new Hono()
         const existingFocus = await db
           .select()
           .from(focuses)
-          .where(and(
-            eq(focuses.userId, userId),
-            eq(focuses.dayOfWeek, focusData.dayOfWeek)
-          ))
+          .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, focusData.dayOfWeek)))
           .limit(1);
 
         let result;
@@ -189,11 +176,11 @@ const app = new Hono()
 
       if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
         return c.json(
-          { 
-            success: false, 
-            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)' 
+          {
+            success: false,
+            error: 'Invalid day of week. Must be between 0 (Sunday) and 6 (Saturday)',
           },
-          400
+          400,
         );
       }
 
@@ -201,26 +188,21 @@ const app = new Hono()
       const existingFocus = await db
         .select()
         .from(focuses)
-        .where(and(
-          eq(focuses.userId, userId),
-          eq(focuses.dayOfWeek, dayOfWeek)
-        ))
+        .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, dayOfWeek)))
         .limit(1);
 
       if (existingFocus.length === 0) {
         return c.json(
-          { 
-            success: false, 
-            error: 'Focus not found for this day of week' 
+          {
+            success: false,
+            error: 'Focus not found for this day of week',
           },
-          404
+          404,
         );
       }
 
       // Delete the focus
-      await db
-        .delete(focuses)
-        .where(eq(focuses.id, existingFocus[0].id));
+      await db.delete(focuses).where(eq(focuses.id, existingFocus[0].id));
 
       return c.json({ success: true });
     } catch (error) {

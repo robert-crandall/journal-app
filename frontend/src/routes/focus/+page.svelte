@@ -32,30 +32,30 @@
   <!-- Main Content -->
   <div class="mx-auto max-w-7xl px-4 py-8">
     <div class="mb-10">
-      <h2 class="text-xl font-semibold mb-4 text-base-content">Today's Focus</h2>
-      
+      <h2 class="text-base-content mb-4 text-xl font-semibold">Today's Focus</h2>
+
       {#if $currentDayFocus}
         <FocusCard focus={$currentDayFocus} isActive={true} showActions={false} />
       {:else}
-        <div class="card bg-base-100 border-base-300 border-dashed border p-6 text-center">
+        <div class="card bg-base-100 border-base-300 border border-dashed p-6 text-center">
           <p class="text-base-content/70">No focus set for today. Create one in the weekly schedule below.</p>
         </div>
       {/if}
     </div>
 
-    <div class="card bg-base-100 border-base-300 border shadow-xl p-6 mb-8">
+    <div class="card bg-base-100 border-base-300 mb-8 border p-6 shadow-xl">
       <WeeklyFocusView />
     </div>
 
-    <div class="card bg-base-100 border-base-300 border shadow-xl mt-8 p-6">
-      <h2 class="card-title mb-2 text-base-content">About Daily Focus</h2>
+    <div class="card bg-base-100 border-base-300 mt-8 border p-6 shadow-xl">
+      <h2 class="card-title text-base-content mb-2">About Daily Focus</h2>
       <p class="text-base-content/80 mb-4">
-        The Daily Focus system helps you define a thematic structure for each day of the week. Your daily focus 
-        influences task generation and helps maintain a consistent rhythm to your week.
+        The Daily Focus system helps you define a thematic structure for each day of the week. Your daily focus influences task generation and helps maintain a
+        consistent rhythm to your week.
       </p>
-      
-      <h3 class="font-medium mb-2 text-base-content">Examples:</h3>
-      <ul class="list-disc pl-5 text-base-content/80 space-y-1">
+
+      <h3 class="text-base-content mb-2 font-medium">Examples:</h3>
+      <ul class="text-base-content/80 list-disc space-y-1 pl-5">
         <li><strong>Monday:</strong> "Reset & Prepare" - Start the week by organizing and preparing for the days ahead</li>
         <li><strong>Wednesday:</strong> "Midweek Momentum" - Keep energy high by focusing on progress and achievements</li>
         <li><strong>Saturday:</strong> "Call to Adventure" - Do something bold or memorable on the weekend</li>
