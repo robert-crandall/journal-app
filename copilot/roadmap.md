@@ -21,7 +21,7 @@
   - Add family members (name, relationship, likes/dislikes)
   - Track interactions (dates, task feedback)
 
-- [ ] **Daily Focus System**
+- [x] **Daily Focus System**
   - Define custom focuses per day (e.g. "Call to Adventure")
   - Provide title + description
   - Editable schedule
