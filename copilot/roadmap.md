@@ -1,91 +1,117 @@
-# Gamified Life App Roadmap
+## 🛠️ Development Roadmap (MVP-first, Logical Dependencies)
 
-## 📦 Features Checklist
+### 🔰 Phase 1: Foundations (Weeks 1–2)
 
-- [x] **User Authentication**
-  - Description: Users can register, log in, and log out securely.
-  - Depends on: None
+> Core entities, authentication, and user dashboard
 
-- [x] **Character Creation**
-  - Description: Users create a character with a class (predefined or custom) and a backstory.
-  - Depends on: User Authentication
+* [x] **User Auth & Setup**
 
-- [x] **Stats System**
-  - Description: Users define and track personal stats (e.g., Strength, Wisdom, Fatherhood), each with XP and levels.
-  - Depends on: Character Creation
+  * Email/password sign-up
+  * Profile creation (class, backstory, goals)
+  * Select character class and description
 
-- [x] **Goals Management**
-  - Description: Users set high-level goals for personal growth and context.
-  - Depends on: User Authentication
+* [x] **Character Stats**
 
-- [ ] **Family Management**
-  - Description: Users add family members with names and descriptions for context.
-  - Depends on: User Authentication
+  * Create/view stats with descriptions, example activities, XP tracking
+  * Manual level-up flow (with XP required formula)
+  * XP log table for source tracking (used in future analytics)
 
-- [ ] **Simple Todos**
-  - Description: Users can create, view, and complete simple, one-off todo items.
-  - Depends on: User Authentication
+* [x] **Stat Page**
 
-- [ ] **XP & Leveling System**
-  - Description: Completing tasks grants XP to stats; users can manually level up stats when enough XP is earned.
-  - Depends on: Stats System, Simple Todos
+  * View current level, XP progress, and XP history
 
-- [ ] **Basic Journaling**
-  - Description: Users can launch a conversational journal with predefined questions and save entries.
-  - Depends on: User Authentication
+* [x] **Family Management**
 
-- [ ] **AI-Powered Level Titles**
-  - Description: GPT generates creative, humorous titles for each stat level.
-  - Depends on: Stats System
+  * Add family members (name, relationship, likes/dislikes)
+  * Track interactions (dates, task feedback)
 
-- [ ] **AI Daily Task Generation**
-  - Description: GPT generates two daily tasks (personal and family) using user context and weather data.
-  - Depends on: Character Creation, Goals Management, Family Management, Stats System, Weather API
+* [ ] **Daily Focus System**
 
-- [ ] **AI Journal Analysis**
-  - Description: GPT processes journal entries to extract summaries, synopses, titles, content tags, and stat tags; XP is granted to relevant stats.
-  - Depends on: Basic Journaling, Stats System
+  * Define custom focuses per day (e.g. "Call to Adventure")
+  * Provide title + description
+  * Editable schedule
 
-- [ ] **Quests**
-  - Description: Users create long-term quests with multiple tasks; context is provided to AI for task generation.
-  - Depends on: AI Daily Task Generation
+* [ ] **Simple Todos**
 
-- [ ] **Experiments**
-  - Description: Users create short-term experiments with tasks and conclusions; can be linked to quests.
-  - Depends on: Quests
+  * Create/view/complete simple one-off tasks
+  * Display on homepage only
 
-- [ ] **Projects**
-  - Description: Users define projects with tasks (no XP); used as context for AI DM.
-  - Depends on: AI Daily Task Generation
+* [ ] **Homepage (Dashboard v1)**
 
-- [ ] **Adventures**
-  - Description: Users define adventures with tasks (no XP); used as context for AI DM.
-  - Depends on: AI Daily Task Generation
+  * Show today’s tasks (DM tasks, experiment tasks, simple todos)
+  * Show completed tasks + XP gained
+  * Quick journal entry launcher
 
-- [ ] **Ad-Hoc Tasks**
-  - Description: Users create repeatable, stat-tied tasks (e.g., "Workout" for Strength) to log daily activities.
-  - Depends on: Stats System
+---
 
-- [ ] **Weather API Integration**
-  - Description: Integrate a real weather API to provide context for daily task generation.
-  - Depends on: AI Daily Task Generation
+### 🧠 Phase 2: GPT + Journal Integration (Weeks 3–4)
 
-- [ ] **Main Dashboard**
-  - Description: Dashboard displays today's actionable tasks, XP animations, running XP total, and quick journal entry access.
-  - Depends on: All task and journaling features
+* [ ] **Journal System**
 
-- [ ] **Quest & Experiment Dashboards**
-  - Description: Dedicated pages for each quest/experiment showing progress, tasks, journal entries, and XP gained.
-  - Depends on: Quests, Experiments, Basic Journaling, XP & Leveling
+  * Freeform conversational journal
+  * Save entry after session
 
-## 🧩 Suggested Build Phases
+* [ ] **GPT Journal Analysis**
 
-_Phase 1: User Authentication, Character Creation, Stats System, Goals & Family Management_
+  * Extract summary, synopsis, title
+  * Assign content tags, tone tags, stat tags (and grant XP)
+  * Store GPT log + metadata per entry
 
-_Phase 2: Simple Todos, XP & Leveling System, Basic Journaling_
+* [ ] **Stat XP Source Breakdown**
 
-_Phase 3: AI-Powered Level Titles, AI Daily Task Generation, AI Journal Analysis, Weather API Integration_
+  * “What earned me XP in Strength this week?”
 
-_Phase 4: Quests, Experiments, Projects, Adventures, Ad-Hoc Tasks_
+---
 
-_Phase 5: Main Dashboard, Quest & Experiment Dashboards_
+### 🗺️ Phase 3: Experiments & Tasks (Weeks 5–6)
+
+* [ ] **Experiments**
+
+  * Create/edit short-lived experiments
+  * Daily task generation
+  * Journal and XP dashboard for each experiment
+  * Task completion tracking (per day)
+  * Auto-regenerate next day's task
+
+* [ ] **Ad-Hoc Tasks**
+
+  * Manual log of repeatable activities tied to stats (e.g. “Workout”)
+  * Grants XP to associated stat
+  * Logged in a separate tab (not dashboard)
+
+* [ ] **Dungeon Master GPT Task Generator**
+
+  * Use character, goals, focus, family, weather, projects/adventures, past tasks
+  * Generate 2 tasks per day (personal + family)
+
+---
+
+### 📚 Phase 4: Quests, Projects, & Adventure Tracking (Weeks 7–8)
+
+* [ ] **Quests**
+
+  * Long-term goal container
+  * Can include summary, timeframe, and reflection
+  * Dashboard includes: linked experiments, journal entries, XP stats
+
+* [ ] **Projects & Adventures**
+
+  * Unified model with `type` field
+  * Add subtasks, mark completed
+  * Not shown on dashboard, but available in GPT task context
+
+---
+
+### 🧼 Phase 5: UX Polish & Review Tools (Weeks 9–10)
+
+* [ ] **Quest & Experiment Review Tools**
+
+  * Graphs/charts of XP gained, tag breakdown, stats gained
+  * Journal highlights by tag/tone
+  * Export options (Markdown or PDF)
+
+* [ ] **Visual Feedback & Delight**
+
+  * Task completion XP animations
+  * GPT-generated level title badges
+  * Optional journal reflection recap
