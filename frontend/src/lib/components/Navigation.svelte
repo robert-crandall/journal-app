@@ -39,6 +39,7 @@
       <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
       <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
       <a href="/family" class="btn btn-ghost text-primary-content hover:bg-primary/80">Family</a>
+      <a href="/focus" class="btn btn-ghost text-primary-content hover:bg-primary/80">Focus</a>
 
       <!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
       <details class="dropdown dropdown-end">

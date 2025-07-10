@@ -1,6 +1,7 @@
 <script lang="ts">
   import { authStore, type User } from '$lib/stores/auth';
   import Navigation from '$lib/components/Navigation.svelte';
+  import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -46,6 +47,13 @@
                   <h2 class="card-title text-2xl">{user.name}</h2>
                   <p class="text-base-content/70">{user.email}</p>
                 </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Daily Focus Widget -->
+              <div class="mb-6">
+                <DailyFocusWidget />
               </div>
 
               <div class="divider"></div>
