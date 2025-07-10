@@ -4,7 +4,7 @@ import { beforeEach, afterAll } from 'vitest';
 import * as schema from '../db/schema';
 
 // Create test database connection - function to create fresh connections
-const testDbUrl = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/journal_app';
+const testDbUrl = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/journal_app_hono_test';
 
 // Global connection that will be reused across tests in the same file
 let testClient: ReturnType<typeof postgres> | null = null;
@@ -46,6 +46,12 @@ export async function cleanDatabase() {
 
   // Delete all data from tables in the correct order (respecting foreign keys)
   try {
+    // Journal tag tables first (reference journals)
+    await safeDelete(schema.journalStatTags, 'journal_stat_tags');
+    await safeDelete(schema.journalContentTags, 'journal_content_tags');
+    await safeDelete(schema.journalToneTags, 'journal_tone_tags');
+    // Journals (reference users)
+    await safeDelete(schema.journals, 'journals');
     // Family task feedback first (references family members)
     await safeDelete(schema.familyTaskFeedback, 'family_task_feedback');
     // Family members next (reference users)
@@ -58,6 +64,8 @@ export async function cleanDatabase() {
     await safeDelete(schema.characterStatXpGrants, 'character_stat_xp_grants');
     await safeDelete(schema.characterStatLevelTitles, 'character_stat_level_titles');
     await safeDelete(schema.characterStats, 'character_stats');
+    // Focus tables (reference users)
+    await safeDelete(schema.focuses, 'focuses');
     await safeDelete(schema.goals, 'goals');
     await safeDelete(schema.characters, 'characters');
     await safeDelete(schema.users, 'users');

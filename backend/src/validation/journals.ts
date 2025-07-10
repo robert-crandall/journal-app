@@ -3,9 +3,7 @@ import { z } from 'zod';
 // Validation schema for creating a journal
 export const createJournalSchema = z.object({
   content: z.string().min(1, 'Journal content cannot be empty'),
-  journalDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Journal date must be in the format YYYY-MM-DD'),
+  journalDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Journal date must be in the format YYYY-MM-DD'),
 });
 
 // Validation schema for updating a journal

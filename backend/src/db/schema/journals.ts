@@ -10,16 +10,16 @@ export const journals = pgTable('journals', {
   content: text('content').notNull(),
   journalDate: date('journal_date').notNull(), // The date this journal is about (1 per day)
   isFinalized: boolean('is_finalized').notNull().default(false),
-  
+
   // Analysis fields (populated when the journal is finalized and analyzed)
   title: varchar('title', { length: 255 }),
   summary: text('summary'),
   synopsis: varchar('synopsis', { length: 500 }),
-  
+
   // Metadata about the GPT analysis
   gptRequest: jsonb('gpt_request'),
   gptResponse: jsonb('gpt_response'),
-  
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   analyzedAt: timestamp('analyzed_at', { withTimezone: true }),

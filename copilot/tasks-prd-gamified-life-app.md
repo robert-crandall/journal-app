@@ -48,10 +48,10 @@
   - [ ] 6.5 Write frontend E2E tests for XP/leveling
   - [ ] 6.6 Ensure all XP/leveling tests pass
 
-- [ ] 7.0 Conversational Journal (Entry, Questions, Saving)
-  - [ ] 7.1 Design and implement journal entry system (backend)
-  - [ ] 7.2 Write backend integration tests for journaling
-  - [ ] 7.3 Implement frontend conversational journal UI
+- [x] 7.0 Conversational Journal (Entry, Questions, Saving)
+  - [x] 7.1 Design and implement journal entry system (backend)
+  - [x] 7.2 Write backend integration tests for journaling
+  - [x] 7.3 Implement frontend conversational journal UI
   - [ ] 7.4 Write frontend E2E tests for journaling
   - [ ] 7.5 Ensure all journal tests pass
 

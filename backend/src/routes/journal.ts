@@ -21,17 +21,11 @@ async function getJournalWithTags(journalId: string) {
   const journal = journalResults[0];
 
   // Get content tags
-  const contentTagsResults = await db
-    .select({ tag: journalContentTags.tag })
-    .from(journalContentTags)
-    .where(eq(journalContentTags.journalId, journalId));
+  const contentTagsResults = await db.select({ tag: journalContentTags.tag }).from(journalContentTags).where(eq(journalContentTags.journalId, journalId));
   const contentTags = contentTagsResults.map((t) => t.tag);
 
   // Get tone tags
-  const toneTagsResults = await db
-    .select({ tag: journalToneTags.tag })
-    .from(journalToneTags)
-    .where(eq(journalToneTags.journalId, journalId));
+  const toneTagsResults = await db.select({ tag: journalToneTags.tag }).from(journalToneTags).where(eq(journalToneTags.journalId, journalId));
   const toneTags = toneTagsResults.map((t) => t.tag);
 
   // Get stat tags
@@ -106,11 +100,7 @@ const app = new Hono()
     try {
       const userId = getUserId(c);
 
-      const journalList = await db
-        .select()
-        .from(journals)
-        .where(eq(journals.userId, userId))
-        .orderBy(desc(journals.journalDate));
+      const journalList = await db.select().from(journals).where(eq(journals.userId, userId)).orderBy(desc(journals.journalDate));
 
       return c.json({
         success: true,
@@ -166,11 +156,7 @@ const app = new Hono()
       const data = c.req.valid('json');
 
       // Check if journal exists and user owns it
-      const existingJournals = await db
-        .select()
-        .from(journals)
-        .where(eq(journals.id, journalId))
-        .limit(1);
+      const existingJournals = await db.select().from(journals).where(eq(journals.id, journalId)).limit(1);
 
       if (existingJournals.length === 0) {
         return c.json(
@@ -231,11 +217,7 @@ const app = new Hono()
       const journalId = c.req.param('id');
 
       // Check if journal exists and user owns it
-      const existingJournals = await db
-        .select()
-        .from(journals)
-        .where(eq(journals.id, journalId))
-        .limit(1);
+      const existingJournals = await db.select().from(journals).where(eq(journals.id, journalId)).limit(1);
 
       if (existingJournals.length === 0) {
         return c.json(
@@ -328,11 +310,7 @@ const app = new Hono()
       const { id: journalId } = c.req.valid('json');
 
       // Check if journal exists and user owns it
-      const journalResults = await db
-        .select()
-        .from(journals)
-        .where(eq(journals.id, journalId))
-        .limit(1);
+      const journalResults = await db.select().from(journals).where(eq(journals.id, journalId)).limit(1);
 
       if (journalResults.length === 0) {
         return c.json(
@@ -457,44 +435,51 @@ const app = new Hono()
       return handleApiError(error, 'Failed to finalize journal');
     }
   })
-  
+
   // Endpoint for analyzing journal entries (maintained for backward compatibility)
-  .post('/analyze', zValidator('json', z.object({
-    content: z.string().min(1, 'Journal content is required'),
-  })), async (c) => {
-    try {
-      // Get the validated request body
-      const { content } = c.req.valid('json');
+  .post(
+    '/analyze',
+    zValidator(
+      'json',
+      z.object({
+        content: z.string().min(1, 'Journal content is required'),
+      }),
+    ),
+    async (c) => {
+      try {
+        // Get the validated request body
+        const { content } = c.req.valid('json');
 
-      // Get the user ID from the context
-      const userId = getUserId(c);
+        // Get the user ID from the context
+        const userId = getUserId(c);
 
-      // Get user's stats for analysis
-      const userStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
+        // Get user's stats for analysis
+        const userStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
 
-      // Prepare data for GPT analysis
-      const availableStats = userStats.map((stat) => ({
-        id: stat.id,
-        name: stat.name,
-        description: stat.description,
-      }));
-      
-      const request: JournalAnalysisRequest = {
-        journalContent: content,
-        availableStats,
-      };
+        // Prepare data for GPT analysis
+        const availableStats = userStats.map((stat) => ({
+          id: stat.id,
+          name: stat.name,
+          description: stat.description,
+        }));
 
-      // Call the GPT-powered journal analysis
-      const analysis = await analyzeJournalEntry(request);
+        const request: JournalAnalysisRequest = {
+          journalContent: content,
+          availableStats,
+        };
 
-      // Return the analysis results
-      return c.json({
-        success: true,
-        data: analysis,
-      });
-    } catch (error) {
-      return handleApiError(error, 'Failed to analyze journal entry');
-    }
-  });
+        // Call the GPT-powered journal analysis
+        const analysis = await analyzeJournalEntry(request);
+
+        // Return the analysis results
+        return c.json({
+          success: true,
+          data: analysis,
+        });
+      } catch (error) {
+        return handleApiError(error, 'Failed to analyze journal entry');
+      }
+    },
+  );
 
 export default app;
