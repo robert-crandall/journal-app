@@ -10,7 +10,7 @@ const envSchema = z.object({
     .transform((val) => val === 'true')
     .default('true'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
-  
+
   // OpenAI API settings (optional in development for those not using GPT features)
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_DEFAULT_MODEL: z.string().default('gpt-4o'),

@@ -8,10 +8,10 @@ You're building a rich, GPT-powered app where many features (journal, tasks, cha
 
 There should be a **single configuration module** that defines:
 
-* The default OpenAI model (e.g., `gpt-4o`)
-* The API key (read from environment variables)
-* Optional toggles for debugging (e.g., log prompts/responses for dev)
-* Retry settings or rate limiting in the future
+- The default OpenAI model (e.g., `gpt-4o`)
+- The API key (read from environment variables)
+- Optional toggles for debugging (e.g., log prompts/responses for dev)
+- Retry settings or rate limiting in the future
 
 But **temperature should not be set globally** — it will be specified by the individual caller, since journal tone extraction might use `0.2`, while creative task generation might use `0.9`.
 
@@ -21,15 +21,15 @@ But **temperature should not be set globally** — it will be specified by the i
 
 Use a centralized “client” or helper function to make GPT API calls. This ensures:
 
-* Consistent handling of prompts and formatting
-* Debugging and error handling are built-in
-* Future upgrades (e.g., caching or streaming) can be added in one place
+- Consistent handling of prompts and formatting
+- Debugging and error handling are built-in
+- Future upgrades (e.g., caching or streaming) can be added in one place
 
 Each **GPT caller will use this shared client**, passing in:
 
-* Its own **system prompt**
-* The **user prompt or context**
-* Any **extra metadata**, like temperature or role-based messages
+- Its own **system prompt**
+- The **user prompt or context**
+- Any **extra metadata**, like temperature or role-based messages
 
 ---
 
@@ -37,19 +37,19 @@ Each **GPT caller will use this shared client**, passing in:
 
 Each GPT use case (e.g. journal summarization, task generation, stat tag extraction) lives in its own file. These modules are **entry points** with their own:
 
-* **System prompt**
-* Logic to compose the full prompt from user/app context
-* Control over temperature or model version
-* Call to the shared client
+- **System prompt**
+- Logic to compose the full prompt from user/app context
+- Control over temperature or model version
+- Call to the shared client
 
 Think of each as a “GPT strategy” tied to a domain concept.
 
 Examples:
 
-* `journal.ts` → GPT analysis of journal entries
-* `taskGenerator.ts` → GPT-generated task suggestions
-* `statNamer.ts` → GPT-generated humorous stat level titles
-* `questTitleGenerator.ts` → GPT-generated quest names
+- `journal.ts` → GPT analysis of journal entries
+- `taskGenerator.ts` → GPT-generated task suggestions
+- `statNamer.ts` → GPT-generated humorous stat level titles
+- `questTitleGenerator.ts` → GPT-generated quest names
 
 ---
 
@@ -59,9 +59,9 @@ Some logic is reused across callers — e.g., generating summaries, titles, or X
 
 These shared utilities:
 
-* Don't maintain their own system prompt
-* Use prompts constructed by the calling module
-* Are ideal for simple or composable tasks (e.g., `generateTitleFromText()`)
+- Don't maintain their own system prompt
+- Use prompts constructed by the calling module
+- Are ideal for simple or composable tasks (e.g., `generateTitleFromText()`)
 
 ---
 
@@ -69,12 +69,12 @@ These shared utilities:
 
 Your **"backstory"** is not something to generate — it's **context** provided to GPT when generating things like journal analysis or task ideas. It may include:
 
-* Your DnD-style backstory (“You are a Ranger who thrives outdoors…”)
-* Your goals and aspirations
-* Information about your family and their preferences
-* Your current focus for the day or week
-* Recent interactions or events
-* Any relevant project you're working on
+- Your DnD-style backstory (“You are a Ranger who thrives outdoors…”)
+- Your goals and aspirations
+- Information about your family and their preferences
+- Your current focus for the day or week
+- Recent interactions or events
+- Any relevant project you're working on
 
 These are bundled together by the **calling module**, not globally managed. For instance:
 

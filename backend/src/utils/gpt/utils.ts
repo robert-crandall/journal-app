@@ -29,10 +29,7 @@ export function createUserPrompt(content: string): ChatCompletionMessageParam {
  * Create a standard prompt array with system and user messages
  */
 export function createPrompt(systemContent: string, userContent: string): ChatCompletionMessageParam[] {
-  return [
-    createSystemPrompt(systemContent),
-    createUserPrompt(userContent),
-  ];
+  return [createSystemPrompt(systemContent), createUserPrompt(userContent)];
 }
 
 /**
