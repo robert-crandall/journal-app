@@ -41,11 +41,4 @@ export type {
   JournalEntryWithDetails,
   ChatMessage,
 } from '../types/journal';
-export type {
-  SimpleTodo,
-  NewSimpleTodo,
-  UpdateSimpleTodo,
-  CreateSimpleTodoRequest,
-  UpdateSimpleTodoRequest,
-  SimpleTodoResponse,
-} from '../types/todos';
+export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';

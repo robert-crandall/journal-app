@@ -26,7 +26,7 @@ const createSimpleTodosStore = () => {
     // Load todos from API
     async loadTodos() {
       update((state) => ({ ...state, loading: true, error: null }));
-      
+
       try {
         const todos = await simpleTodosApi.getTodos();
         update((state) => ({ ...state, todos, loading: false }));
@@ -40,7 +40,7 @@ const createSimpleTodosStore = () => {
     // Create a new todo
     async createTodo(description: string) {
       update((state) => ({ ...state, loading: true, error: null }));
-      
+
       try {
         const newTodo = await simpleTodosApi.createTodo({ description });
         update((state) => ({
@@ -60,7 +60,7 @@ const createSimpleTodosStore = () => {
     // Update a todo
     async updateTodo(id: string, description: string) {
       update((state) => ({ ...state, loading: true, error: null }));
-      
+
       try {
         const updatedTodo = await simpleTodosApi.updateTodo(id, { description });
         update((state) => ({
@@ -82,14 +82,12 @@ const createSimpleTodosStore = () => {
       // Optimistically update the UI
       update((state) => ({
         ...state,
-        todos: state.todos.map((todo) =>
-          todo.id === id ? { ...todo, isCompleted, completedAt: isCompleted ? new Date().toISOString() : null } : todo
-        ),
+        todos: state.todos.map((todo) => (todo.id === id ? { ...todo, isCompleted, completedAt: isCompleted ? new Date().toISOString() : null } : todo)),
       }));
 
       try {
         const updatedTodo = await simpleTodosApi.completeTodo(id, isCompleted);
-        
+
         if (isCompleted) {
           // Remove completed todos from the list after a short delay for visual feedback
           setTimeout(() => {
@@ -105,15 +103,13 @@ const createSimpleTodosStore = () => {
             todos: state.todos.map((todo) => (todo.id === id ? updatedTodo : todo)),
           }));
         }
-        
+
         return updatedTodo;
       } catch (error) {
         // Revert optimistic update on error
         update((state) => ({
           ...state,
-          todos: state.todos.map((todo) =>
-            todo.id === id ? { ...todo, isCompleted: !isCompleted, completedAt: null } : todo
-          ),
+          todos: state.todos.map((todo) => (todo.id === id ? { ...todo, isCompleted: !isCompleted, completedAt: null } : todo)),
           error: error instanceof Error ? error.message : 'Failed to update todo',
         }));
         console.error('Failed to complete todo:', error);
@@ -124,7 +120,7 @@ const createSimpleTodosStore = () => {
     // Delete a todo
     async deleteTodo(id: string) {
       update((state) => ({ ...state, loading: true, error: null }));
-      
+
       try {
         await simpleTodosApi.deleteTodo(id);
         update((state) => ({

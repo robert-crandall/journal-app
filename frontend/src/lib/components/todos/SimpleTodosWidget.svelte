@@ -7,8 +7,8 @@
 
   // Reactive references to store state
   $: ({ todos, loading, error } = $simpleTodosStore);
-  $: incompleteTodos = todos.filter(todo => !todo.isCompleted);
-  $: completedTodos = todos.filter(todo => todo.isCompleted);
+  $: incompleteTodos = todos.filter((todo) => !todo.isCompleted);
+  $: completedTodos = todos.filter((todo) => todo.isCompleted);
 
   onMount(() => {
     simpleTodosStore.loadTodos();
@@ -16,7 +16,7 @@
 
   async function addTodo() {
     if (!newTodoDescription.trim() || addingTodo) return;
-    
+
     addingTodo = true;
     try {
       await simpleTodosStore.createTodo(newTodoDescription.trim());
@@ -79,7 +79,7 @@
       <input
         type="text"
         placeholder="Add a quick task..."
-        class="input input-bordered flex-1 focus:input-accent transition-all duration-200"
+        class="input input-bordered focus:input-accent flex-1 transition-all duration-200"
         bind:value={newTodoDescription}
         on:keypress={handleKeyPress}
         disabled={addingTodo}
@@ -142,13 +142,8 @@
     <div class="space-y-3">
       <!-- Incomplete todos -->
       {#each incompleteTodos as todo (todo.id)}
-        <div class="flex items-center gap-3 rounded-lg bg-base-200/50 p-3 transition-all duration-200 hover:bg-base-200">
-          <input
-            type="checkbox"
-            class="checkbox checkbox-accent"
-            checked={false}
-            on:change={() => toggleTodo(todo.id, true)}
-          />
+        <div class="bg-base-200/50 hover:bg-base-200 flex items-center gap-3 rounded-lg p-3 transition-all duration-200">
+          <input type="checkbox" class="checkbox checkbox-accent" checked={false} on:change={() => toggleTodo(todo.id, true)} />
           <span class="flex-1 text-sm">{todo.description}</span>
           <button
             class="btn btn-ghost btn-xs text-error hover:bg-error hover:text-error-content transition-all duration-200"
@@ -178,13 +173,8 @@
       {#if completedTodos.length > 0}
         <div class="divider text-xs opacity-60">Recently Completed</div>
         {#each completedTodos.slice(-3) as todo (todo.id)}
-          <div class="flex items-center gap-3 rounded-lg bg-base-200/30 p-3 opacity-60 transition-all duration-200">
-            <input
-              type="checkbox"
-              class="checkbox checkbox-accent"
-              checked={true}
-              on:change={() => toggleTodo(todo.id, false)}
-            />
+          <div class="bg-base-200/30 flex items-center gap-3 rounded-lg p-3 opacity-60 transition-all duration-200">
+            <input type="checkbox" class="checkbox checkbox-accent" checked={true} on:change={() => toggleTodo(todo.id, false)} />
             <span class="flex-1 text-sm line-through">{todo.description}</span>
             <button
               class="btn btn-ghost btn-xs text-error hover:bg-error hover:text-error-content transition-all duration-200"
@@ -230,7 +220,7 @@
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             </svg>
           </div>
-          <p class="text-sm text-base-content/60">No tasks yet. Add one above to get started!</p>
+          <p class="text-base-content/60 text-sm">No tasks yet. Add one above to get started!</p>
         </div>
       {:else if incompleteTodos.length === 0}
         <div class="flex flex-col items-center py-6 text-center">
@@ -247,11 +237,13 @@
               stroke-linejoin="round"
             >
               <path d="m9 12 2 2 4-4" />
-              <path d="M21 12c.552 0 1.448-.063 1.448-.63 0-.567-.896-.63-1.448-.63-2.9 0-9.552 0-18 0-.552 0-1.448.063-1.448.63 0 .567.896.63 1.448.63 8.448 0 15.1 0 18 0Z"/>
+              <path
+                d="M21 12c.552 0 1.448-.063 1.448-.63 0-.567-.896-.63-1.448-.63-2.9 0-9.552 0-18 0-.552 0-1.448.063-1.448.63 0 .567.896.63 1.448.63 8.448 0 15.1 0 18 0Z"
+              />
             </svg>
           </div>
-          <p class="text-sm text-accent font-medium">All caught up! 🎉</p>
-          <p class="text-xs text-base-content/60 mt-1">Great job completing all your tasks</p>
+          <p class="text-accent text-sm font-medium">All caught up! 🎉</p>
+          <p class="text-base-content/60 mt-1 text-xs">Great job completing all your tasks</p>
         </div>
       {/if}
     </div>

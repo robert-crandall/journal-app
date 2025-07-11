@@ -126,18 +126,14 @@ const app = new Hono()
         updateData.completedAt = data.isCompleted ? new Date() : null;
       }
 
-      const [updatedTodo] = await db
-        .update(simpleTodos)
-        .set(updateData)
-        .where(eq(simpleTodos.id, todoId))
-        .returning({
-          id: simpleTodos.id,
-          description: simpleTodos.description,
-          isCompleted: simpleTodos.isCompleted,
-          completedAt: simpleTodos.completedAt,
-          createdAt: simpleTodos.createdAt,
-          updatedAt: simpleTodos.updatedAt,
-        });
+      const [updatedTodo] = await db.update(simpleTodos).set(updateData).where(eq(simpleTodos.id, todoId)).returning({
+        id: simpleTodos.id,
+        description: simpleTodos.description,
+        isCompleted: simpleTodos.isCompleted,
+        completedAt: simpleTodos.completedAt,
+        createdAt: simpleTodos.createdAt,
+        updatedAt: simpleTodos.updatedAt,
+      });
 
       const formattedTodo: SimpleTodoResponse = {
         id: updatedTodo.id,

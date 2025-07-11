@@ -56,7 +56,7 @@ describe('Simple Todos API Integration Tests', () => {
 
     it('should return only incomplete todos', async () => {
       const db = testDb();
-      
+
       // Create some todos directly in database
       await db.insert(schema.simpleTodos).values([
         {
@@ -99,11 +99,14 @@ describe('Simple Todos API Integration Tests', () => {
       const db = testDb();
 
       // Create another user
-      const anotherUser = await db.insert(schema.users).values({
-        name: 'Another User',
-        email: 'another@example.com',
-        password: 'password',
-      }).returning();
+      const anotherUser = await db
+        .insert(schema.users)
+        .values({
+          name: 'Another User',
+          email: 'another@example.com',
+          password: 'password',
+        })
+        .returning();
 
       // Create todos for both users
       await db.insert(schema.simpleTodos).values([
@@ -347,16 +350,22 @@ describe('Simple Todos API Integration Tests', () => {
       const db = testDb();
 
       // Create another user and their todo
-      const anotherUser = await db.insert(schema.users).values({
-        name: 'Another User',
-        email: 'another@example.com',
-        password: 'password',
-      }).returning();
+      const anotherUser = await db
+        .insert(schema.users)
+        .values({
+          name: 'Another User',
+          email: 'another@example.com',
+          password: 'password',
+        })
+        .returning();
 
-      const anotherTodo = await db.insert(schema.simpleTodos).values({
-        userId: anotherUser[0].id,
-        description: 'Other user todo',
-      }).returning();
+      const anotherTodo = await db
+        .insert(schema.simpleTodos)
+        .values({
+          userId: anotherUser[0].id,
+          description: 'Other user todo',
+        })
+        .returning();
 
       const res = await app.request(`/api/todos/${anotherTodo[0].id}`, {
         method: 'PUT',
@@ -503,16 +512,22 @@ describe('Simple Todos API Integration Tests', () => {
       const db = testDb();
 
       // Create another user and their todo
-      const anotherUser = await db.insert(schema.users).values({
-        name: 'Another User',
-        email: 'another@example.com',
-        password: 'password',
-      }).returning();
+      const anotherUser = await db
+        .insert(schema.users)
+        .values({
+          name: 'Another User',
+          email: 'another@example.com',
+          password: 'password',
+        })
+        .returning();
 
-      const anotherTodo = await db.insert(schema.simpleTodos).values({
-        userId: anotherUser[0].id,
-        description: 'Other user todo',
-      }).returning();
+      const anotherTodo = await db
+        .insert(schema.simpleTodos)
+        .values({
+          userId: anotherUser[0].id,
+          description: 'Other user todo',
+        })
+        .returning();
 
       const res = await app.request(`/api/todos/${anotherTodo[0].id}`, {
         method: 'DELETE',

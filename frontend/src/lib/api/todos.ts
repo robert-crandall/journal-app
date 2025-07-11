@@ -1,9 +1,5 @@
 import { createAuthenticatedFetch } from '../api';
-import type {
-  SimpleTodoResponse,
-  CreateSimpleTodoRequest,
-  UpdateSimpleTodoRequest,
-} from '../../../.svelte-kit/backend-types/types/todos';
+import type { SimpleTodoResponse, CreateSimpleTodoRequest, UpdateSimpleTodoRequest } from '../../../.svelte-kit/backend-types/types/todos';
 
 interface ApiResponse<T> {
   success: boolean;
