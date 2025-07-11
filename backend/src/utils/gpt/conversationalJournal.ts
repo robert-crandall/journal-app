@@ -52,10 +52,9 @@ function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shoul
 4. Encourage deeper reflection without being pushy
 5. Keep responses conversational and supportive
 
-User Context:
 ${formatUserContextForPrompt(userContext)}
 
-Guidelines:
+## Guidelines
 - Ask open-ended questions that invite elaboration
 - Reflect back what you hear to show understanding
 - Help them connect experiences to their goals or values when relevant

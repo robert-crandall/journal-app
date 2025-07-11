@@ -187,51 +187,56 @@ export async function getUserContext(
  * @returns Formatted string for inclusion in system prompts
  */
 export function formatUserContextForPrompt(context: ComprehensiveUserContext): string {
-  let promptContent = `User: ${context.name}\n`;
+  let promptContent = `## User\n`;
+  promptContent += `\n${context.name}\n`; // Separator for clarity
 
   // Character information
   if (context.characterClass) {
-    promptContent += `Character Class: ${context.characterClass}\n`;
+    promptContent += `### Character Class\n`;
+    promptContent += `${context.characterClass}\n`;
   }
 
   if (context.backstory) {
-    promptContent += `Backstory: ${context.backstory}\n`;
+    promptContent += `### Backstory\n`;
+    promptContent += `${context.backstory}\n`;
   }
 
   if (context.motto) {
-    promptContent += `Motto: "${context.motto}"\n`;
+    promptContent += `### Motto\n`;
+    promptContent += `${context.motto}\n`;
   }
 
   if (context.activeGoals && context.activeGoals.length > 0) {
-    promptContent += `\nActive Goals:\n`;
+    promptContent += `### Active Goals\n`;
     context.activeGoals.forEach((goal) => {
-      promptContent += `- ${goal.title}`;
+      promptContent += `#### ${goal.title}\n`;
       if (goal.description) {
-        promptContent += `: ${goal.description}`;
+        promptContent += `\n${goal.description}`;
       }
       promptContent += `\n`;
     });
   } else {
     if (context.characterGoals) {
-      promptContent += `Character Goals: ${context.characterGoals}\n`;
+      promptContent += `### Character Goals\n`;
+      promptContent += `\n${context.characterGoals}\n`;
     }
   }
 
   // Family members
   if (context.familyMembers && context.familyMembers.length > 0) {
-    promptContent += `\nFamily Members:\n`;
+    promptContent += `### Family Members\n`;
     context.familyMembers.forEach((member) => {
-      promptContent += `- ${member.name} (${member.relationship})`;
+      promptContent += `#### ${member.name} (${member.relationship})\n`;
 
       const details = [];
-      if (member.likes) details.push(`Likes: ${member.likes}`);
-      if (member.dislikes) details.push(`Dislikes: ${member.dislikes}`);
-      details.push(`Energy Level: ${member.energyLevel}/100`);
-      details.push(`Connection Level: ${member.connectionLevel} (${member.connectionXp} XP)`);
+      if (member.likes) details.push(`- Likes: ${member.likes}`);
+      if (member.dislikes) details.push(`- Dislikes: ${member.dislikes}`);
+      details.push(`- Energy Level: ${member.energyLevel}/100`);
+      details.push(`- Connection Level: ${member.connectionLevel} (${member.connectionXp} XP)`);
 
       if (member.lastInteractionDate) {
         const daysSince = Math.floor((Date.now() - member.lastInteractionDate.getTime()) / (1000 * 60 * 60 * 24));
-        details.push(`Last interaction: ${daysSince} days ago`);
+        details.push(`- Last interaction: ${daysSince} days ago`);
       } else {
         details.push('No recent interactions');
       }
@@ -245,9 +250,11 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
 
   // Character stats
   if (context.characterStats && context.characterStats.length > 0) {
-    promptContent += `\nCharacter Stats:\n`;
+    promptContent += `### Character Stats\n`;
     context.characterStats.forEach((stat) => {
-      promptContent += `- ${stat.name} (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}\n`;
+      promptContent += `#### ${stat.name}\n`;
+      promptContent += `\n- Level ${stat.currentLevel} (${stat.totalXp} XP)\n`;
+      promptContent += `- ${stat.description}\n`;
     });
   }
 
