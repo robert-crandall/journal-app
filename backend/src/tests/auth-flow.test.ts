@@ -140,7 +140,7 @@ describe('Authentication Flow Integration Tests', () => {
       const decodedPayload = JSON.parse(Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
 
       // Verify payload contains user information
-      expect(decodedPayload).toHaveProperty('id', responseData.user.id);
+      expect(decodedPayload).toHaveProperty('userId', responseData.user.id);
       expect(decodedPayload).toHaveProperty('name', userData.name);
 
       // Should not contain sensitive information

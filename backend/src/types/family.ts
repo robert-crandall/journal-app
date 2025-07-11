@@ -19,6 +19,7 @@ export interface CreateFamilyMemberRequest {
   dislikes?: string;
   energyLevel: number;
   notes?: string;
+  avatar?: string; // Base64 encoded image
 }
 
 export interface UpdateFamilyMemberRequest extends Partial<CreateFamilyMemberRequest> {}

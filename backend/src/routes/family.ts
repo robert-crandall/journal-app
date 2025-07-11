@@ -14,6 +14,8 @@ import {
 } from '../validation/family';
 import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
 import logger, { handleApiError } from '../utils/logger';
+import { z } from 'zod';
+import { createAvatarSchema } from '../utils/avatar';
 
 const app = new Hono();
 
@@ -91,6 +93,7 @@ app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) =
         connectionXp: 0,
         connectionLevel: 1,
         notes: data.notes || null,
+        avatar: data.avatar || null,
       })
       .returning();
 
@@ -220,6 +223,50 @@ app.delete('/:id', jwtAuth, async (c) => {
     });
   } catch (error) {
     return handleApiError(error, 'Failed to delete family member');
+  }
+});
+
+// PATCH /family/:id/avatar - Update/remove family member avatar
+app.patch('/:id/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema())), async (c) => {
+  try {
+    const userId = c.get('userId');
+    const familyMemberId = c.req.param('id');
+    const data = c.req.valid('json');
+
+    // Check if family member exists and belongs to user
+    const existingMember = await db
+      .select()
+      .from(familyMembers)
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
+      .limit(1);
+
+    if (existingMember.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
+    }
+
+    const updatedMember = await db
+      .update(familyMembers)
+      .set({
+        avatar: data.avatar || null,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
+      .returning();
+
+    logger.info(`Family member avatar ${data.avatar ? 'updated' : 'removed'}: ${updatedMember[0].name} (${updatedMember[0].relationship})`);
+
+    return c.json({
+      success: true,
+      data: updatedMember[0],
+    });
+  } catch (error) {
+    return handleApiError(error, 'Failed to update family member avatar');
   }
 });
 

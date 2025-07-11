@@ -13,6 +13,7 @@ export const familyMembers = pgTable('family_members', {
   dislikes: text('dislikes'), // Freeform text for dislikes
   energyLevel: integer('energy_level').default(50), // Energy level 1-100, default 50
   notes: text('notes'), // Additional notes about the family member
+  avatar: text('avatar'), // Base64 encoded image data
   lastInteractionDate: timestamp('last_interaction_date'), // Auto-updated when tasks are completed
   connectionXp: integer('connection_xp').default(0).notNull(), // XP for relationship progress
   connectionLevel: integer('connection_level').default(1).notNull(), // Calculated level based on XP

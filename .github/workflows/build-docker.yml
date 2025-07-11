@@ -75,7 +75,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "GitHub Action Results for ${{ github.repository }}",
+              "text": "Journal App Build ${{ needs.build-and-push.result == 'success' && '✅ Success!' || '❌ Failure' }}",
               "blocks": [
                 {
                   "type": "header",
