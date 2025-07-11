@@ -12,11 +12,12 @@ export const authApi = {
   },
 
   // Register a new user
-  async register(data: { name: string; email: string; password: string }): Promise<{
+  async register(data: { name: string; email: string; password: string; avatar?: string }): Promise<{
     user: {
       id: string;
       name: string;
       email: string;
+      avatar: string | null;
       createdAt: string;
     };
     token: string;
@@ -39,6 +40,7 @@ export const authApi = {
         id: string;
         name: string;
         email: string;
+        avatar: string | null;
         createdAt: string;
       };
       token: string;
@@ -51,6 +53,7 @@ export const authApi = {
       id: string;
       name: string;
       email: string;
+      avatar: string | null;
       createdAt: string;
     };
     token: string;
@@ -73,6 +76,7 @@ export const authApi = {
         id: string;
         name: string;
         email: string;
+        avatar: string | null;
         createdAt: string;
       };
       token: string;

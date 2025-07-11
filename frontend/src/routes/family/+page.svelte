@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { familyApi, type FamilyMember } from '$lib/api/family';
+  import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Plus, Users, Heart, Calendar, User, Edit3, Trash2, Eye, MessageCircle } from 'lucide-svelte';
 
   // Reactive state for family data
@@ -176,9 +177,11 @@
                     <div class="card-body p-6">
                       <div class="mb-4 flex items-start justify-between">
                         <div class="flex items-center gap-3">
-                          <div class="text-2xl">
-                            {getFamilyIcon(member.relationship)}
-                          </div>
+                          <AvatarDisplay 
+                            avatar={member.avatar} 
+                            name={member.name} 
+                            size="md" 
+                          />
                           <div class="flex-1">
                             <h3 class="text-lg font-bold">{member.name}</h3>
                             <p class="text-base-content/60 text-sm">{member.relationship}</p>

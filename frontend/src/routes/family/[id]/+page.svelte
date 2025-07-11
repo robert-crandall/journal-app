@@ -4,6 +4,7 @@
   import { onMount } from 'svelte';
   import { getFamilyMember, deleteFamilyMember } from '$lib/api/family.js';
   import type { FamilyMember } from '$lib/api/family.js';
+  import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
 
   // State
@@ -127,13 +128,11 @@
       {:else if familyMember}
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-4">
-            <div class="avatar placeholder">
-              <div class="bg-primary text-primary-content h-16 w-16 rounded-full">
-                <span class="text-2xl font-bold">
-                  {familyMember.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            </div>
+            <AvatarDisplay 
+              avatar={familyMember.avatar} 
+              name={familyMember.name} 
+              size="lg" 
+            />
             <div>
               <h1 class="mb-2 text-3xl font-bold text-slate-800">
                 {familyMember.name}

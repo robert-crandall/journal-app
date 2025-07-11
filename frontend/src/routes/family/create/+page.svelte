@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { familyApi, type CreateFamilyMemberRequest } from '$lib/api/family';
+  import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Zap, Users, ArrowLeft, Save } from 'lucide-svelte';
 
   // Form state
@@ -12,10 +13,12 @@
     dislikes: '',
     energyLevel: 5,
     notes: '',
+    avatar: undefined,
   });
 
   let loading = $state(false);
   let error = $state<string | null>(null);
+  let avatarUploading = $state(false);
 
   // Form validation
   let isValid = $derived(formData.name.trim() !== '' && formData.relationship.trim() !== '');
@@ -62,6 +65,15 @@
     { value: 10, label: 'Extremely Energizing' },
   ];
 
+  // Handle avatar upload
+  function handleAvatarUpload(event: CustomEvent<string>) {
+    formData.avatar = event.detail;
+  }
+
+  function handleAvatarRemove() {
+    formData.avatar = undefined;
+  }
+
   // Handle form submission
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -80,6 +92,7 @@
         dislikes: (formData.dislikes || '').trim() || undefined,
         energyLevel: formData.energyLevel,
         notes: (formData.notes || '').trim() || undefined,
+        avatar: formData.avatar || undefined,
       };
 
       await familyApi.createFamilyMember(submitData);
@@ -141,7 +154,23 @@
             <form onsubmit={handleSubmit} class="space-y-8">
               <!-- Basic Information Section -->
               <section>
-                <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>
+                <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>                  <!-- Avatar Upload Section -->
+                  <div class="mb-6 flex justify-center">
+                    <div class="form-control">
+                      <div class="label justify-center">
+                        <span class="label-text font-medium">Avatar</span>
+                      </div>
+                      <AvatarUpload
+                        currentAvatar={formData.avatar}
+                        userName={formData.name}
+                        size="large"
+                        loading={avatarUploading}
+                        disabled={loading}
+                        on:upload={handleAvatarUpload}
+                        on:remove={handleAvatarRemove}
+                      />
+                    </div>
+                  </div>
 
                 <div class="grid gap-6 md:grid-cols-2">
                   <!-- Name Field -->

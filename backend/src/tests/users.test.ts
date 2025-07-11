@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
 import { testDb, cleanDatabase, schema } from './setup';
 import { eq } from 'drizzle-orm';
+import { validAvatarBase64, validJpegAvatarBase64, invalidBase64NotDataUrl, invalidMimeType, invalidBase64Data } from './test-data/avatars';
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -52,6 +53,7 @@ describe('Users API Integration Tests', () => {
       expect(responseData.user).toHaveProperty('id');
       expect(responseData.user).toHaveProperty('name', userData.name);
       expect(responseData.user).toHaveProperty('email', userData.email);
+      expect(responseData.user).toHaveProperty('avatar', null); // Should be null when not provided
       expect(responseData.user).toHaveProperty('createdAt');
       expect(responseData.user).not.toHaveProperty('password'); // Password should not be returned
       expect(typeof responseData.token).toBe('string');
@@ -61,7 +63,88 @@ describe('Users API Integration Tests', () => {
       expect(dbUsers).toHaveLength(1);
       expect(dbUsers[0].name).toBe(userData.name);
       expect(dbUsers[0].email).toBe(userData.email);
+      expect(dbUsers[0].avatar).toBe(null);
       expect(dbUsers[0].password).not.toBe(userData.password); // Should be hashed
+    });
+
+    it('should create a new user with avatar successfully', async () => {
+      const userData = {
+        name: 'Avatar User',
+        email: 'avatar@example.com',
+        password: 'password123',
+        avatar: validAvatarBase64,
+      };
+
+      const res = await app.request('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      expect(res.status).toBe(201);
+      const responseData = await res.json();
+
+      // Check response structure
+      expect(responseData).toHaveProperty('user');
+      expect(responseData).toHaveProperty('token');
+      expect(responseData.user).toHaveProperty('avatar', validAvatarBase64);
+
+      // Verify avatar was stored in database
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
+      expect(dbUsers).toHaveLength(1);
+      expect(dbUsers[0].avatar).toBe(validAvatarBase64);
+    });
+
+    it('should reject invalid avatar format', async () => {
+      const userData = {
+        name: 'Invalid Avatar User',
+        email: 'invalid-avatar@example.com',
+        password: 'password123',
+        avatar: invalidBase64NotDataUrl,
+      };
+
+      const res = await app.request('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      expect(res.status).toBe(400);
+      const errorData = await res.json();
+      expect(errorData).toHaveProperty('error');
+
+      // Verify no user was created
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
+      expect(dbUsers).toHaveLength(0);
+    });
+
+    it('should reject unsupported avatar MIME type', async () => {
+      const userData = {
+        name: 'Unsupported Avatar User',
+        email: 'unsupported-avatar@example.com',
+        password: 'password123',
+        avatar: invalidMimeType,
+      };
+
+      const res = await app.request('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      expect(res.status).toBe(400);
+      const errorData = await res.json();
+      expect(errorData).toHaveProperty('error');
+
+      // Verify no user was created
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
+      expect(dbUsers).toHaveLength(0);
     });
 
     it('should reject duplicate email addresses', async () => {
@@ -548,6 +631,220 @@ describe('Users API Integration Tests', () => {
 
         expect(res.status).toBe(400);
       }
+    });
+  });
+
+  describe('User Profile Endpoints', () => {
+    let authToken: string;
+    let userId: string;
+
+    beforeEach(async () => {
+      // Create and login a test user
+      const userData = {
+        name: 'Profile Test User',
+        email: 'profile@example.com',
+        password: 'password123',
+      };
+
+      const registerRes = await app.request('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      expect(registerRes.status).toBe(201);
+      const registerData = await registerRes.json();
+      authToken = registerData.token;
+      userId = registerData.user.id;
+    });
+
+    describe('GET /api/users/profile', () => {
+      it('should get user profile', async () => {
+        const res = await app.request('/api/users/profile', {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(200);
+        const responseData = await res.json();
+        expect(responseData.success).toBe(true);
+        expect(responseData.data).toHaveProperty('id', userId);
+        expect(responseData.data).toHaveProperty('name', 'Profile Test User');
+        expect(responseData.data).toHaveProperty('email', 'profile@example.com');
+        expect(responseData.data).toHaveProperty('avatar', null);
+        expect(responseData.data).not.toHaveProperty('password');
+      });
+
+      it('should require authentication', async () => {
+        const res = await app.request('/api/users/profile');
+        expect(res.status).toBe(401);
+      });
+    });
+
+    describe('PUT /api/users/profile', () => {
+      it('should update user profile', async () => {
+        const updateData = {
+          name: 'Updated Name',
+          avatar: validJpegAvatarBase64,
+        };
+
+        const res = await app.request('/api/users/profile', {
+          method: 'PUT',
+          body: JSON.stringify(updateData),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(200);
+        const responseData = await res.json();
+        expect(responseData.success).toBe(true);
+        expect(responseData.data.name).toBe('Updated Name');
+        expect(responseData.data.avatar).toBe(validJpegAvatarBase64);
+
+        // Verify in database
+        const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.id, userId));
+        expect(dbUsers[0].name).toBe('Updated Name');
+        expect(dbUsers[0].avatar).toBe(validJpegAvatarBase64);
+      });
+
+      it('should prevent email conflicts', async () => {
+        // Create another user
+        const otherUserData = {
+          name: 'Other User',
+          email: 'other@example.com',
+          password: 'password123',
+        };
+
+        await app.request('/api/users', {
+          method: 'POST',
+          body: JSON.stringify(otherUserData),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        // Try to update to existing email
+        const updateData = {
+          email: 'other@example.com',
+        };
+
+        const res = await app.request('/api/users/profile', {
+          method: 'PUT',
+          body: JSON.stringify(updateData),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(409);
+        const responseData = await res.json();
+        expect(responseData.success).toBe(false);
+        expect(responseData.error).toBe('Email already in use');
+      });
+
+      it('should require authentication', async () => {
+        const res = await app.request('/api/users/profile', {
+          method: 'PUT',
+          body: JSON.stringify({ name: 'Test' }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        expect(res.status).toBe(401);
+      });
+    });
+
+    describe('PATCH /api/users/avatar', () => {
+      it('should update user avatar', async () => {
+        const avatarData = {
+          avatar: validAvatarBase64,
+        };
+
+        const res = await app.request('/api/users/avatar', {
+          method: 'PATCH',
+          body: JSON.stringify(avatarData),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(200);
+        const responseData = await res.json();
+        expect(responseData.success).toBe(true);
+        expect(responseData.data.avatar).toBe(validAvatarBase64);
+
+        // Verify in database
+        const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.id, userId));
+        expect(dbUsers[0].avatar).toBe(validAvatarBase64);
+      });
+
+      it('should remove user avatar when empty string provided', async () => {
+        // First set an avatar
+        await app.request('/api/users/avatar', {
+          method: 'PATCH',
+          body: JSON.stringify({ avatar: validAvatarBase64 }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        // Now remove it
+        const res = await app.request('/api/users/avatar', {
+          method: 'PATCH',
+          body: JSON.stringify({ avatar: '' }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(200);
+        const responseData = await res.json();
+        expect(responseData.success).toBe(true);
+        expect(responseData.data.avatar).toBe(null);
+
+        // Verify in database
+        const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.id, userId));
+        expect(dbUsers[0].avatar).toBe(null);
+      });
+
+      it('should validate avatar format', async () => {
+        const avatarData = {
+          avatar: invalidBase64Data,
+        };
+
+        const res = await app.request('/api/users/avatar', {
+          method: 'PATCH',
+          body: JSON.stringify(avatarData),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        expect(res.status).toBe(400);
+        const responseData = await res.json();
+        expect(responseData).toHaveProperty('error');
+      });
+
+      it('should require authentication', async () => {
+        const res = await app.request('/api/users/avatar', {
+          method: 'PATCH',
+          body: JSON.stringify({ avatar: validAvatarBase64 }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        expect(res.status).toBe(401);
+      });
     });
   });
 });

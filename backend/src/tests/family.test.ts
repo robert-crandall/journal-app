@@ -3,6 +3,7 @@ import appExport from '../index';
 import { testDb, cleanDatabase } from './setup';
 import { familyMembers, familyTaskFeedback } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import { validAvatarBase64, validWebpAvatarBase64, invalidMimeType, invalidBase64Data } from './test-data/avatars';
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -139,6 +140,54 @@ describe('Family API', () => {
       });
 
       expect(response.status).toBe(400);
+    });
+
+    test('should create family member with avatar', async () => {
+      const familyMemberData = {
+        name: 'Avatar Family Member',
+        relationship: 'daughter',
+        avatar: validAvatarBase64,
+      };
+
+      const response = await app.request('/api/family', {
+        method: 'POST',
+        body: JSON.stringify(familyMemberData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(201);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.name).toBe(familyMemberData.name);
+      expect(data.data.avatar).toBe(validAvatarBase64);
+
+      // Verify in database
+      const dbMembers = await testDb().select().from(familyMembers).where(eq(familyMembers.id, data.data.id));
+      expect(dbMembers[0].avatar).toBe(validAvatarBase64);
+    });
+
+    test('should reject invalid avatar format', async () => {
+      const familyMemberData = {
+        name: 'Invalid Avatar Member',
+        relationship: 'son',
+        avatar: invalidMimeType,
+      };
+
+      const response = await app.request('/api/family', {
+        method: 'POST',
+        body: JSON.stringify(familyMemberData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data).toHaveProperty('error');
     });
   });
 
@@ -412,6 +461,125 @@ describe('Family API', () => {
     test('should require authentication', async () => {
       const response = await app.request(`/api/family/${familyMemberId}`, {
         method: 'DELETE',
+      });
+
+      expect(response.status).toBe(401);
+    });
+  });
+
+  describe('PATCH /api/family/:id/avatar', () => {
+    let familyMemberId: string;
+
+    beforeEach(async () => {
+      const response = await app.request('/api/family', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Avatar Test Member',
+          relationship: 'son',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      const data = await response.json();
+      familyMemberId = data.data.id;
+    });
+
+    test('should update family member avatar', async () => {
+      const avatarData = {
+        avatar: validWebpAvatarBase64,
+      };
+
+      const response = await app.request(`/api/family/${familyMemberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify(avatarData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.avatar).toBe(validWebpAvatarBase64);
+
+      // Verify in database
+      const dbMembers = await testDb().select().from(familyMembers).where(eq(familyMembers.id, familyMemberId));
+      expect(dbMembers[0].avatar).toBe(validWebpAvatarBase64);
+    });
+
+    test('should remove family member avatar when empty string provided', async () => {
+      // First set an avatar
+      await app.request(`/api/family/${familyMemberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify({ avatar: validAvatarBase64 }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      // Now remove it
+      const response = await app.request(`/api/family/${familyMemberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify({ avatar: '' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.avatar).toBe(null);
+
+      // Verify in database
+      const dbMembers = await testDb().select().from(familyMembers).where(eq(familyMembers.id, familyMemberId));
+      expect(dbMembers[0].avatar).toBe(null);
+    });
+
+    test('should validate avatar format', async () => {
+      const avatarData = {
+        avatar: invalidBase64Data,
+      };
+
+      const response = await app.request(`/api/family/${familyMemberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify(avatarData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data).toHaveProperty('error');
+    });
+
+    test('should return 404 for non-existent family member', async () => {
+      const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000/avatar', {
+        method: 'PATCH',
+        body: JSON.stringify({ avatar: validAvatarBase64 }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(404);
+    });
+
+    test('should require authentication', async () => {
+      const response = await app.request(`/api/family/${familyMemberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify({ avatar: validAvatarBase64 }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       expect(response.status).toBe(401);

@@ -1,11 +1,12 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-// User type definition
+// API response user type (dates are serialized as strings in JSON)
 export interface User {
   id: string;
   name: string;
   email: string;
+  avatar: string | null;
   createdAt: string;
 }
 
@@ -50,6 +51,14 @@ function createAuthStore() {
         loading: false,
         error: null,
         initialized: true,
+      }));
+    },
+
+    // Update user data (e.g., after profile or avatar update)
+    updateUser: (updatedUser: User) => {
+      update((state) => ({
+        ...state,
+        user: updatedUser,
       }));
     },
 

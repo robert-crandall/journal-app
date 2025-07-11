@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { createAvatarSchema } from '../utils/avatar';
 
 // Base user validation schema
 export const userValidationSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
   password: z.string().min(6),
+  ...createAvatarSchema(),
 });
 
 // Registration schema with detailed error messages
@@ -14,6 +16,8 @@ export const registerSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email format'),
 
   password: z.string().min(6, 'Password must be at least 6 characters'),
+
+  ...createAvatarSchema(),
 });
 
 // Login schema

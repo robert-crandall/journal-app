@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createAvatarSchema } from '../utils/avatar';
 
 // Family member validation schemas
 export const createFamilyMemberSchema = z.object({
@@ -12,6 +13,7 @@ export const createFamilyMemberSchema = z.object({
   dislikes: z.string().max(1000, 'Dislikes must be 1000 characters or less').optional(),
   energyLevel: z.number().int().min(1).max(100).default(50),
   notes: z.string().max(1000, 'Notes must be 1000 characters or less').optional(),
+  ...createAvatarSchema(),
 });
 
 export const updateFamilyMemberSchema = createFamilyMemberSchema.partial();

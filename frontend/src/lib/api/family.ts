@@ -13,6 +13,7 @@ export interface FamilyMember {
   dislikes?: string | null;
   energyLevel: number;
   notes?: string | null;
+  avatar?: string | null; // Base64 encoded image
   lastInteractionDate?: string | null;
   connectionXp: number;
   connectionLevel: number;
@@ -39,6 +40,7 @@ export interface CreateFamilyMemberRequest {
   dislikes?: string;
   energyLevel: number;
   notes?: string;
+  avatar?: string; // Base64 encoded image
 }
 
 export interface UpdateFamilyMemberRequest {
@@ -49,6 +51,7 @@ export interface UpdateFamilyMemberRequest {
   dislikes?: string;
   energyLevel?: number;
   notes?: string;
+  avatar?: string; // Base64 encoded image
 }
 
 export interface CreateFamilyTaskFeedbackRequest {
@@ -195,6 +198,29 @@ export const familyApi = {
     }
   },
 
+  // Update/remove family member avatar
+  async updateFamilyMemberAvatar(memberId: string, avatar: string | null): Promise<FamilyMember> {
+    try {
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(`/api/family/${memberId}/avatar`, {
+        method: 'PATCH',
+        body: JSON.stringify({ avatar: avatar || '' }),
+      });
+
+      if (!response.ok) {
+        console.error('Update family member avatar API error:', response.status, response.statusText);
+        const result = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const result = (await response.json()) as ApiResponse<FamilyMember>;
+      return result.data;
+    } catch (error) {
+      console.error('Update family member avatar API request failed:', error);
+      throw error;
+    }
+  },
+
   // Add task feedback for a family member
   async addTaskFeedback(memberId: string, data: CreateFamilyTaskFeedbackRequest): Promise<FamilyTaskFeedback> {
     try {
@@ -261,5 +287,6 @@ export const getFamilyMember = familyApi.getFamilyMember;
 export const createFamilyMember = familyApi.createFamilyMember;
 export const updateFamilyMember = familyApi.updateFamilyMember;
 export const deleteFamilyMember = familyApi.deleteFamilyMember;
+export const updateFamilyMemberAvatar = familyApi.updateFamilyMemberAvatar;
 export const addTaskFeedback = familyApi.addTaskFeedback;
 export const getTaskFeedback = familyApi.getTaskFeedback;
