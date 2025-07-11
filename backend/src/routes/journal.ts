@@ -362,8 +362,20 @@ const app = new Hono()
 
       const gptResponse = await analyzeJournalEntry(gptRequest);
 
+      // Validate stat IDs before transaction
+      const validStatIds = new Set(userStats.map((stat) => stat.id));
+      let validStatTags: typeof gptResponse.statTags = [];
+      if (gptResponse.statTags && gptResponse.statTags.length > 0) {
+        for (const statTag of gptResponse.statTags) {
+          if (validStatIds.has(statTag.statId)) {
+            validStatTags.push(statTag);
+          } else {
+            console.warn(`Skipping statTag with invalid statId '${statTag.statId}' for journal ${journalId}`);
+          }
+        }
+      }
+
       // Start a transaction to update the journal and add tags
-      // Add XP to stats based on the analysis
       await db.transaction(async (tx) => {
         // Update journal with analysis results
         const [updatedJournal] = await tx
@@ -380,46 +392,58 @@ const app = new Hono()
           .where(eq(journals.id, journalId))
           .returning();
 
-        // Add content tags
+        // Add content tags (robust to individual failures)
         if (gptResponse.contentTags && gptResponse.contentTags.length > 0) {
-          await tx.insert(journalContentTags).values(
-            gptResponse.contentTags.map((tag) => ({
-              journalId,
-              tag,
-            })),
-          );
+          for (const tag of gptResponse.contentTags) {
+            try {
+              await tx.insert(journalContentTags).values({ journalId, tag });
+            } catch (err) {
+              console.error(`Failed to insert content tag '${tag}' for journal ${journalId}:`, err);
+              // Continue with next tag
+            }
+          }
         }
 
-        // Add tone tags
+        // Add tone tags (robust to individual failures)
         if (gptResponse.toneTags && gptResponse.toneTags.length > 0) {
-          await tx.insert(journalToneTags).values(
-            gptResponse.toneTags.map((tag) => ({
-              journalId,
-              tag,
-            })),
-          );
+          for (const tag of gptResponse.toneTags) {
+            try {
+              await tx.insert(journalToneTags).values({ journalId, tag });
+            } catch (err) {
+              console.error(`Failed to insert tone tag '${tag}' for journal ${journalId}:`, err);
+              // Continue with next tag
+            }
+          }
         }
 
-        // Add stat tags and update stats with XP
-        if (gptResponse.statTags && gptResponse.statTags.length > 0) {
-          // Add stat tags
-          await tx.insert(journalStatTags).values(
-            gptResponse.statTags.map((statTag) => ({
-              journalId,
-              statId: statTag.statId,
-              xpAmount: statTag.xp,
-            })),
-          );
+        // Add stat tags and update stats with XP (only for valid stat IDs)
+        if (validStatTags.length > 0) {
+          for (const statTag of validStatTags) {
+            // Add stat tag
+            try {
+              await tx.insert(journalStatTags).values({
+                journalId,
+                statId: statTag.statId,
+                xpAmount: statTag.xp,
+              });
+            } catch (err) {
+              console.error(`Failed to insert stat tag '${JSON.stringify(statTag)}' for journal ${journalId}:`, err);
+              // Continue with next statTag
+            }
 
-          // Update stats with XP
-          for (const statTag of gptResponse.statTags) {
-            await tx
-              .update(characterStats)
-              .set({
-                totalXp: sql`${characterStats.totalXp} + ${statTag.xp}`,
-                updatedAt: new Date(),
-              })
-              .where(eq(characterStats.id, statTag.statId));
+            // Update stats with XP
+            try {
+              await tx
+                .update(characterStats)
+                .set({
+                  totalXp: sql`${characterStats.totalXp} + ${statTag.xp}`,
+                  updatedAt: new Date(),
+                })
+                .where(eq(characterStats.id, statTag.statId));
+            } catch (err) {
+              console.error(`Failed to update XP for statId '${statTag.statId}' for journal ${journalId}:`, err);
+              // Continue with next statTag
+            }
           }
         }
       });
