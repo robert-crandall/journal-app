@@ -39,14 +39,15 @@ interface User {
 
 ```typescript
 // ✅ DO: Use standard error handling
-import logger, { handleApiError } from '../utils/logger'
+import logger, { handleApiError } from '../utils/logger';
 
 try {
   // Your code here
-  return c.json({ success: true, data })
+  return c.json({ success: true, data });
 } catch (error) {
-  handleApiError(error, 'Failed to perform operation')
+  handleApiError(error, 'Failed to perform operation');
 }
+```
 
 ## Testing Philosophy: NO MOCKS
 
@@ -54,7 +55,7 @@ try {
   - Use real database connections with test databases
   - Make real API calls in integration tests
   - Set up proper test environments that mimic production
-  
+
 ```typescript
 // ✅ DO: Use real database in tests
 import { db } from '../db';
