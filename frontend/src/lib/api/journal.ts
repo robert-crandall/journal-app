@@ -1,4 +1,4 @@
-import { authenticatedClient, createAuthenticatedFetch, createAuthenticatedClient } from '../api';
+import { createAuthenticatedClient } from '../api';
 
 // Import types from backend - the single source of truth
 import type { Journal, JournalWithTags, CreateJournalRequest, UpdateJournalRequest, FinalizeJournalRequest } from '../../../../backend/src/types/journals';
@@ -71,8 +71,10 @@ export const journalApi = {
   // Get specific journal by ID with tags
   async getJournal(journalId: string): Promise<JournalWithTags> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch(`/api/journal/${journalId}`);
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal[':id'].$get({
+        param: { id: journalId },
+      });
 
       if (!response.ok) {
         console.error('Get journal API error:', response.status, response.statusText);
@@ -91,8 +93,10 @@ export const journalApi = {
   // Get journal by date
   async getJournalByDate(date: string): Promise<JournalWithTags> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch(`/api/journal/date/${date}`);
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal.date[':date'].$get({
+        param: { date },
+      });
 
       if (!response.ok) {
         console.error('Get journal by date API error:', response.status, response.statusText);
@@ -111,10 +115,9 @@ export const journalApi = {
   // Create a new journal entry
   async createJournal(data: CreateJournalRequest): Promise<Journal> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch('/api/journal', {
-        method: 'POST',
-        body: JSON.stringify(data),
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal.$post({
+        json: data,
       });
 
       if (!response.ok) {
@@ -149,10 +152,10 @@ export const journalApi = {
   // Update an existing journal entry
   async updateJournal(journalId: string, data: UpdateJournalRequest): Promise<Journal> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch(`/api/journal/${journalId}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal[':id'].$put({
+        param: { id: journalId },
+        json: data,
       });
 
       if (!response.ok) {
@@ -180,9 +183,9 @@ export const journalApi = {
   // Delete a journal entry
   async deleteJournal(journalId: string): Promise<void> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch(`/api/journal/${journalId}`, {
-        method: 'DELETE',
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal[':id'].$delete({
+        param: { id: journalId },
       });
 
       if (!response.ok) {
@@ -201,10 +204,9 @@ export const journalApi = {
   // Finalize and analyze a journal entry
   async finalizeJournal(data: FinalizeJournalRequest): Promise<JournalWithTags> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch('/api/journal/finalize', {
-        method: 'POST',
-        body: JSON.stringify(data),
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal.finalize.$post({
+        json: data,
       });
 
       if (!response.ok) {
@@ -232,10 +234,9 @@ export const journalApi = {
   // Analyze journal content (for testing/preview)
   async analyzeJournal(content: string): Promise<any> {
     try {
-      const authFetch = createAuthenticatedFetch();
-      const response = await authFetch('/api/journal/analyze', {
-        method: 'POST',
-        body: JSON.stringify({ content }),
+      const client = createAuthenticatedClient();
+      const response = await client.api.journal.analyze.$post({
+        json: { content },
       });
 
       if (!response.ok) {
