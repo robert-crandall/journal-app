@@ -8,7 +8,6 @@ The User Context Service provides a comprehensive way to gather all user informa
 - **Selective Retrieval**: Use options to only fetch specific data types you need
 - **GPT-Ready Formatting**: Built-in formatting function for system prompts
 - **Type Safety**: Full TypeScript support with comprehensive interfaces
-- **Backwards Compatibility**: Works alongside existing `UserContext` interface
 
 ## Basic Usage
 
@@ -60,12 +59,11 @@ Guidelines:
 
 ### Conversational Journal Integration
 
-The conversational journal functions have been updated to accept both the legacy `UserContext` and the new `ComprehensiveUserContext`:
+The conversational journal functions use the new `ComprehensiveUserContext`:
 
 ```typescript
-// Both of these work:
-const response1 = await generateFollowUpResponse(conversation, legacyContext);
-const response2 = await generateFollowUpResponse(conversation, comprehensiveContext);
+const context = await getUserContext(userId);
+const response = await generateFollowUpResponse(conversation, context);
 ```
 
 ## Data Structure
@@ -78,16 +76,12 @@ The `ComprehensiveUserContext` interface includes:
 - **Family Members**: Array with relationship details, preferences, connection stats
 - **Character Stats**: Array with current levels and XP totals
 
-## Performance Considerations
+## Implementation Details
 
 - The service uses efficient database queries with proper JOINs
 - Use selective retrieval options to only fetch data you need
 - Results are not cached - cache at the application level if needed for repeated calls
 - All queries are scoped to the specific user for security
-
-## Migration from Legacy UserContext
-
-The new service is designed to be backwards compatible. Existing code using `UserContext` will continue to work, and you can gradually migrate to the comprehensive service:
 
 ```typescript
 // Old way
@@ -110,7 +104,7 @@ const legacyFormat = {
 The service is designed to easily accommodate future features:
 
 - Projects and Adventures
-- Quests 
+- Quests
 - Daily Focuses
 - Experiments
 - Recent task history

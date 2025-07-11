@@ -5,17 +5,6 @@ import { gptConfig } from './config';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
 
 /**
- * Interface for user context in conversational journal (legacy - use ComprehensiveUserContext instead)
- * @deprecated Use ComprehensiveUserContext from userContextService
- */
-export interface UserContext {
-  name: string;
-  characterClass?: string;
-  backstory?: string;
-  goals?: string;
-}
-
-/**
  * Interface for chat messages (matching the existing ChatMessage type)
  */
 export interface ChatMessage {
@@ -120,34 +109,15 @@ Return ONLY the JSON object without any additional text or explanation.
 /**
  * Generate a personalized welcome message for a journal session
  */
-export async function generateWelcomeMessage(userContext: UserContext | ComprehensiveUserContext): Promise<string> {
+export async function generateWelcomeMessage(userContext: ComprehensiveUserContext): Promise<string> {
   if (!gptConfig.isWelcomeMessageEnabled()) {
     return `Welcome to your journal! I'm here to help you reflect on your thoughts and experiences. What would you like to share today?`;
   }
 
   let userPromptContent = `Generate a welcome message for a user starting a journal session.\n\n`;
 
-  // Handle both legacy UserContext and new ComprehensiveUserContext
-  if ('characterGoals' in userContext) {
-    // New ComprehensiveUserContext
-    userPromptContent += formatUserContextForPrompt(userContext);
-  } else {
-    // Legacy UserContext
-    userPromptContent += `User Details:\n`;
-    userPromptContent += `- Name: ${userContext.name}\n`;
-
-    if (userContext.characterClass) {
-      userPromptContent += `- Character Class: ${userContext.characterClass}\n`;
-    }
-
-    if (userContext.backstory) {
-      userPromptContent += `- Backstory: ${userContext.backstory}\n`;
-    }
-
-    if ((userContext as UserContext).goals) {
-      userPromptContent += `- Goals: ${(userContext as UserContext).goals}\n`;
-    }
-  }
+  // Use the comprehensive context formatting
+  userPromptContent += formatUserContextForPrompt(userContext);
 
   userPromptContent += `\nGenerate a warm, personalized welcome message that invites them to begin journaling.`;
 
@@ -164,38 +134,25 @@ export async function generateWelcomeMessage(userContext: UserContext | Comprehe
 /**
  * Generate a follow-up response in a conversational journal session
  */
-export async function generateFollowUpResponse(conversation: ChatMessage[], userContext: UserContext | ComprehensiveUserContext): Promise<{ response: string; shouldOfferSave: boolean }> {
+export async function generateFollowUpResponse(
+  conversation: ChatMessage[],
+  userContext: ComprehensiveUserContext,
+): Promise<{ response: string; shouldOfferSave: boolean }> {
   const userMessages = conversation.filter((msg) => msg.role === 'user');
   const shouldOfferSave = userMessages.length >= 3;
 
-  // Convert legacy UserContext to ComprehensiveUserContext if needed
-  let comprehensiveContext: ComprehensiveUserContext;
-  if ('characterGoals' in userContext) {
-    comprehensiveContext = userContext;
-  } else {
-    // Convert legacy format
-    comprehensiveContext = {
-      name: userContext.name,
-      characterClass: userContext.characterClass,
-      backstory: userContext.backstory,
-      characterGoals: (userContext as UserContext).goals,
-    };
-  }
-
   // Create the system prompt with user context
-  const systemPrompt = createFollowUpSystemPrompt(comprehensiveContext, shouldOfferSave, userMessages.length);
+  const systemPrompt = createFollowUpSystemPrompt(userContext, shouldOfferSave, userMessages.length);
 
   // Prepare the conversation messages for the API
-  const messages: ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt }
-  ];
+  const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
 
   // Add the recent conversation context (last 6 messages)
   const recentConversation = conversation.slice(-6);
   recentConversation.forEach((msg) => {
     messages.push({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     });
   });
 
@@ -213,7 +170,7 @@ export async function generateFollowUpResponse(conversation: ChatMessage[], user
 /**
  * Generate journal metadata from a complete conversation
  */
-export async function generateJournalMetadata(conversation: ChatMessage[], userContext: UserContext | ComprehensiveUserContext): Promise<JournalMetadata> {
+export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
   let userPromptContent = `\nComplete Conversation:\n`;
 
   conversation.forEach((msg, index) => {

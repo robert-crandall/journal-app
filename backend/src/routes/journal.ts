@@ -23,25 +23,8 @@ import type {
   ChatMessage,
   JournalEntryWithDetails,
 } from '../types/journal';
-import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata, type UserContext } from '../utils/gpt/conversationalJournal';
-import { getUserContext as getComprehensiveUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
-
-// Helper function to get user context for GPT (legacy format for backwards compatibility)
-async function getUserContext(userId: string): Promise<UserContext> {
-  try {
-    const comprehensiveContext = await getComprehensiveUserContext(userId);
-    
-    // Convert to legacy format for backwards compatibility
-    return {
-      name: comprehensiveContext.name,
-      characterClass: comprehensiveContext.characterClass,
-      backstory: comprehensiveContext.backstory,
-      goals: comprehensiveContext.characterGoals,
-    };
-  } catch (error) {
-    return { name: 'User' };
-  }
-}
+import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from '../utils/gpt/conversationalJournal';
+import { getUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
 
 // Helper function to get user's available stats
 async function getUserStats(userId: string) {

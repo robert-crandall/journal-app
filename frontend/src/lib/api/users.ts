@@ -29,8 +29,8 @@ export const usersApi = {
       throw new Error((errorData as { error: string }).error || 'Failed to fetch profile');
     }
 
-    const result = await response.json() as ApiResponse<ApiUser>;
-    
+    const result = (await response.json()) as ApiResponse<ApiUser>;
+
     if (!result.success || !result.data) {
       throw new Error(result.error || 'Failed to fetch profile');
     }
@@ -50,8 +50,8 @@ export const usersApi = {
       throw new Error((errorData as { error: string }).error || 'Failed to update profile');
     }
 
-    const result = await response.json() as ApiResponse<ApiUser>;
-    
+    const result = (await response.json()) as ApiResponse<ApiUser>;
+
     if (!result.success || !result.data) {
       throw new Error(result.error || 'Failed to update profile');
     }
@@ -71,8 +71,8 @@ export const usersApi = {
       throw new Error((errorData as { error: string }).error || 'Failed to update avatar');
     }
 
-    const result = await response.json() as ApiResponse<ApiUser>;
-    
+    const result = (await response.json()) as ApiResponse<ApiUser>;
+
     if (!result.success || !result.data) {
       throw new Error(result.error || 'Failed to update avatar');
     }
