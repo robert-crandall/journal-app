@@ -7,6 +7,7 @@
     "dev": "bun scripts/start-dev.js",
     "dev:force": "bun scripts/start-dev.js --force",
     "backend": "bun scripts/start-dev.js --backend-only",
+    "backend:force": "bun scripts/start-dev.js --backend-only --force",
     "frontend": "bun scripts/start-dev.js --frontend-only",
     "logs": "bun scripts/show-logs.js",
     "test:backend": "NODE_ENV=test bun run db:reset && cd backend && bun run test",

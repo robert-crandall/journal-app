@@ -13,7 +13,7 @@ const envSchema = z.object({
 
   // OpenAI API settings (optional in development for those not using GPT features)
   OPENAI_API_KEY: z.string().optional(),
-  OPENAI_DEFAULT_MODEL: z.string().default('gpt-4o'),
+  OPENAI_MODEL: z.string().default('gpt-4o'),
   GPT_DEBUG: z
     .string()
     .transform((val) => val === 'true')

@@ -42,7 +42,7 @@ psql "$PG_URL_POSTGRES" -c "CREATE DATABASE \"$DB_NAME\";"
 psql "$DATABASE_URL" -f sqlbackups/production_clone_backup.sql
 
 # Remove the backup file
-rm backups/production_clone_backup.sql
+rm sqlbackups/production_clone_backup.sql
 
 # Remove all push subscriptions for development.
 # psql "$DATABASE_URL" -c "DELETE FROM push_subscriptions;"

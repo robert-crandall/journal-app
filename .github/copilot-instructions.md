@@ -25,7 +25,6 @@ Every new feature **must** follow this specific, sequential order. Do not skip o
 ### 3. Document Key Decisions
 
 - To ensure consistency, we document important architectural patterns and decisions.
-- When you encounter a situation with multiple valid approaches, make a decision, and then **document it following [self-improve.instructions.md](./instructions/self-improve.instructions.md)**.
 - **Example**: If you decide that API endpoints should always get the `UserID` from the JWT token rather than a query parameter, document this rule so we apply it everywhere.
 
 ---
