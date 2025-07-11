@@ -22,9 +22,14 @@
   <!-- Page Header -->
   <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
     <div class="mx-auto max-w-7xl px-4 py-8">
-      <div>
-        <h1 class="text-primary mb-2 text-4xl font-bold">Daily Focus</h1>
-        <p class="text-base-content/70 text-lg">Define your thematic structure for each day of the week</p>
+      <div class="flex items-center gap-3">
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content w-12 rounded-full">🎯</div>
+        </div>
+        <div>
+          <h1 class="text-primary text-3xl font-bold">Focus</h1>
+          <p class="text-base-content/70">Define your thematic structure for each day of the week</p>
+        </div>
       </div>
     </div>
   </div>
