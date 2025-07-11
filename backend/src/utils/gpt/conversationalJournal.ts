@@ -81,7 +81,7 @@ Your task is to review the entire conversation and generate:
 
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
-3. **Summary**: A thoughtful 150-300 word narrative that synthesizes the conversation into a cohesive journal entry, maintaining the user's voice and tone
+3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined.
 4. **Content Tags**: 3-6 tags describing topics, activities, or themes (e.g., "work", "family", "exercise", "reflection")
 5. **Stat Tags**: Character stats that could be relevant based on the content discussed
 
@@ -95,6 +95,10 @@ IMPORTANT: Format your response exactly as JSON:
 }
 
 The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
+
+DO NOT GUESS. If you cannot determine a field, leave it empty or null. Focus on the content of the conversation, not external context.
+
+Return ONLY the JSON object without any additional text or explanation.
 `;
 
 /**
@@ -182,28 +186,28 @@ export async function generateFollowUpResponse(conversation: ChatMessage[], user
  * Generate journal metadata from a complete conversation
  */
 export async function generateJournalMetadata(conversation: ChatMessage[], userContext: UserContext): Promise<JournalMetadata> {
-  let userPromptContent = `Analyze this journal conversation with ${userContext.name}.\n\n`;
+  // let userPromptContent = `Analyze this journal conversation with ${userContext.name}.\n\n`;
 
-  if (userContext.characterClass) {
-    userPromptContent += `User Background: ${userContext.characterClass}`;
-    if (userContext.backstory) {
-      userPromptContent += ` - ${userContext.backstory}`;
-    }
-    userPromptContent += `\n`;
-  }
+  // if (userContext.characterClass) {
+  //   userPromptContent += `User Background: ${userContext.characterClass}`;
+  //   if (userContext.backstory) {
+  //     userPromptContent += ` - ${userContext.backstory}`;
+  //   }
+  //   userPromptContent += `\n`;
+  // }
 
-  if (userContext.goals) {
-    userPromptContent += `User Goals: ${userContext.goals}\n`;
-  }
+  // if (userContext.goals) {
+  //   userPromptContent += `User Goals: ${userContext.goals}\n`;
+  // }
 
-  userPromptContent += `\nComplete Conversation:\n`;
+  let userPromptContent = `\nComplete Conversation:\n`;
 
   conversation.forEach((msg, index) => {
     const speaker = msg.role === 'user' ? userContext.name : 'Journal Companion';
     userPromptContent += `${speaker}: ${msg.content}\n`;
   });
 
-  userPromptContent += `\nGenerate meaningful metadata for this journal session according to the specified JSON format.`;
+  userPromptContent += `\nGenerate metadata for this journal session according to the specified JSON format.`;
 
   const messages = createPrompt(METADATA_GENERATION_SYSTEM_PROMPT, userPromptContent);
 

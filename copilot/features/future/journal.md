@@ -1,0 +1,1 @@
+- Include an analysis in the metadata summary. Given my goals etc., what could I do better, or what should I do tomorrow?
