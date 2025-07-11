@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { familyApi, type FamilyMember, type UpdateFamilyMemberRequest } from '$lib/api/family';
+  import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Zap, Users, ArrowLeft, Save } from 'lucide-svelte';
 
   // Get the family member ID from the route params
@@ -17,11 +18,13 @@
     dislikes: '',
     energyLevel: 5,
     notes: '',
+    avatar: undefined,
   });
 
   let originalMember: FamilyMember | null = $state(null);
   let loading = $state(false);
   let loadingData = $state(true);
+  let avatarUploading = $state(false);
   let error = $state<string | null>(null);
 
   // Form validation
@@ -91,6 +94,7 @@
         dislikes: member.dislikes || '',
         energyLevel: member.energyLevel || 5,
         notes: member.notes || '',
+        avatar: member.avatar || undefined,
       };
     } catch (err) {
       console.error('Failed to load family member:', err);
@@ -101,6 +105,48 @@
       error = err instanceof Error ? err.message : 'Failed to load family member';
     } finally {
       loadingData = false;
+    }
+  }
+
+  // Handle avatar upload
+  async function handleAvatarUpload(event: CustomEvent<string>) {
+    try {
+      avatarUploading = true;
+      const avatar = event.detail;
+      
+      // Update avatar immediately via API
+      const updatedMember = await familyApi.updateFamilyMemberAvatar(memberId, avatar);
+      
+      // Update form data and original member
+      formData.avatar = avatar;
+      if (originalMember) {
+        originalMember.avatar = avatar;
+      }
+    } catch (err) {
+      console.error('Failed to update avatar:', err);
+      error = err instanceof Error ? err.message : 'Failed to update avatar';
+    } finally {
+      avatarUploading = false;
+    }
+  }
+
+  async function handleAvatarRemove() {
+    try {
+      avatarUploading = true;
+      
+      // Remove avatar via API
+      const updatedMember = await familyApi.updateFamilyMemberAvatar(memberId, null);
+      
+      // Update form data and original member
+      formData.avatar = undefined;
+      if (originalMember) {
+        originalMember.avatar = null;
+      }
+    } catch (err) {
+      console.error('Failed to remove avatar:', err);
+      error = err instanceof Error ? err.message : 'Failed to remove avatar';
+    } finally {
+      avatarUploading = false;
     }
   }
 
@@ -134,6 +180,7 @@
       if (formData.energyLevel !== originalMember?.energyLevel) {
         submitData.energyLevel = formData.energyLevel || undefined;
       }
+      // Note: Avatar is handled separately via the avatar upload/remove functions
 
       await familyApi.updateFamilyMember(memberId, submitData);
 
@@ -216,6 +263,24 @@
                 <!-- Basic Information Section -->
                 <section>
                   <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>
+
+                  <!-- Avatar Upload Section -->
+                  <div class="mb-6 flex justify-center">
+                    <div class="form-control">
+                      <div class="label justify-center">
+                        <span class="label-text font-medium">Avatar</span>
+                      </div>
+                      <AvatarUpload
+                        currentAvatar={formData.avatar}
+                        userName={formData.name || ''}
+                        size="large"
+                        loading={avatarUploading}
+                        disabled={loading || loadingData}
+                        on:upload={handleAvatarUpload}
+                        on:remove={handleAvatarRemove}
+                      />
+                    </div>
+                  </div>
 
                   <div class="grid gap-6 md:grid-cols-2">
                     <!-- Name Field -->

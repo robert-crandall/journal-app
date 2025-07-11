@@ -68,6 +68,7 @@ export function initializeAuth(): Promise<void> {
       id: payload.id,
       name: payload.name,
       email: payload.email,
+      avatar: null, // Avatar will be loaded separately if needed
       createdAt: new Date(payload.iat * 1000).toISOString(), // Convert iat to ISO string
     };
 

@@ -44,7 +44,6 @@
     role={clickable ? 'button' : undefined} 
     tabindex={clickable ? 0 : undefined}
   >
-  >
     {#if avatar}
       <img src={avatar} alt={name || 'Avatar'} class="{roundedClass} object-cover w-full h-full" />
     {:else}

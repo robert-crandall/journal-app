@@ -12,6 +12,7 @@
   let email = '';
   let password = '';
   let avatar: string | null = null;
+  let uploading = false;
 
   // Form validation
   let nameError = '';
@@ -83,6 +84,7 @@
     }
   }
 
+  // Handle avatar upload
   function handleAvatarUpload(event: CustomEvent<string>) {
     avatar = event.detail;
   }
@@ -145,15 +147,15 @@
   <form on:submit|preventDefault={handleSubmit} class="space-y-4">
     <!-- Avatar Upload (Optional) -->
     <div class="form-control">
-      <label class="label">
+      <div class="label">
         <span class="label-text">Profile Picture (Optional)</span>
-      </label>
+      </div>
       <div class="flex justify-center py-4">
         <AvatarUpload
           currentAvatar={avatar}
           userName={name}
           size="medium"
-          loading={loading}
+          loading={uploading}
           disabled={!registrationEnabled}
           on:upload={handleAvatarUpload}
           on:remove={handleAvatarRemove}
