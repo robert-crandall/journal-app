@@ -48,24 +48,13 @@ try {
   handleApiError(error, 'Failed to perform operation')
 }
 
-// ❌ DON'T: Manual error handling
-catch (error) {
-  logger.error('Error message:', error)
-  if (error instanceof HTTPException) throw error
-  throw new HTTPException(500, { message: 'User-friendly message' })
-}
-```
-
 ## Testing Philosophy: NO MOCKS
 
 - **Use real instances instead of mocks whenever possible**
   - Use real database connections with test databases
   - Make real API calls in integration tests
   - Set up proper test environments that mimic production
-  - NEVER use mocked database connections
-  - NEVER mock API responses
-  - NEVER create fake implementations that don't match real behavior
-
+  
 ```typescript
 // ✅ DO: Use real database in tests
 import { db } from '../db';
@@ -82,11 +71,6 @@ test('should create user', async () => {
 
   expect(user[0].name).toBe('Test User');
 });
-
-// ❌ DON'T: Mock database operations
-const mockDb = {
-  insert: jest.fn().mockResolvedValue([{ id: '1', name: 'Test User' }]),
-};
 ```
 
 ## JWT Authentication Standards
@@ -104,12 +88,6 @@ const mockDb = {
   name: user.name,
   iat: Math.floor(Date.now() / 1000),
   exp: Math.floor(Date.now() / 1000) + expirationTime
-}
-
-// ❌ DON'T: Use inconsistent key names
-{
-  id: user.id,        // Don't use 'id'
-  userEmail: user.email  // Don't use non-standard keys
 }
 ```
 
@@ -137,10 +115,6 @@ return c.json(
   },
   404,
 );
-
-// ❌ DON'T: Inconsistent response structure
-return c.json(users); // Missing success/error wrapper
-return c.json({ result: users, ok: true }); // Non-standard fields
 ```
 
 ## Database Design Standards
@@ -148,6 +122,8 @@ return c.json({ result: users, ok: true }); // Non-standard fields
 - **Use UUID primary keys for all entities**
   - Implement proper foreign key relationships
   - Include timestamp fields for audit trails
+  - Use timezone-aware timestamps
+  - Use Date field for date-only values
   - Use snake_case for database columns, camelCase for TypeScript
 
 ```typescript
@@ -156,15 +132,8 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
-  updated_at: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// ❌ DON'T: Auto-incrementing integers or inconsistent naming
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(), // Don't use serial
-  Email: varchar('Email'), // Don't use PascalCase
-  createdAt: timestamp('createdAt'), // Don't use camelCase in DB
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 ```
 
@@ -180,19 +149,4 @@ import type { User } from '../../backend/src/db/schema';
 import { writable } from 'svelte/store';
 
 export const currentUser = writable<User | null>(null);
-
-// ❌ DON'T: Untyped or duplicated type definitions
-export const currentUser = writable(null); // No type safety
-
-interface LocalUser {
-  // Don't duplicate backend types
-  id: string;
-  name: string;
-}
 ```
-
-## Cross-References
-
-- **Backend API Guidelines**: See [hono.instructions.md](mdc:.github/instructions/hono.instructions.md)
-- **Frontend Component Guidelines**: See [sveltekit.instructions.md](mdc:.github/instructions/sveltekit.instructions.md)
-- **Testing Guidelines**: See [hono.test.instructions.md](mdc:.github/testing/hono.test.instructions.md) and [sveltekit.test.instructions.md](mdc:.github/testing/sveltekit.test.instructions.md)
