@@ -76,9 +76,10 @@ Provide a thoughtful follow-up response that encourages deeper reflection.`;
 }
 
 /**
- * System prompt for generating journal metadata from conversation
+ * System prompt for extracting metadata from a conversation
  */
-const METADATA_GENERATION_SYSTEM_PROMPT = `
+function createMetadataSystemPrompt(userContext: ComprehensiveUserContext): string {
+  let systemPrompt = `
 You are analyzing a conversational journal session to extract meaningful metadata.
 
 Your task is to review the entire conversation and generate:
@@ -103,7 +104,10 @@ The summary should read like a personal journal entry, written in first person, 
 DO NOT GUESS. If you cannot determine a field, leave it empty or null. Focus on the content of the conversation, not external context.
 
 Return ONLY the JSON object without any additional text or explanation.
-`;
+`
+
+  return systemPrompt;
+}
 
 /**
  * Generate a personalized welcome message for a journal session
@@ -170,16 +174,26 @@ export async function generateFollowUpResponse(
  * Generate journal metadata from a complete conversation
  */
 export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
-  let userPromptContent = `\nComplete Conversation:\n`;
+  // Create the system prompt with user context
+  const systemPrompt = createMetadataSystemPrompt(userContext);
 
-  conversation.forEach((msg, index) => {
-    const speaker = msg.role === 'user' ? userContext.name : 'Journal Companion';
-    userPromptContent += `${speaker}: ${msg.content}\n`;
+  // Prepare the conversation messages for the API
+  const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
+
+  // Add the recent conversation context (last 6 messages)
+  const recentConversation = conversation.slice(-6);
+  recentConversation.forEach((msg) => {
+    messages.push({
+      role: msg.role,
+      content: msg.content,
+    });
   });
+  
 
-  userPromptContent += `\nGenerate metadata for this journal session according to the specified JSON format.`;
-
-  const messages = createPrompt(METADATA_GENERATION_SYSTEM_PROMPT, userPromptContent);
+  messages.push({
+    role: 'user',
+    content: `\nGenerate metadata for this journal session according to the specified JSON format.`,
+  });
 
   const response = await callGptApi({
     messages,
