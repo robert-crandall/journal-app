@@ -80,20 +80,21 @@ test.describe('Navigation Menu', () => {
   test('should show correct icon states', async ({ page }) => {
     const menuButton = page.locator('#nav-menu-btn');
 
-    // Should always show menu icon (hamburger) since we removed dynamic icon switching
-    await expect(menuButton.locator('svg')).toBeVisible();
+    // Should show user avatar with initials instead of an SVG icon
+    await expect(menuButton.locator('.avatar')).toBeVisible();
+    await expect(menuButton.locator('span')).toBeVisible(); // The user initial
 
     // Click to open menu
     await menuButton.click();
 
-    // Should still show the svg icon
-    await expect(menuButton.locator('svg')).toBeVisible();
+    // Should still show the avatar
+    await expect(menuButton.locator('.avatar')).toBeVisible();
 
     // Click to close menu
     await menuButton.click();
 
-    // Should still show the svg icon
-    await expect(menuButton.locator('svg')).toBeVisible();
+    // Should still show the avatar
+    await expect(menuButton.locator('.avatar')).toBeVisible();
   });
 
   test('should be accessible via keyboard', async ({ page }) => {
