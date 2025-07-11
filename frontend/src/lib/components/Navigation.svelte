@@ -22,6 +22,14 @@
     }
     goto('/');
   }
+
+  // Close dropdown when navigation link is clicked
+  function closeDropdown() {
+    const details = document.querySelector('details.dropdown');
+    if (details) {
+      details.removeAttribute('open');
+    }
+  }
 </script>
 
 <header class="navbar bg-primary text-primary-content border-base-200 sticky top-0 z-30 border-b shadow-sm">
@@ -66,37 +74,37 @@
               <span class="text-xs">Quick Navigation</span>
             </li>
             <li>
-              <a href="/character" class="text-base-content">
+              <a href="/character" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Character
               </a>
             </li>
             <li>
-              <a href="/journal" class="text-base-content">
+              <a href="/journal" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                 Journal
               </a>
             </li>
             <li>
-              <a href="/goals" class="text-base-content">
+              <a href="/goals" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                 Goals
               </a>
             </li>
             <li>
-              <a href="/stats" class="text-base-content">
+              <a href="/stats" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 Stats
               </a>
             </li>
             <li>
-              <a href="/family" class="text-base-content">
+              <a href="/family" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="m9 12 2 2 4-4"/><path d="M21 5c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2s.9-2 2-2h14c1.1 0 2 .9 2 2Z"/><path d="M17 17H7l4 4 4-4Z"/></svg>
                 Family
               </a>
             </li>
             <li>
-              <a href="/focus" class="text-base-content">
+              <a href="/focus" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
                 Focus
               </a>
@@ -110,13 +118,13 @@
               <span class="text-xs">More Features</span>
             </li>
             <li>
-              <a href="/family" class="text-base-content">
+              <a href="/family" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="m9 12 2 2 4-4"/><path d="M21 5c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2s.9-2 2-2h14c1.1 0 2 .9 2 2Z"/><path d="M17 17H7l4 4 4-4Z"/></svg>
                 Family
               </a>
             </li>
             <li>
-              <a href="/focus" class="text-base-content">
+              <a href="/focus" class="text-base-content" on:click={closeDropdown}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
                 Focus
               </a>
