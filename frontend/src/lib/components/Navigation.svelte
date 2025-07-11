@@ -2,6 +2,7 @@
   import { authStore, type User } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
   import ThemeController from './ThemeController.svelte';
+  import AvatarDisplay from './AvatarDisplay.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -53,13 +54,9 @@
 
       <!-- User dropdown menu using DaisyUI Method 1 (details/summary) -->
       <details class="dropdown dropdown-end">
-        <summary id="nav-menu-btn" class="btn btn-ghost btn-circle avatar" aria-label="Open menu">
+        <summary id="nav-menu-btn" class="btn btn-ghost btn-circle" aria-label="Open menu">
           <!-- User Avatar -->
-          <div class="avatar placeholder">
-            <div class="bg-primary-content text-primary h-8 w-8 rounded-full">
-              <span class="text-xs font-bold">{user.name[0]}</span>
-            </div>
-          </div>
+          <AvatarDisplay avatar={user.avatar} name={user.name} size="sm" clickable />
         </summary>
 
         <ul id="nav-menu" class="dropdown-content menu bg-base-100 rounded-box border-base-200 z-40 w-64 border p-2 shadow" aria-label="User menu">
@@ -170,6 +167,22 @@
                 Focus
               </a>
             </li>
+            <li>
+              <a href="/profile" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg
+                >
+                Profile
+              </a>
+            </li>
             <div class="divider my-2"></div>
           </div>
 
@@ -213,6 +226,23 @@
             </li>
             <div class="divider my-2"></div>
           </div>
+
+          <li>
+            <a href="/profile" class="text-base-content" on:click={closeDropdown}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg
+              >
+              Profile
+            </a>
+          </li>
 
           <li>
             <button class="text-error hover:bg-error hover:text-error-content" on:click={handleLogout}>

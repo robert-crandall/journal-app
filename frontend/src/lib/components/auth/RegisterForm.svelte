@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import AvatarUpload from '../AvatarUpload.svelte';
 
   // Props
   export let loading = false;
@@ -10,6 +11,7 @@
   let name = '';
   let email = '';
   let password = '';
+  let avatar: string | null = null;
 
   // Form validation
   let nameError = '';
@@ -19,7 +21,7 @@
 
   // Event dispatcher
   const dispatch = createEventDispatcher<{
-    register: { name: string; email: string; password: string };
+    register: { name: string; email: string; password: string; avatar?: string };
   }>();
 
   // Validate form input
@@ -72,8 +74,21 @@
   // Handle form submission
   function handleSubmit() {
     if (validateForm()) {
-      dispatch('register', { name, email, password });
+      dispatch('register', { 
+        name, 
+        email, 
+        password,
+        ...(avatar && { avatar })
+      });
     }
+  }
+
+  function handleAvatarUpload(event: CustomEvent<string>) {
+    avatar = event.detail;
+  }
+
+  function handleAvatarRemove() {
+    avatar = null;
   }
 </script>
 
@@ -128,6 +143,24 @@
   {/if}
 
   <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+    <!-- Avatar Upload (Optional) -->
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Profile Picture (Optional)</span>
+      </label>
+      <div class="flex justify-center py-4">
+        <AvatarUpload
+          currentAvatar={avatar}
+          userName={name}
+          size="medium"
+          loading={loading}
+          disabled={!registrationEnabled}
+          on:upload={handleAvatarUpload}
+          on:remove={handleAvatarRemove}
+        />
+      </div>
+    </div>
+
     <div class="form-control">
       <label class="label" for="name">
         <span class="label-text">Full Name</span>
