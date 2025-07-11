@@ -86,7 +86,7 @@ Your task is to review the entire conversation and generate:
 
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
-3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined.
+3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
 4. **Content Tags**: 3-6 tags describing topics, activities, or themes (e.g., "work", "family", "exercise", "reflection")
 5. **Stat Tags**: Character stats that could be relevant based on the content discussed
 
