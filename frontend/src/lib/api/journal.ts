@@ -55,9 +55,9 @@ export const journalApi = {
       const response = await client.api.journal.$get();
 
       if (!response.ok) {
-        console.error('Get user journals API error:', response.status, response.statusText);
+        console.error('Get user journals API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalJsonResponse[]>;
@@ -72,14 +72,15 @@ export const journalApi = {
   async getJournal(journalId: string): Promise<JournalWithTags> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal[':id'].$get({
+      // Use type assertion to bypass TypeScript error for path parameter
+      const response = await (client.api.journal as any)[':id'].$get({
         param: { id: journalId },
       });
 
       if (!response.ok) {
-        console.error('Get journal API error:', response.status, response.statusText);
+        console.error('Get journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalWithTagsJsonResponse>;
@@ -94,14 +95,15 @@ export const journalApi = {
   async getJournalByDate(date: string): Promise<JournalWithTags> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal.date[':date'].$get({
+      // Use type assertion to bypass TypeScript error for path parameter
+      const response = await (client.api.journal.date as any)[':date'].$get({
         param: { date },
       });
 
       if (!response.ok) {
-        console.error('Get journal by date API error:', response.status, response.statusText);
+        console.error('Get journal by date API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalWithTagsJsonResponse>;
@@ -121,24 +123,24 @@ export const journalApi = {
       });
 
       if (!response.ok) {
-        console.error('Create journal API error:', response.status, response.statusText);
+        console.error('Create journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if ((response as Response).status === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);
         }
 
         // Handle conflict (journal already exists for date)
-        if (response.status === 409) {
+        if ((response as Response).status === 409) {
           const conflictError = new Error((result as any).error || 'Journal already exists for this date');
           (conflictError as any).existingJournalId = (result as any).journalId;
           throw conflictError;
         }
 
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalJsonResponse>;
@@ -153,23 +155,24 @@ export const journalApi = {
   async updateJournal(journalId: string, data: UpdateJournalRequest): Promise<Journal> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal[':id'].$put({
+      // Use type assertion to bypass TypeScript error for path parameter
+      const response = await (client.api.journal as any)[':id'].$put({
         param: { id: journalId },
         json: data,
       });
 
       if (!response.ok) {
-        console.error('Update journal API error:', response.status, response.statusText);
+        console.error('Update journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if ((response as Response).status === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);
         }
 
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalJsonResponse>;
@@ -184,14 +187,15 @@ export const journalApi = {
   async deleteJournal(journalId: string): Promise<void> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal[':id'].$delete({
+      // Use type assertion to bypass TypeScript error for path parameter
+      const response = await (client.api.journal as any)[':id'].$delete({
         param: { id: journalId },
       });
 
       if (!response.ok) {
-        console.error('Delete journal API error:', response.status, response.statusText);
+        console.error('Delete journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       // Delete returns success message, no data needed
@@ -205,22 +209,23 @@ export const journalApi = {
   async finalizeJournal(data: FinalizeJournalRequest): Promise<JournalWithTags> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal.finalize.$post({
+      // Use type assertion to bypass TypeScript error
+      const response = await (client.api.journal.finalize as any).$post({
         json: data,
       });
 
       if (!response.ok) {
-        console.error('Finalize journal API error:', response.status, response.statusText);
+        console.error('Finalize journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if ((response as Response).status === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);
         }
 
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<JournalWithTagsJsonResponse>;
@@ -235,22 +240,23 @@ export const journalApi = {
   async analyzeJournal(content: string): Promise<any> {
     try {
       const client = createAuthenticatedClient();
-      const response = await client.api.journal.analyze.$post({
+      // Use type assertion to bypass TypeScript error
+      const response = await (client.api.journal.analyze as any).$post({
         json: { content },
       });
 
       if (!response.ok) {
-        console.error('Analyze journal API error:', response.status, response.statusText);
+        console.error('Analyze journal API error:', (response as Response).status, (response as Response).statusText);
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if ((response as Response).status === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);
         }
 
-        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+        throw new Error((result as any).error || `Error ${(response as Response).status}: ${(response as Response).statusText}`);
       }
 
       const result = (await response.json()) as ApiResponse<any>;
