@@ -24,30 +24,19 @@ import type {
   JournalEntryWithDetails,
 } from '../types/journal';
 import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata, type UserContext } from '../utils/gpt/conversationalJournal';
+import { getUserContext as getComprehensiveUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
 
-// Helper function to get user context for GPT
+// Helper function to get user context for GPT (legacy format for backwards compatibility)
 async function getUserContext(userId: string): Promise<UserContext> {
   try {
-    const user = await db
-      .select({
-        name: characters.name,
-        characterClass: characters.characterClass,
-        backstory: characters.backstory,
-        goals: characters.goals,
-      })
-      .from(characters)
-      .where(eq(characters.userId, userId))
-      .limit(1);
-
-    if (user.length === 0) {
-      return { name: 'User' };
-    }
-
+    const comprehensiveContext = await getComprehensiveUserContext(userId);
+    
+    // Convert to legacy format for backwards compatibility
     return {
-      name: user[0].name,
-      characterClass: user[0].characterClass || undefined,
-      backstory: user[0].backstory || undefined,
-      goals: user[0].goals || undefined,
+      name: comprehensiveContext.name,
+      characterClass: comprehensiveContext.characterClass,
+      backstory: comprehensiveContext.backstory,
+      goals: comprehensiveContext.characterGoals,
     };
   } catch (error) {
     return { name: 'User' };
