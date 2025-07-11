@@ -61,9 +61,9 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
 
     if (content.includes('Generate a welcome message')) {
       mockResponse = "Hi there! I'm here to help you reflect on whatever's on your mind today. What would you like to share?";
-    } else if (content.includes('journal conversation') && !content.includes('Generate meaningful metadata')) {
+    } else if (content.includes('journal conversation') && !content.includes('Generate metadata')) {
       mockResponse = 'That sounds really meaningful. Can you tell me more about what that experience was like for you?';
-    } else if (content.includes('Generate meaningful metadata') || content.includes('Analyze this journal conversation')) {
+    } else if (content.includes('Generate metadata') || content.includes('Analyze this journal conversation')) {
       // Return properly formatted JSON for metadata generation
       mockResponse = JSON.stringify({
         title: 'Reflective Journal Session',
