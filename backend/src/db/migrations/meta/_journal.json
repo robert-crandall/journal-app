@@ -85,6 +85,13 @@
       "when": 1752201519817,
       "tag": "0011_harsh_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1752205696619,
+      "tag": "0012_flaky_molten_man",
+      "breakpoints": true
     }
   ]
 }

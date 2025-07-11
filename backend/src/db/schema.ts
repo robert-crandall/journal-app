@@ -7,6 +7,7 @@ export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
 export { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
+export { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -40,3 +41,4 @@ export type {
   JournalEntryWithDetails,
   ChatMessage,
 } from '../types/journal';
+export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';

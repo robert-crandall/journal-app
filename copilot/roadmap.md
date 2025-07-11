@@ -39,11 +39,11 @@
 
 ### 🧠 Phase 2: GPT + Journal Integration (Weeks 3–4)
 
-- [ ] **Journal System**
+- [x] **Journal System**
   - Freeform conversational journal
   - Save entry after session
 
-- [ ] **GPT Journal Analysis**
+- [x] **GPT Journal Analysis**
   - Extract summary, synopsis, title
   - Assign content tags, tone tags, stat tags (and grant XP)
   - Store GPT log + metadata per entry
