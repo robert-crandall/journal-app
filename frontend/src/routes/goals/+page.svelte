@@ -114,22 +114,13 @@
   <!-- Page Header -->
   <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
     <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-primary mb-2 text-4xl font-bold">Goals Dashboard</h1>
-          <p class="text-base-content/70 text-lg">Define and track your personal objectives</p>
+      <div class="flex items-center gap-3">
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content w-12 rounded-full">🎯</div>
         </div>
-        <div class="flex gap-3">
-          <div class="form-control">
-            <label class="label cursor-pointer gap-2">
-              <span class="label-text">Show Archived</span>
-              <input type="checkbox" bind:checked={showArchived} class="checkbox checkbox-primary" />
-            </label>
-          </div>
-          <button onclick={createGoal} class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
-            <Plus size={20} />
-            Create Goal
-          </button>
+        <div>
+          <h1 class="text-primary text-3xl font-bold">Goals</h1>
+          <p class="text-base-content/70">Define and track your personal objectives</p>
         </div>
       </div>
     </div>
@@ -313,16 +304,18 @@
             <!-- Actions Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold">Quick Actions</h3>
-                <div class="space-y-2">
-                  <button onclick={createGoal} class="btn btn-outline btn-sm w-full gap-2">
+                <h3 class="mb-4 font-semibold">Actions</h3>
+                <div class="space-y-3">
+                  <button onclick={createGoal} class="btn btn-primary w-full gap-2">
                     <Plus size={16} />
-                    Create New Goal
+                    Create Goal
                   </button>
-                  <button onclick={() => (showArchived = !showArchived)} class="btn btn-outline btn-sm w-full gap-2">
-                    <Archive size={16} />
-                    {showArchived ? 'Show Active' : 'Show Archived'}
-                  </button>
+                  <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-2">
+                      <input type="checkbox" bind:checked={showArchived} class="checkbox checkbox-primary" />
+                      <span class="label-text">Show Archived</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

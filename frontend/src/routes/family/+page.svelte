@@ -121,16 +121,13 @@
   <!-- Page Header -->
   <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
     <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-primary mb-2 text-4xl font-bold">Family Dashboard</h1>
-          <p class="text-base-content/70 text-lg">Nurture meaningful connections with those who matter most</p>
+      <div class="flex items-center gap-3">
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content w-12 rounded-full">👨‍👩‍👧‍👦</div>
         </div>
-        <div class="flex gap-3">
-          <button onclick={createFamilyMember} class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105">
-            <Plus size={20} />
-            Add Family Member
-          </button>
+        <div>
+          <h1 class="text-primary text-3xl font-bold">Family</h1>
+          <p class="text-base-content/70">Nurture meaningful connections with those who matter most</p>
         </div>
       </div>
     </div>
@@ -352,12 +349,12 @@
               </div>
             </div>
 
-            <!-- Quick Actions Card -->
+            <!-- Actions Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold">Quick Actions</h3>
+                <h3 class="mb-4 font-semibold">Actions</h3>
                 <div class="space-y-2">
-                  <button onclick={createFamilyMember} class="btn btn-outline btn-sm w-full gap-2">
+                  <button onclick={createFamilyMember} class="btn btn-primary w-full gap-2">
                     <Plus size={16} />
                     Add Family Member
                   </button>
