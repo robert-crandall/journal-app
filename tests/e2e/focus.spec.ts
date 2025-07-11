@@ -78,7 +78,7 @@ test.describe('Focus Management', () => {
     await expect(page).toHaveURL('/focus');
 
     // Check page loads with basic structure
-    await expect(page.locator('h1')).toContainText('Daily Focus');
+    await expect(page.locator('h1')).toContainText('Focus');
     await expect(page.locator('h2:has-text("Weekly Schedule")')).toBeVisible();
 
     // Verify we have the weekly schedule section

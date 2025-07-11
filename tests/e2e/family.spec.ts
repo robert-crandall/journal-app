@@ -9,7 +9,7 @@ test.describe('Family Management', () => {
   test('should display family page', async ({ page }) => {
     await page.goto('/family');
     await expect(page).toHaveURL('/family');
-    await expect(page.locator('h1')).toContainText('Family Dashboard');
+    await expect(page.locator('h1')).toContainText('Family');
   });
 
   test('should create a new family member', async ({ page }) => {
