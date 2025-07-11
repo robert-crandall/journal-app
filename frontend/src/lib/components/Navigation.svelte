@@ -38,6 +38,7 @@
       <a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
       <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
       <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
+      <a href="/journal" class="btn btn-ghost text-primary-content hover:bg-primary/80">Journal</a>
       <a href="/family" class="btn btn-ghost text-primary-content hover:bg-primary/80">Family</a>
       <a href="/focus" class="btn btn-ghost text-primary-content hover:bg-primary/80">Focus</a>
 
