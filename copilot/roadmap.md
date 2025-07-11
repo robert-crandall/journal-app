@@ -26,7 +26,7 @@
   - Provide title + description
   - Editable schedule
 
-- [ ] **Simple Todos**
+- [x] **Simple Todos**
   - Create/view/complete simple one-off tasks
   - Display on homepage only
 
