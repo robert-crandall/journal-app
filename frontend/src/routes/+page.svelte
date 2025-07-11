@@ -2,6 +2,7 @@
   import { authStore, type User } from '$lib/stores/auth';
   import Navigation from '$lib/components/Navigation.svelte';
   import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
+  import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -54,6 +55,11 @@
               <!-- Daily Focus Widget -->
               <div class="mb-6">
                 <DailyFocusWidget />
+              </div>
+
+              <!-- Simple Todos Widget -->
+              <div class="mb-6">
+                <SimpleTodosWidget />
               </div>
 
               <div class="divider"></div>

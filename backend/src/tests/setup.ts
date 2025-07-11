@@ -60,6 +60,8 @@ export async function cleanDatabase() {
     await safeDelete(schema.characterStats, 'character_stats');
     await safeDelete(schema.goals, 'goals');
     await safeDelete(schema.characters, 'characters');
+    // Simple todos (reference users)
+    await safeDelete(schema.simpleTodos, 'simple_todos');
     await safeDelete(schema.users, 'users');
   } catch (error) {
     if (error instanceof Error && !error.message.includes('CONNECTION_ENDED')) {

@@ -34,9 +34,9 @@
   - [ ] 4.5 Ensure all goals/family tests pass
 
 - [ ] 5.0 Simple Todos (One-off Tasks)
-  - [ ] 5.1 Design and implement simple todo CRUD (backend)
-  - [ ] 5.2 Write backend integration tests for todos
-  - [ ] 5.3 Implement frontend UI for simple todos
+  - [x] 5.1 Design and implement simple todo CRUD (backend)
+  - [x] 5.2 Write backend integration tests for todos
+  - [x] 5.3 Implement frontend UI for simple todos
   - [ ] 5.4 Write frontend E2E tests for todos
   - [ ] 5.5 Ensure all todo tests pass
 
