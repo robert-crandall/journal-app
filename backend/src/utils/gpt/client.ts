@@ -51,6 +51,45 @@ function getClient(): OpenAI {
 export async function callGptApi(options: GptOptions): Promise<GptResponse> {
   const { model = gptConfig.getDefaultModel(), temperature, maxTokens, messages, stream = false } = options;
 
+  // In test environment, return mock responses to avoid API calls
+  if (process.env.NODE_ENV === 'test' || process.env.OPENAI_API_KEY === 'sk-test-key-for-testing-only') {
+    const lastMessage = messages[messages.length - 1];
+    const content = typeof lastMessage?.content === 'string' ? lastMessage.content : '';
+
+    // Generate appropriate mock responses based on the prompt content
+    let mockResponse = '';
+
+    if (content.includes('Generate a welcome message')) {
+      mockResponse = "Hi there! I'm here to help you reflect on whatever's on your mind today. What would you like to share?";
+    } else if (content.includes('journal conversation') && !content.includes('Generate meaningful metadata')) {
+      mockResponse = 'That sounds really meaningful. Can you tell me more about what that experience was like for you?';
+    } else if (content.includes('Generate meaningful metadata') || content.includes('Analyze this journal conversation')) {
+      // Return properly formatted JSON for metadata generation
+      mockResponse = JSON.stringify({
+        title: 'Reflective Journal Session',
+        synopsis: 'A thoughtful conversation about current experiences and feelings.',
+        summary:
+          'In this journal session, the user shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.',
+        suggestedTags: ['reflection', 'thoughts', 'personal'],
+        suggestedStatTags: [],
+      });
+    } else {
+      mockResponse = 'This is a mock response for testing purposes.';
+    }
+
+    // Simulate some delay to make it more realistic
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    return {
+      content: mockResponse,
+      tokenUsage: {
+        promptTokens: 100,
+        completionTokens: 50,
+        totalTokens: 150,
+      },
+    };
+  }
+
   const client = getClient();
   const isDebug = gptConfig.isDebugEnabled();
 

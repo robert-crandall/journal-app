@@ -24,6 +24,9 @@ export { createSystemPrompt, createUserPrompt, createPrompt, extractTagsFromText
 export { analyzeJournalEntry } from './journal';
 export type { JournalAnalysisRequest, JournalAnalysisResponse } from './journal';
 
+export { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
+export type { UserContext, ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
+
 export { generateDailyTasks } from './taskGen';
 export type { TaskGenerationRequest, TaskGenerationResponse, GeneratedTask } from './taskGen';
 

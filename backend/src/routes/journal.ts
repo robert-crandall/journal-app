@@ -23,78 +23,10 @@ import type {
   ChatMessage,
   JournalEntryWithDetails,
 } from '../types/journal';
-
-// GPT service (mock for now - will be replaced with real OpenAI integration)
-class GPTService {
-  async generateWelcomeMessage(userContext: { name: string; characterClass?: string; backstory?: string; goals?: string }): Promise<string> {
-    // Mock welcome message
-    return `Hi ${userContext.name}! I'm here to help you reflect on whatever's on your mind today. What would you like to share?`;
-  }
-
-  async generateFollowUpResponse(
-    conversation: ChatMessage[],
-    userContext: {
-      name: string;
-      characterClass?: string;
-      backstory?: string;
-      goals?: string;
-    },
-  ): Promise<{ response: string; shouldOfferSave: boolean }> {
-    const userMessages = conversation.filter((msg) => msg.role === 'user');
-    const shouldOfferSave = userMessages.length >= 3;
-
-    if (shouldOfferSave) {
-      return {
-        response: `Thank you for sharing with me. I can sense this conversation has covered some important ground. Would you like to save this journal entry?`,
-        shouldOfferSave: true,
-      };
-    }
-
-    // Mock thoughtful follow-up based on the last user message
-    const lastUserMessage = conversation[conversation.length - 1]?.content || '';
-    const responses = [
-      `That sounds really meaningful. Can you tell me more about what that experience was like for you?`,
-      `I can hear that this is important to you. What feelings came up when that happened?`,
-      `Interesting perspective. How do you think that connects to what you're working toward right now?`,
-      `That's a lot to process. What part of this feels most significant to you?`,
-    ];
-
-    return {
-      response: responses[Math.floor(Math.random() * responses.length)],
-      shouldOfferSave: false,
-    };
-  }
-
-  async generateJournalMetadata(
-    conversation: ChatMessage[],
-    userContext: {
-      name: string;
-      characterClass?: string;
-      backstory?: string;
-      goals?: string;
-    },
-  ): Promise<{
-    title: string;
-    synopsis: string;
-    summary: string;
-    suggestedTags: string[];
-    suggestedStatTags: string[];
-  }> {
-    // Mock metadata generation
-    return {
-      title: 'Reflective Journal Session',
-      synopsis: 'A thoughtful conversation about current experiences and feelings.',
-      summary: `In this journal session, ${userContext.name} shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.`,
-      suggestedTags: ['reflection', 'thoughts', 'personal'],
-      suggestedStatTags: [], // Will be populated based on available stats
-    };
-  }
-}
-
-const gptService = new GPTService();
+import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata, type UserContext } from '../utils/gpt/conversationalJournal';
 
 // Helper function to get user context for GPT
-async function getUserContext(userId: string) {
+async function getUserContext(userId: string): Promise<UserContext> {
   try {
     const user = await db
       .select({
@@ -181,7 +113,7 @@ const app = new Hono()
         .returning();
 
       // Generate welcome message
-      const welcomeMessage = await gptService.generateWelcomeMessage(userContext);
+      const welcomeMessage = await generateWelcomeMessage(userContext);
 
       // Add welcome message to session
       const initialMessages = [
@@ -261,7 +193,7 @@ const app = new Hono()
       const updatedMessages = [...currentMessages, userMessage];
 
       // Generate GPT response
-      const { response: gptResponse, shouldOfferSave } = await gptService.generateFollowUpResponse(updatedMessages, userContext);
+      const { response: gptResponse, shouldOfferSave } = await generateFollowUpResponse(updatedMessages, userContext);
 
       // Add GPT response
       const assistantMessage: ChatMessage = {
@@ -324,7 +256,7 @@ const app = new Hono()
       const userContext = await getUserContext(userId);
 
       // Generate metadata using GPT
-      const metadata = await gptService.generateJournalMetadata(messages, userContext);
+      const metadata = await generateJournalMetadata(messages, userContext);
 
       // Create journal entry
       const newEntry = await db
