@@ -190,9 +190,3 @@ interface LocalUser {
   name: string;
 }
 ```
-
-## Cross-References
-
-- **Backend API Guidelines**: See [hono.instructions.md](mdc:.github/instructions/hono.instructions.md)
-- **Frontend Component Guidelines**: See [sveltekit.instructions.md](mdc:.github/instructions/sveltekit.instructions.md)
-- **Testing Guidelines**: See [hono.test.instructions.md](mdc:.github/testing/hono.test.instructions.md) and [sveltekit.test.instructions.md](mdc:.github/testing/sveltekit.test.instructions.md)

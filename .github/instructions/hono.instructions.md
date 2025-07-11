@@ -542,5 +542,3 @@ app.get('/health', (c) => {
 // Don't create complex class hierarchies
 // Keep it simple with Hono's functional approach
 ```
-
-> Reference: [Complete Hono Documentation](../references/hono-llms.md)
