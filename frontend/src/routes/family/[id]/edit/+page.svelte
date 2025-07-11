@@ -113,10 +113,10 @@
     try {
       avatarUploading = true;
       const avatar = event.detail;
-      
+
       // Update avatar immediately via API
       const updatedMember = await familyApi.updateFamilyMemberAvatar(memberId, avatar);
-      
+
       // Update form data and original member
       formData.avatar = avatar;
       if (originalMember) {
@@ -133,10 +133,10 @@
   async function handleAvatarRemove() {
     try {
       avatarUploading = true;
-      
+
       // Remove avatar via API
       const updatedMember = await familyApi.updateFamilyMemberAvatar(memberId, null);
-      
+
       // Update form data and original member
       formData.avatar = undefined;
       if (originalMember) {

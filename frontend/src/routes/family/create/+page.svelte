@@ -154,23 +154,24 @@
             <form onsubmit={handleSubmit} class="space-y-8">
               <!-- Basic Information Section -->
               <section>
-                <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>                  <!-- Avatar Upload Section -->
-                  <div class="mb-6 flex justify-center">
-                    <div class="form-control">
-                      <div class="label justify-center">
-                        <span class="label-text font-medium">Avatar</span>
-                      </div>
-                      <AvatarUpload
-                        currentAvatar={formData.avatar}
-                        userName={formData.name}
-                        size="large"
-                        loading={avatarUploading}
-                        disabled={loading}
-                        on:upload={handleAvatarUpload}
-                        on:remove={handleAvatarRemove}
-                      />
+                <h3 class="text-primary border-primary/20 mb-6 border-b pb-2 text-xl font-semibold">Basic Information</h3>
+                <!-- Avatar Upload Section -->
+                <div class="mb-6 flex justify-center">
+                  <div class="form-control">
+                    <div class="label justify-center">
+                      <span class="label-text font-medium">Avatar</span>
                     </div>
+                    <AvatarUpload
+                      currentAvatar={formData.avatar}
+                      userName={formData.name}
+                      size="large"
+                      loading={avatarUploading}
+                      disabled={loading}
+                      on:upload={handleAvatarUpload}
+                      on:remove={handleAvatarRemove}
+                    />
                   </div>
+                </div>
 
                 <div class="grid gap-6 md:grid-cols-2">
                   <!-- Name Field -->

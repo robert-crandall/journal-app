@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  
+
   const dispatch = createEventDispatcher<{
     upload: string; // base64 string
     remove: void;
@@ -14,14 +14,14 @@
   // Size configurations following style guide
   const sizeClasses = {
     small: 'w-12 h-12',
-    medium: 'w-16 h-16', 
-    large: 'w-24 h-24'
+    medium: 'w-16 h-16',
+    large: 'w-24 h-24',
   };
 
   const iconSizes = {
     small: 'w-4 h-4',
     medium: 'w-6 h-6',
-    large: 'w-8 h-8'
+    large: 'w-8 h-8',
   };
 
   let fileInput: HTMLInputElement;
@@ -34,7 +34,7 @@
   function handleFileSelect(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (!file) return;
 
     uploadError = '';
@@ -59,11 +59,11 @@
         dispatch('upload', result);
       }
     };
-    
+
     reader.onerror = () => {
       uploadError = 'Failed to read image file.';
     };
-    
+
     reader.readAsDataURL(file);
   }
 
@@ -83,7 +83,7 @@
   export let userName = '';
   $: initials = userName
     .split(' ')
-    .map(word => word.charAt(0))
+    .map((word) => word.charAt(0))
     .join('')
     .toUpperCase()
     .slice(0, 2);
@@ -92,18 +92,33 @@
 <div class="flex flex-col items-center gap-4">
   <!-- Avatar Display -->
   <div class="avatar placeholder">
-    <div class="{sizeClasses[size]} bg-base-300 text-base-content rounded-full relative group transition-all duration-200 {disabled || loading ? 'opacity-50' : 'hover:scale-105'}">
+    <div
+      class="{sizeClasses[size]} bg-base-300 text-base-content group relative rounded-full transition-all duration-200 {disabled || loading
+        ? 'opacity-50'
+        : 'hover:scale-105'}"
+    >
       {#if currentAvatar}
-        <img src={currentAvatar} alt="Avatar" class="rounded-full object-cover w-full h-full" />
+        <img src={currentAvatar} alt="Avatar" class="h-full w-full rounded-full object-cover" />
       {:else}
         <span class="text-sm font-medium">{initials || '?'}</span>
       {/if}
-      
+
       <!-- Hover overlay -->
       {#if !disabled && !loading}
-        <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center cursor-pointer" on:click={triggerFileInput} on:keydown={(e) => e.key === 'Enter' && triggerFileInput()} role="button" tabindex="0">
+        <div
+          class="bg-opacity-50 absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          on:click={triggerFileInput}
+          on:keydown={(e) => e.key === 'Enter' && triggerFileInput()}
+          role="button"
+          tabindex="0"
+        >
           <svg class="{iconSizes[size]} text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+            />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
@@ -120,27 +135,37 @@
 
   <!-- Action Buttons -->
   <div class="flex gap-2">
-    <button 
+    <button
       type="button"
       class="btn btn-sm btn-primary gap-2 transition-all duration-200 hover:scale-105"
       on:click={triggerFileInput}
       disabled={disabled || loading}
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+        />
       </svg>
       Upload
     </button>
 
     {#if currentAvatar}
-      <button 
+      <button
         type="button"
         class="btn btn-sm btn-outline btn-error gap-2 transition-all duration-200 hover:scale-105"
         on:click={removeAvatar}
         disabled={disabled || loading}
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
         </svg>
         Remove
       </button>
@@ -150,7 +175,7 @@
   <!-- Error Message -->
   {#if uploadError}
     <div class="alert alert-error text-sm">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       {uploadError}
@@ -158,9 +183,7 @@
   {/if}
 
   <!-- File Size Info -->
-  <p class="text-xs text-base-content/60 text-center">
-    JPEG, PNG, or WebP. Max 2MB.
-  </p>
+  <p class="text-base-content/60 text-center text-xs">JPEG, PNG, or WebP. Max 2MB.</p>
 </div>
 
 <!-- Hidden file input -->

@@ -75,11 +75,11 @@
   // Handle form submission
   function handleSubmit() {
     if (validateForm()) {
-      dispatch('register', { 
-        name, 
-        email, 
+      dispatch('register', {
+        name,
+        email,
         password,
-        ...(avatar && { avatar })
+        ...(avatar && { avatar }),
       });
     }
   }
