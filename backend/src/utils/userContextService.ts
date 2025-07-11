@@ -202,11 +202,6 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
     promptContent += `Motto: "${context.motto}"\n`;
   }
 
-  // Goals
-  if (context.characterGoals) {
-    promptContent += `Character Goals: ${context.characterGoals}\n`;
-  }
-
   if (context.activeGoals && context.activeGoals.length > 0) {
     promptContent += `\nActive Goals:\n`;
     context.activeGoals.forEach((goal) => {
@@ -216,6 +211,10 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
       }
       promptContent += `\n`;
     });
+  } else {
+    if (context.characterGoals) {
+      promptContent += `Character Goals: ${context.characterGoals}\n`;
+    }
   }
 
   // Family members
