@@ -92,6 +92,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
 
   const client = getClient();
   const isDebug = gptConfig.isDebugEnabled();
+  const isWelcomeMessageEnabled = gptConfig.isWelcomeMessageEnabled();
 
   // Debug logging for prompt
   if (isDebug) {
@@ -139,7 +140,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       logger.debug('GPT response:', {
         duration: `${duration}ms`,
         tokenUsage,
-        content: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+        content,
       });
     }
 

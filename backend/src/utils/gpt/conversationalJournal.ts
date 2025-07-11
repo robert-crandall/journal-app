@@ -1,6 +1,7 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { callGptApi } from './client';
 import { createPrompt } from './utils';
+import { gptConfig } from './config';
 
 /**
  * Interface for user context in conversational journal
@@ -51,8 +52,8 @@ Keep the message to 1-2 sentences and make it feel personal but not overwhelming
 /**
  * System prompt for follow-up responses in conversation
  */
-const FOLLOW_UP_SYSTEM_PROMPT = `
-You are a skilled journal companion helping someone reflect on their day. Your role is to:
+function createFollowUpSystemPrompt(userContext: UserContext, shouldOfferSave: boolean, userMessageCount: number): string {
+  let systemPrompt = `You are a skilled journal companion helping ${userContext.name} reflect on their day. Your role is to:
 
 1. Ask thoughtful follow-up questions that help the user explore their experiences more deeply
 2. Show genuine interest and empathy
@@ -60,16 +61,41 @@ You are a skilled journal companion helping someone reflect on their day. Your r
 4. Encourage deeper reflection without being pushy
 5. Keep responses conversational and supportive
 
+User Context:`;
+
+  if (userContext.characterClass) {
+    systemPrompt += `\n- Background: ${userContext.characterClass}`;
+    if (userContext.backstory) {
+      systemPrompt += ` - ${userContext.backstory}`;
+    }
+  }
+
+  if (userContext.goals) {
+    systemPrompt += `\n- Goals: ${userContext.goals}`;
+  }
+
+  systemPrompt += `
+
 Guidelines:
 - Ask open-ended questions that invite elaboration
 - Reflect back what you hear to show understanding
 - Help them connect experiences to their goals or values when relevant
 - Keep responses to 1-2 sentences
 - Be warm but professional
-- Don't give advice unless specifically asked
+- Don't give advice unless specifically asked`;
 
-If the conversation has reached a natural depth (3+ user messages), gently suggest they might want to save this reflection as a journal entry.
-`;
+  if (shouldOfferSave) {
+    systemPrompt += `
+
+The conversation has reached good depth (${userMessageCount} user messages). Gently suggest saving this as a journal entry while providing a thoughtful response to their last message.`;
+  } else {
+    systemPrompt += `
+
+Provide a thoughtful follow-up response that encourages deeper reflection.`;
+  }
+
+  return systemPrompt;
+}
 
 /**
  * System prompt for generating journal metadata from conversation
@@ -105,6 +131,10 @@ Return ONLY the JSON object without any additional text or explanation.
  * Generate a personalized welcome message for a journal session
  */
 export async function generateWelcomeMessage(userContext: UserContext): Promise<string> {
+  if (!gptConfig.isWelcomeMessageEnabled()) {
+    return `Welcome to your journal! I'm here to help you reflect on your thoughts and experiences. What would you like to share today?`;
+  }
+
   let userPromptContent = `Generate a welcome message for a user starting a journal session.\n\n`;
 
   userPromptContent += `User Details:\n`;
@@ -141,35 +171,22 @@ export async function generateFollowUpResponse(conversation: ChatMessage[], user
   const userMessages = conversation.filter((msg) => msg.role === 'user');
   const shouldOfferSave = userMessages.length >= 3;
 
-  let userPromptContent = `You are having a journal conversation with ${userContext.name}.\n\n`;
+  // Create the system prompt with user context
+  const systemPrompt = createFollowUpSystemPrompt(userContext, shouldOfferSave, userMessages.length);
 
-  if (userContext.characterClass) {
-    userPromptContent += `User Background: ${userContext.characterClass}`;
-    if (userContext.backstory) {
-      userPromptContent += ` - ${userContext.backstory}`;
-    }
-    userPromptContent += `\n`;
-  }
+  // Prepare the conversation messages for the API
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: systemPrompt }
+  ];
 
-  if (userContext.goals) {
-    userPromptContent += `User Goals: ${userContext.goals}\n`;
-  }
-
-  userPromptContent += `\nConversation so far:\n`;
-
-  // Include the recent conversation context
-  conversation.slice(-6).forEach((msg, index) => {
-    const speaker = msg.role === 'user' ? userContext.name : 'You';
-    userPromptContent += `${speaker}: ${msg.content}\n`;
+  // Add the recent conversation context (last 6 messages)
+  const recentConversation = conversation.slice(-6);
+  recentConversation.forEach((msg) => {
+    messages.push({
+      role: msg.role,
+      content: msg.content
+    });
   });
-
-  if (shouldOfferSave) {
-    userPromptContent += `\nThe conversation has reached good depth (${userMessages.length} user messages). Gently suggest saving this as a journal entry while providing a thoughtful response to their last message.`;
-  } else {
-    userPromptContent += `\nProvide a thoughtful follow-up response that encourages deeper reflection.`;
-  }
-
-  const messages = createPrompt(FOLLOW_UP_SYSTEM_PROMPT, userPromptContent);
 
   const response = await callGptApi({
     messages,

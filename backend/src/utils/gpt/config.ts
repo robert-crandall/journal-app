@@ -61,6 +61,13 @@ export const gptConfig = {
   },
 
   /**
+   * Check if welcome messages are enabled
+   */
+  isWelcomeMessageEnabled: (): boolean => {
+    return false; // Currently disabled, can be toggled in the future
+  },
+
+  /**
    * Default retry settings - can be expanded in the future
    */
   retrySettings: {
