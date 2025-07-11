@@ -414,7 +414,7 @@
                 <div class="card-body p-6">
                   <h3 class="mb-4 font-semibold">Actions</h3>
                   <div class="space-y-2">
-                    <button onclick={() => goto(`/journal/${journal.id}`)} class="btn btn-primary btn-sm w-full gap-2">
+                    <button onclick={() => journal && goto(`/journal/${journal.id}`)} class="btn btn-primary btn-sm w-full gap-2">
                       <BookOpen size={16} />
                       View Analysis
                     </button>

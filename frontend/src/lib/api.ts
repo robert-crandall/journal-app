@@ -94,7 +94,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 /**
  * Lazy-initialized authenticated API client
  * Access this as a property to get a fresh authenticated client
- * Example: authApi.users.list.$get()
+ * Example: authenticatedClient.api.journal.$get()
  */
 export const authenticatedClient = new Proxy({} as ReturnType<typeof createAuthenticatedClient>, {
   get(target, prop) {
