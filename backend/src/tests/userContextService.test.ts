@@ -66,7 +66,6 @@ describe('User Context Service', () => {
         relationship: 'wife',
         likes: 'hiking, reading, coffee',
         dislikes: 'loud noises',
-        energyLevel: 75,
         connectionLevel: 3,
         connectionXp: 250,
         lastInteractionDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
@@ -97,7 +96,6 @@ describe('User Context Service', () => {
       expect(context.familyMembers![0].name).toBe('Sarah');
       expect(context.familyMembers![0].relationship).toBe('wife');
       expect(context.familyMembers![0].likes).toBe('hiking, reading, coffee');
-      expect(context.familyMembers![0].energyLevel).toBe(75);
       expect(context.familyMembers![0].connectionLevel).toBe(3);
 
       expect(context.characterStats).toHaveLength(1);
@@ -182,7 +180,6 @@ describe('User Context Service', () => {
         relationship: 'beloved',
         likes: 'starlight, poetry',
         dislikes: 'conflict',
-        energyLevel: 90,
         connectionLevel: 5,
         connectionXp: 500,
         lastInteractionDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago

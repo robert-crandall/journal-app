@@ -30,7 +30,6 @@ export interface ComprehensiveUserContext {
     relationship: string;
     likes?: string;
     dislikes?: string;
-    energyLevel: number;
     lastInteractionDate?: Date | null;
     connectionLevel: number;
     connectionXp: number;
@@ -147,7 +146,6 @@ export async function getUserContext(
           relationship: familyMembers.relationship,
           likes: familyMembers.likes,
           dislikes: familyMembers.dislikes,
-          energyLevel: familyMembers.energyLevel,
           lastInteractionDate: familyMembers.lastInteractionDate,
           connectionLevel: familyMembers.connectionLevel,
           connectionXp: familyMembers.connectionXp,
@@ -162,7 +160,6 @@ export async function getUserContext(
           relationship: member.relationship,
           likes: member.likes || undefined,
           dislikes: member.dislikes || undefined,
-          energyLevel: member.energyLevel || 50,
           lastInteractionDate: member.lastInteractionDate,
           connectionLevel: member.connectionLevel || 1,
           connectionXp: member.connectionXp || 0,

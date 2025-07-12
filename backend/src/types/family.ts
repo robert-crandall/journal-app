@@ -17,7 +17,6 @@ export interface CreateFamilyMemberRequest {
   birthday?: string; // ISO date string (YYYY-MM-DD)
   likes?: string;
   dislikes?: string;
-  energyLevel: number;
   notes?: string;
   avatar?: string; // Base64 encoded image
 }

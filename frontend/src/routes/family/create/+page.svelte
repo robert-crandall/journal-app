@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { familyApi, type CreateFamilyMemberRequest } from '$lib/api/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
-  import { User, Heart, Calendar, Zap, Users, ArrowLeft, Save } from 'lucide-svelte';
+  import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
 
   // Form state
   let formData: CreateFamilyMemberRequest = $state({
@@ -11,7 +11,6 @@
     birthday: '',
     likes: '',
     dislikes: '',
-    energyLevel: 5,
     notes: '',
     avatar: undefined,
   });
@@ -51,20 +50,6 @@
     'Cousin',
   ];
 
-  // Energy level options
-  const energyLevelOptions = [
-    { value: 1, label: 'Very Draining' },
-    { value: 2, label: 'Draining' },
-    { value: 3, label: 'Slightly Draining' },
-    { value: 4, label: 'Neutral' },
-    { value: 5, label: 'Balanced' },
-    { value: 6, label: 'Slightly Energizing' },
-    { value: 7, label: 'Energizing' },
-    { value: 8, label: 'Very Energizing' },
-    { value: 9, label: 'Highly Energizing' },
-    { value: 10, label: 'Extremely Energizing' },
-  ];
-
   // Handle avatar upload
   function handleAvatarUpload(event: CustomEvent<string>) {
     formData.avatar = event.detail;
@@ -90,7 +75,6 @@
         birthday: formData.birthday || undefined,
         likes: (formData.likes || '').trim() || undefined,
         dislikes: (formData.dislikes || '').trim() || undefined,
-        energyLevel: formData.energyLevel,
         notes: (formData.notes || '').trim() || undefined,
         avatar: formData.avatar || undefined,
       };
@@ -115,11 +99,6 @@
   // Handle relationship selection
   function selectRelationship(relationship: string) {
     formData.relationship = relationship;
-  }
-
-  // Handle energy level selection
-  function selectEnergyLevel(level: number) {
-    formData.energyLevel = level;
   }
 </script>
 
@@ -287,29 +266,6 @@
                         bind:value={formData.dislikes}
                         maxlength="200"
                       ></textarea>
-                    </div>
-                  </div>
-
-                  <!-- Energy Level Field -->
-                  <div class="form-control">
-                    <label class="label" for="energy-level">
-                      <span class="label-text font-medium">Energy Level</span>
-                      <span class="label-text-alt text-xs opacity-60">Optional</span>
-                    </label>
-                    <div class="relative">
-                      <select
-                        id="energy-level"
-                        class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
-                        bind:value={formData.energyLevel}
-                      >
-                        <option value={5}>Choose their typical energy level...</option>
-                        {#each energyLevelOptions as option}
-                          <option value={option.value}>{option.value}/10 - {option.label}</option>
-                        {/each}
-                      </select>
-                      <div class="pointer-events-none absolute inset-y-0 right-10 flex items-center">
-                        <Zap class="text-base-content/40" size="20" />
-                      </div>
                     </div>
                   </div>
                 </div>

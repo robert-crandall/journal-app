@@ -11,7 +11,6 @@ export const familyMembers = pgTable('family_members', {
   birthday: date('birthday'), // Optional birthday (date only, no time)
   likes: text('likes'), // Freeform text for likes/interests
   dislikes: text('dislikes'), // Freeform text for dislikes
-  energyLevel: integer('energy_level').default(50), // Energy level 1-100, default 50
   notes: text('notes'), // Additional notes about the family member
   avatar: text('avatar'), // Base64 encoded image data
   lastInteractionDate: timestamp('last_interaction_date'), // Auto-updated when tasks are completed
