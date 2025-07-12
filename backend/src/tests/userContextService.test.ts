@@ -196,28 +196,35 @@ describe('User Context Service', () => {
       const context = await getUserContext(userId);
       const formatted = formatUserContextForPrompt(context);
 
-      expect(formatted).toContain('User: Aragorn');
-      expect(formatted).toContain('Character Class: Ranger');
-      expect(formatted).toContain('Backstory: Former king living in exile');
-      expect(formatted).toContain('Motto: "Not all who wander are lost"');
-      expect(formatted).toContain('Character Goals: Protect the innocent and find my place');
-      expect(formatted).toContain('Active Goals:');
-      expect(formatted).toContain('- Master archery: Become proficient with bow and arrow');
-      expect(formatted).toContain('Family Members:');
-      expect(formatted).toContain('- Arwen (beloved)');
+      expect(formatted).toContain('## User');
+      expect(formatted).toContain('Aragorn');
+      expect(formatted).toContain('### Character Class');
+      expect(formatted).toContain('Ranger');
+      expect(formatted).toContain('### Backstory');
+      expect(formatted).toContain('Former king living in exile');
+      expect(formatted).toContain('### Motto');
+      expect(formatted).toContain('Not all who wander are lost');
+      expect(formatted).toContain('### Active Goals');
+      expect(formatted).toContain('#### Master archery');
+      expect(formatted).toContain('Become proficient with bow and arrow');
+      expect(formatted).toContain('### Family Members');
+      expect(formatted).toContain('#### Arwen (beloved)');
       expect(formatted).toContain('Likes: starlight, poetry');
       expect(formatted).toContain('Connection Level: 5 (500 XP)');
       expect(formatted).toContain('Last interaction: 1 days ago');
-      expect(formatted).toContain('Character Stats:');
-      expect(formatted).toContain('- Wisdom (Level 4, 350 XP): Understanding and insight');
+      expect(formatted).toContain('### Character Stats');
+      expect(formatted).toContain('#### Wisdom');
+      expect(formatted).toContain('Level 4 (350 XP)');
+      expect(formatted).toContain('Understanding and insight');
     });
 
     test('should handle minimal context gracefully', async () => {
       const context = await getUserContext(userId);
       const formatted = formatUserContextForPrompt(context);
 
-      expect(formatted).toContain('User: Context Test User');
-      expect(formatted).not.toContain('Character Class:');
+      expect(formatted).toContain('## User');
+      expect(formatted).toContain('Context Test User');
+      expect(formatted).not.toContain('### Character Class');
       expect(formatted).not.toContain('Active Goals:');
       expect(formatted).not.toContain('Family Members:');
       expect(formatted).not.toContain('Character Stats:');

@@ -228,7 +228,7 @@ const app = new Hono()
       const userContext = await getUserContext(userId);
 
       // Generate metadata using GPT
-      const metadata = await generateJournalMetadata(messages, userContext);
+      const metadata = await generateJournalMetadata(messages, userContext, userId);
 
       // Create journal entry
       const newEntry = await db

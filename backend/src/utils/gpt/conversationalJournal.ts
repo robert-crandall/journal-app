@@ -87,24 +87,52 @@ Your task is to review the entire conversation and generate:
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
 3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
-4. **Content Tags**: 3-6 tags describing topics, activities, or themes (e.g., "work", "family", "exercise", "reflection")
+4. **Content Tags**: 3-6 tags describing topics, activities, or themes
 5. **Stat Tags**: Character stats that could be relevant based on the content discussed
+
+${formatUserContextForPrompt(userContext)}`;
+
+  // Add existing content tags if available
+  if (userContext.existingTags && userContext.existingTags.length > 0) {
+    systemPrompt += `## Context for Tag Suggestions
+
+### Existing Content Tags
+Consider using these existing tags when appropriate (sorted by usage frequency):
+${userContext.existingTags.map(tag => `- "${tag.name}" (used ${tag.usageCount} times)`).join('\n')}`;
+  }
+
+  // Add available character stats information
+  if (userContext.characterStats && userContext.characterStats.length > 0) {
+    systemPrompt += `\n\n### Current Character Stats
+These are the user's current character stats that could receive XP:
+${userContext.characterStats.map(stat => 
+  `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}`
+).join('\n')}`;
+  }
+
+  systemPrompt += `
 
 IMPORTANT: Format your response exactly as JSON:
 {
   "title": "Brief descriptive title",
-  "synopsis": "1-2 sentence overview",
+  "synopsis": "1-2 sentence overview", 
   "summary": "Detailed narrative synthesis maintaining user's voice",
   "suggestedTags": ["tag1", "tag2", "tag3"],
   "suggestedStatTags": ["stat1", "stat2"]
 }
+
+## Tagging Guidelines
+
+**Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
+
+**Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on.
 
 The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
 
 DO NOT GUESS. If you cannot determine a field, leave it empty or null. Focus on the content of the conversation, not external context.
 
 Return ONLY the JSON object without any additional text or explanation.
-`
+`;
 
   return systemPrompt;
 }
@@ -173,9 +201,18 @@ export async function generateFollowUpResponse(
 /**
  * Generate journal metadata from a complete conversation
  */
-export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
-  // Create the system prompt with user context
-  const systemPrompt = createMetadataSystemPrompt(userContext);
+export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext, userId: string): Promise<JournalMetadata> {
+  // Get enhanced user context with tags and stats for metadata generation
+  const enhancedContext = await getUserContext(userId, {
+    includeCharacter: true,
+    includeActiveGoals: true,
+    includeFamilyMembers: true,
+    includeCharacterStats: true, // Stats will be provided in the metadata
+    includeExistingTags: true,
+  });
+
+  // Create the system prompt with enhanced user context
+  const systemPrompt = createMetadataSystemPrompt(enhancedContext);
 
   // Prepare the conversation messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];

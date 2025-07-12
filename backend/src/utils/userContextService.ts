@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { users, characters, goals, familyMembers, characterStats } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
+import { getUserTagsWithCounts } from './tags';
 
 /**
  * Comprehensive user context interface for GPT prompts
@@ -44,6 +45,12 @@ export interface ComprehensiveUserContext {
     totalXp: number;
   }>;
 
+  // Existing content tags for context
+  existingTags?: Array<{
+    name: string;
+    usageCount: number;
+  }>;
+
   // Future: projects, adventures, quests, focuses, etc.
 }
 
@@ -60,13 +67,20 @@ export async function getUserContext(
     includeActiveGoals?: boolean;
     includeFamilyMembers?: boolean;
     includeCharacterStats?: boolean;
+    includeExistingTags?: boolean;
     includeProjects?: boolean; // Future
     includeAdventures?: boolean; // Future
     includeQuests?: boolean; // Future
     includeFocuses?: boolean; // Future
   },
 ): Promise<ComprehensiveUserContext> {
-  const { includeCharacter = true, includeActiveGoals = true, includeFamilyMembers = true, includeCharacterStats = true } = options || {};
+  const { 
+    includeCharacter = true, 
+    includeActiveGoals = true, 
+    includeFamilyMembers = true, 
+    includeCharacterStats = true,
+    includeExistingTags = false,
+  } = options || {};
 
   try {
     // Start with basic user info from character (fallback to users table if no character)
@@ -173,6 +187,17 @@ export async function getUserContext(
       }
     }
 
+    // Get existing content tags
+    if (includeExistingTags) {
+      const userTags = await getUserTagsWithCounts(userId);
+      if (userTags.length > 0) {
+        baseContext.existingTags = userTags.map(tag => ({
+          name: tag.name,
+          usageCount: tag.usageCount
+        }));
+      }
+    }
+
     return baseContext;
   } catch (error) {
     console.error('Error fetching user context:', error);
@@ -188,12 +213,15 @@ export async function getUserContext(
  */
 export function formatUserContextForPrompt(context: ComprehensiveUserContext): string {
   let promptContent = `## User\n`;
-  promptContent += `\n${context.name}\n`; // Separator for clarity
+  promptContent += `- Name: ${context.name}\n`; // Separator for clarity
 
   // Character information
   if (context.characterClass) {
-    promptContent += `### Character Class\n`;
-    promptContent += `${context.characterClass}\n`;
+    promptContent += `- Character Class: ${context.characterClass}\n`;
+  }
+
+  if (context.motto) {
+    promptContent += `- Motto: ${context.motto}\n`;
   }
 
   if (context.backstory) {
@@ -201,24 +229,18 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
     promptContent += `${context.backstory}\n`;
   }
 
-  if (context.motto) {
-    promptContent += `### Motto\n`;
-    promptContent += `${context.motto}\n`;
-  }
-
   if (context.activeGoals && context.activeGoals.length > 0) {
-    promptContent += `### Active Goals\n`;
+    promptContent += `### Active Goals\n\n`;
     context.activeGoals.forEach((goal) => {
       promptContent += `#### ${goal.title}\n`;
       if (goal.description) {
-        promptContent += `\n${goal.description}`;
+        promptContent += `${goal.description}\n`;
       }
-      promptContent += `\n`;
     });
   } else {
     if (context.characterGoals) {
-      promptContent += `### Character Goals\n`;
-      promptContent += `\n${context.characterGoals}\n`;
+      promptContent += `### Character Goals\n\n`;
+      promptContent += `${context.characterGoals}\n`;
     }
   }
 
@@ -229,16 +251,15 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
       promptContent += `#### ${member.name} (${member.relationship})\n`;
 
       const details = [];
-      if (member.likes) details.push(`- Likes: ${member.likes}`);
-      if (member.dislikes) details.push(`- Dislikes: ${member.dislikes}`);
-      details.push(`- Energy Level: ${member.energyLevel}/100`);
-      details.push(`- Connection Level: ${member.connectionLevel} (${member.connectionXp} XP)`);
+      if (member.likes) details.push(`- Likes: ${member.likes}\n`);
+      if (member.dislikes) details.push(`- Dislikes: ${member.dislikes}\n`);
+      details.push(`- Connection Level: ${member.connectionLevel} (${member.connectionXp} XP)\n`);
 
       if (member.lastInteractionDate) {
         const daysSince = Math.floor((Date.now() - member.lastInteractionDate.getTime()) / (1000 * 60 * 60 * 24));
-        details.push(`- Last interaction: ${daysSince} days ago`);
+        details.push(`- Last interaction: ${daysSince} days ago\n`);
       } else {
-        details.push('No recent interactions');
+        details.push('No recent interactions\n');
       }
 
       if (details.length > 0) {
@@ -250,11 +271,9 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
 
   // Character stats
   if (context.characterStats && context.characterStats.length > 0) {
-    promptContent += `### Character Stats\n`;
+    promptContent += `### Character Stats\n\n`;
     context.characterStats.forEach((stat) => {
-      promptContent += `#### ${stat.name}\n`;
-      promptContent += `\n- Level ${stat.currentLevel} (${stat.totalXp} XP)\n`;
-      promptContent += `- ${stat.description}\n`;
+      promptContent += `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}\n`;
     });
   }
 
@@ -266,7 +285,7 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
  */
 export async function getSpecificUserContext(userId: string, contextType: keyof ComprehensiveUserContext) {
   const options = {
-    includeCharacter: contextType === 'characterClass' || contextType === 'backstory' || contextType === 'characterGoals' || contextType === 'motto',
+    includeCharacter: contextType === 'name' || contextType === 'characterClass' || contextType === 'backstory' || contextType === 'characterGoals' || contextType === 'motto',
     includeActiveGoals: contextType === 'activeGoals',
     includeFamilyMembers: contextType === 'familyMembers',
     includeCharacterStats: contextType === 'characterStats',
