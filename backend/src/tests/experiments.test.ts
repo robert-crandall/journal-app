@@ -36,8 +36,8 @@ describe('Experiments API Integration Tests', () => {
 
     expect(registerRes.status).toBe(201);
     const registerData = await registerRes.json();
-    authToken = registerData.data.token;
-    userId = registerData.data.user.id;
+    authToken = registerData.token;
+    userId = registerData.user.id;
   });
 
   describe('POST /api/experiments', () => {
