@@ -8,6 +8,14 @@ export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFee
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
 export { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
 export { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
+export {
+  createExperimentSchema,
+  updateExperimentSchema,
+  createExperimentTaskSchema,
+  updateExperimentTaskSchema,
+  completeExperimentTaskSchema,
+  getExperimentDashboardSchema,
+} from '../validation/experiments';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -42,3 +50,24 @@ export type {
   ChatMessage,
 } from '../types/journal';
 export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';
+export type {
+  Experiment,
+  CreateExperiment,
+  UpdateExperiment,
+  ExperimentTask,
+  CreateExperimentTask,
+  UpdateExperimentTask,
+  ExperimentTaskCompletion,
+  CreateExperimentTaskCompletion,
+  CreateExperimentRequest,
+  UpdateExperimentRequest,
+  CreateExperimentTaskRequest,
+  UpdateExperimentTaskRequest,
+  CompleteExperimentTaskRequest,
+  ExperimentResponse,
+  ExperimentTaskResponse,
+  ExperimentTaskCompletionResponse,
+  ExperimentWithTasksResponse,
+  ExperimentTaskWithCompletionsResponse,
+  ExperimentDashboardResponse,
+} from '../types/experiments';

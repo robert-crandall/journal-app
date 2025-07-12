@@ -3,6 +3,7 @@
   import Navigation from '$lib/components/Navigation.svelte';
   import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
   import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
+  import ExperimentTasksWidget from '$lib/components/experiments/ExperimentTasksWidget.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -60,6 +61,11 @@
               <!-- Simple Todos Widget -->
               <div class="mb-6">
                 <SimpleTodosWidget />
+              </div>
+
+              <!-- Experiment Tasks Widget -->
+              <div class="mb-6">
+                <ExperimentTasksWidget />
               </div>
 
               <div class="divider"></div>
