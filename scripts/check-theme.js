@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const FRONTEND_SRC_DIR = path.join(__dirname, '../src');
+const FRONTEND_SRC_DIR = path.join(__dirname, '../frontend/src');
 const FILE_EXTENSIONS = ['.svelte', '.ts', '.js'];
 
 // Hard-coded color patterns to detect

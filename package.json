@@ -17,6 +17,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "bun run format:check && cd backend && bun run lint && cd ../frontend && bun run lint",
+    "theme:check": "node scripts/check-theme.js",
+    "theme:guide": "node scripts/check-theme.js --fix-suggestions",
     "db:push": "cd backend && drizzle-kit push",
     "db:generate": "cd backend && drizzle-kit generate",
     "db:migrate": "cd backend && drizzle-kit migrate",
