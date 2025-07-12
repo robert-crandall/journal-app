@@ -21,44 +21,47 @@
   let isSavingDraft = false;
   const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 
-  onMount(async () => {
-    // Check URL parameters for edit mode
-    const urlParams = new URLSearchParams(window.location.search);
-    const editId = urlParams.get('edit');
+  onMount(() => {
+    // Immediately invoke async function to handle the setup
+    (async () => {
+      // Check URL parameters for edit mode
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('edit');
 
-    if (editId) {
-      isEditMode = true;
-      entryId = editId;
-      isLoading = true;
+      if (editId) {
+        isEditMode = true;
+        entryId = editId;
+        isLoading = true;
 
-      try {
-        // Load the existing entry content
-        const entryData = await journalApi.getEntry(editId);
+        try {
+          // Load the existing entry content
+          const entryData = await journalApi.getEntry(editId);
 
-        if (!entryData.content || entryData.reflected || entryData.startedAsChat) {
-          // Can't edit entries that are reflected on or chat-based
-          error = 'This entry cannot be edited';
+          if (!entryData.content || entryData.reflected || entryData.startedAsChat) {
+            // Can't edit entries that are reflected on or chat-based
+            error = 'This entry cannot be edited';
+            goto('/journal');
+            return;
+          }
+
+          // Set the content from the existing entry
+          content = entryData.content;
+          lastSavedContent = content;
+          originalTitle = entryData.title;
+        } catch (err) {
+          error = err instanceof Error ? err.message : 'Failed to load journal entry';
           goto('/journal');
           return;
+        } finally {
+          isLoading = false;
         }
-
-        // Set the content from the existing entry
-        content = entryData.content;
-        lastSavedContent = content;
-        originalTitle = entryData.title;
-      } catch (err) {
-        error = err instanceof Error ? err.message : 'Failed to load journal entry';
-        goto('/journal');
-        return;
-      } finally {
-        isLoading = false;
       }
-    }
 
-    // Set up auto-save timer
-    autoSaveTimer = setInterval(autoSaveDraft, AUTO_SAVE_INTERVAL);
+      // Set up auto-save timer
+      autoSaveTimer = setInterval(autoSaveDraft, AUTO_SAVE_INTERVAL);
+    })();
 
-    // Clean up timer on component destroy
+    // Return cleanup function directly
     return () => {
       if (autoSaveTimer) {
         clearInterval(autoSaveTimer);
