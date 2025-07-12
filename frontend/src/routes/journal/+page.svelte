@@ -41,7 +41,13 @@
         </div>
       </div>
 
-      <a href="/journal/session" class="btn btn-primary btn-lg"> ➕ Start Journal </a>
+      <div class="dropdown dropdown-end">
+        <button class="btn btn-primary btn-lg">➕ Start Journal</button>
+        <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1">
+          <li><a href="/journal/longform">Long-Form Entry</a></li>
+          <li><a href="/journal/session">Chat Entry</a></li>
+        </ul>
+      </div>
     </div>
 
     <!-- Content -->
@@ -68,7 +74,10 @@
             <p class="text-base-content/70 mb-6">
               Begin a conversation with our AI guide to explore your thoughts, feelings, and experiences in a supportive environment.
             </p>
-            <a href="/journal/session" class="btn btn-primary btn-lg"> ➕ Start Your First Entry </a>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <a href="/journal/longform" class="btn btn-primary btn-lg"> ✏️ Start Long-Form Entry </a>
+              <a href="/journal/session" class="btn btn-outline btn-lg"> 💬 Start Chat Entry </a>
+            </div>
           </div>
         </div>
       </div>

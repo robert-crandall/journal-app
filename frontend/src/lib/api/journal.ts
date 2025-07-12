@@ -21,6 +21,9 @@ export interface JournalEntry {
   title: string;
   summary: string;
   synopsis: string | null;
+  content: string | null; // Long-form content for hybrid journal mode
+  reflected: boolean; // Whether the user has initiated chat/reflection mode
+  startedAsChat: boolean; // Whether entry was started in chat mode (true) or long-form mode (false)
   createdAt: string;
   updatedAt: string;
 }
@@ -66,8 +69,51 @@ export interface GetJournalEntriesResponse {
   data: JournalEntryWithDetails[];
 }
 
+export interface StartLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+  };
+}
+
+export interface SaveLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+    synopsis: string;
+    summary: string;
+  };
+}
+
+export interface StartReflectionResponse {
+  success: boolean;
+  data: {
+    sessionId: string;
+    message: string; // Initial reflection message from GPT
+  };
+}
+
+export interface SaveSimpleLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+  };
+}
+
+export interface GetJournalSessionResponse {
+  success: boolean;
+  data: {
+    sessionId: string;
+    messages: ChatMessage[];
+    isActive: boolean;
+  };
+}
+
 // API functions
 export const journalApi = {
+  // Chat-first mode API methods
   async startSession(): Promise<StartJournalSessionResponse['data']> {
     const response = await authenticatedClient.api.journal.start.$post({
       json: {},
@@ -107,6 +153,73 @@ export const journalApi = {
     return result.data;
   },
 
+  // Long-form first mode API methods
+  async startLongForm(): Promise<StartLongFormJournalResponse['data']> {
+    const response = await authenticatedClient.api.journal.longform.start.$post({
+      json: {},
+    });
+    const result = (await response.json()) as StartLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to start long-form journal entry');
+    }
+
+    return result.data;
+  },
+
+  async saveLongForm(content: string): Promise<SaveLongFormJournalResponse['data']> {
+    const response = await authenticatedClient.api.journal.longform.save.$post({
+      json: { content },
+    });
+    const result = (await response.json()) as SaveLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to save long-form journal entry');
+    }
+
+    return result.data;
+  },
+
+  async saveSimpleLongForm(content: string, entryId?: string): Promise<SaveSimpleLongFormJournalResponse['data']> {
+    const response = await authenticatedClient.api.journal.longform['save-simple'].$post({
+      json: { content, ...(entryId ? { entryId } : {}) },
+    });
+    const result = (await response.json()) as SaveSimpleLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to save journal entry');
+    }
+
+    return result.data;
+  },
+
+  async startReflection(entryId: string): Promise<StartReflectionResponse['data']> {
+    const response = await authenticatedClient.api.journal.reflection.start.$post({
+      json: { entryId },
+    });
+    const result = (await response.json()) as StartReflectionResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to start reflection');
+    }
+
+    return result.data;
+  },
+
+  async getSession(sessionId: string): Promise<GetJournalSessionResponse['data']> {
+    const response = await authenticatedClient.api.journal.session[':id'].$get({
+      param: { id: sessionId },
+    });
+    const result = (await response.json()) as GetJournalSessionResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to get session data');
+    }
+
+    return result.data;
+  },
+
+  // Common API methods
   async getEntries(): Promise<JournalEntryWithDetails[]> {
     const response = await authenticatedClient.api.journal.$get();
     const result = (await response.json()) as GetJournalEntriesResponse;
