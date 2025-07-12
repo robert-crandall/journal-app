@@ -26,7 +26,7 @@
   - Provide title + description
   - Editable schedule
 
-- [ ] **Simple Todos**
+- [x] **Simple Todos**
   - Create/view/complete simple one-off tasks
   - Display on homepage only
 
@@ -50,6 +50,13 @@
 
 - [ ] **Stat XP Source Breakdown**
   - “What earned me XP in Strength this week?”
+
+- [ ] **Family Interactions from Journal**
+  - Extract out family interactions from journal
+
+- [ ] **Goal interactions from journal**
+  - Extract out goal interactions from journal
+- [ ] Drop energy level from family
 
 ---
 

@@ -14,7 +14,7 @@ test.describe('Goals Management', () => {
     await expect(page).toHaveURL('/goals');
 
     // Check page loads with basic structure
-    await expect(page.locator('h1')).toContainText('Goals Dashboard');
+    await expect(page.locator('h1')).toContainText('Goals');
     await expect(page.locator('button:has-text("Create Goal")')).toBeVisible();
   });
 

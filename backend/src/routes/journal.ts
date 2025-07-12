@@ -12,6 +12,7 @@ import {
   tags,
   characterStats,
   characters,
+  characterStatXpGrants,
 } from '../db/schema';
 import { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
@@ -23,36 +24,8 @@ import type {
   ChatMessage,
   JournalEntryWithDetails,
 } from '../types/journal';
-import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata, type UserContext } from '../utils/gpt/conversationalJournal';
-
-// Helper function to get user context for GPT
-async function getUserContext(userId: string): Promise<UserContext> {
-  try {
-    const user = await db
-      .select({
-        name: characters.name,
-        characterClass: characters.characterClass,
-        backstory: characters.backstory,
-        goals: characters.goals,
-      })
-      .from(characters)
-      .where(eq(characters.userId, userId))
-      .limit(1);
-
-    if (user.length === 0) {
-      return { name: 'User' };
-    }
-
-    return {
-      name: user[0].name,
-      characterClass: user[0].characterClass || undefined,
-      backstory: user[0].backstory || undefined,
-      goals: user[0].goals || undefined,
-    };
-  } catch (error) {
-    return { name: 'User' };
-  }
-}
+import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from '../utils/gpt/conversationalJournal';
+import { getUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
 
 // Helper function to get user's available stats
 async function getUserStats(userId: string) {
@@ -60,6 +33,7 @@ async function getUserStats(userId: string) {
     .select({
       id: characterStats.id,
       name: characterStats.name,
+      totalXp: characterStats.totalXp,
     })
     .from(characterStats)
     .where(eq(characterStats.userId, userId));
@@ -256,7 +230,7 @@ const app = new Hono()
       const userContext = await getUserContext(userId);
 
       // Generate metadata using GPT
-      const metadata = await generateJournalMetadata(messages, userContext);
+      const metadata = await generateJournalMetadata(messages, userContext, userId);
 
       // Create journal entry
       const newEntry = await db
@@ -290,16 +264,46 @@ const app = new Hono()
         });
       }
 
-      // Add stat tags if any available stats exist
+      // Add stat tags and grant XP if any available stats exist
       const userStats = await getUserStats(userId);
       const statTagIds: string[] = [];
+      const processedStatTags: string[] = [];
+
       for (const stat of userStats) {
-        if (metadata.suggestedStatTags.includes(stat.name)) {
+        // Check for case-insensitive match
+        const statNameLower = stat.name.toLowerCase();
+        const matchingStatEntry = Object.entries(metadata.suggestedStatTags).find(([statName]) => statName.toLowerCase() === statNameLower);
+
+        if (matchingStatEntry) {
+          const [statName, xpAmount] = matchingStatEntry;
+
+          // Add stat tag relation
           await db.insert(journalEntryStatTags).values({
             entryId,
             statId: stat.id,
           });
+
+          // Grant XP to the stat
+          await db.insert(characterStatXpGrants).values({
+            userId,
+            statId: stat.id,
+            xpAmount,
+            sourceType: 'journal',
+            sourceId: entryId,
+            reason: `Journal entry: ${metadata.title}`,
+          });
+
+          // Update stat total XP
+          await db
+            .update(characterStats)
+            .set({
+              totalXp: stat.totalXp + xpAmount,
+              updatedAt: new Date(),
+            })
+            .where(eq(characterStats.id, stat.id));
+
           statTagIds.push(stat.id);
+          processedStatTags.push(statName);
         }
       }
 
@@ -320,7 +324,7 @@ const app = new Hono()
           synopsis: metadata.synopsis,
           summary: metadata.summary,
           tags: metadata.suggestedTags,
-          statTags: metadata.suggestedStatTags,
+          statTags: processedStatTags,
         },
       };
 

@@ -97,8 +97,6 @@ app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) =
       })
       .returning();
 
-    logger.info(`Family member created: ${newFamilyMember[0].name} (${newFamilyMember[0].relationship})`);
-
     return c.json(
       {
         success: true,
@@ -175,8 +173,6 @@ app.put('/:id', jwtAuth, zValidator('json', updateFamilyMemberSchema), async (c)
       .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .returning();
 
-    logger.info(`Family member updated: ${updatedMember[0].name} (${updatedMember[0].relationship})`);
-
     return c.json({
       success: true,
       data: updatedMember[0],
@@ -214,8 +210,6 @@ app.delete('/:id', jwtAuth, async (c) => {
 
     // Delete the family member
     await db.delete(familyMembers).where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
-
-    logger.info(`Family member deleted: ${existingMember[0].name} (${existingMember[0].relationship})`);
 
     return c.json({
       success: true,
@@ -258,8 +252,6 @@ app.patch('/:id/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema
       })
       .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
       .returning();
-
-    logger.info(`Family member avatar ${data.avatar ? 'updated' : 'removed'}: ${updatedMember[0].name} (${updatedMember[0].relationship})`);
 
     return c.json({
       success: true,
@@ -327,8 +319,6 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
         updatedAt: new Date(),
       })
       .where(eq(familyMembers.id, familyMemberId));
-
-    logger.info(`Family task feedback added for ${familyMember[0].name}: ${data.taskDescription}`);
 
     return c.json(
       {

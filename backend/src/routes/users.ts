@@ -214,8 +214,6 @@ const app = new Hono()
         );
       }
 
-      logger.info(`User profile updated: ${updatedUser[0].email}`);
-
       return c.json({
         success: true,
         data: updatedUser[0],
@@ -255,8 +253,6 @@ const app = new Hono()
           404,
         );
       }
-
-      logger.info(`User avatar ${data.avatar ? 'updated' : 'removed'}: ${updatedUser[0].email}`);
 
       return c.json({
         success: true,

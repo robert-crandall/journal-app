@@ -71,7 +71,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
         summary:
           'In this journal session, the user shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.',
         suggestedTags: ['reflection', 'thoughts', 'personal'],
-        suggestedStatTags: [],
+        suggestedStatTags: {},
       });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
@@ -92,6 +92,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
 
   const client = getClient();
   const isDebug = gptConfig.isDebugEnabled();
+  const isWelcomeMessageEnabled = gptConfig.isWelcomeMessageEnabled();
 
   // Debug logging for prompt
   if (isDebug) {
@@ -139,7 +140,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       logger.debug('GPT response:', {
         duration: `${duration}ms`,
         tokenUsage,
-        content: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+        content,
       });
     }
 

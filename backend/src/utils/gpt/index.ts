@@ -25,7 +25,11 @@ export { analyzeJournalEntry } from './journal';
 export type { JournalAnalysisRequest, JournalAnalysisResponse } from './journal';
 
 export { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
-export type { UserContext, ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
+export type { ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
+
+// New comprehensive user context service
+export { getUserContext, formatUserContextForPrompt, getSpecificUserContext } from '../userContextService';
+export type { ComprehensiveUserContext } from '../userContextService';
 
 export { generateDailyTasks } from './taskGen';
 export type { TaskGenerationRequest, TaskGenerationResponse, GeneratedTask } from './taskGen';

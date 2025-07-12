@@ -128,11 +128,7 @@
       {:else if familyMember}
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-4">
-            <AvatarDisplay 
-              avatar={familyMember.avatar} 
-              name={familyMember.name} 
-              size="lg" 
-            />
+            <AvatarDisplay avatar={familyMember.avatar} name={familyMember.name} size="lg" />
             <div>
               <h1 class="mb-2 text-3xl font-bold text-slate-800">
                 {familyMember.name}

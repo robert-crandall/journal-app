@@ -4,6 +4,7 @@
   import { authStore } from '$lib/stores/auth';
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
+  import { marked } from 'marked';
 
   // Reactive state for goals data
   let userGoals: GoalWithParsedTags[] = $state([]);
@@ -179,7 +180,7 @@
                       </div>
 
                       {#if goal.description}
-                        <p class="text-base-content/80 mb-4 text-sm">{goal.description}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html marked.parse(goal.description)}</p>
                       {/if}
 
                       <!-- Tags -->
