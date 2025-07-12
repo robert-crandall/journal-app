@@ -62,14 +62,25 @@
   }
 
   function formatDateRange(startDate: string, endDate: string): string {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
 
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
   }
 
   function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString();
+    // Use the proper date formatting utility
+    // Parse the date components manually to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+
+    // Create date in local timezone without any UTC conversion
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString();
   }
 
   function getProgressPercentage(current: number, total: number): number {

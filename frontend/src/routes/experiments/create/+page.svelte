@@ -116,8 +116,15 @@
 
   function calculateDuration(start: string, end: string): number {
     if (!start || !end) return 0;
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = start.split('-').map(Number);
+    const [endYear, endMonth, endDay] = end.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const startDate = new Date(startYear, startMonth - 1, startDay);
+    const endDate = new Date(endYear, endMonth - 1, endDay);
+
     return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 

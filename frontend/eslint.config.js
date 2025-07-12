@@ -34,10 +34,10 @@ export default ts.config(
       // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
       // see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
       'no-undef': 'off',
-      // Hardcoded colors is set back to error level - we'll fix these
       'theme-check/no-hardcoded-colors': 'error',
+      // Date conversion is set back to error level - we'll fix these too
+      'custom/no-direct-date-conversion': 'error',
       // Other rules are still at warning level for now
-      'custom/no-direct-date-conversion': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'svelte/require-each-key': 'warn',

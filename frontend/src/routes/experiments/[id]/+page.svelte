@@ -82,28 +82,45 @@
   }
 
   function formatDateRange(startDate: string, endDate: string): string {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
 
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
   }
 
   function getDuration(startDate: string, endDate: string): number {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 
   function getDaysRemaining(exp: ExperimentWithTasksResponse): number {
     const today = new Date();
-    const endDate = new Date(exp.endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [endYear, endMonth, endDay] = exp.endDate.split('-').map(Number);
+    const endDate = new Date(endYear, endMonth - 1, endDay);
+
     const diffTime = endDate.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
   function getDaysElapsed(exp: ExperimentWithTasksResponse): number {
     const today = new Date();
-    const startDate = new Date(exp.startDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = exp.startDate.split('-').map(Number);
+    const startDate = new Date(startYear, startMonth - 1, startDay);
+
     const diffTime = today.getTime() - startDate.getTime();
     return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
   }

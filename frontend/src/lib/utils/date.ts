@@ -81,8 +81,11 @@ export function formatDateCustom(dateString: string | null, format: 'short' | 'l
   // Parse the date components manually to avoid timezone issues
   const [year, month, day] = dateString.split('-').map(Number);
 
-  // Create date in local timezone without any UTC conversion
-  const date = new Date(year, month - 1, day);
+  // Create date in local timezone without any UTC conversion using the correct
+  // approach for date-only fields - creating with explicit components rather than string parsing
+  const date = new Date();
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
 
   const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
     short: { year: 'numeric', month: 'short', day: 'numeric' },
