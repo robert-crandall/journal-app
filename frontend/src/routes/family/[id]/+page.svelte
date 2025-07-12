@@ -92,7 +92,7 @@
   </title>
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+<div class="from-primary/5 to-secondary/5 min-h-screen bg-gradient-to-br">
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
     <header class="mb-8">
@@ -170,7 +170,7 @@
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <!-- Profile skeleton -->
         <div class="lg:col-span-2">
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <div class="skeleton mb-4 h-6 w-32"></div>
               <div class="space-y-3">
@@ -184,7 +184,7 @@
 
         <!-- Stats skeleton -->
         <div>
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <div class="skeleton mb-4 h-6 w-24"></div>
               <div class="space-y-4">
@@ -200,7 +200,7 @@
         <!-- Main Content -->
         <div class="space-y-6 lg:col-span-2">
           <!-- Profile Information -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <User size={20} />
@@ -247,7 +247,7 @@
           </div>
 
           <!-- Interaction History -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <MessageCircle size={20} />
@@ -266,7 +266,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Stats -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h3 class="card-title mb-4 flex items-center gap-2 text-lg">
                 <TrendingUp size={18} />
@@ -299,7 +299,7 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h3 class="card-title mb-4 text-lg">Quick Actions</h3>
 
