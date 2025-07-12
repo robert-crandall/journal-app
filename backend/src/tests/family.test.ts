@@ -59,7 +59,6 @@ describe('Family API', () => {
         birthday: '2010-05-15',
         likes: 'soccer, video games',
         dislikes: 'vegetables',
-        energyLevel: 75,
       };
 
       const response = await app.request('/api/family', {
@@ -84,7 +83,6 @@ describe('Family API', () => {
       expect(data.data.birthday).toBe(familyMemberData.birthday);
       expect(data.data.likes).toBe(familyMemberData.likes);
       expect(data.data.dislikes).toBe(familyMemberData.dislikes);
-      expect(data.data.energyLevel).toBe(familyMemberData.energyLevel);
       expect(data.data.userId).toBe(userId);
     });
 
@@ -111,7 +109,6 @@ describe('Family API', () => {
       expect(data.data.birthday).toBe(null);
       expect(data.data.likes).toBe(null);
       expect(data.data.dislikes).toBe(null);
-      expect(data.data.energyLevel).toBe(50);
     });
 
     test('should require authentication', async () => {
@@ -318,7 +315,6 @@ describe('Family API', () => {
         name: 'John Jr.',
         likes: 'soccer, basketball',
         dislikes: 'homework',
-        energyLevel: 90,
       };
 
       const response = await app.request(`/api/family/${familyMemberId}`, {
@@ -336,7 +332,6 @@ describe('Family API', () => {
       expect(data.data.name).toBe('John Jr.');
       expect(data.data.likes).toBe('soccer, basketball');
       expect(data.data.dislikes).toBe('homework');
-      expect(data.data.energyLevel).toBe(90);
       expect(data.data.relationship).toBe('son'); // Unchanged field
     });
 

@@ -214,13 +214,6 @@
                           <Heart size={14} class="text-base-content/40" />
                           <span>Last interaction: {formatLastInteraction(member.lastInteractionDate)}</span>
                         </div>
-
-                        {#if member.energyLevel}
-                          <div class="flex items-center gap-2">
-                            <User size={14} class="text-base-content/40" />
-                            <span>Energy: {member.energyLevel}</span>
-                          </div>
-                        {/if}
                       </div>
 
                       <!-- Likes/Dislikes -->

@@ -11,7 +11,6 @@ export const createFamilyMemberSchema = z.object({
     .optional(),
   likes: z.string().max(1000, 'Likes must be 1000 characters or less').optional(),
   dislikes: z.string().max(1000, 'Dislikes must be 1000 characters or less').optional(),
-  energyLevel: z.number().int().min(1).max(100).default(50),
   notes: z.string().max(1000, 'Notes must be 1000 characters or less').optional(),
   ...createAvatarSchema(),
 });

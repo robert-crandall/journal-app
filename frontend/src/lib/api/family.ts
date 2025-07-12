@@ -11,7 +11,6 @@ export interface FamilyMember {
   birthday?: string | null;
   likes?: string | null;
   dislikes?: string | null;
-  energyLevel: number;
   notes?: string | null;
   avatar?: string | null; // Base64 encoded image
   lastInteractionDate?: string | null;
@@ -38,7 +37,6 @@ export interface CreateFamilyMemberRequest {
   birthday?: string;
   likes?: string;
   dislikes?: string;
-  energyLevel: number;
   notes?: string;
   avatar?: string; // Base64 encoded image
 }
@@ -49,7 +47,6 @@ export interface UpdateFamilyMemberRequest {
   birthday?: string;
   likes?: string;
   dislikes?: string;
-  energyLevel?: number;
   notes?: string;
   avatar?: string; // Base64 encoded image
 }

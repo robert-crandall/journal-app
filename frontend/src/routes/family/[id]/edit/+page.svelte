@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { familyApi, type FamilyMember, type UpdateFamilyMemberRequest } from '$lib/api/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
-  import { User, Heart, Calendar, Zap, Users, ArrowLeft, Save } from 'lucide-svelte';
+  import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
 
   // Get the family member ID from the route params
   let memberId: string = $page.params.id;
@@ -16,7 +16,6 @@
     birthday: '',
     likes: '',
     dislikes: '',
-    energyLevel: 5,
     notes: '',
     avatar: undefined,
   });
@@ -58,20 +57,6 @@
     'Cousin',
   ];
 
-  // Energy level options
-  const energyLevelOptions = [
-    { value: 1, label: 'Very Draining' },
-    { value: 2, label: 'Draining' },
-    { value: 3, label: 'Slightly Draining' },
-    { value: 4, label: 'Neutral' },
-    { value: 5, label: 'Balanced' },
-    { value: 6, label: 'Slightly Energizing' },
-    { value: 7, label: 'Energizing' },
-    { value: 8, label: 'Very Energizing' },
-    { value: 9, label: 'Highly Energizing' },
-    { value: 10, label: 'Extremely Energizing' },
-  ];
-
   // Load existing family member data
   onMount(async () => {
     await loadFamilyMember();
@@ -92,7 +77,6 @@
         birthday: member.birthday || '',
         likes: member.likes || '',
         dislikes: member.dislikes || '',
-        energyLevel: member.energyLevel || 5,
         notes: member.notes || '',
         avatar: member.avatar || undefined,
       };
@@ -177,9 +161,6 @@
       if ((formData.dislikes || '') !== (originalMember?.dislikes || '')) {
         submitData.dislikes = (formData.dislikes || '').trim() || undefined;
       }
-      if (formData.energyLevel !== originalMember?.energyLevel) {
-        submitData.energyLevel = formData.energyLevel || undefined;
-      }
       // Note: Avatar is handled separately via the avatar upload/remove functions
 
       await familyApi.updateFamilyMember(memberId, submitData);
@@ -202,11 +183,6 @@
   // Handle relationship selection
   function selectRelationship(relationship: string) {
     formData.relationship = relationship;
-  }
-
-  // Handle energy level selection
-  function selectEnergyLevel(level: number) {
-    formData.energyLevel = level;
   }
 </script>
 
@@ -396,29 +372,6 @@
                           bind:value={formData.dislikes}
                           maxlength="200"
                         ></textarea>
-                      </div>
-                    </div>
-
-                    <!-- Energy Level Field -->
-                    <div class="form-control">
-                      <label class="label" for="energy-level">
-                        <span class="label-text font-medium">Energy Level</span>
-                        <span class="label-text-alt text-xs opacity-60">Optional</span>
-                      </label>
-                      <div class="relative">
-                        <select
-                          id="energy-level"
-                          class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
-                          bind:value={formData.energyLevel}
-                        >
-                          <option value="">Choose their typical energy level...</option>
-                          {#each energyLevelOptions as option}
-                            <option value={option}>{option}</option>
-                          {/each}
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-10 flex items-center">
-                          <Zap class="text-base-content/40" size="20" />
-                        </div>
                       </div>
                     </div>
                   </div>

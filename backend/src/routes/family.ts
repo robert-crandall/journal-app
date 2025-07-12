@@ -90,7 +90,6 @@ app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) =
         birthday: data.birthday || null,
         likes: data.likes || null,
         dislikes: data.dislikes || null,
-        energyLevel: data.energyLevel,
         connectionXp: 0,
         connectionLevel: 1,
         notes: data.notes || null,

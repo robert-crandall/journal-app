@@ -80,20 +80,6 @@
     return colors[relationship as keyof typeof colors] || 'text-slate-600';
   }
 
-  function getEnergyColor(energy: number) {
-    if (energy >= 8) return 'text-green-600';
-    if (energy >= 6) return 'text-yellow-600';
-    if (energy >= 4) return 'text-orange-600';
-    return 'text-red-600';
-  }
-
-  function getEnergyLabel(energy: number) {
-    if (energy >= 8) return 'Energizing';
-    if (energy >= 6) return 'Positive';
-    if (energy >= 4) return 'Neutral';
-    return 'Draining';
-  }
-
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -242,20 +228,6 @@
                 </div>
 
                 <div>
-                  <h4 class="mb-1 font-medium text-slate-600">Energy Level</h4>
-                  <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1">
-                      <span class={`font-bold ${getEnergyColor(familyMember.energyLevel)}`}>
-                        {familyMember.energyLevel}/10
-                      </span>
-                      <span class={`text-sm ${getEnergyColor(familyMember.energyLevel)}`}>
-                        ({getEnergyLabel(familyMember.energyLevel)})
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
                   <h4 class="mb-1 font-medium text-slate-600">Connection Level</h4>
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-blue-600">{familyMember.connectionLevel}/10</span>
@@ -313,14 +285,6 @@
                   <div class="stat-desc">
                     <progress class="progress progress-primary w-full" value={familyMember.connectionLevel} max="10"></progress>
                   </div>
-                </div>
-
-                <div class="stat rounded-lg bg-green-50 p-4">
-                  <div class="stat-title text-xs">Energy Impact</div>
-                  <div class={`stat-value text-2xl ${getEnergyColor(familyMember.energyLevel)}`}>
-                    {getEnergyLabel(familyMember.energyLevel)}
-                  </div>
-                  <div class="stat-desc">{familyMember.energyLevel}/10 rating</div>
                 </div>
 
                 <div class="stat rounded-lg bg-purple-50 p-4">
