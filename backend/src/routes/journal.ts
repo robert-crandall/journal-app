@@ -13,6 +13,7 @@ import {
   characterStats,
   characters,
   xpGrants,
+  familyMembers,
 } from '../db/schema';
 import { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
@@ -38,6 +39,19 @@ async function getUserStats(userId: string) {
     })
     .from(characterStats)
     .where(eq(characterStats.userId, userId));
+}
+
+// Helper function to get user family members
+async function getUserFamilyMembers(userId: string) {
+  return await db
+    .select({
+      id: familyMembers.id,
+      name: familyMembers.name,
+      relationship: familyMembers.relationship,
+      connectionXp: familyMembers.connectionXp,
+    })
+    .from(familyMembers)
+    .where(eq(familyMembers.userId, userId));
 }
 
 // Helper function to get or create tags
@@ -308,6 +322,34 @@ const app = new Hono()
         }
       }
 
+      // Add family tags and grant XP if any family members exist
+      const userFamilyMembers = await getUserFamilyMembers(userId);
+      const familyTagIds: string[] = [];
+      const processedFamilyTags: string[] = [];
+
+      for (const familyMember of userFamilyMembers) {
+        // Check for case-insensitive match
+        const familyNameLower = familyMember.name.toLowerCase();
+        const matchingFamilyEntry = Object.entries(metadata.suggestedFamilyTags).find(([familyName]) => familyName.toLowerCase() === familyNameLower);
+
+        if (matchingFamilyEntry) {
+          const [familyName, xpAmount] = matchingFamilyEntry;
+
+          // Grant XP to the family member using the service
+          await grantXp(userId, {
+            entityType: 'family_member',
+            entityId: familyMember.id,
+            xpAmount,
+            sourceType: 'journal',
+            sourceId: entryId,
+            reason: `Journal entry: ${metadata.title}`,
+          });
+
+          familyTagIds.push(familyMember.id);
+          processedFamilyTags.push(familyName);
+        }
+      }
+
       // Mark session as inactive
       await db
         .update(journalSessions)
@@ -326,6 +368,7 @@ const app = new Hono()
           summary: metadata.summary,
           tags: metadata.suggestedTags,
           statTags: processedStatTags,
+          familyTags: processedFamilyTags,
         },
       };
 

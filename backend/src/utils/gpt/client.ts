@@ -72,6 +72,7 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
           'In this journal session, the user shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.',
         suggestedTags: ['reflection', 'thoughts', 'personal'],
         suggestedStatTags: {},
+        suggestedFamilyTags: {},
       });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
