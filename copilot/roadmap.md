@@ -51,13 +51,15 @@
 - [ ] **Stat XP Source Breakdown**
   - “What earned me XP in Strength this week?”
 
-- [ ] **Family Interactions from Journal**
+- [x] **Family Interactions from Journal**
   - Generic journal interaction table
   - Extract out family interactions from journal
 
-- [ ] **Goal interactions from journal**
+- [x] **Goal interactions from journal**
+  - Challenge: How can GPT respond with goals in a structured way?
   - Extract out goal interactions from journal
-- [ ] Drop energy level from family
+
+- [x] Drop energy level from family
 
 ---
 
