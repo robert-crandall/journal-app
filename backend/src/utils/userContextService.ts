@@ -43,6 +43,7 @@ export interface ComprehensiveUserContext {
     description: string;
     currentLevel: number;
     totalXp: number;
+    exampleActivities?: string[]; // Optional activities related to the stat
   }>;
 
   // Existing content tags for context
