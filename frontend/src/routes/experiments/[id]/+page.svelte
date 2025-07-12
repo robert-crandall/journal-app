@@ -81,13 +81,13 @@
   function getExperimentStatusColor(status: 'upcoming' | 'active' | 'completed'): string {
     switch (status) {
       case 'upcoming':
-        return 'bg-blue-100 text-blue-800';
+        return 'badge-info';
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'badge-success';
       case 'completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'badge-neutral';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'badge-neutral';
     }
   }
 
@@ -128,7 +128,7 @@
   <div class="mb-6">
     <a 
       href="/experiments" 
-      class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+      class="btn btn-ghost btn-sm gap-2"
     >
       <ArrowLeft class="h-4 w-4" />
       Back to Experiments
@@ -138,13 +138,13 @@
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center py-12">
-      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
   {:else if error}
     <!-- Error State -->
-    <div class="rounded-lg border border-red-200 bg-red-50 p-6">
-      <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Experiment</h3>
-      <p class="text-red-700 mb-4">{error}</p>
+    <div class="alert alert-error">
+      <h3 class="text-lg font-semibold">Error Loading Experiment</h3>
+      <p>{error}</p>
       <button 
         onclick={loadExperiment} 
         class="btn btn-outline btn-error"
@@ -161,17 +161,17 @@
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-2">
-                <h1 class="text-3xl font-bold text-gray-900">{experiment.title}</h1>
+                <h1 class="text-3xl font-bold text-base-content">{experiment.title}</h1>
                 <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))} badge-lg">
                   {getExperimentStatus(experiment)}
                 </span>
               </div>
               
               {#if experiment.description}
-                <p class="text-gray-600 text-lg mb-4">{experiment.description}</p>
+                <p class="text-base-content/70 text-lg mb-4">{experiment.description}</p>
               {/if}
 
-              <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+              <div class="flex flex-wrap items-center gap-6 text-sm text-base-content/60">
                 <div class="flex items-center gap-2">
                   <Calendar class="h-4 w-4" />
                   <span>{formatDateRange(experiment.startDate, experiment.endDate)}</span>
@@ -186,9 +186,9 @@
                     <span>{getDaysRemaining(experiment)} days remaining</span>
                   </div>
                 {:else if getExperimentStatus(experiment) === 'completed'}
-                  <div class="flex items-center gap-2">
-                    <CheckCircle2 class="h-4 w-4 text-green-600" />
-                    <span class="text-green-600">Completed</span>
+                  <div class="flex items-center gap-2 text-success">
+                    <CheckCircle2 class="h-4 w-4" />
+                    <span>Completed</span>
                   </div>
                 {/if}
               </div>
@@ -232,7 +232,7 @@
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body text-center">
             <div class="text-3xl font-bold text-primary">{getDuration(experiment.startDate, experiment.endDate)}</div>
-            <div class="text-sm text-gray-600">Total Days</div>
+            <div class="text-sm text-base-content/60">Total Days</div>
           </div>
         </div>
         
@@ -240,7 +240,7 @@
           <div class="card bg-base-100 border-base-300 border">
             <div class="card-body text-center">
               <div class="text-3xl font-bold text-secondary">{getDaysElapsed(experiment)}</div>
-              <div class="text-sm text-gray-600">Days Completed</div>
+              <div class="text-sm text-base-content/60">Days Completed</div>
             </div>
           </div>
         {/if}
@@ -248,7 +248,7 @@
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body text-center">
             <div class="text-3xl font-bold text-accent">{experiment.tasks.length}</div>
-            <div class="text-sm text-gray-600">Daily Tasks</div>
+            <div class="text-sm text-base-content/60">Daily Tasks</div>
           </div>
         </div>
       </div>
@@ -256,7 +256,7 @@
       <!-- Tasks Section -->
       <div class="card bg-base-100 border-base-300 border">
         <div class="card-body">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <h2 class="text-2xl font-bold text-base-content mb-6 flex items-center gap-2">
             <Target class="h-6 w-6 text-primary" />
             Daily Tasks
           </h2>
@@ -264,23 +264,25 @@
           {#if experiment.tasks.length > 0}
             <div class="space-y-4">
               {#each experiment.tasks as task}
-                <div class="p-4 rounded-lg border border-gray-200 bg-gray-50">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <h3 class="font-semibold text-gray-900 mb-2">{task.description}</h3>
-                      <div class="flex items-center gap-4 text-sm text-gray-600">
-                        {#if task.successMetric && task.successMetric > 1}
-                          <div class="flex items-center gap-1">
-                            <Target class="h-4 w-4" />
-                            <span>Target: {task.successMetric} times</span>
-                          </div>
-                        {/if}
-                        {#if task.xpReward && task.xpReward > 0}
-                          <div class="flex items-center gap-1">
-                            <Award class="h-4 w-4" />
-                            <span>{task.xpReward} XP per completion</span>
-                          </div>
-                        {/if}
+                <div class="card bg-base-200 border-base-300 border">
+                  <div class="card-body">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <h3 class="font-semibold text-base-content mb-2">{task.description}</h3>
+                        <div class="flex items-center gap-4 text-sm text-base-content/60">
+                          {#if task.successMetric && task.successMetric > 1}
+                            <div class="flex items-center gap-1">
+                              <Target class="h-4 w-4" />
+                              <span>Target: {task.successMetric} times</span>
+                            </div>
+                          {/if}
+                          {#if task.xpReward && task.xpReward > 0}
+                            <div class="flex items-center gap-1">
+                              <Award class="h-4 w-4" />
+                              <span>{task.xpReward} XP per completion</span>
+                            </div>
+                          {/if}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -289,9 +291,9 @@
             </div>
           {:else}
             <div class="text-center py-8">
-              <Target class="mx-auto h-12 w-12 text-gray-300 mb-4" />
-              <h3 class="text-lg font-medium text-gray-900 mb-2">No tasks defined</h3>
-              <p class="text-gray-600 mb-4">Add some daily tasks to track during this experiment.</p>
+              <Target class="mx-auto h-12 w-12 text-base-content/30 mb-4" />
+              <h3 class="text-lg font-medium text-base-content mb-2">No tasks defined</h3>
+              <p class="text-base-content/60 mb-4">Add some daily tasks to track during this experiment.</p>
               <a href="/experiments/{experiment.id}/edit" class="btn btn-primary">
                 Add Tasks
               </a>
@@ -303,8 +305,8 @@
   {:else}
     <!-- Not found state -->
     <div class="text-center py-12">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">Experiment Not Found</h2>
-      <p class="text-gray-600 mb-6">The experiment you're looking for doesn't exist or you don't have access to it.</p>
+      <h2 class="text-2xl font-bold text-base-content mb-2">Experiment Not Found</h2>
+      <p class="text-base-content/60 mb-6">The experiment you're looking for doesn't exist or you don't have access to it.</p>
       <a href="/experiments" class="btn btn-primary">
         Back to Experiments
       </a>

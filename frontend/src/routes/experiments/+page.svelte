@@ -49,11 +49,11 @@
   function getExperimentStatusColor(status: 'upcoming' | 'active' | 'completed'): string {
     switch (status) {
       case 'upcoming':
-        return 'text-blue-600 bg-blue-100';
+        return 'badge-info';
       case 'active':
-        return 'text-green-600 bg-green-100';
+        return 'badge-success';
       case 'completed':
-        return 'text-gray-600 bg-gray-100';
+        return 'badge-neutral';
     }
   }
 
@@ -111,13 +111,13 @@
   <!-- Header -->
   <div class="mb-8 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <Beaker class="h-8 w-8 text-purple-600" />
+      <Beaker class="h-8 w-8 text-primary" />
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Experiments</h1>
-        <p class="text-gray-600">Short-lived self-improvement tests to discover what makes your life better</p>
+        <h1 class="text-3xl font-bold text-base-content">Experiments</h1>
+        <p class="text-base-content/60">Short-lived self-improvement tests to discover what makes your life better</p>
       </div>
     </div>
-    <a href="/experiments/create" class="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700">
+    <a href="/experiments/create" class="btn btn-primary gap-2">
       <Plus class="h-5 w-5" />
       New Experiment
     </a>
@@ -126,23 +126,23 @@
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center py-12">
-      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-purple-600"></div>
+      <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
   {:else if error}
     <!-- Error State -->
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-      <p class="text-red-800">{error}</p>
-      <button onclick={loadExperimentsData} class="mt-2 text-red-600 underline hover:text-red-700"> Try again </button>
+    <div class="alert alert-error mb-6">
+      <p>{error}</p>
+      <button onclick={loadExperimentsData} class="btn btn-ghost btn-sm"> Try again </button>
     </div>
   {:else if userExperiments.length === 0}
     <!-- Empty State -->
     <div class="py-12 text-center">
-      <Beaker class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-      <h3 class="mb-2 text-xl font-semibold text-gray-900">No experiments yet</h3>
-      <p class="mx-auto mb-6 max-w-md text-gray-600">
+      <Beaker class="mx-auto mb-4 h-16 w-16 text-base-content/30" />
+      <h3 class="mb-2 text-xl font-semibold text-base-content">No experiments yet</h3>
+      <p class="mx-auto mb-6 max-w-md text-base-content/60">
         Start your first experiment to test changes in your life and track what makes you happier and more productive.
       </p>
-      <a href="/experiments/create" class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700">
+      <a href="/experiments/create" class="btn btn-primary gap-2">
         <Plus class="h-5 w-5" />
         Create Your First Experiment
       </a>
@@ -153,65 +153,67 @@
       <!-- Active Experiments -->
       {#if groupedExperiments().active.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-            <span class="h-3 w-3 rounded-full bg-green-500"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
+            <span class="h-3 w-3 rounded-full bg-success"></span>
             Active Experiments ({groupedExperiments().active.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments().active as experiment}
-              <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-                <div class="mb-4 flex items-start justify-between">
-                  <div class="flex-1">
-                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
-                    {#if experiment.description}
-                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
-                    {/if}
+              <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
+                <div class="card-body">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="card-title text-base-content">{experiment.title}</h3>
+                      {#if experiment.description}
+                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                      {/if}
+                    </div>
+                    <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                      {getExperimentStatus(experiment)}
+                    </span>
                   </div>
-                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
-                    {getExperimentStatus(experiment)}
-                  </span>
-                </div>
 
-                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
-                  <div class="flex items-center gap-1">
-                    <Calendar class="h-4 w-4" />
-                    {formatDateRange(experiment.startDate, experiment.endDate)}
+                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                    <div class="flex items-center gap-1">
+                      <Calendar class="h-4 w-4" />
+                      {formatDateRange(experiment.startDate, experiment.endDate)}
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <BarChart class="h-4 w-4" />
+                      {getDuration(experiment.startDate, experiment.endDate)} days
+                    </div>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <BarChart class="h-4 w-4" />
-                    {getDuration(experiment.startDate, experiment.endDate)} days
-                  </div>
-                </div>
 
-                <div class="flex items-center gap-2">
-                  <a
-                    href="/experiments/{experiment.id}/dashboard"
-                    class="flex flex-1 items-center justify-center gap-1 rounded bg-purple-100 px-3 py-2 text-center text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
-                  >
-                    <BarChart class="h-4 w-4" />
-                    Dashboard
-                  </a>
-                  <a
-                    href="/experiments/{experiment.id}"
-                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    title="View Details"
-                  >
-                    <Eye class="h-4 w-4" />
-                  </a>
-                  <a
-                    href="/experiments/{experiment.id}/edit"
-                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    title="Edit"
-                  >
-                    <Edit3 class="h-4 w-4" />
-                  </a>
-                  <button
-                    onclick={() => deleteExperiment(experiment.id)}
-                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-                    title="Delete"
-                  >
-                    <Trash2 class="h-4 w-4" />
-                  </button>
+                  <div class="card-actions justify-end">
+                    <a
+                      href="/experiments/{experiment.id}/dashboard"
+                      class="btn btn-primary btn-sm gap-1"
+                    >
+                      <BarChart class="h-4 w-4" />
+                      Dashboard
+                    </a>
+                    <a
+                      href="/experiments/{experiment.id}"
+                      class="btn btn-ghost btn-sm btn-circle"
+                      title="View Details"
+                    >
+                      <Eye class="h-4 w-4" />
+                    </a>
+                    <a
+                      href="/experiments/{experiment.id}/edit"
+                      class="btn btn-ghost btn-sm btn-circle"
+                      title="Edit"
+                    >
+                      <Edit3 class="h-4 w-4" />
+                    </a>
+                    <button
+                      onclick={() => deleteExperiment(experiment.id)}
+                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+                      title="Delete"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             {/each}
@@ -222,58 +224,60 @@
       <!-- Upcoming Experiments -->
       {#if groupedExperiments().upcoming.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-            <span class="h-3 w-3 rounded-full bg-blue-500"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
+            <span class="h-3 w-3 rounded-full bg-info"></span>
             Upcoming Experiments ({groupedExperiments().upcoming.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments().upcoming as experiment}
-              <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-                <div class="mb-4 flex items-start justify-between">
-                  <div class="flex-1">
-                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
-                    {#if experiment.description}
-                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
-                    {/if}
+              <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
+                <div class="card-body">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="card-title text-base-content">{experiment.title}</h3>
+                      {#if experiment.description}
+                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                      {/if}
+                    </div>
+                    <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                      {getExperimentStatus(experiment)}
+                    </span>
                   </div>
-                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
-                    {getExperimentStatus(experiment)}
-                  </span>
-                </div>
 
-                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
-                  <div class="flex items-center gap-1">
-                    <Calendar class="h-4 w-4" />
-                    {formatDateRange(experiment.startDate, experiment.endDate)}
+                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                    <div class="flex items-center gap-1">
+                      <Calendar class="h-4 w-4" />
+                      {formatDateRange(experiment.startDate, experiment.endDate)}
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <BarChart class="h-4 w-4" />
+                      {getDuration(experiment.startDate, experiment.endDate)} days
+                    </div>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <BarChart class="h-4 w-4" />
-                    {getDuration(experiment.startDate, experiment.endDate)} days
-                  </div>
-                </div>
 
-                <div class="flex items-center gap-2">
-                  <a
-                    href="/experiments/{experiment.id}"
-                    class="flex flex-1 items-center justify-center gap-1 rounded bg-gray-100 px-3 py-2 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
-                  >
-                    <Eye class="h-4 w-4" />
-                    View Details
-                  </a>
-                  <a
-                    href="/experiments/{experiment.id}/edit"
-                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    title="Edit"
-                  >
-                    <Edit3 class="h-4 w-4" />
-                  </a>
-                  <button
-                    onclick={() => deleteExperiment(experiment.id)}
-                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-                    title="Delete"
-                  >
-                    <Trash2 class="h-4 w-4" />
-                  </button>
+                  <div class="card-actions justify-end">
+                    <a
+                      href="/experiments/{experiment.id}"
+                      class="btn btn-secondary btn-sm gap-1"
+                    >
+                      <Eye class="h-4 w-4" />
+                      View Details
+                    </a>
+                    <a
+                      href="/experiments/{experiment.id}/edit"
+                      class="btn btn-ghost btn-sm btn-circle"
+                      title="Edit"
+                    >
+                      <Edit3 class="h-4 w-4" />
+                    </a>
+                    <button
+                      onclick={() => deleteExperiment(experiment.id)}
+                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+                      title="Delete"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             {/each}
@@ -284,58 +288,60 @@
       <!-- Completed Experiments -->
       {#if groupedExperiments().completed.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-            <span class="h-3 w-3 rounded-full bg-gray-500"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
+            <span class="h-3 w-3 rounded-full bg-neutral"></span>
             Completed Experiments ({groupedExperiments().completed.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments().completed as experiment}
-              <div class="rounded-lg border border-gray-200 bg-white p-6 opacity-75 transition-shadow hover:shadow-lg">
-                <div class="mb-4 flex items-start justify-between">
-                  <div class="flex-1">
-                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
-                    {#if experiment.description}
-                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
-                    {/if}
+              <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl opacity-75">
+                <div class="card-body">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="card-title text-base-content">{experiment.title}</h3>
+                      {#if experiment.description}
+                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                      {/if}
+                    </div>
+                    <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                      {getExperimentStatus(experiment)}
+                    </span>
                   </div>
-                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
-                    {getExperimentStatus(experiment)}
-                  </span>
-                </div>
 
-                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
-                  <div class="flex items-center gap-1">
-                    <Calendar class="h-4 w-4" />
-                    {formatDateRange(experiment.startDate, experiment.endDate)}
+                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                    <div class="flex items-center gap-1">
+                      <Calendar class="h-4 w-4" />
+                      {formatDateRange(experiment.startDate, experiment.endDate)}
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <BarChart class="h-4 w-4" />
+                      {getDuration(experiment.startDate, experiment.endDate)} days
+                    </div>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <BarChart class="h-4 w-4" />
-                    {getDuration(experiment.startDate, experiment.endDate)} days
-                  </div>
-                </div>
 
-                <div class="flex items-center gap-2">
-                  <a
-                    href="/experiments/{experiment.id}/dashboard"
-                    class="flex flex-1 items-center justify-center gap-1 rounded bg-purple-100 px-3 py-2 text-center text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
-                  >
-                    <BarChart class="h-4 w-4" />
-                    View Results
-                  </a>
-                  <a
-                    href="/experiments/{experiment.id}"
-                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    title="View Details"
-                  >
-                    <Eye class="h-4 w-4" />
-                  </a>
-                  <button
-                    onclick={() => deleteExperiment(experiment.id)}
-                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-                    title="Delete"
-                  >
-                    <Trash2 class="h-4 w-4" />
-                  </button>
+                  <div class="card-actions justify-end">
+                    <a
+                      href="/experiments/{experiment.id}/dashboard"
+                      class="btn btn-primary btn-sm gap-1"
+                    >
+                      <BarChart class="h-4 w-4" />
+                      View Results
+                    </a>
+                    <a
+                      href="/experiments/{experiment.id}"
+                      class="btn btn-ghost btn-sm btn-circle"
+                      title="View Details"
+                    >
+                      <Eye class="h-4 w-4" />
+                    </a>
+                    <button
+                      onclick={() => deleteExperiment(experiment.id)}
+                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+                      title="Delete"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             {/each}
