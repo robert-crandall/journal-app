@@ -99,8 +99,14 @@ export function formatDateCustom(dateString: string | null, format: 'short' | 'l
  * @returns Today's date in YYYY-MM-DD format
  */
 export function getTodayDateString(): string {
-  const today = new Date();
-  return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  // Get the current date components
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  
+  // Create date string in YYYY-MM-DD format without using Date object
+  return `${year}-${month}-${day}`;
 }
 
 /**
