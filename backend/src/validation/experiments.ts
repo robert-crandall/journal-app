@@ -21,6 +21,7 @@ export const createExperimentSchema = baseExperimentSchema
           description: z.string().min(1, 'Task description is required').max(500, 'Task description must be 500 characters or less'),
           successMetric: z.number().int().min(1).default(1),
           xpReward: z.number().int().min(0).default(0),
+          statId: z.string().uuid().optional(),
         }),
       )
       .optional()
@@ -48,6 +49,7 @@ export const createExperimentTaskSchema = z.object({
   description: z.string().min(1, 'Task description is required').max(500, 'Task description must be 500 characters or less'),
   successMetric: z.number().int().min(1).default(1),
   xpReward: z.number().int().min(0).default(0),
+  statId: z.string().uuid().optional(),
 });
 
 export const updateExperimentTaskSchema = createExperimentTaskSchema.partial();

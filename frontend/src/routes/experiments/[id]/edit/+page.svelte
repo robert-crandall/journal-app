@@ -3,7 +3,9 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
+  import { statsApi } from '$lib/api/stats';
   import type { ExperimentWithTasksResponse, UpdateExperimentRequest } from '$lib/api/experiments';
+  import type { CharacterStatWithProgress } from '$lib/api/stats';
   import { 
     ArrowLeft, 
     Plus, 
@@ -19,6 +21,10 @@
   let loading = $state(true);
   let saving = $state(false);
   let error = $state<string | null>(null);
+  
+  // Stats for dropdown
+  let userStats: CharacterStatWithProgress[] = $state([]);
+  let loadingStats = $state(true);
 
   // Get experiment ID from URL
   let experimentId = $derived($page.params.id);
@@ -36,12 +42,27 @@
     description: '',
     successMetric: 1,
     xpReward: 10,
+    statId: '',
   });
 
   // Load data on component mount
   onMount(async () => {
-    await loadExperiment();
+    await Promise.all([
+      loadExperiment(),
+      loadStats()
+    ]);
   });
+
+  async function loadStats() {
+    try {
+      loadingStats = true;
+      userStats = await statsApi.getUserStats();
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    } finally {
+      loadingStats = false;
+    }
+  }
 
   async function loadExperiment() {
     try {
@@ -108,6 +129,7 @@
         description: newTask.description.trim(),
         successMetric: newTask.successMetric,
         xpReward: newTask.xpReward,
+        statId: newTask.statId || undefined,
       });
 
       // Reset form
@@ -115,6 +137,7 @@
         description: '',
         successMetric: 1,
         xpReward: 10,
+        statId: '',
       };
 
       // Reload experiment to get updated tasks
@@ -294,6 +317,16 @@
                             <span>{task.xpReward} XP per completion</span>
                           </div>
                         {/if}
+                        {#if task.statId}
+                          {@const linkedStat = userStats.find(s => s.id === task.statId)}
+                          {#if linkedStat}
+                            <div class="flex items-center gap-1 text-primary">
+                              <span class="text-xs bg-primary/10 px-2 py-1 rounded-full">
+                                → {linkedStat.name}
+                              </span>
+                            </div>
+                          {/if}
+                        {/if}
                       </div>
                     </div>
                     <button
@@ -357,6 +390,27 @@
                     class="input input-bordered focus:input-primary w-full"
                   />
                 </div>
+              </div>
+
+              <div class="form-control">
+                <label for="statId" class="label">
+                  <span class="label-text font-medium">Link to Stat (Optional)</span>
+                  <span class="label-text-alt text-xs opacity-60">Select which stat gains XP</span>
+                </label>
+                <select
+                  id="statId"
+                  bind:value={newTask.statId}
+                  class="select select-bordered focus:select-primary w-full"
+                >
+                  <option value="">No stat link</option>
+                  {#if loadingStats}
+                    <option disabled>Loading stats...</option>
+                  {:else}
+                    {#each userStats as stat}
+                      <option value={stat.id}>{stat.name}</option>
+                    {/each}
+                  {/if}
+                </select>
               </div>
 
               <button

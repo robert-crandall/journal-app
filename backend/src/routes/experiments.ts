@@ -5,7 +5,7 @@ import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { experiments, experimentTasks, experimentTaskCompletions } from '../db/schema/experiments';
 import { journalEntries } from '../db/schema/journal';
-import { xpGrants } from '../db/schema/stats';
+import { xpGrants, characterStats } from '../db/schema/stats';
 import {
   createExperimentSchema,
   updateExperimentSchema,
@@ -133,6 +133,7 @@ const app = new Hono()
           description: task.description,
           successMetric: task.successMetric ?? 1,
           xpReward: task.xpReward ?? 0,
+          statId: task.statId || null,
         }));
 
         const newTasks = await db.insert(experimentTasks).values(taskValues).returning();
@@ -337,6 +338,7 @@ const app = new Hono()
           description: data.description,
           successMetric: data.successMetric ?? 1,
           xpReward: data.xpReward ?? 0,
+          statId: data.statId || null,
         })
         .returning();
 
@@ -390,6 +392,9 @@ const app = new Hono()
       }
       if (data.xpReward !== undefined) {
         updateData.xpReward = data.xpReward;
+      }
+      if (data.statId !== undefined) {
+        updateData.statId = data.statId || null;
       }
 
       const updatedTask = await db.update(experimentTasks).set(updateData).where(eq(experimentTasks.id, taskId)).returning();
@@ -501,15 +506,42 @@ const app = new Hono()
 
       // Award XP if configured
       if (task[0]?.experiment_tasks.xpReward && task[0].experiment_tasks.xpReward > 0) {
+        const entityType = task[0].experiment_tasks.statId ? 'character_stat' : 'experiment_task';
+        const entityId = task[0].experiment_tasks.statId || taskId;
+        
         await db.insert(xpGrants).values({
           userId,
-          entityType: 'experiment_task',
-          entityId: taskId,
+          entityType,
+          entityId,
           xpAmount: task[0].experiment_tasks.xpReward,
           sourceType: 'task',
           sourceId: completion[0].id,
           reason: `Completed experiment task: ${task[0].experiment_tasks.description}`,
         });
+
+        // If linked to a stat, update the stat's totalXp and level
+        if (task[0].experiment_tasks.statId) {
+          // Get current stat data
+          const currentStat = await db
+            .select()
+            .from(characterStats)
+            .where(eq(characterStats.id, task[0].experiment_tasks.statId))
+            .limit(1);
+
+          if (currentStat.length > 0) {
+            const newTotalXp = currentStat[0].totalXp + task[0].experiment_tasks.xpReward;
+            const newLevel = Math.floor(newTotalXp / 100) + 1; // Simple leveling formula
+
+            await db
+              .update(characterStats)
+              .set({
+                totalXp: newTotalXp,
+                currentLevel: newLevel,
+                updatedAt: new Date(),
+              })
+              .where(eq(characterStats.id, task[0].experiment_tasks.statId));
+          }
+        }
       }
 
       return c.json(

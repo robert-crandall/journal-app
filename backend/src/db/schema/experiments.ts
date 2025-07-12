@@ -1,5 +1,6 @@
 import { pgTable, uuid, varchar, text, timestamp, integer, date } from 'drizzle-orm/pg-core';
 import { users } from './users';
+import { characterStats } from './stats';
 
 // Experiments table - stores experiment definitions
 export const experiments = pgTable('experiments', {
@@ -21,6 +22,8 @@ export const experimentTasks = pgTable('experiment_tasks', {
   experimentId: uuid('experiment_id')
     .notNull()
     .references(() => experiments.id, { onDelete: 'cascade' }),
+  statId: uuid('stat_id')
+    .references(() => characterStats.id, { onDelete: 'set null' }), // Optional link to character stat
   description: varchar('description', { length: 500 }).notNull(),
   successMetric: integer('success_metric').default(1), // Number of times task should be completed during experiment
   xpReward: integer('xp_reward').default(0), // XP awarded per completion

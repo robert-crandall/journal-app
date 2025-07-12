@@ -7,7 +7,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
-    "test": "bun test"
+    "test": "cd .. && NODE_ENV=test bun run db:reset && cd backend && bun test",
+    "test:nodb": "bun test"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",

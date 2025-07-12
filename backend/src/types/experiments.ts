@@ -23,6 +23,7 @@ export type CreateExperimentRequest = {
     description: string;
     successMetric?: number;
     xpReward?: number;
+    statId?: string;
   }>;
 };
 
@@ -32,6 +33,7 @@ export type CreateExperimentTaskRequest = {
   description: string;
   successMetric?: number;
   xpReward?: number;
+  statId?: string;
 };
 
 export type UpdateExperimentTaskRequest = Partial<CreateExperimentTaskRequest>;

@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { experimentsApi, type CreateExperimentRequest } from '$lib/api/experiments';
+  import { statsApi, type CharacterStatWithProgress } from '$lib/api/stats';
   import { Beaker, Plus, Trash2, Calendar, Target, Award, ArrowLeft } from 'lucide-svelte';
 
   // Form state
@@ -14,6 +16,8 @@
 
   let loading = $state(false);
   let error = $state<string | null>(null);
+  let userStats = $state<CharacterStatWithProgress[]>([]);
+  let loadingStats = $state(true);
 
   // Set default start date to today
   const today = new Date();
@@ -30,6 +34,18 @@
     description: '',
     successMetric: 1,
     xpReward: 10,
+    statId: '',
+  });
+
+  // Load user stats on mount
+  onMount(async () => {
+    try {
+      userStats = await statsApi.getUserStats();
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    } finally {
+      loadingStats = false;
+    }
   });
 
   function addTask() {
@@ -43,6 +59,7 @@
       description: newTask.description.trim(),
       successMetric: newTask.successMetric,
       xpReward: newTask.xpReward,
+      statId: newTask.statId || undefined,
     });
 
     // Reset form
@@ -50,6 +67,7 @@
       description: '',
       successMetric: 1,
       xpReward: 10,
+      statId: '',
     };
   }
 
@@ -287,6 +305,25 @@
                         min="0"
                         class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
                       />
+                    </div>
+                    <div class="form-control">
+                      <label class="label" for="statId">
+                        <span class="label-text font-medium">Link to Stat (Optional)</span>
+                      </label>
+                      <select
+                        id="statId"
+                        bind:value={newTask.statId}
+                        class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                      >
+                        <option value="">No stat link</option>
+                        {#if loadingStats}
+                          <option disabled>Loading stats...</option>
+                        {:else}
+                          {#each userStats as stat}
+                            <option value={stat.id}>{stat.name}</option>
+                          {/each}
+                        {/if}
+                      </select>
                     </div>
                   </div>
                   <button
