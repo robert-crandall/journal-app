@@ -113,19 +113,8 @@ export async function cleanDatabase() {
         if (!result.success && result.error) {
           const errorMsg = result.error.message;
 
-          // Check if this is a retryable error
-          if (
-            errorMsg.includes('409') ||
-            errorMsg.includes('conflict') ||
-            errorMsg.includes('violates foreign key constraint') ||
-            errorMsg.includes('could not serialize access')
-          ) {
-            hasRetryableErrors = true;
-            errors.push(`${name}: ${errorMsg}`);
-          } else {
-            // Non-retryable error, log and continue
-            console.warn(`Non-retryable error cleaning table ${name}:`, errorMsg);
-          }
+          hasRetryableErrors = true;
+          errors.push(`${name}: ${errorMsg}`);
         }
       }
 
