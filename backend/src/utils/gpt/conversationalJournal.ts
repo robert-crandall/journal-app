@@ -22,6 +22,7 @@ export interface JournalMetadata {
   summary: string;
   suggestedTags: string[];
   suggestedStatTags: Record<string, number>; // Changed from string[] to Record<statName, xpAmount>
+  suggestedFamilyTags: Record<string, number>; // Family member names mapped to XP amounts for relationship interactions
 }
 
 /**
@@ -88,7 +89,8 @@ Your task is to review the entire conversation and generate:
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
 3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
 4. **Content Tags**: 3-6 tags describing topics, activities, or themes
-5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)`;
+5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
+6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -104,6 +106,13 @@ ${userContext.existingTags.map((tag) => `- "${tag.name}"`).join('\n')}`;
     systemPrompt += `\n\n### Current Character Stats
 These are the user's current character stats that could receive XP:`;
     systemPrompt += formatCharacterStatsForPrompt(userContext.characterStats);
+  }
+
+  // Add available family members information
+  if (userContext.familyMembers && userContext.familyMembers.length > 0) {
+    systemPrompt += `\n\n### Family Members
+These are the user's family members that could receive connection XP:`;
+    systemPrompt += formatFamilyMembersForPrompt(userContext.familyMembers);
   }
 
   // Helper function for formatting character stats for the prompt
@@ -141,6 +150,35 @@ These are the user's current character stats that could receive XP:`;
     );
   }
 
+  // Helper function for formatting family members for the prompt
+  function formatFamilyMembersForPrompt(
+    familyMembers: Array<{
+      id: string;
+      name: string;
+      relationship: string;
+      likes?: string;
+      dislikes?: string;
+      connectionLevel: number;
+      connectionXp: number;
+    }>,
+  ): string {
+    return (
+      '\n' +
+      familyMembers
+        .map((member) => {
+          let lines = [`- **${member.name}** (${member.relationship}, Level ${member.connectionLevel}, ${member.connectionXp} XP)`];
+          if (member.likes) {
+            lines.push(`  - Likes: ${member.likes}`);
+          }
+          if (member.dislikes) {
+            lines.push(`  - Dislikes: ${member.dislikes}`);
+          }
+          return lines.join('\n');
+        })
+        .join('\n')
+    );
+  }
+
   systemPrompt += `
 
 IMPORTANT: Format your response exactly as JSON:
@@ -149,7 +187,8 @@ IMPORTANT: Format your response exactly as JSON:
   "synopsis": "1-2 sentence overview", 
   "summary": "Detailed narrative synthesis maintaining user's voice",
   "suggestedTags": ["tag1", "tag2", "tag3"],
-  "suggestedStatTags": {"statName1": 15, "statName2": 25}
+  "suggestedStatTags": {"statName1": 15, "statName2": 25},
+  "suggestedFamilyTags": {"familyMemberName1": 20, "familyMemberName2": 15}
 }
 
 ## Tagging Guidelines
@@ -157,6 +196,8 @@ IMPORTANT: Format your response exactly as JSON:
 **Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
 
 **Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on. Provide XP amounts between 5-50 based on the significance and effort discussed. Use the exact stat names provided in the context.
+
+**Family Tags**: Only suggest family members who were mentioned, involved in activities, or discussed in the conversation. Consider relationship interactions, quality time spent, or meaningful connections made. Provide XP amounts between 5-50 based on the significance of the interaction and relationship building. Use the exact family member names provided in the context.
 
 The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
 

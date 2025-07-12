@@ -57,6 +57,7 @@ export interface SaveJournalEntryResponse {
     summary: string;
     tags: string[]; // Tag names
     statTags: string[]; // Stat names
+    familyTags: string[]; // Family member names
   };
 }
 
