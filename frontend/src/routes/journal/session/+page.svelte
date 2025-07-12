@@ -16,21 +16,60 @@
   let messagesContainer: HTMLDivElement;
   let messageInput: HTMLTextAreaElement;
 
+  // Support for URL parameters to handle reflection mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSessionId = urlParams.get('id');
+
+  // Function to load messages from an existing session
+  async function loadSessionMessages(sessionId: string) {
+    try {
+      const sessionData = await journalApi.getSession(sessionId);
+      return sessionData.messages;
+    } catch (err) {
+      console.error('Error loading session messages:', err);
+      throw err;
+    }
+  }
+
   // Start the session when component mounts
   onMount(async () => {
     try {
       loading = true;
-      const sessionData = await journalApi.startSession();
-      sessionId = sessionData.sessionId;
 
-      // Add initial GPT message
-      messages = [
-        {
-          role: 'assistant',
-          content: sessionData.message,
-          timestamp: new Date().toISOString(),
-        },
-      ];
+      // If we have a session ID in the URL, we're in reflection mode
+      if (urlSessionId) {
+        sessionId = urlSessionId;
+
+        try {
+          // Try to load the session messages
+          messages = await loadSessionMessages(sessionId);
+        } catch (err) {
+          console.error('Failed to load session messages, falling back to regular session');
+          // If loading fails, start a regular session as fallback
+          const sessionData = await journalApi.startSession();
+          sessionId = sessionData.sessionId;
+          messages = [
+            {
+              role: 'assistant',
+              content: sessionData.message,
+              timestamp: new Date().toISOString(),
+            },
+          ];
+        }
+      } else {
+        // Regular journal session
+        const sessionData = await journalApi.startSession();
+        sessionId = sessionData.sessionId;
+
+        // Add initial GPT message
+        messages = [
+          {
+            role: 'assistant',
+            content: sessionData.message,
+            timestamp: new Date().toISOString(),
+          },
+        ];
+      }
 
       scrollToBottom();
     } catch (err) {

@@ -35,7 +35,6 @@ export default ts.config(
       // see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
       'no-undef': 'off',
       'theme-check/no-hardcoded-colors': 'error',
-      // Date conversion is set back to error level - we'll fix these too
       'custom/no-direct-date-conversion': 'error',
       // Other rules are still at warning level for now
       '@typescript-eslint/no-explicit-any': 'warn',

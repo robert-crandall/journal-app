@@ -21,6 +21,9 @@ export interface JournalEntry {
   title: string;
   summary: string;
   synopsis: string | null;
+  content: string | null; // Long-form content for hybrid journal mode
+  reflected: boolean; // Whether the user has initiated chat/reflection mode
+  startedAsChat: boolean; // Whether entry was started in chat mode (true) or long-form mode (false)
   createdAt: string;
   updatedAt: string;
 }
@@ -66,13 +69,66 @@ export interface GetJournalEntriesResponse {
   data: JournalEntryWithDetails[];
 }
 
+export interface StartLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+  };
+}
+
+export interface SaveLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+    synopsis: string;
+    summary: string;
+  };
+}
+
+export interface StartReflectionResponse {
+  success: boolean;
+  data: {
+    sessionId: string;
+    message: string; // Initial reflection message from GPT
+  };
+}
+
+export interface SaveSimpleLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+  };
+}
+
+export interface GetJournalSessionResponse {
+  success: boolean;
+  data: {
+    sessionId: string;
+    messages: ChatMessage[];
+    isActive: boolean;
+  };
+}
+
+export interface UpdateLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+    content: string;
+  };
+}
+
 // API functions
 export const journalApi = {
+  // Chat-first mode API methods
   async startSession(): Promise<StartJournalSessionResponse['data']> {
-    const response = await authenticatedClient.api.journal.start.$post({
-      json: {},
-    });
-    const result = (await response.json()) as StartJournalSessionResponse;
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/start', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })) as StartJournalSessionResponse;
 
     if (!result.success) {
       throw new Error('Failed to start journal session');
@@ -82,10 +138,11 @@ export const journalApi = {
   },
 
   async sendMessage(sessionId: string, message: string): Promise<SendJournalMessageResponse['data']> {
-    const response = await authenticatedClient.api.journal.message.$post({
-      json: { sessionId, message },
-    });
-    const result = (await response.json()) as SendJournalMessageResponse;
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/message', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId, message }),
+    })) as SendJournalMessageResponse;
 
     if (!result.success) {
       throw new Error('Failed to send message');
@@ -95,10 +152,11 @@ export const journalApi = {
   },
 
   async saveEntry(sessionId: string): Promise<SaveJournalEntryResponse['data']> {
-    const response = await authenticatedClient.api.journal.save.$post({
-      json: { sessionId },
-    });
-    const result = (await response.json()) as SaveJournalEntryResponse;
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/save', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    })) as SaveJournalEntryResponse;
 
     if (!result.success) {
       throw new Error('Failed to save journal entry');
@@ -107,9 +165,87 @@ export const journalApi = {
     return result.data;
   },
 
+  // Long-form first mode API methods
+  async startLongForm(): Promise<StartLongFormJournalResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/longform/start', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })) as StartLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to start long-form journal entry');
+    }
+
+    return result.data;
+  },
+
+  async saveLongForm(content: string): Promise<SaveLongFormJournalResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/longform/save', {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    })) as SaveLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to save long-form journal entry');
+    }
+
+    return result.data;
+  },
+
+  async saveSimpleLongForm(content: string, entryId?: string): Promise<SaveSimpleLongFormJournalResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/longform/save-simple', {
+      method: 'POST',
+      body: JSON.stringify({ content, ...(entryId ? { entryId } : {}) }),
+    })) as SaveSimpleLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to save journal entry');
+    }
+
+    return result.data;
+  },
+
+  async startReflection(entryId: string): Promise<StartReflectionResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/reflection/start', {
+      method: 'POST',
+      body: JSON.stringify({ entryId }),
+    })) as StartReflectionResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to start reflection');
+    }
+
+    return result.data;
+  },
+
+  async getSession(sessionId: string): Promise<GetJournalSessionResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch(`/api/journal/session/${sessionId}`, {
+      method: 'GET',
+    })) as GetJournalSessionResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to get session data');
+    }
+
+    return result.data;
+  },
+
+  // Common API methods
   async getEntries(): Promise<JournalEntryWithDetails[]> {
-    const response = await authenticatedClient.api.journal.$get();
-    const result = (await response.json()) as GetJournalEntriesResponse;
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal', {
+      method: 'GET',
+    })) as GetJournalEntriesResponse;
 
     if (!result.success) {
       throw new Error('Failed to get journal entries');
@@ -119,13 +255,28 @@ export const journalApi = {
   },
 
   async getEntry(entryId: string): Promise<JournalEntryWithDetails> {
-    const response = await authenticatedClient.api.journal[':id'].$get({
-      param: { id: entryId },
-    });
-    const result = (await response.json()) as { success: boolean; data: JournalEntryWithDetails };
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch(`/api/journal/${entryId}`, {
+      method: 'GET',
+    })) as { success: boolean; data: JournalEntryWithDetails };
 
     if (!result.success) {
       throw new Error('Failed to get journal entry');
+    }
+
+    return result.data;
+  },
+
+  async updateLongForm(entryId: string, content: string): Promise<UpdateLongFormJournalResponse['data']> {
+    // Use direct fetch instead of the Hono client for deeply nested routes
+    const { apiFetch } = await import('../api');
+    const result = (await apiFetch('/api/journal/longform/update', {
+      method: 'POST',
+      body: JSON.stringify({ entryId, content }),
+    })) as UpdateLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to update journal entry');
     }
 
     return result.data;

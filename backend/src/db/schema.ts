@@ -6,7 +6,15 @@ export { userValidationSchema, registerSchema, loginSchema } from '../validation
 export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
-export { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
+export {
+  startJournalSessionSchema,
+  sendJournalMessageSchema,
+  saveJournalEntrySchema,
+  getJournalEntrySchema,
+  startLongFormJournalSchema,
+  saveLongFormJournalSchema,
+  startReflectionSchema,
+} from '../validation/journal';
 export { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
 export {
   createExperimentSchema,

@@ -15,7 +15,17 @@ import {
   xpGrants,
   familyMembers,
 } from '../db/schema';
-import { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
+import {
+  startJournalSessionSchema,
+  sendJournalMessageSchema,
+  saveJournalEntrySchema,
+  getJournalEntrySchema,
+  startLongFormJournalSchema,
+  saveLongFormJournalSchema,
+  startReflectionSchema,
+  saveSimpleLongFormJournalSchema,
+  updateLongFormJournalSchema,
+} from '../validation/journal';
 import { handleApiError } from '../utils/logger';
 import { grantXp } from '../utils/xpService';
 import type {
@@ -25,6 +35,9 @@ import type {
   GetJournalEntriesResponse,
   ChatMessage,
   JournalEntryWithDetails,
+  StartLongFormJournalResponse,
+  SaveLongFormJournalResponse,
+  StartReflectionResponse,
 } from '../types/journal';
 import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from '../utils/gpt/conversationalJournal';
 import { getUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
@@ -255,6 +268,9 @@ const app = new Hono()
           title: metadata.title,
           synopsis: metadata.synopsis,
           summary: metadata.summary,
+          content: '', // Empty since this is chat-based
+          startedAsChat: true,
+          reflected: false,
         })
         .returning();
 
@@ -291,6 +307,7 @@ const app = new Hono()
 
         if (matchingStatEntry) {
           const [statName, xpAmount] = matchingStatEntry;
+          const numericXP = typeof xpAmount === 'number' ? xpAmount : parseInt(String(xpAmount), 10);
 
           // Add stat tag relation
           await db.insert(journalEntryStatTags).values({
@@ -503,5 +520,406 @@ const app = new Hono()
       return;
     }
   });
+
+// Long-form journal endpoints
+app.post('/longform/start', jwtAuth, zValidator('json', startLongFormJournalSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+
+    // Create a new empty journal entry in long-form mode
+    const newEntry = await db
+      .insert(journalEntries)
+      .values({
+        userId,
+        title: 'Untitled Journal Entry', // Default title until processed
+        synopsis: '', // Empty until processed
+        summary: '', // Empty until processed
+        content: '', // Empty content to be filled by user
+        reflected: false, // Not yet reflected upon
+        startedAsChat: false, // Started in long-form mode
+      })
+      .returning();
+
+    const response: StartLongFormJournalResponse = {
+      success: true,
+      data: {
+        entryId: newEntry[0].id,
+      },
+    };
+
+    return c.json(response, 201);
+  } catch (error) {
+    handleApiError(error, 'Failed to start long-form journal entry');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to start long-form journal entry',
+      },
+      500,
+    );
+  }
+});
+
+app.post('/longform/save', jwtAuth, zValidator('json', saveLongFormJournalSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+    const { content } = c.req.valid('json');
+
+    // Create a new journal entry with the long-form content without analysis
+    const newEntry = await db
+      .insert(journalEntries)
+      .values({
+        userId,
+        title: 'Untitled Journal Entry',
+        synopsis: 'Journal entry waiting for reflection',
+        summary: '',
+        content,
+        reflected: false, // Not yet reflected upon
+        startedAsChat: false, // Started in long-form mode
+      })
+      .returning();
+
+    const entryId = newEntry[0].id;
+
+    // Return simple response - no metadata analysis
+    const response: SaveLongFormJournalResponse = {
+      success: true,
+      data: {
+        entryId,
+        title: 'Untitled Journal Entry',
+        synopsis: 'Journal entry waiting for reflection',
+        summary: '',
+      },
+    };
+
+    return c.json(response, 201);
+  } catch (error) {
+    handleApiError(error, 'Failed to save long-form journal entry');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to save long-form journal entry',
+      },
+      500,
+    );
+  }
+});
+
+// Add the new endpoint after app.post('/longform/save', ...)
+app.post('/longform/save-simple', jwtAuth, zValidator('json', saveSimpleLongFormJournalSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+    const { content, entryId } = c.req.valid('json');
+
+    if (entryId) {
+      // Update existing entry
+      const existingEntry = await db
+        .select()
+        .from(journalEntries)
+        .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+        .limit(1);
+
+      if (existingEntry.length === 0) {
+        return c.json(
+          {
+            success: false,
+            error: 'Journal entry not found',
+          },
+          404,
+        );
+      }
+
+      await db
+        .update(journalEntries)
+        .set({
+          content,
+          updatedAt: new Date(),
+        })
+        .where(eq(journalEntries.id, entryId));
+
+      return c.json({
+        success: true,
+        data: {
+          entryId,
+          title: existingEntry[0].title,
+        },
+      });
+    } else {
+      // Create a new journal entry with just the content, no metadata analysis
+      const newEntry = await db
+        .insert(journalEntries)
+        .values({
+          userId,
+          title: 'Untitled Journal Entry', // Simple default title
+          synopsis: 'Journal entry in progress', // Simple default synopsis
+          summary: '', // No summary yet
+          content,
+          reflected: false, // Not yet reflected upon
+          startedAsChat: false, // Started in long-form mode
+        })
+        .returning();
+
+      return c.json({
+        success: true,
+        data: {
+          entryId: newEntry[0].id,
+          title: 'Untitled Journal Entry',
+        },
+      });
+    }
+  } catch (error) {
+    handleApiError(error, 'Failed to save long-form journal entry');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to save long-form journal entry',
+      },
+      500,
+    );
+  }
+});
+
+app.post('/reflection/start', jwtAuth, zValidator('json', startReflectionSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+    const { entryId } = c.req.valid('json');
+
+    // Get the long-form entry
+    const entry = await db
+      .select()
+      .from(journalEntries)
+      .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+      .limit(1);
+
+    if (entry.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Journal entry not found',
+        },
+        404,
+      );
+    }
+
+    // Check if it's a long-form entry that hasn't been reflected on yet
+    if (entry[0].startedAsChat || entry[0].reflected) {
+      return c.json(
+        {
+          success: false,
+          error: 'Invalid journal entry for reflection',
+        },
+        400,
+      );
+    }
+
+    // Ensure we have content to reflect on
+    if (!entry[0].content) {
+      return c.json(
+        {
+          success: false,
+          error: 'No content to reflect on',
+        },
+        400,
+      );
+    }
+
+    // Create a session for this reflection
+    const userContext = await getUserContext(userId);
+    const newSession = await db
+      .insert(journalSessions)
+      .values({
+        userId,
+        messages: [],
+        isActive: true,
+      })
+      .returning();
+
+    // Simply use the standard welcome message generation
+    const welcomeMessage = await generateWelcomeMessage(userContext);
+
+    // Set up the initial messages in the session with the content as the first user message
+    const initialMessages: ChatMessage[] = [
+      {
+        role: 'assistant' as const,
+        content: welcomeMessage,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        role: 'user' as const,
+        content: entry[0].content,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    // Update the session with the initial messages
+    await db
+      .update(journalSessions)
+      .set({
+        messages: initialMessages,
+        updatedAt: new Date(),
+      })
+      .where(eq(journalSessions.id, newSession[0].id));
+
+    // Update the entry to mark it as reflected
+    await db
+      .update(journalEntries)
+      .set({
+        reflected: true,
+      })
+      .where(eq(journalEntries.id, entryId));
+
+    // Now generate a response to the user's content
+    const { response: aiResponse } = await generateFollowUpResponse(initialMessages, userContext);
+
+    // Add the AI's response to the messages
+    const updatedMessages: ChatMessage[] = [
+      ...initialMessages,
+      {
+        role: 'assistant' as const,
+        content: aiResponse,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    // Update the session with the response
+    await db
+      .update(journalSessions)
+      .set({
+        messages: updatedMessages,
+        updatedAt: new Date(),
+      })
+      .where(eq(journalSessions.id, newSession[0].id));
+
+    const response: StartReflectionResponse = {
+      success: true,
+      data: {
+        sessionId: newSession[0].id,
+        message: aiResponse,
+      },
+    };
+
+    return c.json(response, 201);
+  } catch (error) {
+    handleApiError(error, 'Failed to start reflection');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to start reflection',
+      },
+      500,
+    );
+  }
+});
+
+// Add a new endpoint to get session data by ID
+app.get('/session/:id', jwtAuth, async (c) => {
+  try {
+    const userId = getUserId(c);
+    const sessionId = c.req.param('id');
+
+    // Get session and verify ownership
+    const session = await db
+      .select()
+      .from(journalSessions)
+      .where(and(eq(journalSessions.id, sessionId), eq(journalSessions.userId, userId)))
+      .limit(1);
+
+    if (session.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Session not found',
+        },
+        404,
+      );
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        sessionId: session[0].id,
+        messages: session[0].messages,
+        isActive: session[0].isActive,
+      },
+    });
+  } catch (error) {
+    handleApiError(error, 'Failed to fetch session data');
+    return;
+  }
+});
+
+// Add this new endpoint after the existing longform endpoints
+app.post('/longform/update', jwtAuth, zValidator('json', updateLongFormJournalSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+    const { entryId, content } = c.req.valid('json');
+
+    // Get the journal entry and verify ownership
+    const entry = await db
+      .select()
+      .from(journalEntries)
+      .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+      .limit(1);
+
+    if (entry.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Journal entry not found',
+        },
+        404,
+      );
+    }
+
+    // Ensure it's a long-form entry that can be edited
+    if (entry[0].startedAsChat) {
+      return c.json(
+        {
+          success: false,
+          error: 'Cannot edit chat-based journal entry',
+        },
+        400,
+      );
+    }
+
+    // If already reflected upon, we can't edit anymore
+    if (entry[0].reflected) {
+      return c.json(
+        {
+          success: false,
+          error: 'Cannot edit entry after starting reflection',
+        },
+        400,
+      );
+    }
+
+    // Update the content
+    await db
+      .update(journalEntries)
+      .set({
+        content,
+        updatedAt: new Date(),
+      })
+      .where(eq(journalEntries.id, entryId));
+
+    return c.json({
+      success: true,
+      data: {
+        entryId,
+        title: entry[0].title,
+        content,
+      },
+    });
+  } catch (error) {
+    handleApiError(error, 'Failed to update journal entry');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to update journal entry',
+      },
+      500,
+    );
+  }
+});
 
 export default app;
