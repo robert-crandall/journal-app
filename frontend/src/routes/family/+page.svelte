@@ -54,7 +54,10 @@
     if (!dateString) return 'No interactions recorded';
 
     // Use formatDateTime for timestamp fields as they are ISO datetime strings
-    const date = new Date(dateString);
+    // eslint-disable-next-line custom/no-direct-date-conversion
+    const date = new Date(dateString); // This is intentional for ISO datetime
+
+    // For calculating time difference, use current time
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

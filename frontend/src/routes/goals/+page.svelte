@@ -5,6 +5,7 @@
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
+  import { formatDate } from '$lib/utils/date';
 
   // Reactive state for goals data
   let userGoals: GoalWithParsedTags[] = $state([]);
@@ -54,14 +55,6 @@
     if (tagString.includes('creative') || tagString.includes('art')) return '🎨';
     if (tagString.includes('finance') || tagString.includes('money')) return '💰';
     return '🎯'; // Default target icon
-  }
-
-  function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   }
 
   // Navigation functions

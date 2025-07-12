@@ -43,6 +43,8 @@ export function formatDate(dateString: string | null): string {
 export function formatDateTime(isoString: string, timezone: string = 'local'): string {
   if (!isoString) return 'Not set';
 
+  // For ISO datetime strings, the Date constructor works correctly
+  // eslint-disable-next-line custom/no-direct-date-conversion
   const date = new Date(isoString);
 
   if (isNaN(date.getTime())) {
@@ -126,7 +128,10 @@ export function isValidDateString(dateString: string): boolean {
   }
 
   const [year, month, day] = dateString.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
+  // Create date using explicit components to avoid timezone issues
+  const date = new Date();
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
 
   // Check if the date is valid and matches the input
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;

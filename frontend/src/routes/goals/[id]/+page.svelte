@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Target, Edit3, Archive, Trash2, ArrowLeft, Tag, Calendar } from 'lucide-svelte';
+  import { formatDateTime } from '$lib/utils/date';
 
   // Get goal ID from route params
   const goalId = $page.params.id;
@@ -47,16 +48,6 @@
     if (tagString.includes('creative') || tagString.includes('art')) return '🎨';
     if (tagString.includes('finance') || tagString.includes('money')) return '💰';
     return '🎯'; // Default target icon
-  }
-
-  function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   }
 
   // Navigation and actions
@@ -155,7 +146,7 @@
                 </div>
                 <div class="text-base-content/60 flex items-center gap-1 text-sm">
                   <Calendar size={14} />
-                  Created {formatDate(goal.createdAt)}
+                  Created {formatDateTime(goal.createdAt)}
                 </div>
               </div>
             </div>

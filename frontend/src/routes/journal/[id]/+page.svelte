@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { journalApi, type JournalEntryWithDetails } from '$lib/api/journal';
+  import { formatDateTime } from '$lib/utils/date';
 
   let entry: JournalEntryWithDetails | null = null;
   let loading = true;
@@ -29,21 +30,13 @@
     }
   });
 
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-
   function formatTime(timestamp: string) {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (!timestamp) return 'Not set';
+
+    // Use the date from formatDateTime first, then extract just the time part
+    const fullDateTime = formatDateTime(timestamp);
+    const timePart = fullDateTime.split(', ')[1] || fullDateTime;
+    return timePart;
   }
 </script>
 
@@ -75,7 +68,7 @@
           <a href="/journal" class="btn btn-ghost btn-sm"> ← Back to Journal </a>
           <div class="divider divider-horizontal"></div>
           <div class="text-base-content/60 flex items-center gap-2 text-sm">
-            📅 {formatDate(entry.createdAt)}
+            📅 {formatDateTime(entry.createdAt)}
           </div>
         </div>
 
