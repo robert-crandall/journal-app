@@ -37,12 +37,19 @@ export function formatDate(dateString: string | null): string {
  * Format a datetime ISO string with proper timezone handling
  *
  * @param isoString - ISO datetime string (e.g., "2023-05-20T15:30:00Z")
+ * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only')
  * @param timezone - Timezone for display (default: 'local')
  * @returns Formatted datetime string
  */
-export function formatDateTime(isoString: string, timezone: string = 'local'): string {
+export function formatDateTime(
+  isoString: string, 
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' = 'default',
+  timezone: string = 'local'
+): string {
   if (!isoString) return 'Not set';
 
+  // For ISO datetime strings, the Date constructor works correctly
+  // eslint-disable-next-line custom/no-direct-date-conversion
   const date = new Date(isoString);
 
   if (isNaN(date.getTime())) {
@@ -50,10 +57,16 @@ export function formatDateTime(isoString: string, timezone: string = 'local'): s
     return 'Invalid date';
   }
 
-  const options: Intl.DateTimeFormatOptions = {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
+    default: { dateStyle: 'medium', timeStyle: 'short' },
+    short: { dateStyle: 'short', timeStyle: 'short' },
+    medium: { dateStyle: 'medium', timeStyle: 'medium' },
+    full: { dateStyle: 'full', timeStyle: 'long' },
+    'time-only': { timeStyle: 'short' },
+    'date-only': { dateStyle: 'medium' }
   };
+
+  const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
 
   if (timezone !== 'local') {
     options.timeZone = timezone;
@@ -81,8 +94,11 @@ export function formatDateCustom(dateString: string | null, format: 'short' | 'l
   // Parse the date components manually to avoid timezone issues
   const [year, month, day] = dateString.split('-').map(Number);
 
-  // Create date in local timezone without any UTC conversion
-  const date = new Date(year, month - 1, day);
+  // Create date in local timezone without any UTC conversion using the correct
+  // approach for date-only fields - creating with explicit components rather than string parsing
+  const date = new Date();
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
 
   const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
     short: { year: 'numeric', month: 'short', day: 'numeric' },
@@ -99,8 +115,14 @@ export function formatDateCustom(dateString: string | null, format: 'short' | 'l
  * @returns Today's date in YYYY-MM-DD format
  */
 export function getTodayDateString(): string {
-  const today = new Date();
-  return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  // Get the current date components
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  // Create date string in YYYY-MM-DD format without using Date object
+  return `${year}-${month}-${day}`;
 }
 
 /**
@@ -117,7 +139,10 @@ export function isValidDateString(dateString: string): boolean {
   }
 
   const [year, month, day] = dateString.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
+  // Create date using explicit components to avoid timezone issues
+  const date = new Date();
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
 
   // Check if the date is valid and matches the input
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;

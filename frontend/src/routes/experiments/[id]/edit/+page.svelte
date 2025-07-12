@@ -154,8 +154,14 @@
   }
 
   function getDuration(startDate: string, endDate: string): number {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 </script>

@@ -5,6 +5,7 @@
   import { authStore } from '$lib/stores/auth.js';
   import { statsApi } from '$lib/api/stats.js';
   import { Trophy, TrendingUp, Calendar, Zap, Edit, Trash2, BarChart3, Award, Target, Activity } from 'lucide-svelte';
+  import { formatDateTime } from '$lib/utils/date';
 
   import type { XpGrantResponse, CharacterStatWithProgress } from '$lib/api/stats';
 
@@ -87,16 +88,6 @@
     if (stat) {
       goto(`/stats/${stat.id}/level-up`);
     }
-  }
-
-  function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   }
 
   // Lifecycle
@@ -252,7 +243,7 @@
                     <div class="flex-1">
                       <p class="font-medium">{entry.reason || 'XP Grant'}</p>
                       <p class="text-base-content/60 text-sm">
-                        {formatDate(entry.createdAt)}
+                        {formatDateTime(entry.createdAt)}
                       </p>
                     </div>
                     <div class="badge badge-success gap-1">
@@ -308,7 +299,7 @@
               </div>
               <div class="stat py-2">
                 <div class="stat-title text-xs">Created</div>
-                <div class="stat-desc text-sm">{formatDate(stat.createdAt)}</div>
+                <div class="stat-desc text-sm">{formatDateTime(stat.createdAt)}</div>
               </div>
             </div>
           </div>

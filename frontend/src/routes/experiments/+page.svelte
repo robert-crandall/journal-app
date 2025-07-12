@@ -58,14 +58,20 @@
   }
 
   function formatDateRange(startDate: string, endDate: string): string {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
     const options: Intl.DateTimeFormatOptions = {
       month: 'short',
       day: 'numeric',
     };
 
-    if (start.getFullYear() !== end.getFullYear()) {
+    if (startYear !== endYear) {
       return `${start.toLocaleDateString('en-US', { ...options, year: 'numeric' })} - ${end.toLocaleDateString('en-US', { ...options, year: 'numeric' })}`;
     }
 
@@ -73,8 +79,14 @@
   }
 
   function getDuration(startDate: string, endDate: string): number {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse the date components manually to avoid timezone issues
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+    // Create dates in local timezone without any UTC conversion
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 

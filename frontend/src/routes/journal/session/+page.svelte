@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { journalApi, type ChatMessage } from '$lib/api/journal';
+  import { formatDateTime } from '$lib/utils/date';
 
   let sessionId = '';
   let messages: ChatMessage[] = [];
@@ -116,10 +117,13 @@
   }
 
   function formatTime(timestamp: string) {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (!timestamp) return 'Not set';
+
+    // Use the formatDateTime utility to handle the ISO string properly
+    // Then extract just the time portion
+    const fullDateTime = formatDateTime(timestamp);
+    const timePart = fullDateTime.split(', ')[1] || fullDateTime;
+    return timePart;
   }
 </script>
 

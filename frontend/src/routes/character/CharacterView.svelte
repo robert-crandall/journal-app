@@ -128,14 +128,12 @@
     }
   }
 
-  // Format date for display
+  // Import formatDate and formatDateTime from lib/utils/date
+  import { formatDate as formatDateUtil, formatDateTime } from '../../lib/utils/date';
+
+  // Format date for display - uses the proper utility function
   function formatDate(isoString: string): string {
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleDateString();
-    } catch {
-      return isoString;
-    }
+    return formatDateTime(isoString);
   }
 </script>
 

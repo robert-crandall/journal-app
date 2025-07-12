@@ -69,16 +69,16 @@
 
   function getRelationshipColor(relationship: string) {
     const colors = {
-      parent: 'text-blue-600',
-      child: 'text-green-600',
-      sibling: 'text-purple-600',
-      spouse: 'text-red-600',
-      friend: 'text-yellow-600',
-      colleague: 'text-gray-600',
-      mentor: 'text-indigo-600',
-      other: 'text-slate-600',
+      parent: 'text-primary',
+      child: 'text-success',
+      sibling: 'text-secondary',
+      spouse: 'text-error',
+      friend: 'text-warning',
+      colleague: 'text-base-content',
+      mentor: 'text-accent',
+      other: 'text-base-content/60',
     };
-    return colors[relationship as keyof typeof colors] || 'text-slate-600';
+    return colors[relationship as keyof typeof colors] || 'text-base-content/60';
   }
 
   // Note: formatDate function removed - now using utility from $lib/utils/date
@@ -92,12 +92,12 @@
   </title>
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+<div class="from-primary/5 to-secondary/5 min-h-screen bg-gradient-to-br">
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
     <header class="mb-8">
       <div class="mb-4 flex items-center gap-4">
-        <button onclick={() => goto('/family')} class="btn btn-ghost btn-sm gap-2 text-slate-600 hover:text-slate-800" aria-label="Back to family">
+        <button onclick={() => goto('/family')} class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content gap-2" aria-label="Back to family">
           <ArrowLeft size={16} />
           Back to Family
         </button>
@@ -113,10 +113,10 @@
           <div class="flex items-center gap-4">
             <AvatarDisplay avatar={familyMember.avatar} name={familyMember.name} size="lg" />
             <div>
-              <h1 class="mb-2 text-3xl font-bold text-slate-800">
+              <h1 class="text-base-content mb-2 text-3xl font-bold">
                 {familyMember.name}
               </h1>
-              <div class="flex items-center gap-4 text-sm text-slate-600">
+              <div class="text-base-content/70 flex items-center gap-4 text-sm">
                 {#if familyMember}
                   {@const RelationshipIcon = getRelationshipIcon(familyMember.relationship)}
                   <div class="flex items-center gap-1">
@@ -170,7 +170,7 @@
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <!-- Profile skeleton -->
         <div class="lg:col-span-2">
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <div class="skeleton mb-4 h-6 w-32"></div>
               <div class="space-y-3">
@@ -184,7 +184,7 @@
 
         <!-- Stats skeleton -->
         <div>
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <div class="skeleton mb-4 h-6 w-24"></div>
               <div class="space-y-4">
@@ -200,7 +200,7 @@
         <!-- Main Content -->
         <div class="space-y-6 lg:col-span-2">
           <!-- Profile Information -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <User size={20} />
@@ -209,12 +209,12 @@
 
               <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <h4 class="mb-1 font-medium text-slate-600">Name</h4>
-                  <p class="text-slate-800">{familyMember.name}</p>
+                  <h4 class="text-base-content/70 mb-1 font-medium">Name</h4>
+                  <p class="text-base-content">{familyMember.name}</p>
                 </div>
 
                 <div>
-                  <h4 class="mb-1 font-medium text-slate-600">Relationship</h4>
+                  <h4 class="text-base-content/70 mb-1 font-medium">Relationship</h4>
                   {#if familyMember}
                     {@const RelationshipIcon = getRelationshipIcon(familyMember.relationship)}
                     <div class="flex items-center gap-2">
@@ -225,9 +225,9 @@
                 </div>
 
                 <div>
-                  <h4 class="mb-1 font-medium text-slate-600">Connection Level</h4>
+                  <h4 class="text-base-content/70 mb-1 font-medium">Connection Level</h4>
                   <div class="flex items-center gap-2">
-                    <span class="font-bold text-blue-600">{familyMember.connectionLevel}/10</span>
+                    <span class="text-primary font-bold">{familyMember.connectionLevel}/10</span>
                     <div class="flex-1">
                       <progress class="progress progress-primary w-full max-w-32" value={familyMember.connectionLevel} max="10"></progress>
                     </div>
@@ -237,9 +237,9 @@
 
               {#if familyMember.notes}
                 <div class="mt-6">
-                  <h4 class="mb-2 font-medium text-slate-600">Notes</h4>
-                  <div class="rounded-lg bg-slate-50 p-4">
-                    <p class="whitespace-pre-wrap text-slate-700">{familyMember.notes}</p>
+                  <h4 class="text-base-content/70 mb-2 font-medium">Notes</h4>
+                  <div class="bg-base-200 rounded-lg p-4">
+                    <p class="text-base-content whitespace-pre-wrap">{familyMember.notes}</p>
                   </div>
                 </div>
               {/if}
@@ -247,7 +247,7 @@
           </div>
 
           <!-- Interaction History -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
                 <MessageCircle size={20} />
@@ -255,9 +255,9 @@
               </h2>
 
               <div class="py-8 text-center">
-                <MessageCircle size={48} class="mx-auto mb-4 text-slate-300" />
-                <p class="mb-4 text-slate-500">No interactions recorded yet</p>
-                <p class="text-sm text-slate-400">Start tracking your interactions to see them here</p>
+                <MessageCircle size={48} class="text-base-content/30 mx-auto mb-4" />
+                <p class="text-base-content/70 mb-4">No interactions recorded yet</p>
+                <p class="text-base-content/50 text-sm">Start tracking your interactions to see them here</p>
               </div>
             </div>
           </div>
@@ -266,7 +266,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Stats -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h3 class="card-title mb-4 flex items-center gap-2 text-lg">
                 <TrendingUp size={18} />
@@ -274,9 +274,9 @@
               </h3>
 
               <div class="space-y-4">
-                <div class="stat rounded-lg bg-blue-50 p-4">
+                <div class="stat bg-primary/10 rounded-lg p-4">
                   <div class="stat-title text-xs">Connection Progress</div>
-                  <div class="stat-value text-2xl text-blue-600">
+                  <div class="stat-value text-primary text-2xl">
                     {familyMember.connectionLevel}/10
                   </div>
                   <div class="stat-desc">
@@ -284,9 +284,9 @@
                   </div>
                 </div>
 
-                <div class="stat rounded-lg bg-purple-50 p-4">
+                <div class="stat bg-secondary/10 rounded-lg p-4">
                   <div class="stat-title text-xs">Member Since</div>
-                  <div class="stat-value text-lg text-purple-600">
+                  <div class="stat-value text-secondary text-lg">
                     {formatDateTime(familyMember.createdAt)}
                   </div>
                   <div class="stat-desc flex items-center gap-1">
@@ -299,7 +299,7 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="card bg-white shadow-sm">
+          <div class="card bg-base-100 shadow-sm">
             <div class="card-body">
               <h3 class="card-title mb-4 text-lg">Quick Actions</h3>
 

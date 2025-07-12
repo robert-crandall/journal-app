@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { journalApi, type JournalEntryWithDetails } from '$lib/api/journal';
+  import { formatDateTime } from '$lib/utils/date';
 
   let entries: JournalEntryWithDetails[] = [];
   let loading = true;
@@ -15,16 +16,6 @@
       loading = false;
     }
   });
-
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
 
   function truncateText(text: string, maxLength: number) {
     if (text.length <= maxLength) return text;
@@ -93,7 +84,7 @@
                   {entry.title}
                 </h3>
                 <div class="text-base-content/50 flex items-center gap-1 text-xs">
-                  📅 {formatDate(entry.createdAt)}
+                  📅 {formatDateTime(entry.createdAt)}
                 </div>
               </div>
 
