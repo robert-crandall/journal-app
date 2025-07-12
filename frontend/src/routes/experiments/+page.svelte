@@ -111,9 +111,9 @@
   <!-- Header -->
   <div class="mb-8 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <Beaker class="h-8 w-8 text-primary" />
+      <Beaker class="text-primary h-8 w-8" />
       <div>
-        <h1 class="text-3xl font-bold text-base-content">Experiments</h1>
+        <h1 class="text-base-content text-3xl font-bold">Experiments</h1>
         <p class="text-base-content/60">Short-lived self-improvement tests to discover what makes your life better</p>
       </div>
     </div>
@@ -137,9 +137,9 @@
   {:else if userExperiments.length === 0}
     <!-- Empty State -->
     <div class="py-12 text-center">
-      <Beaker class="mx-auto mb-4 h-16 w-16 text-base-content/30" />
-      <h3 class="mb-2 text-xl font-semibold text-base-content">No experiments yet</h3>
-      <p class="mx-auto mb-6 max-w-md text-base-content/60">
+      <Beaker class="text-base-content/30 mx-auto mb-4 h-16 w-16" />
+      <h3 class="text-base-content mb-2 text-xl font-semibold">No experiments yet</h3>
+      <p class="text-base-content/60 mx-auto mb-6 max-w-md">
         Start your first experiment to test changes in your life and track what makes you happier and more productive.
       </p>
       <a href="/experiments/create" class="btn btn-primary gap-2">
@@ -153,8 +153,8 @@
       <!-- Active Experiments -->
       {#if groupedExperiments().active.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
-            <span class="h-3 w-3 rounded-full bg-success"></span>
+          <h2 class="text-base-content mb-4 flex items-center gap-2 text-xl font-semibold">
+            <span class="bg-success h-3 w-3 rounded-full"></span>
             Active Experiments ({groupedExperiments().active.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -165,7 +165,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                        <p class="text-base-content/60 mb-3 line-clamp-2 text-sm">{experiment.description}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -173,7 +173,7 @@
                     </span>
                   </div>
 
-                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                  <div class="text-base-content/60 mb-4 flex items-center gap-4 text-sm">
                     <div class="flex items-center gap-1">
                       <Calendar class="h-4 w-4" />
                       {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -185,32 +185,17 @@
                   </div>
 
                   <div class="card-actions justify-end">
-                    <a
-                      href="/experiments/{experiment.id}/dashboard"
-                      class="btn btn-primary btn-sm gap-1"
-                    >
+                    <a href="/experiments/{experiment.id}/dashboard" class="btn btn-primary btn-sm gap-1">
                       <BarChart class="h-4 w-4" />
                       Dashboard
                     </a>
-                    <a
-                      href="/experiments/{experiment.id}"
-                      class="btn btn-ghost btn-sm btn-circle"
-                      title="View Details"
-                    >
+                    <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm btn-circle" title="View Details">
                       <Eye class="h-4 w-4" />
                     </a>
-                    <a
-                      href="/experiments/{experiment.id}/edit"
-                      class="btn btn-ghost btn-sm btn-circle"
-                      title="Edit"
-                    >
+                    <a href="/experiments/{experiment.id}/edit" class="btn btn-ghost btn-sm btn-circle" title="Edit">
                       <Edit3 class="h-4 w-4" />
                     </a>
-                    <button
-                      onclick={() => deleteExperiment(experiment.id)}
-                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
-                      title="Delete"
-                    >
+                    <button onclick={() => deleteExperiment(experiment.id)} class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10" title="Delete">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </div>
@@ -224,8 +209,8 @@
       <!-- Upcoming Experiments -->
       {#if groupedExperiments().upcoming.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
-            <span class="h-3 w-3 rounded-full bg-info"></span>
+          <h2 class="text-base-content mb-4 flex items-center gap-2 text-xl font-semibold">
+            <span class="bg-info h-3 w-3 rounded-full"></span>
             Upcoming Experiments ({groupedExperiments().upcoming.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -236,7 +221,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                        <p class="text-base-content/60 mb-3 line-clamp-2 text-sm">{experiment.description}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -244,7 +229,7 @@
                     </span>
                   </div>
 
-                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                  <div class="text-base-content/60 mb-4 flex items-center gap-4 text-sm">
                     <div class="flex items-center gap-1">
                       <Calendar class="h-4 w-4" />
                       {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -256,25 +241,14 @@
                   </div>
 
                   <div class="card-actions justify-end">
-                    <a
-                      href="/experiments/{experiment.id}"
-                      class="btn btn-secondary btn-sm gap-1"
-                    >
+                    <a href="/experiments/{experiment.id}" class="btn btn-secondary btn-sm gap-1">
                       <Eye class="h-4 w-4" />
                       View Details
                     </a>
-                    <a
-                      href="/experiments/{experiment.id}/edit"
-                      class="btn btn-ghost btn-sm btn-circle"
-                      title="Edit"
-                    >
+                    <a href="/experiments/{experiment.id}/edit" class="btn btn-ghost btn-sm btn-circle" title="Edit">
                       <Edit3 class="h-4 w-4" />
                     </a>
-                    <button
-                      onclick={() => deleteExperiment(experiment.id)}
-                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
-                      title="Delete"
-                    >
+                    <button onclick={() => deleteExperiment(experiment.id)} class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10" title="Delete">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </div>
@@ -288,19 +262,19 @@
       <!-- Completed Experiments -->
       {#if groupedExperiments().completed.length > 0}
         <div>
-          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-base-content">
-            <span class="h-3 w-3 rounded-full bg-neutral"></span>
+          <h2 class="text-base-content mb-4 flex items-center gap-2 text-xl font-semibold">
+            <span class="bg-neutral h-3 w-3 rounded-full"></span>
             Completed Experiments ({groupedExperiments().completed.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments().completed as experiment}
-              <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl opacity-75">
+              <div class="card bg-base-100 opacity-75 shadow-lg transition-shadow hover:shadow-xl">
                 <div class="card-body">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="mb-3 line-clamp-2 text-sm text-base-content/60">{experiment.description}</p>
+                        <p class="text-base-content/60 mb-3 line-clamp-2 text-sm">{experiment.description}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -308,7 +282,7 @@
                     </span>
                   </div>
 
-                  <div class="mb-4 flex items-center gap-4 text-sm text-base-content/60">
+                  <div class="text-base-content/60 mb-4 flex items-center gap-4 text-sm">
                     <div class="flex items-center gap-1">
                       <Calendar class="h-4 w-4" />
                       {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -320,25 +294,14 @@
                   </div>
 
                   <div class="card-actions justify-end">
-                    <a
-                      href="/experiments/{experiment.id}/dashboard"
-                      class="btn btn-primary btn-sm gap-1"
-                    >
+                    <a href="/experiments/{experiment.id}/dashboard" class="btn btn-primary btn-sm gap-1">
                       <BarChart class="h-4 w-4" />
                       View Results
                     </a>
-                    <a
-                      href="/experiments/{experiment.id}"
-                      class="btn btn-ghost btn-sm btn-circle"
-                      title="View Details"
-                    >
+                    <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm btn-circle" title="View Details">
                       <Eye class="h-4 w-4" />
                     </a>
-                    <button
-                      onclick={() => deleteExperiment(experiment.id)}
-                      class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
-                      title="Delete"
-                    >
+                    <button onclick={() => deleteExperiment(experiment.id)} class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10" title="Delete">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </div>

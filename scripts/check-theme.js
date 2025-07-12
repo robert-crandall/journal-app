@@ -2,10 +2,10 @@
 
 /**
  * Theme Checker Script
- * 
+ *
  * This script scans Svelte files for hard-coded colors and provides suggestions
  * for theme-aware alternatives. It can be run as part of CI/CD or manually.
- * 
+ *
  * Usage:
  *   node scripts/check-theme.js
  *   node scripts/check-theme.js --fix-suggestions
@@ -30,7 +30,7 @@ const COLOR_PATTERNS = [
       const [, property, color] = match.split('-');
       const colorMap = {
         red: 'error',
-        green: 'success', 
+        green: 'success',
         blue: 'primary',
         purple: 'secondary',
         yellow: 'warning',
@@ -42,7 +42,7 @@ const COLOR_PATTERNS = [
       };
       const themeColor = colorMap[color] || 'primary/secondary/accent';
       return `${property}-${themeColor}`;
-    }
+    },
   },
   {
     pattern: /\bhover:(bg|text|border)-(red|blue|green|yellow|purple|pink|indigo|gray|slate|zinc|neutral|stone)-\d+\b/g,
@@ -53,7 +53,7 @@ const COLOR_PATTERNS = [
       const colorMap = {
         red: 'error/80',
         green: 'success/80',
-        blue: 'primary/80', 
+        blue: 'primary/80',
         purple: 'secondary/80',
         yellow: 'warning/80',
         gray: 'base-content/80',
@@ -64,8 +64,8 @@ const COLOR_PATTERNS = [
       };
       const themeColor = colorMap[color] || 'primary/80';
       return `hover:${property}-${themeColor}`;
-    }
-  }
+    },
+  },
 ];
 
 // Theme-aware alternatives documentation
@@ -107,46 +107,46 @@ Hover States:
 function scanFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const issues = [];
-  
+
   COLOR_PATTERNS.forEach(({ pattern, suggestion }) => {
     let match;
     while ((match = pattern.exec(content)) !== null) {
       const lineNumber = content.substring(0, match.index).split('\n').length;
       const line = content.split('\n')[lineNumber - 1];
-      
+
       issues.push({
         file: path.relative(process.cwd(), filePath),
         line: lineNumber,
         column: match.index - content.lastIndexOf('\n', match.index - 1),
         hardCodedColor: match[0],
         suggestion: suggestion(match[0]),
-        context: line.trim()
+        context: line.trim(),
       });
     }
   });
-  
+
   return issues;
 }
 
 // Recursively scan directory
 function scanDirectory(dir) {
   const allIssues = [];
-  
+
   function scan(currentDir) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(currentDir, entry.name);
-      
+
       if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
         scan(fullPath);
-      } else if (entry.isFile() && FILE_EXTENSIONS.some(ext => entry.name.endsWith(ext))) {
+      } else if (entry.isFile() && FILE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
         const issues = scanFile(fullPath);
         allIssues.push(...issues);
       }
     }
   }
-  
+
   scan(dir);
   return allIssues;
 }
@@ -157,26 +157,26 @@ function displayResults(issues) {
     console.log('✅ No hard-coded colors found! Your theming is consistent.');
     return;
   }
-  
+
   console.log(`❌ Found ${issues.length} hard-coded color usage(s):\n`);
-  
+
   // Group by file
   const byFile = issues.reduce((acc, issue) => {
     if (!acc[issue.file]) acc[issue.file] = [];
     acc[issue.file].push(issue);
     return acc;
   }, {});
-  
+
   Object.entries(byFile).forEach(([file, fileIssues]) => {
     console.log(`📄 ${file}:`);
-    fileIssues.forEach(issue => {
+    fileIssues.forEach((issue) => {
       console.log(`  Line ${issue.line}: ${issue.hardCodedColor}`);
       console.log(`    Context: ${issue.context}`);
       console.log(`    Suggestion: Use "${issue.suggestion}" instead`);
       console.log('');
     });
   });
-  
+
   if (process.argv.includes('--fix-suggestions')) {
     console.log(THEME_GUIDE);
   }
@@ -185,10 +185,10 @@ function displayResults(issues) {
 // Main execution
 function main() {
   console.log('🎨 Checking for hard-coded colors in Svelte files...\n');
-  
+
   const issues = scanDirectory(FRONTEND_SRC_DIR);
   displayResults(issues);
-  
+
   if (issues.length > 0) {
     console.log('💡 Run with --fix-suggestions to see theming guide');
     console.log('💡 Consider using DaisyUI theme classes for consistent theming');

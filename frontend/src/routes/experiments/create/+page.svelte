@@ -54,7 +54,7 @@
     if (!formData.tasks) {
       formData.tasks = [];
     }
-    
+
     formData.tasks.push({
       description: newTask.description.trim(),
       successMetric: newTask.successMetric,
@@ -219,7 +219,7 @@
             </div>
 
             {#if duration > 0}
-              <div class="mt-4 flex items-center gap-2 text-sm text-primary">
+              <div class="text-primary mt-4 flex items-center gap-2 text-sm">
                 <Calendar class="h-4 w-4" />
                 Duration: {duration} day{duration === 1 ? '' : 's'}
               </div>
@@ -230,22 +230,22 @@
           <div>
             <div class="mb-6 flex items-center justify-between">
               <h2 class="text-primary text-xl font-semibold">Daily Tasks</h2>
-              <div class="text-sm text-base-content/70">
+              <div class="text-base-content/70 text-sm">
                 {formData.tasks?.length || 0} task{(formData.tasks?.length || 0) === 1 ? '' : 's'}
               </div>
             </div>
 
-            <p class="mb-6 text-base-content/70">Add tasks that you'll do daily during this experiment. These will appear on your homepage.</p>
+            <p class="text-base-content/70 mb-6">Add tasks that you'll do daily during this experiment. These will appear on your homepage.</p>
 
             <!-- Existing Tasks -->
             {#if formData.tasks && formData.tasks.length > 0}
               <div class="mb-8 space-y-4">
                 {#each formData.tasks as task, index}
-                  <div class="from-secondary/10 to-accent/10 flex items-center gap-4 rounded-lg border border-base-300 bg-gradient-to-r p-4">
+                  <div class="from-secondary/10 to-accent/10 border-base-300 flex items-center gap-4 rounded-lg border bg-gradient-to-r p-4">
                     <Target class="text-primary h-6 w-6 flex-shrink-0" />
                     <div class="flex-1">
-                      <div class="font-medium text-base-content">{task.description}</div>
-                      <div class="flex items-center gap-4 text-sm text-base-content/70">
+                      <div class="text-base-content font-medium">{task.description}</div>
+                      <div class="text-base-content/70 flex items-center gap-4 text-sm">
                         <span>Goal: {task.successMetric || 1} time{(task.successMetric || 1) === 1 ? '' : 's'} during experiment</span>
                         {#if (task.xpReward || 0) > 0}
                           <span class="flex items-center gap-1">
@@ -255,12 +255,7 @@
                         {/if}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onclick={() => removeTask(index)}
-                      class="btn btn-circle btn-outline btn-error btn-sm"
-                      title="Remove task"
-                    >
+                    <button type="button" onclick={() => removeTask(index)} class="btn btn-circle btn-outline btn-error btn-sm" title="Remove task">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </div>
@@ -271,7 +266,7 @@
             <!-- Add New Task -->
             <div class="card bg-base-200 border-base-300 border">
               <div class="card-body p-6">
-                <h3 class="font-medium text-base-content mb-4">Add New Task</h3>
+                <h3 class="text-base-content mb-4 font-medium">Add New Task</h3>
                 <div class="space-y-4">
                   <div class="form-control">
                     <input
@@ -362,9 +357,7 @@
                 Create Experiment
               {/if}
             </button>
-            <button type="button" onclick={() => goto('/experiments')} class="btn btn-outline btn-lg gap-2">
-              Cancel
-            </button>
+            <button type="button" onclick={() => goto('/experiments')} class="btn btn-outline btn-lg gap-2"> Cancel </button>
           </div>
         </form>
       </div>

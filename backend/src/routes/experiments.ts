@@ -508,7 +508,7 @@ const app = new Hono()
       if (task[0]?.experiment_tasks.xpReward && task[0].experiment_tasks.xpReward > 0) {
         const entityType = task[0].experiment_tasks.statId ? 'character_stat' : 'experiment_task';
         const entityId = task[0].experiment_tasks.statId || taskId;
-        
+
         await db.insert(xpGrants).values({
           userId,
           entityType,
@@ -522,11 +522,7 @@ const app = new Hono()
         // If linked to a stat, update the stat's totalXp and level
         if (task[0].experiment_tasks.statId) {
           // Get current stat data
-          const currentStat = await db
-            .select()
-            .from(characterStats)
-            .where(eq(characterStats.id, task[0].experiment_tasks.statId))
-            .limit(1);
+          const currentStat = await db.select().from(characterStats).where(eq(characterStats.id, task[0].experiment_tasks.statId)).limit(1);
 
           if (currentStat.length > 0) {
             const newTotalXp = currentStat[0].totalXp + task[0].experiment_tasks.xpReward;

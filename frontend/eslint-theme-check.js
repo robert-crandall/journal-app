@@ -18,7 +18,7 @@ const FORBIDDEN_COLOR_PATTERNS = [
   /bg-zinc-\d+/g,
   /bg-neutral-\d+/g,
   /bg-stone-\d+/g,
-  
+
   // Text colors
   /text-red-\d+/g,
   /text-blue-\d+/g,
@@ -32,7 +32,7 @@ const FORBIDDEN_COLOR_PATTERNS = [
   /text-zinc-\d+/g,
   /text-neutral-\d+/g,
   /text-stone-\d+/g,
-  
+
   // Border colors
   /border-red-\d+/g,
   /border-blue-\d+/g,
@@ -84,19 +84,19 @@ const rule = {
       hardCodedColor: 'Hard-coded color "{{color}}" detected. Use theme-aware classes instead. Consider: {{suggestion}}',
     },
   },
-  
+
   create(context) {
     function checkForHardCodedColors(node, value) {
       if (typeof value !== 'string') return;
-      
-      FORBIDDEN_COLOR_PATTERNS.forEach(pattern => {
+
+      FORBIDDEN_COLOR_PATTERNS.forEach((pattern) => {
         const matches = value.match(pattern);
         if (matches) {
-          matches.forEach(match => {
+          matches.forEach((match) => {
             // Extract base color name (e.g., "bg-red" from "bg-red-500")
             const baseColor = match.replace(/-\d+$/, '');
             const suggestion = THEME_ALTERNATIVES[baseColor] || 'a theme-aware class like bg-primary, text-base-content, etc.';
-            
+
             context.report({
               node,
               messageId: 'hardCodedColor',
@@ -109,7 +109,7 @@ const rule = {
         }
       });
     }
-    
+
     return {
       // Check class attributes in Svelte files
       Property(node) {
@@ -119,17 +119,17 @@ const rule = {
           }
         }
       },
-      
+
       // Check template literals and string literals
       Literal(node) {
         if (typeof node.value === 'string') {
           checkForHardCodedColors(node, node.value);
         }
       },
-      
+
       // Check template literals
       TemplateLiteral(node) {
-        node.quasis.forEach(quasi => {
+        node.quasis.forEach((quasi) => {
           checkForHardCodedColors(node, quasi.value.raw);
         });
       },
