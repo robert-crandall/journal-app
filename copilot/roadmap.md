@@ -52,6 +52,7 @@
   - “What earned me XP in Strength this week?”
 
 - [ ] **Family Interactions from Journal**
+  - Generic journal interaction table
   - Extract out family interactions from journal
 
 - [ ] **Goal interactions from journal**
