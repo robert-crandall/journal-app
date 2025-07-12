@@ -5,7 +5,7 @@
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
-  import { formatDate } from '$lib/utils/date';
+  import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for goals data
   let userGoals: GoalWithParsedTags[] = $state([]);
@@ -162,7 +162,7 @@
                           </div>
                           <div class="flex-1">
                             <h3 class="text-lg font-bold">{goal.title}</h3>
-                            <p class="text-base-content/60 text-sm">Created {formatDate(goal.createdAt)}</p>
+                            <p class="text-base-content/60 text-sm">Created {formatDateTime(goal.createdAt)}</p>
                           </div>
                         </div>
 
