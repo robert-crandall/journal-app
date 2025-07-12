@@ -10,11 +10,11 @@ Experiments are short-lived self-improvement tests, like “Go without social me
 - [ ] User can **create** and **edit** an experiment
   - Fields: Title, Description, Start Date, End Date
 
-- [ ] User can define **multiple daily tasks** that will show on the user's homepage.
-- [ ] Each task can have success metric. For example, a task of "workout 3 times a week" would have a metric of 3 tasks (workouts) done in a 7 day experiment.
-- [ ] Task can be **marked complete** once per day
-- [ ] Tasks that are not marked completed do not need a database record.
-- [ ] Tasks that are completed are recorded, so the total number of completed tasks can be shown on the experiment dashboard.
+- [x] User can define **multiple daily tasks** that will show on the user's homepage.
+- [x] Each task can have success metric. For example, a task of "workout 3 times a week" would have a metric of 3 tasks (workouts) done in a 7 day experiment.
+- [x] Task can be **marked complete** once per day
+- [x] Tasks that are not marked completed do not need a database record.
+- [x] Tasks that are completed are recorded, so the total number of completed tasks can be shown on the experiment dashboard.
 - [ ] Tasks can be marked completed for previous days. This allows a user to correct missing completions.
 - [ ] Total number of completed tasks can be shown on the experiment dashboard.
 - [ ] Each experiment has a **dashboard** showing:

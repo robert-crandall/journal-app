@@ -35,6 +35,10 @@
   function addTask() {
     if (!newTask.description.trim()) return;
 
+    if (!formData.tasks) {
+      formData.tasks = [];
+    }
+    
     formData.tasks.push({
       description: newTask.description.trim(),
       successMetric: newTask.successMetric,
@@ -50,7 +54,9 @@
   }
 
   function removeTask(index: number) {
-    formData.tasks = formData.tasks.filter((_, i) => i !== index);
+    if (formData.tasks) {
+      formData.tasks = formData.tasks.filter((_, i) => i !== index);
+    }
   }
 
   async function handleSubmit() {
@@ -101,199 +107,230 @@
 </script>
 
 <svelte:head>
-  <title>Create Experiment</title>
+  <title>Create Experiment - Gamified Life</title>
+  <meta name="description" content="Design a short-term test to improve your life" />
 </svelte:head>
 
-<div class="container mx-auto max-w-2xl px-4 py-8">
-  <!-- Header -->
-  <div class="mb-8 flex items-center gap-4">
-    <a href="/experiments" class="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title="Back to Experiments">
-      <ArrowLeft class="h-5 w-5" />
-    </a>
-    <div class="flex items-center gap-3">
-      <Beaker class="h-8 w-8 text-purple-600" />
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Create Experiment</h1>
-        <p class="text-gray-600">Design a short-term test to improve your life</p>
+<div class="bg-base-200 min-h-screen">
+  <!-- Page Header -->
+  <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
+    <div class="mx-auto max-w-4xl px-4 py-8">
+      <div class="flex items-center gap-4">
+        <button onclick={() => goto('/experiments')} class="btn btn-circle btn-outline">
+          <ArrowLeft class="h-5 w-5" />
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="avatar placeholder">
+            <div class="bg-primary text-primary-content w-16 rounded-full">
+              <Beaker class="h-8 w-8" />
+            </div>
+          </div>
+          <div>
+            <h1 class="text-primary text-3xl font-bold">Create Experiment</h1>
+            <p class="text-base-content/70">Design a short-term test to improve your life</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Form -->
-  <form onsubmit={handleSubmit} class="space-y-6">
-    <!-- Basic Information -->
-    <div class="rounded-lg border border-gray-200 bg-white p-6">
-      <h2 class="mb-4 text-lg font-semibold text-gray-900">Basic Information</h2>
+  <!-- Main Content -->
+  <div class="mx-auto max-w-4xl px-4 py-8">
+    <div class="card bg-base-100 border-base-300 border shadow-xl">
+      <div class="card-body p-8">
+        <form onsubmit={handleSubmit} class="space-y-8">
+          <!-- Basic Information -->
+          <div>
+            <h2 class="text-primary mb-6 text-xl font-semibold">Basic Information</h2>
 
-      <!-- Title -->
-      <div class="mb-4">
-        <label for="title" class="mb-2 block text-sm font-medium text-gray-700"> Experiment Title * </label>
-        <input
-          id="title"
-          type="text"
-          bind:value={formData.title}
-          placeholder="e.g., No social media for 7 days"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-          required
-        />
-      </div>
+            <!-- Title -->
+            <div class="form-control mb-6">
+              <label class="label" for="title">
+                <span class="label-text text-lg font-medium">Experiment Title *</span>
+              </label>
+              <input
+                id="title"
+                type="text"
+                bind:value={formData.title}
+                placeholder="e.g., No social media for 7 days"
+                class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                required
+              />
+            </div>
 
-      <!-- Description -->
-      <div class="mb-4">
-        <label for="description" class="mb-2 block text-sm font-medium text-gray-700"> Description </label>
-        <textarea
-          id="description"
-          bind:value={formData.description}
-          placeholder="Describe what you're testing and why..."
-          rows="3"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-        ></textarea>
-      </div>
+            <!-- Description -->
+            <div class="form-control mb-6">
+              <label class="label" for="description">
+                <span class="label-text text-lg font-medium">Description</span>
+              </label>
+              <textarea
+                id="description"
+                bind:value={formData.description}
+                placeholder="Describe what you're testing and why..."
+                rows="3"
+                class="textarea textarea-bordered textarea-lg focus:textarea-primary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
+              ></textarea>
+            </div>
 
-      <!-- Date Range -->
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <label for="startDate" class="mb-2 block text-sm font-medium text-gray-700"> Start Date * </label>
-          <input
-            id="startDate"
-            type="date"
-            bind:value={formData.startDate}
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-            required
-          />
-        </div>
-        <div>
-          <label for="endDate" class="mb-2 block text-sm font-medium text-gray-700"> End Date * </label>
-          <input
-            id="endDate"
-            type="date"
-            bind:value={formData.endDate}
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-            required
-          />
-        </div>
-      </div>
+            <!-- Date Range -->
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div class="form-control">
+                <label class="label" for="startDate">
+                  <span class="label-text text-lg font-medium">Start Date *</span>
+                </label>
+                <input
+                  id="startDate"
+                  type="date"
+                  bind:value={formData.startDate}
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                  required
+                />
+              </div>
+              <div class="form-control">
+                <label class="label" for="endDate">
+                  <span class="label-text text-lg font-medium">End Date *</span>
+                </label>
+                <input
+                  id="endDate"
+                  type="date"
+                  bind:value={formData.endDate}
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                  required
+                />
+              </div>
+            </div>
 
-      {#if duration > 0}
-        <div class="mt-3 flex items-center gap-2 text-sm text-purple-600">
-          <Calendar class="h-4 w-4" />
-          Duration: {duration} day{duration === 1 ? '' : 's'}
-        </div>
-      {/if}
-    </div>
+            {#if duration > 0}
+              <div class="mt-4 flex items-center gap-2 text-sm text-primary">
+                <Calendar class="h-4 w-4" />
+                Duration: {duration} day{duration === 1 ? '' : 's'}
+              </div>
+            {/if}
+          </div>
 
-    <!-- Daily Tasks -->
-    <div class="rounded-lg border border-gray-200 bg-white p-6">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900">Daily Tasks</h2>
-        <div class="text-sm text-gray-500">
-          {formData.tasks.length} task{formData.tasks.length === 1 ? '' : 's'}
-        </div>
-      </div>
+          <!-- Daily Tasks -->
+          <div>
+            <div class="mb-6 flex items-center justify-between">
+              <h2 class="text-primary text-xl font-semibold">Daily Tasks</h2>
+              <div class="text-sm text-base-content/70">
+                {formData.tasks?.length || 0} task{(formData.tasks?.length || 0) === 1 ? '' : 's'}
+              </div>
+            </div>
 
-      <p class="mb-4 text-sm text-gray-600">Add tasks that you'll do daily during this experiment. These will appear on your homepage.</p>
+            <p class="mb-6 text-base-content/70">Add tasks that you'll do daily during this experiment. These will appear on your homepage.</p>
 
-      <!-- Existing Tasks -->
-      {#if formData.tasks.length > 0}
-        <div class="mb-6 space-y-3">
-          {#each formData.tasks as task, index}
-            <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-              <Target class="h-5 w-5 flex-shrink-0 text-purple-600" />
-              <div class="flex-1">
-                <div class="font-medium text-gray-900">{task.description}</div>
-                <div class="flex items-center gap-4 text-sm text-gray-500">
-                  <span>Goal: {task.successMetric} time{task.successMetric === 1 ? '' : 's'} during experiment</span>
-                  {#if task.xpReward > 0}
-                    <span class="flex items-center gap-1">
-                      <Award class="h-3 w-3" />
-                      {task.xpReward} XP per completion
-                    </span>
-                  {/if}
+            <!-- Existing Tasks -->
+            {#if formData.tasks && formData.tasks.length > 0}
+              <div class="mb-8 space-y-4">
+                {#each formData.tasks as task, index}
+                  <div class="from-secondary/10 to-accent/10 flex items-center gap-4 rounded-lg border border-base-300 bg-gradient-to-r p-4">
+                    <Target class="text-primary h-6 w-6 flex-shrink-0" />
+                    <div class="flex-1">
+                      <div class="font-medium text-base-content">{task.description}</div>
+                      <div class="flex items-center gap-4 text-sm text-base-content/70">
+                        <span>Goal: {task.successMetric || 1} time{(task.successMetric || 1) === 1 ? '' : 's'} during experiment</span>
+                        {#if (task.xpReward || 0) > 0}
+                          <span class="flex items-center gap-1">
+                            <Award class="h-3 w-3" />
+                            {task.xpReward} XP per completion
+                          </span>
+                        {/if}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onclick={() => removeTask(index)}
+                      class="btn btn-circle btn-outline btn-error btn-sm"
+                      title="Remove task"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+
+            <!-- Add New Task -->
+            <div class="card bg-base-200 border-base-300 border">
+              <div class="card-body p-6">
+                <h3 class="font-medium text-base-content mb-4">Add New Task</h3>
+                <div class="space-y-4">
+                  <div class="form-control">
+                    <input
+                      type="text"
+                      bind:value={newTask.description}
+                      placeholder="e.g., Avoid checking Instagram"
+                      class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                    />
+                  </div>
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div class="form-control">
+                      <label class="label" for="successMetric">
+                        <span class="label-text font-medium">Success Metric (times during experiment)</span>
+                      </label>
+                      <input
+                        id="successMetric"
+                        type="number"
+                        bind:value={newTask.successMetric}
+                        min="1"
+                        class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                      />
+                    </div>
+                    <div class="form-control">
+                      <label class="label" for="xpReward">
+                        <span class="label-text font-medium">XP Reward (per completion)</span>
+                      </label>
+                      <input
+                        id="xpReward"
+                        type="number"
+                        bind:value={newTask.xpReward}
+                        min="0"
+                        class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onclick={addTask}
+                    disabled={!newTask.description.trim()}
+                    class="btn btn-primary btn-lg w-full gap-2 transition-all duration-200 hover:scale-105"
+                  >
+                    <Plus class="h-5 w-5" />
+                    Add Task
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onclick={() => removeTask(index)}
-                class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-                title="Remove task"
-              >
-                <Trash2 class="h-4 w-4" />
-              </button>
-            </div>
-          {/each}
-        </div>
-      {/if}
-
-      <!-- Add New Task -->
-      <div class="rounded-lg border border-gray-200 p-4">
-        <h3 class="mb-3 font-medium text-gray-900">Add New Task</h3>
-        <div class="space-y-3">
-          <div>
-            <input
-              type="text"
-              bind:value={newTask.description}
-              placeholder="e.g., Avoid checking Instagram"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div>
-              <label for="successMetric" class="mb-1 block text-sm font-medium text-gray-700"> Success Metric (times during experiment) </label>
-              <input
-                id="successMetric"
-                type="number"
-                bind:value={newTask.successMetric}
-                min="1"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <div>
-              <label for="xpReward" class="mb-1 block text-sm font-medium text-gray-700"> XP Reward (per completion) </label>
-              <input
-                id="xpReward"
-                type="number"
-                bind:value={newTask.xpReward}
-                min="0"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-              />
             </div>
           </div>
-          <button
-            type="button"
-            onclick={addTask}
-            disabled={!newTask.description.trim()}
-            class="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-100 px-4 py-2 text-purple-700 transition-colors hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Plus class="h-4 w-4" />
-            Add Task
-          </button>
-        </div>
+
+          <!-- Error Display -->
+          {#if error}
+            <div class="alert alert-error">
+              <p>{error}</p>
+            </div>
+          {/if}
+
+          <!-- Submit Buttons -->
+          <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+            <button
+              type="submit"
+              disabled={loading || !formData.title.trim()}
+              class="btn btn-primary btn-lg flex-1 gap-2 transition-all duration-200 hover:scale-105"
+            >
+              {#if loading}
+                <span class="loading loading-spinner loading-sm"></span>
+                Creating...
+              {:else}
+                <Beaker class="h-5 w-5" />
+                Create Experiment
+              {/if}
+            </button>
+            <button type="button" onclick={() => goto('/experiments')} class="btn btn-outline btn-lg gap-2">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-
-    <!-- Error Display -->
-    {#if error}
-      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p class="text-red-800">{error}</p>
-      </div>
-    {/if}
-
-    <!-- Submit Buttons -->
-    <div class="flex items-center gap-3 pt-4">
-      <button
-        type="submit"
-        disabled={loading || !formData.title.trim()}
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-purple-600 px-6 py-3 font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-      >
-        {#if loading}
-          <div class="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
-          Creating...
-        {:else}
-          <Beaker class="h-5 w-5" />
-          Create Experiment
-        {/if}
-      </button>
-      <a href="/experiments" class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-colors hover:bg-gray-50"> Cancel </a>
-    </div>
-  </form>
+  </div>
 </div>

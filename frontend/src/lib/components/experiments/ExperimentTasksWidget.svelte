@@ -206,7 +206,7 @@
                   <p class="truncate font-medium text-gray-900" class:line-through={task.isCompleteToday}>
                     {task.description}
                   </p>
-                  {#if task.xpReward > 0}
+                  {#if task.xpReward && task.xpReward > 0}
                     <span class="flex items-center gap-1 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                       <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                         <path

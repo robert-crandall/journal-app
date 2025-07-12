@@ -151,14 +151,14 @@
     <!-- Experiments List -->
     <div class="space-y-8">
       <!-- Active Experiments -->
-      {#if groupedExperiments.active.length > 0}
+      {#if groupedExperiments().active.length > 0}
         <div>
           <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
             <span class="h-3 w-3 rounded-full bg-green-500"></span>
-            Active Experiments ({groupedExperiments.active.length})
+            Active Experiments ({groupedExperiments().active.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments.active as experiment}
+            {#each groupedExperiments().active as experiment}
               <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
                 <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
@@ -220,14 +220,14 @@
       {/if}
 
       <!-- Upcoming Experiments -->
-      {#if groupedExperiments.upcoming.length > 0}
+      {#if groupedExperiments().upcoming.length > 0}
         <div>
           <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
             <span class="h-3 w-3 rounded-full bg-blue-500"></span>
-            Upcoming Experiments ({groupedExperiments.upcoming.length})
+            Upcoming Experiments ({groupedExperiments().upcoming.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments.upcoming as experiment}
+            {#each groupedExperiments().upcoming as experiment}
               <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
                 <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
@@ -282,14 +282,14 @@
       {/if}
 
       <!-- Completed Experiments -->
-      {#if groupedExperiments.completed.length > 0}
+      {#if groupedExperiments().completed.length > 0}
         <div>
           <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
             <span class="h-3 w-3 rounded-full bg-gray-500"></span>
-            Completed Experiments ({groupedExperiments.completed.length})
+            Completed Experiments ({groupedExperiments().completed.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments.completed as experiment}
+            {#each groupedExperiments().completed as experiment}
               <div class="rounded-lg border border-gray-200 bg-white p-6 opacity-75 transition-shadow hover:shadow-lg">
                 <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
@@ -352,5 +352,6 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 </style>
