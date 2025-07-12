@@ -51,6 +51,13 @@
 - [ ] **Stat XP Source Breakdown**
   - “What earned me XP in Strength this week?”
 
+- [ ] **Family Interactions from Journal**
+  - Extract out family interactions from journal
+
+- [ ] **Goal interactions from journal**
+  - Extract out goal interactions from journal
+  
+- [ ] Drop energy level from family
 ---
 
 ### 🗺️ Phase 3: Experiments & Tasks (Weeks 5–6)
