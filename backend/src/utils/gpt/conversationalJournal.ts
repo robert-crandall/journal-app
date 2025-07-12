@@ -21,7 +21,7 @@ export interface JournalMetadata {
   synopsis: string;
   summary: string;
   suggestedTags: string[];
-  suggestedStatTags: string[];
+  suggestedStatTags: Record<string, number>; // Changed from string[] to Record<statName, xpAmount>
 }
 
 /**
@@ -88,7 +88,7 @@ Your task is to review the entire conversation and generate:
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
 3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
 4. **Content Tags**: 3-6 tags describing topics, activities, or themes
-5. **Stat Tags**: Character stats that could be relevant based on the content discussed`;
+5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -136,14 +136,14 @@ IMPORTANT: Format your response exactly as JSON:
   "synopsis": "1-2 sentence overview", 
   "summary": "Detailed narrative synthesis maintaining user's voice",
   "suggestedTags": ["tag1", "tag2", "tag3"],
-  "suggestedStatTags": ["stat1", "stat2"]
+  "suggestedStatTags": {"statName1": 15, "statName2": 25}
 }
 
 ## Tagging Guidelines
 
 **Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
 
-**Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on.
+**Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on. Provide XP amounts between 5-50 based on the significance and effort discussed. Use the exact stat names provided in the context.
 
 The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
 
