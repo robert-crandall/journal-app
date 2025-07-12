@@ -5,6 +5,7 @@
   import { experimentsApi } from '$lib/api/experiments';
   import type { ExperimentWithTasksResponse } from '$lib/api/experiments';
   import { ArrowLeft, Calendar, BarChart, Edit3, Trash2, Target, Award, CheckCircle2, Clock } from 'lucide-svelte';
+  import { marked } from 'marked';
 
   // Reactive state
   let experiment: ExperimentWithTasksResponse | null = $state(null);
@@ -167,7 +168,7 @@
               </div>
 
               {#if experiment.description}
-                <p class="text-base-content/70 mb-4 text-lg">{experiment.description}</p>
+                <p class="text-base-content/70 mb-4 text-lg prose prose-sm">{@html marked.parse(experiment.description)}</p>
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">

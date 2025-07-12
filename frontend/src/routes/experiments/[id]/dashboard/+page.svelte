@@ -5,6 +5,7 @@
   import { experimentsApi } from '$lib/api/experiments';
   import type { ExperimentDashboardResponse } from '$lib/api/experiments';
   import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star } from 'lucide-svelte';
+  import { marked } from 'marked';
 
   // Reactive state
   let dashboard: ExperimentDashboardResponse | null = $state(null);
@@ -136,7 +137,7 @@
               </div>
 
               {#if dashboard.experiment.description}
-                <p class="text-base-content/70 mb-4 text-lg">{dashboard.experiment.description}</p>
+                <p class="text-base-content/70 mb-4 text-lg prose prose-sm">{@html marked.parse(dashboard.experiment.description)}</p>
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">
