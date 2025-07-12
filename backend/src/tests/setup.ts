@@ -32,95 +32,130 @@ export function getTestDb() {
 export async function cleanDatabase() {
   const db = getTestDb();
 
-  // Helper function to safely delete from a table with retry logic
-  const safeDelete = async (table: any, tableName: string, maxRetries = 3) => {
-    let lastError: Error | null = null;
+  // Define the deletion order with table references and names
+  const deletionSequence = [
+    // Journal data with proper ordering
+    { table: schema.journalEntryStatTags, name: 'journal_entry_stat_tags' },
+    { table: schema.journalEntryTags, name: 'journal_entry_tags' },
+    { table: schema.journalConversationMessages, name: 'journal_conversation_messages' },
+    { table: schema.journalEntries, name: 'journal_entries' },
+    { table: schema.journalSessions, name: 'journal_sessions' },
     
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        await db.delete(table);
-        return; // Success, exit the retry loop
-      } catch (error) {
-        lastError = error as Error;
-        
-        // Skip retries for certain errors
-        if (error instanceof Error) {
-          // Table doesn't exist - this is OK, skip
-          if (error.message.includes('does not exist')) {
-            return;
-          }
-          
-          // Connection ended - this is a fatal error, don't retry
-          if (error.message.includes('CONNECTION_ENDED')) {
-            throw error;
-          }
-          
-          // For 409 conflicts or other retryable errors, wait and retry
-          if (attempt < maxRetries && (
-            error.message.includes('409') || 
-            error.message.includes('conflict') ||
-            error.message.includes('violates foreign key constraint') ||
-            error.message.includes('could not serialize access')
-          )) {
-            const delay = attempt * 100; // Progressive backoff: 100ms, 200ms, 300ms
-            await new Promise(resolve => setTimeout(resolve, delay));
-            continue;
-          }
-        }
-        
-        // If this is the last attempt or a non-retryable error, log and continue
-        if (attempt === maxRetries) {
-          console.warn(`Failed to clean table ${tableName} after ${maxRetries} attempts:`, lastError?.message);
-        }
+    // Experiment data (most likely to have foreign key dependencies)
+    { table: schema.experimentTaskCompletions, name: 'experiment_task_completions' },
+    { table: schema.experimentTasks, name: 'experiment_tasks' },
+    { table: schema.experiments, name: 'experiments' },
+    
+    // Family task feedback first (references family members)
+    { table: schema.familyTaskFeedback, name: 'family_task_feedback' },
+    // Family members next (reference users)
+    { table: schema.familyMembers, name: 'family_members' },
+    
+    // Focus data
+    { table: schema.focuses, name: 'focuses' },
+    
+    // Goal tags (references goals and tags)
+    { table: schema.goalTags, name: 'goal_tags' },
+    // Tags (referenced by goal_tags)
+    { table: schema.tags, name: 'tags' },
+    
+    // Stats tables (they reference characters and users)
+    { table: schema.xpGrants, name: 'xp_grants' },
+    { table: schema.characterStatLevelTitles, name: 'character_stat_level_titles' },
+    { table: schema.characterStats, name: 'character_stats' },
+    
+    // Goals and characters
+    { table: schema.goals, name: 'goals' },
+    { table: schema.characters, name: 'characters' },
+    
+    // Simple todos (reference users)
+    { table: schema.simpleTodos, name: 'simple_todos' },
+    
+    // Users last (referenced by most other tables)
+    { table: schema.users, name: 'users' },
+  ];
+
+  // Helper function to safely delete from a single table
+  const safeDeleteTable = async (table: any, tableName: string) => {
+    try {
+      await db.delete(table);
+      return { success: true, error: null };
+    } catch (error) {
+      const err = error as Error;
+      
+      // Table doesn't exist - this is OK
+      if (err.message.includes('does not exist')) {
+        return { success: true, error: null };
       }
+      
+      // Connection ended - this is a fatal error
+      if (err.message.includes('CONNECTION_ENDED')) {
+        throw error;
+      }
+      
+      return { success: false, error: err };
     }
   };
 
-  // Delete all data from tables in the correct order (respecting foreign keys)
-  try {
-    // Journal data with proper ordering
-    await safeDelete(schema.journalEntryStatTags, 'journal_entry_stat_tags');
-    await safeDelete(schema.journalEntryTags, 'journal_entry_tags');
-    await safeDelete(schema.journalConversationMessages, 'journal_conversation_messages');
-    await safeDelete(schema.journalEntries, 'journal_entries');
-    await safeDelete(schema.journalSessions, 'journal_sessions');
-    
-    // Experiment data first (most likely to have foreign key dependencies)
-    await safeDelete(schema.experimentTaskCompletions, 'experiment_task_completions');
-    await safeDelete(schema.experimentTasks, 'experiment_tasks');
-    await safeDelete(schema.experiments, 'experiments');
-    
-    // Family task feedback first (references family members)
-    await safeDelete(schema.familyTaskFeedback, 'family_task_feedback');
-    // Family members next (reference users)
-    await safeDelete(schema.familyMembers, 'family_members');
-    
-    // Focus data
-    await safeDelete(schema.focuses, 'focuses');
-    
-    // Goal tags (references goals and tags)
-    await safeDelete(schema.goalTags, 'goal_tags');
-    // Tags (referenced by goal_tags)
-    await safeDelete(schema.tags, 'tags');
-    
-    // Stats tables (they reference characters and users)
-    await safeDelete(schema.xpGrants, 'xp_grants');
-    await safeDelete(schema.characterStatLevelTitles, 'character_stat_level_titles');
-    await safeDelete(schema.characterStats, 'character_stats');
-    
-    // Goals and characters
-    await safeDelete(schema.goals, 'goals');
-    await safeDelete(schema.characters, 'characters');
-    
-    // Simple todos (reference users)
-    await safeDelete(schema.simpleTodos, 'simple_todos');
-    
-    // Users last (referenced by most other tables)
-    await safeDelete(schema.users, 'users');
-  } catch (error) {
-    if (error instanceof Error && !error.message.includes('CONNECTION_ENDED')) {
-      console.error('Error cleaning database:', error);
-      // Don't throw - let tests continue even if cleanup partially failed
+  // Retry the entire deletion sequence
+  const maxRetries = 3;
+  let lastErrors: string[] = [];
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const errors: string[] = [];
+      let hasRetryableErrors = false;
+      
+      // Attempt to delete all tables in sequence
+      for (const { table, name } of deletionSequence) {
+        const result = await safeDeleteTable(table, name);
+        
+        if (!result.success && result.error) {
+          const errorMsg = result.error.message;
+          
+          // Check if this is a retryable error
+          if (
+            errorMsg.includes('409') || 
+            errorMsg.includes('conflict') ||
+            errorMsg.includes('violates foreign key constraint') ||
+            errorMsg.includes('could not serialize access')
+          ) {
+            hasRetryableErrors = true;
+            errors.push(`${name}: ${errorMsg}`);
+          } else {
+            // Non-retryable error, log and continue
+            console.warn(`Non-retryable error cleaning table ${name}:`, errorMsg);
+          }
+        }
+      }
+      
+      // If no retryable errors, we're done
+      if (!hasRetryableErrors) {
+        return;
+      }
+      
+      // Store errors for potential final logging
+      lastErrors = errors;
+      
+      // If this isn't the last attempt, wait and retry the entire sequence
+      if (attempt < maxRetries) {
+        const delay = attempt * 150; // Progressive backoff: 150ms, 300ms
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      // Last attempt failed, log warnings
+      if (errors.length > 0) {
+        console.warn(`Failed to clean ${errors.length} table(s) after ${maxRetries} attempts:`);
+        errors.forEach(error => console.warn(`  - ${error}`));
+      }
+      
+    } catch (error) {
+      if (error instanceof Error && !error.message.includes('CONNECTION_ENDED')) {
+        console.error('Error cleaning database:', error);
+        // Don't throw - let tests continue even if cleanup partially failed
+      }
+      return; // Exit retry loop on fatal errors
     }
   }
 }
