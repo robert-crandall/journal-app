@@ -75,10 +75,10 @@ export async function getUserContext(
     includeFocuses?: boolean; // Future
   },
 ): Promise<ComprehensiveUserContext> {
-  const { 
-    includeCharacter = true, 
-    includeActiveGoals = true, 
-    includeFamilyMembers = true, 
+  const {
+    includeCharacter = true,
+    includeActiveGoals = true,
+    includeFamilyMembers = true,
     includeCharacterStats = true,
     includeExistingTags = false,
   } = options || {};
@@ -185,7 +185,7 @@ export async function getUserContext(
         .where(eq(characterStats.userId, userId));
 
       if (stats.length > 0) {
-        baseContext.characterStats = stats.map(stat => ({
+        baseContext.characterStats = stats.map((stat) => ({
           ...stat,
           exampleActivities: stat.exampleActivities === null ? undefined : stat.exampleActivities,
         }));
@@ -196,9 +196,9 @@ export async function getUserContext(
     if (includeExistingTags) {
       const userTags = await getUserTagsWithCounts(userId);
       if (userTags.length > 0) {
-        baseContext.existingTags = userTags.map(tag => ({
+        baseContext.existingTags = userTags.map((tag) => ({
           name: tag.name,
-          usageCount: tag.usageCount
+          usageCount: tag.usageCount,
         }));
       }
     }
@@ -290,7 +290,8 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
  */
 export async function getSpecificUserContext(userId: string, contextType: keyof ComprehensiveUserContext) {
   const options = {
-    includeCharacter: contextType === 'name' || contextType === 'characterClass' || contextType === 'backstory' || contextType === 'characterGoals' || contextType === 'motto',
+    includeCharacter:
+      contextType === 'name' || contextType === 'characterClass' || contextType === 'backstory' || contextType === 'characterGoals' || contextType === 'motto',
     includeActiveGoals: contextType === 'activeGoals',
     includeFamilyMembers: contextType === 'familyMembers',
     includeCharacterStats: contextType === 'characterStats',

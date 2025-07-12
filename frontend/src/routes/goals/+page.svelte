@@ -180,7 +180,7 @@
                       </div>
 
                       {#if goal.description}
-                        <p class="text-base-content/80 mb-4 text-sm prose prose-sm">{@html marked.parse(goal.description)}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html marked.parse(goal.description)}</p>
                       {/if}
 
                       <!-- Tags -->

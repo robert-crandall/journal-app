@@ -96,7 +96,7 @@ Your task is to review the entire conversation and generate:
 
 ### Existing Content Tags
 Consider using these existing tags when appropriate (sorted by usage frequency):
-${userContext.existingTags.map(tag => `- "${tag.name}"`).join('\n')}`;
+${userContext.existingTags.map((tag) => `- "${tag.name}"`).join('\n')}`;
   }
 
   // Add available character stats information
@@ -106,27 +106,40 @@ These are the user's current character stats that could receive XP:`;
     systemPrompt += formatCharacterStatsForPrompt(userContext.characterStats);
   }
 
-// Helper function for formatting character stats for the prompt
-function formatCharacterStatsForPrompt(stats: Array<{ name: string; currentLevel: number; totalXp: number; description: string, exampleActivities?: Array<{ description: string; suggestedXp: number }> }>): string {
-  return '\n' + stats.map(stat => {
-    let lines = [
-      `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}`,
-    ];
-    if (stat.exampleActivities) {
-      lines.push(`  - Example activities or qualities related to this stat:`);
-      lines.push(...stat.exampleActivities.map((activity: { description: string; suggestedXp: number } | string) => {
-        if (typeof activity === 'object' && 'description' in activity && 'suggestedXp' in activity) {
-          return `    - ${activity.description} (XP: ${activity.suggestedXp})`;
-        } else if (typeof activity === 'string') {
-          return `    - ${activity}`;
-        } else {
-          return ``;
-        }
-      }));
-    }
-    return lines.join('\n');
-  }).join('\n');
-}
+  // Helper function for formatting character stats for the prompt
+  function formatCharacterStatsForPrompt(
+    stats: Array<{
+      name: string;
+      currentLevel: number;
+      totalXp: number;
+      description: string;
+      exampleActivities?: Array<{ description: string; suggestedXp: number }>;
+    }>,
+  ): string {
+    return (
+      '\n' +
+      stats
+        .map((stat) => {
+          let lines = [`- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}`];
+          if (stat.exampleActivities) {
+            lines.push(`  - Example activities or qualities related to this stat:`);
+            lines.push(
+              ...stat.exampleActivities.map((activity: { description: string; suggestedXp: number } | string) => {
+                if (typeof activity === 'object' && 'description' in activity && 'suggestedXp' in activity) {
+                  return `    - ${activity.description} (XP: ${activity.suggestedXp})`;
+                } else if (typeof activity === 'string') {
+                  return `    - ${activity}`;
+                } else {
+                  return ``;
+                }
+              }),
+            );
+          }
+          return lines.join('\n');
+        })
+        .join('\n')
+    );
+  }
 
   systemPrompt += `
 
@@ -243,7 +256,6 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userC
       content: msg.content,
     });
   });
-  
 
   messages.push({
     role: 'user',

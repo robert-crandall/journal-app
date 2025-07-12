@@ -268,23 +268,21 @@ const app = new Hono()
       const userStats = await getUserStats(userId);
       const statTagIds: string[] = [];
       const processedStatTags: string[] = [];
-      
+
       for (const stat of userStats) {
         // Check for case-insensitive match
         const statNameLower = stat.name.toLowerCase();
-        const matchingStatEntry = Object.entries(metadata.suggestedStatTags).find(
-          ([statName]) => statName.toLowerCase() === statNameLower
-        );
-        
+        const matchingStatEntry = Object.entries(metadata.suggestedStatTags).find(([statName]) => statName.toLowerCase() === statNameLower);
+
         if (matchingStatEntry) {
           const [statName, xpAmount] = matchingStatEntry;
-          
+
           // Add stat tag relation
           await db.insert(journalEntryStatTags).values({
             entryId,
             statId: stat.id,
           });
-          
+
           // Grant XP to the stat
           await db.insert(characterStatXpGrants).values({
             userId,
@@ -294,7 +292,7 @@ const app = new Hono()
             sourceId: entryId,
             reason: `Journal entry: ${metadata.title}`,
           });
-          
+
           // Update stat total XP
           await db
             .update(characterStats)
@@ -303,7 +301,7 @@ const app = new Hono()
               updatedAt: new Date(),
             })
             .where(eq(characterStats.id, stat.id));
-          
+
           statTagIds.push(stat.id);
           processedStatTags.push(statName);
         }

@@ -56,8 +56,8 @@
 
 - [ ] **Goal interactions from journal**
   - Extract out goal interactions from journal
-  
 - [ ] Drop energy level from family
+
 ---
 
 ### 🗺️ Phase 3: Experiments & Tasks (Weeks 5–6)

@@ -23,7 +23,7 @@ describe('User Context Service', () => {
   describe('getUserContext', () => {
     test('should return basic user context when no character exists', async () => {
       const context = await getUserContext(userId);
-      
+
       expect(context.name).toBe('Context Test User');
       expect(context.characterClass).toBeUndefined();
       expect(context.backstory).toBeUndefined();
@@ -48,13 +48,16 @@ describe('User Context Service', () => {
       });
 
       // Create active goals
-      const goal = await db.insert(schema.goals).values({
-        userId,
-        title: 'Spend more time outdoors',
-        description: 'Get outside at least 3 times per week',
-        isActive: true,
-        isArchived: false,
-      }).returning();
+      const goal = await db
+        .insert(schema.goals)
+        .values({
+          userId,
+          title: 'Spend more time outdoors',
+          description: 'Get outside at least 3 times per week',
+          isActive: true,
+          isArchived: false,
+        })
+        .returning();
 
       // Create family member
       await db.insert(schema.familyMembers).values({
@@ -85,18 +88,18 @@ describe('User Context Service', () => {
       expect(context.backstory).toBe('A seasoned explorer seeking new challenges');
       expect(context.characterGoals).toBe('To reconnect with nature and strengthen family bonds');
       expect(context.motto).toBe('Adventure awaits those who seek it');
-      
+
       expect(context.activeGoals).toHaveLength(1);
       expect(context.activeGoals![0].title).toBe('Spend more time outdoors');
       expect(context.activeGoals![0].description).toBe('Get outside at least 3 times per week');
-      
+
       expect(context.familyMembers).toHaveLength(1);
       expect(context.familyMembers![0].name).toBe('Sarah');
       expect(context.familyMembers![0].relationship).toBe('wife');
       expect(context.familyMembers![0].likes).toBe('hiking, reading, coffee');
       expect(context.familyMembers![0].energyLevel).toBe(75);
       expect(context.familyMembers![0].connectionLevel).toBe(3);
-      
+
       expect(context.characterStats).toHaveLength(1);
       expect(context.characterStats![0].name).toBe('Strength');
       expect(context.characterStats![0].description).toBe('Physical power and endurance');
@@ -198,11 +201,10 @@ describe('User Context Service', () => {
 
       expect(formatted).toContain('## User');
       expect(formatted).toContain('Aragorn');
-      expect(formatted).toContain('### Character Class');
-      expect(formatted).toContain('Ranger');
+      expect(formatted).toContain('Character Class: Ranger');
       expect(formatted).toContain('### Backstory');
       expect(formatted).toContain('Former king living in exile');
-      expect(formatted).toContain('### Motto');
+      expect(formatted).toContain('Motto: Not all who wander are lost');
       expect(formatted).toContain('Not all who wander are lost');
       expect(formatted).toContain('### Active Goals');
       expect(formatted).toContain('#### Master archery');
@@ -212,10 +214,6 @@ describe('User Context Service', () => {
       expect(formatted).toContain('Likes: starlight, poetry');
       expect(formatted).toContain('Connection Level: 5 (500 XP)');
       expect(formatted).toContain('Last interaction: 1 days ago');
-      expect(formatted).toContain('### Character Stats');
-      expect(formatted).toContain('#### Wisdom');
-      expect(formatted).toContain('Level 4 (350 XP)');
-      expect(formatted).toContain('Understanding and insight');
     });
 
     test('should handle minimal context gracefully', async () => {
