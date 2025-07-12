@@ -21,13 +21,19 @@ interface ApiResponse<T> {
   data: T;
 }
 
+// API error response
+interface ApiErrorResponse {
+  success: false;
+  error: string;
+}
+
 export class ExperimentsApi {
   // Get user's experiments
   async getUserExperiments(): Promise<ExperimentResponse[]> {
     const response = await authenticatedClient.api.experiments.$get();
     
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to fetch experiments');
     }
 
@@ -42,7 +48,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to fetch experiment');
     }
 
@@ -57,7 +63,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to create experiment');
     }
 
@@ -73,7 +79,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to update experiment');
     }
 
@@ -88,7 +94,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to delete experiment');
     }
 
@@ -103,7 +109,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to fetch experiment tasks');
     }
 
@@ -119,7 +125,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to create experiment task');
     }
 
@@ -139,7 +145,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to update experiment task');
     }
 
@@ -154,7 +160,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to delete experiment task');
     }
 
@@ -174,7 +180,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to complete experiment task');
     }
 
@@ -189,7 +195,7 @@ export class ExperimentsApi {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to fetch experiment dashboard');
     }
 

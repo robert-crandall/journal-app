@@ -531,7 +531,7 @@ const app = new Hono()
         .returning();
 
       // Award XP if configured
-      if (task[0].experiment_tasks.xpReward > 0) {
+      if (task[0]?.experiment_tasks.xpReward && task[0].experiment_tasks.xpReward > 0) {
         await db.insert(xpGrants).values({
           userId,
           entityType: 'experiment_task',
@@ -619,7 +619,7 @@ const app = new Hono()
         const isCompleteToday = completions.some(c => c.completedDate === today);
 
         totalTaskCompletions += completions.length;
-        totalXpFromTasks += completions.length * task.xpReward;
+        totalXpFromTasks += completions.length * (task.xpReward ?? 0);
 
         tasksWithCompletions.push({
           ...serializeExperimentTask(task),
