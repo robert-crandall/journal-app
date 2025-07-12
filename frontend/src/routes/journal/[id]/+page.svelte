@@ -38,13 +38,13 @@
     const timePart = fullDateTime.split(', ')[1] || fullDateTime;
     return timePart;
   }
-  
+
   async function startReflection() {
     if (!entry || entry.reflected) return;
-    
+
     try {
       const result = await journalApi.startReflection(entryId);
-      
+
       // Navigate to the chat session
       goto(`/journal/session?id=${result.sessionId}`);
     } catch (err) {
@@ -111,58 +111,58 @@
       </div>
 
       {#if entry.content}
-      <!-- Long-form content display -->
-      <div class="bg-base-100 mb-8 rounded-2xl p-6 shadow-sm">
-        <h2 class="text-base-content mb-6 text-2xl font-semibold">Journal Entry</h2>
-        <div class="prose max-w-none">
-          <p class="text-base-content/80 leading-relaxed whitespace-pre-wrap">
-            {entry.content}
-          </p>
-        </div>
-        
-        {#if !entry.reflected}
-          <!-- Button to begin reflection if not reflected on yet -->
-          <div class="mt-6 flex justify-center">
-            <button class="btn btn-primary" on:click={startReflection}>Begin Reflection</button>
+        <!-- Long-form content display -->
+        <div class="bg-base-100 mb-8 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-base-content mb-6 text-2xl font-semibold">Journal Entry</h2>
+          <div class="prose max-w-none">
+            <p class="text-base-content/80 leading-relaxed whitespace-pre-wrap">
+              {entry.content}
+            </p>
           </div>
-        {/if}
-      </div>
+
+          {#if !entry.reflected}
+            <!-- Button to begin reflection if not reflected on yet -->
+            <div class="mt-6 flex justify-center">
+              <button class="btn btn-primary" on:click={startReflection}>Begin Reflection</button>
+            </div>
+          {/if}
+        </div>
       {/if}
 
       {#if entry.messages && entry.messages.length > 0}
-      <!-- Conversation -->
-      <div class="bg-base-100 mb-8 rounded-2xl p-6 shadow-sm">
-        <h2 class="text-base-content mb-6 text-2xl font-semibold">
-          {entry.startedAsChat ? 'Conversation' : 'Reflection'}
-        </h2>
+        <!-- Conversation -->
+        <div class="bg-base-100 mb-8 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-base-content mb-6 text-2xl font-semibold">
+            {entry.startedAsChat ? 'Conversation' : 'Reflection'}
+          </h2>
 
-        <div class="space-y-6">
-          {#each entry.messages as message, index (message.id)}
-            <div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
-              <div class="chat-image avatar">
-                <div class="w-10 rounded-full {message.role === 'user' ? 'bg-base-300' : 'bg-primary'}">
-                  <div
-                    class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user'
-                      ? 'text-base-content'
-                      : 'text-primary-content'}"
-                  >
-                    {message.role === 'user' ? '👤' : '🤖'}
+          <div class="space-y-6">
+            {#each entry.messages as message, index (message.id)}
+              <div class="chat {message.role === 'user' ? 'chat-end' : 'chat-start'}">
+                <div class="chat-image avatar">
+                  <div class="w-10 rounded-full {message.role === 'user' ? 'bg-base-300' : 'bg-primary'}">
+                    <div
+                      class="flex h-full w-full items-center justify-center text-sm font-bold {message.role === 'user'
+                        ? 'text-base-content'
+                        : 'text-primary-content'}"
+                    >
+                      {message.role === 'user' ? '👤' : '🤖'}
+                    </div>
                   </div>
                 </div>
+                <div class="chat-header">
+                  {message.role === 'user' ? 'You' : 'AI Guide'}
+                  <time class="ml-1 text-xs opacity-50">{formatDateTime(message.createdAt, 'time-only')}</time>
+                </div>
+                <div
+                  class="chat-bubble {message.role === 'user' ? 'bg-base text-base-content' : 'bg-primary text-primary-content'} max-w-none whitespace-pre-wrap"
+                >
+                  {message.content}
+                </div>
               </div>
-              <div class="chat-header">
-                {message.role === 'user' ? 'You' : 'AI Guide'}
-                <time class="ml-1 text-xs opacity-50">{formatDateTime(message.createdAt, 'time-only')}</time>
-              </div>
-              <div
-                class="chat-bubble {message.role === 'user' ? 'bg-base text-base-content' : 'bg-primary text-primary-content'} max-w-none whitespace-pre-wrap"
-              >
-                {message.content}
-              </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
-      </div>
       {/if}
 
       <!-- Summary -->

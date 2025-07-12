@@ -19,7 +19,7 @@
   // Support for URL parameters to handle reflection mode
   const urlParams = new URLSearchParams(window.location.search);
   const urlSessionId = urlParams.get('id');
-  
+
   // Function to load messages from an existing session
   async function loadSessionMessages(sessionId: string) {
     try {
@@ -35,11 +35,11 @@
   onMount(async () => {
     try {
       loading = true;
-      
+
       // If we have a session ID in the URL, we're in reflection mode
       if (urlSessionId) {
         sessionId = urlSessionId;
-        
+
         try {
           // Try to load the session messages
           messages = await loadSessionMessages(sessionId);

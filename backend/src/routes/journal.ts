@@ -15,15 +15,15 @@ import {
   xpGrants,
   familyMembers,
 } from '../db/schema';
-import { 
-  startJournalSessionSchema, 
-  sendJournalMessageSchema, 
-  saveJournalEntrySchema, 
+import {
+  startJournalSessionSchema,
+  sendJournalMessageSchema,
+  saveJournalEntrySchema,
   getJournalEntrySchema,
   startLongFormJournalSchema,
   saveLongFormJournalSchema,
   startReflectionSchema,
-  saveSimpleLongFormJournalSchema
+  saveSimpleLongFormJournalSchema,
 } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
 import { grantXp } from '../utils/xpService';
@@ -36,10 +36,9 @@ import type {
   JournalEntryWithDetails,
   StartLongFormJournalResponse,
   SaveLongFormJournalResponse,
-  StartReflectionResponse
+  StartReflectionResponse,
 } from '../types/journal';
 import { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from '../utils/gpt/conversationalJournal';
-import { generateJournalMetadataFromContent, generateReflectionMessage } from '../utils/gpt/journalHybrid';
 import { getUserContext, type ComprehensiveUserContext } from '../utils/userContextService';
 
 // Helper function to get user's available stats
@@ -564,16 +563,15 @@ app.post('/longform/save', jwtAuth, zValidator('json', saveLongFormJournalSchema
   try {
     const userId = getUserId(c);
     const { content } = c.req.valid('json');
-    const userContext = await getUserContext(userId);
 
-    // Create a new journal entry with the long-form content
+    // Create a new journal entry with the long-form content without analysis
     const newEntry = await db
       .insert(journalEntries)
       .values({
         userId,
-        title: 'Untitled Journal Entry', // Will be updated after processing
-        synopsis: '', // Will be updated after processing
-        summary: '', // Will be updated after processing
+        title: 'Untitled Journal Entry',
+        synopsis: 'Journal entry waiting for reflection',
+        summary: '',
         content,
         reflected: false, // Not yet reflected upon
         startedAsChat: false, // Started in long-form mode
@@ -582,100 +580,14 @@ app.post('/longform/save', jwtAuth, zValidator('json', saveLongFormJournalSchema
 
     const entryId = newEntry[0].id;
 
-    // Generate metadata using the content
-    const metadata = await generateJournalMetadataFromContent(content, userContext);
-
-    // Update the entry with the generated metadata
-    await db
-      .update(journalEntries)
-      .set({
-        title: metadata.title,
-        synopsis: metadata.synopsis,
-        summary: metadata.summary,
-      })
-      .where(eq(journalEntries.id, entryId));
-
-    // Create tags
-    const tagIds = await getOrCreateTags(userId, metadata.suggestedTags);
-    for (const tagId of tagIds) {
-      await db.insert(journalEntryTags).values({
-        entryId,
-        tagId,
-      });
-    }
-
-    // Add stat tags and grant XP if any available stats exist
-    const userStats = await getUserStats(userId);
-    const statTagIds: string[] = [];
-    const processedStatTags: string[] = [];
-
-    for (const stat of userStats) {
-      // Check for case-insensitive match
-      const statNameLower = stat.name.toLowerCase();
-      const matchingStatEntry = Object.entries(metadata.suggestedStatTags).find(([statName]) => statName.toLowerCase() === statNameLower);
-
-      if (matchingStatEntry) {
-        const [statName, xpAmount] = matchingStatEntry;
-
-        // Add stat tag relation
-        await db.insert(journalEntryStatTags).values({
-          entryId,
-          statId: stat.id,
-        });
-
-        const numericXP = typeof xpAmount === 'number' ? xpAmount : parseInt(String(xpAmount), 10);
-        
-        // Grant XP to the stat
-        await grantXp(userId, {
-          entityType: 'character_stat',
-          entityId: stat.id,
-          xpAmount: numericXP,
-          sourceType: 'journal',
-          sourceId: entryId,
-          reason: `Journal entry: ${metadata.title}`,
-        });
-
-        statTagIds.push(stat.id);
-        processedStatTags.push(statName);
-      }
-    }
-
-    // Add family tags and grant XP to family members
-    const familyMembers = await getUserFamilyMembers(userId);
-    const familyTagIds: string[] = [];
-    const processedFamilyTags: string[] = [];
-
-    for (const familyMember of familyMembers) {
-      // Check for case-insensitive match
-      const familyNameLower = familyMember.name.toLowerCase();
-      const matchingFamilyEntry = Object.entries(metadata.suggestedFamilyTags).find(([familyName]) => familyName.toLowerCase() === familyNameLower);
-
-      if (matchingFamilyEntry) {
-        const [familyName, xpAmount] = matchingFamilyEntry;
-        const numericXP = typeof xpAmount === 'number' ? xpAmount : parseInt(String(xpAmount), 10);
-
-        // Grant XP to the family member
-        await grantXp(userId, {
-          entityType: 'family_member',
-          entityId: familyMember.id,
-          xpAmount: numericXP,
-          sourceType: 'journal',
-          sourceId: entryId,
-          reason: `Journal entry: ${metadata.title}`,
-        });
-
-        familyTagIds.push(familyMember.id);
-        processedFamilyTags.push(familyName);
-      }
-    }
-
+    // Return simple response - no metadata analysis
     const response: SaveLongFormJournalResponse = {
       success: true,
       data: {
         entryId,
-        title: metadata.title,
-        synopsis: metadata.synopsis,
-        summary: metadata.summary,
+        title: 'Untitled Journal Entry',
+        synopsis: 'Journal entry waiting for reflection',
+        summary: '',
       },
     };
 
@@ -770,7 +682,7 @@ app.post('/reflection/start', jwtAuth, zValidator('json', startReflectionSchema)
   try {
     const userId = getUserId(c);
     const { entryId } = c.req.valid('json');
-    
+
     // Get the long-form entry
     const entry = await db
       .select()
@@ -821,19 +733,19 @@ app.post('/reflection/start', jwtAuth, zValidator('json', startReflectionSchema)
       })
       .returning();
 
-    // Generate initial reflection message based on the content
-    const initialMessage = await generateReflectionMessage(entry[0].content, userContext);
-    
+    // Simply use the standard welcome message generation
+    const welcomeMessage = await generateWelcomeMessage(userContext);
+
     // Set up the initial messages in the session with the content as the first user message
     const initialMessages: ChatMessage[] = [
       {
-        role: 'user',
-        content: entry[0].content,
+        role: 'assistant' as const,
+        content: welcomeMessage,
         timestamp: new Date().toISOString(),
       },
       {
-        role: 'assistant',
-        content: initialMessage,
+        role: 'user' as const,
+        content: entry[0].content,
         timestamp: new Date().toISOString(),
       },
     ];
@@ -855,11 +767,33 @@ app.post('/reflection/start', jwtAuth, zValidator('json', startReflectionSchema)
       })
       .where(eq(journalEntries.id, entryId));
 
+    // Now generate a response to the user's content
+    const { response: aiResponse } = await generateFollowUpResponse(initialMessages, userContext);
+
+    // Add the AI's response to the messages
+    const updatedMessages: ChatMessage[] = [
+      ...initialMessages,
+      {
+        role: 'assistant' as const,
+        content: aiResponse,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    // Update the session with the response
+    await db
+      .update(journalSessions)
+      .set({
+        messages: updatedMessages,
+        updatedAt: new Date(),
+      })
+      .where(eq(journalSessions.id, newSession[0].id));
+
     const response: StartReflectionResponse = {
       success: true,
       data: {
         sessionId: newSession[0].id,
-        message: initialMessage,
+        message: aiResponse,
       },
     };
 

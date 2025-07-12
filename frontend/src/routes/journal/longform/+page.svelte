@@ -10,7 +10,7 @@
   let isSaving = false;
   let error: string | null = null;
   let entryId: string | null = null;
-  
+
   // Auto-save functionality
   let lastSavedContent = '';
   let autoSaveTimer: NodeJS.Timeout | null = null;
@@ -35,15 +35,15 @@
     if (content && content !== lastSavedContent && !isSaving && !isSavingDraft) {
       try {
         isSavingDraft = true;
-        
+
         // Save using the simple endpoint that doesn't analyze content
         const result = await journalApi.saveSimpleLongForm(content, entryId || undefined);
-        
+
         // Update entry ID in case this is first save
         if (!entryId) {
           entryId = result.entryId;
         }
-        
+
         lastSavedContent = content;
         lastSavedTime = new Date();
         isSavingDraft = false;
@@ -63,7 +63,7 @@
     try {
       isSaving = true;
       error = null;
-      
+
       let result;
       if (analyzeContent) {
         // Use the original endpoint that analyzes content
@@ -72,9 +72,9 @@
         // Use the new endpoint that doesn't analyze content
         result = await journalApi.saveSimpleLongForm(content, entryId || undefined);
       }
-      
+
       entryId = result.entryId;
-      
+
       // Navigate to the entry view page
       goto(`/journal/${entryId}`);
     } catch (err) {
@@ -92,10 +92,10 @@
     try {
       isSaving = true;
       error = null;
-      
+
       // Start reflection mode with the saved entry
       const result = await journalApi.startReflection(entryId);
-      
+
       // Navigate to the chat session
       goto(`/journal/session?id=${result.sessionId}`);
     } catch (err) {
@@ -138,10 +138,10 @@
   {/if}
 
   <!-- Journal content textarea -->
-  <div class="mb-6 bg-base-100 p-1 rounded-lg shadow-sm">
+  <div class="bg-base-100 mb-6 rounded-lg p-1 shadow-sm">
     <textarea
       bind:value={content}
-      class="textarea textarea-lg w-full min-h-[50vh] resize-y bg-transparent focus:outline-none"
+      class="textarea textarea-lg min-h-[50vh] w-full resize-y bg-transparent focus:outline-none"
       placeholder="Write about your day, your thoughts, or anything on your mind…"
       disabled={isSaving}
     ></textarea>
@@ -149,7 +149,7 @@
 
   <!-- Auto-save indicator -->
   {#if lastSavedTime}
-    <div class="text-xs text-base-content/50 mb-4 italic">
+    <div class="text-base-content/50 mb-4 text-xs italic">
       {isSavingDraft ? 'Saving draft...' : `Draft auto-saved at ${lastSavedTime.toLocaleTimeString()}`}
     </div>
   {/if}
@@ -157,9 +157,7 @@
   <!-- Action buttons -->
   <div class="flex flex-wrap justify-between gap-4">
     <div>
-      <button class="btn btn-ghost" on:click={cancelEntry} disabled={isSaving}>
-        Cancel
-      </button>
+      <button class="btn btn-ghost" on:click={cancelEntry} disabled={isSaving}> Cancel </button>
     </div>
     <div class="flex gap-3">
       {#if entryId}

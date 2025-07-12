@@ -27,7 +27,7 @@ test.describe('Journal Feature', () => {
 
     // Click start new session button (it's now a dropdown)
     await page.getByRole('button', { name: '➕ Start Journal' }).click();
-    
+
     // Click "Chat Entry" in the dropdown
     await page.getByRole('link', { name: 'Chat Entry' }).click();
     await expect(page).toHaveURL('/journal/session');

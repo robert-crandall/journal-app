@@ -43,7 +43,7 @@
 
       <div class="dropdown dropdown-end">
         <button class="btn btn-primary btn-lg">➕ Start Journal</button>
-        <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1">
+        <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] mt-1 w-52 p-2 shadow">
           <li><a href="/journal/longform">Long-Form Entry</a></li>
           <li><a href="/journal/session">Chat Entry</a></li>
         </ul>

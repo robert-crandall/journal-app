@@ -25,7 +25,6 @@ export { analyzeJournalEntry } from './journal';
 export type { JournalAnalysisRequest, JournalAnalysisResponse } from './journal';
 
 export { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
-export { generateJournalMetadataFromContent, generateReflectionMessage } from './journalHybrid';
 export type { ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
 
 // New comprehensive user context service
