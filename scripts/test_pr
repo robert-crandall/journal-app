@@ -34,10 +34,12 @@ echo "📦 Installing frontend dependencies..."
 bun install --frozen-lockfile
 echo "🔧 Running Svelte check..."
 bun run check
+echo "🔧 Running linter...(not in CI)"
+bun run lint
 echo "- Building frontend..."
 bun run build
 
-print_section "Running E2E tests"
+print_section "Running E2E tests (not in CI)"
 cd "$PARENT_DIR"
 bun run test:e2e
 
