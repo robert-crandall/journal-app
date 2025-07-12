@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { eq, desc, and } from 'drizzle-orm';
 import { db } from '../db';
-import { characterStats, characterStatXpGrants, characterStatLevelTitles } from '../db/schema/stats';
+import { characterStats, xpGrants, characterStatLevelTitles } from '../db/schema/stats';
 import { jwtAuth } from '../middleware/auth';
 import {
   createCharacterStatSchema,
@@ -13,7 +13,9 @@ import {
   statsQuerySchema,
   xpHistoryQuerySchema,
 } from '../validation/stats';
-import { PREDEFINED_STATS, type CharacterStatWithProgress, type CharacterStatXpGrant, type LevelCalculation } from '../types/stats';
+import { PREDEFINED_STATS, type CharacterStatWithProgress, type LevelCalculation } from '../types/stats';
+import { type XpGrant, type NewXpGrant, type CreateXpGrantRequest } from '../types/xp';
+import { grantXp, getXpGrants } from '../utils/xpService';
 import { calculateLevelInfo, canLevelUp as canLevelUpUtil } from '../utils/stats';
 import logger, { handleApiError } from '../utils/logger';
 
@@ -261,29 +263,22 @@ const app = new Hono()
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
-      // Create XP grant record
-      const [xpGrant] = await db
-        .insert(characterStatXpGrants)
-        .values({
-          userId,
-          statId,
-          xpAmount,
-          sourceType,
-          sourceId,
-          reason,
-        })
-        .returning();
+      // Grant XP using the service
+      const xpGrant = await grantXp(userId, {
+        entityType: 'character_stat',
+        entityId: statId,
+        xpAmount,
+        sourceType,
+        sourceId,
+        reason,
+      });
 
-      // Update stat total XP
-      const newTotalXp = stat.totalXp + xpAmount;
-      const [updatedStat] = await db
-        .update(characterStats)
-        .set({
-          totalXp: newTotalXp,
-          updatedAt: new Date(),
-        })
-        .where(eq(characterStats.id, statId))
-        .returning();
+      // Get the updated stat to return current data
+      const [updatedStat] = await db.select().from(characterStats).where(eq(characterStats.id, statId));
+
+      if (!updatedStat) {
+        return c.json({ success: false, error: 'Failed to retrieve updated stat' }, 500);
+      }
 
       const levelInfo = calculateLevelInfo(updatedStat.currentLevel, updatedStat.totalXp);
 
@@ -363,13 +358,12 @@ const app = new Hono()
         return c.json({ success: false, error: 'Stat not found' }, 404);
       }
 
-      const xpHistory = await db
-        .select()
-        .from(characterStatXpGrants)
-        .where(eq(characterStatXpGrants.statId, statId))
-        .orderBy(desc(characterStatXpGrants.createdAt))
-        .limit(limit)
-        .offset(offset);
+      const xpHistory = await getXpGrants(userId, {
+        entityType: 'character_stat',
+        entityId: statId,
+        limit,
+        offset,
+      });
 
       return c.json({ success: true, data: xpHistory });
     } catch (error) {

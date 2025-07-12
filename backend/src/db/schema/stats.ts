@@ -17,17 +17,17 @@ export const characterStats = pgTable('character_stats', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-// XP grants table - tracks all XP grants for auditing and history
-export const characterStatXpGrants = pgTable('character_stat_xp_grants', {
+// Generic XP grants table - tracks all XP grants for auditing and history across multiple entity types
+export const xpGrants = pgTable('xp_grants', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  statId: uuid('stat_id')
-    .notNull()
-    .references(() => characterStats.id, { onDelete: 'cascade' }),
+  // Generic entity reference - can be character_stat, family_member, goal, project, etc.
+  entityType: varchar('entity_type', { length: 50 }).notNull(), // 'character_stat', 'family_member', 'goal', 'project', 'adventure'
+  entityId: uuid('entity_id').notNull(), // References the specific entity (stat ID, family member ID, etc.)
   xpAmount: integer('xp_amount').notNull(),
-  sourceType: varchar('source_type', { length: 50 }).notNull(), // 'task', 'journal', 'adhoc', 'quest'
+  sourceType: varchar('source_type', { length: 50 }).notNull(), // 'task', 'journal', 'adhoc', 'quest', 'interaction'
   sourceId: uuid('source_id'), // Optional reference to the source (task ID, journal entry ID, etc.)
   reason: text('reason'), // Optional GPT-generated reason or user comment
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
