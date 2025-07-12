@@ -168,7 +168,7 @@
               </div>
 
               {#if experiment.description}
-                <p class="text-base-content/70 mb-4 text-lg prose prose-sm">{@html marked.parse(experiment.description)}</p>
+                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">{@html marked.parse(experiment.description)}</p>
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">
