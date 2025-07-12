@@ -1,4 +1,10 @@
 import { authenticatedClient } from '../api';
+import type { XpGrant as XpGrantBackend } from '../../../../backend/src/types/xp';
+
+// Serialized version of XpGrant for API responses (Date becomes string)
+export type XpGrantResponse = Omit<XpGrantBackend, 'createdAt'> & {
+  createdAt: string;
+};
 
 // Local type definitions (should match backend types)
 export interface CharacterStatExampleActivity {
@@ -304,7 +310,7 @@ export const statsApi = {
   },
 
   // Get XP history for a stat
-  async getXpHistory(statId: string, limit = 50, offset = 0): Promise<CharacterStatXpGrant[]> {
+  async getXpHistory(statId: string, limit = 50, offset = 0): Promise<XpGrantResponse[]> {
     try {
       const response = await authenticatedClient.api.stats[':id']['xp-history'].$get({
         param: { id: statId },
@@ -317,7 +323,7 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatXpGrant[]>;
+      const result = (await response.json()) as ApiResponse<XpGrantResponse[]>;
       return result.data;
     } catch (error) {
       console.error('Get XP history API request failed:', error);
