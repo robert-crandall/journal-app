@@ -21,6 +21,13 @@
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength) + '...';
   }
+
+  function editOrReadLink(entry: JournalEntryWithDetails) {
+    if (!entry.startedAsChat && !entry.reflected) {
+      return `/journal/longform?edit=${entry.id}`;
+    }
+    return `/journal/${entry.id}`;
+  }
 </script>
 
 <svelte:head>
@@ -83,10 +90,10 @@
       </div>
     {:else}
       <!-- Journal entries grid -->
-      <div class="grid gap-6 md:grid-cols-2">
+      <div class="grid gap-6">
         {#each entries as entry (entry.id)}
           <div class="card bg-base-100 shadow-sm transition-shadow hover:shadow-md">
-            <a href="/journal/{entry.id}">
+            <a href={editOrReadLink(entry)}>
               <div class="card-body">
                 <!-- Entry header -->
                 <div class="mb-3 flex items-start justify-between">
