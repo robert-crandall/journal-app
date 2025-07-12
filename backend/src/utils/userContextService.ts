@@ -43,7 +43,7 @@ export interface ComprehensiveUserContext {
     description: string;
     currentLevel: number;
     totalXp: number;
-    exampleActivities?: string[]; // Optional activities related to the stat
+    exampleActivities?: Array<{ description: string; suggestedXp: number }>;
   }>;
 
   // Existing content tags for context
@@ -179,12 +179,16 @@ export async function getUserContext(
           description: characterStats.description,
           currentLevel: characterStats.currentLevel,
           totalXp: characterStats.totalXp,
+          exampleActivities: characterStats.exampleActivities,
         })
         .from(characterStats)
         .where(eq(characterStats.userId, userId));
 
       if (stats.length > 0) {
-        baseContext.characterStats = stats;
+        baseContext.characterStats = stats.map(stat => ({
+          ...stat,
+          exampleActivities: stat.exampleActivities === null ? undefined : stat.exampleActivities,
+        }));
       }
     }
 

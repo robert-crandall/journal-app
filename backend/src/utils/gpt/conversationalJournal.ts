@@ -88,9 +88,7 @@ Your task is to review the entire conversation and generate:
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
 3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
 4. **Content Tags**: 3-6 tags describing topics, activities, or themes
-5. **Stat Tags**: Character stats that could be relevant based on the content discussed
-
-${formatUserContextForPrompt(userContext)}`;
+5. **Stat Tags**: Character stats that could be relevant based on the content discussed`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -98,17 +96,37 @@ ${formatUserContextForPrompt(userContext)}`;
 
 ### Existing Content Tags
 Consider using these existing tags when appropriate (sorted by usage frequency):
-${userContext.existingTags.map(tag => `- "${tag.name}" (used ${tag.usageCount} times)`).join('\n')}`;
+${userContext.existingTags.map(tag => `- "${tag.name}"`).join('\n')}`;
   }
 
   // Add available character stats information
   if (userContext.characterStats && userContext.characterStats.length > 0) {
     systemPrompt += `\n\n### Current Character Stats
-These are the user's current character stats that could receive XP:
-${userContext.characterStats.map(stat => 
-  `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}`
-).join('\n')}`;
+These are the user's current character stats that could receive XP:`;
+    systemPrompt += formatCharacterStatsForPrompt(userContext.characterStats);
   }
+
+// Helper function for formatting character stats for the prompt
+function formatCharacterStatsForPrompt(stats: Array<{ name: string; currentLevel: number; totalXp: number; description: string, exampleActivities?: Array<{ description: string; suggestedXp: number }> }>): string {
+  return '\n' + stats.map(stat => {
+    let lines = [
+      `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}`,
+    ];
+    if (stat.exampleActivities) {
+      lines.push(`  - Example activities or qualities related to this stat:`);
+      lines.push(...stat.exampleActivities.map((activity: { description: string; suggestedXp: number } | string) => {
+        if (typeof activity === 'object' && 'description' in activity && 'suggestedXp' in activity) {
+          return `    - ${activity.description} (XP: ${activity.suggestedXp})`;
+        } else if (typeof activity === 'string') {
+          return `    - ${activity}`;
+        } else {
+          return ``;
+        }
+      }));
+    }
+    return lines.join('\n');
+  }).join('\n');
+}
 
   systemPrompt += `
 
