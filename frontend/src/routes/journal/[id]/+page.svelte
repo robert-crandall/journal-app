@@ -113,14 +113,19 @@
       {#if entry.content}
         <!-- Long-form content display -->
         <div class="bg-base-100 mb-8 rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base-content mb-6 text-2xl font-semibold">Journal Entry</h2>
+          <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-base-content text-2xl font-semibold">Journal Entry</h2>
+            {#if !entry.startedAsChat && !entry.reflected}
+              <a href={`/journal/longform?edit=${entry.id}`} class="btn btn-sm btn-outline"> ✏️ Edit </a>
+            {/if}
+          </div>
           <div class="prose max-w-none">
             <p class="text-base-content/80 leading-relaxed whitespace-pre-wrap">
               {entry.content}
             </p>
           </div>
 
-          {#if !entry.reflected}
+          {#if !entry.reflected && !entry.startedAsChat}
             <!-- Button to begin reflection if not reflected on yet -->
             <div class="mt-6 flex justify-center">
               <button class="btn btn-primary" on:click={startReflection}>Begin Reflection</button>

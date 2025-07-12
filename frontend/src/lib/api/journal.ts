@@ -111,6 +111,15 @@ export interface GetJournalSessionResponse {
   };
 }
 
+export interface UpdateLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+    content: string;
+  };
+}
+
 // API functions
 export const journalApi = {
   // Chat-first mode API methods
@@ -239,6 +248,19 @@ export const journalApi = {
 
     if (!result.success) {
       throw new Error('Failed to get journal entry');
+    }
+
+    return result.data;
+  },
+
+  async updateLongForm(entryId: string, content: string): Promise<UpdateLongFormJournalResponse['data']> {
+    const response = await authenticatedClient.api.journal.longform.update.$post({
+      json: { entryId, content },
+    });
+    const result = (await response.json()) as UpdateLongFormJournalResponse;
+
+    if (!result.success) {
+      throw new Error('Failed to update journal entry');
     }
 
     return result.data;

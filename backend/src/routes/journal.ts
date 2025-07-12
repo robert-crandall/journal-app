@@ -24,6 +24,7 @@ import {
   saveLongFormJournalSchema,
   startReflectionSchema,
   saveSimpleLongFormJournalSchema,
+  updateLongFormJournalSchema,
 } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
 import { grantXp } from '../utils/xpService';
@@ -844,6 +845,80 @@ app.get('/session/:id', jwtAuth, async (c) => {
   } catch (error) {
     handleApiError(error, 'Failed to fetch session data');
     return;
+  }
+});
+
+// Add this new endpoint after the existing longform endpoints
+app.post('/longform/update', jwtAuth, zValidator('json', updateLongFormJournalSchema), async (c) => {
+  try {
+    const userId = getUserId(c);
+    const { entryId, content } = c.req.valid('json');
+
+    // Get the journal entry and verify ownership
+    const entry = await db
+      .select()
+      .from(journalEntries)
+      .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+      .limit(1);
+
+    if (entry.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Journal entry not found',
+        },
+        404,
+      );
+    }
+
+    // Ensure it's a long-form entry that can be edited
+    if (entry[0].startedAsChat) {
+      return c.json(
+        {
+          success: false,
+          error: 'Cannot edit chat-based journal entry',
+        },
+        400,
+      );
+    }
+
+    // If already reflected upon, we can't edit anymore
+    if (entry[0].reflected) {
+      return c.json(
+        {
+          success: false,
+          error: 'Cannot edit entry after starting reflection',
+        },
+        400,
+      );
+    }
+
+    // Update the content
+    await db
+      .update(journalEntries)
+      .set({
+        content,
+        updatedAt: new Date(),
+      })
+      .where(eq(journalEntries.id, entryId));
+
+    return c.json({
+      success: true,
+      data: {
+        entryId,
+        title: entry[0].title,
+        content,
+      },
+    });
+  } catch (error) {
+    handleApiError(error, 'Failed to update journal entry');
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to update journal entry',
+      },
+      500,
+    );
   }
 });
 

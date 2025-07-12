@@ -33,3 +33,8 @@ export const saveSimpleLongFormJournalSchema = z.object({
   content: z.string().min(1, 'Content cannot be empty').max(50000, 'Content too long'),
   entryId: z.string().uuid('Entry ID must be a valid UUID').optional(),
 });
+
+export const updateLongFormJournalSchema = z.object({
+  entryId: z.string().uuid('Entry ID must be a valid UUID'),
+  content: z.string().min(1, 'Content cannot be empty').max(50000, 'Content too long'),
+});
