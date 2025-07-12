@@ -42,9 +42,9 @@ export function formatDate(dateString: string | null): string {
  * @returns Formatted datetime string
  */
 export function formatDateTime(
-  isoString: string, 
+  isoString: string,
   format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' = 'default',
-  timezone: string = 'local'
+  timezone: string = 'local',
 ): string {
   if (!isoString) return 'Not set';
 
@@ -63,7 +63,7 @@ export function formatDateTime(
     medium: { dateStyle: 'medium', timeStyle: 'medium' },
     full: { dateStyle: 'full', timeStyle: 'long' },
     'time-only': { timeStyle: 'short' },
-    'date-only': { dateStyle: 'medium' }
+    'date-only': { dateStyle: 'medium' },
   };
 
   const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
