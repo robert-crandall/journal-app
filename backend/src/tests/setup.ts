@@ -40,37 +40,37 @@ export async function cleanDatabase() {
     { table: schema.journalConversationMessages, name: 'journal_conversation_messages' },
     { table: schema.journalEntries, name: 'journal_entries' },
     { table: schema.journalSessions, name: 'journal_sessions' },
-    
+
     // Experiment data (most likely to have foreign key dependencies)
     { table: schema.experimentTaskCompletions, name: 'experiment_task_completions' },
     { table: schema.experimentTasks, name: 'experiment_tasks' },
     { table: schema.experiments, name: 'experiments' },
-    
+
     // Family task feedback first (references family members)
     { table: schema.familyTaskFeedback, name: 'family_task_feedback' },
     // Family members next (reference users)
     { table: schema.familyMembers, name: 'family_members' },
-    
+
     // Focus data
     { table: schema.focuses, name: 'focuses' },
-    
+
     // Goal tags (references goals and tags)
     { table: schema.goalTags, name: 'goal_tags' },
     // Tags (referenced by goal_tags)
     { table: schema.tags, name: 'tags' },
-    
+
     // Stats tables (they reference characters and users)
     { table: schema.xpGrants, name: 'xp_grants' },
     { table: schema.characterStatLevelTitles, name: 'character_stat_level_titles' },
     { table: schema.characterStats, name: 'character_stats' },
-    
+
     // Goals and characters
     { table: schema.goals, name: 'goals' },
     { table: schema.characters, name: 'characters' },
-    
+
     // Simple todos (reference users)
     { table: schema.simpleTodos, name: 'simple_todos' },
-    
+
     // Users last (referenced by most other tables)
     { table: schema.users, name: 'users' },
   ];
@@ -82,17 +82,17 @@ export async function cleanDatabase() {
       return { success: true, error: null };
     } catch (error) {
       const err = error as Error;
-      
+
       // Table doesn't exist - this is OK
       if (err.message.includes('does not exist')) {
         return { success: true, error: null };
       }
-      
+
       // Connection ended - this is a fatal error
       if (err.message.includes('CONNECTION_ENDED')) {
         throw error;
       }
-      
+
       return { success: false, error: err };
     }
   };
@@ -100,22 +100,22 @@ export async function cleanDatabase() {
   // Retry the entire deletion sequence
   const maxRetries = 3;
   let lastErrors: string[] = [];
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const errors: string[] = [];
       let hasRetryableErrors = false;
-      
+
       // Attempt to delete all tables in sequence
       for (const { table, name } of deletionSequence) {
         const result = await safeDeleteTable(table, name);
-        
+
         if (!result.success && result.error) {
           const errorMsg = result.error.message;
-          
+
           // Check if this is a retryable error
           if (
-            errorMsg.includes('409') || 
+            errorMsg.includes('409') ||
             errorMsg.includes('conflict') ||
             errorMsg.includes('violates foreign key constraint') ||
             errorMsg.includes('could not serialize access')
@@ -128,28 +128,27 @@ export async function cleanDatabase() {
           }
         }
       }
-      
+
       // If no retryable errors, we're done
       if (!hasRetryableErrors) {
         return;
       }
-      
+
       // Store errors for potential final logging
       lastErrors = errors;
-      
+
       // If this isn't the last attempt, wait and retry the entire sequence
       if (attempt < maxRetries) {
         const delay = attempt * 150; // Progressive backoff: 150ms, 300ms
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
-      
+
       // Last attempt failed, log warnings
       if (errors.length > 0) {
         console.warn(`Failed to clean ${errors.length} table(s) after ${maxRetries} attempts:`);
-        errors.forEach(error => console.warn(`  - ${error}`));
+        errors.forEach((error) => console.warn(`  - ${error}`));
       }
-      
     } catch (error) {
       if (error instanceof Error && !error.message.includes('CONNECTION_ENDED')) {
         console.error('Error cleaning database:', error);

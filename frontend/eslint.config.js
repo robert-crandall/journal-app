@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 import themeCheck from './eslint-theme-check.js';
+import noDirectDateConversion from './eslint-rules/no-direct-date-conversion.js';
 
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
@@ -23,6 +24,11 @@ export default ts.config(
     },
     plugins: {
       'theme-check': themeCheck,
+      custom: {
+        rules: {
+          'no-direct-date-conversion': noDirectDateConversion,
+        },
+      },
     },
     rules: {
       // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
@@ -30,6 +36,8 @@ export default ts.config(
       'no-undef': 'off',
       // Enable our custom theme checking rule
       'theme-check/no-hardcoded-colors': 'warn',
+      // Enable our custom date handling rule
+      'custom/no-direct-date-conversion': 'error',
     },
   },
   {

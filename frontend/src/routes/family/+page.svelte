@@ -5,6 +5,7 @@
   import { familyApi, type FamilyMember } from '$lib/api/family';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Plus, Users, Heart, Calendar, User, Edit3, Trash2, Eye, MessageCircle } from 'lucide-svelte';
+  import { formatDate, formatDateTime } from '$lib/utils/date';
 
   // Reactive state for family data
   let familyMembers: FamilyMember[] = $state([]);
@@ -47,18 +48,12 @@
     return '👤'; // Default person icon
   }
 
-  function formatDate(dateString: string | null): string {
-    if (!dateString) return 'Not set';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  }
+  // Note: formatDate is now imported from $lib/utils/date and handles date-only fields correctly
 
   function formatLastInteraction(dateString: string | null | undefined): string {
     if (!dateString) return 'No interactions recorded';
 
+    // Use formatDateTime for timestamp fields as they are ISO datetime strings
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
