@@ -162,7 +162,7 @@
                           </div>
                           <div class="flex-1">
                             <h3 class="text-lg font-bold">{goal.title}</h3>
-                            <p class="text-base-content/60 text-sm">Created {formatDateTime(goal.createdAt)}</p>
+                            <p class="text-base-content/60 text-sm">Created {formatDateTime(goal.createdAt, 'date-only')}</p>
                           </div>
                         </div>
 

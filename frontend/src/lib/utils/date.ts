@@ -37,10 +37,15 @@ export function formatDate(dateString: string | null): string {
  * Format a datetime ISO string with proper timezone handling
  *
  * @param isoString - ISO datetime string (e.g., "2023-05-20T15:30:00Z")
+ * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only')
  * @param timezone - Timezone for display (default: 'local')
  * @returns Formatted datetime string
  */
-export function formatDateTime(isoString: string, timezone: string = 'local'): string {
+export function formatDateTime(
+  isoString: string, 
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' = 'default',
+  timezone: string = 'local'
+): string {
   if (!isoString) return 'Not set';
 
   // For ISO datetime strings, the Date constructor works correctly
@@ -52,10 +57,16 @@ export function formatDateTime(isoString: string, timezone: string = 'local'): s
     return 'Invalid date';
   }
 
-  const options: Intl.DateTimeFormatOptions = {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
+    default: { dateStyle: 'medium', timeStyle: 'short' },
+    short: { dateStyle: 'short', timeStyle: 'short' },
+    medium: { dateStyle: 'medium', timeStyle: 'medium' },
+    full: { dateStyle: 'full', timeStyle: 'long' },
+    'time-only': { timeStyle: 'short' },
+    'date-only': { dateStyle: 'medium' }
   };
+
+  const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
 
   if (timezone !== 'local') {
     options.timeZone = timezone;
