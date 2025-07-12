@@ -5,6 +5,7 @@
   import { familyApi, type FamilyMember, type UpdateFamilyMemberRequest } from '$lib/api/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
+  import { formatDateTime } from '$lib/utils/date';
 
   // Get the family member ID from the route params
   let memberId: string = $page.params.id;
@@ -430,9 +431,9 @@
                   <div class="space-y-2 text-sm">
                     <p><strong>Connection Level:</strong> {originalMember.connectionLevel}</p>
                     <p><strong>Connection XP:</strong> {originalMember.connectionXp}</p>
-                    <p><strong>Created:</strong> {new Date(originalMember.createdAt).toLocaleDateString()}</p>
+                    <p><strong>Created:</strong> {formatDateTime(originalMember.createdAt)}</p>
                     {#if originalMember.lastInteractionDate}
-                      <p><strong>Last Interaction:</strong> {new Date(originalMember.lastInteractionDate).toLocaleDateString()}</p>
+                      <p><strong>Last Interaction:</strong> {formatDateTime(originalMember.lastInteractionDate)}</p>
                     {/if}
                   </div>
                 </div>

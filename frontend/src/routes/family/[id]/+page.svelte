@@ -6,6 +6,7 @@
   import type { FamilyMember } from '$lib/api/family.js';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
+  import { formatDate, formatDateTime } from '$lib/utils/date';
 
   // State
   let familyMember = $state<FamilyMember | null>(null);
@@ -80,13 +81,9 @@
     return colors[relationship as keyof typeof colors] || 'text-slate-600';
   }
 
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }
+  // Note: formatDate function removed - now using utility from $lib/utils/date
+  // For birthday fields, use formatDate() utility
+  // For datetime fields like createdAt, use formatDateTime() utility
 </script>
 
 <svelte:head>
@@ -129,7 +126,7 @@
                 {/if}
                 <div class="flex items-center gap-1">
                   <Calendar size={16} />
-                  <span>Added {familyMember ? formatDate(familyMember.createdAt) : ''}</span>
+                  <span>Added {familyMember ? formatDateTime(familyMember.createdAt) : ''}</span>
                 </div>
               </div>
             </div>
@@ -290,7 +287,7 @@
                 <div class="stat rounded-lg bg-purple-50 p-4">
                   <div class="stat-title text-xs">Member Since</div>
                   <div class="stat-value text-lg text-purple-600">
-                    {formatDate(familyMember.createdAt)}
+                    {formatDateTime(familyMember.createdAt)}
                   </div>
                   <div class="stat-desc flex items-center gap-1">
                     <Clock size={12} />
