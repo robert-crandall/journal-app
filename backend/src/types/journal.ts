@@ -30,6 +30,17 @@ export interface StartJournalSessionResponse {
   };
 }
 
+export interface StartLongFormJournalRequest {
+  // No fields needed for starting a long-form journal
+}
+
+export interface StartLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+  };
+}
+
 export interface SendJournalMessageRequest {
   sessionId: string;
   message: string;
@@ -58,6 +69,32 @@ export interface SaveJournalEntryResponse {
     tags: string[]; // Tag names
     statTags: string[]; // Stat names
     familyTags: string[]; // Family member names
+  };
+}
+
+export interface SaveLongFormJournalRequest {
+  content: string;
+}
+
+export interface SaveLongFormJournalResponse {
+  success: boolean;
+  data: {
+    entryId: string;
+    title: string;
+    synopsis: string;
+    summary: string;
+  };
+}
+
+export interface StartReflectionRequest {
+  entryId: string;
+}
+
+export interface StartReflectionResponse {
+  success: boolean;
+  data: {
+    sessionId: string;
+    message: string; // Initial reflection message from GPT
   };
 }
 

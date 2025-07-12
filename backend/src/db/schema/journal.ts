@@ -12,6 +12,9 @@ export const journalEntries = pgTable('journal_entries', {
   title: varchar('title', { length: 200 }).notNull(),
   synopsis: text('synopsis').notNull(), // 1-2 sentence snapshot
   summary: text('summary').notNull(), // Narrative-style summary in user's tone
+  content: text('content'), // Long-form content for hybrid journal mode
+  reflected: jsonb('reflected').$type<boolean>().default(false).notNull(), // Whether the user has initiated chat/reflection mode
+  startedAsChat: jsonb('started_as_chat').$type<boolean>().default(true).notNull(), // Whether entry was started in chat mode (true) or long-form mode (false)
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
