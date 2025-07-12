@@ -6,20 +6,26 @@ import { db } from '../db';
 import { experiments, experimentTasks, experimentTaskCompletions } from '../db/schema/experiments';
 import { journalEntries } from '../db/schema/journal';
 import { xpGrants } from '../db/schema/stats';
-import { createExperimentSchema, updateExperimentSchema, createExperimentTaskSchema, updateExperimentTaskSchema, completeExperimentTaskSchema } from '../validation/experiments';
+import {
+  createExperimentSchema,
+  updateExperimentSchema,
+  createExperimentTaskSchema,
+  updateExperimentTaskSchema,
+  completeExperimentTaskSchema,
+} from '../validation/experiments';
 import { handleApiError } from '../utils/logger';
-import type { 
-  CreateExperimentRequest, 
-  UpdateExperimentRequest, 
-  CreateExperimentTaskRequest, 
-  UpdateExperimentTaskRequest, 
+import type {
+  CreateExperimentRequest,
+  UpdateExperimentRequest,
+  CreateExperimentTaskRequest,
+  UpdateExperimentTaskRequest,
   CompleteExperimentTaskRequest,
   ExperimentResponse,
   ExperimentTaskResponse,
   ExperimentTaskCompletionResponse,
   ExperimentWithTasksResponse,
   ExperimentTaskWithCompletionsResponse,
-  ExperimentDashboardResponse
+  ExperimentDashboardResponse,
 } from '../types/experiments';
 
 // Helper function to serialize experiment dates
@@ -48,11 +54,7 @@ const app = new Hono()
     try {
       const userId = getUserId(c);
 
-      const userExperiments = await db
-        .select()
-        .from(experiments)
-        .where(eq(experiments.userId, userId))
-        .orderBy(desc(experiments.createdAt));
+      const userExperiments = await db.select().from(experiments).where(eq(experiments.userId, userId)).orderBy(desc(experiments.createdAt));
 
       const serializedExperiments = userExperiments.map(serializeExperiment);
 
@@ -89,11 +91,7 @@ const app = new Hono()
       }
 
       // Get experiment tasks
-      const tasks = await db
-        .select()
-        .from(experimentTasks)
-        .where(eq(experimentTasks.experimentId, experimentId))
-        .orderBy(asc(experimentTasks.createdAt));
+      const tasks = await db.select().from(experimentTasks).where(eq(experimentTasks.experimentId, experimentId)).orderBy(asc(experimentTasks.createdAt));
 
       const response: ExperimentWithTasksResponse = {
         ...serializeExperiment(experiment[0]),
@@ -130,17 +128,14 @@ const app = new Hono()
       // Create tasks if provided
       const tasks: ExperimentTaskResponse[] = [];
       if (data.tasks && data.tasks.length > 0) {
-        const taskValues = data.tasks.map(task => ({
+        const taskValues = data.tasks.map((task) => ({
           experimentId: newExperiment[0].id,
           description: task.description,
           successMetric: task.successMetric ?? 1,
           xpReward: task.xpReward ?? 0,
         }));
 
-        const newTasks = await db
-          .insert(experimentTasks)
-          .values(taskValues)
-          .returning();
+        const newTasks = await db.insert(experimentTasks).values(taskValues).returning();
 
         tasks.push(...newTasks.map(serializeExperimentTask));
       }
@@ -278,11 +273,7 @@ const app = new Hono()
       }
 
       // Get tasks with completion information
-      const tasks = await db
-        .select()
-        .from(experimentTasks)
-        .where(eq(experimentTasks.experimentId, experimentId))
-        .orderBy(asc(experimentTasks.createdAt));
+      const tasks = await db.select().from(experimentTasks).where(eq(experimentTasks.experimentId, experimentId)).orderBy(asc(experimentTasks.createdAt));
 
       const tasksWithCompletions: ExperimentTaskWithCompletionsResponse[] = [];
 
@@ -296,7 +287,7 @@ const app = new Hono()
 
         // Check if completed today
         const today = new Date().toISOString().split('T')[0];
-        const isCompleteToday = completions.some(c => c.completedDate === today);
+        const isCompleteToday = completions.some((c) => c.completedDate === today);
 
         tasksWithCompletions.push({
           ...serializeExperimentTask(task),
@@ -374,13 +365,7 @@ const app = new Hono()
         .select()
         .from(experimentTasks)
         .innerJoin(experiments, eq(experiments.id, experimentTasks.experimentId))
-        .where(
-          and(
-            eq(experimentTasks.id, taskId),
-            eq(experimentTasks.experimentId, experimentId),
-            eq(experiments.userId, userId)
-          )
-        )
+        .where(and(eq(experimentTasks.id, taskId), eq(experimentTasks.experimentId, experimentId), eq(experiments.userId, userId)))
         .limit(1);
 
       if (task.length === 0) {
@@ -407,11 +392,7 @@ const app = new Hono()
         updateData.xpReward = data.xpReward;
       }
 
-      const updatedTask = await db
-        .update(experimentTasks)
-        .set(updateData)
-        .where(eq(experimentTasks.id, taskId))
-        .returning();
+      const updatedTask = await db.update(experimentTasks).set(updateData).where(eq(experimentTasks.id, taskId)).returning();
 
       return c.json({
         success: true,
@@ -434,13 +415,7 @@ const app = new Hono()
         .select()
         .from(experimentTasks)
         .innerJoin(experiments, eq(experiments.id, experimentTasks.experimentId))
-        .where(
-          and(
-            eq(experimentTasks.id, taskId),
-            eq(experimentTasks.experimentId, experimentId),
-            eq(experiments.userId, userId)
-          )
-        )
+        .where(and(eq(experimentTasks.id, taskId), eq(experimentTasks.experimentId, experimentId), eq(experiments.userId, userId)))
         .limit(1);
 
       if (task.length === 0) {
@@ -477,13 +452,7 @@ const app = new Hono()
         .select()
         .from(experimentTasks)
         .innerJoin(experiments, eq(experiments.id, experimentTasks.experimentId))
-        .where(
-          and(
-            eq(experimentTasks.id, taskId),
-            eq(experimentTasks.experimentId, experimentId),
-            eq(experiments.userId, userId)
-          )
-        )
+        .where(and(eq(experimentTasks.id, taskId), eq(experimentTasks.experimentId, experimentId), eq(experiments.userId, userId)))
         .limit(1);
 
       if (task.length === 0) {
@@ -504,8 +473,8 @@ const app = new Hono()
           and(
             eq(experimentTaskCompletions.taskId, taskId),
             eq(experimentTaskCompletions.userId, userId),
-            eq(experimentTaskCompletions.completedDate, data.completedDate)
-          )
+            eq(experimentTaskCompletions.completedDate, data.completedDate),
+          ),
         )
         .limit(1);
 
@@ -582,20 +551,13 @@ const app = new Hono()
       const startDate = new Date(exp.startDate);
       const endDate = new Date(exp.endDate);
       const today = new Date();
-      
+
       // Calculate total days and completed days
       const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const daysElapsed = Math.max(0, Math.min(
-        Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1,
-        totalDays
-      ));
+      const daysElapsed = Math.max(0, Math.min(Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1, totalDays));
 
       // Get tasks with completion information
-      const tasks = await db
-        .select()
-        .from(experimentTasks)
-        .where(eq(experimentTasks.experimentId, experimentId))
-        .orderBy(asc(experimentTasks.createdAt));
+      const tasks = await db.select().from(experimentTasks).where(eq(experimentTasks.experimentId, experimentId)).orderBy(asc(experimentTasks.createdAt));
 
       const tasksWithCompletions: ExperimentTaskWithCompletionsResponse[] = [];
       let totalTaskCompletions = 0;
@@ -610,13 +572,13 @@ const app = new Hono()
               eq(experimentTaskCompletions.taskId, task.id),
               eq(experimentTaskCompletions.userId, userId),
               gte(experimentTaskCompletions.completedDate, exp.startDate),
-              lte(experimentTaskCompletions.completedDate, exp.endDate)
-            )
+              lte(experimentTaskCompletions.completedDate, exp.endDate),
+            ),
           )
           .orderBy(desc(experimentTaskCompletions.completedDate));
 
         const today = new Date().toISOString().split('T')[0];
-        const isCompleteToday = completions.some(c => c.completedDate === today);
+        const isCompleteToday = completions.some((c) => c.completedDate === today);
 
         totalTaskCompletions += completions.length;
         totalXpFromTasks += completions.length * (task.xpReward ?? 0);
@@ -638,25 +600,14 @@ const app = new Hono()
           createdAt: journalEntries.createdAt,
         })
         .from(journalEntries)
-        .where(
-          and(
-            eq(journalEntries.userId, userId),
-            between(journalEntries.createdAt, startDate, endDate)
-          )
-        )
+        .where(and(eq(journalEntries.userId, userId), between(journalEntries.createdAt, startDate, endDate)))
         .orderBy(desc(journalEntries.createdAt));
 
       // Get XP from journals during experiment
       const xpFromJournals = await db
         .select()
         .from(xpGrants)
-        .where(
-          and(
-            eq(xpGrants.userId, userId),
-            eq(xpGrants.sourceType, 'journal'),
-            between(xpGrants.createdAt, startDate, endDate)
-          )
-        );
+        .where(and(eq(xpGrants.userId, userId), eq(xpGrants.sourceType, 'journal'), between(xpGrants.createdAt, startDate, endDate)));
 
       const totalXpFromJournals = xpFromJournals.reduce((sum, grant) => sum + grant.xpAmount, 0);
       const totalXpEarned = totalXpFromTasks + totalXpFromJournals;
@@ -675,7 +626,7 @@ const app = new Hono()
           totalTaskInstances,
         },
         tasks: tasksWithCompletions,
-        journalEntries: journalEntriesInRange.map(entry => ({
+        journalEntries: journalEntriesInRange.map((entry) => ({
           id: entry.id,
           title: entry.title,
           synopsis: entry.synopsis,

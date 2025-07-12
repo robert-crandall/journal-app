@@ -13,26 +13,36 @@ const dateValidation = (data: { startDate: string; endDate: string }) => {
   return endDate >= startDate;
 };
 
-export const createExperimentSchema = baseExperimentSchema.extend({
-  tasks: z.array(z.object({
-    description: z.string().min(1, 'Task description is required').max(500, 'Task description must be 500 characters or less'),
-    successMetric: z.number().int().min(1).default(1),
-    xpReward: z.number().int().min(0).default(0),
-  })).optional().default([]),
-}).refine(dateValidation, {
-  message: 'End date must be on or after start date',
-  path: ['endDate'],
-});
+export const createExperimentSchema = baseExperimentSchema
+  .extend({
+    tasks: z
+      .array(
+        z.object({
+          description: z.string().min(1, 'Task description is required').max(500, 'Task description must be 500 characters or less'),
+          successMetric: z.number().int().min(1).default(1),
+          xpReward: z.number().int().min(0).default(0),
+        }),
+      )
+      .optional()
+      .default([]),
+  })
+  .refine(dateValidation, {
+    message: 'End date must be on or after start date',
+    path: ['endDate'],
+  });
 
-export const updateExperimentSchema = baseExperimentSchema.partial().refine((data) => {
-  if (data.startDate && data.endDate) {
-    return dateValidation({ startDate: data.startDate, endDate: data.endDate });
-  }
-  return true;
-}, {
-  message: 'End date must be on or after start date',
-  path: ['endDate'],
-});
+export const updateExperimentSchema = baseExperimentSchema.partial().refine(
+  (data) => {
+    if (data.startDate && data.endDate) {
+      return dateValidation({ startDate: data.startDate, endDate: data.endDate });
+    }
+    return true;
+  },
+  {
+    message: 'End date must be on or after start date',
+    path: ['endDate'],
+  },
+);
 
 export const createExperimentTaskSchema = z.object({
   description: z.string().min(1, 'Task description is required').max(500, 'Task description must be 500 characters or less'),

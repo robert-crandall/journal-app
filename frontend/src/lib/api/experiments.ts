@@ -31,7 +31,7 @@ export class ExperimentsApi {
   // Get user's experiments
   async getUserExperiments(): Promise<ExperimentResponse[]> {
     const response = await authenticatedClient.api.experiments.$get();
-    
+
     if (!response.ok) {
       const errorData = (await response.json()) as any;
       throw new Error(errorData.error || 'Failed to fetch experiments');
@@ -134,11 +134,7 @@ export class ExperimentsApi {
   }
 
   // Update experiment task
-  async updateExperimentTask(
-    experimentId: string,
-    taskId: string,
-    updateData: UpdateExperimentTaskRequest
-  ): Promise<ExperimentTaskResponse> {
+  async updateExperimentTask(experimentId: string, taskId: string, updateData: UpdateExperimentTaskRequest): Promise<ExperimentTaskResponse> {
     const response = await authenticatedClient.api.experiments[':id'].tasks[':taskId'].$put({
       param: { id: experimentId, taskId },
       json: updateData,
@@ -169,11 +165,7 @@ export class ExperimentsApi {
   }
 
   // Complete experiment task
-  async completeExperimentTask(
-    experimentId: string,
-    taskId: string,
-    completionData: CompleteExperimentTaskRequest
-  ): Promise<ExperimentTaskCompletionResponse> {
+  async completeExperimentTask(experimentId: string, taskId: string, completionData: CompleteExperimentTaskRequest): Promise<ExperimentTaskCompletionResponse> {
     const response = await authenticatedClient.api.experiments[':id'].tasks[':taskId'].complete.$post({
       param: { id: experimentId, taskId },
       json: completionData,

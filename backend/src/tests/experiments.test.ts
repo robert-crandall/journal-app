@@ -492,7 +492,7 @@ describe('Experiments API Integration Tests', () => {
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(data.success).toBe(true);
-      
+
       const dashboard = data.data;
       expect(dashboard.experiment.id).toBe(experimentId);
       expect(dashboard.stats.totalDays).toBe(3);

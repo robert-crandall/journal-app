@@ -104,14 +104,10 @@
   <title>Create Experiment</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8 max-w-2xl">
+<div class="container mx-auto max-w-2xl px-4 py-8">
   <!-- Header -->
-  <div class="flex items-center gap-4 mb-8">
-    <a 
-      href="/experiments" 
-      class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-      title="Back to Experiments"
-    >
+  <div class="mb-8 flex items-center gap-4">
+    <a href="/experiments" class="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title="Back to Experiments">
       <ArrowLeft class="h-5 w-5" />
     </a>
     <div class="flex items-center gap-3">
@@ -126,61 +122,53 @@
   <!-- Form -->
   <form onsubmit={handleSubmit} class="space-y-6">
     <!-- Basic Information -->
-    <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-      
+    <div class="rounded-lg border border-gray-200 bg-white p-6">
+      <h2 class="mb-4 text-lg font-semibold text-gray-900">Basic Information</h2>
+
       <!-- Title -->
       <div class="mb-4">
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-          Experiment Title *
-        </label>
+        <label for="title" class="mb-2 block text-sm font-medium text-gray-700"> Experiment Title * </label>
         <input
           id="title"
           type="text"
           bind:value={formData.title}
           placeholder="e.g., No social media for 7 days"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
           required
         />
       </div>
 
       <!-- Description -->
       <div class="mb-4">
-        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-          Description
-        </label>
+        <label for="description" class="mb-2 block text-sm font-medium text-gray-700"> Description </label>
         <textarea
           id="description"
           bind:value={formData.description}
           placeholder="Describe what you're testing and why..."
           rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
         ></textarea>
       </div>
 
       <!-- Date Range -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">
-            Start Date *
-          </label>
+          <label for="startDate" class="mb-2 block text-sm font-medium text-gray-700"> Start Date * </label>
           <input
             id="startDate"
             type="date"
             bind:value={formData.startDate}
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
             required
           />
         </div>
         <div>
-          <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">
-            End Date *
-          </label>
+          <label for="endDate" class="mb-2 block text-sm font-medium text-gray-700"> End Date * </label>
           <input
             id="endDate"
             type="date"
             bind:value={formData.endDate}
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
             required
           />
         </div>
@@ -195,27 +183,25 @@
     </div>
 
     <!-- Daily Tasks -->
-    <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <div class="flex items-center justify-between mb-4">
+    <div class="rounded-lg border border-gray-200 bg-white p-6">
+      <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-gray-900">Daily Tasks</h2>
         <div class="text-sm text-gray-500">
           {formData.tasks.length} task{formData.tasks.length === 1 ? '' : 's'}
         </div>
       </div>
-      
-      <p class="text-gray-600 text-sm mb-4">
-        Add tasks that you'll do daily during this experiment. These will appear on your homepage.
-      </p>
+
+      <p class="mb-4 text-sm text-gray-600">Add tasks that you'll do daily during this experiment. These will appear on your homepage.</p>
 
       <!-- Existing Tasks -->
       {#if formData.tasks.length > 0}
-        <div class="space-y-3 mb-6">
+        <div class="mb-6 space-y-3">
           {#each formData.tasks as task, index}
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Target class="h-5 w-5 text-purple-600 flex-shrink-0" />
+            <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+              <Target class="h-5 w-5 flex-shrink-0 text-purple-600" />
               <div class="flex-1">
                 <div class="font-medium text-gray-900">{task.description}</div>
-                <div class="text-sm text-gray-500 flex items-center gap-4">
+                <div class="flex items-center gap-4 text-sm text-gray-500">
                   <span>Goal: {task.successMetric} time{task.successMetric === 1 ? '' : 's'} during experiment</span>
                   {#if task.xpReward > 0}
                     <span class="flex items-center gap-1">
@@ -228,7 +214,7 @@
               <button
                 type="button"
                 onclick={() => removeTask(index)}
-                class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                 title="Remove task"
               >
                 <Trash2 class="h-4 w-4" />
@@ -239,40 +225,36 @@
       {/if}
 
       <!-- Add New Task -->
-      <div class="border border-gray-200 rounded-lg p-4">
-        <h3 class="font-medium text-gray-900 mb-3">Add New Task</h3>
+      <div class="rounded-lg border border-gray-200 p-4">
+        <h3 class="mb-3 font-medium text-gray-900">Add New Task</h3>
         <div class="space-y-3">
           <div>
             <input
               type="text"
               bind:value={newTask.description}
               placeholder="e.g., Avoid checking Instagram"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
-              <label for="successMetric" class="block text-sm font-medium text-gray-700 mb-1">
-                Success Metric (times during experiment)
-              </label>
+              <label for="successMetric" class="mb-1 block text-sm font-medium text-gray-700"> Success Metric (times during experiment) </label>
               <input
                 id="successMetric"
                 type="number"
                 bind:value={newTask.successMetric}
                 min="1"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
               />
             </div>
             <div>
-              <label for="xpReward" class="block text-sm font-medium text-gray-700 mb-1">
-                XP Reward (per completion)
-              </label>
+              <label for="xpReward" class="mb-1 block text-sm font-medium text-gray-700"> XP Reward (per completion) </label>
               <input
                 id="xpReward"
                 type="number"
                 bind:value={newTask.xpReward}
                 min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
@@ -280,7 +262,7 @@
             type="button"
             onclick={addTask}
             disabled={!newTask.description.trim()}
-            class="w-full bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-100 px-4 py-2 text-purple-700 transition-colors hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus class="h-4 w-4" />
             Add Task
@@ -291,7 +273,7 @@
 
     <!-- Error Display -->
     {#if error}
-      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
         <p class="text-red-800">{error}</p>
       </div>
     {/if}
@@ -301,22 +283,17 @@
       <button
         type="submit"
         disabled={loading || !formData.title.trim()}
-        class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-purple-600 px-6 py-3 font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400"
       >
         {#if loading}
-          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          <div class="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
           Creating...
         {:else}
           <Beaker class="h-5 w-5" />
           Create Experiment
         {/if}
       </button>
-      <a
-        href="/experiments"
-        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        Cancel
-      </a>
+      <a href="/experiments" class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-colors hover:bg-gray-50"> Cancel </a>
     </div>
   </form>
 </div>

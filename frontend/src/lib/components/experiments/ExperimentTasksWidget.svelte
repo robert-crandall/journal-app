@@ -24,10 +24,10 @@
 
       // Get all user experiments
       const experiments = await experimentsApi.getUserExperiments();
-      
+
       // Filter for active experiments (experiments happening today)
       const today = new Date().toISOString().split('T')[0];
-      const active = experiments.filter(exp => {
+      const active = experiments.filter((exp) => {
         return exp.startDate <= today && exp.endDate >= today;
       });
 
@@ -66,7 +66,7 @@
   async function completeTask(experimentId: string, taskId: string) {
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       await experimentsApi.completeExperimentTask(experimentId, taskId, {
         completedDate: today,
       });
@@ -76,7 +76,7 @@
     } catch (err) {
       console.error('Failed to complete task:', err);
       error = err instanceof Error ? err.message : 'Failed to complete task';
-      
+
       // Clear error after a few seconds
       setTimeout(() => {
         error = null;
@@ -91,60 +91,50 @@
 
 {#if loading}
   <div class="mb-6">
-    <div class="flex items-center gap-2 mb-3">
+    <div class="mb-3 flex items-center gap-2">
       <Beaker class="h-5 w-5 text-purple-600" />
       <h3 class="text-lg font-semibold">Today's Experiments</h3>
     </div>
     <div class="animate-pulse">
-      <div class="h-16 bg-gray-200 rounded-lg"></div>
+      <div class="h-16 rounded-lg bg-gray-200"></div>
     </div>
   </div>
 {:else if error}
   <div class="mb-6">
-    <div class="flex items-center gap-2 mb-3">
+    <div class="mb-3 flex items-center gap-2">
       <Beaker class="h-5 w-5 text-purple-600" />
       <h3 class="text-lg font-semibold">Today's Experiments</h3>
     </div>
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <p class="text-red-800 text-sm">{error}</p>
-      <button 
-        onclick={loadExperimentTasks}
-        class="mt-2 text-red-600 hover:text-red-700 underline text-sm"
-      >
-        Try again
-      </button>
+    <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+      <p class="text-sm text-red-800">{error}</p>
+      <button onclick={loadExperimentTasks} class="mt-2 text-sm text-red-600 underline hover:text-red-700"> Try again </button>
     </div>
   </div>
 {:else if todaysTasks.length === 0}
   <!-- Show experiments prompt if there are no active experiment tasks -->
   <div class="mb-6">
-    <div class="flex items-center justify-between mb-3">
+    <div class="mb-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <Beaker class="h-5 w-5 text-purple-600" />
         <h3 class="text-lg font-semibold">Today's Experiments</h3>
       </div>
-      <a 
-        href="/experiments" 
-        class="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center gap-1"
-      >
+      <a href="/experiments" class="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700">
         <BarChart class="h-4 w-4" />
         View All
       </a>
     </div>
-    
+
     {#if activeExperiments.length === 0}
       <!-- No active experiments -->
-      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+      <div class="rounded-lg border border-purple-200 bg-purple-50 p-4">
         <div class="flex items-start gap-3">
-          <Beaker class="h-6 w-6 text-purple-600 flex-shrink-0 mt-0.5" />
+          <Beaker class="mt-0.5 h-6 w-6 flex-shrink-0 text-purple-600" />
           <div class="flex-1">
-            <p class="text-purple-800 font-medium text-sm mb-1">No active experiments</p>
-            <p class="text-purple-700 text-sm mb-3">
-              Start an experiment to test life changes and track what makes you happier.
-            </p>
-            <a 
-              href="/experiments/create" 
-              class="inline-flex items-center gap-1 bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+            <p class="mb-1 text-sm font-medium text-purple-800">No active experiments</p>
+            <p class="mb-3 text-sm text-purple-700">Start an experiment to test life changes and track what makes you happier.</p>
+            <a
+              href="/experiments/create"
+              class="inline-flex items-center gap-1 rounded-lg bg-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
             >
               <Plus class="h-4 w-4" />
               Create Experiment
@@ -154,19 +144,17 @@
       </div>
     {:else}
       <!-- Active experiments but no tasks -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
         <div class="flex items-start gap-3">
-          <Beaker class="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <Beaker class="mt-0.5 h-6 w-6 flex-shrink-0 text-blue-600" />
           <div class="flex-1">
-            <p class="text-blue-800 font-medium text-sm mb-1">
+            <p class="mb-1 text-sm font-medium text-blue-800">
               {activeExperiments.length} active experiment{activeExperiments.length === 1 ? '' : 's'}, no tasks yet
             </p>
-            <p class="text-blue-700 text-sm mb-3">
-              Add daily tasks to your experiments to track progress and build habits.
-            </p>
-            <a 
-              href="/experiments" 
-              class="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            <p class="mb-3 text-sm text-blue-700">Add daily tasks to your experiments to track progress and build habits.</p>
+            <a
+              href="/experiments"
+              class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
               <BarChart class="h-4 w-4" />
               Manage Experiments
@@ -179,33 +167,30 @@
 {:else}
   <!-- Show active experiment tasks -->
   <div class="mb-6">
-    <div class="flex items-center justify-between mb-3">
+    <div class="mb-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <Beaker class="h-5 w-5 text-purple-600" />
         <h3 class="text-lg font-semibold">Today's Experiments</h3>
-        <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-medium">
-          {todaysTasks.filter(t => !t.task.isCompleteToday).length} pending
+        <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
+          {todaysTasks.filter((t) => !t.task.isCompleteToday).length} pending
         </span>
       </div>
-      <a 
-        href="/experiments" 
-        class="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center gap-1"
-      >
+      <a href="/experiments" class="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700">
         <BarChart class="h-4 w-4" />
         View All
       </a>
     </div>
 
-    <div class="bg-white border border-gray-200 rounded-lg">
+    <div class="rounded-lg border border-gray-200 bg-white">
       <div class="divide-y divide-gray-100">
         {#each todaysTasks as { experiment, task }}
-          <div class="p-4 hover:bg-gray-50 transition-colors">
+          <div class="p-4 transition-colors hover:bg-gray-50">
             <div class="flex items-center gap-3">
               <!-- Completion Button -->
               <button
                 onclick={() => completeTask(experiment.id, task.id)}
                 disabled={task.isCompleteToday}
-                class="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors disabled:cursor-not-allowed"
+                class="flex-shrink-0 rounded-full p-1 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed"
                 title={task.isCompleteToday ? 'Completed for today' : 'Mark as complete'}
               >
                 {#if task.isCompleteToday}
@@ -216,15 +201,17 @@
               </button>
 
               <!-- Task Details -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <p class="font-medium text-gray-900 truncate" class:line-through={task.isCompleteToday}>
+              <div class="min-w-0 flex-1">
+                <div class="mb-1 flex items-center gap-2">
+                  <p class="truncate font-medium text-gray-900" class:line-through={task.isCompleteToday}>
                     {task.description}
                   </p>
                   {#if task.xpReward > 0}
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+                    <span class="flex items-center gap-1 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                       <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        <path
+                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                        />
                       </svg>
                       {task.xpReward} XP
                     </span>
@@ -240,9 +227,9 @@
               </div>
 
               <!-- Dashboard Link -->
-              <a 
+              <a
                 href="/experiments/{experiment.id}/dashboard"
-                class="flex-shrink-0 p-2 text-gray-400 hover:text-purple-600 hover:bg-gray-100 rounded-lg transition-colors"
+                class="flex-shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-purple-600"
                 title="View experiment dashboard"
               >
                 <BarChart class="h-4 w-4" />
@@ -253,17 +240,12 @@
       </div>
 
       <!-- Footer with summary -->
-      <div class="bg-gray-50 px-4 py-3 rounded-b-lg">
+      <div class="rounded-b-lg bg-gray-50 px-4 py-3">
         <div class="flex items-center justify-between text-sm">
           <span class="text-gray-600">
-            {todaysTasks.filter(t => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today
+            {todaysTasks.filter((t) => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today
           </span>
-          <a 
-            href="/experiments" 
-            class="text-purple-600 hover:text-purple-700 font-medium"
-          >
-            View all experiments →
-          </a>
+          <a href="/experiments" class="font-medium text-purple-600 hover:text-purple-700"> View all experiments → </a>
         </div>
       </div>
     </div>

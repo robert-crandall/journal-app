@@ -48,24 +48,27 @@
 
   function getExperimentStatusColor(status: 'upcoming' | 'active' | 'completed'): string {
     switch (status) {
-      case 'upcoming': return 'text-blue-600 bg-blue-100';
-      case 'active': return 'text-green-600 bg-green-100';
-      case 'completed': return 'text-gray-600 bg-gray-100';
+      case 'upcoming':
+        return 'text-blue-600 bg-blue-100';
+      case 'active':
+        return 'text-green-600 bg-green-100';
+      case 'completed':
+        return 'text-gray-600 bg-gray-100';
     }
   }
 
   function formatDateRange(startDate: string, endDate: string): string {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const options: Intl.DateTimeFormatOptions = { 
-      month: 'short', 
-      day: 'numeric' 
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
     };
-    
+
     if (start.getFullYear() !== end.getFullYear()) {
       return `${start.toLocaleDateString('en-US', { ...options, year: 'numeric' })} - ${end.toLocaleDateString('en-US', { ...options, year: 'numeric' })}`;
     }
-    
+
     return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`;
   }
 
@@ -92,9 +95,9 @@
   // Group experiments by status
   let groupedExperiments = $derived(() => {
     const grouped = {
-      active: userExperiments.filter(exp => getExperimentStatus(exp) === 'active'),
-      upcoming: userExperiments.filter(exp => getExperimentStatus(exp) === 'upcoming'),
-      completed: userExperiments.filter(exp => getExperimentStatus(exp) === 'completed'),
+      active: userExperiments.filter((exp) => getExperimentStatus(exp) === 'active'),
+      upcoming: userExperiments.filter((exp) => getExperimentStatus(exp) === 'upcoming'),
+      completed: userExperiments.filter((exp) => getExperimentStatus(exp) === 'completed'),
     };
     return grouped;
   });
@@ -106,7 +109,7 @@
 
 <div class="container mx-auto px-4 py-8">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="mb-8 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <Beaker class="h-8 w-8 text-purple-600" />
       <div>
@@ -114,10 +117,7 @@
         <p class="text-gray-600">Short-lived self-improvement tests to discover what makes your life better</p>
       </div>
     </div>
-    <a 
-      href="/experiments/create" 
-      class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-    >
+    <a href="/experiments/create" class="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700">
       <Plus class="h-5 w-5" />
       New Experiment
     </a>
@@ -126,31 +126,23 @@
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-purple-600"></div>
     </div>
   {:else if error}
     <!-- Error State -->
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
       <p class="text-red-800">{error}</p>
-      <button 
-        onclick={loadExperimentsData}
-        class="mt-2 text-red-600 hover:text-red-700 underline"
-      >
-        Try again
-      </button>
+      <button onclick={loadExperimentsData} class="mt-2 text-red-600 underline hover:text-red-700"> Try again </button>
     </div>
   {:else if userExperiments.length === 0}
     <!-- Empty State -->
-    <div class="text-center py-12">
-      <Beaker class="h-16 w-16 text-gray-300 mx-auto mb-4" />
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">No experiments yet</h3>
-      <p class="text-gray-600 mb-6 max-w-md mx-auto">
+    <div class="py-12 text-center">
+      <Beaker class="mx-auto mb-4 h-16 w-16 text-gray-300" />
+      <h3 class="mb-2 text-xl font-semibold text-gray-900">No experiments yet</h3>
+      <p class="mx-auto mb-6 max-w-md text-gray-600">
         Start your first experiment to test changes in your life and track what makes you happier and more productive.
       </p>
-      <a 
-        href="/experiments/create"
-        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors"
-      >
+      <a href="/experiments/create" class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700">
         <Plus class="h-5 w-5" />
         Create Your First Experiment
       </a>
@@ -161,26 +153,26 @@
       <!-- Active Experiments -->
       {#if groupedExperiments.active.length > 0}
         <div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <span class="h-3 w-3 rounded-full bg-green-500"></span>
             Active Experiments ({groupedExperiments.active.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments.active as experiment}
-              <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-start justify-between mb-4">
+              <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
+                <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 mb-2">{experiment.title}</h3>
+                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
                     {#if experiment.description}
-                      <p class="text-gray-600 text-sm mb-3 line-clamp-2">{experiment.description}</p>
+                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
                     {/if}
                   </div>
-                  <span class="px-2 py-1 text-xs font-medium rounded-full {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
                     {getExperimentStatus(experiment)}
                   </span>
                 </div>
 
-                <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-4 w-4" />
                     {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -192,30 +184,30 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}/dashboard"
-                    class="flex-1 bg-purple-100 text-purple-700 px-3 py-2 rounded text-sm font-medium text-center hover:bg-purple-200 transition-colors flex items-center justify-center gap-1"
+                    class="flex flex-1 items-center justify-center gap-1 rounded bg-purple-100 px-3 py-2 text-center text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
                   >
                     <BarChart class="h-4 w-4" />
                     Dashboard
                   </a>
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}"
-                    class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
                     title="View Details"
                   >
                     <Eye class="h-4 w-4" />
                   </a>
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}/edit"
-                    class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
                     title="Edit"
                   >
                     <Edit3 class="h-4 w-4" />
                   </a>
-                  <button 
+                  <button
                     onclick={() => deleteExperiment(experiment.id)}
-                    class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                     title="Delete"
                   >
                     <Trash2 class="h-4 w-4" />
@@ -230,26 +222,26 @@
       <!-- Upcoming Experiments -->
       {#if groupedExperiments.upcoming.length > 0}
         <div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <span class="h-3 w-3 rounded-full bg-blue-500"></span>
             Upcoming Experiments ({groupedExperiments.upcoming.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments.upcoming as experiment}
-              <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-start justify-between mb-4">
+              <div class="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
+                <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 mb-2">{experiment.title}</h3>
+                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
                     {#if experiment.description}
-                      <p class="text-gray-600 text-sm mb-3 line-clamp-2">{experiment.description}</p>
+                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
                     {/if}
                   </div>
-                  <span class="px-2 py-1 text-xs font-medium rounded-full {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
                     {getExperimentStatus(experiment)}
                   </span>
                 </div>
 
-                <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-4 w-4" />
                     {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -261,23 +253,23 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}"
-                    class="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded text-sm font-medium text-center hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                    class="flex flex-1 items-center justify-center gap-1 rounded bg-gray-100 px-3 py-2 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
                   >
                     <Eye class="h-4 w-4" />
                     View Details
                   </a>
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}/edit"
-                    class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
                     title="Edit"
                   >
                     <Edit3 class="h-4 w-4" />
                   </a>
-                  <button 
+                  <button
                     onclick={() => deleteExperiment(experiment.id)}
-                    class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                     title="Delete"
                   >
                     <Trash2 class="h-4 w-4" />
@@ -292,26 +284,26 @@
       <!-- Completed Experiments -->
       {#if groupedExperiments.completed.length > 0}
         <div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <span class="h-3 w-3 rounded-full bg-gray-500"></span>
             Completed Experiments ({groupedExperiments.completed.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each groupedExperiments.completed as experiment}
-              <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow opacity-75">
-                <div class="flex items-start justify-between mb-4">
+              <div class="rounded-lg border border-gray-200 bg-white p-6 opacity-75 transition-shadow hover:shadow-lg">
+                <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 mb-2">{experiment.title}</h3>
+                    <h3 class="mb-2 font-semibold text-gray-900">{experiment.title}</h3>
                     {#if experiment.description}
-                      <p class="text-gray-600 text-sm mb-3 line-clamp-2">{experiment.description}</p>
+                      <p class="mb-3 line-clamp-2 text-sm text-gray-600">{experiment.description}</p>
                     {/if}
                   </div>
-                  <span class="px-2 py-1 text-xs font-medium rounded-full {getExperimentStatusColor(getExperimentStatus(experiment))}">
+                  <span class="rounded-full px-2 py-1 text-xs font-medium {getExperimentStatusColor(getExperimentStatus(experiment))}">
                     {getExperimentStatus(experiment)}
                   </span>
                 </div>
 
-                <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <div class="mb-4 flex items-center gap-4 text-sm text-gray-500">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-4 w-4" />
                     {formatDateRange(experiment.startDate, experiment.endDate)}
@@ -323,23 +315,23 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}/dashboard"
-                    class="flex-1 bg-purple-100 text-purple-700 px-3 py-2 rounded text-sm font-medium text-center hover:bg-purple-200 transition-colors flex items-center justify-center gap-1"
+                    class="flex flex-1 items-center justify-center gap-1 rounded bg-purple-100 px-3 py-2 text-center text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
                   >
                     <BarChart class="h-4 w-4" />
                     View Results
                   </a>
-                  <a 
+                  <a
                     href="/experiments/{experiment.id}"
-                    class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                    class="rounded p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
                     title="View Details"
                   >
                     <Eye class="h-4 w-4" />
                   </a>
-                  <button 
+                  <button
                     onclick={() => deleteExperiment(experiment.id)}
-                    class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                    class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                     title="Delete"
                   >
                     <Trash2 class="h-4 w-4" />
