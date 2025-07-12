@@ -41,16 +41,16 @@
   - [ ] 5.5 Ensure all todo tests pass
 
 - [ ] 6.0 XP & Leveling System (Task Completion, Manual Level Up)
-  - [ ] 6.1 Implement XP grant on task completion (backend)
-  - [ ] 6.2 Implement manual level up logic (backend)
-  - [ ] 6.3 Write backend integration tests for XP/leveling
+  - [x] 6.1 Implement XP grant on task completion (backend)
+  - [x] 6.2 Implement manual level up logic (backend)
+  - [x] 6.3 Write backend integration tests for XP/leveling
   - [ ] 6.4 Implement frontend XP/level up UI
   - [ ] 6.5 Write frontend E2E tests for XP/leveling
   - [ ] 6.6 Ensure all XP/leveling tests pass
 
 - [ ] 7.0 Conversational Journal (Entry, Questions, Saving)
-  - [ ] 7.1 Design and implement journal entry system (backend)
-  - [ ] 7.2 Write backend integration tests for journaling
+  - [x] 7.1 Design and implement journal entry system (backend)
+  - [x] 7.2 Write backend integration tests for journaling
   - [ ] 7.3 Implement frontend conversational journal UI
   - [ ] 7.4 Write frontend E2E tests for journaling
   - [ ] 7.5 Ensure all journal tests pass
@@ -110,3 +110,4 @@
 - Data relationships: Use loose lookups, avoid cascading deletes.
 - UI/UX: Optimize for INTJ + ADHD personas (clarity, feedback, minimal distraction).
 - Out of scope: Third-party task sync, negative XP, monetization, social features.
+- **XP System:** Abstracted character_stat_xp_grants to generic xp_grants table supporting multiple entity types (character_stat, family_member, goal, project, adventure).

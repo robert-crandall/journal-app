@@ -55,7 +55,7 @@ export async function cleanDatabase() {
     // Tags (referenced by goal_tags)
     await safeDelete(schema.tags, 'tags');
     // Stats tables (they reference characters and users)
-    await safeDelete(schema.characterStatXpGrants, 'character_stat_xp_grants');
+    await safeDelete(schema.xpGrants, 'xp_grants');
     await safeDelete(schema.characterStatLevelTitles, 'character_stat_level_titles');
     await safeDelete(schema.characterStats, 'character_stats');
     await safeDelete(schema.goals, 'goals');

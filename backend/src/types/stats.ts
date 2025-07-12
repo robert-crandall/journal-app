@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { characterStats, characterStatXpGrants, characterStatLevelTitles } from '../db/schema/stats';
+import { characterStats, characterStatLevelTitles } from '../db/schema/stats';
 
 // Character Stats types
 export type CharacterStat = InferSelectModel<typeof characterStats>;
@@ -10,11 +10,7 @@ export type CharacterStatExampleActivity = {
   suggestedXp: number;
 };
 
-// XP Grant types
-export type CharacterStatXpGrant = InferSelectModel<typeof characterStatXpGrants>;
-export type NewCharacterStatXpGrant = InferInsertModel<typeof characterStatXpGrants>;
-
-export type XpSourceType = 'task' | 'journal' | 'adhoc' | 'quest' | 'experiment';
+// XP Grant types (generic for all entity types) - moved to xp.ts
 
 // Level Title types
 export type CharacterStatLevelTitle = InferSelectModel<typeof characterStatLevelTitles>;

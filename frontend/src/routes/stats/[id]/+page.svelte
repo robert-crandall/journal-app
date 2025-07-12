@@ -6,11 +6,11 @@
   import { statsApi } from '$lib/api/stats.js';
   import { Trophy, TrendingUp, Calendar, Zap, Edit, Trash2, BarChart3, Award, Target, Activity } from 'lucide-svelte';
 
-  import type { CharacterStatXpGrant, CharacterStatWithProgress } from '$lib/api/stats';
+  import type { XpGrantResponse, CharacterStatWithProgress } from '$lib/api/stats';
 
   // State
   let stat = $state<CharacterStatWithProgress | null>(null);
-  let xpHistory = $state<CharacterStatXpGrant[]>([]);
+  let xpHistory = $state<XpGrantResponse[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
   let showDeleteModal = $state(false);

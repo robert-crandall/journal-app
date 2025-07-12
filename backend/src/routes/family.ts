@@ -14,6 +14,7 @@ import {
 } from '../validation/family';
 import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
 import logger, { handleApiError } from '../utils/logger';
+import { grantXp } from '../utils/xpService';
 import { z } from 'zod';
 import { createAvatarSchema } from '../utils/avatar';
 
@@ -305,16 +306,20 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
       })
       .returning();
 
-    // Calculate new level based on XP
-    const newXp = familyMember[0].connectionXp + xpGranted;
-    const newLevel = Math.floor(newXp / 100) + 1; // Level up every 100 XP
+    // Grant XP to the family member using the service
+    await grantXp(userId, {
+      entityType: 'family_member',
+      entityId: familyMemberId,
+      xpAmount: xpGranted,
+      sourceType: 'interaction',
+      sourceId: newFeedback[0].id,
+      reason: `Family task: ${data.taskDescription}`,
+    });
 
-    // Update the family member's XP, level, and last interaction date
+    // Update last interaction date
     await db
       .update(familyMembers)
       .set({
-        connectionXp: newXp,
-        connectionLevel: newLevel,
         lastInteractionDate: new Date(),
         updatedAt: new Date(),
       })

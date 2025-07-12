@@ -12,10 +12,11 @@ import {
   tags,
   characterStats,
   characters,
-  characterStatXpGrants,
+  xpGrants,
 } from '../db/schema';
 import { startJournalSessionSchema, sendJournalMessageSchema, saveJournalEntrySchema, getJournalEntrySchema } from '../validation/journal';
 import { handleApiError } from '../utils/logger';
+import { grantXp } from '../utils/xpService';
 import type {
   StartJournalSessionResponse,
   SendJournalMessageResponse,
@@ -283,10 +284,10 @@ const app = new Hono()
             statId: stat.id,
           });
 
-          // Grant XP to the stat
-          await db.insert(characterStatXpGrants).values({
-            userId,
-            statId: stat.id,
+          // Grant XP to the stat using the service
+          await grantXp(userId, {
+            entityType: 'character_stat',
+            entityId: stat.id,
             xpAmount,
             sourceType: 'journal',
             sourceId: entryId,
