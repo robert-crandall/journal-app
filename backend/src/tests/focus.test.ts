@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase } from './setup';
+import { testDb, getUniqueEmail } from './setup';
 import { focuses } from '../db/schema/focus';
 import { eq, and } from 'drizzle-orm';
 
@@ -13,18 +13,17 @@ const app = {
 };
 
 describe('Focus API', () => {
-  // Test user data
-  const testUser = {
-    name: 'Focus Test User',
-    email: 'focus-test@example.com',
-    password: 'password123',
-  };
-
   let authToken: string;
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    await cleanDatabase();
+    // Generate unique email for each test
+    testUser = {
+      name: 'Focus Test User',
+      email: getUniqueEmail('focus'),
+      password: 'password123',
+    };
 
     // Register and login test user
     const registerResponse = await app.request('/api/users', {

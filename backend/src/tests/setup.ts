@@ -14,6 +14,9 @@ let testDb: ReturnType<typeof drizzle> | null = null;
 // For isolation, we'll use savepoints instead of transactions for better compatibility
 let currentSavepoint: string | null = null;
 
+export function getUniqueEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}@example.com`;
+}
 /**
  * Returns a test database instance
  * This will always return the same instance used by the test harness

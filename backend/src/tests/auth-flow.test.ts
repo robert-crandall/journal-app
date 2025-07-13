@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import appExport from '../index';
-import { testDb, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq } from 'drizzle-orm';
-
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -15,7 +14,6 @@ const app = {
 describe('Authentication Flow Integration Tests', () => {
   // Generate a unique email suffix for this test run
   const emailSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-  const getUniqueEmail = (prefix: string) => `${prefix}-${emailSuffix}@example.com`;
   
   describe('User Registration and Token Generation', () => {
     it('should complete full registration flow with valid JWT', async () => {
