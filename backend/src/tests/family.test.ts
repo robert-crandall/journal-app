@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase } from './setup';
+import { testDb, getUniqueEmail } from './setup';
 import { familyMembers, familyTaskFeedback } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { validAvatarBase64, validWebpAvatarBase64, invalidMimeType, invalidBase64Data } from './test-data/avatars';
@@ -14,18 +14,17 @@ const app = {
 };
 
 describe('Family API', () => {
-  // Test user data
-  const testUser = {
-    name: 'Test User',
-    email: 'test@example.com',
-    password: 'password123',
-  };
-
   let authToken: string;
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    await cleanDatabase();
+    // Generate unique email for each test
+    testUser = {
+      name: 'Test User',
+      email: getUniqueEmail('family'),
+      password: 'password123',
+    };
 
     // Register and login test user
     const registerResponse = await app.request('/api/users', {

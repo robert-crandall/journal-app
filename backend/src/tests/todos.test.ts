@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq } from 'drizzle-orm';
 
 // Create wrapper to maintain compatibility with test expectations
@@ -14,15 +14,13 @@ const app = {
 describe('Simple Todos API Integration Tests', () => {
   let authToken: string;
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    await cleanDatabase();
-
     // Create a test user with unique email and get auth token for protected routes
-    const testId = Date.now() + Math.random();
-    const userData = {
+    testUser = {
       name: 'Test User',
-      email: `test${testId}@example.com`,
+      email: getUniqueEmail('todos'),
       password: 'testpassword123',
     };
 
@@ -31,7 +29,7 @@ describe('Simple Todos API Integration Tests', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(testUser),
     });
 
     const signupData = await signupRes.json();
@@ -103,7 +101,7 @@ describe('Simple Todos API Integration Tests', () => {
         .insert(schema.users)
         .values({
           name: 'Another User',
-          email: 'another@example.com',
+          email: getUniqueEmail('another-todos'),
           password: 'password',
         })
         .returning();
@@ -354,7 +352,7 @@ describe('Simple Todos API Integration Tests', () => {
         .insert(schema.users)
         .values({
           name: 'Another User',
-          email: 'another@example.com',
+          email: getUniqueEmail('another-todos'),
           password: 'password',
         })
         .returning();
@@ -516,7 +514,7 @@ describe('Simple Todos API Integration Tests', () => {
         .insert(schema.users)
         .values({
           name: 'Another User',
-          email: 'another@example.com',
+          email: getUniqueEmail('another-todos'),
           password: 'password',
         })
         .returning();

@@ -1,23 +1,37 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { testDb, cleanDatabase, schema } from './setup';
+import appExport from '../index';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { getUserContext, formatUserContextForPrompt, getSpecificUserContext } from '../utils/userContextService';
 
 describe('User Context Service', () => {
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
+  let authToken: string;
+  // API wrapper for requests
+  const app = {
+    request: (url: string, init?: RequestInit) => {
+      const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+      return appExport.fetch(new Request(absoluteUrl, init));
+    },
+  };
 
   beforeEach(async () => {
-    await cleanDatabase();
-
-    // Create a test user
-    const user = await testDb()
-      .insert(schema.users)
-      .values({
-        name: 'Context Test User',
-        email: 'context@example.com',
-        password: 'hashedpassword',
-      })
-      .returning({ id: schema.users.id });
-    userId = user[0].id;
+    // Create a test user via API
+    testUser = {
+      name: 'Context Test User',
+      email: getUniqueEmail('context'),
+      password: 'testpassword123',
+    };
+    const signupRes = await app.request('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(testUser),
+    });
+    const signupData = await signupRes.json();
+    authToken = signupData.token;
+    userId = signupData.user.id;
   });
 
   describe('getUserContext', () => {

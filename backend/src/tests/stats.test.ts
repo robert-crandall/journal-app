@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq } from 'drizzle-orm';
 import { sign } from 'hono/jwt';
 
@@ -13,21 +13,20 @@ const app = {
   },
 };
 
-// Test setup data
-const testUser = {
-  name: 'Stats Test User',
-  email: 'stats.test@example.com',
-  password: 'password123',
-};
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this';
 
 describe('Stats API', () => {
   let authToken: string;
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    await cleanDatabase();
+    // Generate unique email for each test
+    testUser = {
+      name: 'Stats Test User',
+      email: getUniqueEmail('stats.test'),
+      password: 'password123',
+    };
 
     // Create test user
     const db = testDb();

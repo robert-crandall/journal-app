@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq } from 'drizzle-orm';
 
 // Create wrapper to maintain compatibility with test expectations
@@ -26,21 +26,19 @@ async function getGoalTags(goalId: string): Promise<string[]> {
 describe('Goals API Integration Tests', () => {
   let authToken: string;
   let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    await cleanDatabase();
-
-    // Create a test user with unique email and get auth token for protected routes
-    const testId = Date.now() + Math.random();
-    const userData = {
+    // Generate unique email for each test
+    testUser = {
       name: 'Test User',
-      email: `test${testId}@example.com`,
+      email: getUniqueEmail('goals'),
       password: 'password123',
     };
 
     const registerRes = await app.request('/api/users', {
       method: 'POST',
-      body: JSON.stringify(userData),
+      body: JSON.stringify(testUser),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -659,7 +657,7 @@ describe('Goals API Integration Tests', () => {
       // Create a second user
       const secondUserData = {
         name: 'Second User',
-        email: 'second@example.com',
+        email: getUniqueEmail('second'),
         password: 'password123',
       };
 

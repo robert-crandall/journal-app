@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq, and } from 'drizzle-orm';
 
 // Create wrapper to maintain compatibility with test expectations
@@ -16,13 +16,12 @@ describe('Experiments API Integration Tests', () => {
   let userId: string;
 
   beforeEach(async () => {
-    await cleanDatabase();
+    // No need to clean database - using transaction isolation via savepoints
 
     // Create a test user with unique email and get auth token for protected routes
-    const testId = Date.now() + Math.random();
     const userData = {
       name: 'Test User',
-      email: `test${testId}@example.com`,
+      email: getUniqueEmail('experiment'), // Unique per test
       password: 'password123',
     };
 
