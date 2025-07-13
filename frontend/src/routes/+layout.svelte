@@ -8,18 +8,23 @@
   import { initializeAuth } from '$lib/services/auth-service';
   import ProtectedRoutes from '$lib/components/ProtectedRoutes.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import { handleServiceWorkerRegistration } from '$lib/pwa';
 
   let { children } = $props();
 
-  // Initialize auth store on mount
+  // Initialize auth store and service worker on mount
   onMount(async () => {
     if (browser) {
       try {
+        // Handle auth initialization
         await initializeAuth();
       } catch (error) {
         console.error('Failed to initialize authentication:', error);
         authStore.setInitialized(true);
       }
+
+      // Register service worker
+      handleServiceWorkerRegistration();
     }
   });
 

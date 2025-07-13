@@ -14,9 +14,15 @@ const config = {
       // Disable prerendering for SPA
       precompress: false,
     }),
+    serviceWorker: {
+      // Register service worker automatically
+      register: true,
+    },
     version: {
       // Poll for version changes every 30 seconds
       pollInterval: 30000,
+      // Include a version to help with cache invalidation
+      name: Date.now().toString(),
     },
   },
 };
