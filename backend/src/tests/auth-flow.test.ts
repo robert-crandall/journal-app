@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, schema } from './setup';
 import { eq } from 'drizzle-orm';
+
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -12,13 +13,17 @@ const app = {
 };
 
 describe('Authentication Flow Integration Tests', () => {
+  // Generate a unique email suffix for this test run
+  const emailSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  const getUniqueEmail = (prefix: string) => `${prefix}-${emailSuffix}@example.com`;
+  
   describe('User Registration and Token Generation', () => {
     it('should complete full registration flow with valid JWT', async () => {
-      await cleanDatabase(); // Ensure clean state
+      // No need to clean database - using transaction isolation via savepoints
 
       const userData = {
         name: 'Auth Test User',
-        email: 'auth@example.com',
+        email: getUniqueEmail('auth'),
         password: 'securepassword123',
       };
 
@@ -65,17 +70,17 @@ describe('Authentication Flow Integration Tests', () => {
     });
 
     it('should generate unique tokens for different users', async () => {
-      await cleanDatabase(); // Ensure clean state
+      // No need to clean database - using transaction isolation via savepoints
 
       const user1Data = {
         name: 'User One',
-        email: 'user1@example.com',
+        email: getUniqueEmail('user1'),
         password: 'password123',
       };
 
       const user2Data = {
         name: 'User Two',
-        email: 'user2@example.com',
+        email: getUniqueEmail('user2'),
         password: 'password123',
       };
 
@@ -109,16 +114,31 @@ describe('Authentication Flow Integration Tests', () => {
       expect(data1.user.email).not.toBe(data2.user.email);
 
       // Verify both users exist in database
-      const dbUsers = await testDb().select().from(schema.users);
-      expect(dbUsers).toHaveLength(2);
+      const dbUsers = await testDb()
+        .select()
+        .from(schema.users)
+        .where(
+          eq(schema.users.email, user1Data.email)
+        );
+      const dbUsers2 = await testDb()
+        .select()
+        .from(schema.users)
+        .where(
+          eq(schema.users.email, user2Data.email)
+        );
+
+      expect(dbUsers).toHaveLength(1);
+      expect(dbUsers2).toHaveLength(1);
+      expect(dbUsers[0].id).toBe(data1.user.id);
+      expect(dbUsers2[0].id).toBe(data2.user.id);
     });
 
     it('should include user information in JWT payload', async () => {
-      await cleanDatabase(); // Ensure clean state
+      // No need to clean database - using transaction isolation via savepoints
 
       const userData = {
         name: 'JWT Payload Test',
-        email: 'jwtpayload@example.com',
+        email: getUniqueEmail('jwtpayload'),
         password: 'password123',
       };
 
@@ -154,11 +174,11 @@ describe('Authentication Flow Integration Tests', () => {
 
   describe('Password Security', () => {
     it('should hash passwords with bcrypt', async () => {
-      await cleanDatabase(); // Ensure clean state
+      // No need to clean database - using transaction isolation via savepoints
 
       const userData = {
         name: 'Hash Test User',
-        email: 'hash@example.com',
+        email: getUniqueEmail('hash'),
         password: 'plainTextPassword123',
       };
 
@@ -189,7 +209,7 @@ describe('Authentication Flow Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           ...userData,
-          email: 'hash2@example.com',
+          email: getUniqueEmail('hash2'),
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -207,14 +227,14 @@ describe('Authentication Flow Integration Tests', () => {
     });
 
     it('should handle special characters in passwords', async () => {
-      await cleanDatabase(); // Ensure clean state
+      // No need to clean database - using transaction isolation via savepoints
 
       const specialPasswords = ['p@ssw0rd!'];
 
       for (let i = 0; i < specialPasswords.length; i++) {
         const userData = {
           name: `Special User ${i}`,
-          email: `special${i}@example.com`,
+          email: getUniqueEmail(`special${i}`),
           password: specialPasswords[i],
         };
 
@@ -244,20 +264,20 @@ describe('Authentication Flow Integration Tests', () => {
     it('should generate cryptographically secure tokens', async () => {
       const userData = {
         name: 'Token Security Test',
-        email: 'tokensec@example.com',
+        email: getUniqueEmail('tokensec'),
         password: 'password123',
       };
 
       // Generate multiple tokens to test randomness
       const tokens: string[] = [];
       for (let i = 0; i < 5; i++) {
-        await cleanDatabase(); // Clean between iterations
+        // No need to clean database between iterations - using transaction isolation via savepoints
 
         const res = await app.request('/api/users', {
           method: 'POST',
           body: JSON.stringify({
             ...userData,
-            email: `tokensec${i}@example.com`,
+            email: getUniqueEmail(`tokensec${i}`),
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -283,7 +303,7 @@ describe('Authentication Flow Integration Tests', () => {
     it('should include proper JWT headers', async () => {
       const userData = {
         name: 'JWT Header Test',
-        email: 'jwtheader@example.com',
+        email: getUniqueEmail('jwtheader'),
         password: 'password123',
       };
 
@@ -315,7 +335,7 @@ describe('Authentication Flow Integration Tests', () => {
     it('should handle concurrent registration attempts', async () => {
       const userData = {
         name: 'Concurrent Test',
-        email: 'concurrent@example.com',
+        email: getUniqueEmail('concurrent'),
         password: 'password123',
       };
 
@@ -347,7 +367,7 @@ describe('Authentication Flow Integration Tests', () => {
     it('should maintain data consistency during registration', async () => {
       const userData = {
         name: 'Consistency Test',
-        email: 'consistency@example.com',
+        email: getUniqueEmail('consistency'),
         password: 'password123',
       };
 
