@@ -8,6 +8,7 @@ export * from './tags';
 export * from './focus';
 export * from './todos';
 export * from './experiments';
+export * from './journals';
 // Future exports:
 // export * from './posts';
 // export * from './comments';
