@@ -287,7 +287,7 @@ const app = new Hono()
           .orderBy(desc(experimentTaskCompletions.completedDate));
 
         // Check if completed today
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toLocaleDateString('en-CA');
         const isCompleteToday = completions.some((c) => c.completedDate === today);
 
         tasksWithCompletions.push({
@@ -605,7 +605,7 @@ const app = new Hono()
           )
           .orderBy(desc(experimentTaskCompletions.completedDate));
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toLocaleDateString('en-CA');
         const isCompleteToday = completions.some((c) => c.completedDate === today);
 
         totalTaskCompletions += completions.length;
