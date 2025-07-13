@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, cleanDatabase, schema } from './setup';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq } from 'drizzle-orm';
 import { validAvatarBase64, validJpegAvatarBase64, invalidBase64NotDataUrl, invalidMimeType, invalidBase64Data } from './test-data/avatars';
+import { get } from 'http';
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -13,10 +14,6 @@ const app = {
 };
 
 describe('Users API Integration Tests', () => {
-  beforeEach(async () => {
-    await cleanDatabase();
-  });
-
   describe('GET /api/users/registration-status', () => {
     it('should return registration status', async () => {
       const res = await app.request('/api/users/registration-status');
@@ -32,7 +29,7 @@ describe('Users API Integration Tests', () => {
     it('should create a new user successfully', async () => {
       const userData = {
         name: 'John Doe',
-        email: 'john.doe@example.com',
+        email: getUniqueEmail('john.doe'),
         password: 'password123',
       };
 
@@ -70,7 +67,7 @@ describe('Users API Integration Tests', () => {
     it('should create a new user with avatar successfully', async () => {
       const userData = {
         name: 'Avatar User',
-        email: 'avatar@example.com',
+        email: getUniqueEmail('avatar'),
         password: 'password123',
         avatar: validAvatarBase64,
       };
@@ -100,7 +97,7 @@ describe('Users API Integration Tests', () => {
     it('should reject invalid avatar format', async () => {
       const userData = {
         name: 'Invalid Avatar User',
-        email: 'invalid-avatar@example.com',
+        email: getUniqueEmail('invalid-avatar'),
         password: 'password123',
         avatar: invalidBase64NotDataUrl,
       };
@@ -125,7 +122,7 @@ describe('Users API Integration Tests', () => {
     it('should reject unsupported avatar MIME type', async () => {
       const userData = {
         name: 'Unsupported Avatar User',
-        email: 'unsupported-avatar@example.com',
+        email: getUniqueEmail('unsupported-avatar'),
         password: 'password123',
         avatar: invalidMimeType,
       };
@@ -150,7 +147,7 @@ describe('Users API Integration Tests', () => {
     it('should reject duplicate email addresses', async () => {
       const userData = {
         name: 'Jane Doe',
-        email: 'jane.doe@example.com',
+        email: getUniqueEmail('jane.doe'),
         password: 'password123',
       };
 
@@ -206,7 +203,7 @@ describe('Users API Integration Tests', () => {
       expect(errorData).toHaveProperty('error');
 
       // Verify no user was created in database
-      const dbUsers = await testDb().select().from(schema.users);
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
       expect(dbUsers).toHaveLength(0);
     });
 
@@ -232,18 +229,17 @@ describe('Users API Integration Tests', () => {
         expect(errorData).toHaveProperty('error');
 
         // Verify no user was created in database
-        const dbUsers = await testDb().select().from(schema.users);
-        expect(dbUsers).toHaveLength(0);
-
-        // Clean up for next iteration
-        await cleanDatabase();
+        if (userData.email) {
+          const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
+          expect(dbUsers).toHaveLength(0);
+        }
       }
     });
 
     it('should reject password shorter than 6 characters', async () => {
       const userData = {
         name: 'Short Password User',
-        email: 'short@example.com',
+        email: getUniqueEmail('short-password'),
         password: '12345',
       };
 
@@ -260,14 +256,14 @@ describe('Users API Integration Tests', () => {
       expect(errorData).toHaveProperty('error');
 
       // Verify no user was created in database
-      const dbUsers = await testDb().select().from(schema.users);
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
       expect(dbUsers).toHaveLength(0);
     });
 
     it('should reject name longer than 100 characters', async () => {
       const userData = {
         name: 'a'.repeat(101), // 101 characters
-        email: 'long@example.com',
+        email: getUniqueEmail('long'),
         password: 'password123',
       };
 
@@ -284,7 +280,7 @@ describe('Users API Integration Tests', () => {
       expect(errorData).toHaveProperty('error');
 
       // Verify no user was created in database
-      const dbUsers = await testDb().select().from(schema.users);
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
       expect(dbUsers).toHaveLength(0);
     });
 
@@ -300,14 +296,15 @@ describe('Users API Integration Tests', () => {
       expect(res.status).toBe(400);
 
       // Verify no user was created in database
-      const dbUsers = await testDb().select().from(schema.users);
+      // No email to check, but ensure no new user with name 'invalid json{' exists
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.name, 'invalid json{'));
       expect(dbUsers).toHaveLength(0);
     });
 
     it('should handle missing Content-Type header', async () => {
       const userData = {
         name: 'No Content Type',
-        email: 'nocontent@example.com',
+        email: getUniqueEmail('nocontent'),
         password: 'password123',
       };
 
@@ -335,7 +332,7 @@ describe('Users API Integration Tests', () => {
     it('should create user and return valid JWT token', async () => {
       const userData = {
         name: 'JWT Test User',
-        email: 'jwt@example.com',
+        email: getUniqueEmail('jwt-test'),
         password: 'password123',
       };
 
@@ -370,7 +367,7 @@ describe('Users API Integration Tests', () => {
     it('should hash passwords securely', async () => {
       const userData = {
         name: 'Password Hash Test',
-        email: 'users-hash@example.com',
+        email: getUniqueEmail('users-hash'),
         password: 'password123',
       };
 
@@ -429,7 +426,7 @@ describe('Users API Integration Tests', () => {
 
       const userData = {
         name: 'DB Error Test',
-        email: 'dberror@example.com',
+        email: getUniqueEmail('dberror'),
         password: 'password123',
       };
 
@@ -459,7 +456,7 @@ describe('Users API Integration Tests', () => {
       // First create a user
       const userData = {
         name: 'Jane Doe',
-        email: 'jane.doe@example.com',
+        email: getUniqueEmail('jane.doe'),
         password: 'password123',
       };
 
@@ -504,7 +501,7 @@ describe('Users API Integration Tests', () => {
 
     it('should reject login with invalid email', async () => {
       const loginData = {
-        email: 'nonexistent@example.com',
+        email: getUniqueEmail('invalid-email'),
         password: 'password123',
       };
 
@@ -526,7 +523,7 @@ describe('Users API Integration Tests', () => {
       // First create a user
       const userData = {
         name: 'John Test',
-        email: 'john.test@example.com',
+        email: getUniqueEmail('john.test'),
         password: 'correct123',
       };
 
@@ -564,7 +561,7 @@ describe('Users API Integration Tests', () => {
       // First create a user
       const userData = {
         name: 'Remember Test',
-        email: 'remember.test@example.com',
+        email: getUniqueEmail('remember.test'),
         password: 'password123',
       };
 
@@ -642,7 +639,7 @@ describe('Users API Integration Tests', () => {
       // Create and login a test user
       const userData = {
         name: 'Profile Test User',
-        email: 'profile@example.com',
+        email: getUniqueEmail('profile'),
         password: 'password123',
       };
 
@@ -673,7 +670,9 @@ describe('Users API Integration Tests', () => {
         expect(responseData.success).toBe(true);
         expect(responseData.data).toHaveProperty('id', userId);
         expect(responseData.data).toHaveProperty('name', 'Profile Test User');
-        expect(responseData.data).toHaveProperty('email', 'profile@example.com');
+        // Use the actual generated email for assertion
+        expect(responseData.data).toHaveProperty('email');
+        expect(responseData.data.email).toMatch(/^profile-.*@example.com$/);
         expect(responseData.data).toHaveProperty('avatar', null);
         expect(responseData.data).not.toHaveProperty('password');
       });
@@ -716,7 +715,7 @@ describe('Users API Integration Tests', () => {
         // Create another user
         const otherUserData = {
           name: 'Other User',
-          email: 'other@example.com',
+          email: getUniqueEmail('other'),
           password: 'password123',
         };
 
@@ -730,7 +729,7 @@ describe('Users API Integration Tests', () => {
 
         // Try to update to existing email
         const updateData = {
-          email: 'other@example.com',
+          email: otherUserData.email, // Use email of the other user
         };
 
         const res = await app.request('/api/users/profile', {
