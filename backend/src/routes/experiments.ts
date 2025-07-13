@@ -4,7 +4,6 @@ import { eq, and, desc, asc, gte, lte, between } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { experiments, experimentTasks, experimentTaskCompletions } from '../db/schema/experiments';
-import { journalEntries } from '../db/schema/journal';
 import { xpGrants, characterStats } from '../db/schema/stats';
 import {
   createExperimentSchema,
@@ -620,16 +619,18 @@ const app = new Hono()
       }
 
       // Get journal entries during experiment
-      const journalEntriesInRange = await db
-        .select({
-          id: journalEntries.id,
-          title: journalEntries.title,
-          synopsis: journalEntries.synopsis,
-          createdAt: journalEntries.createdAt,
-        })
-        .from(journalEntries)
-        .where(and(eq(journalEntries.userId, userId), between(journalEntries.createdAt, startDate, endDate)))
-        .orderBy(desc(journalEntries.createdAt));
+      // TODO - reimplement
+      const journalEntriesInRange = []; // Placeholder for journal entries logic
+      // const journalEntriesInRange = await db
+      //   .select({
+      //     id: journalEntries.id,
+      //     title: journalEntries.title,
+      //     synopsis: journalEntries.synopsis,
+      //     createdAt: journalEntries.createdAt,
+      //   })
+      //   .from(journalEntries)
+      //   .where(and(eq(journalEntries.userId, userId), between(journalEntries.createdAt, startDate, endDate)))
+      //   .orderBy(desc(journalEntries.createdAt));
 
       // Get XP from journals during experiment
       const xpFromJournals = await db
@@ -654,12 +655,12 @@ const app = new Hono()
           totalTaskInstances,
         },
         tasks: tasksWithCompletions,
-        journalEntries: journalEntriesInRange.map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          synopsis: entry.synopsis,
-          createdAt: entry.createdAt.toISOString(),
-        })),
+        // journalEntries: journalEntriesInRange.map((entry) => ({
+        //   id: entry.id,
+        //   title: entry.title,
+        //   synopsis: entry.synopsis,
+        //   createdAt: entry.createdAt.toISOString(),
+        // })),
         xpBreakdown: {
           fromTasks: totalXpFromTasks,
           fromJournals: totalXpFromJournals,

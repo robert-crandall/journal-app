@@ -6,7 +6,6 @@ export * from './goals';
 export * from './family';
 export * from './tags';
 export * from './focus';
-export * from './journal';
 export * from './todos';
 export * from './experiments';
 // Future exports:

@@ -6,15 +6,6 @@ export { userValidationSchema, registerSchema, loginSchema } from '../validation
 export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
-export {
-  startJournalSessionSchema,
-  sendJournalMessageSchema,
-  saveJournalEntrySchema,
-  getJournalEntrySchema,
-  startLongFormJournalSchema,
-  saveLongFormJournalSchema,
-  startReflectionSchema,
-} from '../validation/journal';
 export { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
 export {
   createExperimentSchema,
@@ -40,23 +31,6 @@ export type {
   CreateFamilyTaskFeedbackRequest,
 } from '../types/family';
 export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../types/focus';
-export type {
-  JournalEntry,
-  NewJournalEntry,
-  JournalConversationMessage,
-  NewJournalConversationMessage,
-  JournalSession,
-  NewJournalSession,
-  StartJournalSessionRequest,
-  StartJournalSessionResponse,
-  SendJournalMessageRequest,
-  SendJournalMessageResponse,
-  SaveJournalEntryRequest,
-  SaveJournalEntryResponse,
-  GetJournalEntriesResponse,
-  JournalEntryWithDetails,
-  ChatMessage,
-} from '../types/journal';
 export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';
 export type {
   Experiment,
