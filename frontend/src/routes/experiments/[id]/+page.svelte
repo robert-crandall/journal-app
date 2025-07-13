@@ -60,7 +60,7 @@
 
   // Helper functions
   function getExperimentStatus(exp: ExperimentWithTasksResponse): 'upcoming' | 'active' | 'completed' {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA');
     const startDate = exp.startDate;
     const endDate = exp.endDate;
 

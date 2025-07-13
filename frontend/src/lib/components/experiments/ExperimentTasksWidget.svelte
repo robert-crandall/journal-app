@@ -26,7 +26,7 @@
       const experiments = await experimentsApi.getUserExperiments();
 
       // Filter for active experiments (experiments happening today)
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA');
       const active = experiments.filter((exp) => {
         return exp.startDate <= today && exp.endDate >= today;
       });
@@ -65,7 +65,7 @@
 
   async function completeTask(experimentId: string, taskId: string) {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA');
 
       await experimentsApi.completeExperimentTask(experimentId, taskId, {
         completedDate: today,
