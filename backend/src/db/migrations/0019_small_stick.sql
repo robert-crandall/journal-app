@@ -1,0 +1,1 @@
+ALTER TABLE "simple_todos" ADD COLUMN "expiration_time" timestamp with time zone;

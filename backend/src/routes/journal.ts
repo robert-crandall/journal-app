@@ -15,6 +15,8 @@ import {
   xpGrants,
   familyMembers,
 } from '../db/schema';
+import { createTodosWithExpiration } from '../utils/todoHelper';
+import { analyzeJournalEntry } from '../utils/gpt/journal';
 import {
   startJournalSessionSchema,
   sendJournalMessageSchema,
@@ -382,6 +384,11 @@ const app = new Hono()
           updatedAt: new Date(),
         })
         .where(eq(journalSessions.id, sessionId));
+
+      // Create todos with 24-hour expiration if any are suggested
+      if (metadata.suggestedTodos && metadata.suggestedTodos.length > 0) {
+        await createTodosWithExpiration(userId, metadata.suggestedTodos, 24, 'journal');
+      }
 
       const response: SaveJournalEntryResponse = {
         success: true,
