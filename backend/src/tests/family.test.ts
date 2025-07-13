@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import appExport from '../index';
-import { testDb, getUniqueEmail, cleanDatabase } from './setup';
+import { testDb, getUniqueEmail } from './setup';
 import { familyMembers, familyTaskFeedback } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { validAvatarBase64, validWebpAvatarBase64, invalidMimeType, invalidBase64Data } from './test-data/avatars';

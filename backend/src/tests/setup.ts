@@ -80,15 +80,3 @@ export { schema };
 
 // Export the connection for direct use in tests
 export { getTestDb as testDb };
-
-/**
- * Legacy cleanDatabase function for backward compatibility
- * This is a no-op in the savepoint approach since we're using transaction isolation
- * @deprecated Use the automatic savepoint isolation instead
- */
-export async function cleanDatabase() {
-  // This is a no-op function as we're using savepoints for isolation
-  // The function exists only for backward compatibility with existing tests
-  console.warn('cleanDatabase() is deprecated - using transaction savepoints instead');
-  return Promise.resolve();
-}
