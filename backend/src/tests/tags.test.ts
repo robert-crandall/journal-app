@@ -1,32 +1,46 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
-import { testDb, cleanDatabase } from './setup';
-import { goals, tags, goalTags, users } from '../db/schema';
+import { describe, it, expect, beforeEach } from 'vitest';
+import appExport from '../index';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { eq, and } from 'drizzle-orm';
 import * as tagUtils from '../utils/tags';
 
 describe('Tag Utilities', () => {
+  let authToken: string;
   let userId: string;
   let testGoalId: string;
+  let testUser: { name: string; email: string; password: string };
+
+  // API wrapper for requests
+  const app = {
+    request: (url: string, init?: RequestInit) => {
+      const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+      return appExport.fetch(new Request(absoluteUrl, init));
+    },
+  };
 
   beforeEach(async () => {
-    await cleanDatabase();
+    // Create a test user with unique email and get auth token
+    testUser = {
+      name: 'Tag Test User',
+      email: getUniqueEmail('tags'),
+      password: 'testpassword123',
+    };
+
+    const signupRes = await app.request('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(testUser),
+    });
+    const signupData = await signupRes.json();
+    authToken = signupData.token;
+    userId = signupData.user.id;
+
+    // Create a test goal via DB (if no API endpoint exists)
     const db = testDb();
-
-    // Create a test user with unique email
-    const testId = Date.now() + Math.random();
-    const user = await db
-      .insert(users)
-      .values({
-        name: 'Tag Test User',
-        email: `tagtest${testId}@example.com`,
-        password: 'hashedpassword',
-      })
-      .returning();
-    userId = user[0].id;
-
-    // Create a test goal
     const goal = await db
-      .insert(goals)
+      .insert(schema.goals)
       .values({
         userId,
         title: 'Test Goal for Tags',
@@ -65,17 +79,21 @@ describe('Tag Utilities', () => {
     it('should create separate tags for different users', async () => {
       const db = testDb();
 
-      // Create another user with unique email
-      const testId2 = Date.now() + Math.random() + 1000;
-      const user2 = await db
-        .insert(users)
-        .values({
-          name: 'Tag Test User 2',
-          email: `tagtest${testId2}@example.com`,
-          password: 'hashedpassword',
-        })
-        .returning();
-      const userId2 = user2[0].id;
+      // Create another user via API
+      const anotherUser = {
+        name: 'Tag Test User 2',
+        email: getUniqueEmail('tags2'),
+        password: 'testpassword123',
+      };
+      const signupRes2 = await app.request('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(anotherUser),
+      });
+      const signupData2 = await signupRes2.json();
+      const userId2 = signupData2.user.id;
 
       const tag1 = await tagUtils.createOrGetTag(userId, 'family');
       const tag2 = await tagUtils.createOrGetTag(userId2, 'family');
@@ -113,7 +131,7 @@ describe('Tag Utilities', () => {
 
       // Create another goal
       const goal2 = await db
-        .insert(goals)
+        .insert(schema.goals)
         .values({
           userId,
           title: 'Second Goal',
@@ -276,7 +294,7 @@ describe('Tag Utilities', () => {
       expect(deletedCount).toBe(2);
 
       // Verify the unused tags are deleted
-      const remainingTags = await db.select().from(tags).where(eq(tags.userId, userId));
+      const remainingTags = await db.select().from(schema.tags).where(eq(schema.tags.userId, userId));
       expect(remainingTags).toHaveLength(2);
       expect(remainingTags.map((tag) => tag.name).sort()).toEqual(['family', 'growth']);
     });
@@ -284,17 +302,21 @@ describe('Tag Utilities', () => {
     it('should not delete tags from other users', async () => {
       const db = testDb();
 
-      // Create another user with unique email
-      const testId3 = Date.now() + Math.random() + 2000;
-      const user2 = await db
-        .insert(users)
-        .values({
-          name: 'Tag Test User 2',
-          email: `tagtest${testId3}@example.com`,
-          password: 'hashedpassword',
-        })
-        .returning();
-      const userId2 = user2[0].id;
+      // Create another user via API
+      const anotherUser = {
+        name: 'Tag Test User 2',
+        email: getUniqueEmail('tags3'),
+        password: 'testpassword123',
+      };
+      const signupRes2 = await app.request('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(anotherUser),
+      });
+      const signupData2 = await signupRes2.json();
+      const userId2 = signupData2.user.id;
 
       // Create unused tags for both users
       await tagUtils.createOrGetTag(userId, 'unused1');
@@ -305,7 +327,7 @@ describe('Tag Utilities', () => {
       expect(deletedCount).toBe(1);
 
       // Verify the other user's tag is not deleted
-      const user2Tags = await db.select().from(tags).where(eq(tags.userId, userId2));
+      const user2Tags = await db.select().from(schema.tags).where(eq(schema.tags.userId, userId2));
       expect(user2Tags).toHaveLength(1);
       expect(user2Tags[0].name).toBe('unused2');
     });
@@ -324,7 +346,7 @@ describe('Tag Utilities', () => {
       const db = testDb();
 
       // Get the test goal
-      const goalData = await db.select().from(goals).where(eq(goals.id, testGoalId)).limit(1);
+      const goalData = await db.select().from(schema.goals).where(eq(schema.goals.id, testGoalId)).limit(1);
       const goal = goalData[0];
 
       const tags = await tagUtils.setGoalTags(testGoalId, userId, ['family', 'growth']);
