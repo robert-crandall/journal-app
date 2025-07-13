@@ -655,6 +655,7 @@ const app = new Hono()
           totalTaskInstances,
         },
         tasks: tasksWithCompletions,
+        // TODO: Uncomment when journal entries are available
         // journalEntries: journalEntriesInRange.map((entry) => ({
         //   id: entry.id,
         //   title: entry.title,

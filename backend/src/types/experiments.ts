@@ -80,12 +80,13 @@ export type ExperimentDashboardResponse = {
     totalTaskInstances: number;
   };
   tasks: ExperimentTaskWithCompletionsResponse[];
-  journalEntries: Array<{
-    id: string;
-    title: string;
-    synopsis: string;
-    createdAt: string;
-  }>;
+  // TODO: Uncomment when journal entries are available
+  // journalEntries: Array<{
+  //   id: string;
+  //   title: string;
+  //   synopsis: string;
+  //   createdAt: string;
+  // }>;
   xpBreakdown: {
     fromTasks: number;
     fromJournals: number;
