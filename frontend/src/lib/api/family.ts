@@ -278,58 +278,36 @@ export const familyApi = {
     }
   },
 
-  // Get XP history for a family member (using mocked data for now)
-  // In a real implementation, we would need a backend endpoint for this
+  // Get XP history for a family member
   async getXpHistory(memberId: string, limit = 50, offset = 0): Promise<XpGrantResponse[]> {
     try {
-      // For demo purposes, let's return some mock data instead
-      // In a real implementation, you'd make an API call here
-      
-      // This would be a call like:
-      // const authenticatedFetch = createAuthenticatedFetch();
-      // const response = await authenticatedFetch(`/api/family/${memberId}/xp-history?limit=${limit}&offset=${offset}`);
-      
-      // Mocked data - in a real implementation, we'd get this from the backend
-      return [
-        {
-          id: '1',
-          userId: 'user-id',
-          entityType: 'family_member',
-          entityId: memberId,
-          xpAmount: 25,
-          sourceType: 'journal',
-          sourceId: 'journal-1',
-          reason: 'Spent quality time playing board games',
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: '2',
-          userId: 'user-id',
-          entityType: 'family_member',
-          entityId: memberId,
-          xpAmount: 15,
-          sourceType: 'journal',
-          sourceId: 'journal-2',
-          reason: 'Had a meaningful conversation about school',
-          createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: '3',
-          userId: 'user-id',
-          entityType: 'family_member',
-          entityId: memberId,
-          xpAmount: 30,
-          sourceType: 'journal',
-          sourceId: 'journal-3',
-          reason: 'Helped with homework and discussed future goals',
-          createdAt: new Date().toISOString(),
-        }
-      ];
+      const queryParams = new URLSearchParams();
+      if (limit) {
+        queryParams.set('limit', limit.toString());
+      }
+      if (offset) {
+        queryParams.set('offset', offset.toString());
+      }
+
+      const query = queryParams.toString();
+      const endpoint = `/api/family/${memberId}/xp-history${query ? `?${query}` : ''}`;
+
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(endpoint);
+
+      if (!response.ok) {
+        console.error('Get family XP history API error:', response.status, response.statusText);
+        const result = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const result = (await response.json()) as ApiResponse<XpGrantResponse[]>;
+      return result.data;
     } catch (error) {
       console.error('Get family XP history API request failed:', error);
-      return [];
+      throw error;
     }
-  }
+  },
 };
 
 // Export simple functions for component compatibility

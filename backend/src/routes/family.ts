@@ -11,10 +11,12 @@ import {
   updateFamilyTaskFeedbackSchema,
   familyQuerySchema,
   familyFeedbackQuerySchema,
+  xpHistoryQuerySchema,
 } from '../validation/family';
 import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
+import type { XpGrantFilter, XpSourceType } from '../types/xp';
 import logger, { handleApiError } from '../utils/logger';
-import { grantXp } from '../utils/xpService';
+import { grantXp, getXpGrantsWithEntityInfo } from '../utils/xpService';
 import { z } from 'zod';
 import { createAvatarSchema } from '../utils/avatar';
 
@@ -414,6 +416,54 @@ app.get('/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema), as
     });
   } catch (error) {
     return handleApiError(error, 'Failed to fetch family task feedback');
+  }
+});
+
+// GET /family/:id/xp-history - Get XP history for a specific family member
+app.get('/:id/xp-history', jwtAuth, zValidator('query', xpHistoryQuerySchema), async (c) => {
+  try {
+    const userId = c.get('userId');
+    const familyMemberId = c.req.param('id');
+    const { limit, offset, sourceType } = c.req.valid('query');
+
+    // Verify family member exists and belongs to user
+    const familyMember = await db
+      .select()
+      .from(familyMembers)
+      .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)))
+      .limit(1);
+
+    if (familyMember.length === 0) {
+      return c.json(
+        {
+          success: false,
+          error: 'Family member not found',
+        },
+        404,
+      );
+    }
+
+    // Get XP history for this family member with filter options
+    const filter: XpGrantFilter = {
+      entityType: 'family_member',
+      entityId: familyMemberId,
+      limit,
+      offset,
+    };
+
+    // Add source type filter if provided
+    if (sourceType) {
+      filter.sourceType = sourceType as XpSourceType;
+    }
+
+    const xpHistory = await getXpGrantsWithEntityInfo(userId, filter);
+
+    return c.json({
+      success: true,
+      data: xpHistory,
+    });
+  } catch (error) {
+    return handleApiError(error, 'Failed to fetch family member XP history');
   }
 });
 
