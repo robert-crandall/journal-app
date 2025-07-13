@@ -21,8 +21,8 @@ export interface JournalMetadata {
   synopsis: string;
   summary: string;
   suggestedTags: string[];
-  suggestedStatTags: Record<string, number>; // Changed from string[] to Record<statName, xpAmount>
-  suggestedFamilyTags: Record<string, number>; // Family member names mapped to XP amounts for relationship interactions
+  suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stats with XP amount and reason for XP
+  suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family members with XP amount and reason for interactions
 }
 
 /**
@@ -187,17 +187,29 @@ IMPORTANT: Format your response exactly as JSON:
   "synopsis": "1-2 sentence overview", 
   "summary": "Detailed narrative synthesis maintaining user's voice",
   "suggestedTags": ["tag1", "tag2", "tag3"],
-  "suggestedStatTags": {"statName1": 15, "statName2": 25},
-  "suggestedFamilyTags": {"familyMemberName1": 20, "familyMemberName2": 15}
+  "suggestedStatTags": {
+    "statName1": { "xp": 15, "reason": "Specific achievement or activity that developed this stat" },
+    "statName2": { "xp": 25, "reason": "Specific achievement or activity that developed this stat" }
+  },
+  "suggestedFamilyTags": {
+    "familyMemberName1": { "xp": 20, "reason": "Specific interaction or quality time spent with this person" },
+    "familyMemberName2": { "xp": 15, "reason": "Specific interaction or quality time spent with this person" }
+  }
 }
 
 ## Tagging Guidelines
 
 **Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
 
-**Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on. Provide XP amounts between 5-50 based on the significance and effort discussed. Use the exact stat names provided in the context.
+**Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on. For each stat, provide:
+  - XP amount between 5-50 based on the significance and effort discussed
+  - A specific reason describing what actions or qualities earned this XP
+  - Use the exact stat names provided in the context
 
-**Family Tags**: Only suggest family members who were mentioned, involved in activities, or discussed in the conversation. Consider relationship interactions, quality time spent, or meaningful connections made. Provide XP amounts between 5-50 based on the significance of the interaction and relationship building. Use the exact family member names provided in the context.
+**Family Tags**: Only suggest family members who were mentioned, involved in activities, or discussed in the conversation. For each family member, provide:
+  - XP amount between 5-50 based on the significance of the interaction
+  - A specific reason describing the interaction or quality time spent with them
+  - Use the exact family member names provided in the context
 
 The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
 

@@ -306,7 +306,10 @@ const app = new Hono()
         const matchingStatEntry = Object.entries(metadata.suggestedStatTags).find(([statName]) => statName.toLowerCase() === statNameLower);
 
         if (matchingStatEntry) {
-          const [statName, xpAmount] = matchingStatEntry;
+          const [statName, statData] = matchingStatEntry;
+          // Handle both new format (with reason) and old format (direct number)
+          const xpAmount = typeof statData === 'object' && statData.xp !== undefined ? statData.xp : statData;
+          const xpReason = typeof statData === 'object' && statData.reason ? statData.reason : `Journal entry: ${metadata.title}`;
           const numericXP = typeof xpAmount === 'number' ? xpAmount : parseInt(String(xpAmount), 10);
 
           // Add stat tag relation
@@ -319,17 +322,17 @@ const app = new Hono()
           await grantXp(userId, {
             entityType: 'character_stat',
             entityId: stat.id,
-            xpAmount,
+            xpAmount: numericXP,
             sourceType: 'journal',
             sourceId: entryId,
-            reason: `Journal entry: ${metadata.title}`,
+            reason: xpReason,
           });
 
           // Update stat total XP
           await db
             .update(characterStats)
             .set({
-              totalXp: stat.totalXp + xpAmount,
+              totalXp: stat.totalXp + numericXP,
               updatedAt: new Date(),
             })
             .where(eq(characterStats.id, stat.id));
@@ -350,16 +353,20 @@ const app = new Hono()
         const matchingFamilyEntry = Object.entries(metadata.suggestedFamilyTags).find(([familyName]) => familyName.toLowerCase() === familyNameLower);
 
         if (matchingFamilyEntry) {
-          const [familyName, xpAmount] = matchingFamilyEntry;
+          const [familyName, familyData] = matchingFamilyEntry;
+          // Handle both new format (with reason) and old format (direct number)
+          const xpAmount = typeof familyData === 'object' && familyData.xp !== undefined ? familyData.xp : familyData;
+          const xpReason = typeof familyData === 'object' && familyData.reason ? familyData.reason : `Journal entry: ${metadata.title}`;
+          const numericXP = typeof xpAmount === 'number' ? xpAmount : parseInt(String(xpAmount), 10);
 
           // Grant XP to the family member using the service
           await grantXp(userId, {
             entityType: 'family_member',
             entityId: familyMember.id,
-            xpAmount,
+            xpAmount: numericXP,
             sourceType: 'journal',
             sourceId: entryId,
-            reason: `Journal entry: ${metadata.title}`,
+            reason: xpReason,
           });
 
           familyTagIds.push(familyMember.id);
