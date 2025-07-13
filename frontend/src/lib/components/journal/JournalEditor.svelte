@@ -26,12 +26,12 @@
 
   function handleInput() {
     hasUnsavedChanges = true;
-    
+
     // Clear existing timeout
     if (saveTimeout) {
       clearTimeout(saveTimeout);
     }
-    
+
     // Set new auto-save timeout (3 seconds after user stops typing)
     saveTimeout = setTimeout(() => {
       if (hasUnsavedChanges) {
@@ -42,7 +42,7 @@
 
   async function saveJournal() {
     if (!initialMessage.trim()) return;
-    
+
     try {
       saving = true;
       error = null;
@@ -103,22 +103,20 @@
 <div class="card bg-base-100 border-base-300 border shadow-xl">
   <div class="card-body p-8">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="mb-6 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <PenIcon size={24} class="text-primary" />
         <div>
           <h2 class="text-xl font-semibold">
             {journal ? 'Continue Writing' : 'Write Journal'}
           </h2>
-          <p class="text-sm text-base-content/70">
-            Share your thoughts, experiences, and reflections
-          </p>
+          <p class="text-base-content/70 text-sm">Share your thoughts, experiences, and reflections</p>
         </div>
       </div>
-      
+
       <div class="flex items-center gap-2">
         {#if hasUnsavedChanges}
-          <span class="text-xs text-warning">Unsaved changes</span>
+          <span class="text-warning text-xs">Unsaved changes</span>
         {/if}
         {#if saving}
           <span class="loading loading-spinner loading-sm"></span>
@@ -137,33 +135,28 @@
     <div class="space-y-4">
       <div class="form-control">
         <textarea
+          data-test-id="journal-editor-textarea"
           bind:value={initialMessage}
           on:input={handleInput}
           on:keydown={handleKeydown}
           placeholder="What's on your mind today? Write freely about your thoughts, experiences, feelings, or anything that comes to mind..."
-          class="textarea textarea-bordered textarea-lg h-64 w-full resize-none transition-all duration-200 focus:scale-[1.02] text-base leading-relaxed"
+          class="textarea textarea-bordered textarea-lg h-64 w-full resize-none text-base leading-relaxed transition-all duration-200 focus:scale-[1.02]"
           rows="12"
         ></textarea>
-        
+
         <!-- Character/Word Counter -->
         <div class="label">
           <span class="label-text-alt text-xs opacity-60">
             {wordCount} words • {characterCount} characters
           </span>
-          <span class="label-text-alt text-xs opacity-60">
-            Ctrl/Cmd + S to save
-          </span>
+          <span class="label-text-alt text-xs opacity-60"> Ctrl/Cmd + S to save </span>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex items-center justify-between pt-4">
         <div class="flex items-center gap-4">
-          <button
-            on:click={saveJournal}
-            disabled={saving || !initialMessage.trim()}
-            class="btn btn-outline gap-2"
-          >
+          <button data-test-id="save-draft-button" on:click={saveJournal} disabled={saving || !initialMessage.trim()} class="btn btn-outline gap-2">
             {#if saving}
               <span class="loading loading-spinner loading-sm"></span>
             {:else}
@@ -174,6 +167,7 @@
         </div>
 
         <button
+          data-test-id="start-reflection-button"
           on:click={startReflection}
           disabled={startingReflection || !journal || !initialMessage.trim()}
           class="btn btn-primary gap-2"
@@ -188,9 +182,9 @@
       </div>
 
       <!-- Help Text -->
-      <div class="bg-primary/10 rounded-lg p-4 border border-primary/20">
-        <h3 class="font-medium text-sm mb-2">💡 Writing Tips</h3>
-        <ul class="text-sm text-base-content/80 space-y-1">
+      <div class="bg-primary/10 border-primary/20 rounded-lg border p-4">
+        <h3 class="mb-2 text-sm font-medium">💡 Writing Tips</h3>
+        <ul class="text-base-content/80 space-y-1 text-sm">
           <li>• Write freely without worrying about structure or grammar</li>
           <li>• Include feelings, experiences, thoughts, or observations</li>
           <li>• Your entry will be saved automatically as you type</li>

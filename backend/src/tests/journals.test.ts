@@ -50,7 +50,7 @@ describe('Journal API', () => {
       expect(data.data.actionText).toBe('Write Journal');
     });
 
-    it('should return today\'s journal when it exists', async () => {
+    it("should return today's journal when it exists", async () => {
       const today = new Date().toISOString().split('T')[0];
 
       // Create a journal for today
@@ -103,10 +103,7 @@ describe('Journal API', () => {
       expect(data.data.status).toBe('draft');
 
       // Verify it was saved to database
-      const [savedJournal] = await testDb()
-        .select()
-        .from(journals)
-        .where(eq(journals.userId, userId));
+      const [savedJournal] = await testDb().select().from(journals).where(eq(journals.userId, userId));
 
       expect(savedJournal).toBeDefined();
       expect(savedJournal.date).toBe(journalData.date);
@@ -229,12 +226,14 @@ describe('Journal API', () => {
       const date = '2024-01-15';
 
       // Create journal already in review
-      await testDb().insert(journals).values({
-        userId: userId,
-        date,
-        status: 'in_review',
-        chatSession: [{ role: 'assistant', content: 'Initial prompt' }],
-      });
+      await testDb()
+        .insert(journals)
+        .values({
+          userId: userId,
+          date,
+          status: 'in_review',
+          chatSession: [{ role: 'assistant', content: 'Initial prompt' }],
+        });
 
       const response = await app.request(`/api/journals/${date}/start-reflection`, {
         method: 'POST',
@@ -253,12 +252,14 @@ describe('Journal API', () => {
       const date = '2024-01-15';
 
       // Create journal in review status
-      await testDb().insert(journals).values({
-        userId: userId,
-        date,
-        status: 'in_review',
-        chatSession: [{ role: 'assistant', content: 'Initial prompt' }],
-      });
+      await testDb()
+        .insert(journals)
+        .values({
+          userId: userId,
+          date,
+          status: 'in_review',
+          chatSession: [{ role: 'assistant', content: 'Initial prompt' }],
+        });
 
       const chatData = {
         message: 'This is my reflection on today.',
@@ -314,22 +315,24 @@ describe('Journal API', () => {
       const date = '2024-01-15';
 
       // Create journal in review with messages
-      await testDb().insert(journals).values({
-        userId: userId,
-        date,
-        status: 'in_review',
-        chatSession: [
-          { role: 'assistant', content: 'Initial prompt' },
-          { role: 'user', content: 'My reflection' },
-          { role: 'assistant', content: 'Follow-up question' },
-        ],
-      });
+      await testDb()
+        .insert(journals)
+        .values({
+          userId: userId,
+          date,
+          status: 'in_review',
+          chatSession: [
+            { role: 'assistant', content: 'Initial prompt' },
+            { role: 'user', content: 'My reflection' },
+            { role: 'assistant', content: 'Follow-up question' },
+          ],
+        });
 
       const response = await app.request(`/api/journals/${date}/finish`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}` 
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({}),
       });
@@ -356,9 +359,9 @@ describe('Journal API', () => {
 
       const response = await app.request(`/api/journals/${date}/finish`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}` 
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({}),
       });
@@ -375,14 +378,16 @@ describe('Journal API', () => {
       const date = '2024-01-15';
 
       // Create a journal
-      await testDb().insert(journals).values({
-        userId: userId,
-        date,
-        status: 'complete',
-        chatSession: [{ role: 'user', content: 'Test entry' }],
-        summary: 'Test summary',
-        contentTags: '["test", "journal"]',
-      });
+      await testDb()
+        .insert(journals)
+        .values({
+          userId: userId,
+          date,
+          status: 'complete',
+          chatSession: [{ role: 'user', content: 'Test entry' }],
+          summary: 'Test summary',
+          contentTags: '["test", "journal"]',
+        });
 
       const response = await app.request(`/api/journals/${date}`, {
         headers: { Authorization: `Bearer ${authToken}` },
@@ -428,10 +433,7 @@ describe('Journal API', () => {
       expect(data.success).toBe(true);
 
       // Verify it was deleted
-      const [deletedJournal] = await testDb()
-        .select()
-        .from(journals)
-        .where(eq(journals.userId, userId));
+      const [deletedJournal] = await testDb().select().from(journals).where(eq(journals.userId, userId));
 
       expect(deletedJournal).toBeUndefined();
     });

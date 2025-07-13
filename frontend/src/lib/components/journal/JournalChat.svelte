@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, afterUpdate } from 'svelte';
   import { JournalService } from '$lib/api/journal';
+  import { formatDateTime } from '$lib/utils/date';
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
 
@@ -79,10 +80,7 @@
 
   function formatMessageTime(timestamp: string): string {
     try {
-      return new Date(timestamp).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      });
+      return formatDateTime(timestamp, 'time-only');
     } catch {
       return '';
     }
@@ -95,23 +93,19 @@
 <div class="card bg-base-100 border-base-300 border shadow-xl">
   <div class="card-body p-0">
     <!-- Header -->
-    <div class="p-6 border-b border-base-300">
+    <div class="border-base-300 border-b p-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <MessageCircleIcon size={24} class="text-primary" />
           <div>
             <h2 class="text-xl font-semibold">Reflection Session</h2>
-            <p class="text-sm text-base-content/70">
+            <p class="text-base-content/70 text-sm">
               {messageCount} messages • Exploring your thoughts
             </p>
           </div>
         </div>
 
-        <button
-          on:click={finishJournal}
-          disabled={finishing}
-          class="btn btn-success gap-2"
-        >
+        <button data-test-id="finish-journal-button" on:click={finishJournal} disabled={finishing} class="btn btn-success gap-2">
           {#if finishing}
             <span class="loading loading-spinner loading-sm"></span>
           {:else}
@@ -132,18 +126,17 @@
     {/if}
 
     <!-- Chat Messages -->
-    <div
-      bind:this={chatContainer}
-      class="flex-1 p-6 max-h-96 overflow-y-auto scroll-smooth"
-    >
+    <div bind:this={chatContainer} class="max-h-96 flex-1 overflow-y-auto scroll-smooth p-6">
       <div class="space-y-4">
         {#each chatSession as message, i}
           <div class="flex items-start gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
             <!-- Avatar -->
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center {
-                message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-secondary text-secondary-content'
-              }">
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-full {message.role === 'user'
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-secondary text-secondary-content'}"
+              >
                 {#if message.role === 'user'}
                   <UserIcon size={16} />
                 {:else}
@@ -153,17 +146,13 @@
             </div>
 
             <!-- Message Content -->
-            <div class="flex-1 max-w-xs sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
-              <div class="px-4 py-3 rounded-lg {
-                message.role === 'user' 
-                  ? 'bg-primary text-primary-content' 
-                  : 'bg-base-200 text-base-content'
-              }">
+            <div class="max-w-xs flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
+              <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
                 <p class="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
               </div>
-              
+
               {#if message.timestamp}
-                <p class="text-xs opacity-60 mt-1 {message.role === 'user' ? 'text-right' : ''}">
+                <p class="mt-1 text-xs opacity-60 {message.role === 'user' ? 'text-right' : ''}">
                   {formatMessageTime(message.timestamp)}
                 </p>
               {/if}
@@ -175,12 +164,12 @@
         {#if sending}
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 rounded-full bg-secondary text-secondary-content flex items-center justify-center">
+              <div class="bg-secondary text-secondary-content flex h-8 w-8 items-center justify-center rounded-full">
                 <BotIcon size={16} />
               </div>
             </div>
             <div class="flex-1">
-              <div class="px-4 py-3 rounded-lg bg-base-200">
+              <div class="bg-base-200 rounded-lg px-4 py-3">
                 <div class="flex items-center gap-1">
                   <span class="loading loading-dots loading-sm"></span>
                   <span class="text-sm opacity-60">AI is thinking...</span>
@@ -193,10 +182,11 @@
     </div>
 
     <!-- Message Input -->
-    <div class="p-6 border-t border-base-300">
+    <div class="border-base-300 border-t p-6">
       <div class="flex items-end gap-3">
         <div class="flex-1">
           <textarea
+            data-test-id="chat-input"
             bind:value={newMessage}
             on:keydown={handleKeydown}
             placeholder="Share more thoughts, ask questions, or reflect deeper..."
@@ -205,17 +195,11 @@
             disabled={sending}
           ></textarea>
           <div class="label">
-            <span class="label-text-alt text-xs opacity-60">
-              Press Enter to send, Shift+Enter for new line
-            </span>
+            <span class="label-text-alt text-xs opacity-60"> Press Enter to send, Shift+Enter for new line </span>
           </div>
         </div>
-        
-        <button
-          on:click={sendMessage}
-          disabled={!newMessage.trim() || sending}
-          class="btn btn-primary gap-2"
-        >
+
+        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary gap-2">
           {#if sending}
             <span class="loading loading-spinner loading-sm"></span>
           {:else}
@@ -228,9 +212,9 @@
 
     <!-- Help Text -->
     <div class="mx-6 mb-6">
-      <div class="bg-secondary/10 rounded-lg p-4 border border-secondary/20">
-        <h3 class="font-medium text-sm mb-2">💬 Reflection Tips</h3>
-        <ul class="text-sm text-base-content/80 space-y-1">
+      <div class="bg-secondary/10 border-secondary/20 rounded-lg border p-4">
+        <h3 class="mb-2 text-sm font-medium">💬 Reflection Tips</h3>
+        <ul class="text-base-content/80 space-y-1 text-sm">
           <li>• Explore your thoughts and feelings in more depth</li>
           <li>• Ask the AI questions about your experiences</li>
           <li>• Reflect on patterns, insights, or new perspectives</li>

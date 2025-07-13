@@ -1,11 +1,5 @@
 import { apiFetch } from '../api';
-import type {
-  JournalResponse,
-  TodayJournalResponse,
-  CreateJournalRequest,
-  UpdateJournalRequest,
-  AddChatMessageRequest,
-} from '../types/journal';
+import type { JournalResponse, TodayJournalResponse, CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest } from '../types/journal';
 
 export class JournalService {
   /**

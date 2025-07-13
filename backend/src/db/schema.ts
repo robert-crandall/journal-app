@@ -15,13 +15,7 @@ export {
   completeExperimentTaskSchema,
   getExperimentDashboardSchema,
 } from '../validation/experiments';
-export {
-  createJournalSchema,
-  updateJournalSchema,
-  addChatMessageSchema,
-  journalDateSchema,
-  finishJournalSchema,
-} from '../validation/journals';
+export { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';

@@ -5,23 +5,10 @@ import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
 import { characterStats, characters } from '../db/schema';
-import {
-  createJournalSchema,
-  updateJournalSchema,
-  addChatMessageSchema,
-  journalDateSchema,
-  finishJournalSchema,
-} from '../validation/journals';
+import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 import { handleApiError } from '../utils/logger';
 import { analyzeJournalEntry } from '../utils/gpt/journal';
-import type {
-  CreateJournalRequest,
-  UpdateJournalRequest,
-  AddChatMessageRequest,
-  JournalResponse,
-  TodayJournalResponse,
-  ChatMessage,
-} from '../types/journals';
+import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse, ChatMessage } from '../types/journals';
 
 /**
  * Helper function to serialize journal to response format
@@ -96,7 +83,7 @@ const app = new Hono()
         } as TodayJournalResponse,
       });
     } catch (error) {
-      handleApiError(error, 'Failed to fetch today\'s journal');
+      handleApiError(error, "Failed to fetch today's journal");
       return; // This should never be reached, but added for completeness
     }
   })
@@ -297,7 +284,8 @@ const app = new Hono()
         },
         {
           role: 'assistant',
-          content: 'Thank you for sharing your thoughts. I\'d love to explore this further with you. What aspect of your reflection would you like to dive deeper into?',
+          content:
+            "Thank you for sharing your thoughts. I'd love to explore this further with you. What aspect of your reflection would you like to dive deeper into?",
           timestamp: new Date().toISOString(),
         },
       ];
@@ -371,7 +359,7 @@ const app = new Hono()
       // Generate AI response (simple for now - could be enhanced with GPT)
       const aiMessage: ChatMessage = {
         role: 'assistant',
-        content: 'That\'s an interesting point. Can you tell me more about how that made you feel?',
+        content: "That's an interesting point. Can you tell me more about how that made you feel?",
         timestamp: new Date().toISOString(),
       };
 
@@ -433,17 +421,10 @@ const app = new Hono()
       }
 
       // Get user's character for context
-      const userCharacter = await db
-        .select()
-        .from(characters)
-        .where(eq(characters.userId, userId))
-        .limit(1);
+      const userCharacter = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
 
       // Get user's stats for context
-      const userStats = await db
-        .select()
-        .from(characterStats)
-        .where(eq(characterStats.userId, userId));
+      const userStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
 
       // Prepare content for GPT analysis
       const chatSession = (currentJournal.chatSession as ChatMessage[]) || [];

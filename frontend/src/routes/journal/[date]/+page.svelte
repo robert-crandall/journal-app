@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
+  import { formatDate as formatDateUtil } from '$lib/utils/date';
   import type { JournalResponse } from '$lib/types/journal';
   import JournalEditor from '$lib/components/journal/JournalEditor.svelte';
   import JournalChat from '$lib/components/journal/JournalChat.svelte';
@@ -11,7 +12,7 @@
 
   // Get date from URL params
   $: date = $page.params.date;
-  
+
   let journal: JournalResponse | null = null;
   let loading = true;
   let error: string | null = null;
@@ -27,7 +28,7 @@
 
   async function loadJournal() {
     if (!date) return;
-    
+
     try {
       loading = true;
       error = null;
@@ -50,12 +51,7 @@
 
   function formatDate(dateStr: string): string {
     try {
-      return new Date(dateStr).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      return formatDateUtil(dateStr);
     } catch {
       return dateStr;
     }
@@ -74,24 +70,21 @@
   <title>Journal - {date ? formatDate(date) : 'Loading...'}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-base-100">
-  <div class="max-w-4xl mx-auto px-4 py-8">
+<div class="bg-base-100 min-h-screen">
+  <div class="mx-auto max-w-4xl px-4 py-8">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="mb-8 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button
-          on:click={goBack}
-          class="btn btn-ghost btn-sm gap-2"
-        >
+        <button on:click={goBack} class="btn btn-ghost btn-sm gap-2">
           <ArrowLeftIcon size={16} />
           Back to Home
         </button>
-        
+
         <div class="flex items-center gap-3">
           <BookIcon size={24} class="text-primary" />
           <div>
-            <h1 class="text-2xl font-bold text-gradient">Journal Entry</h1>
-            <p class="text-sm text-base-content/70">
+            <h1 class="text-gradient text-2xl font-bold">Journal Entry</h1>
+            <p class="text-base-content/70 text-sm">
               {date ? formatDate(date) : 'Loading...'}
             </p>
           </div>
@@ -99,10 +92,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button
-          on:click={goToToday}
-          class="btn btn-outline btn-sm gap-2"
-        >
+        <button on:click={goToToday} class="btn btn-outline btn-sm gap-2">
           <CalendarIcon size={16} />
           Today
         </button>
@@ -111,45 +101,31 @@
 
     <!-- Content -->
     {#if loading}
-      <div class="flex justify-center items-center py-12">
+      <div class="flex items-center justify-center py-12">
         <span class="loading loading-spinner loading-lg text-primary"></span>
       </div>
     {:else if error}
-      <div class="card bg-error/10 border border-error/20">
+      <div class="card bg-error/10 border-error/20 border">
         <div class="card-body">
           <h3 class="card-title text-error">Error</h3>
           <p>{error}</p>
           <div class="card-actions">
-            <button class="btn btn-outline" on:click={loadJournal}>
-              Try Again
-            </button>
+            <button class="btn btn-outline" on:click={loadJournal}> Try Again </button>
           </div>
         </div>
       </div>
     {:else if journal}
       <!-- Existing journal - show appropriate view based on status -->
       {#if journal.status === 'draft'}
-        <JournalEditor 
-          {journal} 
-          {date}
-          on:update={e => handleJournalUpdate(e.detail)} 
-        />
+        <JournalEditor {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
       {:else if journal.status === 'in_review'}
-        <JournalChat 
-          {journal} 
-          {date}
-          on:update={e => handleJournalUpdate(e.detail)} 
-        />
+        <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
       {:else if journal.status === 'complete'}
         <JournalComplete {journal} />
       {/if}
     {:else}
       <!-- No journal exists for this date - show creation form -->
-      <JournalEditor 
-        journal={null} 
-        {date}
-        on:update={e => handleJournalUpdate(e.detail)} 
-      />
+      <JournalEditor journal={null} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
     {/if}
   </div>
 </div>
