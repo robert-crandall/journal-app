@@ -194,7 +194,8 @@
 
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body text-center">
-            <div class="text-warning text-3xl font-bold">{dashboard.journalEntries.length}</div>
+            <!-- TODO - add back -->
+            <!-- <div class="text-warning text-3xl font-bold">{dashboard.journalEntries.length}</div> -->
             <div class="text-base-content/60 text-sm">Journal Entries</div>
             <div class="text-base-content/40 text-xs">during experiment</div>
           </div>
@@ -276,7 +277,8 @@
               Journal Entries
             </h2>
 
-            {#if dashboard.journalEntries.length > 0}
+            <!-- TODO - add back -->
+            <!-- {#if dashboard.journalEntries.length > 0}
               <div class="space-y-4">
                 {#each dashboard.journalEntries as entry}
                   <div class="card bg-base-200 border-base-300 border">
@@ -313,7 +315,7 @@
                   Start Journaling
                 </a>
               </div>
-            {/if}
+            {/if} -->
           </div>
         </div>
       </div>

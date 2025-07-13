@@ -63,16 +63,21 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       mockResponse = "Hi there! I'm here to help you reflect on whatever's on your mind today. What would you like to share?";
     } else if (content.includes('journal conversation') && !content.includes('Generate metadata')) {
       mockResponse = 'That sounds really meaningful. Can you tell me more about what that experience was like for you?';
-    } else if (content.includes('Generate metadata') || content.includes('Analyze this journal conversation')) {
-      // Return properly formatted JSON for metadata generation
+    } else if (
+      content.includes('Generate metadata') ||
+      content.includes('Analyze this journal conversation') ||
+      content.includes('analyze this journal entry')
+    ) {
+      // Return properly formatted JSON for journal analysis
       mockResponse = JSON.stringify({
-        title: 'Reflective Journal Session',
-        synopsis: 'A thoughtful conversation about current experiences and feelings.',
         summary:
           'In this journal session, the user shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.',
-        suggestedTags: ['reflection', 'thoughts', 'personal'],
-        suggestedStatTags: {},
-        suggestedFamilyTags: {},
+        synopsis: 'A thoughtful conversation about current experiences and feelings.',
+        title: 'Reflective Journal Session',
+        contentTags: ['reflection', 'thoughts', 'personal'],
+        toneTags: ['reflective', 'thoughtful'],
+        statTags: [],
+        suggestedTodos: ["Continue reflecting on today's experiences"],
       });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';

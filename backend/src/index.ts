@@ -9,9 +9,9 @@ import goalsRoutes from './routes/goals';
 import familyRoutes from './routes/family';
 import tagsRoutes from './routes/tags';
 import focusRoutes from './routes/focus';
-import journalRoutes from './routes/journal';
 import todosRoutes from './routes/todos';
 import experimentsRoutes from './routes/experiments';
+import journalsRoutes from './routes/journals';
 
 // Create main app instance
 const app = new Hono();
@@ -56,12 +56,12 @@ const routes = app
   .route('/api/tags', tagsRoutes)
   // Mount focus routes
   .route('/api/focus', focusRoutes)
-  // Mount journal routes
-  .route('/api/journal', journalRoutes)
   // Mount todos routes
   .route('/api/todos', todosRoutes)
   // Mount experiments routes
-  .route('/api/experiments', experimentsRoutes);
+  .route('/api/experiments', experimentsRoutes)
+  // Mount journal routes
+  .route('/api/journals', journalsRoutes);
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {

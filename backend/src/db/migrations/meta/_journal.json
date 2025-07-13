@@ -141,6 +141,13 @@
       "when": 1752370503995,
       "tag": "0019_small_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1752425614193,
+      "tag": "0020_quick_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }

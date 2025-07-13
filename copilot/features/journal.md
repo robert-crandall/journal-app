@@ -1,41 +1,119 @@
-### 📖 Feature: Freeform Journal System
+### 📘 Feature: Journal System
 
-**Description:**
-Allow users to launch a journal session and write freely about their day. Journals are conversational in tone and may be written in a single go or revisited throughout the day. Once saved, GPT will analyze the entry to generate meaningful insights and structured metadata.
-
----
-
-**Acceptance Criteria:**
-
-- [ ] User can **start a new journal entry**
-- [ ] User can **edit the journal entry** before submitting
-- [ ] User can **view and browse past journal entries**
-- [ ] Journals are **tied to a single date** (1 per day, but can be revisited until finalized)
-- [ ] When finalized, journal is **sent to GPT for analysis**:
-  - Summary (full narrative based on user’s tone)
-  - Synopsis (1–2 sentence version)
-  - Title (6–10 words describing the entry)
-  - Content tags (e.g. "sleep", "relationship", "fun")
-  - Tone tags (e.g. "overwhelmed", "hopeful")
-  - Stat tags (linked to existing character stats, for XP assignment)
+**Goal:**
+Create a journal system that encourages intentional, long-form reflection first, followed by optional AI-guided exploration. Each journal entry moves through a clear lifecycle: `draft` → `in_review` → `complete`.
 
 ---
 
-**Design Notes:**
+### 🧱 Core Concepts
 
-- Journals should support Markdown-style editing
-- Each entry will store:
-  - `refined_summary`
-  - `synopsis`
-  - `title`
-  - `tags_content[]`, `tags_tone[]`, `tags_stats[]`
-  - `xp_gained[]` with per-stat mapping
-  - GPT request and response logs (optional for audit/debug)
+#### 🗓 One Journal Entry per Day
 
-- Each tag should prefer existing entries (autocomplete), but allow new ones for content tags only
+- Each user can create **only one journal entry per day**
+- Journal is accessed via `/journal/[YYYY-MM-DD]`
+
+#### 📊 Journal Status Lifecycle
+
+| Status      | Description                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| `draft`     | User is writing an unstructured freeform reflection (`initial_message`)                         |
+| `in_review` | User starts a chat to reflect more deeply. A `chat_session` begins with their `initial_message` |
+| `complete`  | Journal is finalized; GPT summarizes and tags it                                                |
 
 ---
 
-**Stretch Goals:**
+### 📦 Data Model
 
-- Add chart view showing tags/stat trends over time
+```ts
+Journal {
+  id: string (uuid)
+  user_id: string (FK)
+  date: Date (unique per user)
+  status: enum('draft', 'in_review', 'complete')
+  initial_message: text
+  chat_session: jsonb | null
+  summary: text | null
+  title: text | null
+  synopsis: text | null
+  tone_tags: string[]
+  content_tags: string[]
+  stat_tags: string[]
+  created_at: timestampz
+  updated_at: timestampz
+}
+```
+
+- `chat_session` will always start with:
+
+  ```json
+  [
+    { "role": "user", "content": "initial_message" },
+    { "role": "assistant", "content": "..." },
+    ...
+  ]
+  ```
+
+---
+
+### 🧠 GPT Interaction
+
+- **While in `draft`:**
+  - User can edit `initial_message`
+  - User can save `initial_message` at any time
+  - No GPT involvement yet
+
+- **Transition to `in_review`:**
+  - Freezes `initial_message`
+  - Begins `chat_session` with GPT
+  - User and GPT exchange messages (stored as JSON objects)
+
+- **Transition to `complete`:**
+  - GPT analyzes journal and outputs:
+    - `summary`
+    - `synopsis`
+    - `title`
+    - `tone_tags`, `content_tags`, `stat_tags`
+
+  - These are displayed on journal view
+
+---
+
+### 🖥️ UI Behavior
+
+#### Homepage
+
+- If journal doesn't exist for today → show "Write Journal"
+- If journal exists:
+  - `draft`: "Continue Writing"
+  - `in_review`: "Resume Reflection"
+  - `complete`: "View Entry"
+
+#### Journal Page
+
+- Single editor view at `/journal/[YYYY-MM-DD]`
+- If `status === 'draft'`:
+  - Show large textarea
+  - Show button: "Start Reflection"
+
+- If `status === 'in_review'`:
+  - Show existing `chat_session` in chat format
+  - Show chat input at bottom
+  - Button: "Finish Journal"
+
+- If `status === 'complete'`:
+  - Display metadata (summary, tags, etc.)
+  - Read-only view of full journal
+
+---
+
+### ✅ Acceptance Criteria
+
+- [ ] Journal model with required fields
+- [ ] One journal per user per day, identified by date
+- [ ] Support lifecycle states: `draft`, `in_review`, `complete`
+- [ ] Initial message editor (draft mode)
+- [ ] GPT chat session support (in_review mode)
+- [ ] Metadata generation via GPT (complete mode)
+- [ ] Routes and UI for `/journal/[date]`
+- [ ] GPT-safe `chat_session` formatting
+- [ ] Homepage logic for journal entry status

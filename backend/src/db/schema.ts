@@ -6,15 +6,6 @@ export { userValidationSchema, registerSchema, loginSchema } from '../validation
 export { createGoalSchema, updateGoalSchema } from '../validation/goals';
 export { createFamilyMemberSchema, updateFamilyMemberSchema, createFamilyTaskFeedbackSchema } from '../validation/family';
 export { createFocusSchema, updateFocusSchema, batchUpdateFocusesSchema } from '../validation/focus';
-export {
-  startJournalSessionSchema,
-  sendJournalMessageSchema,
-  saveJournalEntrySchema,
-  getJournalEntrySchema,
-  startLongFormJournalSchema,
-  saveLongFormJournalSchema,
-  startReflectionSchema,
-} from '../validation/journal';
 export { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
 export {
   createExperimentSchema,
@@ -24,6 +15,7 @@ export {
   completeExperimentTaskSchema,
   getExperimentDashboardSchema,
 } from '../validation/experiments';
+export { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -40,23 +32,6 @@ export type {
   CreateFamilyTaskFeedbackRequest,
 } from '../types/family';
 export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../types/focus';
-export type {
-  JournalEntry,
-  NewJournalEntry,
-  JournalConversationMessage,
-  NewJournalConversationMessage,
-  JournalSession,
-  NewJournalSession,
-  StartJournalSessionRequest,
-  StartJournalSessionResponse,
-  SendJournalMessageRequest,
-  SendJournalMessageResponse,
-  SaveJournalEntryRequest,
-  SaveJournalEntryResponse,
-  GetJournalEntriesResponse,
-  JournalEntryWithDetails,
-  ChatMessage,
-} from '../types/journal';
 export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';
 export type {
   Experiment,
@@ -79,3 +54,15 @@ export type {
   ExperimentTaskWithCompletionsResponse,
   ExperimentDashboardResponse,
 } from '../types/experiments';
+export type {
+  Journal,
+  NewJournal,
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  ChatMessage,
+  StartReflectionRequest,
+  AddChatMessageRequest,
+  FinishJournalRequest,
+  JournalResponse,
+  TodayJournalResponse,
+} from '../types/journals';
