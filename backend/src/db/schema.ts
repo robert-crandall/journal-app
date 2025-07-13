@@ -15,6 +15,7 @@ export {
   completeExperimentTaskSchema,
   getExperimentDashboardSchema,
 } from '../validation/experiments';
+export { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -53,3 +54,15 @@ export type {
   ExperimentTaskWithCompletionsResponse,
   ExperimentDashboardResponse,
 } from '../types/experiments';
+export type {
+  Journal,
+  NewJournal,
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  ChatMessage,
+  StartReflectionRequest,
+  AddChatMessageRequest,
+  FinishJournalRequest,
+  JournalResponse,
+  TodayJournalResponse,
+} from '../types/journals';
