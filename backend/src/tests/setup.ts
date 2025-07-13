@@ -44,10 +44,10 @@ beforeEach(async () => {
   if (!testClient) {
     getTestDb();
   }
-  
+
   // Create a unique savepoint name for this test
   currentSavepoint = `sp_${uuidv4().replace(/-/g, '_')}`;
-  
+
   // Create a savepoint
   await testClient!`SAVEPOINT ${testClient!.unsafe(currentSavepoint)}`;
 });

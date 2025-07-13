@@ -17,7 +17,6 @@ describe('Simple Todos API Integration Tests', () => {
   let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-
     // Create a test user with unique email and get auth token for protected routes
     testUser = {
       name: 'Test User',

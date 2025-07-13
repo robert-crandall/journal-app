@@ -19,7 +19,7 @@ describe('Stats API', () => {
   let authToken: string;
   let userId: string;
   let testUser: { name: string; email: string; password: string };
-  
+
   beforeEach(async () => {
     // Generate unique email for each test
     testUser = {

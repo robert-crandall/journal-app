@@ -14,7 +14,7 @@ const app = {
 describe('Authentication Flow Integration Tests', () => {
   // Generate a unique email suffix for this test run
   const emailSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-  
+
   describe('User Registration and Token Generation', () => {
     it('should complete full registration flow with valid JWT', async () => {
       // No need to clean database - using transaction isolation via savepoints
@@ -112,18 +112,8 @@ describe('Authentication Flow Integration Tests', () => {
       expect(data1.user.email).not.toBe(data2.user.email);
 
       // Verify both users exist in database
-      const dbUsers = await testDb()
-        .select()
-        .from(schema.users)
-        .where(
-          eq(schema.users.email, user1Data.email)
-        );
-      const dbUsers2 = await testDb()
-        .select()
-        .from(schema.users)
-        .where(
-          eq(schema.users.email, user2Data.email)
-        );
+      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, user1Data.email));
+      const dbUsers2 = await testDb().select().from(schema.users).where(eq(schema.users.email, user2Data.email));
 
       expect(dbUsers).toHaveLength(1);
       expect(dbUsers2).toHaveLength(1);
