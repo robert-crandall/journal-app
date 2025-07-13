@@ -1,0 +1,152 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { JournalService } from '$lib/api/journal';
+  import type { TodayJournalResponse } from '$lib/types/journal';
+  import { 
+    BookOpenIcon, 
+    PlusCircleIcon, 
+    MessageSquareIcon, 
+    CheckCircleIcon, 
+    CalendarIcon 
+  } from 'lucide-svelte';
+
+  let todayJournal: TodayJournalResponse | null = null;
+  let loading = true;
+  let error: string | null = null;
+
+  onMount(async () => {
+    try {
+      todayJournal = await JournalService.getTodaysJournal();
+      error = null;
+    } catch (err) {
+      console.error('Failed to load today\'s journal:', err);
+      error = 'Failed to load journal status';
+    } finally {
+      loading = false;
+    }
+  });
+
+  function handleJournalAction() {
+    const today = JournalService.getTodayDate();
+    goto(`/journal/${today}`);
+  }
+
+  function formatDate(dateStr: string): string {
+    try {
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  $: statusColor = todayJournal?.journal?.status === 'complete' ? 'success' : 
+                  todayJournal?.journal?.status === 'in_review' ? 'warning' : 'primary';
+  
+  $: statusIcon = todayJournal?.journal?.status === 'complete' ? CheckCircleIcon : 
+                 todayJournal?.journal?.status === 'in_review' ? MessageSquareIcon : PlusCircleIcon;
+  
+  $: actionText = todayJournal?.journal?.status === 'complete' ? 'View Today\'s Journal' : 
+                 todayJournal?.journal?.status === 'in_review' ? 'Continue Reflection' : 'Start Today\'s Journal';
+</script>
+
+<div class="card bg-base-100 border-base-300 border shadow-xl">
+  <div class="card-body">
+    <div class="flex items-center gap-3 mb-4">
+      <BookOpenIcon size={24} class="text-primary" />
+      <h3 class="text-lg font-semibold">Today's Journal</h3>
+    </div>
+
+    {#if loading}
+      <div class="flex items-center justify-center py-8">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    {:else if error}
+      <div class="alert alert-error">
+        <span class="text-sm">{error}</span>
+      </div>
+    {:else}
+      <div class="space-y-4">
+        <!-- Date Display -->
+        <div class="flex items-center gap-2 text-base-content/70">
+          <CalendarIcon size={16} />
+          <span class="text-sm">{formatDate(todayJournal?.journal?.date || new Date().toISOString())}</span>
+        </div>
+
+        <!-- Status Display -->
+        {#if todayJournal?.journal}
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="badge badge-{statusColor} badge-outline gap-2">
+                <svelte:component this={statusIcon} size={14} />
+                {todayJournal.journal.status === 'complete' ? 'Complete' : 
+                 todayJournal.journal.status === 'in_review' ? 'In Review' : 'Draft'}
+              </div>
+            </div>
+
+            {#if todayJournal.journal.title}
+              <h4 class="font-medium text-base-content/90">{todayJournal.journal.title}</h4>
+            {/if}
+
+            {#if todayJournal.journal.status === 'complete' && todayJournal.journal.synopsis}
+              <p class="text-sm text-base-content/70 italic">{todayJournal.journal.synopsis}</p>
+            {/if}
+
+            <!-- Progress info for in-progress journals -->
+            {#if todayJournal.journal.status !== 'complete'}
+              <div class="text-xs text-base-content/60">
+                {#if todayJournal.journal.initialMessage}
+                  {todayJournal.journal.initialMessage.length} characters written
+                {:else}
+                  Ready to start writing
+                {/if}
+              </div>
+            {/if}
+          </div>
+        {:else}
+          <!-- No journal yet -->
+          <div class="text-center py-4">
+            <div class="mb-3 opacity-60">
+              <BookOpenIcon size={48} class="mx-auto text-base-content/30" />
+            </div>
+            <p class="text-base-content/70 mb-2">No journal entry for today</p>
+            <p class="text-xs text-base-content/50">Start your daily reflection</p>
+          </div>
+        {/if}
+
+        <!-- Action Button -->
+        <div class="card-actions justify-center pt-2">
+          <button 
+            class="btn btn-{statusColor} btn-wide gap-2"
+            on:click={handleJournalAction}
+          >
+            <svelte:component this={statusIcon} size={18} />
+            {actionText}
+          </button>
+        </div>
+
+        <!-- Quick Stats for Completed Journal -->
+        {#if todayJournal?.journal?.status === 'complete'}
+          <div class="stats stats-horizontal bg-base-200/50 text-xs">
+            <div class="stat px-3 py-2">
+              <div class="stat-title text-xs">Messages</div>
+              <div class="stat-value text-sm">{todayJournal.journal.chatSession?.length || 0}</div>
+            </div>
+            <div class="stat px-3 py-2">
+              <div class="stat-title text-xs">Content Tags</div>
+              <div class="stat-value text-sm">{todayJournal.journal.contentTags?.length || 0}</div>
+            </div>
+            <div class="stat px-3 py-2">
+              <div class="stat-title text-xs">Stats</div>
+              <div class="stat-value text-sm">{todayJournal.journal.statTags?.length || 0}</div>
+            </div>
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+</div>

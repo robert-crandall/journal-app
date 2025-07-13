@@ -4,6 +4,7 @@
   import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
   import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
   import ExperimentTasksWidget from '$lib/components/experiments/ExperimentTasksWidget.svelte';
+  import JournalWidget from '$lib/components/journal/JournalWidget.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -53,6 +54,11 @@
 
               <div class="divider"></div>
 
+              <!-- Journal Widget -->
+              <div class="mb-6">
+                <JournalWidget />
+              </div>
+
               <!-- Daily Focus Widget -->
               <div class="mb-6">
                 <DailyFocusWidget />
@@ -92,11 +98,6 @@
                   <div class="stat-title text-xs">Joined</div>
                   <div class="stat-value text-lg">{new Date().toLocaleDateString()}</div>
                 </div>
-              </div>
-
-              <div class="card-actions mt-6 justify-center gap-3">
-                <a href="/journal/longform" class="btn btn-primary"> 📖 Start Journal </a>
-                <a href="/journal" class="btn btn-outline"> View Journal Entries </a>
               </div>
             </div>
           </div>
