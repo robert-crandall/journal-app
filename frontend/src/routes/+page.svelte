@@ -18,7 +18,7 @@
 </script>
 
 <svelte:head>
-  <title>Home | Auth Template</title>
+  <title>Home | LifeQuest</title>
 </svelte:head>
 
 <div class="min-h-screen">
@@ -129,7 +129,7 @@
             <!-- Left side content -->
             <div class="max-w-xl flex-1">
               <h1 class="mb-4 text-5xl leading-tight font-bold">
-                <span class="text-gradient"> Modern Auth Template </span>
+                <span class="text-gradient"> Modern Journal App </span>
               </h1>
               <p class="text-base-content/80 mb-8 text-xl">
                 A sleek SvelteKit application with user authentication powered by Hono backend. The perfect starting point for your next project.

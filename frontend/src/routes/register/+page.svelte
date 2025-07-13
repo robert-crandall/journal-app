@@ -66,7 +66,7 @@
 </script>
 
 <svelte:head>
-  <title>Register | Auth Template</title>
+  <title>Register | LifeQuest</title>
 </svelte:head>
 
 <main class="hero min-h-screen">
@@ -75,7 +75,7 @@
       <div class="card-body">
         <!-- Logo at the top -->
         <div class="mb-4 text-center">
-          <a href="/" class="btn btn-ghost text-gradient text-2xl font-bold"> Auth Template </a>
+          <a href="/" class="btn btn-ghost text-gradient text-2xl font-bold"> LifeQuest </a>
         </div>
 
         <RegisterForm {loading} {error} {registrationEnabled} on:register={handleRegister} />

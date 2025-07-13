@@ -71,7 +71,7 @@ test.describe('Navigation Menu', () => {
 
     // Should redirect to home page and show unauthenticated state
     await expect(page).toHaveURL('/');
-    await expect(page.locator('text=Modern Auth Template')).toBeVisible();
+    await expect(page.locator('text=LifeQuest')).toBeVisible();
     // Use more specific selector to avoid conflicts
     await expect(page.locator('header a[href="/login"]')).toBeVisible();
     await expect(page.locator('header a[href="/register"]')).toBeVisible();
