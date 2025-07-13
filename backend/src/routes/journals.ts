@@ -5,10 +5,24 @@ import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
 import { characterStats, characters } from '../db/schema';
-import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
+import {
+  createJournalSchema,
+  updateJournalSchema,
+  addChatMessageSchema,
+  journalDateSchema,
+  finishJournalSchema,
+} from '../validation/journals';
 import { handleApiError } from '../utils/logger';
 import { analyzeJournalEntry } from '../utils/gpt/journal';
-import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse, ChatMessage } from '../types/journals';
+import { generateFollowUpResponse, type ChatMessage } from '../utils/gpt/conversationalJournal';
+import { getUserContext } from '../utils/userContextService';
+import type {
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  AddChatMessageRequest,
+  JournalResponse,
+  TodayJournalResponse,
+} from '../types/journals';
 
 /**
  * Helper function to serialize journal to response format
@@ -275,6 +289,14 @@ const app = new Hono()
         );
       }
 
+      // Get user context for personalized AI response
+      const userContext = await getUserContext(userId, {
+        includeCharacter: true,
+        includeActiveGoals: true,
+        includeFamilyMembers: true,
+        includeCharacterStats: true,
+      });
+
       // Initialize chat session with the initial message
       const initialChatSession: ChatMessage[] = [
         {
@@ -282,13 +304,17 @@ const app = new Hono()
           content: currentJournal.initialMessage || '',
           timestamp: new Date().toISOString(),
         },
-        {
-          role: 'assistant',
-          content:
-            "Thank you for sharing your thoughts. I'd love to explore this further with you. What aspect of your reflection would you like to dive deeper into?",
-          timestamp: new Date().toISOString(),
-        },
       ];
+
+      // Generate a personalized AI response based on the user's context and journal entry
+      const { response: aiResponse } = await generateFollowUpResponse(initialChatSession, userContext);
+
+      // Add the AI response to the chat session
+      initialChatSession.push({
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date().toISOString(),
+      });
 
       const updatedJournal = await db
         .update(journals)
@@ -356,14 +382,28 @@ const app = new Hono()
         timestamp: new Date().toISOString(),
       };
 
-      // Generate AI response (simple for now - could be enhanced with GPT)
+      // Create updated conversation for context
+      const conversationWithNewMessage = [...existingChatSession, userMessage];
+
+      // Get user context for personalized AI response
+      const userContext = await getUserContext(userId, {
+        includeCharacter: true,
+        includeActiveGoals: true,
+        includeFamilyMembers: true,
+        includeCharacterStats: true,
+      });
+
+      // Generate AI response using the conversational journal utility
+      const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext);
+
+      // Add AI response
       const aiMessage: ChatMessage = {
         role: 'assistant',
-        content: "That's an interesting point. Can you tell me more about how that made you feel?",
+        content: aiResponse,
         timestamp: new Date().toISOString(),
       };
 
-      const updatedChatSession = [...existingChatSession, userMessage, aiMessage];
+      const updatedChatSession = [...conversationWithNewMessage, aiMessage];
 
       const updatedJournal = await db
         .update(journals)
