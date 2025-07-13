@@ -2,8 +2,9 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { getFamilyMember, deleteFamilyMember } from '$lib/api/family.js';
+  import { getFamilyMember, deleteFamilyMember, getXpHistory } from '$lib/api/family.js';
   import type { FamilyMember } from '$lib/api/family.js';
+  import type { XpGrantResponse } from '$lib/api/stats';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
   import { formatDate, formatDateTime } from '$lib/utils/date';
@@ -254,11 +255,40 @@
                 Recent Interactions
               </h2>
 
-              <div class="py-8 text-center">
-                <MessageCircle size={48} class="text-base-content/30 mx-auto mb-4" />
-                <p class="text-base-content/70 mb-4">No interactions recorded yet</p>
-                <p class="text-base-content/50 text-sm">Start tracking your interactions to see them here</p>
-              </div>
+              {#await getXpHistory(memberId, 10) then xpHistory}
+                {#if xpHistory.length > 0}
+                  <div class="space-y-3">
+                    {#each xpHistory as entry}
+                      <div class="bg-base-200 flex items-center justify-between rounded-lg p-3">
+                        <div class="flex-1">
+                          <p class="font-medium">{entry.reason || 'Interaction'}</p>
+                          <p class="text-base-content/60 text-sm">
+                            {formatDateTime(entry.createdAt)}
+                          </p>
+                        </div>
+                        <div class="badge badge-success gap-1">
+                          <Heart size={12} />
+                          +{entry.xpAmount} XP
+                        </div>
+                      </div>
+                    {/each}
+
+                    {#if xpHistory.length > 5}
+                      <div class="pt-4 text-center">
+                        <button class="btn btn-outline btn-sm">
+                          View All History ({xpHistory.length} entries)
+                        </button>
+                      </div>
+                    {/if}
+                  </div>
+                {:else}
+                  <div class="py-8 text-center">
+                    <MessageCircle size={48} class="text-base-content/30 mx-auto mb-4" />
+                    <p class="text-base-content/70 mb-4">No interactions recorded yet</p>
+                    <p class="text-base-content/50 text-sm">Interactions will appear here from journal entries and activities</p>
+                  </div>
+                {/if}
+              {/await}
             </div>
           </div>
         </div>
@@ -281,6 +311,17 @@
                   </div>
                   <div class="stat-desc">
                     <progress class="progress progress-primary w-full" value={familyMember.connectionLevel} max="10"></progress>
+                  </div>
+                </div>
+
+                <div class="stat bg-accent/10 rounded-lg p-4">
+                  <div class="stat-title text-xs">Connection XP</div>
+                  <div class="stat-value text-accent text-lg">
+                    {familyMember.connectionXp} XP
+                  </div>
+                  <div class="stat-desc flex items-center gap-1">
+                    <Heart size={12} />
+                    {familyMember.connectionXp - (familyMember.connectionLevel - 1) * 100} XP to next level
                   </div>
                 </div>
 
