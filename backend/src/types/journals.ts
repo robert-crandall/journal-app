@@ -16,9 +16,6 @@ export interface UpdateJournalRequest {
   summary?: string;
   title?: string;
   synopsis?: string;
-  toneTags?: string[];
-  contentTags?: string[];
-  statTags?: string[];
 }
 
 export interface ChatMessage {
@@ -49,9 +46,9 @@ export interface JournalResponse {
   summary: string | null;
   title: string | null;
   synopsis: string | null;
-  toneTags: string[] | null;
-  contentTags: string[] | null;
-  statTags: string[] | null;
+  toneTags: string[]; // Deprecated but kept for frontend compatibility - always empty array
+  contentTags: string[]; // Deprecated but kept for frontend compatibility - always empty array
+  statTags: string[]; // Deprecated but kept for frontend compatibility - always empty array
   createdAt: string;
   updatedAt: string;
 }

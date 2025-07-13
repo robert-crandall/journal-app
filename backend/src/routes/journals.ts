@@ -37,9 +37,9 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
-    toneTags: journal.toneTags ? JSON.parse(journal.toneTags) : [],
-    contentTags: journal.contentTags ? JSON.parse(journal.contentTags) : [],
-    statTags: journal.statTags ? JSON.parse(journal.statTags) : [],
+    toneTags: [], // Deprecated - now using xpGrants table
+    contentTags: [], // Deprecated - now using xpGrants table  
+    statTags: [], // Deprecated - now using xpGrants table
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
@@ -226,15 +226,7 @@ const app = new Hono()
       if (data.synopsis !== undefined) {
         updateData.synopsis = data.synopsis;
       }
-      if (data.toneTags !== undefined) {
-        updateData.toneTags = JSON.stringify(data.toneTags);
-      }
-      if (data.contentTags !== undefined) {
-        updateData.contentTags = JSON.stringify(data.contentTags);
-      }
-      if (data.statTags !== undefined) {
-        updateData.statTags = JSON.stringify(data.statTags);
-      }
+      // Note: toneTags, contentTags, and statTags are deprecated - now using xpGrants table
 
       const updatedJournal = await db
         .update(journals)
@@ -473,9 +465,6 @@ const app = new Hono()
           summary: metadata.summary,
           title: metadata.title,
           synopsis: metadata.synopsis,
-          toneTags: null, // Deprecated
-          contentTags: null, // Deprecated - now using xpGrants
-          statTags: null, // Deprecated - now using xpGrants
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))
