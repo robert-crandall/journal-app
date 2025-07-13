@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <a href="/journal/session" class="btn btn-primary btn-lg"> ➕ Start Journal </a>
+      <a href="/journal/longform" class="btn btn-primary btn-lg"> ➕ Start Journal </a>
     </div>
 
     <!-- Content -->
@@ -68,7 +68,7 @@
             <p class="text-base-content/70 mb-6">
               Begin a conversation with our AI guide to explore your thoughts, feelings, and experiences in a supportive environment.
             </p>
-            <a href="/journal/session" class="btn btn-primary btn-lg"> ➕ Start Your First Entry </a>
+            <a href="/journal/longform" class="btn btn-primary btn-lg"> ➕ Start Your First Entry </a>
           </div>
         </div>
       </div>

@@ -95,7 +95,7 @@
               </div>
 
               <div class="card-actions mt-6 justify-center gap-3">
-                <a href="/journal/session" class="btn btn-primary"> 📖 Start Journal </a>
+                <a href="/journal/longform" class="btn btn-primary"> 📖 Start Journal </a>
                 <a href="/journal" class="btn btn-outline"> View Journal Entries </a>
               </div>
             </div>

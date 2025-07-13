@@ -52,7 +52,7 @@
         <button class="btn btn-primary btn-lg">➕ Start Journal</button>
         <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] mt-1 w-52 p-2 shadow">
           <li><a href="/journal/longform">Long-Form Entry</a></li>
-          <li><a href="/journal/session">Chat Entry</a></li>
+          <li><a href="/journal/longform">Journal Entry</a></li>
         </ul>
       </div>
     </div>
@@ -81,9 +81,8 @@
             <p class="text-base-content/70 mb-6">
               Begin a conversation with our AI guide to explore your thoughts, feelings, and experiences in a supportive environment.
             </p>
-            <div class="flex flex-col gap-3 sm:flex-row">
-              <a href="/journal/longform" class="btn btn-primary btn-lg"> ✏️ Start Long-Form Entry </a>
-              <a href="/journal/session" class="btn btn-outline btn-lg"> 💬 Start Chat Entry </a>
+            <div class="flex justify-center">
+              <a href="/journal/longform" class="btn btn-primary btn-lg"> ✏️ Start Journal Entry </a>
             </div>
           </div>
         </div>

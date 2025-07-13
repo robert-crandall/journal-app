@@ -308,7 +308,7 @@
                 <Book class="text-base-content/30 mx-auto mb-4 h-12 w-12" />
                 <h3 class="text-base-content mb-2 text-lg font-medium">No journal entries</h3>
                 <p class="text-base-content/60 mb-4">Write about your experiment experience to track insights and progress.</p>
-                <a href="/journal/create" class="btn btn-secondary btn-sm">
+                <a href="/journal/longform" class="btn btn-secondary btn-sm">
                   <Book class="h-4 w-4" />
                   Start Journaling
                 </a>

@@ -183,9 +183,8 @@
       {/if}
 
       <!-- Actions -->
-      <div class="mt-8 flex justify-center gap-4">
-        <a href="/journal/longform" class="btn btn-outline btn-lg"> ✏️ New Long-Form Entry </a>
-        <a href="/journal/session" class="btn btn-primary btn-lg"> 💬 New Chat Entry </a>
+      <div class="mt-8 flex justify-center">
+        <a href="/journal/longform" class="btn btn-primary btn-lg"> ✏️ New Journal Entry </a>
       </div>
     {:else}
       <div class="alert alert-warning">
