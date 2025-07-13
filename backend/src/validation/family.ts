@@ -44,3 +44,18 @@ export const familyFeedbackQuerySchema = z.object({
     .transform((val) => (val ? parseInt(val, 10) : 50))
     .refine((val) => val > 0 && val <= 100, 'Limit must be between 1 and 100'),
 });
+
+// XP history query schema
+export const xpHistoryQuerySchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 50))
+    .refine((val) => val > 0 && val <= 100, 'Limit must be between 1 and 100'),
+  offset: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 0))
+    .refine((val) => val >= 0, 'Offset must be a positive number'),
+  sourceType: z.string().optional(),
+});

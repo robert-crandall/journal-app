@@ -1,5 +1,6 @@
 // Import shared authentication utilities
-import { createAuthenticatedFetch } from '../api';
+import { createAuthenticatedFetch, authenticatedClient } from '../api';
+import type { XpGrantResponse } from './stats';
 
 // Import types from backend
 // TODO: Once module resolution is fixed, import directly from backend
@@ -276,6 +277,37 @@ export const familyApi = {
       throw error;
     }
   },
+
+  // Get XP history for a family member
+  async getXpHistory(memberId: string, limit = 50, offset = 0): Promise<XpGrantResponse[]> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (limit) {
+        queryParams.set('limit', limit.toString());
+      }
+      if (offset) {
+        queryParams.set('offset', offset.toString());
+      }
+
+      const query = queryParams.toString();
+      const endpoint = `/api/family/${memberId}/xp-history${query ? `?${query}` : ''}`;
+
+      const authenticatedFetch = createAuthenticatedFetch();
+      const response = await authenticatedFetch(endpoint);
+
+      if (!response.ok) {
+        console.error('Get family XP history API error:', response.status, response.statusText);
+        const result = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const result = (await response.json()) as ApiResponse<XpGrantResponse[]>;
+      return result.data;
+    } catch (error) {
+      console.error('Get family XP history API request failed:', error);
+      throw error;
+    }
+  },
 };
 
 // Export simple functions for component compatibility
@@ -287,3 +319,4 @@ export const deleteFamilyMember = familyApi.deleteFamilyMember;
 export const updateFamilyMemberAvatar = familyApi.updateFamilyMemberAvatar;
 export const addTaskFeedback = familyApi.addTaskFeedback;
 export const getTaskFeedback = familyApi.getTaskFeedback;
+export const getXpHistory = familyApi.getXpHistory;

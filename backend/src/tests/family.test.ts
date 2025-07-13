@@ -782,4 +782,136 @@ describe('Family API', () => {
       expect(response.status).toBe(401);
     });
   });
+
+  describe('GET /api/family/:id/xp-history', () => {
+    let familyMemberId: string;
+
+    beforeEach(async () => {
+      // Create a family member
+      const response = await app.request('/api/family', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'XP History Test Member',
+          relationship: 'daughter',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      const data = await response.json();
+      familyMemberId = data.data.id;
+
+      // Add some feedback to generate XP
+      const feedbackItems = [
+        { taskDescription: 'Played board games', feedback: 'She won three times!' },
+        { taskDescription: 'Went swimming', feedback: 'Great progress with her swimming' },
+        { taskDescription: 'Helped with dinner', feedback: 'Very helpful in the kitchen' },
+      ];
+
+      for (const feedback of feedbackItems) {
+        await app.request(`/api/family/${familyMemberId}/feedback`, {
+          method: 'POST',
+          body: JSON.stringify({
+            familyMemberId,
+            ...feedback,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+      }
+    });
+
+    test('should return XP history for family member', async () => {
+      const response = await app.request(`/api/family/${familyMemberId}/xp-history`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+
+      // Should have 3 XP grant entries
+      expect(data.data).toHaveLength(3);
+
+      // Check structure of first XP grant
+      expect(data.data[0]).toHaveProperty('id');
+      expect(data.data[0]).toHaveProperty('entityType', 'family_member');
+      expect(data.data[0]).toHaveProperty('entityId', familyMemberId);
+      expect(data.data[0]).toHaveProperty('xpAmount');
+      expect(data.data[0]).toHaveProperty('sourceType', 'interaction');
+      expect(data.data[0]).toHaveProperty('reason');
+      expect(data.data[0]).toHaveProperty('entityName', 'XP History Test Member');
+      expect(data.data[0]).toHaveProperty('entityDescription', 'daughter');
+    });
+
+    test('should limit results when requested', async () => {
+      const response = await app.request(`/api/family/${familyMemberId}/xp-history?limit=2`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data).toHaveLength(2);
+    });
+
+    test('should apply offset when requested', async () => {
+      // Get all grants first
+      const allResponse = await app.request(`/api/family/${familyMemberId}/xp-history`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const allData = await allResponse.json();
+
+      // Now get with offset
+      const offsetResponse = await app.request(`/api/family/${familyMemberId}/xp-history?offset=1`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const offsetData = await offsetResponse.json();
+
+      expect(offsetData.success).toBe(true);
+      expect(offsetData.data).toHaveLength(2); // Should have all except the first
+
+      // The first entry in the offset results should match the second entry in the complete results
+      expect(offsetData.data[0].id).toBe(allData.data[1].id);
+    });
+
+    test('should filter by source type when requested', async () => {
+      // All our test data has sourceType 'interaction' so we should get all results
+      const response = await app.request(`/api/family/${familyMemberId}/xp-history?sourceType=interaction`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data).toHaveLength(3);
+      expect(data.data.every((item: any) => item.sourceType === 'interaction')).toBe(true);
+
+      // Filter by a non-existent source type - should return empty array
+      const emptyResponse = await app.request(`/api/family/${familyMemberId}/xp-history?sourceType=journal`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      expect(emptyResponse.status).toBe(200);
+      const emptyData = await emptyResponse.json();
+      expect(emptyData.success).toBe(true);
+      expect(emptyData.data).toHaveLength(0);
+    });
+
+    test('should return 404 for non-existent family member', async () => {
+      const response = await app.request('/api/family/00000000-0000-0000-0000-000000000000/xp-history', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      expect(response.status).toBe(404);
+    });
+
+    test('should require authentication', async () => {
+      const response = await app.request(`/api/family/${familyMemberId}/xp-history`);
+      expect(response.status).toBe(401);
+    });
+  });
 });
