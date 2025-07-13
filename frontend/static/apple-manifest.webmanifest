@@ -1,0 +1,16 @@
+{
+  "name": "Journal App",
+  "short_name": "Journal",
+  "description": "A personal journal application with goal tracking and statistics",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#570DF8",
+  "icons": [
+    {
+      "sizes": "512x512",
+      "src": "icons/icon512_maskable.png",
+      "type": "image/png"
+    }
+  ]
+}
