@@ -219,12 +219,21 @@ describe('Journal XP Grants Integration', () => {
     });
 
     it('should create content tag XP grants with 0 XP', async () => {
+      // Create test tags first
+      const testTags = await testDb()
+        .insert(tags)
+        .values([
+          { userId, name: 'programming' },
+          { userId, name: 'learning' }
+        ])
+        .returning();
+
       // Mock the GPT response to return content tags
       (mockGenerateJournalMetadata as any).mockResolvedValue({
         title: 'Learning Day',
         synopsis: 'User spent time learning programming',
         summary: 'A productive day of coding and learning',
-        suggestedTags: ['programming', 'learning'],
+        suggestedTags: [testTags[0].id, testTags[1].id], // Use actual tag IDs
         suggestedStatTags: {},
         suggestedFamilyTags: {},
         suggestedTodos: []
