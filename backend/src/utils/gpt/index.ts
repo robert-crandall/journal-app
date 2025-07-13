@@ -24,7 +24,7 @@ export { createSystemPrompt, createUserPrompt, createPrompt, extractTagsFromText
 export { analyzeJournalEntry } from './journal';
 export type { JournalAnalysisRequest, JournalAnalysisResponse } from './journal';
 
-export { generateWelcomeMessage, generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
+export { generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
 export type { ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
 
 // New comprehensive user context service

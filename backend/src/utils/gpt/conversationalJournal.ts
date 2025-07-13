@@ -27,22 +27,6 @@ export interface JournalMetadata {
 }
 
 /**
- * System prompt for generating welcome messages
- */
-const WELCOME_MESSAGE_SYSTEM_PROMPT = `
-You are a thoughtful, empathetic journal companion. Your role is to help users reflect on their day and experiences through gentle conversation.
-
-Your task is to generate a warm, personalized welcome message that:
-- Acknowledges the user by name if provided
-- References their character class or background if available
-- Invites them to share what's on their mind
-- Feels supportive and non-judgmental
-- Is conversational and encouraging
-
-Keep the message to 1-2 sentences and make it feel personal but not overwhelming.
-`;
-
-/**
  * System prompt for follow-up responses in conversation
  */
 function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shouldOfferSave: boolean, userMessageCount: number): string {
@@ -246,31 +230,6 @@ Return ONLY the JSON object without any additional text or explanation.
 `;
 
   return systemPrompt;
-}
-
-/**
- * Generate a personalized welcome message for a journal session
- */
-export async function generateWelcomeMessage(userContext: ComprehensiveUserContext): Promise<string> {
-  if (!gptConfig.isWelcomeMessageEnabled()) {
-    return `Welcome to your journal! I'm here to help you reflect on your thoughts and experiences. What would you like to share today?`;
-  }
-
-  let userPromptContent = `Generate a welcome message for a user starting a journal session.\n\n`;
-
-  // Use the comprehensive context formatting
-  userPromptContent += formatUserContextForPrompt(userContext);
-
-  userPromptContent += `\nGenerate a warm, personalized welcome message that invites them to begin journaling.`;
-
-  const messages = createPrompt(WELCOME_MESSAGE_SYSTEM_PROMPT, userPromptContent);
-
-  const response = await callGptApi({
-    messages,
-    temperature: 0.7, // Higher temperature for more creative/warm responses
-  });
-
-  return response.content.trim();
 }
 
 /**
