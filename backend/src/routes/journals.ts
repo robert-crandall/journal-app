@@ -13,8 +13,7 @@ import {
   finishJournalSchema,
 } from '../validation/journals';
 import { handleApiError } from '../utils/logger';
-import { analyzeJournalEntry } from '../utils/gpt/journal';
-import { generateFollowUpResponse, type ChatMessage } from '../utils/gpt/conversationalJournal';
+import { generateFollowUpResponse, generateJournalMetadata, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
 import type {
   CreateJournalRequest,
@@ -460,44 +459,31 @@ const app = new Hono()
         );
       }
 
-      // Get user's character for context
-      const userCharacter = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
-
-      // Get user's stats for context
-      const userStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
-
-      // Prepare content for GPT analysis
+      // Get the chat session for analysis
       const chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
-      const fullJournalContent = [
-        `Initial Message: ${currentJournal.initialMessage || ''}`,
-        '',
-        'Chat Session:',
-        ...chatSession.map((msg) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`),
-      ].join('\n');
 
-      // Analyze journal with GPT
-      const analysis = await analyzeJournalEntry({
-        journalContent: fullJournalContent,
-        userBackstory: userCharacter.length > 0 ? userCharacter[0].backstory || undefined : undefined,
-        characterClass: userCharacter.length > 0 ? userCharacter[0].characterClass || undefined : undefined,
-        availableStats: userStats.map((stat) => ({
-          id: stat.id,
-          name: stat.name,
-          description: stat.description || '',
-        })),
-      });
+      // Generate journal metadata using the new function
+      const metadata = await generateJournalMetadata(chatSession, userId);
 
-      // Update journal with analysis results
+      // Update journal with metadata results
       const updatedJournal = await db
         .update(journals)
         .set({
           status: 'complete',
-          summary: analysis.summary,
-          title: analysis.title,
-          synopsis: analysis.synopsis,
-          toneTags: JSON.stringify(analysis.toneTags),
-          contentTags: JSON.stringify(analysis.contentTags),
-          statTags: JSON.stringify(analysis.statTags),
+          summary: metadata.summary,
+          title: metadata.title,
+          synopsis: metadata.synopsis,
+          toneTags: JSON.stringify([]), // No tone tags in new system
+          contentTags: JSON.stringify(metadata.suggestedTags || (metadata as any).contentTags || []),
+          statTags: JSON.stringify(
+            metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object'
+              ? Object.entries(metadata.suggestedStatTags).map(([statName, data]) => ({
+                  statId: statName,
+                  xp: typeof data === 'object' && data !== null ? data.xp : 0,
+                  reason: typeof data === 'object' && data !== null ? data.reason : '',
+                }))
+              : (metadata as any).statTags || []
+          ),
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))

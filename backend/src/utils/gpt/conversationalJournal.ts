@@ -275,7 +275,7 @@ export async function generateFollowUpResponse(
 /**
  * Generate journal metadata from a complete conversation
  */
-export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext, userId: string): Promise<JournalMetadata> {
+export async function generateJournalMetadata(conversation: ChatMessage[], userId: string): Promise<JournalMetadata> {
   // Get enhanced user context with tags and stats for metadata generation
   const enhancedContext = await getUserContext(userId, {
     includeCharacter: true,
