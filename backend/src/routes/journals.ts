@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
-import { characterStats, characters } from '../db/schema';
+import { characterStats, characters, xpGrants, simpleTodos, familyMembers } from '../db/schema';
 import {
   createJournalSchema,
   updateJournalSchema,
@@ -37,9 +37,9 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
-    toneTags: journal.toneTags ? JSON.parse(journal.toneTags) : null,
-    contentTags: journal.contentTags ? JSON.parse(journal.contentTags) : null,
-    statTags: journal.statTags ? JSON.parse(journal.statTags) : null,
+    toneTags: journal.toneTags ? JSON.parse(journal.toneTags) : [],
+    contentTags: journal.contentTags ? JSON.parse(journal.contentTags) : [],
+    statTags: journal.statTags ? JSON.parse(journal.statTags) : [],
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
@@ -465,7 +465,7 @@ const app = new Hono()
       // Generate journal metadata using the new function
       const metadata = await generateJournalMetadata(chatSession, userId);
 
-      // Update journal with metadata results
+      // Update journal with basic metadata (no more JSON tags)
       const updatedJournal = await db
         .update(journals)
         .set({
@@ -473,21 +473,110 @@ const app = new Hono()
           summary: metadata.summary,
           title: metadata.title,
           synopsis: metadata.synopsis,
-          toneTags: JSON.stringify([]), // No tone tags in new system
-          contentTags: JSON.stringify(metadata.suggestedTags || (metadata as any).contentTags || []),
-          statTags: JSON.stringify(
-            metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object'
-              ? Object.entries(metadata.suggestedStatTags).map(([statName, data]) => ({
-                  statId: statName,
-                  xp: typeof data === 'object' && data !== null ? data.xp : 0,
-                  reason: typeof data === 'object' && data !== null ? data.reason : '',
-                }))
-              : (metadata as any).statTags || []
-          ),
+          toneTags: null, // Deprecated
+          contentTags: null, // Deprecated - now using xpGrants
+          statTags: null, // Deprecated - now using xpGrants
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))
         .returning();
+
+      const journalId = updatedJournal[0].id;
+
+      // Create XP grants for content tags (0 XP)
+      if (metadata.suggestedTags && metadata.suggestedTags.length > 0) {
+        const contentTagsGrants = metadata.suggestedTags.map(tagId => ({
+          userId,
+          entityType: 'content_tag' as const,
+          entityId: tagId,
+          xpAmount: 0, // Content tags get 0 XP
+          sourceType: 'journal' as const,
+          sourceId: journalId,
+          reason: 'Content tag from journal analysis',
+        }));
+
+        await db.insert(xpGrants).values(contentTagsGrants);
+      }
+
+      // Create XP grants for character stats
+      if (metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object') {
+        const statGrantsToInsert = [];
+
+        for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
+          if (typeof data === 'object' && data !== null && data.xp > 0) {
+            statGrantsToInsert.push({
+              userId,
+              entityType: 'character_stat' as const,
+              entityId: statId,
+              xpAmount: data.xp,
+              sourceType: 'journal' as const,
+              sourceId: journalId,
+              reason: data.reason || 'XP from journal reflection',
+            });
+
+            // Update the character stat's total XP
+            await db
+              .update(characterStats)
+              .set({
+                totalXp: sql`total_xp + ${data.xp}`,
+                updatedAt: new Date(),
+              })
+              .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+          }
+        }
+
+        if (statGrantsToInsert.length > 0) {
+          await db.insert(xpGrants).values(statGrantsToInsert);
+        }
+      }
+
+      // Create XP grants for family members
+      if (metadata.suggestedFamilyTags && typeof metadata.suggestedFamilyTags === 'object') {
+        const familyGrantsToInsert = [];
+
+        for (const [familyMemberId, data] of Object.entries(metadata.suggestedFamilyTags)) {
+          if (typeof data === 'object' && data !== null && data.xp > 0) {
+            familyGrantsToInsert.push({
+              userId,
+              entityType: 'family_member' as const,
+              entityId: familyMemberId,
+              xpAmount: data.xp,
+              sourceType: 'journal' as const,
+              sourceId: journalId,
+              reason: data.reason || 'Connection XP from journal interaction',
+            });
+
+            // Update the family member's connection XP
+            await db
+              .update(familyMembers)
+              .set({
+                connectionXp: sql`connection_xp + ${data.xp}`,
+                lastInteractionDate: new Date(),
+                updatedAt: new Date(),
+              })
+              .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
+          }
+        }
+
+        if (familyGrantsToInsert.length > 0) {
+          await db.insert(xpGrants).values(familyGrantsToInsert);
+        }
+      }
+
+      // Create simple todos that expire in 24 hours
+      if (metadata.suggestedTodos && metadata.suggestedTodos.length > 0) {
+        const expirationTime = new Date();
+        expirationTime.setHours(expirationTime.getHours() + 24);
+
+        const todosToInsert = metadata.suggestedTodos.map(todoDescription => ({
+          userId,
+          description: todoDescription,
+          isCompleted: false,
+          expirationTime,
+        }));
+
+        await db.insert(simpleTodos).values(todosToInsert);
+      }
 
       return c.json({
         success: true,
