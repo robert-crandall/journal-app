@@ -23,6 +23,7 @@ export interface JournalMetadata {
   suggestedTags: string[];
   suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stats with XP amount and reason for XP
   suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family members with XP amount and reason for interactions
+  suggestedTodos?: string[]; // Actionable items extracted from journal content
 }
 
 /**
@@ -194,7 +195,8 @@ IMPORTANT: Format your response exactly as JSON:
   "suggestedFamilyTags": {
     "familyMemberName1": { "xp": 20, "reason": "Specific interaction or quality time spent with this person" },
     "familyMemberName2": { "xp": 15, "reason": "Specific interaction or quality time spent with this person" }
-  }
+  },
+  "suggestedTodos": ["Actionable item 1", "Actionable item 2"]
 }
 
 ## Tagging Guidelines
@@ -205,6 +207,12 @@ IMPORTANT: Format your response exactly as JSON:
   - XP amount between 5-50 based on the significance and effort discussed
   - A specific reason describing what actions or qualities earned this XP
   - Use the exact stat names provided in the context
+  
+**Todos**: Extract 0-5 actionable items from the conversation that the user has mentioned or implied they need to do. Format each as a short, clear task statement:
+  - Start with a verb when possible (e.g., "Call doctor about appointment")
+  - Keep each todo brief (under 100 characters)
+  - Focus on concrete, specific actions
+  - Only include todos that seem genuinely important to the user
 
 **Family Tags**: Only suggest family members who were mentioned, involved in activities, or discussed in the conversation. For each family member, provide:
   - XP amount between 5-50 based on the significance of the interaction

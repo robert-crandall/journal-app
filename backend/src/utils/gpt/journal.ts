@@ -23,6 +23,7 @@ export interface JournalAnalysisResponse {
   contentTags: string[];
   toneTags: string[];
   statTags: Array<{ statId: string; xp: number }>;
+  suggestedTodos?: string[]; // Actionable items extracted from journal content
 }
 
 /**
@@ -42,7 +43,8 @@ IMPORTANT: Format your response exactly as follows (JSON format):
   "statTags": [
     {"statId": "stat-id-1", "xp": 20},
     {"statId": "stat-id-2", "xp": 15}
-  ]
+  ],
+  "suggestedTodos": ["Actionable item 1", "Actionable item 2"]
 }
 
 Rules for analysis:
@@ -53,6 +55,8 @@ Rules for analysis:
 5. The title should be concise but descriptive
 6. The summary should maintain the original voice but enhance clarity
 7. The synopsis should capture the main point/theme
+8. Extract 0-5 actionable todos from the journal that the user has explicitly mentioned or implied they need to do
+9. Format todos as short, clear task statements that start with a verb when possible (e.g., "Call doctor about appointment")
 `;
 
 /**

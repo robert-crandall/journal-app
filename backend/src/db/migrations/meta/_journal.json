@@ -134,6 +134,13 @@
       "when": 1752353561418,
       "tag": "0018_confused_silk_fever",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1752370503995,
+      "tag": "0019_small_stick",
+      "breakpoints": true
     }
   ]
 }
