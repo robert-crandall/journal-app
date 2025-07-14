@@ -316,10 +316,10 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
 
   try {
     const rawResult = JSON.parse(response.content);
-    
+
     // Convert names to IDs
     const convertedResult = await convertNamesToIds(rawResult, userId, enhancedContext);
-    
+
     return convertedResult;
   } catch (error) {
     throw new Error(`Failed to parse GPT metadata response: ${error instanceof Error ? error.message : String(error)}`);
@@ -329,11 +329,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
 /**
  * Convert tag names, stat names, and family member names to their respective IDs
  */
-async function convertNamesToIds(
-  rawMetadata: any,
-  userId: string,
-  userContext: ComprehensiveUserContext
-): Promise<JournalMetadata> {
+async function convertNamesToIds(rawMetadata: any, userId: string, userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
   // Convert content tags to IDs (create if they don't exist)
   const suggestedTags: string[] = [];
   if (rawMetadata.suggestedTags || rawMetadata.contentTags) {
@@ -353,15 +349,13 @@ async function convertNamesToIds(
   // Convert stat names to IDs
   const suggestedStatTags: Record<string, { xp: number; reason: string }> = {};
   const rawStatTags = rawMetadata.suggestedStatTags || rawMetadata.statTags || {};
-  
+
   if (userContext.characterStats && typeof rawStatTags === 'object' && rawStatTags !== null) {
     for (const [statName, data] of Object.entries(rawStatTags)) {
       if (typeof data === 'object' && data !== null && 'xp' in data) {
         // Find the stat by name (case-insensitive)
-        const matchingStat = userContext.characterStats.find(
-          stat => stat.name.toLowerCase() === statName.toLowerCase()
-        );
-        
+        const matchingStat = userContext.characterStats.find((stat) => stat.name.toLowerCase() === statName.toLowerCase());
+
         if (matchingStat) {
           // Get the actual stat ID from the database
           const dbStat = await db
@@ -369,11 +363,11 @@ async function convertNamesToIds(
             .from(characterStats)
             .where(and(eq(characterStats.userId, userId), eq(characterStats.name, matchingStat.name)))
             .limit(1);
-            
+
           if (dbStat.length > 0) {
             suggestedStatTags[dbStat[0].id] = {
               xp: (data as any).xp || 0,
-              reason: (data as any).reason || ''
+              reason: (data as any).reason || '',
             };
           }
         }
@@ -384,19 +378,17 @@ async function convertNamesToIds(
   // Convert family member names to IDs
   const suggestedFamilyTags: Record<string, { xp: number; reason: string }> = {};
   const rawFamilyTags = rawMetadata.suggestedFamilyTags || {};
-  
+
   if (userContext.familyMembers && typeof rawFamilyTags === 'object' && rawFamilyTags !== null) {
     for (const [familyName, data] of Object.entries(rawFamilyTags)) {
       if (typeof data === 'object' && data !== null && 'xp' in data) {
         // Find the family member by name (case-insensitive)
-        const matchingMember = userContext.familyMembers.find(
-          member => member.name.toLowerCase() === familyName.toLowerCase()
-        );
-        
+        const matchingMember = userContext.familyMembers.find((member) => member.name.toLowerCase() === familyName.toLowerCase());
+
         if (matchingMember) {
           suggestedFamilyTags[matchingMember.id] = {
             xp: (data as any).xp || 0,
-            reason: (data as any).reason || ''
+            reason: (data as any).reason || '',
           };
         }
       }
@@ -410,6 +402,6 @@ async function convertNamesToIds(
     suggestedTags,
     suggestedStatTags,
     suggestedFamilyTags,
-    suggestedTodos: rawMetadata.suggestedTodos || []
+    suggestedTodos: rawMetadata.suggestedTodos || [],
   };
 }

@@ -2,17 +2,30 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
+  import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
   import { formatDateTime } from '$lib/utils/date';
   import type { TodayJournalResponse } from '$lib/types/journal';
-  import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon } from 'lucide-svelte';
+  import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon, TrophyIcon, TagIcon } from 'lucide-svelte';
 
   let todayJournal: TodayJournalResponse | null = null;
+  let xpGrants: XpGrantWithDetails[] = [];
   let loading = true;
   let error: string | null = null;
 
   onMount(async () => {
     try {
       todayJournal = await JournalService.getTodaysJournal();
+
+      // If journal is complete, load XP grants
+      if (todayJournal?.journal?.status === 'complete') {
+        try {
+          xpGrants = await XpGrantsService.getJournalXpGrants(todayJournal.journal.id);
+        } catch (err) {
+          console.warn('Failed to load XP grants:', err);
+          // Don't fail the entire component if XP grants fail
+        }
+      }
+
       error = null;
     } catch (err) {
       console.error("Failed to load today's journal:", err);
@@ -128,11 +141,11 @@
             </div>
             <div class="stat px-3 py-2">
               <div class="stat-title text-xs">Content Tags</div>
-              <div class="stat-value text-sm">{todayJournal.journal.contentTags?.length || 0}</div>
+              <div class="stat-value text-sm">{xpGrants.filter((g) => g.entityType === 'content_tag').length}</div>
             </div>
             <div class="stat px-3 py-2">
-              <div class="stat-title text-xs">Stats</div>
-              <div class="stat-value text-sm">{todayJournal.journal.statTags?.length || 0}</div>
+              <div class="stat-title text-xs">XP Earned</div>
+              <div class="stat-value text-sm">{xpGrants.filter((g) => g.entityType !== 'content_tag').reduce((sum, g) => sum + g.xpAmount, 0)}</div>
             </div>
           </div>
         {/if}

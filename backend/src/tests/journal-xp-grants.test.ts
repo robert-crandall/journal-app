@@ -88,10 +88,10 @@ describe('Journal XP Grants Integration', () => {
         summary: 'A good workout session that improved fitness',
         suggestedTags: [],
         suggestedStatTags: {
-          [testStat[0].id]: { xp: 25, reason: 'Completed an hour of exercise' }
+          [testStat[0].id]: { xp: 25, reason: 'Completed an hour of exercise' },
         },
         suggestedFamilyTags: {},
-        suggestedTodos: []
+        suggestedTodos: [],
       });
 
       const date = '2024-01-15';
@@ -135,7 +135,7 @@ describe('Journal XP Grants Integration', () => {
       expect(xpGrantRecords.length).toBeGreaterThan(0);
 
       // Verify character stat XP grants
-      const statXpGrants = xpGrantRecords.filter(grant => grant.entityType === 'character_stat');
+      const statXpGrants = xpGrantRecords.filter((grant) => grant.entityType === 'character_stat');
       expect(statXpGrants.length).toBeGreaterThan(0);
       expect(statXpGrants[0].xpAmount).toBe(25);
       expect(statXpGrants[0].reason).toBe('Completed an hour of exercise');
@@ -159,9 +159,9 @@ describe('Journal XP Grants Integration', () => {
         suggestedTags: [],
         suggestedStatTags: {},
         suggestedFamilyTags: {
-          [testFamilyMember[0].id]: { xp: 15, reason: 'Had quality conversation and connected' }
+          [testFamilyMember[0].id]: { xp: 15, reason: 'Had quality conversation and connected' },
         },
-        suggestedTodos: []
+        suggestedTodos: [],
       });
 
       const date = '2024-01-16';
@@ -197,11 +197,7 @@ describe('Journal XP Grants Integration', () => {
       const familyXpGrants = await testDb()
         .select()
         .from(xpGrants)
-        .where(and(
-          eq(xpGrants.userId, userId),
-          eq(xpGrants.entityType, 'family_member'),
-          eq(xpGrants.sourceType, 'journal')
-        ));
+        .where(and(eq(xpGrants.userId, userId), eq(xpGrants.entityType, 'family_member'), eq(xpGrants.sourceType, 'journal')));
 
       expect(familyXpGrants.length).toBeGreaterThan(0);
       expect(familyXpGrants[0].xpAmount).toBe(15);
@@ -224,7 +220,7 @@ describe('Journal XP Grants Integration', () => {
         .insert(tags)
         .values([
           { userId, name: 'programming' },
-          { userId, name: 'learning' }
+          { userId, name: 'learning' },
         ])
         .returning();
 
@@ -236,7 +232,7 @@ describe('Journal XP Grants Integration', () => {
         suggestedTags: [testTags[0].id, testTags[1].id], // Use actual tag IDs
         suggestedStatTags: {},
         suggestedFamilyTags: {},
-        suggestedTodos: []
+        suggestedTodos: [],
       });
 
       const date = '2024-01-17';
@@ -273,20 +269,12 @@ describe('Journal XP Grants Integration', () => {
       const contentTagGrants = await testDb()
         .select()
         .from(xpGrants)
-        .where(and(
-          eq(xpGrants.userId, userId),
-          eq(xpGrants.entityType, 'content_tag'),
-          eq(xpGrants.sourceType, 'journal'),
-          eq(xpGrants.xpAmount, 0)
-        ));
+        .where(and(eq(xpGrants.userId, userId), eq(xpGrants.entityType, 'content_tag'), eq(xpGrants.sourceType, 'journal'), eq(xpGrants.xpAmount, 0)));
 
       expect(contentTagGrants.length).toBeGreaterThan(0);
 
       // Verify that corresponding tags were created
-      const createdTags = await testDb()
-        .select()
-        .from(tags)
-        .where(eq(tags.userId, userId));
+      const createdTags = await testDb().select().from(tags).where(eq(tags.userId, userId));
 
       expect(createdTags.length).toBeGreaterThan(0);
     });
@@ -300,10 +288,7 @@ describe('Journal XP Grants Integration', () => {
         suggestedTags: [],
         suggestedStatTags: {},
         suggestedFamilyTags: {},
-        suggestedTodos: [
-          'Call the doctor to schedule appointment',
-          'Schedule dentist appointment'
-        ]
+        suggestedTodos: ['Call the doctor to schedule appointment', 'Schedule dentist appointment'],
       });
 
       const date = '2024-01-18';
@@ -340,10 +325,7 @@ describe('Journal XP Grants Integration', () => {
       afterTime.setHours(afterTime.getHours() + 24);
 
       // Check that todos were created
-      const createdTodos = await testDb()
-        .select()
-        .from(simpleTodos)
-        .where(eq(simpleTodos.userId, userId));
+      const createdTodos = await testDb().select().from(simpleTodos).where(eq(simpleTodos.userId, userId));
 
       expect(createdTodos.length).toBeGreaterThan(0);
 

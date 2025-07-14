@@ -5,23 +5,11 @@ import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
 import { characterStats, characters, xpGrants, simpleTodos, familyMembers } from '../db/schema';
-import {
-  createJournalSchema,
-  updateJournalSchema,
-  addChatMessageSchema,
-  journalDateSchema,
-  finishJournalSchema,
-} from '../validation/journals';
+import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 import { handleApiError } from '../utils/logger';
 import { generateFollowUpResponse, generateJournalMetadata, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
-import type {
-  CreateJournalRequest,
-  UpdateJournalRequest,
-  AddChatMessageRequest,
-  JournalResponse,
-  TodayJournalResponse,
-} from '../types/journals';
+import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse } from '../types/journals';
 
 /**
  * Helper function to serialize journal to response format
@@ -38,7 +26,7 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     title: journal.title,
     synopsis: journal.synopsis,
     toneTags: [], // Deprecated - now using xpGrants table
-    contentTags: [], // Deprecated - now using xpGrants table  
+    contentTags: [], // Deprecated - now using xpGrants table
     statTags: [], // Deprecated - now using xpGrants table
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
@@ -474,7 +462,7 @@ const app = new Hono()
 
       // Create XP grants for content tags (0 XP)
       if (metadata.suggestedTags && metadata.suggestedTags.length > 0) {
-        const contentTagsGrants = metadata.suggestedTags.map(tagId => ({
+        const contentTagsGrants = metadata.suggestedTags.map((tagId) => ({
           userId,
           entityType: 'content_tag' as const,
           entityId: tagId,
@@ -557,7 +545,7 @@ const app = new Hono()
         const expirationTime = new Date();
         expirationTime.setHours(expirationTime.getHours() + 24);
 
-        const todosToInsert = metadata.suggestedTodos.map(todoDescription => ({
+        const todosToInsert = metadata.suggestedTodos.map((todoDescription) => ({
           userId,
           description: todoDescription,
           isCompleted: false,

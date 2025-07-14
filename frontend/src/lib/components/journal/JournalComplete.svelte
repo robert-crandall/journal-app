@@ -1,9 +1,24 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { JournalResponse } from '$lib/types/journal';
   import { formatDate as formatDateUtil, formatDateTime } from '$lib/utils/date';
-  import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon } from 'lucide-svelte';
+  import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
+  import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
 
   export let journal: JournalResponse;
+
+  let xpGrants: XpGrantWithDetails[] = [];
+  let loadingGrants = true;
+
+  onMount(async () => {
+    try {
+      xpGrants = await XpGrantsService.getJournalXpGrants(journal.id);
+    } catch (error) {
+      console.error('Failed to load XP grants:', error);
+    } finally {
+      loadingGrants = false;
+    }
+  });
 
   function formatDate(dateStr: string): string {
     try {
@@ -22,9 +37,9 @@
   }
 
   $: chatSession = journal.chatSession || [];
-  $: contentTags = journal.contentTags || [];
-  $: toneTags = journal.toneTags || [];
-  $: statTags = journal.statTags || [];
+  $: contentTagGrants = xpGrants.filter((grant) => grant.entityType === 'content_tag');
+  $: statGrants = xpGrants.filter((grant) => grant.entityType === 'character_stat');
+  $: familyGrants = xpGrants.filter((grant) => grant.entityType === 'family_member');
 </script>
 
 <div class="space-y-6" data-test-id="journal-complete">
@@ -66,43 +81,30 @@
   {/if}
 
   <!-- Tags Section -->
-  {#if contentTags.length > 0 || toneTags.length > 0}
+  {#if !loadingGrants && contentTagGrants.length > 0}
     <div class="card bg-base-100 border-base-300 border shadow-xl">
       <div class="card-body">
         <div class="mb-4 flex items-center gap-3">
           <TagIcon size={24} class="text-secondary" />
-          <h3 class="text-lg font-semibold">Tags & Themes</h3>
+          <h3 class="text-lg font-semibold">Content Tags</h3>
         </div>
 
         <div class="space-y-4">
-          {#if contentTags.length > 0}
-            <div>
-              <h4 class="text-base-content/70 mb-2 text-sm font-medium">Content Tags</h4>
-              <div class="flex flex-wrap gap-2">
-                {#each contentTags as tag}
-                  <span class="badge badge-primary badge-outline">{tag}</span>
-                {/each}
-              </div>
+          <div>
+            <h4 class="text-base-content/70 mb-2 text-sm font-medium">Topics & Themes</h4>
+            <div class="flex flex-wrap gap-2">
+              {#each contentTagGrants as grant}
+                <span class="badge badge-primary badge-outline">{grant.entityName || 'Unknown'}</span>
+              {/each}
             </div>
-          {/if}
-
-          {#if toneTags.length > 0}
-            <div>
-              <h4 class="text-base-content/70 mb-2 text-sm font-medium">Emotional Tone</h4>
-              <div class="flex flex-wrap gap-2">
-                {#each toneTags as tag}
-                  <span class="badge badge-secondary badge-outline">{tag}</span>
-                {/each}
-              </div>
-            </div>
-          {/if}
+          </div>
         </div>
       </div>
     </div>
   {/if}
 
-  <!-- Stats Impact -->
-  {#if statTags.length > 0}
+  <!-- Character Growth -->
+  {#if !loadingGrants && statGrants.length > 0}
     <div class="card bg-base-100 border-base-300 border shadow-xl">
       <div class="card-body">
         <div class="mb-4 flex items-center gap-3">
@@ -111,9 +113,48 @@
         </div>
 
         <div class="space-y-2">
-          {#each statTags as statTag}
-            <div class="bg-accent/10 border-accent/20 flex items-center justify-center rounded-lg border p-3">
-              <span class="badge badge-accent">{statTag}</span>
+          {#each statGrants as grant}
+            <div class="bg-accent/10 border-accent/20 flex items-center justify-between rounded-lg border p-3">
+              <div class="flex items-center gap-3">
+                <TrophyIcon size={16} class="text-accent" />
+                <div>
+                  <span class="font-medium">{grant.entityName || 'Unknown Stat'}</span>
+                  {#if grant.reason}
+                    <p class="text-base-content/60 text-xs">{grant.reason}</p>
+                  {/if}
+                </div>
+              </div>
+              <span class="badge badge-accent">+{grant.xpAmount} XP</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Family Connections -->
+  {#if !loadingGrants && familyGrants.length > 0}
+    <div class="card bg-base-100 border-base-300 border shadow-xl">
+      <div class="card-body">
+        <div class="mb-4 flex items-center gap-3">
+          <UsersIcon size={24} class="text-info" />
+          <h3 class="text-lg font-semibold">Family Connections</h3>
+        </div>
+
+        <div class="space-y-2">
+          {#each familyGrants as grant}
+            <div class="bg-info/10 border-info/20 flex items-center justify-between rounded-lg border p-3">
+              <div class="flex items-center gap-3">
+                <UsersIcon size={16} class="text-info" />
+                <div>
+                  <span class="font-medium">{grant.entityName || 'Family Member'}</span>
+                  <span class="text-base-content/60 text-xs">({grant.entityDescription || 'Unknown relationship'})</span>
+                  {#if grant.reason}
+                    <p class="text-base-content/60 text-xs">{grant.reason}</p>
+                  {/if}
+                </div>
+              </div>
+              <span class="badge badge-info">+{grant.xpAmount} XP</span>
             </div>
           {/each}
         </div>
@@ -185,6 +226,18 @@
           <span class="text-base-content/70 font-medium">Status:</span>
           <span class="badge badge-success badge-sm ml-2">Complete</span>
         </div>
+        {#if !loadingGrants}
+          <div>
+            <span class="text-base-content/70 font-medium">XP Earned:</span>
+            <span class="ml-2"
+              >{statGrants.reduce((sum, grant) => sum + grant.xpAmount, 0) + familyGrants.reduce((sum, grant) => sum + grant.xpAmount, 0)} total</span
+            >
+          </div>
+          <div>
+            <span class="text-base-content/70 font-medium">Content Tags:</span>
+            <span class="ml-2">{contentTagGrants.length}</span>
+          </div>
+        {/if}
       </div>
     </div>
   </div>
