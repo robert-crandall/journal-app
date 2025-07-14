@@ -198,12 +198,9 @@
                   </div>
 
                   <div class="card-actions justify-end">
-                    <a href="/experiments/{experiment.id}/dashboard" class="btn btn-primary btn-sm gap-1">
+                    <a href="/experiments/{experiment.id}" class="btn btn-primary btn-sm gap-1">
                       <BarChart class="h-4 w-4" />
                       Dashboard
-                    </a>
-                    <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm btn-circle" title="View Details">
-                      <Eye class="h-4 w-4" />
                     </a>
                     <a href="/experiments/{experiment.id}/edit" class="btn btn-ghost btn-sm btn-circle" title="Edit">
                       <Edit3 class="h-4 w-4" />
@@ -307,12 +304,9 @@
                   </div>
 
                   <div class="card-actions justify-end">
-                    <a href="/experiments/{experiment.id}/dashboard" class="btn btn-primary btn-sm gap-1">
+                    <a href="/experiments/{experiment.id}" class="btn btn-primary btn-sm gap-1">
                       <BarChart class="h-4 w-4" />
                       View Results
-                    </a>
-                    <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm btn-circle" title="View Details">
-                      <Eye class="h-4 w-4" />
                     </a>
                     <button onclick={() => deleteExperiment(experiment.id)} class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10" title="Delete">
                       <Trash2 class="h-4 w-4" />

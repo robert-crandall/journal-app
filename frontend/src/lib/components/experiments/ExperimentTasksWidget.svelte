@@ -226,7 +226,7 @@
 
               <!-- Dashboard Link -->
               <a
-                href="/experiments/{experiment.id}/dashboard"
+                href="/experiments/{experiment.id}"
                 class="btn btn-ghost btn-sm btn-circle transition-all duration-200 hover:scale-105"
                 title="View experiment dashboard"
               >
