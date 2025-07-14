@@ -1,5 +1,13 @@
 import { apiFetch } from '../api';
-import type { JournalResponse, TodayJournalResponse, CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest } from '../types/journal';
+import type {
+  JournalResponse,
+  TodayJournalResponse,
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  AddChatMessageRequest,
+  ListJournalsRequest,
+  ListJournalsResponse,
+} from '../types/journal';
 
 export class JournalService {
   /**
@@ -93,5 +101,28 @@ export class JournalService {
    */
   static getTodayDate(): string {
     return this.formatDate(new Date());
+  }
+
+  /**
+   * Get list of journals with filtering and pagination
+   */
+  static async listJournals(params: Partial<ListJournalsRequest> = {}): Promise<ListJournalsResponse> {
+    const searchParams = new URLSearchParams();
+
+    if (params.limit !== undefined) searchParams.set('limit', params.limit.toString());
+    if (params.offset !== undefined) searchParams.set('offset', params.offset.toString());
+    if (params.status) searchParams.set('status', params.status);
+    if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params.dateTo) searchParams.set('dateTo', params.dateTo);
+    if (params.search) searchParams.set('search', params.search);
+    if (params.tagIds && params.tagIds.length > 0) {
+      params.tagIds.forEach((tagId) => searchParams.append('tagIds', tagId));
+    }
+
+    const queryString = searchParams.toString();
+    const url = queryString ? `/api/journals?${queryString}` : '/api/journals';
+
+    const response = await apiFetch(url);
+    return response.data;
   }
 }

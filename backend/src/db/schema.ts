@@ -65,4 +65,7 @@ export type {
   FinishJournalRequest,
   JournalResponse,
   TodayJournalResponse,
+  ListJournalsRequest,
+  ListJournalsResponse,
+  JournalListItem,
 } from '../types/journals';

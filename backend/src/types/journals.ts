@@ -36,6 +36,42 @@ export interface FinishJournalRequest {
   // No additional fields needed - triggers GPT analysis
 }
 
+// Request/Response types for journal listing and filtering
+export interface ListJournalsRequest {
+  limit?: number;
+  offset?: number;
+  status?: 'draft' | 'in_review' | 'complete';
+  search?: string; // Search in title, synopsis, initialMessage
+  dateFrom?: string; // YYYY-MM-DD format
+  dateTo?: string; // YYYY-MM-DD format
+  tagIds?: string[]; // Content tag IDs to filter by
+}
+
+export interface JournalListItem {
+  id: string;
+  date: string;
+  status: 'draft' | 'in_review' | 'complete';
+  title: string | null;
+  synopsis: string | null;
+  initialMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Include tag information for filtering
+  contentTags?: Array<{ id: string; name: string }>;
+  // Include basic stats
+  characterCount?: number;
+  wordCount?: number;
+  xpEarned?: number;
+}
+
+export interface ListJournalsResponse {
+  journals: JournalListItem[];
+  total: number;
+  hasMore: boolean;
+  // Filter options for frontend
+  availableTags: Array<{ id: string; name: string }>;
+}
+
 export interface JournalResponse {
   id: string;
   userId: string;

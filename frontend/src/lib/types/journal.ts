@@ -6,6 +6,10 @@ export type {
   UpdateJournalRequest,
   AddChatMessageRequest,
   ChatMessage,
+  // Journal Dashboard Types
+  ListJournalsRequest,
+  ListJournalsResponse,
+  JournalListItem,
 } from '../../../../backend/src/types/journals';
 
 // Additional frontend-specific types for UI state

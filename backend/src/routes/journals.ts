@@ -1,15 +1,31 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, desc, like, gte, lte, ilike, count } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
-import { characterStats, characters, xpGrants, simpleTodos, familyMembers } from '../db/schema';
-import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
+import { characterStats, characters, xpGrants, simpleTodos, familyMembers, tags } from '../db/schema';
+import {
+  createJournalSchema,
+  updateJournalSchema,
+  addChatMessageSchema,
+  journalDateSchema,
+  finishJournalSchema,
+  listJournalsSchema,
+} from '../validation/journals';
 import { handleApiError } from '../utils/logger';
 import { generateFollowUpResponse, generateJournalMetadata, generateJournalSummary, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
-import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse } from '../types/journals';
+import type {
+  CreateJournalRequest,
+  UpdateJournalRequest,
+  AddChatMessageRequest,
+  JournalResponse,
+  TodayJournalResponse,
+  ListJournalsRequest,
+  ListJournalsResponse,
+  JournalListItem,
+} from '../types/journals';
 
 /**
  * Helper function to serialize journal to response format
@@ -27,6 +43,28 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     synopsis: journal.synopsis,
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
+  };
+};
+
+/**
+ * Helper function to serialize journal for list view
+ */
+const serializeJournalListItem = (journal: typeof journals.$inferSelect): JournalListItem => {
+  const initialMessage = journal.initialMessage || '';
+  const characterCount = initialMessage.length;
+  const wordCount = initialMessage.trim() ? initialMessage.trim().split(/\s+/).length : 0;
+
+  return {
+    id: journal.id,
+    date: journal.date || '',
+    status: journal.status as 'draft' | 'in_review' | 'complete',
+    title: journal.title,
+    synopsis: journal.synopsis,
+    initialMessage: journal.initialMessage,
+    createdAt: journal.createdAt.toISOString(),
+    updatedAt: journal.updatedAt.toISOString(),
+    characterCount,
+    wordCount,
   };
 };
 
@@ -82,6 +120,139 @@ const app = new Hono()
       });
     } catch (error) {
       handleApiError(error, "Failed to fetch today's journal");
+      return; // This should never be reached, but added for completeness
+    }
+  })
+
+  // List all journals with filtering and pagination
+  .get('/', jwtAuth, zValidator('query', listJournalsSchema), async (c) => {
+    try {
+      const userId = getUserId(c);
+      const filters = c.req.valid('query') as ListJournalsRequest;
+
+      // Build where conditions
+      const conditions = [eq(journals.userId, userId)];
+
+      if (filters.status) {
+        conditions.push(eq(journals.status, filters.status));
+      }
+
+      if (filters.dateFrom) {
+        conditions.push(gte(journals.date, filters.dateFrom));
+      }
+
+      if (filters.dateTo) {
+        conditions.push(lte(journals.date, filters.dateTo));
+      }
+
+      if (filters.search) {
+        // Search in title, synopsis, and initial message
+        const searchTerm = `%${filters.search}%`;
+        conditions.push(
+          sql`(
+            ${journals.title} ILIKE ${searchTerm} OR 
+            ${journals.synopsis} ILIKE ${searchTerm} OR 
+            ${journals.initialMessage} ILIKE ${searchTerm}
+          )`,
+        );
+      }
+
+      // If filtering by tags, we need a more complex query
+      let journalsQuery;
+      if (filters.tagIds && filters.tagIds.length > 0) {
+        // Get journals that have XP grants for the specified content tags
+        journalsQuery = db
+          .selectDistinct({
+            id: journals.id,
+            userId: journals.userId,
+            date: journals.date,
+            status: journals.status,
+            initialMessage: journals.initialMessage,
+            chatSession: journals.chatSession,
+            summary: journals.summary,
+            title: journals.title,
+            synopsis: journals.synopsis,
+            createdAt: journals.createdAt,
+            updatedAt: journals.updatedAt,
+          })
+          .from(journals)
+          .innerJoin(xpGrants, and(eq(xpGrants.sourceId, journals.id), eq(xpGrants.sourceType, 'journal'), eq(xpGrants.entityType, 'content_tag')))
+          .where(and(...conditions, sql`${xpGrants.entityId} = ANY(${filters.tagIds})`))
+          .orderBy(desc(journals.date));
+      } else {
+        journalsQuery = db
+          .select()
+          .from(journals)
+          .where(and(...conditions))
+          .orderBy(desc(journals.date));
+      }
+
+      // Get total count for pagination
+      const countQuery = db
+        .select({ count: count() })
+        .from(journals)
+        .where(and(...conditions));
+      const [totalResult] = await countQuery;
+      const total = totalResult.count;
+
+      // Get paginated results
+      const journalsList = await journalsQuery.limit(filters.limit || 20).offset(filters.offset || 0);
+
+      // Get available content tags for the user for filter options
+      const availableTagsQuery = await db
+        .selectDistinct({
+          id: tags.id,
+          name: tags.name,
+        })
+        .from(tags)
+        .innerJoin(xpGrants, and(eq(xpGrants.entityId, tags.id), eq(xpGrants.entityType, 'content_tag'), eq(xpGrants.sourceType, 'journal')))
+        .where(eq(tags.userId, userId))
+        .orderBy(tags.name);
+
+      // Enhance journal items with XP earned
+      const enhancedJournals = await Promise.all(
+        journalsList.map(async (journal) => {
+          const listItem = serializeJournalListItem(journal);
+
+          // Get XP earned for this journal (excluding content tags which have 0 XP)
+          const [xpResult] = await db
+            .select({ total: sql<number>`sum(${xpGrants.xpAmount})` })
+            .from(xpGrants)
+            .where(and(eq(xpGrants.sourceId, journal.id), eq(xpGrants.sourceType, 'journal'), sql`${xpGrants.entityType} != 'content_tag'`));
+
+          listItem.xpEarned = xpResult?.total || 0;
+
+          // Get content tags for this journal
+          const contentTagsResult = await db
+            .select({
+              id: tags.id,
+              name: tags.name,
+            })
+            .from(tags)
+            .innerJoin(xpGrants, and(eq(xpGrants.entityId, tags.id), eq(xpGrants.sourceId, journal.id), eq(xpGrants.entityType, 'content_tag')))
+            .where(eq(tags.userId, userId));
+
+          listItem.contentTags = contentTagsResult;
+
+          return listItem;
+        }),
+      );
+
+      const hasMore = (filters.offset || 0) + (filters.limit || 20) < total;
+
+      const response: ListJournalsResponse = {
+        journals: enhancedJournals,
+        total,
+        hasMore,
+        availableTags: availableTagsQuery,
+      };
+
+      return c.json({
+        success: true,
+        data: response,
+      });
+    } catch (error) {
+      handleApiError(error, 'Failed to list journals');
       return; // This should never be reached, but added for completeness
     }
   })
