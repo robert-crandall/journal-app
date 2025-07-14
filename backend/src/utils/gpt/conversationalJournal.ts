@@ -207,6 +207,10 @@ IMPORTANT: Format your response exactly as JSON:
   "suggestedTodos": ["Actionable item 1", "Actionable item 2"]
 }
 
+## Todo Guidelines
+
+Only include todos that are explicitly mentioned in the conversation. Do not invent tasks, and do not add tasks based on implications. Focus on concrete, actionable items that the user has expressed a need to do.
+
 ## Tagging Guidelines
 
 **Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
@@ -326,7 +330,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
 
   messages.push({
     role: 'user',
-    content: `\nGenerate metadata for this journal session according to the specified JSON format.`,
+    content: `\nGenerate metadata for this journal session according to the specified JSON format. Return only a valid JSON object. No commentary, no formatting, no extra text.`,
   });
 
   const response = await callGptApi({
