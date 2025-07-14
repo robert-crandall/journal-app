@@ -7,7 +7,7 @@
   import JournalCard from '$lib/components/journal/JournalCard.svelte';
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
   import JournalCalendarHeatmap from '$lib/components/journal/JournalCalendarHeatmap.svelte';
-
+  import { getTodayDateString } from '$lib/utils/date';
   // State
   let journals: JournalListItem[] = [];
   let totalJournals = 0;
@@ -83,7 +83,7 @@
   }
 
   function createNewJournal() {
-    goto(`/journal/${JournalService.getTodayDate()}`);
+    goto(`/journal/${getTodayDateString()}`);
   }
 
   function toggleViewMode() {
