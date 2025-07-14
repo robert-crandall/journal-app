@@ -4,6 +4,7 @@
   import { formatDate as formatDateUtil, formatDateTime } from '$lib/utils/date';
   import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
+  import { marked } from 'marked';
 
   export let journal: JournalResponse;
 
@@ -74,7 +75,7 @@
         </div>
 
         <div class="prose prose-sm max-w-none">
-          <p class="text-base-content/90 leading-relaxed">{journal.summary}</p>
+          <p class="text-base-content/90 leading-relaxed prose prose-sm">{@html marked.parse(journal.summary)}</p>
         </div>
       </div>
     </div>
@@ -188,7 +189,7 @@
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
                 <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
-                  <p class="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p class="text-sm leading-relaxed prose prose-sm">{@html marked.parse(message.content)}</p>
                 </div>
 
                 {#if message.timestamp}
