@@ -9,7 +9,7 @@
   import JournalChat from '$lib/components/journal/JournalChat.svelte';
   import JournalComplete from '$lib/components/journal/JournalComplete.svelte';
   import { BookIcon, CalendarIcon, ArrowLeftIcon } from 'lucide-svelte';
-
+  import { getTodayDateString } from '$lib/utils/date';
   // Get date from URL params
   $: date = $page.params.date;
 
@@ -19,7 +19,7 @@
 
   onMount(async () => {
     if (!date) {
-      goto('/journal/' + JournalService.getTodayDate());
+      goto('/journal/' + getTodayDateString());
       return;
     }
 
@@ -58,7 +58,7 @@
   }
 
   function goToToday() {
-    goto('/journal/' + JournalService.getTodayDate());
+    goto('/journal/' + getTodayDateString());
   }
 
   function goBack() {

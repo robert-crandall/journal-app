@@ -79,14 +79,6 @@
     goto(`/journal/${date}`);
   }
 
-  // Format date for display
-  function formatDateLabel(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  }
-
   // Get month labels for the current view
   function getMonthLabels(): Array<{ month: string; position: number }> {
     const labels = [];
