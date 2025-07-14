@@ -315,7 +315,8 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   // Add the recent conversation context (only user messages)
   const recentConversation = conversation;
   recentConversation.forEach((msg) => {
-    if (msg.role === 'user') { // Only include user messages for summary
+    if (msg.role === 'user') {
+      // Only include user messages for summary
       messages.push({
         role: 'user',
         content: msg.content,
@@ -348,10 +349,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
 /**
  * Generate a rich, narrative summary from a conversational journal session
  */
-export async function generateJournalSummary(
-  conversation: ChatMessage[],
-  userContext: ComprehensiveUserContext,
-): Promise<string> {
+export async function generateJournalSummary(conversation: ChatMessage[], userContext: ComprehensiveUserContext): Promise<string> {
   // Create the system prompt focused on summary generation
   const systemPrompt = createSummarySystemPrompt(userContext);
 
@@ -361,7 +359,8 @@ export async function generateJournalSummary(
   // Add the recent conversation context (only user messages)
   const recentConversation = conversation;
   recentConversation.forEach((msg) => {
-    if (msg.role === 'user') { // Only include user messages for summary
+    if (msg.role === 'user') {
+      // Only include user messages for summary
       messages.push({
         role: 'user',
         content: msg.content,

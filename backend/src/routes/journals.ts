@@ -449,10 +449,7 @@ const app = new Hono()
       });
 
       // Generate journal metadata and summary in parallel
-      const [metadata, summary] = await Promise.all([
-        generateJournalMetadata(chatSession, userId),
-        generateJournalSummary(chatSession, userContext),
-      ]);
+      const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext)]);
 
       // Update journal with metadata and summary
       const updatedJournal = await db
