@@ -149,7 +149,7 @@
             <!-- Message Content -->
             <div class="max-w-xs flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
               <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
-                <p class="text-sm leading-relaxed prose prose-sm">{@html marked.parse(message.content)}</p>
+                <p class="prose prose-sm text-sm leading-relaxed">{@html marked.parse(message.content)}</p>
               </div>
 
               {#if message.timestamp}
