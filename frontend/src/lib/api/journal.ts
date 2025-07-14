@@ -17,24 +17,24 @@ export class JournalService {
   static async getTodaysJournal(): Promise<TodayJournalResponse> {
     // Get today's date in YYYY-MM-DD format using browser timezone
     const todayDate = getTodayDateString();
-    
+
     try {
       // Use the date-specific endpoint
       const response = await apiFetch(`/api/journals/${todayDate}`);
       const journalData = response.data;
-      
+
       // Transform JournalResponse to TodayJournalResponse
       return {
         exists: true,
         journal: journalData,
         status: journalData.status,
-        actionText: this.getActionTextBasedOnStatus(journalData.status)
+        actionText: this.getActionTextBasedOnStatus(journalData.status),
       };
     } catch (error) {
       // If no journal exists for today (404 error)
       return {
         exists: false,
-        actionText: 'Write Journal'
+        actionText: 'Write Journal',
       };
     }
   }
@@ -46,7 +46,7 @@ export class JournalService {
     const response = await apiFetch(`/api/journals/${date}`);
     return response.data;
   }
-  
+
   /**
    * Helper to determine the appropriate action text based on journal status
    */

@@ -73,13 +73,13 @@
         <!-- Date Display -->
         <div class="text-base-content/70 flex items-center gap-2">
           <CalendarIcon size={16} />
-            <span class="text-sm">
+          <span class="text-sm">
             {#if todayJournal?.journal?.date}
               {formatDate(todayJournal.journal.date)}
             {:else}
               {getNowDateTimeString('date-only')}
             {/if}
-            </span>
+          </span>
         </div>
 
         <!-- Status Display -->

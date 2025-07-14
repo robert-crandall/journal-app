@@ -93,13 +93,13 @@ export function getNowDateTimeString(
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     };
-    
+
     if (timezone !== 'local') {
       options.timeZone = timezone;
     }
-    
+
     return new Intl.DateTimeFormat('en-CA', options).format(now);
   }
 
