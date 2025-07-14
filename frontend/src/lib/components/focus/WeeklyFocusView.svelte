@@ -4,6 +4,7 @@
   import { createOrUpdateFocus, deleteFocus, getDayName, type Focus } from '$lib/api/focus';
   import FocusCard from '$lib/components/focus/FocusCard.svelte';
   import FocusEditor from '$lib/components/focus/FocusEditor.svelte';
+  import { getToday } from '$lib/utils/date';
 
   let isLoading = true;
   let error = '';
@@ -12,7 +13,7 @@
   let confirmingDelete: number | null = null;
 
   $: allDays = [0, 1, 2, 3, 4, 5, 6]; // 0 = Sunday, 6 = Saturday
-  $: today = new Date().getDay();
+  $: today = getToday().getDay();
 
   onMount(async () => {
     try {
