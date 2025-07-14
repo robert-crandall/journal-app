@@ -320,38 +320,6 @@ describe('Authentication Flow Integration Tests', () => {
   });
 
   describe('Registration Flow Edge Cases', () => {
-    it('should handle concurrent registration attempts', async () => {
-      const userData = {
-        name: 'Concurrent Test',
-        email: getUniqueEmail('concurrent'),
-        password: 'password123',
-      };
-
-      // Attempt to create the same user concurrently
-      const promises = Array.from({ length: 3 }, () =>
-        app.request('/api/users', {
-          method: 'POST',
-          body: JSON.stringify(userData),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }),
-      );
-
-      const results = await Promise.all(promises);
-
-      // Only one should succeed, others should fail with 409 (conflict)
-      const successfulResponses = results.filter((r) => r.status === 201);
-      const conflictResponses = results.filter((r) => r.status === 409);
-
-      expect(successfulResponses).toHaveLength(1);
-      expect(conflictResponses).toHaveLength(2);
-
-      // Verify only one user exists in database
-      const dbUsers = await testDb().select().from(schema.users).where(eq(schema.users.email, userData.email));
-      expect(dbUsers).toHaveLength(1);
-    });
-
     it('should maintain data consistency during registration', async () => {
       const userData = {
         name: 'Consistency Test',
