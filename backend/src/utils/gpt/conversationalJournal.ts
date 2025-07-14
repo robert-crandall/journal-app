@@ -23,7 +23,6 @@ export interface ChatMessage {
 export interface JournalMetadata {
   title: string;
   synopsis: string;
-  summary: string;
   suggestedTags: string[]; // Tag IDs
   suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stat IDs with XP amount and reason for XP
   suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family member IDs with XP amount and reason for interactions
@@ -99,10 +98,9 @@ Your task is to review the entire conversation and generate:
 
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
-3. **Summary**: A stiched-together narrative that captures the user's side of the conversation, maintaining the user's voice. It should be roughly as long as the user's messages combined. Summary can contain markdown formatting, and emojis if appropriate.
-4. **Content Tags**: 3-6 tags describing topics, activities, or themes
-5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
-6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
+3. **Content Tags**: 3-6 tags describing topics, activities, or themes
+4. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
+5. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -197,7 +195,6 @@ IMPORTANT: Format your response exactly as JSON:
 {
   "title": "Brief descriptive title",
   "synopsis": "1-2 sentence overview", 
-  "summary": "Detailed narrative synthesis maintaining user's voice",
   "suggestedTags": ["tag1", "tag2", "tag3"],
   "suggestedStatTags": {
     "statName1": { "xp": 15, "reason": "Specific achievement or activity that developed this stat" },
@@ -230,14 +227,34 @@ IMPORTANT: Format your response exactly as JSON:
   - A specific reason describing the interaction or quality time spent with them
   - Use the exact family member names provided in the context
 
-The summary should read like a personal journal entry, written in first person, that captures the essence of what the user shared during the conversation.
-
 DO NOT GUESS. If you cannot determine a field, leave it empty or null. Focus on the content of the conversation, not external context.
 
 Return ONLY the JSON object without any additional text or explanation.
 `;
 
   return systemPrompt;
+}
+
+/**
+ * System prompt for generating a high-quality journal summary
+ */
+function createSummarySystemPrompt(userContext: ComprehensiveUserContext): string {
+  return `You are a skilled writer tasked with summarizing a journal conversation into a cohesive journal entry.
+  Transform the user's previous journal entries into a single, flowing narrative that captures the essence of their thoughts and feelings during this quest period.
+  
+  Your summary should:
+  1. Maintains the user's voice, style, and key phrases
+  2. Connects fragmented thoughts across multiple entries into a single narrative
+  3. Sounds like a single journal entry rather than a back-and-forth conversation
+
+  - Do not include comments in the summary.
+  - Focus only on the user's thoughts and experiences.
+  - Write in first person from the user's perspective.
+  - Use a dry, fact-based tone, avoiding flowery language or excessive emotion.
+  
+  You can break the summary into paragraphs. You can also add markdown formatting, bullets, or other elements to enhance the entry, but do not feel obligated to do so.
+  
+  Maintain the user's original voice and style, and ensure the summary flows naturally as a single entry.`;
 }
 
 /**
@@ -295,13 +312,15 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   // Prepare the conversation messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
 
-  // Add the recent conversation context (last 6 messages)
-  const recentConversation = conversation.slice(-6);
+  // Add the recent conversation context (only user messages)
+  const recentConversation = conversation;
   recentConversation.forEach((msg) => {
-    messages.push({
-      role: msg.role,
-      content: msg.content,
-    });
+    if (msg.role === 'user') { // Only include user messages for summary
+      messages.push({
+        role: 'user',
+        content: msg.content,
+      });
+    }
   });
 
   messages.push({
@@ -324,6 +343,43 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   } catch (error) {
     throw new Error(`Failed to parse GPT metadata response: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+/**
+ * Generate a rich, narrative summary from a conversational journal session
+ */
+export async function generateJournalSummary(
+  conversation: ChatMessage[],
+  userContext: ComprehensiveUserContext,
+): Promise<string> {
+  // Create the system prompt focused on summary generation
+  const systemPrompt = createSummarySystemPrompt(userContext);
+
+  // Prepare the conversation messages for the API
+  const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
+
+  // Add the recent conversation context (only user messages)
+  const recentConversation = conversation;
+  recentConversation.forEach((msg) => {
+    if (msg.role === 'user') { // Only include user messages for summary
+      messages.push({
+        role: 'user',
+        content: msg.content,
+      });
+    }
+  });
+
+  messages.push({
+    role: 'user',
+    content: `Please summarize the given messages into a cohesive journal entry:`,
+  });
+
+  const response = await callGptApi({
+    messages,
+    temperature: 0.7, // Balanced temperature for creative but consistent narrative
+  });
+
+  return response.content.trim();
 }
 
 /**
@@ -398,7 +454,6 @@ async function convertNamesToIds(rawMetadata: any, userId: string, userContext: 
   return {
     title: rawMetadata.title || '',
     synopsis: rawMetadata.synopsis || '',
-    summary: rawMetadata.summary || '',
     suggestedTags,
     suggestedStatTags,
     suggestedFamilyTags,

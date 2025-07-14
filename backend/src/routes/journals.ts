@@ -7,7 +7,7 @@ import { journals } from '../db/schema/journals';
 import { characterStats, characters, xpGrants, simpleTodos, familyMembers } from '../db/schema';
 import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 import { handleApiError } from '../utils/logger';
-import { generateFollowUpResponse, generateJournalMetadata, type ChatMessage } from '../utils/gpt/conversationalJournal';
+import { generateFollowUpResponse, generateJournalMetadata, generateJournalSummary, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
 import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse } from '../types/journals';
 
@@ -439,15 +439,27 @@ const app = new Hono()
       // Get the chat session for analysis
       const chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
 
-      // Generate journal metadata using the new function
-      const metadata = await generateJournalMetadata(chatSession, userId);
+      // Get user context for summary generation
+      const userContext = await getUserContext(userId, {
+        includeCharacter: true,
+        includeActiveGoals: true,
+        includeFamilyMembers: true,
+        includeCharacterStats: true,
+        includeExistingTags: true,
+      });
 
-      // Update journal with basic metadata (no more JSON tags)
+      // Generate journal metadata and summary in parallel
+      const [metadata, summary] = await Promise.all([
+        generateJournalMetadata(chatSession, userId),
+        generateJournalSummary(chatSession, userContext),
+      ]);
+
+      // Update journal with metadata and summary
       const updatedJournal = await db
         .update(journals)
         .set({
           status: 'complete',
-          summary: metadata.summary,
+          summary: summary,
           title: metadata.title,
           synopsis: metadata.synopsis,
           updatedAt: new Date(),

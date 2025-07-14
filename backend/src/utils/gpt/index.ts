@@ -20,7 +20,7 @@ export type { ChatMessage, GptOptions, GptResponse } from './client';
 // Re-export utility functions
 export { createSystemPrompt, createUserPrompt, createPrompt, extractTagsFromText, generateTitleFromText, parseXPFromText } from './utils';
 
-export { generateFollowUpResponse, generateJournalMetadata } from './conversationalJournal';
+export { generateFollowUpResponse, generateJournalMetadata, generateJournalSummary } from './conversationalJournal';
 export type { ChatMessage as GptChatMessage, JournalMetadata } from './conversationalJournal';
 
 // New comprehensive user context service
