@@ -342,8 +342,6 @@ describe('Journal API', () => {
       expect(data.success).toBe(true);
       expect(data.data.status).toBe('complete');
       expect(data.data.summary).toBeDefined();
-      expect(data.data.contentTags).toBeDefined();
-      expect(Array.isArray(data.data.contentTags)).toBe(true);
     });
 
     it('should not allow finishing if not in review', async () => {
@@ -398,7 +396,6 @@ describe('Journal API', () => {
       expect(data.data.date).toBe(date);
       expect(data.data.status).toBe('complete');
       expect(data.data.summary).toBe('Test summary');
-      expect(data.data.contentTags).toEqual([]); // Now deprecated - always empty array
     });
 
     it('should return 404 for non-existent journal', async () => {

@@ -25,9 +25,6 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
-    toneTags: [], // Deprecated - now using xpGrants table
-    contentTags: [], // Deprecated - now using xpGrants table
-    statTags: [], // Deprecated - now using xpGrants table
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
