@@ -8,14 +8,35 @@ import type {
   ListJournalsRequest,
   ListJournalsResponse,
 } from '../types/journal';
+import { getTodayDateString } from '../utils/date';
 
 export class JournalService {
   /**
    * Get today's journal status for homepage
    */
   static async getTodaysJournal(): Promise<TodayJournalResponse> {
-    const response = await apiFetch('/api/journals/today');
-    return response.data;
+    // Get today's date in YYYY-MM-DD format using browser timezone
+    const todayDate = getTodayDateString();
+
+    try {
+      // Use the date-specific endpoint
+      const response = await apiFetch(`/api/journals/${todayDate}`);
+      const journalData = response.data;
+
+      // Transform JournalResponse to TodayJournalResponse
+      return {
+        exists: true,
+        journal: journalData,
+        status: journalData.status,
+        actionText: this.getActionTextBasedOnStatus(journalData.status),
+      };
+    } catch (error) {
+      // If no journal exists for today (404 error)
+      return {
+        exists: false,
+        actionText: 'Write Journal',
+      };
+    }
   }
 
   /**
@@ -24,6 +45,22 @@ export class JournalService {
   static async getJournalByDate(date: string): Promise<JournalResponse> {
     const response = await apiFetch(`/api/journals/${date}`);
     return response.data;
+  }
+
+  /**
+   * Helper to determine the appropriate action text based on journal status
+   */
+  private static getActionTextBasedOnStatus(status?: 'draft' | 'in_review' | 'complete'): string {
+    switch (status) {
+      case 'draft':
+        return 'Continue Writing';
+      case 'in_review':
+        return 'Resume Reflection';
+      case 'complete':
+        return 'View Entry';
+      default:
+        return 'Write Journal';
+    }
   }
 
   /**
@@ -87,20 +124,6 @@ export class JournalService {
     await apiFetch(`/api/journals/${date}`, {
       method: 'DELETE',
     });
-  }
-
-  /**
-   * Format date for API calls (YYYY-MM-DD)
-   */
-  static formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
-  /**
-   * Get today's date formatted for API
-   */
-  static getTodayDate(): string {
-    return this.formatDate(new Date());
   }
 
   /**

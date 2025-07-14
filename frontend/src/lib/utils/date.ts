@@ -76,74 +76,62 @@ export function formatDateTime(
 }
 
 /**
- * Format a date-only string in a custom format
+ * Get the current datetime in a specified timezone and format
  *
- * @param dateString - Date string in YYYY-MM-DD format
- * @param format - Format type ('short', 'long', 'numeric')
- * @returns Formatted date string
+ * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only', 'yyyy-mm-dd')
+ * @param timezone - Timezone for display (default: 'local')
+ * @returns Formatted current datetime string
  */
-export function formatDateCustom(dateString: string | null, format: 'short' | 'long' | 'numeric' = 'short'): string {
-  if (!dateString) return 'Not set';
+export function getNowDateTimeString(
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
+  timezone: string = 'local',
+): string {
+  const now = new Date();
 
-  // Validate format
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    console.warn('formatDateCustom: Invalid date format, expected YYYY-MM-DD:', dateString);
-    return 'Invalid date';
+  // Special case for YYYY-MM-DD format
+  if (format === 'yyyy-mm-dd') {
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    };
+
+    if (timezone !== 'local') {
+      options.timeZone = timezone;
+    }
+
+    return new Intl.DateTimeFormat('en-CA', options).format(now);
   }
-
-  // Parse the date components manually to avoid timezone issues
-  const [year, month, day] = dateString.split('-').map(Number);
-
-  // Create date in local timezone without any UTC conversion using the correct
-  // approach for date-only fields - creating with explicit components rather than string parsing
-  const date = new Date();
-  date.setFullYear(year, month - 1, day);
-  date.setHours(0, 0, 0, 0);
 
   const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
-    short: { year: 'numeric', month: 'short', day: 'numeric' },
-    long: { year: 'numeric', month: 'long', day: 'numeric' },
-    numeric: { year: 'numeric', month: '2-digit', day: '2-digit' },
+    default: { dateStyle: 'medium', timeStyle: 'short' },
+    short: { dateStyle: 'short', timeStyle: 'short' },
+    medium: { dateStyle: 'medium', timeStyle: 'medium' },
+    full: { dateStyle: 'full', timeStyle: 'long' },
+    'time-only': { timeStyle: 'short' },
+    'date-only': { dateStyle: 'medium' },
   };
 
-  return date.toLocaleDateString('en-US', formatOptions[format]);
-}
+  const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
 
-/**
- * Get the current date in YYYY-MM-DD format (for date input fields)
- *
- * @returns Today's date in YYYY-MM-DD format
- */
-export function getTodayDateString(): string {
-  // Get the current date components
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-
-  // Create date string in YYYY-MM-DD format without using Date object
-  return `${year}-${month}-${day}`;
-}
-
-/**
- * Check if a date string is a valid YYYY-MM-DD format
- *
- * @param dateString - The date string to validate
- * @returns True if valid YYYY-MM-DD format
- */
-export function isValidDateString(dateString: string): boolean {
-  if (!dateString) return false;
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    return false;
+  if (timezone !== 'local') {
+    options.timeZone = timezone;
   }
 
-  const [year, month, day] = dateString.split('-').map(Number);
-  // Create date using explicit components to avoid timezone issues
-  const date = new Date();
-  date.setFullYear(year, month - 1, day);
-  date.setHours(0, 0, 0, 0);
+  return new Intl.DateTimeFormat('en-US', options).format(now);
+}
 
-  // Check if the date is valid and matches the input
-  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+/**
+ * Get the current date in YYYY-MM-DD format (for date input fields), timezone-aware
+ *
+ * @param timezone - IANA timezone string (e.g., 'UTC', 'America/New_York'). If not provided, uses browser timezone.
+ * @returns Today's date in YYYY-MM-DD format for the specified timezone
+ */
+export function getTodayDateString(): string {
+  return getNowDateTimeString('yyyy-mm-dd');
+}
+
+/** Get the current date as a date object */
+export function getToday(): Date {
+  return new Date(getTodayDateString());
 }

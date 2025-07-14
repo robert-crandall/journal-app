@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { currentDayFocus, loadCurrentDayFocus } from '$lib/stores/focus';
   import { getDayName } from '$lib/api/focus';
+  import { getToday } from '$lib/utils/date';
 
   let isLoading = true;
 
@@ -13,8 +14,9 @@
     }
   });
 
-  $: today = new Date();
-  $: dayName = getDayName(today.getDay());
+  // Get the current day of week from a timezone-aware date (uses browser's timezone)
+  $: dayOfWeek = getToday().getDay();
+  $: dayName = getDayName(dayOfWeek);
 </script>
 
 <div class="card bg-base-100 border-base-300 border-l-primary border-l-4 p-5 shadow-xl transition-all duration-200 hover:shadow-2xl">

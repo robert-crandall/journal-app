@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
-  import { formatDateTime } from '$lib/utils/date';
+  import { formatDate, getTodayDateString, getNowDateTimeString } from '$lib/utils/date';
   import type { TodayJournalResponse } from '$lib/types/journal';
   import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon, TrophyIcon, TagIcon } from 'lucide-svelte';
 
@@ -36,16 +36,8 @@
   });
 
   function handleJournalAction() {
-    const today = JournalService.getTodayDate();
+    const today = getTodayDateString();
     goto(`/journal/${today}`);
-  }
-
-  function formatDate(dateStr: string): string {
-    try {
-      return formatDateTime(dateStr, 'date-only');
-    } catch {
-      return dateStr;
-    }
   }
 
   $: statusColor = todayJournal?.journal?.status === 'complete' ? 'success' : todayJournal?.journal?.status === 'in_review' ? 'warning' : 'primary';
@@ -81,7 +73,13 @@
         <!-- Date Display -->
         <div class="text-base-content/70 flex items-center gap-2">
           <CalendarIcon size={16} />
-          <span class="text-sm">{formatDate(todayJournal?.journal?.date || new Date().toISOString())}</span>
+          <span class="text-sm">
+            {#if todayJournal?.journal?.date}
+              {formatDate(todayJournal.journal.date)}
+            {:else}
+              {getNowDateTimeString('date-only')}
+            {/if}
+          </span>
         </div>
 
         <!-- Status Display -->
