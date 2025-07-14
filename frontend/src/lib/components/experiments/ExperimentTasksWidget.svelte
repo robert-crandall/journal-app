@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { experimentsApi, type ExperimentTaskWithCompletionsResponse, type ExperimentResponse } from '$lib/api/experiments';
   import { Beaker, CheckCircle, Circle, Plus, BarChart } from 'lucide-svelte';
+  import { getTodayDateString } from '$lib/utils/date';
 
   // State
   let loading = $state(true);
@@ -26,7 +27,7 @@
       const experiments = await experimentsApi.getUserExperiments();
 
       // Filter for active experiments (experiments happening today)
-      const today = new Date().toLocaleDateString('en-CA');
+      const today = getTodayDateString();
       const active = experiments.filter((exp) => {
         return exp.startDate <= today && exp.endDate >= today;
       });
@@ -65,7 +66,7 @@
 
   async function completeTask(experimentId: string, taskId: string) {
     try {
-      const today = new Date().toLocaleDateString('en-CA');
+      const today = getTodayDateString();
 
       await experimentsApi.completeExperimentTask(experimentId, taskId, {
         completedDate: today,
