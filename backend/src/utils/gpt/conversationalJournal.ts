@@ -3,6 +3,10 @@ import { callGptApi } from './client';
 import { createPrompt } from './utils';
 import { gptConfig } from './config';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
+import { db } from '../../db';
+import { characterStats, familyMembers } from '../../db/schema';
+import { eq, and } from 'drizzle-orm';
+import { createOrGetTag } from '../tags';
 
 /**
  * Interface for chat messages (matching the existing ChatMessage type)
@@ -14,33 +18,17 @@ export interface ChatMessage {
 }
 
 /**
- * Interface for journal metadata generation
+ * Interface for journal metadata generation (with IDs instead of names)
  */
 export interface JournalMetadata {
   title: string;
   synopsis: string;
   summary: string;
-  suggestedTags: string[];
-  suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stats with XP amount and reason for XP
-  suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family members with XP amount and reason for interactions
+  suggestedTags: string[]; // Tag IDs
+  suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stat IDs with XP amount and reason for XP
+  suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family member IDs with XP amount and reason for interactions
   suggestedTodos?: string[]; // Actionable items extracted from journal content
 }
-
-/**
- * System prompt for generating welcome messages
- */
-const WELCOME_MESSAGE_SYSTEM_PROMPT = `
-You are a thoughtful, empathetic journal companion. Your role is to help users reflect on their day and experiences through gentle conversation.
-
-Your task is to generate a warm, personalized welcome message that:
-- Acknowledges the user by name if provided
-- References their character class or background if available
-- Invites them to share what's on their mind
-- Feels supportive and non-judgmental
-- Is conversational and encouraging
-
-Keep the message to 1-2 sentences and make it feel personal but not overwhelming.
-`;
 
 /**
  * System prompt for follow-up responses in conversation
@@ -50,7 +38,11 @@ function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shoul
 
 You're here to read the user's latest journal entry (and recent ones if provided), then respond with warmth, curiosity, and the occasional eyebrow raise. Your job is not to fix or analyze, but to **reflect back what you're seeing** with insight, empathy, and a touch of playfulness.
 
+## Things you've noticed about the user
+
 ${formatUserContextForPrompt(userContext)}
+
+## Guidelines
 `;
 
   if (userMessageCount < 2) {
@@ -75,9 +67,9 @@ Your output can include:
 5. **A little humor** or lightness to keep it real and relatable
 6. Markdown formatting, emojis, or bullet points when it makes the message hit better
 
-But your output does not need to include all of that. Likely one or two is fine.
+LIMIT yourself to ONE or TWO of those outputs. The user will keep talking with you.
 
-Guidelines:
+## Reminders
 - Don't sound like a coach or therapist. Be real.
 - Don't say the same thing every time. Vary your approach: some days validate, some days question, some days just notice.
 - Don't force insight. If it's just “today was fine,” meet them there.
@@ -249,31 +241,6 @@ Return ONLY the JSON object without any additional text or explanation.
 }
 
 /**
- * Generate a personalized welcome message for a journal session
- */
-export async function generateWelcomeMessage(userContext: ComprehensiveUserContext): Promise<string> {
-  if (!gptConfig.isWelcomeMessageEnabled()) {
-    return `Welcome to your journal! I'm here to help you reflect on your thoughts and experiences. What would you like to share today?`;
-  }
-
-  let userPromptContent = `Generate a welcome message for a user starting a journal session.\n\n`;
-
-  // Use the comprehensive context formatting
-  userPromptContent += formatUserContextForPrompt(userContext);
-
-  userPromptContent += `\nGenerate a warm, personalized welcome message that invites them to begin journaling.`;
-
-  const messages = createPrompt(WELCOME_MESSAGE_SYSTEM_PROMPT, userPromptContent);
-
-  const response = await callGptApi({
-    messages,
-    temperature: 0.7, // Higher temperature for more creative/warm responses
-  });
-
-  return response.content.trim();
-}
-
-/**
  * Generate a follow-up response in a conversational journal session
  */
 export async function generateFollowUpResponse(
@@ -312,7 +279,7 @@ export async function generateFollowUpResponse(
 /**
  * Generate journal metadata from a complete conversation
  */
-export async function generateJournalMetadata(conversation: ChatMessage[], userContext: ComprehensiveUserContext, userId: string): Promise<JournalMetadata> {
+export async function generateJournalMetadata(conversation: ChatMessage[], userId: string): Promise<JournalMetadata> {
   // Get enhanced user context with tags and stats for metadata generation
   const enhancedContext = await getUserContext(userId, {
     includeCharacter: true,
@@ -348,9 +315,93 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userC
   });
 
   try {
-    const result = JSON.parse(response.content) as JournalMetadata;
-    return result;
+    const rawResult = JSON.parse(response.content);
+
+    // Convert names to IDs
+    const convertedResult = await convertNamesToIds(rawResult, userId, enhancedContext);
+
+    return convertedResult;
   } catch (error) {
     throw new Error(`Failed to parse GPT metadata response: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+/**
+ * Convert tag names, stat names, and family member names to their respective IDs
+ */
+async function convertNamesToIds(rawMetadata: any, userId: string, userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
+  // Convert content tags to IDs (create if they don't exist)
+  const suggestedTags: string[] = [];
+  if (rawMetadata.suggestedTags || rawMetadata.contentTags) {
+    const tagNames = rawMetadata.suggestedTags || rawMetadata.contentTags || [];
+    for (const tagName of tagNames) {
+      if (typeof tagName === 'string' && tagName.trim()) {
+        try {
+          const tag = await createOrGetTag(userId, tagName.toLowerCase().trim());
+          suggestedTags.push(tag.id);
+        } catch (error) {
+          console.warn(`Failed to create/get tag "${tagName}":`, error);
+        }
+      }
+    }
+  }
+
+  // Convert stat names to IDs
+  const suggestedStatTags: Record<string, { xp: number; reason: string }> = {};
+  const rawStatTags = rawMetadata.suggestedStatTags || rawMetadata.statTags || {};
+
+  if (userContext.characterStats && typeof rawStatTags === 'object' && rawStatTags !== null) {
+    for (const [statName, data] of Object.entries(rawStatTags)) {
+      if (typeof data === 'object' && data !== null && 'xp' in data) {
+        // Find the stat by name (case-insensitive)
+        const matchingStat = userContext.characterStats.find((stat) => stat.name.toLowerCase() === statName.toLowerCase());
+
+        if (matchingStat) {
+          // Get the actual stat ID from the database
+          const dbStat = await db
+            .select()
+            .from(characterStats)
+            .where(and(eq(characterStats.userId, userId), eq(characterStats.name, matchingStat.name)))
+            .limit(1);
+
+          if (dbStat.length > 0) {
+            suggestedStatTags[dbStat[0].id] = {
+              xp: (data as any).xp || 0,
+              reason: (data as any).reason || '',
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // Convert family member names to IDs
+  const suggestedFamilyTags: Record<string, { xp: number; reason: string }> = {};
+  const rawFamilyTags = rawMetadata.suggestedFamilyTags || {};
+
+  if (userContext.familyMembers && typeof rawFamilyTags === 'object' && rawFamilyTags !== null) {
+    for (const [familyName, data] of Object.entries(rawFamilyTags)) {
+      if (typeof data === 'object' && data !== null && 'xp' in data) {
+        // Find the family member by name (case-insensitive)
+        const matchingMember = userContext.familyMembers.find((member) => member.name.toLowerCase() === familyName.toLowerCase());
+
+        if (matchingMember) {
+          suggestedFamilyTags[matchingMember.id] = {
+            xp: (data as any).xp || 0,
+            reason: (data as any).reason || '',
+          };
+        }
+      }
+    }
+  }
+
+  return {
+    title: rawMetadata.title || '',
+    synopsis: rawMetadata.synopsis || '',
+    summary: rawMetadata.summary || '',
+    suggestedTags,
+    suggestedStatTags,
+    suggestedFamilyTags,
+    suggestedTodos: rawMetadata.suggestedTodos || [],
+  };
 }

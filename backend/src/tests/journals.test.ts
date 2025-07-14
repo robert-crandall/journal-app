@@ -386,7 +386,6 @@ describe('Journal API', () => {
           status: 'complete',
           chatSession: [{ role: 'user', content: 'Test entry' }],
           summary: 'Test summary',
-          contentTags: '["test", "journal"]',
         });
 
       const response = await app.request(`/api/journals/${date}`, {
@@ -399,7 +398,7 @@ describe('Journal API', () => {
       expect(data.data.date).toBe(date);
       expect(data.data.status).toBe('complete');
       expect(data.data.summary).toBe('Test summary');
-      expect(data.data.contentTags).toEqual(['test', 'journal']);
+      expect(data.data.contentTags).toEqual([]); // Now deprecated - always empty array
     });
 
     it('should return 404 for non-existent journal', async () => {

@@ -1,14 +1,15 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
-import { characterStats, characters } from '../db/schema';
+import { characterStats, characters, xpGrants, simpleTodos, familyMembers } from '../db/schema';
 import { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
 import { handleApiError } from '../utils/logger';
-import { analyzeJournalEntry } from '../utils/gpt/journal';
-import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse, ChatMessage } from '../types/journals';
+import { generateFollowUpResponse, generateJournalMetadata, type ChatMessage } from '../utils/gpt/conversationalJournal';
+import { getUserContext } from '../utils/userContextService';
+import type { CreateJournalRequest, UpdateJournalRequest, AddChatMessageRequest, JournalResponse, TodayJournalResponse } from '../types/journals';
 
 /**
  * Helper function to serialize journal to response format
@@ -24,9 +25,9 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
-    toneTags: journal.toneTags ? JSON.parse(journal.toneTags) : null,
-    contentTags: journal.contentTags ? JSON.parse(journal.contentTags) : null,
-    statTags: journal.statTags ? JSON.parse(journal.statTags) : null,
+    toneTags: [], // Deprecated - now using xpGrants table
+    contentTags: [], // Deprecated - now using xpGrants table
+    statTags: [], // Deprecated - now using xpGrants table
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
@@ -213,15 +214,7 @@ const app = new Hono()
       if (data.synopsis !== undefined) {
         updateData.synopsis = data.synopsis;
       }
-      if (data.toneTags !== undefined) {
-        updateData.toneTags = JSON.stringify(data.toneTags);
-      }
-      if (data.contentTags !== undefined) {
-        updateData.contentTags = JSON.stringify(data.contentTags);
-      }
-      if (data.statTags !== undefined) {
-        updateData.statTags = JSON.stringify(data.statTags);
-      }
+      // Note: toneTags, contentTags, and statTags are deprecated - now using xpGrants table
 
       const updatedJournal = await db
         .update(journals)
@@ -275,6 +268,14 @@ const app = new Hono()
         );
       }
 
+      // Get user context for personalized AI response
+      const userContext = await getUserContext(userId, {
+        includeCharacter: true,
+        includeActiveGoals: true,
+        includeFamilyMembers: true,
+        includeCharacterStats: true,
+      });
+
       // Initialize chat session with the initial message
       const initialChatSession: ChatMessage[] = [
         {
@@ -282,13 +283,17 @@ const app = new Hono()
           content: currentJournal.initialMessage || '',
           timestamp: new Date().toISOString(),
         },
-        {
-          role: 'assistant',
-          content:
-            "Thank you for sharing your thoughts. I'd love to explore this further with you. What aspect of your reflection would you like to dive deeper into?",
-          timestamp: new Date().toISOString(),
-        },
       ];
+
+      // Generate a personalized AI response based on the user's context and journal entry
+      const { response: aiResponse } = await generateFollowUpResponse(initialChatSession, userContext);
+
+      // Add the AI response to the chat session
+      initialChatSession.push({
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date().toISOString(),
+      });
 
       const updatedJournal = await db
         .update(journals)
@@ -356,14 +361,28 @@ const app = new Hono()
         timestamp: new Date().toISOString(),
       };
 
-      // Generate AI response (simple for now - could be enhanced with GPT)
+      // Create updated conversation for context
+      const conversationWithNewMessage = [...existingChatSession, userMessage];
+
+      // Get user context for personalized AI response
+      const userContext = await getUserContext(userId, {
+        includeCharacter: true,
+        includeActiveGoals: true,
+        includeFamilyMembers: true,
+        includeCharacterStats: true,
+      });
+
+      // Generate AI response using the conversational journal utility
+      const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext);
+
+      // Add AI response
       const aiMessage: ChatMessage = {
         role: 'assistant',
-        content: "That's an interesting point. Can you tell me more about how that made you feel?",
+        content: aiResponse,
         timestamp: new Date().toISOString(),
       };
 
-      const updatedChatSession = [...existingChatSession, userMessage, aiMessage];
+      const updatedChatSession = [...conversationWithNewMessage, aiMessage];
 
       const updatedJournal = await db
         .update(journals)
@@ -420,48 +439,121 @@ const app = new Hono()
         );
       }
 
-      // Get user's character for context
-      const userCharacter = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
-
-      // Get user's stats for context
-      const userStats = await db.select().from(characterStats).where(eq(characterStats.userId, userId));
-
-      // Prepare content for GPT analysis
+      // Get the chat session for analysis
       const chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
-      const fullJournalContent = [
-        `Initial Message: ${currentJournal.initialMessage || ''}`,
-        '',
-        'Chat Session:',
-        ...chatSession.map((msg) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`),
-      ].join('\n');
 
-      // Analyze journal with GPT
-      const analysis = await analyzeJournalEntry({
-        journalContent: fullJournalContent,
-        userBackstory: userCharacter.length > 0 ? userCharacter[0].backstory || undefined : undefined,
-        characterClass: userCharacter.length > 0 ? userCharacter[0].characterClass || undefined : undefined,
-        availableStats: userStats.map((stat) => ({
-          id: stat.id,
-          name: stat.name,
-          description: stat.description || '',
-        })),
-      });
+      // Generate journal metadata using the new function
+      const metadata = await generateJournalMetadata(chatSession, userId);
 
-      // Update journal with analysis results
+      // Update journal with basic metadata (no more JSON tags)
       const updatedJournal = await db
         .update(journals)
         .set({
           status: 'complete',
-          summary: analysis.summary,
-          title: analysis.title,
-          synopsis: analysis.synopsis,
-          toneTags: JSON.stringify(analysis.toneTags),
-          contentTags: JSON.stringify(analysis.contentTags),
-          statTags: JSON.stringify(analysis.statTags),
+          summary: metadata.summary,
+          title: metadata.title,
+          synopsis: metadata.synopsis,
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))
         .returning();
+
+      const journalId = updatedJournal[0].id;
+
+      // Create XP grants for content tags (0 XP)
+      if (metadata.suggestedTags && metadata.suggestedTags.length > 0) {
+        const contentTagsGrants = metadata.suggestedTags.map((tagId) => ({
+          userId,
+          entityType: 'content_tag' as const,
+          entityId: tagId,
+          xpAmount: 0, // Content tags get 0 XP
+          sourceType: 'journal' as const,
+          sourceId: journalId,
+          reason: 'Content tag from journal analysis',
+        }));
+
+        await db.insert(xpGrants).values(contentTagsGrants);
+      }
+
+      // Create XP grants for character stats
+      if (metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object') {
+        const statGrantsToInsert = [];
+
+        for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
+          if (typeof data === 'object' && data !== null && data.xp > 0) {
+            statGrantsToInsert.push({
+              userId,
+              entityType: 'character_stat' as const,
+              entityId: statId,
+              xpAmount: data.xp,
+              sourceType: 'journal' as const,
+              sourceId: journalId,
+              reason: data.reason || 'XP from journal reflection',
+            });
+
+            // Update the character stat's total XP
+            await db
+              .update(characterStats)
+              .set({
+                totalXp: sql`total_xp + ${data.xp}`,
+                updatedAt: new Date(),
+              })
+              .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+          }
+        }
+
+        if (statGrantsToInsert.length > 0) {
+          await db.insert(xpGrants).values(statGrantsToInsert);
+        }
+      }
+
+      // Create XP grants for family members
+      if (metadata.suggestedFamilyTags && typeof metadata.suggestedFamilyTags === 'object') {
+        const familyGrantsToInsert = [];
+
+        for (const [familyMemberId, data] of Object.entries(metadata.suggestedFamilyTags)) {
+          if (typeof data === 'object' && data !== null && data.xp > 0) {
+            familyGrantsToInsert.push({
+              userId,
+              entityType: 'family_member' as const,
+              entityId: familyMemberId,
+              xpAmount: data.xp,
+              sourceType: 'journal' as const,
+              sourceId: journalId,
+              reason: data.reason || 'Connection XP from journal interaction',
+            });
+
+            // Update the family member's connection XP
+            await db
+              .update(familyMembers)
+              .set({
+                connectionXp: sql`connection_xp + ${data.xp}`,
+                lastInteractionDate: new Date(),
+                updatedAt: new Date(),
+              })
+              .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
+          }
+        }
+
+        if (familyGrantsToInsert.length > 0) {
+          await db.insert(xpGrants).values(familyGrantsToInsert);
+        }
+      }
+
+      // Create simple todos that expire in 24 hours
+      if (metadata.suggestedTodos && metadata.suggestedTodos.length > 0) {
+        const expirationTime = new Date();
+        expirationTime.setHours(expirationTime.getHours() + 24);
+
+        const todosToInsert = metadata.suggestedTodos.map((todoDescription) => ({
+          userId,
+          description: todoDescription,
+          isCompleted: false,
+          expirationTime,
+        }));
+
+        await db.insert(simpleTodos).values(todosToInsert);
+      }
 
       return c.json({
         success: true,

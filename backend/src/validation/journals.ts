@@ -12,9 +12,6 @@ export const updateJournalSchema = z.object({
   summary: z.string().optional(),
   title: z.string().optional(),
   synopsis: z.string().optional(),
-  toneTags: z.array(z.string()).optional(),
-  contentTags: z.array(z.string()).optional(),
-  statTags: z.array(z.string()).optional(),
 });
 
 export const addChatMessageSchema = z.object({
