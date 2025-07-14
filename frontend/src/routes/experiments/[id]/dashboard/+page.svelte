@@ -194,8 +194,7 @@
 
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body text-center">
-            <!-- TODO - add back -->
-            <!-- <div class="text-warning text-3xl font-bold">{dashboard.journalEntries.length}</div> -->
+            <div class="text-warning text-3xl font-bold">{dashboard.journalEntries.length}</div>
             <div class="text-base-content/60 text-sm">Journal Entries</div>
             <div class="text-base-content/40 text-xs">during experiment</div>
           </div>
@@ -277,23 +276,22 @@
               Journal Entries
             </h2>
 
-            <!-- TODO - add back -->
-            <!-- {#if dashboard.journalEntries.length > 0}
+            {#if dashboard.journalEntries.length > 0}
               <div class="space-y-4">
                 {#each dashboard.journalEntries as entry}
                   <div class="card bg-base-200 border-base-300 border">
                     <div class="card-body p-4">
                       <div class="flex items-start justify-between">
                         <div class="flex-1">
-                          <h3 class="text-base-content mb-1 font-semibold">{entry.title}</h3>
+                          <h3 class="text-base-content mb-1 font-semibold">{entry.title || 'Untitled Entry'}</h3>
                           {#if entry.synopsis}
                             <p class="text-base-content/60 mb-2 line-clamp-2 text-sm">{entry.synopsis}</p>
                           {/if}
                           <div class="text-base-content/40 text-xs">
-                            {formatDate(entry.createdAt)}
+                            {formatDate(entry.date)}
                           </div>
                         </div>
-                        <a href="/journal/{entry.id}" class="btn btn-ghost btn-sm" title="View entry"> View </a>
+                        <a href="/journal/{entry.date}" class="btn btn-ghost btn-sm" title="View entry"> View </a>
                       </div>
                     </div>
                   </div>
@@ -310,12 +308,12 @@
                 <Book class="text-base-content/30 mx-auto mb-4 h-12 w-12" />
                 <h3 class="text-base-content mb-2 text-lg font-medium">No journal entries</h3>
                 <p class="text-base-content/60 mb-4">Write about your experiment experience to track insights and progress.</p>
-                <a href="/journal/longform" class="btn btn-secondary btn-sm">
+                <a href="/journal" class="btn btn-secondary btn-sm">
                   <Book class="h-4 w-4" />
                   Start Journaling
                 </a>
               </div>
-            {/if} -->
+            {/if}
           </div>
         </div>
       </div>

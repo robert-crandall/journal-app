@@ -500,6 +500,8 @@ describe('Experiments API Integration Tests', () => {
       expect(dashboard.xpBreakdown.fromTasks).toBe(5);
       expect(dashboard.tasks).toHaveLength(1);
       expect(dashboard.tasks[0].completionCount).toBe(1);
+      expect(dashboard.journalEntries).toBeDefined();
+      expect(Array.isArray(dashboard.journalEntries)).toBe(true);
     });
   });
 

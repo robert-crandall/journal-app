@@ -212,11 +212,11 @@
       <div class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <div>
           <span class="text-base-content/70 font-medium">Created:</span>
-          <span class="ml-2">{formatDate(journal.createdAt)}</span>
+          <span class="ml-2">{formatDateTime(journal.createdAt)}</span>
         </div>
         <div>
           <span class="text-base-content/70 font-medium">Completed:</span>
-          <span class="ml-2">{formatDate(journal.updatedAt)}</span>
+          <span class="ml-2">{formatDateTime(journal.updatedAt)}</span>
         </div>
         <div>
           <span class="text-base-content/70 font-medium">Messages:</span>
