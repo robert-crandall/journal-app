@@ -339,7 +339,18 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   });
 
   try {
-    const rawResult = JSON.parse(response.content);
+    let responseContent = response.content.trim();
+
+    // Check if the response content starts with ```json
+    if (responseContent.startsWith('```json')) {
+      // Remove the code block formatting
+      const jsonContent = responseContent
+        .replace(/```json/, '')
+        .replace(/```/, '')
+        .trim();
+      responseContent = jsonContent;
+    }
+    const rawResult = JSON.parse(responseContent);
 
     // Convert names to IDs
     const convertedResult = await convertNamesToIds(rawResult, userId, enhancedContext);
