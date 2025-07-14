@@ -26,3 +26,28 @@ export const journalDateSchema = z.object({
 export const finishJournalSchema = z.object({
   // No additional fields needed
 });
+
+// Schema for listing journals with filters
+export const listJournalsSchema = z.object({
+  limit: z.coerce.number().min(1).max(100).optional().default(20),
+  offset: z.coerce.number().min(0).optional().default(0),
+  status: z.enum(['draft', 'in_review', 'complete']).optional(),
+  search: z.string().optional(),
+  dateFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .optional(),
+  dateTo: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .optional(),
+  tagIds: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((val) => {
+      if (typeof val === 'string') {
+        return val.split(',').filter(Boolean);
+      }
+      return val || [];
+    }),
+});
