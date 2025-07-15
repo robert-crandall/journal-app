@@ -300,7 +300,7 @@
                           onclick={() => openCompletionModal(task.id)}
                           title="Mark this task as complete"
                         >
-                          <CheckCircle2 class="h-6 w-6" />
+                          <Calendar class="h-6 w-6" />
                         </button>
                       </div>
                     </div>
