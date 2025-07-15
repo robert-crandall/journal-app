@@ -71,20 +71,22 @@
 </svelte:head>
 
 <div class="bg-base-100 min-h-screen">
-  <div class="mx-auto max-w-4xl px-4 py-8">
+  <div class="mx-auto max-w-4xl px-3 sm:px-4 py-4 sm:py-8">
     <!-- Header -->
-    <div class="mb-8 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <button on:click={goBack} class="btn btn-ghost btn-sm gap-2">
-          <ArrowLeftIcon size={16} />
-          Back to Home
+    <div class="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+      <div class="flex items-center justify-between">
+        <button on:click={goBack} class="btn btn-ghost btn-sm gap-1 sm:gap-2 px-2 sm:px-3">
+          <ArrowLeftIcon size={14} class="sm:hidden" />
+          <ArrowLeftIcon size={16} class="hidden sm:block" />
+          <span class="text-xs sm:text-sm">Back</span>
         </button>
 
-        <div class="flex items-center gap-3">
-          <BookIcon size={24} class="text-primary" />
+        <div class="flex items-center gap-2 sm:gap-3 justify-center sm:justify-start">
+          <BookIcon size={18} class="text-primary sm:hidden" />
+          <BookIcon size={24} class="text-primary hidden sm:block" />
           <div>
-            <h1 class="text-gradient text-2xl font-bold">Journal Entry</h1>
-            <p class="text-base-content/70 text-sm">
+            <h1 class="text-gradient text-xl sm:text-2xl font-bold text-center sm:text-left">Journal Entry</h1>
+            <p class="text-base-content/70 text-xs sm:text-sm text-center sm:text-left">
               {date ? formatDate(date) : 'Loading...'}
             </p>
           </div>

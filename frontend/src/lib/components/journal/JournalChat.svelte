@@ -101,9 +101,6 @@
           <MessageCircleIcon size={24} class="text-primary hidden sm:block" />
           <div>
             <h2 class="text-lg sm:text-xl font-semibold">Reflection Session</h2>
-            <p class="text-base-content/70 text-xs sm:text-sm">
-              {messageCount} messages • Exploring your thoughts
-            </p>
           </div>
         </div>
       </div>
