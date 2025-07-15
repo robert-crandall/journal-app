@@ -24,79 +24,82 @@
 
 <div class="min-h-screen">
   <!-- Main content -->
-  <main class="mx-auto w-full max-w-7xl px-4">
-    <div class="flex flex-1 flex-col items-center justify-center py-20">
+  <main class="mx-auto w-full max-w-7xl px-3 sm:px-4">
+    <div class="flex flex-1 flex-col items-center justify-center py-12 sm:py-20">
       {#if user}
         <!-- Logged-in View -->
-        <section class="flex w-full max-w-2xl flex-col items-center">
-          <div class="hero-content mb-8 text-center">
+        <section class="flex w-full max-w-full sm:max-w-2xl flex-col items-center">
+          <div class="hero-content mb-6 sm:mb-8 text-center">
             <div>
-              <h1 class="text-primary mb-3 text-4xl font-bold">
+              <h1 class="text-primary mb-2 sm:mb-3 text-3xl sm:text-4xl font-bold">
                 Welcome back, {user.name}!
               </h1>
-              <p class="text-base-content/70 max-w-lg text-xl">You're successfully logged in to your account.</p>
+              <p class="text-base-content/70 max-w-lg text-lg sm:text-xl">You're successfully logged in to your account.</p>
             </div>
           </div>
 
           <div class="card bg-base-100 w-full shadow-xl">
-            <div class="card-body">
-              <div class="mb-4 flex items-center gap-4">
+            <div class="card-body p-3 sm:p-6">
+              <div class="mb-4 flex items-center gap-3 sm:gap-4">
                 <div class="avatar placeholder">
-                  <div class="bg-primary text-primary-content h-16 w-16 rounded-full">
-                    <span class="text-2xl font-bold">{user.name[0]}</span>
+                  <div class="bg-primary text-primary-content h-12 w-12 sm:h-16 sm:w-16 rounded-full">
+                    <span class="text-xl sm:text-2xl font-bold">{user.name[0]}</span>
                   </div>
                 </div>
                 <div>
-                  <h2 class="card-title text-2xl">{user.name}</h2>
-                  <p class="text-base-content/70">{user.email}</p>
+                  <h2 class="card-title text-xl sm:text-2xl">{user.name}</h2>
+                  <p class="text-base-content/70 text-sm sm:text-base">{user.email}</p>
                 </div>
               </div>
 
-              <div class="divider"></div>
+              <div class="divider my-2 sm:my-4"></div>
 
-              <!-- Journal Widget -->
-              <div class="mb-6">
-                <JournalWidget />
+              <!-- Widgets Container -->
+              <div class="space-y-4 sm:space-y-6">
+                <!-- Journal Widget -->
+                <div>
+                  <JournalWidget />
+                </div>
+
+                <!-- Daily Focus Widget -->
+                <div>
+                  <DailyFocusWidget />
+                </div>
+
+                <!-- Simple Todos Widget -->
+                <div>
+                  <SimpleTodosWidget />
+                </div>
+
+                <!-- Experiment Tasks Widget -->
+                <div>
+                  <ExperimentTasksWidget />
+                </div>
               </div>
 
-              <!-- Daily Focus Widget -->
-              <div class="mb-6">
-                <DailyFocusWidget />
-              </div>
+              <div class="divider my-3 sm:my-4"></div>
 
-              <!-- Simple Todos Widget -->
-              <div class="mb-6">
-                <SimpleTodosWidget />
-              </div>
+              <h3 class="text-base-content/50 mb-2 sm:mb-3 text-xs sm:text-sm font-semibold uppercase">Account Information</h3>
 
-              <!-- Experiment Tasks Widget -->
-              <div class="mb-6">
-                <ExperimentTasksWidget />
-              </div>
-
-              <div class="divider"></div>
-
-              <h3 class="text-base-content/50 mb-3 text-sm font-semibold uppercase">Account Information</h3>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div class="stat bg-base-200/50 rounded-lg">
+              <div class="grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2">
+                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
                   <div class="stat-title text-xs">Username</div>
-                  <div class="stat-value text-lg">{user.name}</div>
+                  <div class="stat-value text-base sm:text-lg">{user.name}</div>
                 </div>
-                <div class="stat bg-base-200/50 rounded-lg">
+                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
                   <div class="stat-title text-xs">Email</div>
-                  <div class="stat-value text-lg">{user.email}</div>
+                  <div class="stat-value text-base sm:text-lg overflow-hidden text-ellipsis">{user.email}</div>
                 </div>
-                <div class="stat bg-base-200/50 rounded-lg">
+                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
                   <div class="stat-title text-xs">Status</div>
-                  <div class="stat-value flex items-center gap-2 text-lg">
-                    <span class="badge badge-success badge-sm"></span>
+                  <div class="stat-value flex items-center gap-1 sm:gap-2 text-base sm:text-lg">
+                    <span class="badge badge-success badge-xs sm:badge-sm"></span>
                     Active
                   </div>
                 </div>
-                <div class="stat bg-base-200/50 rounded-lg">
+                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
                   <div class="stat-title text-xs">Joined</div>
-                  <div class="stat-value text-lg">{new Date().toLocaleDateString()}</div>
+                  <div class="stat-value text-base sm:text-lg">{new Date().toLocaleDateString()}</div>
                 </div>
               </div>
             </div>
@@ -104,66 +107,66 @@
         </section>
       {:else}
         <!-- Landing Page View -->
-        <section class="hero">
-          <div class="hero-content max-w-5xl flex-col lg:flex-row-reverse">
+        <section class="hero px-2 sm:px-4">
+          <div class="hero-content max-w-full sm:max-w-5xl flex-col lg:flex-row-reverse">
             <!-- Right side illustration/image -->
-            <div class="flex flex-1 items-center justify-center">
-              <div class="mockup-browser bg-base-300 max-w-sm border">
+            <div class="flex flex-1 items-center justify-center my-6 lg:my-0">
+              <div class="mockup-browser bg-base-300 w-full max-w-xs sm:max-w-sm border">
                 <div class="mockup-browser-toolbar">
-                  <div class="input">auth-template.dev</div>
+                  <div class="input text-xs sm:text-sm">auth-template.dev</div>
                 </div>
                 <div class="bg-base-200 flex justify-center">
-                  <div class="flex w-full flex-col gap-3 p-4">
-                    <div class="skeleton h-8 w-3/4"></div>
-                    <div class="skeleton h-4 w-1/2"></div>
-                    <div class="skeleton h-4 w-2/3"></div>
-                    <div class="mt-4 flex gap-2">
-                      <div class="btn btn-primary btn-sm flex-1">Get Started</div>
-                      <div class="btn btn-outline btn-sm">Login</div>
+                  <div class="flex w-full flex-col gap-2 sm:gap-3 p-3 sm:p-4">
+                    <div class="skeleton h-6 sm:h-8 w-3/4"></div>
+                    <div class="skeleton h-3 sm:h-4 w-1/2"></div>
+                    <div class="skeleton h-3 sm:h-4 w-2/3"></div>
+                    <div class="mt-3 sm:mt-4 flex gap-2">
+                      <div class="btn btn-primary btn-xs sm:btn-sm flex-1">Get Started</div>
+                      <div class="btn btn-outline btn-xs sm:btn-sm">Login</div>
                     </div>
-                    <div class="skeleton mt-4 h-32 w-full"></div>
+                    <div class="skeleton mt-3 sm:mt-4 h-24 sm:h-32 w-full"></div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Left side content -->
-            <div class="max-w-xl flex-1">
-              <h1 class="mb-4 text-5xl leading-tight font-bold">
+            <div class="max-w-full sm:max-w-xl flex-1 px-1 sm:px-0">
+              <h1 class="mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl leading-tight font-bold text-center lg:text-left">
                 <span class="text-gradient"> Modern Journal App </span>
               </h1>
-              <p class="text-base-content/80 mb-8 text-xl">
+              <p class="text-base-content/80 mb-6 sm:mb-8 text-lg sm:text-xl text-center lg:text-left">
                 A sleek SvelteKit application with user authentication powered by Hono backend. The perfect starting point for your next project.
               </p>
 
-              <div class="mb-8 flex items-center gap-4">
-                <a href="/register" class="btn btn-primary btn-lg">
+              <div class="mb-6 sm:mb-8 flex items-center justify-center lg:justify-start gap-3 sm:gap-4">
+                <a href="/register" class="btn btn-primary btn-md sm:btn-lg">
                   Get Started
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="h-4 w-4"
+                    class="h-3 w-3 sm:h-4 sm:w-4"
                   >
                     <path d="M5 12h14" />
                     <path d="m12 5 7 7-7 7" />
                   </svg>
                 </a>
-                <a href="/login" class="btn btn-outline btn-lg"> Login </a>
+                <a href="/login" class="btn btn-outline btn-md sm:btn-lg"> Login </a>
               </div>
 
               <!-- Feature badges -->
-              <div class="flex flex-wrap gap-3">
-                <div class="badge badge-primary">Type-Safe</div>
-                <div class="badge badge-secondary">SvelteKit</div>
-                <div class="badge badge-accent">Hono Backend</div>
-                <div class="badge badge-success">JWT Auth</div>
+              <div class="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
+                <div class="badge badge-primary badge-sm sm:badge-md">Type-Safe</div>
+                <div class="badge badge-secondary badge-sm sm:badge-md">SvelteKit</div>
+                <div class="badge badge-accent badge-sm sm:badge-md">Hono Backend</div>
+                <div class="badge badge-success badge-sm sm:badge-md">JWT Auth</div>
               </div>
             </div>
           </div>

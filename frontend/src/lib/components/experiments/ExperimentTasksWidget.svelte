@@ -170,9 +170,6 @@
       <div class="flex items-center gap-2">
         <Beaker class="text-secondary h-5 w-5" />
         <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-        <span class="badge badge-secondary badge-sm">
-          {todaysTasks.filter((t) => !t.task.isCompleteToday).length} pending
-        </span>
       </div>
       <a href="/experiments" class="text-secondary hover:text-secondary/80 flex items-center gap-1 text-sm font-medium">
         <BarChart class="h-4 w-4" />
