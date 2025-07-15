@@ -70,8 +70,8 @@
   <title>Journal - {date ? formatDate(date) : 'Loading...'}</title>
 </svelte:head>
 
-<div class="bg-base-100 min-h-screen">
-  <div class="mx-auto max-w-4xl px-3 sm:px-4 py-4 sm:py-8">
+<div class="bg-base-100 min-h-screen flex flex-col">
+  <div class="mx-auto w-full max-w-4xl px-3 sm:px-4 py-3 sm:py-6 flex flex-col flex-grow">
     <!-- Header -->
     <div class="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
       <div class="flex items-center justify-between">
@@ -95,33 +95,39 @@
     </div>
 
     <!-- Content -->
-    {#if loading}
-      <div class="flex items-center justify-center py-12">
-        <span class="loading loading-spinner loading-lg text-primary"></span>
-      </div>
-    {:else if error}
-      <div class="card bg-error/10 border-error/20 border">
-        <div class="card-body">
-          <h3 class="card-title text-error">Error</h3>
-          <p>{error}</p>
-          <div class="card-actions">
-            <button class="btn btn-outline" on:click={loadJournal}> Try Again </button>
+    <div class="flex-grow flex flex-col">
+      {#if loading}
+        <div class="flex items-center justify-center py-12 flex-grow">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      {:else if error}
+        <div class="card bg-error/10 border-error/20 border">
+          <div class="card-body">
+            <h3 class="card-title text-error">Error</h3>
+            <p>{error}</p>
+            <div class="card-actions">
+              <button class="btn btn-outline" on:click={loadJournal}> Try Again </button>
+            </div>
           </div>
         </div>
-      </div>
-    {:else if journal}
-      <!-- Existing journal - show appropriate view based on status -->
-      {#if journal.status === 'draft'}
-        <JournalEditor {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
-      {:else if journal.status === 'in_review'}
-        <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
-      {:else if journal.status === 'complete'}
-        <JournalComplete {journal} />
+      {:else if journal}
+        <!-- Existing journal - show appropriate view based on status -->
+        <div class="flex-grow flex flex-col">
+          {#if journal.status === 'draft'}
+            <JournalEditor {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
+          {:else if journal.status === 'in_review'}
+            <div class="flex-grow flex flex-col">
+              <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
+            </div>
+          {:else if journal.status === 'complete'}
+            <JournalComplete {journal} />
+          {/if}
+        </div>
+      {:else}
+        <!-- No journal exists for this date - show creation form -->
+        <JournalEditor journal={null} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
       {/if}
-    {:else}
-      <!-- No journal exists for this date - show creation form -->
-      <JournalEditor journal={null} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
-    {/if}
+    </div>
   </div>
 </div>
 

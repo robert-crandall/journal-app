@@ -91,17 +91,20 @@
   $: messageCount = chatSession.length;
 </script>
 
-<div class="card bg-base-100 border-base-300 border shadow-xl">
-  <div class="card-body p-0">
+<div class="card bg-base-100 border-base-300 border shadow-xl h-full flex flex-col">
+  <div class="card-body p-0 flex flex-col flex-grow">
     <!-- Header -->
-    <div class="border-base-300 border-b p-3 sm:p-5">
-      <div class="flex items-center">
+    <div class="border-base-300 border-b p-2 sm:p-4">
+      <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 sm:gap-3">
-          <MessageCircleIcon size={18} class="text-primary sm:hidden" />
-          <MessageCircleIcon size={24} class="text-primary hidden sm:block" />
+          <MessageCircleIcon size={16} class="text-primary sm:hidden" />
+          <MessageCircleIcon size={20} class="text-primary hidden sm:block" />
           <div>
-            <h2 class="text-lg sm:text-xl font-semibold">Reflection Session</h2>
+            <h2 class="text-base sm:text-lg font-semibold">Reflection Session</h2>
           </div>
+        </div>
+        <div class="text-xs sm:text-sm text-base-content/70">
+          {messageCount} messages
         </div>
       </div>
     </div>
@@ -116,8 +119,8 @@
     {/if}
 
     <!-- Chat Messages -->
-    <div bind:this={chatContainer} class="max-h-80 sm:max-h-96 flex-1 overflow-y-auto scroll-smooth p-3 sm:p-6">
-      <div class="space-y-3 sm:space-y-4">
+    <div bind:this={chatContainer} class="flex-grow overflow-y-auto scroll-smooth p-2 sm:p-4">
+      <div class="space-y-2 sm:space-y-3">
         {#each chatSession as message, i}
           <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
             <!-- Avatar -->
@@ -174,8 +177,8 @@
       </div>
     </div>
 
-    <!-- Message Input -->
-    <div class="border-base-300 border-t p-3 sm:p-5">
+    <!-- Message Input - Sticky to Bottom -->
+    <div class="border-base-300 border-t p-2 sm:p-4 mt-auto">
       <div class="flex items-end gap-2">
         <div class="flex-1">
           <textarea
@@ -183,25 +186,26 @@
             bind:value={newMessage}
             on:keydown={handleKeydown}
             placeholder="Share thoughts or ask questions..."
-            class="textarea textarea-bordered w-full resize-none text-sm sm:text-base transition-all duration-200 focus:scale-[1.01] sm:focus:scale-[1.02]"
-            rows="2"
+            class="textarea textarea-bordered w-full resize-none text-sm sm:text-base focus:outline-none focus:border-primary"
+            rows="1"
             disabled={sending}
           ></textarea>
+          <div class="label py-0 hidden sm:block">
+            <span class="label-text-alt text-2xs sm:text-xs opacity-60">Enter to send, Shift+Enter for new line</span>
+          </div>
         </div>
 
-        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm sm:btn-md">
+        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm h-10 px-2 sm:px-3">
           {#if sending}
-            <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
+            <span class="loading loading-spinner loading-xs"></span>
           {:else}
-            <SendIcon size={14} class="sm:hidden" />
-            <SendIcon size={16} class="hidden sm:block" />
+            <SendIcon size={16} />
           {/if}
-          <span class="hidden sm:inline">Send</span>
         </button>
       </div>
       
-      <!-- Finish Button (Moved Below) -->
-      <div class="mt-3 sm:mt-4 flex justify-end">
+      <!-- Finish Button (Below Input) -->
+      <div class="mt-2 sm:mt-3 flex justify-end">
         <button 
           data-test-id="finish-journal-button" 
           on:click={finishJournal} 
