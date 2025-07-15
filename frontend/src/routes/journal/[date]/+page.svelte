@@ -90,13 +90,6 @@
           </div>
         </div>
       </div>
-
-      <div class="flex items-center gap-2">
-        <button on:click={goToToday} class="btn btn-outline btn-sm gap-2">
-          <CalendarIcon size={16} />
-          Today
-        </button>
-      </div>
     </div>
 
     <!-- Content -->
