@@ -3,23 +3,34 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
-  import type { ExperimentDashboardResponse } from '$lib/api/experiments';
-  import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star } from 'lucide-svelte';
+  import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
+  import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X } from 'lucide-svelte';
   import { marked } from 'marked';
 
   // Reactive state
   let dashboard: ExperimentDashboardResponse | null = $state(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
-
+  
+  // Modal state for task completion
+  let showCompletionModal = $state(false);
+  let selectedTaskId = $state<string | null>(null);
+  let selectedDate = $state('');
+  let completingTask = $state(false);
+  let completionError = $state<string | null>(null);  
+  
   // Get experiment ID from URL
   let experimentId = $derived($page.params.id);
 
   // Load data on component mount
   onMount(async () => {
     await loadDashboard();
+    
+    // Initialize with today's date in YYYY-MM-DD format
+    const today = new Date();
+    selectedDate = today.toISOString().split('T')[0];
   });
-
+  
   async function loadDashboard() {
     try {
       loading = true;
@@ -36,6 +47,45 @@
     } finally {
       loading = false;
     }
+  }
+  
+  async function completeTask() {
+    if (!selectedTaskId || !selectedDate || !dashboard) return;
+    
+    try {
+      completingTask = true;
+      completionError = null;
+      
+      const completionData: CompleteExperimentTaskRequest = {
+        completedDate: selectedDate,
+      };
+      
+      await experimentsApi.completeExperimentTask(experimentId, selectedTaskId, completionData);
+      
+      // Reset form state
+      showCompletionModal = false;
+      selectedTaskId = null;
+      
+      // Reload dashboard data to reflect the changes
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to complete task:', err);
+      completionError = err instanceof Error ? err.message : 'Failed to complete task';
+    } finally {
+      completingTask = false;
+    }
+  }
+  
+  function openCompletionModal(taskId?: string) {
+    selectedTaskId = taskId || null;
+    completionError = null;
+    showCompletionModal = true;
+  }
+  
+  function closeCompletionModal() {
+    showCompletionModal = false;
+    selectedTaskId = null;
+    completionError = null;
   }
 
   // Helper functions
@@ -206,10 +256,19 @@
         <!-- Tasks Progress -->
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body">
-            <h2 class="text-base-content mb-6 flex items-center gap-2 text-2xl font-bold">
-              <Target class="text-primary h-6 w-6" />
-              Task Progress
-            </h2>
+            <div class="mb-6 flex items-center justify-between">
+              <h2 class="text-base-content flex items-center gap-2 text-2xl font-bold">
+                <Target class="text-primary h-6 w-6" />
+                Task Progress
+              </h2>
+              <button 
+                class="btn btn-primary btn-sm" 
+                onclick={() => openCompletionModal()}
+                title="Mark task as complete for a specific date"
+              >
+                <Plus class="h-4 w-4" /> Mark Complete
+              </button>
+            </div>
 
             {#if dashboard.tasks.length > 0}
               <div class="space-y-6">
@@ -231,9 +290,18 @@
                           {/if}
                         </div>
                       </div>
-                      <div class="text-right">
-                        <div class="text-primary text-lg font-bold">{getTaskCompletionRate(task)}%</div>
-                        <div class="text-base-content/40 text-xs">completion rate</div>
+                      <div class="flex items-start gap-2">
+                        <div class="text-right">
+                          <div class="text-primary text-lg font-bold">{getTaskCompletionRate(task)}%</div>
+                          <div class="text-base-content/40 text-xs">completion rate</div>
+                        </div>
+                        <button 
+                          class="btn btn-ghost btn-xs"
+                          onclick={() => openCompletionModal(task.id)}
+                          title="Mark this task as complete"
+                        >
+                          <CheckCircle2 class="h-6 w-6" />
+                        </button>
                       </div>
                     </div>
                     <!-- Progress Bar -->
@@ -372,6 +440,90 @@
       <h2 class="text-base-content mb-2 text-2xl font-bold">Experiment Not Found</h2>
       <p class="text-base-content/60 mb-6">The experiment dashboard you're looking for doesn't exist or you don't have access to it.</p>
       <a href="/experiments" class="btn btn-primary"> Back to Experiments </a>
+    </div>
+  {/if}
+
+  <!-- Task Completion Modal -->
+  {#if showCompletionModal}
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div class="modal modal-open">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Complete Task</h3>
+            <button onclick={closeCompletionModal} class="btn btn-ghost btn-sm btn-circle absolute right-2 top-2">
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <div class="modal-body">
+            {#if selectedTaskId}
+              {#each dashboard?.tasks || [] as task}
+                {#if task.id === selectedTaskId}
+                  <p class="mb-4 text-base-content/70">
+                    Mark <strong>{task.description}</strong> as complete for <strong>{formatDate(selectedDate)}</strong>.
+                  </p>
+                {/if}
+              {/each}
+            {:else}
+              <!-- Task Selection (only shown when opened from "Mark Complete" button) -->
+              <div class="mb-4">
+                <label class="label" for="task-select">
+                  <span class="label-text">Select Task</span>
+                </label>
+                <select 
+                  id="task-select"
+                  class="select select-bordered w-full" 
+                  bind:value={selectedTaskId}
+                  required
+                >
+                  <option value="">Select a task...</option>
+                  {#each dashboard?.tasks || [] as task}
+                    <option value={task.id}>{task.description}</option>
+                  {/each}
+                </select>
+              </div>
+            {/if}
+
+            <!-- Date Picker -->
+            <div class="mb-4">
+              <label class="label" for="completion-date">
+                <span class="label-text">Completion Date</span>
+              </label>
+              <input 
+                id="completion-date"
+                type="date" 
+                bind:value={selectedDate}
+                class="input-bordered input w-full" 
+                min={dashboard?.experiment?.startDate || ''}
+                max={dashboard?.experiment?.endDate && 
+                  (dashboard.experiment.endDate > new Date().toISOString().split('T')[0] ? 
+                    new Date().toISOString().split('T')[0] : 
+                    dashboard.experiment.endDate)}
+                required
+              />
+            </div>
+
+            <!-- Error Message -->
+            {#if completionError}
+              <div class="mb-4 rounded-md bg-red-50 p-3 text-red-800">
+                <p class="text-sm">{completionError}</p>
+              </div>
+            {/if}
+          </div>
+
+          <div class="modal-footer">
+            <button onclick={closeCompletionModal} class="btn btn-outline">
+              Cancel
+            </button>
+            <button onclick={completeTask} class="btn btn-primary" disabled={completingTask || !selectedTaskId || !selectedDate}>
+              {#if completingTask}
+                <span class="loading loading-spinner loading-sm"></span>
+              {/if}
+              Complete Task
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 </div>
