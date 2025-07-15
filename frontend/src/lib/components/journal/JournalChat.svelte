@@ -91,69 +91,63 @@
   $: messageCount = chatSession.length;
 </script>
 
-<div class="card bg-base-100 border-base-300 border shadow-xl">
-  <div class="card-body p-0">
+<div class="card bg-base-100 border-base-300 border shadow-xl h-full flex flex-col">
+  <div class="card-body p-0 flex flex-col flex-grow">
     <!-- Header -->
-    <div class="border-base-300 border-b p-6">
+    <div class="border-base-300 border-b p-2 sm:p-4">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <MessageCircleIcon size={24} class="text-primary" />
+        <div class="flex items-center gap-2 sm:gap-3">
+          <MessageCircleIcon size={16} class="text-primary sm:hidden" />
+          <MessageCircleIcon size={20} class="text-primary hidden sm:block" />
           <div>
-            <h2 class="text-xl font-semibold">Reflection Session</h2>
-            <p class="text-base-content/70 text-sm">
-              {messageCount} messages • Exploring your thoughts
-            </p>
+            <h2 class="text-base sm:text-lg font-semibold">Reflection Session</h2>
           </div>
         </div>
-
-        <button data-test-id="finish-journal-button" on:click={finishJournal} disabled={finishing} class="btn btn-success gap-2">
-          {#if finishing}
-            <span class="loading loading-spinner loading-sm"></span>
-          {:else}
-            <CheckCircleIcon size={16} />
-          {/if}
-          Finish Journal
-        </button>
+        <div class="text-xs sm:text-sm text-base-content/70">
+          {messageCount} messages
+        </div>
       </div>
     </div>
 
     <!-- Error Message -->
     {#if error}
-      <div class="mx-6 mt-4">
-        <div class="alert alert-error">
+      <div class="mx-3 sm:mx-6 mt-3 sm:mt-4">
+        <div class="alert alert-error p-2 sm:p-4 text-xs sm:text-sm">
           <span>{error}</span>
         </div>
       </div>
     {/if}
 
     <!-- Chat Messages -->
-    <div bind:this={chatContainer} class="max-h-96 flex-1 overflow-y-auto scroll-smooth p-6">
-      <div class="space-y-4">
+    <div bind:this={chatContainer} class="flex-grow overflow-y-auto scroll-smooth p-2 sm:p-4">
+      <div class="space-y-2 sm:space-y-3">
         {#each chatSession as message, i}
-          <div class="flex items-start gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
+          <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
             <!-- Avatar -->
             <div class="flex-shrink-0">
               <div
-                class="flex h-8 w-8 items-center justify-center rounded-full {message.role === 'user'
+                class="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full {message.role === 'user'
                   ? 'bg-primary text-primary-content'
                   : 'bg-secondary text-secondary-content'}"
               >
                 {#if message.role === 'user'}
-                  <UserIcon size={16} />
+                  <UserIcon size={12} class="sm:hidden" />
+                  <UserIcon size={16} class="hidden sm:block" />
                 {:else}
-                  <BotIcon size={16} />
+                  <BotIcon size={12} class="sm:hidden" />
+                  <BotIcon size={16} class="hidden sm:block" />
                 {/if}
               </div>
             </div>
 
             <!-- Message Content -->
-            <div class="max-w-xs flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
-              <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
-                <p class="prose prose-sm text-sm leading-relaxed">{@html marked.parse(message.content)}</p>
+            <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
+              <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
+                <p class="prose prose-sm text-xs sm:text-sm leading-relaxed">{@html marked.parse(message.content)}</p>
               </div>
 
               {#if message.timestamp}
-                <p class="mt-1 text-xs opacity-60 {message.role === 'user' ? 'text-right' : ''}">
+                <p class="mt-0.5 sm:mt-1 text-2xs sm:text-xs opacity-60 {message.role === 'user' ? 'text-right' : ''}">
                   {formatMessageTime(message.timestamp)}
                 </p>
               {/if}
@@ -163,17 +157,18 @@
 
         <!-- Typing indicator when sending -->
         {#if sending}
-          <div class="flex items-start gap-3">
+          <div class="flex items-start gap-2 sm:gap-3">
             <div class="flex-shrink-0">
-              <div class="bg-secondary text-secondary-content flex h-8 w-8 items-center justify-center rounded-full">
-                <BotIcon size={16} />
+              <div class="bg-secondary text-secondary-content flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full">
+                <BotIcon size={12} class="sm:hidden" />
+                <BotIcon size={16} class="hidden sm:block" />
               </div>
             </div>
             <div class="flex-1">
-              <div class="bg-base-200 rounded-lg px-4 py-3">
+              <div class="bg-base-200 rounded-lg px-3 py-2 sm:px-4 sm:py-3">
                 <div class="flex items-center gap-1">
-                  <span class="loading loading-dots loading-sm"></span>
-                  <span class="text-sm opacity-60">AI is thinking...</span>
+                  <span class="loading loading-dots loading-xs sm:loading-sm"></span>
+                  <span class="text-xs sm:text-sm opacity-60">AI is thinking...</span>
                 </div>
               </div>
             </div>
@@ -182,45 +177,49 @@
       </div>
     </div>
 
-    <!-- Message Input -->
-    <div class="border-base-300 border-t p-6">
-      <div class="flex items-end gap-3">
+    <!-- Message Input - Sticky to Bottom -->
+    <div class="border-base-300 border-t p-2 sm:p-4 mt-auto">
+      <div class="flex items-end gap-2">
         <div class="flex-1">
           <textarea
             data-test-id="chat-input"
             bind:value={newMessage}
             on:keydown={handleKeydown}
-            placeholder="Share more thoughts, ask questions, or reflect deeper..."
-            class="textarea textarea-bordered w-full resize-none transition-all duration-200 focus:scale-[1.02]"
-            rows="2"
+            placeholder="Share thoughts or ask questions..."
+            class="textarea textarea-bordered w-full resize-none text-sm sm:text-base focus:outline-none focus:border-primary"
+            rows="1"
             disabled={sending}
           ></textarea>
-          <div class="label">
-            <span class="label-text-alt text-xs opacity-60"> Press Enter to send, Shift+Enter for new line </span>
+          <div class="label py-0 hidden sm:block">
+            <span class="label-text-alt text-2xs sm:text-xs opacity-60">Enter to send, Shift+Enter for new line</span>
           </div>
         </div>
 
-        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary gap-2">
+        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm h-10 px-2 sm:px-3">
           {#if sending}
-            <span class="loading loading-spinner loading-sm"></span>
+            <span class="loading loading-spinner loading-xs"></span>
           {:else}
             <SendIcon size={16} />
           {/if}
-          Send
         </button>
       </div>
-    </div>
-
-    <!-- Help Text -->
-    <div class="mx-6 mb-6">
-      <div class="bg-secondary/10 border-secondary/20 rounded-lg border p-4">
-        <h3 class="mb-2 text-sm font-medium">💬 Reflection Tips</h3>
-        <ul class="text-base-content/80 space-y-1 text-sm">
-          <li>• Explore your thoughts and feelings in more depth</li>
-          <li>• Ask the AI questions about your experiences</li>
-          <li>• Reflect on patterns, insights, or new perspectives</li>
-          <li>• When finished, click "Finish Journal" to complete your entry</li>
-        </ul>
+      
+      <!-- Finish Button (Below Input) -->
+      <div class="mt-2 sm:mt-3 flex justify-end">
+        <button 
+          data-test-id="finish-journal-button" 
+          on:click={finishJournal} 
+          disabled={finishing} 
+          class="btn btn-success btn-sm sm:btn-md gap-1 sm:gap-2 w-full sm:w-auto"
+        >
+          {#if finishing}
+            <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
+          {:else}
+            <CheckCircleIcon size={14} class="sm:hidden" />
+            <CheckCircleIcon size={16} class="hidden sm:block" />
+          {/if}
+          Finish Journal
+        </button>
       </div>
     </div>
   </div>
@@ -230,5 +229,10 @@
   .textarea:focus {
     outline: none;
     box-shadow: 0 0 0 2px oklch(0.637 0.237 25.331 / 0.2);
+  }
+  
+  /* Custom size for extra small text */
+  :global(.text-2xs) {
+    font-size: 0.65rem;
   }
 </style>

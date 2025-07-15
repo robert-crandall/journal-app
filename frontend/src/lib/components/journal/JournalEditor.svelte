@@ -101,38 +101,39 @@
 </script>
 
 <div class="card bg-base-100 border-base-300 border shadow-xl">
-  <div class="card-body p-8">
+  <div class="card-body p-4 sm:p-6 md:p-8">
     <!-- Header -->
-    <div class="mb-6 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <PenIcon size={24} class="text-primary" />
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <PenIcon size={20} class="text-primary hidden sm:block" />
+        <PenIcon size={16} class="text-primary sm:hidden" />
         <div>
-          <h2 class="text-xl font-semibold">
+          <h2 class="text-lg sm:text-xl font-semibold">
             {journal ? 'Continue Writing' : 'Write Journal'}
           </h2>
-          <p class="text-base-content/70 text-sm">Share your thoughts, experiences, and reflections</p>
+          <p class="text-base-content/70 text-xs sm:text-sm">Share your thoughts, experiences, and reflections</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 self-end sm:self-auto">
         {#if hasUnsavedChanges}
           <span class="text-warning text-xs">Unsaved changes</span>
         {/if}
         {#if saving}
-          <span class="loading loading-spinner loading-sm"></span>
+          <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
         {/if}
       </div>
     </div>
 
     <!-- Error Message -->
     {#if error}
-      <div class="alert alert-error mb-4">
+      <div class="alert alert-error mb-3 sm:mb-4 p-2 sm:p-4 text-xs sm:text-sm">
         <span>{error}</span>
       </div>
     {/if}
 
     <!-- Editor -->
-    <div class="space-y-4">
+    <div class="space-y-3 sm:space-y-4">
       <div class="form-control">
         <textarea
           data-test-id="journal-editor-textarea"
@@ -140,27 +141,33 @@
           on:input={handleInput}
           on:keydown={handleKeydown}
           placeholder="What's on your mind today? Write freely about your thoughts, experiences, feelings, or anything that comes to mind..."
-          class="textarea textarea-bordered textarea-lg h-64 w-full resize-none text-base leading-relaxed transition-all duration-200 focus:scale-[1.02]"
+          class="textarea textarea-bordered textarea-lg h-48 sm:h-64 w-full resize-none text-sm sm:text-base leading-relaxed transition-all duration-200 focus:scale-[1.01] sm:focus:scale-[1.02]"
           rows="12"
         ></textarea>
 
         <!-- Character/Word Counter -->
-        <div class="label">
-          <span class="label-text-alt text-xs opacity-60">
-            {wordCount} words • {characterCount} characters
+        <div class="label py-1 sm:py-2">
+          <span class="label-text-alt text-2xs sm:text-xs opacity-60">
+            {wordCount} words • {characterCount} chars
           </span>
-          <span class="label-text-alt text-xs opacity-60"> Ctrl/Cmd + S to save </span>
+          <span class="label-text-alt text-2xs sm:text-xs opacity-60 hidden sm:inline"> Ctrl/Cmd + S to save </span>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center justify-between pt-4">
-        <div class="flex items-center gap-4">
-          <button data-test-id="save-draft-button" on:click={saveJournal} disabled={saving || !initialMessage.trim()} class="btn btn-outline gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0 pt-2 sm:pt-4">
+        <div class="flex items-center">
+          <button 
+            data-test-id="save-draft-button" 
+            on:click={saveJournal} 
+            disabled={saving || !initialMessage.trim()} 
+            class="btn btn-outline btn-sm sm:btn-md gap-1 sm:gap-2 w-full sm:w-auto"
+          >
             {#if saving}
-              <span class="loading loading-spinner loading-sm"></span>
+              <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
             {:else}
-              <SaveIcon size={16} />
+              <SaveIcon size={14} class="sm:hidden" />
+              <SaveIcon size={16} class="hidden sm:block" />
             {/if}
             Save Draft
           </button>
@@ -170,26 +177,16 @@
           data-test-id="start-reflection-button"
           on:click={startReflection}
           disabled={startingReflection || !journal || !initialMessage.trim()}
-          class="btn btn-primary gap-2"
+          class="btn btn-primary btn-sm sm:btn-md gap-1 sm:gap-2"
         >
           {#if startingReflection}
-            <span class="loading loading-spinner loading-sm"></span>
+            <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
           {:else}
-            <MessageCircleIcon size={16} />
+            <MessageCircleIcon size={14} class="sm:hidden" />
+            <MessageCircleIcon size={16} class="hidden sm:block" />
           {/if}
           Start Reflection
         </button>
-      </div>
-
-      <!-- Help Text -->
-      <div class="bg-primary/10 border-primary/20 rounded-lg border p-4">
-        <h3 class="mb-2 text-sm font-medium">💡 Writing Tips</h3>
-        <ul class="text-base-content/80 space-y-1 text-sm">
-          <li>• Write freely without worrying about structure or grammar</li>
-          <li>• Include feelings, experiences, thoughts, or observations</li>
-          <li>• Your entry will be saved automatically as you type</li>
-          <li>• When ready, start reflection to explore your thoughts deeper</li>
-        </ul>
       </div>
     </div>
   </div>
@@ -199,5 +196,10 @@
   .textarea:focus {
     outline: none;
     box-shadow: 0 0 0 2px oklch(0.637 0.237 25.331 / 0.2);
+  }
+  
+  /* Custom size for extra small text */
+  :global(.text-2xs) {
+    font-size: 0.65rem;
   }
 </style>
