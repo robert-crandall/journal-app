@@ -5,6 +5,7 @@
   import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   export let journal: JournalResponse;
 
@@ -75,7 +76,7 @@
         </div>
 
         <div class="prose prose-sm max-w-none">
-          <p class="text-base-content/90 prose prose-sm leading-relaxed">{@html marked.parse(journal.summary)}</p>
+          <p class="text-base-content/90 prose prose-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(journal.summary)))}</p>
         </div>
       </div>
     </div>
@@ -189,7 +190,7 @@
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
                 <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
-                  <p class="prose prose-sm text-sm leading-relaxed">{@html marked.parse(message.content)}</p>
+                  <p class="prose prose-sm text-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
                 </div>
 
                 {#if message.timestamp}

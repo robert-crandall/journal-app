@@ -6,6 +6,7 @@
   import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
   import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X } from 'lucide-svelte';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   // Reactive state
   let dashboard: ExperimentDashboardResponse | null = $state(null);
@@ -187,7 +188,7 @@
               </div>
 
               {#if dashboard.experiment.description}
-                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">{@html marked.parse(dashboard.experiment.description)}</p>
+                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">{@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.description)))}</p>
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">

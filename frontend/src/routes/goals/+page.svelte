@@ -5,6 +5,7 @@
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
   import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for goals data
@@ -173,7 +174,7 @@
                       </div>
 
                       {#if goal.description}
-                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html marked.parse(goal.description)}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html DOMPurify.sanitize(String(marked.parse(goal.description)))}</p>
                       {/if}
 
                       <!-- Tags -->

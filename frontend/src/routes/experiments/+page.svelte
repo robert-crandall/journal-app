@@ -5,7 +5,8 @@
   import { experimentsApi, type ExperimentResponse } from '$lib/api/experiments';
   import { Plus, Beaker, Calendar, BarChart, Trash2, Edit3, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
-
+  import DOMPurify from 'dompurify';
+  
   // Reactive state for experiments data
   let userExperiments: ExperimentResponse[] = $state([]);
   let loading = $state(true);
@@ -178,7 +179,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html marked.parse(experiment.description)}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -231,7 +232,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html marked.parse(experiment.description)}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -284,7 +285,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html marked.parse(experiment.description)}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
