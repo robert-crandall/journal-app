@@ -70,23 +70,23 @@
   <title>Journal - {date ? formatDate(date) : 'Loading...'}</title>
 </svelte:head>
 
-<div class="bg-base-100 min-h-screen flex flex-col">
-  <div class="mx-auto w-full max-w-4xl px-3 sm:px-4 py-3 sm:py-6 flex flex-col flex-grow">
+<div class="bg-base-100 flex min-h-screen flex-col">
+  <div class="mx-auto flex w-full max-w-4xl flex-grow flex-col px-3 py-3 sm:px-4 sm:py-6">
     <!-- Header -->
-    <div class="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+    <div class="mb-4 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
       <div class="flex items-center justify-between">
-        <button on:click={goBack} class="btn btn-ghost btn-sm gap-1 sm:gap-2 px-2 sm:px-3">
+        <button on:click={goBack} class="btn btn-ghost btn-sm gap-1 px-2 sm:gap-2 sm:px-3">
           <ArrowLeftIcon size={14} class="sm:hidden" />
           <ArrowLeftIcon size={16} class="hidden sm:block" />
           <span class="text-xs sm:text-sm">Back</span>
         </button>
 
-        <div class="flex items-center gap-2 sm:gap-3 justify-center sm:justify-start">
+        <div class="flex items-center justify-center gap-2 sm:justify-start sm:gap-3">
           <BookIcon size={18} class="text-primary sm:hidden" />
           <BookIcon size={24} class="text-primary hidden sm:block" />
           <div>
-            <h1 class="text-gradient text-xl sm:text-2xl font-bold text-center sm:text-left">Journal Entry</h1>
-            <p class="text-base-content/70 text-xs sm:text-sm text-center sm:text-left">
+            <h1 class="text-gradient text-center text-xl font-bold sm:text-left sm:text-2xl">Journal Entry</h1>
+            <p class="text-base-content/70 text-center text-xs sm:text-left sm:text-sm">
               {date ? formatDate(date) : 'Loading...'}
             </p>
           </div>
@@ -95,9 +95,9 @@
     </div>
 
     <!-- Content -->
-    <div class="flex-grow flex flex-col">
+    <div class="flex flex-grow flex-col">
       {#if loading}
-        <div class="flex items-center justify-center py-12 flex-grow">
+        <div class="flex flex-grow items-center justify-center py-12">
           <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
       {:else if error}
@@ -112,11 +112,11 @@
         </div>
       {:else if journal}
         <!-- Existing journal - show appropriate view based on status -->
-        <div class="flex-grow flex flex-col">
+        <div class="flex flex-grow flex-col">
           {#if journal.status === 'draft'}
             <JournalEditor {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
           {:else if journal.status === 'in_review'}
-            <div class="flex-grow flex flex-col">
+            <div class="flex flex-grow flex-col">
               <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
             </div>
           {:else if journal.status === 'complete'}

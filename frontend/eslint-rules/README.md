@@ -26,7 +26,7 @@ When the linter detects an emoji, replace it with:
 ```svelte
 <!-- Instead of "Welcome! 🎉" -->
 <div>
-  Welcome! <PartyPopper class="h-4 w-4 inline text-accent" />
+  Welcome! <PartyPopper class="text-accent inline h-4 w-4" />
 </div>
 ```
 

@@ -57,25 +57,25 @@
 
 <div class="w-full">
   {#if showTitle}
-  <div class="mb-6 flex items-center gap-3">
-    <div class="text-accent">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M9 12l2 2 4-4" />
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      </svg>
+    <div class="mb-6 flex items-center gap-3">
+      <div class="text-accent">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 12l2 2 4-4" />
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold">Quick Tasks</h3>
     </div>
-    <h3 class="text-xl font-semibold">Quick Tasks</h3>
-  </div>
   {/if}
 
   <!-- Add new todo form -->

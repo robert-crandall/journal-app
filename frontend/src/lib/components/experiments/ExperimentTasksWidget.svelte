@@ -180,32 +180,27 @@
 
     <div class="card bg-base-100 border-base-300 border shadow-xl">
       <!-- Group tasks by experiment -->
-      {#each Object.entries(todaysTasks.reduce((acc, {experiment, task}) => {
-        if (!acc[experiment.id]) {
-          acc[experiment.id] = {experiment, tasks: []};
-        }
-        acc[experiment.id].tasks.push(task);
-        return acc;
-      }, {} as Record<string, {experiment: ExperimentResponse, tasks: ExperimentTaskWithCompletionsResponse[]}>)) as [id, {experiment, tasks}], i}
-        
-        <div class="border-b border-base-300 last:border-b-0">
+      {#each Object.entries(todaysTasks.reduce((acc, { experiment, task }) => {
+            if (!acc[experiment.id]) {
+              acc[experiment.id] = { experiment, tasks: [] };
+            }
+            acc[experiment.id].tasks.push(task);
+            return acc;
+          }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }], i}
+        <div class="border-base-300 border-b last:border-b-0">
           <!-- Experiment Header -->
           <div class="bg-base-200/50 p-4">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-secondary font-medium text-lg flex items-center gap-2">
+                <h4 class="text-secondary flex items-center gap-2 text-lg font-medium">
                   <Beaker class="h-5 w-5" />
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
-                  <p class="text-base-content/70 text-sm mt-1 prose prose-sm">{@html marked.parse(experiment.description)}</p>
+                  <p class="text-base-content/70 prose prose-sm mt-1 text-sm">{@html marked.parse(experiment.description)}</p>
                 {/if}
               </div>
-              <a
-                href="/experiments/{experiment.id}"
-                class="btn btn-ghost btn-sm gap-1"
-                title="View experiment dashboard"
-              >
+              <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
                 <BarChart class="h-4 w-4" />
                 Details
               </a>
@@ -213,7 +208,7 @@
           </div>
 
           <!-- Tasks for this experiment -->
-          <div class="divide-y divide-base-300/50">
+          <div class="divide-base-300/50 divide-y">
             {#each tasks as task}
               <div class="hover:bg-base-200 p-4 transition-colors">
                 <div class="flex items-center gap-3">
@@ -258,14 +253,15 @@
           </div>
         </div>
       {/each}
-      
 
       <!-- Footer with summary -->
       <div class="bg-base-200 rounded-b-lg px-4 py-3">
         <div class="flex items-center justify-between text-sm">
           <span class="text-base-content/60">
-            {todaysTasks.filter((t) => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today
-            ({activeExperiments.length} active experiment{activeExperiments.length !== 1 ? 's' : ''})
+            {todaysTasks.filter((t) => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today ({activeExperiments.length} active experiment{activeExperiments.length !==
+            1
+              ? 's'
+              : ''})
           </span>
           <a href="/experiments" class="text-secondary hover:text-secondary/80 font-medium"> View all experiments → </a>
         </div>
