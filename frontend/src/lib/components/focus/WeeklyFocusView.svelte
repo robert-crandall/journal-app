@@ -12,8 +12,9 @@
   let editingFocus: Focus | null = null;
   let confirmingDelete: number | null = null;
 
-  $: allDays = [0, 1, 2, 3, 4, 5, 6]; // 0 = Sunday, 6 = Saturday
-  $: today = getToday().getDay();
+  // Static values don't need reactive declarations
+  const allDays = [0, 1, 2, 3, 4, 5, 6]; // 0 = Sunday, 6 = Saturday
+  const today = getToday().getDay();
 
   onMount(async () => {
     try {

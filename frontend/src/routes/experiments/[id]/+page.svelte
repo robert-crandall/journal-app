@@ -11,26 +11,26 @@
   let dashboard: ExperimentDashboardResponse | null = $state(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
-  
+
   // Modal state for task completion
   let showCompletionModal = $state(false);
   let selectedTaskId = $state<string | null>(null);
   let selectedDate = $state('');
   let completingTask = $state(false);
-  let completionError = $state<string | null>(null);  
-  
+  let completionError = $state<string | null>(null);
+
   // Get experiment ID from URL
   let experimentId = $derived($page.params.id);
 
   // Load data on component mount
   onMount(async () => {
     await loadDashboard();
-    
+
     // Initialize with today's date in YYYY-MM-DD format
     const today = new Date();
     selectedDate = today.toISOString().split('T')[0];
   });
-  
+
   async function loadDashboard() {
     try {
       loading = true;
@@ -48,24 +48,24 @@
       loading = false;
     }
   }
-  
+
   async function completeTask() {
     if (!selectedTaskId || !selectedDate || !dashboard) return;
-    
+
     try {
       completingTask = true;
       completionError = null;
-      
+
       const completionData: CompleteExperimentTaskRequest = {
         completedDate: selectedDate,
       };
-      
+
       await experimentsApi.completeExperimentTask(experimentId, selectedTaskId, completionData);
-      
+
       // Reset form state
       showCompletionModal = false;
       selectedTaskId = null;
-      
+
       // Reload dashboard data to reflect the changes
       await loadDashboard();
     } catch (err) {
@@ -75,13 +75,13 @@
       completingTask = false;
     }
   }
-  
+
   function openCompletionModal(taskId?: string) {
     selectedTaskId = taskId || null;
     completionError = null;
     showCompletionModal = true;
   }
-  
+
   function closeCompletionModal() {
     showCompletionModal = false;
     selectedTaskId = null;
@@ -261,11 +261,7 @@
                 <Target class="text-primary h-6 w-6" />
                 Task Progress
               </h2>
-              <button 
-                class="btn btn-primary btn-sm" 
-                onclick={() => openCompletionModal()}
-                title="Mark task as complete for a specific date"
-              >
+              <button class="btn btn-primary btn-sm" onclick={() => openCompletionModal()} title="Mark task as complete for a specific date">
                 <Plus class="h-4 w-4" /> Mark Complete
               </button>
             </div>
@@ -295,11 +291,7 @@
                           <div class="text-primary text-lg font-bold">{getTaskCompletionRate(task)}%</div>
                           <div class="text-base-content/40 text-xs">completion rate</div>
                         </div>
-                        <button 
-                          class="btn btn-ghost btn-xs"
-                          onclick={() => openCompletionModal(task.id)}
-                          title="Mark this task as complete"
-                        >
+                        <button class="btn btn-ghost btn-xs" onclick={() => openCompletionModal(task.id)} title="Mark this task as complete">
                           <Calendar class="h-6 w-6" />
                         </button>
                       </div>
@@ -450,7 +442,7 @@
         <div class="modal-box">
           <div class="modal-header">
             <h3 class="text-lg font-semibold">Complete Task</h3>
-            <button onclick={closeCompletionModal} class="btn btn-ghost btn-sm btn-circle absolute right-2 top-2">
+            <button onclick={closeCompletionModal} class="btn btn-ghost btn-sm btn-circle absolute top-2 right-2">
               <X class="h-5 w-5" />
             </button>
           </div>
@@ -459,7 +451,7 @@
             {#if selectedTaskId}
               {#each dashboard?.tasks || [] as task}
                 {#if task.id === selectedTaskId}
-                  <p class="mb-4 text-base-content/70">
+                  <p class="text-base-content/70 mb-4">
                     Mark <strong>{task.description}</strong> as complete for <strong>{formatDate(selectedDate)}</strong>.
                   </p>
                 {/if}
@@ -470,12 +462,7 @@
                 <label class="label" for="task-select">
                   <span class="label-text">Select Task</span>
                 </label>
-                <select 
-                  id="task-select"
-                  class="select select-bordered w-full" 
-                  bind:value={selectedTaskId}
-                  required
-                >
+                <select id="task-select" class="select select-bordered w-full" bind:value={selectedTaskId} required>
                   <option value="">Select a task...</option>
                   {#each dashboard?.tasks || [] as task}
                     <option value={task.id}>{task.description}</option>
@@ -489,16 +476,16 @@
               <label class="label" for="completion-date">
                 <span class="label-text">Completion Date</span>
               </label>
-              <input 
+              <input
                 id="completion-date"
-                type="date" 
+                type="date"
                 bind:value={selectedDate}
-                class="input-bordered input w-full" 
+                class="input-bordered input w-full"
                 min={dashboard?.experiment?.startDate || ''}
-                max={dashboard?.experiment?.endDate && 
-                  (dashboard.experiment.endDate > new Date().toISOString().split('T')[0] ? 
-                    new Date().toISOString().split('T')[0] : 
-                    dashboard.experiment.endDate)}
+                max={dashboard?.experiment?.endDate &&
+                  (dashboard.experiment.endDate > new Date().toISOString().split('T')[0]
+                    ? new Date().toISOString().split('T')[0]
+                    : dashboard.experiment.endDate)}
                 required
               />
             </div>
@@ -512,9 +499,7 @@
           </div>
 
           <div class="modal-footer">
-            <button onclick={closeCompletionModal} class="btn btn-outline">
-              Cancel
-            </button>
+            <button onclick={closeCompletionModal} class="btn btn-outline"> Cancel </button>
             <button onclick={completeTask} class="btn btn-primary" disabled={completingTask || !selectedTaskId || !selectedDate}>
               {#if completingTask}
                 <span class="loading loading-spinner loading-sm"></span>

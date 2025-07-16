@@ -6,6 +6,10 @@
 
   let isLoading = true;
 
+  // Get the current day of week from a timezone-aware date (uses browser's timezone)
+  const dayOfWeek = getToday().getDay();
+  const dayName = getDayName(dayOfWeek);
+
   onMount(async () => {
     try {
       await loadCurrentDayFocus();
@@ -13,10 +17,6 @@
       isLoading = false;
     }
   });
-
-  // Get the current day of week from a timezone-aware date (uses browser's timezone)
-  $: dayOfWeek = getToday().getDay();
-  $: dayName = getDayName(dayOfWeek);
 </script>
 
 <div class="card bg-base-100 border-base-300 border-l-primary border-l-4 p-5 shadow-xl transition-all duration-200 hover:shadow-2xl">

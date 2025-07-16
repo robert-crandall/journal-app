@@ -28,10 +28,10 @@
     <div class="flex flex-1 flex-col items-center justify-center py-12 sm:py-20">
       {#if user}
         <!-- Logged-in View -->
-        <section class="flex w-full max-w-full sm:max-w-2xl flex-col items-center">
-          <div class="hero-content mb-6 sm:mb-8 text-center">
+        <section class="flex w-full max-w-full flex-col items-center sm:max-w-2xl">
+          <div class="hero-content mb-6 text-center sm:mb-8">
             <div>
-              <h1 class="text-primary mb-2 sm:mb-3 text-3xl sm:text-4xl font-bold">
+              <h1 class="text-primary mb-2 text-3xl font-bold sm:mb-3 sm:text-4xl">
                 Welcome back, {user.name}!
               </h1>
               <p class="text-base-content/70 max-w-lg text-lg sm:text-xl">You're successfully logged in to your account.</p>
@@ -40,106 +40,68 @@
 
           <div class="card bg-base-100 w-full shadow-xl">
             <div class="card-body p-3 sm:p-6">
-              <div class="mb-4 flex items-center gap-3 sm:gap-4">
-                <div class="avatar placeholder">
-                  <div class="bg-primary text-primary-content h-12 w-12 sm:h-16 sm:w-16 rounded-full">
-                    <span class="text-xl sm:text-2xl font-bold">{user.name[0]}</span>
-                  </div>
-                </div>
-                <div>
-                  <h2 class="card-title text-xl sm:text-2xl">{user.name}</h2>
-                  <p class="text-base-content/70 text-sm sm:text-base">{user.email}</p>
-                </div>
-              </div>
-
-              <div class="divider my-2 sm:my-4"></div>
-
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
-                <!-- Journal Widget -->
-                <div>
-                  <JournalWidget />
-                </div>
-
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />
                 </div>
 
-                <!-- Simple Todos Widget -->
-                <div>
-                  <SimpleTodosWidget />
-                </div>
-
+                <div class="divider my-3 sm:my-4"></div>
                 <!-- Experiment Tasks Widget -->
                 <div>
                   <ExperimentTasksWidget />
                 </div>
+
+                <div>
+                  <SimpleTodosWidget showTitle={false} />
+                </div>
+
+                <!-- Journal Widget -->
+                <div>
+                  <JournalWidget />
+                </div>
               </div>
 
               <div class="divider my-3 sm:my-4"></div>
-
-              <h3 class="text-base-content/50 mb-2 sm:mb-3 text-xs sm:text-sm font-semibold uppercase">Account Information</h3>
-
-              <div class="grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2">
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Username</div>
-                  <div class="stat-value text-base sm:text-lg">{user.name}</div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Email</div>
-                  <div class="stat-value text-base sm:text-lg overflow-hidden text-ellipsis">{user.email}</div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Status</div>
-                  <div class="stat-value flex items-center gap-1 sm:gap-2 text-base sm:text-lg">
-                    <span class="badge badge-success badge-xs sm:badge-sm"></span>
-                    Active
-                  </div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Joined</div>
-                  <div class="stat-value text-base sm:text-lg">{new Date().toLocaleDateString()}</div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
       {:else}
         <!-- Landing Page View -->
         <section class="hero px-2 sm:px-4">
-          <div class="hero-content max-w-full sm:max-w-5xl flex-col lg:flex-row-reverse">
+          <div class="hero-content max-w-full flex-col sm:max-w-5xl lg:flex-row-reverse">
             <!-- Right side illustration/image -->
-            <div class="flex flex-1 items-center justify-center my-6 lg:my-0">
-              <div class="mockup-browser bg-base-300 w-full max-w-xs sm:max-w-sm border">
+            <div class="my-6 flex flex-1 items-center justify-center lg:my-0">
+              <div class="mockup-browser bg-base-300 w-full max-w-xs border sm:max-w-sm">
                 <div class="mockup-browser-toolbar">
                   <div class="input text-xs sm:text-sm">auth-template.dev</div>
                 </div>
                 <div class="bg-base-200 flex justify-center">
-                  <div class="flex w-full flex-col gap-2 sm:gap-3 p-3 sm:p-4">
-                    <div class="skeleton h-6 sm:h-8 w-3/4"></div>
-                    <div class="skeleton h-3 sm:h-4 w-1/2"></div>
-                    <div class="skeleton h-3 sm:h-4 w-2/3"></div>
-                    <div class="mt-3 sm:mt-4 flex gap-2">
+                  <div class="flex w-full flex-col gap-2 p-3 sm:gap-3 sm:p-4">
+                    <div class="skeleton h-6 w-3/4 sm:h-8"></div>
+                    <div class="skeleton h-3 w-1/2 sm:h-4"></div>
+                    <div class="skeleton h-3 w-2/3 sm:h-4"></div>
+                    <div class="mt-3 flex gap-2 sm:mt-4">
                       <div class="btn btn-primary btn-xs sm:btn-sm flex-1">Get Started</div>
                       <div class="btn btn-outline btn-xs sm:btn-sm">Login</div>
                     </div>
-                    <div class="skeleton mt-3 sm:mt-4 h-24 sm:h-32 w-full"></div>
+                    <div class="skeleton mt-3 h-24 w-full sm:mt-4 sm:h-32"></div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Left side content -->
-            <div class="max-w-full sm:max-w-xl flex-1 px-1 sm:px-0">
-              <h1 class="mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl leading-tight font-bold text-center lg:text-left">
+            <div class="max-w-full flex-1 px-1 sm:max-w-xl sm:px-0">
+              <h1 class="mb-3 text-center text-3xl leading-tight font-bold sm:mb-4 sm:text-4xl md:text-5xl lg:text-left">
                 <span class="text-gradient"> Modern Journal App </span>
               </h1>
-              <p class="text-base-content/80 mb-6 sm:mb-8 text-lg sm:text-xl text-center lg:text-left">
+              <p class="text-base-content/80 mb-6 text-center text-lg sm:mb-8 sm:text-xl lg:text-left">
                 A sleek SvelteKit application with user authentication powered by Hono backend. The perfect starting point for your next project.
               </p>
 
-              <div class="mb-6 sm:mb-8 flex items-center justify-center lg:justify-start gap-3 sm:gap-4">
+              <div class="mb-6 flex items-center justify-center gap-3 sm:mb-8 sm:gap-4 lg:justify-start">
                 <a href="/register" class="btn btn-primary btn-md sm:btn-lg">
                   Get Started
                   <svg
@@ -162,7 +124,7 @@
               </div>
 
               <!-- Feature badges -->
-              <div class="flex flex-wrap justify-center lg:justify-start gap-2 sm:gap-3">
+              <div class="flex flex-wrap justify-center gap-2 sm:gap-3 lg:justify-start">
                 <div class="badge badge-primary badge-sm sm:badge-md">Type-Safe</div>
                 <div class="badge badge-secondary badge-sm sm:badge-md">SvelteKit</div>
                 <div class="badge badge-accent badge-sm sm:badge-md">Hono Backend</div>

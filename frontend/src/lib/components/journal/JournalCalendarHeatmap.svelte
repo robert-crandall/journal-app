@@ -100,11 +100,12 @@
     return labels.slice(-6); // Show last 6 month labels to avoid crowding
   }
 
-  $: days = getLast365Days();
-  $: monthLabels = getMonthLabels();
+  // Since these functions don't depend on reactive variables, we can call them directly
+  const days = getLast365Days();
+  const monthLabels = getMonthLabels();
 
   // Group days by week for display
-  $: weekGroups = days.reduce(
+  const weekGroups = days.reduce(
     (weeks, day) => {
       const weekKey = Math.floor((364 - days.findIndex((d) => d.date === day.date)) / 7);
       if (!weeks[weekKey]) weeks[weekKey] = [];

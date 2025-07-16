@@ -22,7 +22,7 @@
     xl: 'text-xl',
   };
 
-  // Get user initials for placeholder
+  // Get user initials for placeholder - reactive to name prop changes
   $: initials = name
     .split(' ')
     .map((word) => word.charAt(0))
@@ -30,6 +30,7 @@
     .toUpperCase()
     .slice(0, 2);
 
+  // These are reactive to prop changes
   $: roundedClass = rounded ? 'rounded-full' : 'rounded-lg';
   $: cursorClass = clickable ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : '';
 </script>
