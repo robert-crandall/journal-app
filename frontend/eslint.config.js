@@ -43,6 +43,7 @@ export default ts.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'svelte/require-each-key': 'off',
+      'svelte/no-at-html-tags': 'off', // Disabled for markdown content with proper sanitization
     },
   },
   {
