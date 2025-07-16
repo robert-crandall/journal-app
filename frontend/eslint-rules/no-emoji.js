@@ -131,12 +131,12 @@ const rule = {
       JSXText(node) {
         checkTextForEmojis(node, node.value);
       },
-      
+
       // Check Svelte text
       SvelteText(node) {
         checkTextForEmojis(node, node.value);
       },
-      
+
       // Check Svelte attribute values
       SvelteAttribute(node) {
         if (node.value && typeof node.value.value === 'string') {
@@ -148,7 +148,7 @@ const rule = {
           }
         }
       },
-      
+
       // Check Svelte mustache tags
       SvelteMustacheTag(node) {
         if (node.expression.type === 'Literal' && typeof node.expression.value === 'string') {

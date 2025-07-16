@@ -299,7 +299,7 @@
           {#if !isPresetMode && predefinedStats.length > 0}
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold flex items-center gap-2">
+                <h3 class="mb-4 flex items-center gap-2 font-semibold">
                   <Target class="h-5 w-5" />
                   Quick Start
                 </h3>
