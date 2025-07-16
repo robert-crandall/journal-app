@@ -105,7 +105,7 @@
   const monthLabels = getMonthLabels();
 
   // Group days by week for display
-  $: weekGroups = days.reduce(
+  const weekGroups = days.reduce(
     (weeks, day) => {
       const weekKey = Math.floor((364 - days.findIndex((d) => d.date === day.date)) / 7);
       if (!weeks[weekKey]) weeks[weekKey] = [];
