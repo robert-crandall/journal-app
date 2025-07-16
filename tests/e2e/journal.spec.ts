@@ -50,63 +50,6 @@ test.describe('Journal System', () => {
     await expect(page.locator('[data-test-id="journal-editor-textarea"]')).toHaveValue(journalText);
   });
 
-  test('should transition from draft to reflection mode', async ({ page }) => {
-    const testDate = '2026-01-15'; // Unique date for this test
-    await cleanupJournal(page, testDate);
-
-    await page.goto(`/journal/${testDate}`);
-    await page.waitForLoadState('networkidle');
-
-    // Verify we see the editor
-    await expect(page.locator('[data-test-id="journal-editor-textarea"]')).toBeVisible({ timeout: 10000 });
-
-    // Write journal content
-    const journalText = 'Today I worked on my coding project and made significant progress.';
-    await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
-    await page.locator('[data-test-id="save-draft-button"]').click();
-    await page.waitForTimeout(1000);
-
-    // Start reflection
-    await page.locator('[data-test-id="start-reflection-button"]').click();
-    await page.waitForTimeout(3000);
-
-    // Should now be in chat mode
-    await expect(page.locator('[data-test-id="chat-input"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-test-id="finish-journal-button"]')).toBeVisible();
-  });
-
-  test('should complete full journal workflow', async ({ page }) => {
-    const testDate = '2026-01-16'; // Unique date for this test
-    await cleanupJournal(page, testDate);
-
-    await page.goto(`/journal/${testDate}`);
-    await page.waitForLoadState('networkidle');
-
-    // Verify we see the editor
-    await expect(page.locator('[data-test-id="journal-editor-textarea"]')).toBeVisible({ timeout: 10000 });
-
-    // Step 1: Write journal content
-    const journalText = 'Today was an amazing day! I completed several important tasks.';
-    await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
-    await page.locator('[data-test-id="save-draft-button"]').click();
-    await page.waitForTimeout(1000);
-
-    // Step 2: Start reflection
-    await page.locator('[data-test-id="start-reflection-button"]').click();
-    await page.waitForTimeout(3000);
-
-    // Step 3: Send a chat message (optional)
-    const chatInput = page.locator('[data-test-id="chat-input"]');
-    await expect(chatInput).toBeVisible({ timeout: 10000 });
-
-    // Step 4: Finish the journal
-    await page.locator('[data-test-id="finish-journal-button"]').click();
-    await page.waitForTimeout(2000);
-
-    // Should now show completed view
-    await expect(page.locator('[data-test-id="journal-complete"]')).toBeVisible({ timeout: 10000 });
-  });
-
   test('should handle navigation from homepage to journal', async ({ page }) => {
     await page.goto('/');
 

@@ -75,8 +75,6 @@ test.describe('User Registration', () => {
     // Sign out by clearing localStorage (more reliable than UI interactions)
     await page.evaluate(() => {
       localStorage.removeItem('token');
-      // Force page reload to apply the logout
-      window.location.href = '/';
     });
 
     // Try to register with the same email
