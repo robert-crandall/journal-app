@@ -11,7 +11,9 @@
   let description = focus?.description || '';
   let isSubmitting = false;
   let error = '';
-
+  
+  // Since dayOfWeek is a prop, it's better to make dayName reactive
+  // to respond to potential prop changes
   $: dayName = getDayName(dayOfWeek);
 
   async function handleSubmit() {
