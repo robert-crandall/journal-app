@@ -47,6 +47,7 @@
                   <DailyFocusWidget />
                 </div>
 
+                <div class="divider my-3 sm:my-4"></div>
                 <!-- Experiment Tasks Widget -->
                 <div>
                   <ExperimentTasksWidget />

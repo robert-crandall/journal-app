@@ -4,6 +4,7 @@
   import { experimentsApi, type ExperimentTaskWithCompletionsResponse, type ExperimentResponse } from '$lib/api/experiments';
   import { Beaker, CheckCircle, Circle, Plus, BarChart } from 'lucide-svelte';
   import { getTodayDateString } from '$lib/utils/date';
+  import { marked } from 'marked';
 
   // State
   let loading = $state(true);
@@ -178,68 +179,93 @@
     </div>
 
     <div class="card bg-base-100 border-base-300 border shadow-xl">
-      <div class="divide-base-300 divide-y">
-        {#each todaysTasks as { experiment, task }}
-          <div class="hover:bg-base-200 p-4 transition-colors">
-            <div class="flex items-center gap-3">
-              <!-- Completion Button -->
-              <button
-                onclick={() => completeTask(experiment.id, task.id)}
-                disabled={task.isCompleteToday}
-                class="btn btn-ghost btn-sm btn-circle transition-all duration-200 hover:scale-105 disabled:cursor-not-allowed"
-                title={task.isCompleteToday ? 'Completed for today' : 'Mark as complete'}
-              >
-                {#if task.isCompleteToday}
-                  <CheckCircle class="text-success h-6 w-6" />
-                {:else}
-                  <Circle class="text-base-content/40 hover:text-secondary h-6 w-6" />
+      <!-- Group tasks by experiment -->
+      {#each Object.entries(todaysTasks.reduce((acc, {experiment, task}) => {
+        if (!acc[experiment.id]) {
+          acc[experiment.id] = {experiment, tasks: []};
+        }
+        acc[experiment.id].tasks.push(task);
+        return acc;
+      }, {} as Record<string, {experiment: ExperimentResponse, tasks: ExperimentTaskWithCompletionsResponse[]}>)) as [id, {experiment, tasks}], i}
+        
+        <div class="border-b border-base-300 last:border-b-0">
+          <!-- Experiment Header -->
+          <div class="bg-base-200/50 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-secondary font-medium text-lg flex items-center gap-2">
+                  <Beaker class="h-5 w-5" />
+                  {experiment.title}
+                </h4>
+                {#if experiment.description}
+                  <p class="text-base-content/70 text-sm mt-1 prose prose-sm">{@html marked.parse(experiment.description)}</p>
                 {/if}
-              </button>
-
-              <!-- Task Details -->
-              <div class="min-w-0 flex-1">
-                <div class="mb-1 flex items-center gap-2">
-                  <p class="text-base-content truncate font-medium" class:line-through={task.isCompleteToday}>
-                    {task.description}
-                  </p>
-                  {#if task.xpReward && task.xpReward > 0}
-                    <span class="badge badge-warning badge-sm gap-1">
-                      <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                        />
-                      </svg>
-                      {task.xpReward} XP
-                    </span>
-                  {/if}
-                </div>
-                <div class="text-base-content/60 flex items-center gap-4 text-sm">
-                  <span class="flex items-center gap-1">
-                    <Beaker class="h-3 w-3" />
-                    {experiment.title}
-                  </span>
-                  <span>{task.completionCount} / {task.successMetric} completed</span>
-                </div>
               </div>
-
-              <!-- Dashboard Link -->
               <a
                 href="/experiments/{experiment.id}"
-                class="btn btn-ghost btn-sm btn-circle transition-all duration-200 hover:scale-105"
+                class="btn btn-ghost btn-sm gap-1"
                 title="View experiment dashboard"
               >
                 <BarChart class="h-4 w-4" />
+                Details
               </a>
             </div>
           </div>
-        {/each}
-      </div>
+
+          <!-- Tasks for this experiment -->
+          <div class="divide-y divide-base-300/50">
+            {#each tasks as task}
+              <div class="hover:bg-base-200 p-4 transition-colors">
+                <div class="flex items-center gap-3">
+                  <!-- Completion Button -->
+                  <button
+                    onclick={() => completeTask(experiment.id, task.id)}
+                    disabled={task.isCompleteToday}
+                    class="btn btn-ghost btn-sm btn-circle transition-all duration-200 hover:scale-105 disabled:cursor-not-allowed"
+                    title={task.isCompleteToday ? 'Completed for today' : 'Mark as complete'}
+                  >
+                    {#if task.isCompleteToday}
+                      <CheckCircle class="text-success h-6 w-6" />
+                    {:else}
+                      <Circle class="text-base-content/40 hover:text-secondary h-6 w-6" />
+                    {/if}
+                  </button>
+
+                  <!-- Task Details -->
+                  <div class="min-w-0 flex-1">
+                    <div class="mb-1 flex items-center gap-2">
+                      <p class="text-base-content truncate font-medium" class:line-through={task.isCompleteToday}>
+                        {task.description}
+                      </p>
+                      {#if task.xpReward && task.xpReward > 0}
+                        <span class="badge badge-warning badge-sm gap-1">
+                          <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                            />
+                          </svg>
+                          {task.xpReward} XP
+                        </span>
+                      {/if}
+                    </div>
+                    <div class="text-base-content/60 text-sm">
+                      <span>{task.completionCount} / {task.successMetric} completed</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/each}
+      
 
       <!-- Footer with summary -->
       <div class="bg-base-200 rounded-b-lg px-4 py-3">
         <div class="flex items-center justify-between text-sm">
           <span class="text-base-content/60">
             {todaysTasks.filter((t) => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today
+            ({activeExperiments.length} active experiment{activeExperiments.length !== 1 ? 's' : ''})
           </span>
           <a href="/experiments" class="text-secondary hover:text-secondary/80 font-medium"> View all experiments → </a>
         </div>
