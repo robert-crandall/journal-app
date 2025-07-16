@@ -40,27 +40,8 @@
 
           <div class="card bg-base-100 w-full shadow-xl">
             <div class="card-body p-3 sm:p-6">
-              <div class="mb-4 flex items-center gap-3 sm:gap-4">
-                <div class="avatar placeholder">
-                  <div class="bg-primary text-primary-content h-12 w-12 sm:h-16 sm:w-16 rounded-full">
-                    <span class="text-xl sm:text-2xl font-bold">{user.name[0]}</span>
-                  </div>
-                </div>
-                <div>
-                  <h2 class="card-title text-xl sm:text-2xl">{user.name}</h2>
-                  <p class="text-base-content/70 text-sm sm:text-base">{user.email}</p>
-                </div>
-              </div>
-
-              <div class="divider my-2 sm:my-4"></div>
-
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
-                <!-- Journal Widget -->
-                <div>
-                  <JournalWidget />
-                </div>
-
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />
@@ -75,33 +56,14 @@
                 <div>
                   <ExperimentTasksWidget />
                 </div>
+
+                <!-- Journal Widget -->
+                <div>
+                  <JournalWidget />
+                </div>
               </div>
 
               <div class="divider my-3 sm:my-4"></div>
-
-              <h3 class="text-base-content/50 mb-2 sm:mb-3 text-xs sm:text-sm font-semibold uppercase">Account Information</h3>
-
-              <div class="grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2">
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Username</div>
-                  <div class="stat-value text-base sm:text-lg">{user.name}</div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Email</div>
-                  <div class="stat-value text-base sm:text-lg overflow-hidden text-ellipsis">{user.email}</div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Status</div>
-                  <div class="stat-value flex items-center gap-1 sm:gap-2 text-base sm:text-lg">
-                    <span class="badge badge-success badge-xs sm:badge-sm"></span>
-                    Active
-                  </div>
-                </div>
-                <div class="stat bg-base-200/50 rounded-lg p-3 sm:p-4">
-                  <div class="stat-title text-xs">Joined</div>
-                  <div class="stat-value text-base sm:text-lg">{new Date().toLocaleDateString()}</div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
