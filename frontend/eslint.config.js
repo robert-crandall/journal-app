@@ -44,7 +44,6 @@ export default ts.config(
       '@typescript-eslint/no-unused-vars': 'off',
       'svelte/require-each-key': 'off',
       'svelte/no-at-html-tags': 'off',
-      'svelte/no-unused-svelte-ignore': 'off',
     },
   },
   {

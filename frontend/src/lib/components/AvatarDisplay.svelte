@@ -36,19 +36,16 @@
 </script>
 
 <div class="avatar placeholder {cursorClass}">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
     class="{sizeClasses[size]} bg-base-300 text-base-content {roundedClass}"
     on:click
     on:keydown
-    role={clickable ? 'button' : undefined}
-    tabindex={clickable ? 0 : undefined}
+    {...(clickable ? { role: 'button', tabindex: 0 } : {})}
   >
     {#if avatar}
       <img src={avatar} alt={name || 'Avatar'} class="{roundedClass} h-full w-full object-cover" />
     {:else}
-      <span class="{textSizes[size]} font-medium">{initials || '?'}</span>
+      <span class="{textSizes[size]} font-medium">{initials || '?'} </span>
     {/if}
   </div>
 </div>
