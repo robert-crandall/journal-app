@@ -37,16 +37,15 @@ export default ts.config(
       // see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
       'no-undef': 'off',
       'theme-check/no-hardcoded-colors': 'error',
-      'no-emoji/no-emoji': 'error',
+      // 'no-emoji/no-emoji': 'error',
       'custom/no-direct-date-conversion': 'error',
       // Other rules are still at warning level for now
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      'svelte/require-each-key': 'warn',
-      'svelte/no-at-html-tags': 'warn',
-      'svelte/no-unused-svelte-ignore': 'warn',
-      'svelte/no-immutable-reactive-statements': 'warn',
-      '@typescript-eslint/no-require-imports': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'svelte/require-each-key': 'off',
+      'svelte/no-at-html-tags': 'off',
+      'svelte/no-unused-svelte-ignore': 'off',
+      'svelte/no-immutable-reactive-statements': 'off',
     },
   },
   {

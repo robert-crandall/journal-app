@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { authStore } from '$lib/stores/auth';
   import { statsApi, type CreateCharacterStatInput, type CharacterStatExampleActivity, type PredefinedStat } from '$lib/api/stats';
-  import { ArrowLeft, Plus, Trash2, Lightbulb, Save, Zap } from 'lucide-svelte';
+  import { ArrowLeft, Plus, Trash2, Lightbulb, Save, Zap, Target, Check, Circle } from 'lucide-svelte';
 
   // Form state
   let formData = $state<CreateCharacterStatInput>({
@@ -299,7 +299,10 @@
           {#if !isPresetMode && predefinedStats.length > 0}
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h3 class="mb-4 font-semibold">🎯 Quick Start</h3>
+                <h3 class="mb-4 font-semibold flex items-center gap-2">
+                  <Target class="h-5 w-5" />
+                  Quick Start
+                </h3>
                 <p class="text-base-content/70 mb-4 text-sm">Use one of these well-designed stat templates:</p>
                 <div class="space-y-2">
                   {#each predefinedStats.slice(0, 4) as preset}
@@ -320,19 +323,31 @@
                 <div class="flex justify-between text-sm">
                   <span>Name:</span>
                   <span class="text-{formData.name.trim() ? 'success' : 'base-content/40'}">
-                    {formData.name.trim() ? '✓' : '○'}
+                    {#if formData.name.trim()}
+                      <Check class="h-4 w-4" />
+                    {:else}
+                      <Circle class="h-4 w-4" />
+                    {/if}
                   </span>
                 </div>
                 <div class="flex justify-between text-sm">
                   <span>Description:</span>
                   <span class="text-{formData.description.trim() ? 'success' : 'base-content/40'}">
-                    {formData.description.trim() ? '✓' : '○'}
+                    {#if formData.description.trim()}
+                      <Check class="h-4 w-4" />
+                    {:else}
+                      <Circle class="h-4 w-4" />
+                    {/if}
                   </span>
                 </div>
                 <div class="flex justify-between text-sm">
                   <span>Activities:</span>
                   <span class="text-{formData.exampleActivities.some((a) => a.description.trim()) ? 'success' : 'base-content/40'}">
-                    {formData.exampleActivities.some((a) => a.description.trim()) ? '✓' : '○'}
+                    {#if formData.exampleActivities.some((a) => a.description.trim())}
+                      <Check class="h-4 w-4" />
+                    {:else}
+                      <Circle class="h-4 w-4" />
+                    {/if}
                   </span>
                 </div>
               </div>

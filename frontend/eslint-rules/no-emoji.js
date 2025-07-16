@@ -131,6 +131,30 @@ const rule = {
       JSXText(node) {
         checkTextForEmojis(node, node.value);
       },
+      
+      // Check Svelte text
+      SvelteText(node) {
+        checkTextForEmojis(node, node.value);
+      },
+      
+      // Check Svelte attribute values
+      SvelteAttribute(node) {
+        if (node.value && typeof node.value.value === 'string') {
+          checkTextForEmojis(node, node.value.value);
+        } else if (node.value && node.value.expression) {
+          // For dynamic attributes, we need to traverse the expression
+          if (node.value.expression.type === 'Literal' && typeof node.value.expression.value === 'string') {
+            checkTextForEmojis(node.value.expression, node.value.expression.value);
+          }
+        }
+      },
+      
+      // Check Svelte mustache tags
+      SvelteMustacheTag(node) {
+        if (node.expression.type === 'Literal' && typeof node.expression.value === 'string') {
+          checkTextForEmojis(node.expression, node.expression.value);
+        }
+      },
 
       // Check comments
       Program() {

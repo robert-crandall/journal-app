@@ -247,7 +247,7 @@
               />
             </svg>
           </div>
-          <p class="text-accent text-sm font-medium">All caught up! 🎉</p>
+          <p class="text-accent text-sm font-medium">All caught up!</p>
           <p class="text-base-content/60 mt-1 text-xs">Great job completing all your tasks</p>
         </div>
       {/if}
