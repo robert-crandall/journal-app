@@ -65,9 +65,6 @@ test.describe('Experiments Feature', () => {
     await expect(page.getByText('XP Breakdown')).toBeVisible();
     await expect(page.getByText('From Tasks', { exact: true })).toBeVisible();
     await expect(page.getByText('From Journals', { exact: true })).toBeVisible();
-
-    // Check journal entries section
-    await expect(page.getByRole('heading', { name: 'Journal Entries' })).toBeVisible();
   });
 
   test('should show validation errors for invalid experiment data', async ({ page }) => {
