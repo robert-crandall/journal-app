@@ -2,6 +2,9 @@
   import { onMount } from 'svelte';
   import { simpleTodosStore } from '$lib/stores/todos';
 
+  // Export the showTitle prop with default value of true
+  export let showTitle: boolean = true;
+
   let newTodoDescription = '';
   let addingTodo = false;
 
@@ -53,6 +56,7 @@
 </script>
 
 <div class="w-full">
+  {#if showTitle}
   <div class="mb-6 flex items-center gap-3">
     <div class="text-accent">
       <svg
@@ -72,6 +76,7 @@
     </div>
     <h3 class="text-xl font-semibold">Quick Tasks</h3>
   </div>
+  {/if}
 
   <!-- Add new todo form -->
   <div class="mb-4">

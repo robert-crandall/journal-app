@@ -47,14 +47,13 @@
                   <DailyFocusWidget />
                 </div>
 
-                <!-- Simple Todos Widget -->
-                <div>
-                  <SimpleTodosWidget />
-                </div>
-
                 <!-- Experiment Tasks Widget -->
                 <div>
                   <ExperimentTasksWidget />
+                </div>
+
+                <div>
+                  <SimpleTodosWidget showTitle={false} />
                 </div>
 
                 <!-- Journal Widget -->
