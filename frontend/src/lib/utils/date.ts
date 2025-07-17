@@ -7,6 +7,7 @@
 
 /**
  * Format a date-only string (YYYY-MM-DD) for display without timezone conversion
+ * Used when wanting to display dates in a user-friendly format
  *
  * @param dateString - Date string in YYYY-MM-DD format (e.g., "1990-01-15")
  * @returns Formatted date string (e.g., "Jan 15, 1990") or "Not set" if null/empty
@@ -38,6 +39,7 @@ export function formatDateTime(
       date = new Date(year, month - 1, day);
     } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$/.test(value) || value.includes('T')) {
       // ISO string: use Date constructor
+      // eslint-disable-next-line custom/no-direct-date-conversion
       date = new Date(value);
     } else {
       return 'Invalid date';
@@ -77,6 +79,7 @@ export function formatDateTime(
 
 /**
  * Get the current date in YYYY-MM-DD format (for date input fields), timezone-aware
+ * Used to generate consistent date strings for Experiments and Journals
  *
  * @param timezone - IANA timezone string (e.g., 'UTC', 'America/New_York'). If not provided, uses browser timezone.
  * @returns Today's date in YYYY-MM-DD format for the specified timezone

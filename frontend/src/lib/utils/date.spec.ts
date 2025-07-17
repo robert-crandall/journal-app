@@ -36,8 +36,8 @@ describe('formatDateTime', () => {
   });
 
   it('formats with journal format', () => {
-    expect(formatDateTime(fixedDate, 'journal')).toBe('2025-07-17');
-    expect(formatDateTime(ymdString, 'journal')).toBe('2025-07-17');
+    expect(formatDateTime(fixedDate, 'yyyy-mm-dd')).toBe('2025-07-17');
+    expect(formatDateTime(ymdString, 'yyyy-mm-dd')).toBe('2025-07-17');
   });
 
   it('returns Invalid date for bad string', () => {
@@ -50,7 +50,7 @@ describe('formatDateTime', () => {
   });
 
   it('formats current date/time with journal format (no value)', () => {
-    const result = formatDateTime(undefined, 'journal');
+    const result = formatDateTime(undefined, 'yyyy-mm-dd');
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
@@ -73,12 +73,12 @@ describe('formatDateTime', () => {
   });
 
   it('formats current date/time with journal format (null value)', () => {
-    const result = formatDateTime(null, 'journal');
+    const result = formatDateTime(null, 'yyyy-mm-dd');
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('formats current date/time with journal format (no args)', () => {
-    const result = formatDateTime(undefined, 'journal');
+    const result = formatDateTime(undefined, 'yyyy-mm-dd');
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
