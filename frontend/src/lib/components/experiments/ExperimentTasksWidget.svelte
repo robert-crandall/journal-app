@@ -5,6 +5,7 @@
   import { Beaker, CheckCircle, Circle, Plus, BarChart } from 'lucide-svelte';
   import { getTodayDateString } from '$lib/utils/date';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   // State
   let loading = $state(true);
@@ -186,7 +187,7 @@
             }
             acc[experiment.id].tasks.push(task);
             return acc;
-          }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }], i}
+          }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }] (id)}
         <div class="border-base-300 border-b last:border-b-0">
           <!-- Experiment Header -->
           <div class="bg-base-200/50 p-4">
@@ -197,7 +198,7 @@
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
-                  <p class="text-base-content/70 prose prose-sm mt-1 text-sm">{@html marked.parse(experiment.description)}</p>
+                  <p class="text-base-content/70 prose prose-sm mt-1 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                 {/if}
               </div>
               <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
@@ -209,7 +210,7 @@
 
           <!-- Tasks for this experiment -->
           <div class="divide-base-300/50 divide-y">
-            {#each tasks as task}
+            {#each tasks as task (task.id)}
               <div class="hover:bg-base-200 p-4 transition-colors">
                 <div class="flex items-center gap-3">
                   <!-- Completion Button -->

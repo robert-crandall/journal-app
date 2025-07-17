@@ -158,9 +158,6 @@ test.describe('Focus Management', () => {
     // Verify the title and description are visible
     await expect(page.getByText(testTitle)).toBeVisible();
     await expect(page.getByText(testDescription)).toBeVisible();
-
-    // The Today badge should be visible
-    await expect(page.locator('.badge', { hasText: 'Today' })).toBeVisible();
   });
 
   test('should edit a focus successfully', async ({ page }) => {

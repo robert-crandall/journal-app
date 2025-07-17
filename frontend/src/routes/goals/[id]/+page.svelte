@@ -195,7 +195,7 @@
                   Tags
                 </h2>
                 <div class="flex flex-wrap gap-3">
-                  {#each goal.tags as tag}
+                  {#each goal.tags as tag (tag)}
                     <div class="badge badge-primary badge-lg gap-2">
                       <Tag size={14} />
                       {tag}

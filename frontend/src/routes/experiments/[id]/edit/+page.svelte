@@ -289,7 +289,7 @@
           <!-- Existing Tasks -->
           {#if experiment.tasks && experiment.tasks.length > 0}
             <div class="mb-8 space-y-4">
-              {#each experiment.tasks as task}
+              {#each experiment.tasks as task (task.id)}
                 <div class="card bg-base-200 border-base-300 border">
                   <div class="card-body">
                     <div class="flex items-start justify-between">

@@ -5,6 +5,7 @@
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   export let journal: JournalResponse;
   export let date: string;
@@ -121,7 +122,7 @@
     <!-- Chat Messages -->
     <div bind:this={chatContainer} class="flex-grow overflow-y-auto scroll-smooth p-2 sm:p-4">
       <div class="space-y-2 sm:space-y-3">
-        {#each chatSession as message, i}
+        {#each chatSession as message, i (message)}
           <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
             <!-- Avatar -->
             <div class="flex-shrink-0">
@@ -143,7 +144,7 @@
             <!-- Message Content -->
             <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
               <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
-                <p class="prose prose-sm text-xs leading-relaxed sm:text-sm">{@html marked.parse(message.content)}</p>
+                <p class="prose prose-sm text-xs leading-relaxed sm:text-sm">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
               </div>
 
               {#if message.timestamp}

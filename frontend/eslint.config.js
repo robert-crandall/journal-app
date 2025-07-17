@@ -42,9 +42,8 @@ export default ts.config(
       // Other rules are still at warning level for now
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      'svelte/require-each-key': 'off',
-      'svelte/no-at-html-tags': 'off',
-      'svelte/no-unused-svelte-ignore': 'off',
+      'svelte/require-each-key': 'warn',
+      'svelte/no-at-html-tags': 'off', // Disabled for markdown content with proper sanitization
     },
   },
   {

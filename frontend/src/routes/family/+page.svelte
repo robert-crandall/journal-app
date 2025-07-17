@@ -162,9 +162,7 @@
             <section>
               <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">Family Members</h2>
               <div class="grid gap-6 md:grid-cols-2">
-                {#each familyMembers as member}
-                  <!-- svelte-ignore a11y_click_events_have_key_events -->
-                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                {#each familyMembers as member (member.id)}
                   <div
                     class="card bg-base-100 border-base-300 cursor-pointer border shadow-xl transition-all duration-200 hover:shadow-2xl"
                     role="button"
@@ -233,8 +231,6 @@
                       {/if}
 
                       <!-- Action Buttons -->
-                      <!-- svelte-ignore a11y_click_events_have_key_events -->
-                      <!-- svelte-ignore a11y_no_static_element_interactions -->
                       <div
                         class="mt-4 flex flex-wrap gap-2"
                         role="button"

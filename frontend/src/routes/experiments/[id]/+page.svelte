@@ -6,6 +6,7 @@
   import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
   import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X } from 'lucide-svelte';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   // Reactive state
   let dashboard: ExperimentDashboardResponse | null = $state(null);
@@ -187,7 +188,9 @@
               </div>
 
               {#if dashboard.experiment.description}
-                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">{@html marked.parse(dashboard.experiment.description)}</p>
+                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">
+                  {@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.description)))}
+                </p>
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">
@@ -268,7 +271,7 @@
 
             {#if dashboard.tasks.length > 0}
               <div class="space-y-6">
-                {#each dashboard.tasks as task}
+                {#each dashboard.tasks as task (task.id)}
                   <div class="space-y-3">
                     <div class="flex items-start justify-between">
                       <div class="flex-1">
@@ -338,7 +341,7 @@
 
             {#if dashboard.journalEntries.length > 0}
               <div class="space-y-4">
-                {#each dashboard.journalEntries as entry}
+                {#each dashboard.journalEntries as entry (entry.id)}
                   <div class="card bg-base-200 border-base-300 border">
                     <div class="card-body p-4">
                       <div class="flex items-start justify-between">

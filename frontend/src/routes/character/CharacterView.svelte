@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
   import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
 
   const dispatch = createEventDispatcher<{
     characterUpdated: Character;
@@ -543,7 +544,7 @@
                   Backstory
                 </h3>
                 <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  {@html marked.parse(character.backstory)}
+                  {@html DOMPurify.sanitize(String(marked.parse(character.backstory)))}
                 </div>
               </div>
             </div>
@@ -570,7 +571,7 @@
                   Goals & Aspirations
                 </h3>
                 <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  {@html marked.parse(character.goals)}
+                  {@html DOMPurify.sanitize(String(marked.parse(character.goals)))}
                 </div>
               </div>
             </div>
