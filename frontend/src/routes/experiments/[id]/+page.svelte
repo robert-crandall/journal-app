@@ -5,6 +5,7 @@
   import { experimentsApi } from '$lib/api/experiments';
   import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
   import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X } from 'lucide-svelte';
+  import { formatDate } from '$lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
 
@@ -123,16 +124,6 @@
     const end = new Date(endYear, endMonth - 1, endDay);
 
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
-  }
-
-  function formatDate(dateString: string): string {
-    // Use the proper date formatting utility
-    // Parse the date components manually to avoid timezone issues
-    const [year, month, day] = dateString.split('-').map(Number);
-
-    // Create date in local timezone without any UTC conversion
-    const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString();
   }
 
   function getProgressPercentage(current: number, total: number): number {

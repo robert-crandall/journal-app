@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
-  import { formatDate as formatDateUtil } from '$lib/utils/date';
+  import { formatDate } from '$lib/utils/date';
   import type { JournalResponse } from '$lib/types/journal';
   import JournalEditor from '$lib/components/journal/JournalEditor.svelte';
   import JournalChat from '$lib/components/journal/JournalChat.svelte';
@@ -47,18 +47,6 @@
 
   function handleJournalUpdate(updatedJournal: JournalResponse) {
     journal = updatedJournal;
-  }
-
-  function formatDate(dateStr: string): string {
-    try {
-      return formatDateUtil(dateStr);
-    } catch {
-      return dateStr;
-    }
-  }
-
-  function goToToday() {
-    goto('/journal/' + getTodayDateString());
   }
 
   function goBack() {

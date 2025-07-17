@@ -12,25 +12,7 @@
  * @returns Formatted date string (e.g., "Jan 15, 1990") or "Not set" if null/empty
  */
 export function formatDate(dateString: string | null): string {
-  if (!dateString) return 'Not set';
-
-  // Validate format
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    console.warn('formatDate: Invalid date format, expected YYYY-MM-DD:', dateString);
-    return 'Invalid date';
-  }
-
-  // Parse the date components manually to avoid timezone issues
-  const [year, month, day] = dateString.split('-').map(Number);
-
-  // Create date in local timezone without any UTC conversion
-  const date = new Date(year, month - 1, day);
-
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  return formatDateTime(dateString, 'date-only');
 }
 
 /**
@@ -41,8 +23,8 @@ export function formatDate(dateString: string | null): string {
  * @returns Formatted datetime string
  */
 export function formatDateTime(
-  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'journal' = 'default',
   value?: string | Date | null,
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'journal' = 'default',
 ): string {
   let date: Date;
   if (value === undefined || value === null) {
@@ -50,11 +32,15 @@ export function formatDateTime(
   } else if (value instanceof Date) {
     date = value;
   } else if (typeof value === 'string') {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      // YYYY-MM-DD: parse manually to avoid timezone issues
       const [year, month, day] = value.split('-').map(Number);
       date = new Date(year, month - 1, day);
-    } else {
+    } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$/.test(value) || value.includes('T')) {
+      // ISO string: use Date constructor
       date = new Date(value);
+    } else {
+      return 'Invalid date';
     }
   } else {
     return 'Invalid date';
@@ -65,7 +51,7 @@ export function formatDateTime(
     return 'Invalid date';
   }
 
-    // Special case for YYYY-MM-DD format
+  // Special case for YYYY-MM-DD format
   if (format === 'journal') {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',

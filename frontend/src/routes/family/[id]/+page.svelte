@@ -81,10 +81,6 @@
     };
     return colors[relationship as keyof typeof colors] || 'text-base-content/60';
   }
-
-  // Note: formatDate function removed - now using utility from $lib/utils/date
-  // For birthday fields, use formatDate() utility
-  // For datetime fields like createdAt, use formatDateTime() utility
 </script>
 
 <svelte:head>

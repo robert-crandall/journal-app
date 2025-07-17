@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
-  import { formatDate, getTodayDateString, getNowDateTimeString } from '$lib/utils/date';
+  import { formatDateTime, getTodayDateString, getNowDateTimeString } from '$lib/utils/date';
   import type { TodayJournalResponse } from '$lib/types/journal';
   import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon, TrophyIcon, TagIcon } from 'lucide-svelte';
 
@@ -74,11 +74,7 @@
         <div class="text-base-content/70 flex items-center gap-2">
           <CalendarIcon size={16} />
           <span class="text-sm">
-            {#if todayJournal?.journal?.date}
-              {formatDate(todayJournal.journal.date)}
-            {:else}
-              {getNowDateTimeString('date-only')}
-            {/if}
+            {formatDateTime(todayJournal?.journal?.date, 'date-only')}
           </span>
         </div>
 

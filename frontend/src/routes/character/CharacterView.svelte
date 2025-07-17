@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
+  import { formatDate } from '../../lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
 
@@ -127,14 +128,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  // Import formatDate and formatDateTime from lib/utils/date
-  import { formatDate as formatDateUtil, formatDateTime } from '../../lib/utils/date';
-
-  // Format date for display - uses the proper utility function
-  function formatDate(isoString: string): string {
-    return formatDateTime(isoString);
   }
 </script>
 

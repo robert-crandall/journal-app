@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { JournalResponse } from '$lib/types/journal';
-  import { formatDate as formatDateUtil, formatDateTime } from '$lib/utils/date';
+  import { formatDate, formatDateTime } from '$lib/utils/date';
   import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
   import { marked } from 'marked';
@@ -21,22 +21,6 @@
       loadingGrants = false;
     }
   });
-
-  function formatDate(dateStr: string): string {
-    try {
-      return formatDateUtil(dateStr);
-    } catch {
-      return dateStr;
-    }
-  }
-
-  function formatTime(timestamp: string): string {
-    try {
-      return formatDateTime(timestamp, 'time-only');
-    } catch {
-      return '';
-    }
-  }
 
   $: chatSession = journal.chatSession || [];
   $: contentTagGrants = xpGrants.filter((grant) => grant.entityType === 'content_tag');
@@ -195,7 +179,7 @@
 
                 {#if message.timestamp}
                   <p class="mt-1 text-xs opacity-60 {message.role === 'user' ? 'text-right' : ''}">
-                    {formatTime(message.timestamp)}
+                    {formatDateTime(message.timestamp, 'time-only')}
                   </p>
                 {/if}
               </div>
