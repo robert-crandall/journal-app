@@ -76,43 +76,6 @@ export function formatDateTime(
 }
 
 /**
- * Get the current datetime in a specified timezone and format
- *
- * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only', 'yyyy-mm-dd')
- * @param dateTimeObj - Date object to format (default: current date)
- * @returns Formatted current datetime string
- */
-export function getNowDateTimeString(
-  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
-  dateTimeObj?: Date,
-): string {
-  const now = dateTimeObj ?? new Date();
-
-  // Special case for YYYY-MM-DD format
-  if (format === 'yyyy-mm-dd') {
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    };
-    return new Intl.DateTimeFormat('en-CA', options).format(now);
-  }
-
-  const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
-    default: { dateStyle: 'medium', timeStyle: 'short' },
-    short: { dateStyle: 'short', timeStyle: 'short' },
-    medium: { dateStyle: 'medium', timeStyle: 'medium' },
-    full: { dateStyle: 'full', timeStyle: 'long' },
-    'time-only': { timeStyle: 'short' },
-    'date-only': { dateStyle: 'medium' },
-  };
-
-  const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
-
-  return new Intl.DateTimeFormat('en-US', options).format(now);
-}
-
-/**
  * Get the current date in YYYY-MM-DD format (for date input fields), timezone-aware
  *
  * @param timezone - IANA timezone string (e.g., 'UTC', 'America/New_York'). If not provided, uses browser timezone.
@@ -120,9 +83,4 @@ export function getNowDateTimeString(
  */
 export function getTodayDateString(): string {
   return getNowDateTimeString('yyyy-mm-dd');
-}
-
-/** Get the current date as a date object */
-export function getToday(): Date {
-  return new Date(getTodayDateString());
 }

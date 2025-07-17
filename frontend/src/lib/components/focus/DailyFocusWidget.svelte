@@ -2,12 +2,10 @@
   import { onMount } from 'svelte';
   import { currentDayFocus, loadCurrentDayFocus } from '$lib/stores/focus';
   import { getDayName } from '$lib/api/focus';
-  import { getToday } from '$lib/utils/date';
 
   let isLoading = true;
 
-  // Get the current day of week from a timezone-aware date (uses browser's timezone)
-  const dayOfWeek = getToday().getDay();
+  const dayOfWeek = new Date().getDay();
   const dayName = getDayName(dayOfWeek);
 
   onMount(async () => {

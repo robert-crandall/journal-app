@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
-  import { formatDateTime, getTodayDateString, getNowDateTimeString } from '$lib/utils/date';
+  import { formatDateTime, getTodayDateString } from '$lib/utils/date';
   import type { TodayJournalResponse } from '$lib/types/journal';
   import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon, TrophyIcon, TagIcon } from 'lucide-svelte';
 

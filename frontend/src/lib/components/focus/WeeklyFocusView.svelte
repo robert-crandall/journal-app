@@ -4,7 +4,6 @@
   import { createOrUpdateFocus, deleteFocus, getDayName, type Focus } from '$lib/api/focus';
   import FocusCard from '$lib/components/focus/FocusCard.svelte';
   import FocusEditor from '$lib/components/focus/FocusEditor.svelte';
-  import { getToday } from '$lib/utils/date';
 
   let isLoading = true;
   let error = '';
@@ -14,7 +13,7 @@
 
   // Static values don't need reactive declarations
   const allDays = [0, 1, 2, 3, 4, 5, 6]; // 0 = Sunday, 6 = Saturday
-  const today = getToday().getDay();
+  const today = new Date().getDay();
 
   onMount(async () => {
     try {
