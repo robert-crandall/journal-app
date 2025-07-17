@@ -144,11 +144,6 @@ export async function getCurrentDayFocus(): Promise<Focus | null> {
   return getFocusByDayOfWeek(dayOfWeek);
 }
 
-// Helper to convert a date to a day of week index (0-6)
-export function dateToDayOfWeek(date: Date): number {
-  return date.getDay();
-}
-
 // Helper to get a day name from day of week index
 export function getDayName(dayOfWeek: number, format: 'short' | 'long' = 'long'): string {
   const days = {
