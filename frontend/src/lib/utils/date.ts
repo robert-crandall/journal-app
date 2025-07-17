@@ -36,25 +36,43 @@ export function formatDate(dateString: string | null): string {
 /**
  * Format a datetime ISO string with proper timezone handling
  *
- * @param isoString - ISO datetime string (e.g., "2023-05-20T15:30:00Z")
  * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only')
- * @param timezone - Timezone for display (default: 'local')
+ * @param value - ISO datetime string (e.g., "2023-05-20T15:30:00Z") or DateObject
  * @returns Formatted datetime string
  */
 export function formatDateTime(
-  isoString: string,
-  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' = 'default',
-  timezone: string = 'local',
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'journal' = 'default',
+  value?: string | Date | null,
 ): string {
-  if (!isoString) return 'Not set';
-
-  // For ISO datetime strings, the Date constructor works correctly
-  // eslint-disable-next-line custom/no-direct-date-conversion
-  const date = new Date(isoString);
+  let date: Date;
+  if (value === undefined || value === null) {
+    date = new Date();
+  } else if (value instanceof Date) {
+    date = value;
+  } else if (typeof value === 'string') {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [year, month, day] = value.split('-').map(Number);
+      date = new Date(year, month - 1, day);
+    } else {
+      date = new Date(value);
+    }
+  } else {
+    return 'Invalid date';
+  }
 
   if (isNaN(date.getTime())) {
-    console.warn('formatDateTime: Invalid datetime string:', isoString);
+    console.warn('formatDateTime: Invalid datetime value:', value);
     return 'Invalid date';
+  }
+
+    // Special case for YYYY-MM-DD format
+  if (format === 'journal') {
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    };
+    return new Intl.DateTimeFormat('en-CA', options).format(date);
   }
 
   const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
@@ -68,10 +86,6 @@ export function formatDateTime(
 
   const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
 
-  if (timezone !== 'local') {
-    options.timeZone = timezone;
-  }
-
   return new Intl.DateTimeFormat('en-US', options).format(date);
 }
 
@@ -79,14 +93,14 @@ export function formatDateTime(
  * Get the current datetime in a specified timezone and format
  *
  * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only', 'yyyy-mm-dd')
- * @param timezone - Timezone for display (default: 'local')
+ * @param dateTimeObj - Date object to format (default: current date)
  * @returns Formatted current datetime string
  */
 export function getNowDateTimeString(
   format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
-  timezone: string = 'local',
+  dateTimeObj?: Date,
 ): string {
-  const now = new Date();
+  const now = dateTimeObj ?? new Date();
 
   // Special case for YYYY-MM-DD format
   if (format === 'yyyy-mm-dd') {
@@ -95,11 +109,6 @@ export function getNowDateTimeString(
       month: '2-digit',
       day: '2-digit',
     };
-
-    if (timezone !== 'local') {
-      options.timeZone = timezone;
-    }
-
     return new Intl.DateTimeFormat('en-CA', options).format(now);
   }
 
@@ -113,10 +122,6 @@ export function getNowDateTimeString(
   };
 
   const options: Intl.DateTimeFormatOptions = { ...formatOptions[format] };
-
-  if (timezone !== 'local') {
-    options.timeZone = timezone;
-  }
 
   return new Intl.DateTimeFormat('en-US', options).format(now);
 }
