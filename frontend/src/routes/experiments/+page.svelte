@@ -179,6 +179,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
@@ -232,6 +233,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
@@ -285,6 +287,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>

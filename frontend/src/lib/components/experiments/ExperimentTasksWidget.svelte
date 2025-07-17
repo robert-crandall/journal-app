@@ -198,6 +198,7 @@
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   <p class="text-base-content/70 prose prose-sm mt-1 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                 {/if}
               </div>

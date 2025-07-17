@@ -60,6 +60,7 @@
         </div>
 
         <div class="prose prose-sm max-w-none">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           <p class="text-base-content/90 prose prose-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(journal.summary)))}</p>
         </div>
       </div>
@@ -174,6 +175,7 @@
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
                 <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   <p class="prose prose-sm text-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
                 </div>
 
