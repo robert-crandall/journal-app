@@ -95,7 +95,7 @@
           <div>
             <h4 class="text-base-content/70 mb-2 text-sm font-medium">Topics & Themes</h4>
             <div class="flex flex-wrap gap-2">
-              {#each contentTagGrants as grant}
+              {#each contentTagGrants as grant (grant.id)}
                 <span class="badge badge-primary badge-outline">{grant.entityName || 'Unknown'}</span>
               {/each}
             </div>
@@ -115,7 +115,7 @@
         </div>
 
         <div class="space-y-2">
-          {#each statGrants as grant}
+          {#each statGrants as grant (grant.id)}
             <div class="bg-accent/10 border-accent/20 flex items-center justify-between rounded-lg border p-3">
               <div class="flex items-center gap-3">
                 <TrophyIcon size={16} class="text-accent" />
@@ -144,7 +144,7 @@
         </div>
 
         <div class="space-y-2">
-          {#each familyGrants as grant}
+          {#each familyGrants as grant (grant.id)}
             <div class="bg-info/10 border-info/20 flex items-center justify-between rounded-lg border p-3">
               <div class="flex items-center gap-3">
                 <UsersIcon size={16} class="text-info" />
@@ -174,7 +174,7 @@
         </div>
 
         <div class="max-h-96 space-y-4 overflow-y-auto">
-          {#each chatSession as message, i}
+          {#each chatSession as message, i (message)}
             <div class="flex items-start gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
               <!-- Avatar -->
               <div class="flex-shrink-0">

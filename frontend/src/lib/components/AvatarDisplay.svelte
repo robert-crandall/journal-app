@@ -36,12 +36,7 @@
 </script>
 
 <div class="avatar placeholder {cursorClass}">
-  <div
-    class="{sizeClasses[size]} bg-base-300 text-base-content {roundedClass}"
-    on:click
-    on:keydown
-    {...(clickable ? { role: 'button', tabindex: 0 } : {})}
-  >
+  <div class="{sizeClasses[size]} bg-base-300 text-base-content {roundedClass}" on:click on:keydown {...clickable ? { role: 'button', tabindex: 0 } : {}}>
     {#if avatar}
       <img src={avatar} alt={name || 'Avatar'} class="{roundedClass} h-full w-full object-cover" />
     {:else}

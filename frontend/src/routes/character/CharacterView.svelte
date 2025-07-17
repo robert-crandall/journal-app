@@ -3,7 +3,7 @@
   import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
-  
+
   const dispatch = createEventDispatcher<{
     characterUpdated: Character;
     characterDeleted: void;

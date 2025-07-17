@@ -240,7 +240,7 @@
                 <!-- Current Tags -->
                 {#if tags.length > 0}
                   <div class="mt-3 flex flex-wrap gap-2">
-                    {#each tags as tag}
+                    {#each tags as tag (tag)}
                       <div class="badge badge-primary gap-2">
                         {tag}
                         <button type="button" onclick={() => removeTag(tag)} class="btn btn-ghost btn-xs h-auto min-h-0 p-0">

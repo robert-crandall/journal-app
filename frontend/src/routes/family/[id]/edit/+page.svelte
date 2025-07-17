@@ -307,7 +307,7 @@
                       <div class="mt-2">
                         <p class="text-base-content/60 mb-2 text-xs">Quick select:</p>
                         <div class="flex flex-wrap gap-1">
-                          {#each relationshipOptions as option}
+                          {#each relationshipOptions as option (option)}
                             <button type="button" class="btn btn-xs btn-outline" onclick={() => selectRelationship(option)}>
                               {option}
                             </button>

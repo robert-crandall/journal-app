@@ -6,7 +6,7 @@
   import { Plus, Beaker, Calendar, BarChart, Trash2, Edit3, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
-  
+
   // Reactive state for experiments data
   let userExperiments: ExperimentResponse[] = $state([]);
   let loading = $state(true);
@@ -172,7 +172,7 @@
             Active Experiments ({groupedExperiments().active.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments().active as experiment}
+            {#each groupedExperiments().active as experiment (experiment.id)}
               <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
                 <div class="card-body">
                   <div class="flex items-start justify-between">
@@ -225,7 +225,7 @@
             Upcoming Experiments ({groupedExperiments().upcoming.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments().upcoming as experiment}
+            {#each groupedExperiments().upcoming as experiment (experiment.id)}
               <div class="card bg-base-100 shadow-lg transition-shadow hover:shadow-xl">
                 <div class="card-body">
                   <div class="flex items-start justify-between">
@@ -278,7 +278,7 @@
             Completed Experiments ({groupedExperiments().completed.length})
           </h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each groupedExperiments().completed as experiment}
+            {#each groupedExperiments().completed as experiment (experiment.id)}
               <div class="card bg-base-100 opacity-75 shadow-lg transition-shadow hover:shadow-xl">
                 <div class="card-body">
                   <div class="flex items-start justify-between">

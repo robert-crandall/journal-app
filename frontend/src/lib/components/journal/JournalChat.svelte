@@ -122,7 +122,7 @@
     <!-- Chat Messages -->
     <div bind:this={chatContainer} class="flex-grow overflow-y-auto scroll-smooth p-2 sm:p-4">
       <div class="space-y-2 sm:space-y-3">
-        {#each chatSession as message, i}
+        {#each chatSession as message, i (message)}
           <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
             <!-- Avatar -->
             <div class="flex-shrink-0">

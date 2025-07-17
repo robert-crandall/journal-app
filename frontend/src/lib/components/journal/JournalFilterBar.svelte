@@ -99,7 +99,7 @@
     {#if selectedTagNames.length > 0}
       <div class="mt-2 flex flex-wrap gap-2">
         <span class="text-base-content/70 text-sm">Tags:</span>
-        {#each selectedTagNames as tagName, index}
+        {#each selectedTagNames as tagName, index (tagName)}
           <button class="badge badge-primary gap-1" on:click={() => clearTag(selectedTags[index])}>
             {tagName}
             <XIcon size={12} />
@@ -184,7 +184,7 @@
               </span>
             </label>
             <div class="flex max-h-32 flex-wrap gap-2 overflow-y-auto">
-              {#each availableTags as tag}
+              {#each availableTags as tag (tag.id)}
                 <button
                   class="btn btn-sm"
                   class:btn-primary={selectedTags.includes(tag.id)}

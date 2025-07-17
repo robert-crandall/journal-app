@@ -225,7 +225,7 @@
                   required
                 >
                   <option value="">Choose your character archetype</option>
-                  {#each predefinedClasses as classOption}
+                  {#each predefinedClasses as classOption (classOption)}
                     <option value={classOption}>{classOption}</option>
                   {/each}
                 </select>

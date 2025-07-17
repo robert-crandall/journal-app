@@ -119,7 +119,7 @@
 <div class="heatmap-container">
   <!-- Month labels -->
   <div class="text-base-content/60 mb-2 flex justify-between text-xs">
-    {#each monthLabels as label}
+    {#each monthLabels as label (label.month)}
       <span>{label.month}</span>
     {/each}
   </div>
@@ -139,7 +139,7 @@
 
     <!-- Activity squares -->
     <div class="activity-grid">
-      {#each Object.values(weekGroups) as week}
+      {#each Object.values(weekGroups) as week (week[0]?.date)}
         <div class="week-column">
           {#each Array(7) as _, dayIndex}
             {@const day = week.find((d) => d.dayOfWeek === dayIndex)}

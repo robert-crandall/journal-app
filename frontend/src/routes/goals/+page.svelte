@@ -153,7 +153,7 @@
                 {showArchived ? 'Archived Goals' : 'Active Goals'}
               </h2>
               <div class="grid gap-6 md:grid-cols-2">
-                {#each filteredGoals as goal}
+                {#each filteredGoals as goal (goal.id)}
                   <div class="card bg-base-100 border-base-300 border shadow-xl transition-all duration-200 hover:shadow-2xl">
                     <div class="card-body p-6">
                       <div class="mb-4 flex items-start justify-between">
@@ -180,7 +180,7 @@
                       <!-- Tags -->
                       {#if goal.tags && goal.tags.length > 0}
                         <div class="mb-4 flex flex-wrap gap-2">
-                          {#each goal.tags as tag}
+                          {#each goal.tags as tag (tag)}
                             <div class="badge badge-outline badge-sm gap-1">
                               <Tag size={12} />
                               {tag}

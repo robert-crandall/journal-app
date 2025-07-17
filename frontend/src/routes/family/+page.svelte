@@ -162,7 +162,7 @@
             <section>
               <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">Family Members</h2>
               <div class="grid gap-6 md:grid-cols-2">
-                {#each familyMembers as member}
+                {#each familyMembers as member (member.id)}
                   <div
                     class="card bg-base-100 border-base-300 cursor-pointer border shadow-xl transition-all duration-200 hover:shadow-2xl"
                     role="button"

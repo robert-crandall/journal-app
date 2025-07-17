@@ -98,7 +98,7 @@
     <!-- Content Tags -->
     {#if journal.contentTags && journal.contentTags.length > 0}
       <div class="mt-2 flex flex-wrap gap-1">
-        {#each journal.contentTags.slice(0, viewMode === 'grid' ? 3 : 5) as tag}
+        {#each journal.contentTags.slice(0, viewMode === 'grid' ? 3 : 5) as tag (tag.id)}
           <span class="badge badge-ghost badge-xs">{tag.name}</span>
         {/each}
         {#if journal.contentTags.length > (viewMode === 'grid' ? 3 : 5)}

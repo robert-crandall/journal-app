@@ -187,7 +187,7 @@
             }
             acc[experiment.id].tasks.push(task);
             return acc;
-          }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }], i}
+          }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }] (id)}
         <div class="border-base-300 border-b last:border-b-0">
           <!-- Experiment Header -->
           <div class="bg-base-200/50 p-4">
@@ -210,7 +210,7 @@
 
           <!-- Tasks for this experiment -->
           <div class="divide-base-300/50 divide-y">
-            {#each tasks as task}
+            {#each tasks as task (task.id)}
               <div class="hover:bg-base-200 p-4 transition-colors">
                 <div class="flex items-center gap-3">
                   <!-- Completion Button -->
