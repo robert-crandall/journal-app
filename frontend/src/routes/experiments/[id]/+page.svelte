@@ -180,6 +180,7 @@
 
               {#if dashboard.experiment.description}
                 <p class="text-base-content/70 prose prose-sm mb-4 text-lg">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   {@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.description)))}
                 </p>
               {/if}

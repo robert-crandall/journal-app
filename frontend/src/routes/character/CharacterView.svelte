@@ -537,6 +537,7 @@
                   Backstory
                 </h3>
                 <div class="prose prose-sm max-w-none text-left leading-relaxed">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   {@html DOMPurify.sanitize(String(marked.parse(character.backstory)))}
                 </div>
               </div>
@@ -564,6 +565,7 @@
                   Goals & Aspirations
                 </h3>
                 <div class="prose prose-sm max-w-none text-left leading-relaxed">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   {@html DOMPurify.sanitize(String(marked.parse(character.goals)))}
                 </div>
               </div>

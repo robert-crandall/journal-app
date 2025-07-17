@@ -174,6 +174,7 @@
                       </div>
 
                       {#if goal.description}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html DOMPurify.sanitize(String(marked.parse(goal.description)))}</p>
                       {/if}
 
