@@ -24,7 +24,7 @@ export function formatDate(dateString: string | null): string {
  */
 export function formatDateTime(
   value?: string | Date | null,
-  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'journal' = 'default',
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
 ): string {
   let date: Date;
   if (value === undefined || value === null) {
@@ -52,7 +52,7 @@ export function formatDateTime(
   }
 
   // Special case for YYYY-MM-DD format
-  if (format === 'journal') {
+  if (format === 'yyyy-mm-dd') {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: '2-digit',
@@ -82,5 +82,5 @@ export function formatDateTime(
  * @returns Today's date in YYYY-MM-DD format for the specified timezone
  */
 export function getTodayDateString(): string {
-  return getNowDateTimeString('yyyy-mm-dd');
+  return formatDateTime(new Date(), 'yyyy-mm-dd');
 }
