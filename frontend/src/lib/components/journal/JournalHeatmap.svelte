@@ -51,10 +51,14 @@
     const prevYear = month === 0 ? year - 1 : year;
     const lastDayOfPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
     
+    // We'll collect all days and then reverse them at the end to show most recent on the right
+    const allDays: Day[] = [];
+    
+    // Previous month's days (to fill the calendar grid)
     for (let i = daysFromPreviousMonth - 1; i >= 0; i--) {
       const day = lastDayOfPrevMonth - i;
       const date = new Date(prevYear, prevMonth, day);
-      days.push({
+      allDays.push({
         date,
         dayOfMonth: day,
         isCurrentMonth: false,
@@ -72,7 +76,7 @@
       // Find journal for this day if it exists
       const journalForDay = journals.find(j => j.date === dateString);
       
-      days.push({
+      allDays.push({
         date,
         dayOfMonth: day,
         isCurrentMonth: true,
@@ -86,19 +90,32 @@
     
     // Next month's days to complete the grid (ensuring we have a full 6 rows)
     const totalDaysNeeded = 42; // 6 rows of 7 days
-    const daysFromNextMonth = totalDaysNeeded - days.length;
+    const daysFromNextMonth = totalDaysNeeded - allDays.length;
     const nextMonth = month === 11 ? 0 : month + 1;
     const nextYear = month === 11 ? year + 1 : year;
     
     for (let day = 1; day <= daysFromNextMonth; day++) {
       const date = new Date(nextYear, nextMonth, day);
-      days.push({
+      allDays.push({
         date,
         dayOfMonth: day,
         isCurrentMonth: false,
         isToday: isSameDay(date, today)
       });
     }
+    
+    // GitHub style: most recent dates on the right
+    // Group days by week (7 days per week)
+    const weeks = [];
+    for (let i = 0; i < allDays.length; i += 7) {
+      weeks.push(allDays.slice(i, i + 7));
+    }
+    
+    // Each day is still in chronological order within its week
+    // Now we add all days to our final days array
+    weeks.forEach(week => {
+      days.push(...week);
+    });
     
     calendarDays = days;
     
@@ -214,6 +231,8 @@
           class="relative aspect-square"
           on:mouseenter={() => showDayTooltip(day)}
           on:mouseleave={hideDayTooltip}
+          role="button"
+          aria-label="Day {day.dayOfMonth} {day.isCurrentMonth ? currentMonthName : ''}"
         >
           <button
             class="absolute inset-0 flex h-full w-full flex-col items-center justify-center rounded-md 
@@ -254,23 +273,27 @@
     <!-- Legend -->
     <div class="mt-4 flex items-center justify-center gap-3 text-xs" data-test-id="heatmap-legend">
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-red-500"></div>
+        <div class="h-3 w-3 rounded bg-base-200"></div>
+        <span>None</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="h-3 w-3 rounded bg-emerald-100"></div>
         <span data-test-id="legend-rating-1">1</span>
       </div>
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-orange-400"></div>
+        <div class="h-3 w-3 rounded bg-emerald-200"></div>
         <span data-test-id="legend-rating-2">2</span>
       </div>
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-yellow-300"></div>
+        <div class="h-3 w-3 rounded bg-emerald-300"></div>
         <span data-test-id="legend-rating-3">3</span>
       </div>
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-lime-400"></div>
+        <div class="h-3 w-3 rounded bg-emerald-400"></div>
         <span data-test-id="legend-rating-4">4</span>
       </div>
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-green-500"></div>
+        <div class="h-3 w-3 rounded bg-emerald-600"></div>
         <span data-test-id="legend-rating-5">5</span>
       </div>
     </div>
