@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, jsonb, timestamp, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, jsonb, timestamp, date, integer } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 export const journals = pgTable('journals', {
@@ -13,6 +13,8 @@ export const journals = pgTable('journals', {
   summary: text('summary'), // GPT-generated summary
   title: text('title'), // GPT-generated title
   synopsis: text('synopsis'), // GPT-generated synopsis
+  dayRating: integer('day_rating'), // User-provided rating of their day (1-5)
+  inferredDayRating: integer('inferred_day_rating'), // AI-inferred rating of the day (1-5)
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

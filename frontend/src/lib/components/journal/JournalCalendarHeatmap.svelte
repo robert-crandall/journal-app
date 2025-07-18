@@ -31,7 +31,7 @@
   $: journalMap = new Map(journals.map((journal) => [journal.date, journal]));
 
   // Get the activity level for a given date
-  function getActivityLevel(date: string): number {
+  function getActivityLevel(date: string, journalMap: Map<string, any>): number {
     const journal = journalMap.get(date);
     if (!journal) return 0;
 
@@ -62,16 +62,47 @@
     }
   }
 
+  // Get the rating level for a given date
+  function getRatingLevel(date: string, journalMap: Map<string, any>): number {
+    const journal = journalMap.get(date);
+    if (!journal) return 0;
+
+    // Rating levels: 0 = no journal, 1 = draft, 2 = in_review, 3 = complete
+    return journal.dayRating || journal.inferredDayRating || 0;
+  }
+
+  function getRatingColor(rating: number | null): string {
+    if (!rating) return 'bg-base-200';
+
+    // Color progression from red (bad) to green (excellent)
+    switch (rating) {
+      case 1:
+        return 'bg-error opacity-75'; // Red for poor days
+      case 2:
+        return 'bg-warning opacity-75'; // Orange/yellow for below average
+      case 3:
+        return 'bg-info opacity-75'; // Blue for neutral/average
+      case 4:
+        return 'bg-accent opacity-80'; // Purple/teal for good days
+      case 5:
+        return 'bg-success opacity-100'; // Green for excellent days
+      default:
+        return 'bg-base-200';
+    }
+  }
+
   // Get tooltip text for a date
-  function getTooltipText(date: string): string {
+  function getTooltipText(date: string, journalMap: Map<string, any>): string {
     const journal = journalMap.get(date);
     if (!journal) {
       return `${date}: No entry`;
     }
 
     const statusText = journal.status === 'complete' ? 'Complete' : journal.status === 'in_review' ? 'In Review' : 'Draft';
+    const rating = journal.dayRating || journal.inferredDayRating;
+    const ratingText = rating ? ` - Rating: ${rating}/5` : '';
 
-    return `${date}: ${journal.title || 'Journal Entry'} (${statusText})`;
+    return `${date}: ${journal.title || 'Journal Entry'} (${statusText})${ratingText}`;
   }
 
   // Handle clicking on a date
@@ -104,16 +135,46 @@
   const days = getLast365Days();
   const monthLabels = getMonthLabels();
 
-  // Group days by week for display
-  const weekGroups = days.reduce(
-    (weeks, day) => {
-      const weekKey = Math.floor((364 - days.findIndex((d) => d.date === day.date)) / 7);
-      if (!weeks[weekKey]) weeks[weekKey] = [];
-      weeks[weekKey].push(day);
-      return weeks;
-    },
-    {} as Record<number, typeof days>,
-  );
+  // Create a proper grid structure for the heatmap
+  // We need to pad the beginning and end to align with week boundaries
+  function createWeekGrid(days: Array<{ date: string; dayOfWeek: number; weekOfYear: number }>) {
+    const grid: Array<Array<{ date: string; dayOfWeek: number; weekOfYear: number } | null>> = [];
+
+    // Find the first Sunday (start of first week)
+    const firstDay = days[0];
+    const daysToAdd = firstDay.dayOfWeek; // Number of empty days before first day
+
+    // Create the grid week by week
+    let currentWeek: Array<{ date: string; dayOfWeek: number; weekOfYear: number } | null> = [];
+
+    // Add empty slots at the beginning if first day is not Sunday
+    for (let i = 0; i < daysToAdd; i++) {
+      currentWeek.push(null);
+    }
+
+    // Add all days
+    for (const day of days) {
+      currentWeek.push(day);
+
+      // If we've completed a week (7 days), start a new week
+      if (currentWeek.length === 7) {
+        grid.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+
+    // Fill the last week with nulls if needed
+    while (currentWeek.length < 7 && currentWeek.length > 0) {
+      currentWeek.push(null);
+    }
+    if (currentWeek.length > 0) {
+      grid.push(currentWeek);
+    }
+
+    return grid;
+  }
+
+  const weekGrid = createWeekGrid(days);
 </script>
 
 <div class="heatmap-container">
@@ -139,15 +200,18 @@
 
     <!-- Activity squares -->
     <div class="activity-grid">
-      {#each Object.values(weekGroups) as week (week[0]?.date)}
+      {#each weekGrid as week, weekIndex (weekIndex)}
         <div class="week-column">
-          {#each Array(7) as _, dayIndex}
-            {@const day = week.find((d) => d.dayOfWeek === dayIndex)}
+          {#each week as day, dayIndex (dayIndex)}
             {#if day}
-              {@const level = getActivityLevel(day.date)}
+              {@const level = getRatingLevel(day.date, journalMap)}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <div class="activity-square {getActivityClass(level)}" title={getTooltipText(day.date)} on:click={() => handleDateClick(day.date)}></div>
+              <div
+                class="activity-square {getRatingColor(level)}"
+                title={getTooltipText(day.date, journalMap)}
+                on:click={() => handleDateClick(day.date)}
+              ></div>
             {:else}
               <div class="activity-square bg-transparent"></div>
             {/if}
@@ -159,14 +223,16 @@
 
   <!-- Legend -->
   <div class="text-base-content/60 mt-4 flex items-center justify-between text-xs">
-    <span>Less</span>
+    <span>Poor (1)</span>
     <div class="flex items-center gap-1">
-      <div class="activity-square bg-base-300"></div>
-      <div class="activity-square bg-primary opacity-50"></div>
-      <div class="activity-square bg-warning opacity-75"></div>
-      <div class="activity-square bg-success opacity-100"></div>
+      <div class="activity-square bg-base-200" title="No entry"></div>
+      <div class="activity-square bg-error" title="Poor day (1)"></div>
+      <div class="activity-square bg-warning" title="Below average (2)"></div>
+      <div class="activity-square bg-info" title="Average (3)"></div>
+      <div class="activity-square bg-accent" title="Good day (4)"></div>
+      <div class="activity-square bg-success" title="Excellent day (5)"></div>
     </div>
-    <span>More</span>
+    <span>Excellent (5)</span>
   </div>
 </div>
 
@@ -210,8 +276,8 @@
   }
 
   .activity-square {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border-radius: 2px;
     cursor: pointer;
     transition: all 0.2s ease;

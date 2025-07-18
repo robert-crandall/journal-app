@@ -7,6 +7,7 @@ export type NewJournal = typeof journals.$inferInsert;
 export interface CreateJournalRequest {
   date: string; // YYYY-MM-DD format
   initialMessage?: string;
+  dayRating?: number; // User-provided rating (1-5)
 }
 
 export interface UpdateJournalRequest {
@@ -16,6 +17,8 @@ export interface UpdateJournalRequest {
   summary?: string;
   title?: string;
   synopsis?: string;
+  dayRating?: number; // User-provided rating (1-5)
+  inferredDayRating?: number; // AI-inferred rating (1-5)
 }
 
 export interface ChatMessage {
@@ -54,6 +57,8 @@ export interface JournalListItem {
   title: string | null;
   synopsis: string | null;
   initialMessage: string | null;
+  dayRating: number | null;
+  inferredDayRating: number | null;
   createdAt: string;
   updatedAt: string;
   // Include tag information for filtering
@@ -82,6 +87,8 @@ export interface JournalResponse {
   summary: string | null;
   title: string | null;
   synopsis: string | null;
+  dayRating: number | null;
+  inferredDayRating: number | null;
   createdAt: string;
   updatedAt: string;
 }
