@@ -24,6 +24,9 @@
       });
     }
 
+    // Reverse the array to have the most recent date first
+    days.reverse();
+
     return days;
   }
 
@@ -59,6 +62,29 @@
         return 'bg-primary opacity-50';
       default:
         return 'bg-base-300';
+    }
+  }
+
+  // Get the rating level for a given date
+  function getRatingLevel(date: string, journalMap: Map<string, any>): number {
+    const journal = journalMap.get(date);
+    if (!journal) return 0;
+
+    // Rating levels: 0 = no journal, 1 = draft, 2 = in_review, 3 = complete
+    return journal.dayRating || journal.inferredDayRating || 0;
+  }
+
+  function getRatingColor(rating: number | null): string {
+    if (!rating) return 'bg-base-200';
+    
+    // Color scale from red (1) to green (5)
+    switch(rating) {
+      case 1: return 'bg-red-500';
+      case 2: return 'bg-orange-400';
+      case 3: return 'bg-yellow-300';
+      case 4: return 'bg-lime-400';
+      case 5: return 'bg-green-500';
+      default: return 'bg-base-200';
     }
   }
 
@@ -144,10 +170,10 @@
           {#each Array(7) as _, dayIndex}
             {@const day = week.find((d) => d.dayOfWeek === dayIndex)}
             {#if day}
-              {@const level = getActivityLevel(day.date, journalMap)}
+              {@const level = getRatingLevel(day.date, journalMap)}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <div class="activity-square {getActivityClass(level)}" title={getTooltipText(day.date, journalMap)} on:click={() => handleDateClick(day.date)}></div>
+              <div class="activity-square {getRatingColor(level)}" title={getTooltipText(day.date, journalMap)} on:click={() => handleDateClick(day.date)}></div>
             {:else}
               <div class="activity-square bg-transparent"></div>
             {/if}
@@ -210,8 +236,8 @@
   }
 
   .activity-square {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border-radius: 2px;
     cursor: pointer;
     transition: all 0.2s ease;
