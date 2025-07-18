@@ -639,35 +639,38 @@ const app = new Hono()
         .from(journals)
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))
         .limit(1);
-      
+
       const currentDayRating = currentJournalData[0].dayRating;
-      
+
       // If no day rating was provided, infer one from the content
       let inferredDayRating = null;
       if (!currentDayRating) {
         // For now, use a simple sentiment analysis based on content
         // In a real implementation, we would use GPT for this
-        const journalContent = chatSession.map(msg => msg.content).join(' ').toLowerCase();
-        
+        const journalContent = chatSession
+          .map((msg) => msg.content)
+          .join(' ')
+          .toLowerCase();
+
         // Simple sentiment words for basic inference - would be replaced with actual NLP
         const positiveWords = ['happy', 'good', 'great', 'amazing', 'excellent', 'wonderful', 'joy'];
         const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'disappointed', 'frustrated', 'angry'];
-        
+
         let positiveScore = 0;
         let negativeScore = 0;
-        
-        positiveWords.forEach(word => {
+
+        positiveWords.forEach((word) => {
           const regex = new RegExp(`\\b${word}\\b`, 'gi');
           const matches = journalContent.match(regex);
           if (matches) positiveScore += matches.length;
         });
-        
-        negativeWords.forEach(word => {
+
+        negativeWords.forEach((word) => {
           const regex = new RegExp(`\\b${word}\\b`, 'gi');
           const matches = journalContent.match(regex);
           if (matches) negativeScore += matches.length;
         });
-        
+
         // Calculate rating on a scale of 1-5
         if (positiveScore > negativeScore * 2) {
           inferredDayRating = 5; // Very positive

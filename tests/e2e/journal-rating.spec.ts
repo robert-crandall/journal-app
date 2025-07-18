@@ -22,7 +22,7 @@ test.describe('Journal Day Rating', () => {
 
   test('should allow rating a day when completing a journal', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this test significantly
-    
+
     // Use a future date to ensure no existing journal
     const testDate = '2025-12-26';
     await cleanupJournal(page, testDate);
@@ -30,49 +30,49 @@ test.describe('Journal Day Rating', () => {
     // Create a new journal entry
     await page.goto(`/journal/${testDate}`);
     await page.waitForLoadState('networkidle');
-    
+
     // Wait specifically for the journal editor to be visible
     await expect(page.locator('[data-test-id="journal-editor-textarea"]')).toBeVisible({ timeout: 10000 });
-    
+
     // Fill and save journal draft
     const journalText = 'This was a pretty good day overall!';
     await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
     await page.locator('[data-test-id="save-draft-button"]').click();
     await page.waitForTimeout(1000);
-    
+
     // Start reflection
     await page.locator('[data-test-id="start-reflection-button"]').click();
     await page.waitForTimeout(1000);
-    
+
     // Send a message in the chat
     await page.locator('[data-test-id="chat-input"]').fill('I feel good about today');
     await page.locator('[data-test-id="send-message-button"]').click();
     await page.waitForTimeout(2000); // Wait for AI response
-    
+
     // Click finish journal
     await page.locator('[data-test-id="finish-journal-button"]').click();
     await page.waitForTimeout(500);
-    
+
     // The rating dialog should appear
     await expect(page.getByRole('heading', { name: 'Complete Your Journal' })).toBeVisible();
-    
+
     // Select a rating of 4
     await page.locator('[data-test-id="rating-button-4"]').click();
-    
+
     // Click the finish button
     await page.locator('[data-test-id="confirm-finish-button"]').click();
     await page.waitForTimeout(3000); // Wait for completion
-    
+
     // The journal should be complete with the rating visible
     await expect(page.locator('[data-test-id="journal-complete"]')).toBeVisible({ timeout: 10000 });
-    
+
     // Check that the day rating component shows the selected rating
     await expect(page.locator('[data-test-id="day-rating-label"]')).toBeVisible({ timeout: 5000 });
   });
 
   test('should infer a day rating when user does not provide one', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this test significantly
-    
+
     // Use a future date to ensure no existing journal
     const testDate = '2025-12-27';
     await cleanupJournal(page, testDate);
@@ -80,39 +80,39 @@ test.describe('Journal Day Rating', () => {
     // Create a new journal entry
     await page.goto(`/journal/${testDate}`);
     await page.waitForLoadState('networkidle');
-    
+
     // Wait specifically for the journal editor to be visible
     await expect(page.locator('[data-test-id="journal-editor-textarea"]')).toBeVisible({ timeout: 10000 });
-    
+
     // Fill and save journal draft with negative content
     const journalText = 'This was a terrible day. Everything went wrong.';
     await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
     await page.locator('[data-test-id="save-draft-button"]').click();
     await page.waitForTimeout(1000);
-    
+
     // Start reflection
     await page.locator('[data-test-id="start-reflection-button"]').click();
     await page.waitForTimeout(1000);
-    
+
     // Send a negative message in the chat
     await page.locator('[data-test-id="chat-input"]').fill('I feel awful about today');
     await page.locator('[data-test-id="send-message-button"]').click();
     await page.waitForTimeout(2000); // Wait for AI response
-    
+
     // Click finish journal
     await page.locator('[data-test-id="finish-journal-button"]').click();
     await page.waitForTimeout(500);
-    
+
     // The rating dialog should appear
     await expect(page.getByRole('heading', { name: 'Complete Your Journal' })).toBeVisible();
-    
+
     // Click the finish button without selecting a rating
     await page.locator('[data-test-id="confirm-finish-button"]').click();
     await page.waitForTimeout(3000); // Wait for completion
-    
+
     // The journal should be complete with an inferred rating visible
     await expect(page.locator('[data-test-id="journal-complete"]')).toBeVisible({ timeout: 10000 });
-    
+
     // Check that the day rating component shows the estimated badge
     await expect(page.locator('.badge').filter({ hasText: 'Estimated' })).toBeVisible({ timeout: 5000 });
   });
@@ -122,10 +122,10 @@ test.describe('Journal Day Rating', () => {
     // Navigate to journal dashboard
     await page.goto('/journals');
     await page.waitForTimeout(1000);
-    
+
     // Check that the heatmap is visible
     await expect(page.getByRole('heading', { name: 'Journal Calendar' })).toBeVisible();
-    
+
     // Check that the legend is visible
     await expect(page.locator('[data-test-id="heatmap-legend"]')).toBeVisible();
     await expect(page.locator('[data-test-id="legend-rating-1"]')).toBeVisible();

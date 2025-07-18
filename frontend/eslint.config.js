@@ -42,7 +42,7 @@ export default ts.config(
       // Other rules are still at warning level for now
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      'svelte/require-each-key': 'warn'
+      'svelte/require-each-key': 'warn',
     },
   },
   {

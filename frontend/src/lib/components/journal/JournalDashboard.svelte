@@ -6,13 +6,13 @@
   import JournalHeatmap from '$lib/components/journal/JournalHeatmap.svelte';
   import { BookOpenIcon, CalendarDaysIcon, ListIcon, PlusIcon } from 'lucide-svelte';
   import { getTodayDateString, formatDate } from '$lib/utils/date';
-  
+
   let loading = true;
   let error: string | null = null;
   let journalData: ListJournalsResponse | null = null;
   let currentMonth = new Date().getMonth();
   let currentYear = new Date().getFullYear();
-  
+
   onMount(async () => {
     await loadJournals();
   });
@@ -21,15 +21,15 @@
     try {
       loading = true;
       error = null;
-      
+
       // Get journal entries from the last 3 months
       const today = new Date();
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(today.getMonth() - 3);
-      
+
       const dateFrom = formatDateToYYYYMMDD(threeMonthsAgo);
       const dateTo = formatDateToYYYYMMDD(today);
-      
+
       journalData = await JournalService.listJournals({
         dateFrom,
         dateTo,
@@ -41,41 +41,37 @@
       loading = false;
     }
   }
-  
+
   function formatDateToYYYYMMDD(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-  
+
   function goToCreateJournal() {
     const today = getTodayDateString();
     goto(`/journal/${today}`);
   }
-  
+
   function goToJournalsList() {
     goto('/journals');
   }
-  
+
   $: journals = journalData?.journals || [];
-  $: completedJournals = journals.filter(j => j.status === 'complete');
-  
+  $: completedJournals = journals.filter((j) => j.status === 'complete');
+
   // Calculate average rating
-  $: journalsWithRatings = completedJournals.filter(
-    j => j.dayRating !== null || j.inferredDayRating !== null
-  );
-  $: averageRating = journalsWithRatings.length > 0 
-    ? journalsWithRatings.reduce(
-        (sum, j) => sum + (j.dayRating !== null ? j.dayRating : (j.inferredDayRating || 0)), 
-        0
-      ) / journalsWithRatings.length
-    : null;
-  
+  $: journalsWithRatings = completedJournals.filter((j) => j.dayRating !== null || j.inferredDayRating !== null);
+  $: averageRating =
+    journalsWithRatings.length > 0
+      ? journalsWithRatings.reduce((sum, j) => sum + (j.dayRating !== null ? j.dayRating : j.inferredDayRating || 0), 0) / journalsWithRatings.length
+      : null;
+
   // Get the best and worst days
   $: journalsSortedByRating = [...journalsWithRatings].sort((a, b) => {
-    const ratingA = a.dayRating !== null ? a.dayRating : (a.inferredDayRating || 0);
-    const ratingB = b.dayRating !== null ? b.dayRating : (b.inferredDayRating || 0);
+    const ratingA = a.dayRating !== null ? a.dayRating : a.inferredDayRating || 0;
+    const ratingB = b.dayRating !== null ? b.dayRating : b.inferredDayRating || 0;
     return ratingB - ratingA;
   });
   $: bestDay = journalsSortedByRating[0] || null;
@@ -89,7 +85,7 @@
       <BookOpenIcon size={32} class="text-primary" />
       <h1 class="text-gradient text-3xl font-bold">Journal Dashboard</h1>
     </div>
-    
+
     <div class="flex gap-2">
       <button class="btn btn-ghost btn-sm" on:click={goToJournalsList}>
         <ListIcon size={16} />
@@ -101,21 +97,21 @@
       </button>
     </div>
   </div>
-  
+
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center py-12">
       <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
-  
-  <!-- Error State -->
+
+    <!-- Error State -->
   {:else if error}
     <div class="alert alert-error">
       <span>{error}</span>
       <button class="btn btn-sm" on:click={loadJournals}>Retry</button>
     </div>
-  
-  <!-- Content -->
+
+    <!-- Content -->
   {:else}
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -129,7 +125,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Average Rating -->
       <div class="card bg-base-100 border-base-300 border shadow-sm">
         <div class="card-body p-4">
@@ -142,7 +138,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Best Day -->
       <div class="card bg-base-100 border-base-300 border shadow-sm">
         <div class="card-body p-4">
@@ -161,7 +157,7 @@
           {/if}
         </div>
       </div>
-      
+
       <!-- Worst Day -->
       <div class="card bg-base-100 border-base-300 border shadow-sm">
         <div class="card-body p-4">
@@ -181,10 +177,10 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Heatmap -->
-    <JournalHeatmap journals={journals} bind:month={currentMonth} bind:year={currentYear} />
-    
+    <JournalHeatmap {journals} bind:month={currentMonth} bind:year={currentYear} />
+
     <!-- Recent Entries -->
     <div class="card bg-base-100 border-base-300 border shadow-xl">
       <div class="card-body">
@@ -192,7 +188,7 @@
           <CalendarDaysIcon size={24} class="text-secondary" />
           <span>Recent Entries</span>
         </h3>
-        
+
         {#if journals.length === 0}
           <div class="alert">
             <span>No journal entries found. Start writing today!</span>
@@ -200,7 +196,7 @@
           </div>
         {:else}
           <div class="overflow-x-auto">
-            <table class="table table-zebra">
+            <table class="table-zebra table">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -224,11 +220,11 @@
                       {/if}
                     </td>
                     <td>
-                      <span class="badge 
-                        {journal.status === 'complete' ? 'badge-success' : 
-                         journal.status === 'in_review' ? 'badge-warning' : 'badge-ghost'}">
-                        {journal.status === 'complete' ? 'Complete' : 
-                         journal.status === 'in_review' ? 'In Review' : 'Draft'}
+                      <span
+                        class="badge
+                        {journal.status === 'complete' ? 'badge-success' : journal.status === 'in_review' ? 'badge-warning' : 'badge-ghost'}"
+                      >
+                        {journal.status === 'complete' ? 'Complete' : journal.status === 'in_review' ? 'In Review' : 'Draft'}
                       </span>
                     </td>
                   </tr>
@@ -236,12 +232,10 @@
               </tbody>
             </table>
           </div>
-          
+
           {#if journals.length > 5}
-            <div class="card-actions justify-end mt-4">
-              <button class="btn btn-ghost btn-sm" on:click={goToJournalsList}>
-                View All Entries
-              </button>
+            <div class="card-actions mt-4 justify-end">
+              <button class="btn btn-ghost btn-sm" on:click={goToJournalsList}> View All Entries </button>
             </div>
           {/if}
         {/if}

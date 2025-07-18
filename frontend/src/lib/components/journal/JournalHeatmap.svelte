@@ -39,21 +39,21 @@
     const firstDayOfMonth = new Date(year, month, 1);
     const lastDayOfMonth = new Date(year, month + 1, 0);
     const daysInMonth = lastDayOfMonth.getDate();
-    
+
     // Get the day of the week the month starts on (0 = Sunday, 6 = Saturday)
     const startingDayOfWeek = firstDayOfMonth.getDay();
-    
+
     const days: Day[] = [];
-    
+
     // Get days from previous month to fill the first week
     const daysFromPreviousMonth = startingDayOfWeek;
     const prevMonth = month === 0 ? 11 : month - 1;
     const prevYear = month === 0 ? year - 1 : year;
     const lastDayOfPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
-    
+
     // We'll collect all days and then reverse them at the end to show most recent on the right
     const allDays: Day[] = [];
-    
+
     // Previous month's days (to fill the calendar grid)
     for (let i = daysFromPreviousMonth - 1; i >= 0; i--) {
       const day = lastDayOfPrevMonth - i;
@@ -62,20 +62,20 @@
         date,
         dayOfMonth: day,
         isCurrentMonth: false,
-        isToday: isSameDay(date, new Date())
+        isToday: isSameDay(date, new Date()),
       });
     }
-    
+
     // Current month's days
     const today = new Date();
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const isToday = isSameDay(date, today);
       const dateString = formatDateToYYYYMMDD(date);
-      
+
       // Find journal for this day if it exists
-      const journalForDay = journals.find(j => j.date === dateString);
-      
+      const journalForDay = journals.find((j) => j.date === dateString);
+
       allDays.push({
         date,
         dayOfMonth: day,
@@ -84,53 +84,48 @@
         journalDate: journalForDay?.date,
         rating: journalForDay?.dayRating || journalForDay?.inferredDayRating || null,
         title: journalForDay?.title || null,
-        isToday
+        isToday,
       });
     }
-    
+
     // Next month's days to complete the grid (ensuring we have a full 6 rows)
     const totalDaysNeeded = 42; // 6 rows of 7 days
     const daysFromNextMonth = totalDaysNeeded - allDays.length;
     const nextMonth = month === 11 ? 0 : month + 1;
     const nextYear = month === 11 ? year + 1 : year;
-    
+
     for (let day = 1; day <= daysFromNextMonth; day++) {
       const date = new Date(nextYear, nextMonth, day);
       allDays.push({
         date,
         dayOfMonth: day,
         isCurrentMonth: false,
-        isToday: isSameDay(date, today)
+        isToday: isSameDay(date, today),
       });
     }
-    
+
     // GitHub style: most recent dates on the right
     // Group days by week (7 days per week)
     const weeks = [];
     for (let i = 0; i < allDays.length; i += 7) {
       weeks.push(allDays.slice(i, i + 7));
     }
-    
+
     // Each day is still in chronological order within its week
     // Now we add all days to our final days array
-    weeks.forEach(week => {
+    weeks.forEach((week) => {
       days.push(...week);
     });
-    
+
     calendarDays = days;
-    
+
     // Set month name
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     currentMonthName = `${monthNames[month]} ${year}`;
   }
 
   function isSameDay(date1: Date, date2: Date): boolean {
-    return date1.getDate() === date2.getDate() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getFullYear() === date2.getFullYear();
+    return date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth() && date1.getFullYear() === date2.getFullYear();
   }
 
   function formatDateToYYYYMMDD(date: Date): string {
@@ -179,15 +174,21 @@
 
   function getRatingColor(rating: number | null): string {
     if (!rating) return 'bg-base-200';
-    
+
     // Color scale from red (1) to green (5)
-    switch(rating) {
-      case 1: return 'bg-red-500';
-      case 2: return 'bg-orange-400';
-      case 3: return 'bg-yellow-300';
-      case 4: return 'bg-lime-400';
-      case 5: return 'bg-green-500';
-      default: return 'bg-base-200';
+    switch (rating) {
+      case 1:
+        return 'bg-red-500';
+      case 2:
+        return 'bg-orange-400';
+      case 3:
+        return 'bg-yellow-300';
+      case 4:
+        return 'bg-lime-400';
+      case 5:
+        return 'bg-green-500';
+      default:
+        return 'bg-base-200';
     }
   }
 </script>
@@ -199,22 +200,16 @@
         <CalendarIcon size={24} class="text-primary" />
         <span>Journal Calendar</span>
       </h3>
-      
+
       <div class="flex items-center gap-2">
-        <button class="btn btn-sm btn-ghost" on:click={previousMonth} aria-label="Previous month">
-          &lt;
-        </button>
-        <button class="btn btn-sm btn-ghost" on:click={getCurrentMonth}>
-          Today
-        </button>
-        <button class="btn btn-sm btn-ghost" on:click={nextMonth} aria-label="Next month">
-          &gt;
-        </button>
+        <button class="btn btn-sm btn-ghost" on:click={previousMonth} aria-label="Previous month"> &lt; </button>
+        <button class="btn btn-sm btn-ghost" on:click={getCurrentMonth}> Today </button>
+        <button class="btn btn-sm btn-ghost" on:click={nextMonth} aria-label="Next month"> &gt; </button>
       </div>
     </div>
-    
+
     <div class="mb-1 text-center text-lg font-medium">{currentMonthName}</div>
-    
+
     <div class="grid grid-cols-7 gap-1 text-center text-xs">
       <div class="font-medium">Sun</div>
       <div class="font-medium">Mon</div>
@@ -224,10 +219,10 @@
       <div class="font-medium">Fri</div>
       <div class="font-medium">Sat</div>
     </div>
-    
+
     <div class="grid grid-cols-7 gap-1">
       {#each calendarDays as day, i (i)}
-        <div 
+        <div
           class="relative aspect-square"
           on:mouseenter={() => showDayTooltip(day)}
           on:mouseleave={hideDayTooltip}
@@ -235,21 +230,23 @@
           aria-label="Day {day.dayOfMonth} {day.isCurrentMonth ? currentMonthName : ''}"
         >
           <button
-            class="absolute inset-0 flex h-full w-full flex-col items-center justify-center rounded-md 
-              {day.isCurrentMonth ? 
-                day.rating ? getRatingColor(day.rating) + ' hover:opacity-80' : 'bg-base-200 hover:bg-base-300' : 
-                'bg-base-100 text-base-content/30'} 
-              {day.isToday ? 'ring-2 ring-primary' : ''}"
+            class="absolute inset-0 flex h-full w-full flex-col items-center justify-center rounded-md
+              {day.isCurrentMonth
+              ? day.rating
+                ? getRatingColor(day.rating) + ' hover:opacity-80'
+                : 'bg-base-200 hover:bg-base-300'
+              : 'bg-base-100 text-base-content/30'} 
+              {day.isToday ? 'ring-primary ring-2' : ''}"
             on:click={() => handleDayClick(day)}
           >
             <span class="text-xs {day.rating ? 'text-base-content' : 'text-base-content/70'}">{day.dayOfMonth}</span>
             {#if day.journalId}
-              <div class="mt-1 h-1 w-1 rounded-full bg-primary"></div>
+              <div class="bg-primary mt-1 h-1 w-1 rounded-full"></div>
             {/if}
           </button>
-          
+
           {#if selectedDay === day && (day.journalId || day.rating)}
-            <div class="card bg-base-100 absolute left-1/2 top-0 z-10 w-48 -translate-x-1/2 -translate-y-full shadow-xl">
+            <div class="card bg-base-100 absolute top-0 left-1/2 z-10 w-48 -translate-x-1/2 -translate-y-full shadow-xl">
               <div class="card-body p-3">
                 <p class="font-medium">{formatDate(day.date.toISOString())}</p>
                 {#if day.title}
@@ -269,11 +266,11 @@
         </div>
       {/each}
     </div>
-    
+
     <!-- Legend -->
     <div class="mt-4 flex items-center justify-center gap-3 text-xs" data-test-id="heatmap-legend">
       <div class="flex items-center gap-1">
-        <div class="h-3 w-3 rounded bg-base-200"></div>
+        <div class="bg-base-200 h-3 w-3 rounded"></div>
         <span>None</span>
       </div>
       <div class="flex items-center gap-1">

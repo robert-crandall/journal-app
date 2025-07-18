@@ -38,7 +38,7 @@
       {#if showEmoji && displayRating}
         <div class="text-5xl">{emojis[displayRating - 1]}</div>
       {/if}
-      
+
       <div class="flex w-full items-center justify-center gap-1">
         {#each [1, 2, 3, 4, 5] as rating}
           <button
@@ -53,15 +53,13 @@
           </button>
         {/each}
       </div>
-      
+
       {#if displayRating}
         <div class="text-center text-sm" data-test-id="day-rating-label">
           {ratingLabels[displayRating - 1]} Day
         </div>
       {:else if !readonly}
-        <div class="text-center text-sm text-base-content/60">
-          How was your day overall?
-        </div>
+        <div class="text-base-content/60 text-center text-sm">How was your day overall?</div>
       {/if}
     </div>
   </div>

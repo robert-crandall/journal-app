@@ -79,11 +79,11 @@
       finishing = false;
     }
   }
-  
+
   function openFinishDialog() {
     showFinishDialog = true;
   }
-  
+
   function handleFinish(event: CustomEvent<{ dayRating: number | null }>) {
     finishJournal(event.detail.dayRating);
   }
@@ -213,7 +213,12 @@
           </div>
         </div>
 
-        <button data-test-id="send-message-button" on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm h-10 px-2 sm:px-3">
+        <button
+          data-test-id="send-message-button"
+          on:click={sendMessage}
+          disabled={!newMessage.trim() || sending}
+          class="btn btn-primary btn-sm h-10 px-2 sm:px-3"
+        >
           {#if sending}
             <span class="loading loading-spinner loading-xs"></span>
           {:else}
@@ -239,13 +244,9 @@
           Finish Journal
         </button>
       </div>
-      
+
       <!-- Finish Dialog -->
-      <JournalFinishDialog 
-        bind:open={showFinishDialog} 
-        on:finish={handleFinish} 
-        on:cancel={() => showFinishDialog = false} 
-      />
+      <JournalFinishDialog bind:open={showFinishDialog} on:finish={handleFinish} on:cancel={() => (showFinishDialog = false)} />
     </div>
   </div>
 </div>

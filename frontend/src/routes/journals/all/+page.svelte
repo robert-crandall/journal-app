@@ -5,17 +5,17 @@
   import type { JournalListItem, ListJournalsResponse } from '$lib/types/journal';
   import { formatDate } from '$lib/utils/date';
   import { BookOpenIcon, ChevronLeftIcon, FilterIcon } from 'lucide-svelte';
-  
+
   let loading = true;
   let error: string | null = null;
   let journalData: ListJournalsResponse | null = null;
   let searchQuery = '';
   let statusFilter = '';
-  
+
   // Pagination
   let page = 0;
   let pageSize = 20;
-  
+
   onMount(async () => {
     await loadJournals();
   });
@@ -24,20 +24,20 @@
     try {
       loading = true;
       error = null;
-      
+
       const filters: Record<string, any> = {
         offset: page * pageSize,
         limit: pageSize,
       };
-      
+
       if (searchQuery) {
         filters.search = searchQuery;
       }
-      
+
       if (statusFilter) {
         filters.status = statusFilter;
       }
-      
+
       journalData = await JournalService.listJournals(filters);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load journals';
@@ -45,39 +45,39 @@
       loading = false;
     }
   }
-  
+
   function handleStatusChange() {
     page = 0; // Reset to first page
     loadJournals();
   }
-  
+
   function handleSearch() {
     page = 0; // Reset to first page
     loadJournals();
   }
-  
+
   function prevPage() {
     if (page > 0) {
       page--;
       loadJournals();
     }
   }
-  
+
   function nextPage() {
     if (journalData && journalData.hasMore) {
       page++;
       loadJournals();
     }
   }
-  
+
   function goBackToDashboard() {
     goto('/journals');
   }
-  
+
   function goToJournal(date: string) {
     goto(`/journal/${date}`);
   }
-  
+
   function getRatingDisplay(journal: JournalListItem): string {
     if (journal.dayRating !== null) {
       return journal.dayRating.toString();
@@ -87,7 +87,7 @@
       return '-';
     }
   }
-  
+
   function getStatusClass(status: string): string {
     switch (status) {
       case 'complete':
@@ -98,7 +98,7 @@
         return 'badge-ghost';
     }
   }
-  
+
   function getStatusText(status: string): string {
     switch (status) {
       case 'complete':
@@ -109,7 +109,7 @@
         return 'Draft';
     }
   }
-  
+
   $: journals = journalData?.journals || [];
   $: total = journalData?.total || 0;
   $: hasMore = journalData?.hasMore || false;
@@ -131,7 +131,7 @@
         <span>Back</span>
       </button>
     </div>
-    
+
     <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex items-center gap-3">
         <BookOpenIcon size={28} class="text-primary" />
@@ -139,25 +139,27 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Search and Filters -->
   <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex gap-2">
       <div class="form-control w-full max-w-xs">
         <div class="input-group">
-          <input 
-            type="text" 
-            placeholder="Search entries..." 
-            class="input input-bordered w-full max-w-xs" 
+          <input
+            type="text"
+            placeholder="Search entries..."
+            class="input input-bordered w-full max-w-xs"
             bind:value={searchQuery}
             on:keyup={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button class="btn btn-square" on:click={handleSearch}>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg
+            >
           </button>
         </div>
       </div>
-      
+
       <div class="form-control w-full max-w-xs">
         <select class="select select-bordered" bind:value={statusFilter} on:change={handleStatusChange}>
           <option value="">All Statuses</option>
@@ -167,36 +169,43 @@
         </select>
       </div>
     </div>
-    
-    <div class="text-right text-sm text-base-content/70">
+
+    <div class="text-base-content/70 text-right text-sm">
       {showingText}
     </div>
   </div>
-  
+
   <!-- Loading State -->
   {#if loading}
     <div class="flex items-center justify-center py-12">
       <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
-  
-  <!-- Error State -->
+
+    <!-- Error State -->
   {:else if error}
     <div class="alert alert-error">
       <span>{error}</span>
       <button class="btn btn-sm" on:click={loadJournals}>Retry</button>
     </div>
-  
-  <!-- Content -->
+
+    <!-- Content -->
   {:else if journals.length === 0}
     <div class="alert">
       <span>No journal entries found matching your criteria.</span>
-      <button class="btn btn-sm" on:click={() => { searchQuery = ''; statusFilter = ''; loadJournals(); }}>
+      <button
+        class="btn btn-sm"
+        on:click={() => {
+          searchQuery = '';
+          statusFilter = '';
+          loadJournals();
+        }}
+      >
         Clear Filters
       </button>
     </div>
   {:else}
     <div class="overflow-x-auto rounded-lg border">
-      <table class="table table-zebra w-full">
+      <table class="table-zebra table w-full">
         <thead>
           <tr>
             <th>Date</th>
@@ -211,7 +220,7 @@
             <tr class="hover cursor-pointer" on:click={() => goToJournal(journal.date)}>
               <td>{formatDate(journal.date)}</td>
               <td class="max-w-xs truncate">
-                {journal.title || (journal.synopsis?.substring(0, 50) + '...') || 'Untitled'}
+                {journal.title || journal.synopsis?.substring(0, 50) + '...' || 'Untitled'}
               </td>
               <td>
                 {#if journal.dayRating !== null}
@@ -235,26 +244,14 @@
         </tbody>
       </table>
     </div>
-    
+
     <!-- Pagination -->
     <div class="mt-6 flex justify-between">
-      <button 
-        class="btn btn-ghost btn-sm" 
-        disabled={page === 0} 
-        on:click={prevPage}
-      >
-        Previous
-      </button>
+      <button class="btn btn-ghost btn-sm" disabled={page === 0} on:click={prevPage}> Previous </button>
       <span class="text-sm">
         Page {page + 1}
       </span>
-      <button 
-        class="btn btn-ghost btn-sm" 
-        disabled={!hasMore} 
-        on:click={nextPage}
-      >
-        Next
-      </button>
+      <button class="btn btn-ghost btn-sm" disabled={!hasMore} on:click={nextPage}> Next </button>
     </div>
   {/if}
 </div>
