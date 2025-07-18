@@ -176,6 +176,8 @@ const app = new Hono()
             summary: journals.summary,
             title: journals.title,
             synopsis: journals.synopsis,
+            dayRating: journals.dayRating,
+            inferredDayRating: journals.inferredDayRating,
             createdAt: journals.createdAt,
             updatedAt: journals.updatedAt,
           })
