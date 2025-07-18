@@ -24,9 +24,6 @@
       });
     }
 
-    // Reverse the array to have the most recent date first
-    days.reverse();
-
     return days;
   }
 
@@ -76,15 +73,21 @@
 
   function getRatingColor(rating: number | null): string {
     if (!rating) return 'bg-base-200';
-    
+
     // Color scale from red (1) to green (5)
-    switch(rating) {
-      case 1: return 'bg-red-500';
-      case 2: return 'bg-orange-400';
-      case 3: return 'bg-yellow-300';
-      case 4: return 'bg-lime-400';
-      case 5: return 'bg-green-500';
-      default: return 'bg-base-200';
+    switch (rating) {
+      case 1:
+        return 'bg-red-500';
+      case 2:
+        return 'bg-orange-400';
+      case 3:
+        return 'bg-yellow-300';
+      case 4:
+        return 'bg-lime-400';
+      case 5:
+        return 'bg-green-500';
+      default:
+        return 'bg-base-200';
     }
   }
 
@@ -130,16 +133,46 @@
   const days = getLast365Days();
   const monthLabels = getMonthLabels();
 
-  // Group days by week for display
-  const weekGroups = days.reduce(
-    (weeks, day) => {
-      const weekKey = Math.floor((364 - days.findIndex((d) => d.date === day.date)) / 7);
-      if (!weeks[weekKey]) weeks[weekKey] = [];
-      weeks[weekKey].push(day);
-      return weeks;
-    },
-    {} as Record<number, typeof days>,
-  );
+  // Create a proper grid structure for the heatmap
+  // We need to pad the beginning and end to align with week boundaries
+  function createWeekGrid(days: Array<{ date: string; dayOfWeek: number; weekOfYear: number }>) {
+    const grid: Array<Array<{ date: string; dayOfWeek: number; weekOfYear: number } | null>> = [];
+
+    // Find the first Sunday (start of first week)
+    const firstDay = days[0];
+    const daysToAdd = firstDay.dayOfWeek; // Number of empty days before first day
+
+    // Create the grid week by week
+    let currentWeek: Array<{ date: string; dayOfWeek: number; weekOfYear: number } | null> = [];
+
+    // Add empty slots at the beginning if first day is not Sunday
+    for (let i = 0; i < daysToAdd; i++) {
+      currentWeek.push(null);
+    }
+
+    // Add all days
+    for (const day of days) {
+      currentWeek.push(day);
+
+      // If we've completed a week (7 days), start a new week
+      if (currentWeek.length === 7) {
+        grid.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+
+    // Fill the last week with nulls if needed
+    while (currentWeek.length < 7 && currentWeek.length > 0) {
+      currentWeek.push(null);
+    }
+    if (currentWeek.length > 0) {
+      grid.push(currentWeek);
+    }
+
+    return grid;
+  }
+
+  const weekGrid = createWeekGrid(days);
 </script>
 
 <div class="heatmap-container">
@@ -165,15 +198,18 @@
 
     <!-- Activity squares -->
     <div class="activity-grid">
-      {#each Object.values(weekGroups) as week (week[0]?.date)}
+      {#each weekGrid as week, weekIndex (weekIndex)}
         <div class="week-column">
-          {#each Array(7) as _, dayIndex}
-            {@const day = week.find((d) => d.dayOfWeek === dayIndex)}
+          {#each week as day, dayIndex (dayIndex)}
             {#if day}
               {@const level = getRatingLevel(day.date, journalMap)}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <div class="activity-square {getRatingColor(level)}" title={getTooltipText(day.date, journalMap)} on:click={() => handleDateClick(day.date)}></div>
+              <div
+                class="activity-square {getRatingColor(level)}"
+                title={getTooltipText(day.date, journalMap)}
+                on:click={() => handleDateClick(day.date)}
+              ></div>
             {:else}
               <div class="activity-square bg-transparent"></div>
             {/if}
