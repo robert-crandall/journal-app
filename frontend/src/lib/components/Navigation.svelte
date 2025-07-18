@@ -48,6 +48,7 @@
       <div class="hidden lg:flex">
         <a href="/character" class="btn btn-ghost text-primary-content hover:bg-primary/80">Character</a>
         <a href="/journal" class="btn btn-ghost text-primary-content hover:bg-primary/80">Journal</a>
+        <a href="/journals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Dashboard</a>
         <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
         <a href="/experiments" class="btn btn-ghost text-primary-content hover:bg-primary/80">Experiments</a>
         <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
@@ -101,6 +102,22 @@
                   class="h-4 w-4"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg
                 >
                 Journal
+              </a>
+            </li>
+            <li>
+              <a href="/journals" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /><path d="m9 16 2 2 4-4" /></svg
+                >
+                Journal Dashboard
               </a>
             </li>
             <li>

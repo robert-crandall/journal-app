@@ -6,6 +6,7 @@
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
+  import JournalFinishDialog from './JournalFinishDialog.svelte';
 
   export let journal: JournalResponse;
   export let date: string;
@@ -19,6 +20,7 @@
   let finishing = false;
   let error: string | null = null;
   let chatContainer: HTMLDivElement;
+  let showFinishDialog = false;
 
   // Scroll to bottom when new messages are added
   afterUpdate(() => {
@@ -58,11 +60,17 @@
     }
   }
 
-  async function finishJournal() {
+  async function finishJournal(dayRating: number | null = null) {
     try {
       finishing = true;
       error = null;
 
+      // First update the journal with day rating if provided
+      if (dayRating !== null) {
+        await JournalService.updateJournal(date, { dayRating });
+      }
+
+      // Then finish the journal
       const completedJournal = await JournalService.finishJournal(date);
       dispatch('update', completedJournal);
     } catch (err) {
@@ -70,6 +78,14 @@
     } finally {
       finishing = false;
     }
+  }
+  
+  function openFinishDialog() {
+    showFinishDialog = true;
+  }
+  
+  function handleFinish(event: CustomEvent<{ dayRating: number | null }>) {
+    finishJournal(event.detail.dayRating);
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -197,7 +213,7 @@
           </div>
         </div>
 
-        <button on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm h-10 px-2 sm:px-3">
+        <button data-test-id="send-message-button" on:click={sendMessage} disabled={!newMessage.trim() || sending} class="btn btn-primary btn-sm h-10 px-2 sm:px-3">
           {#if sending}
             <span class="loading loading-spinner loading-xs"></span>
           {:else}
@@ -210,7 +226,7 @@
       <div class="mt-2 flex justify-end sm:mt-3">
         <button
           data-test-id="finish-journal-button"
-          on:click={finishJournal}
+          on:click={openFinishDialog}
           disabled={finishing}
           class="btn btn-success btn-sm sm:btn-md w-full gap-1 sm:w-auto sm:gap-2"
         >
@@ -223,6 +239,13 @@
           Finish Journal
         </button>
       </div>
+      
+      <!-- Finish Dialog -->
+      <JournalFinishDialog 
+        bind:open={showFinishDialog} 
+        on:finish={handleFinish} 
+        on:cancel={() => showFinishDialog = false} 
+      />
     </div>
   </div>
 </div>

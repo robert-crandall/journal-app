@@ -155,6 +155,13 @@
       "when": 1752449829316,
       "tag": "0021_slimy_orphan",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1752776513776,
+      "tag": "0022_boring_eternals",
+      "breakpoints": true
     }
   ]
 }

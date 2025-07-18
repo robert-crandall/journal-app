@@ -41,6 +41,8 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
+    dayRating: journal.dayRating,
+    inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
@@ -61,6 +63,8 @@ const serializeJournalListItem = (journal: typeof journals.$inferSelect): Journa
     title: journal.title,
     synopsis: journal.synopsis,
     initialMessage: journal.initialMessage,
+    dayRating: journal.dayRating,
+    inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
     characterCount,
@@ -319,6 +323,7 @@ const app = new Hono()
           date: data.date,
           status: 'draft',
           initialMessage: data.initialMessage || null,
+          dayRating: data.dayRating || null,
         })
         .returning();
 
@@ -381,6 +386,12 @@ const app = new Hono()
       }
       if (data.synopsis !== undefined) {
         updateData.synopsis = data.synopsis;
+      }
+      if (data.dayRating !== undefined) {
+        updateData.dayRating = data.dayRating;
+      }
+      if (data.inferredDayRating !== undefined) {
+        updateData.inferredDayRating = data.inferredDayRating;
       }
       // Note: toneTags, contentTags, and statTags are deprecated - now using xpGrants table
 
@@ -622,6 +633,55 @@ const app = new Hono()
       // Generate journal metadata and summary in parallel
       const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext)]);
 
+      // Check if a day rating was provided in the request
+      const currentJournalData = await db
+        .select()
+        .from(journals)
+        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+        .limit(1);
+      
+      const currentDayRating = currentJournalData[0].dayRating;
+      
+      // If no day rating was provided, infer one from the content
+      let inferredDayRating = null;
+      if (!currentDayRating) {
+        // For now, use a simple sentiment analysis based on content
+        // In a real implementation, we would use GPT for this
+        const journalContent = chatSession.map(msg => msg.content).join(' ').toLowerCase();
+        
+        // Simple sentiment words for basic inference - would be replaced with actual NLP
+        const positiveWords = ['happy', 'good', 'great', 'amazing', 'excellent', 'wonderful', 'joy'];
+        const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'disappointed', 'frustrated', 'angry'];
+        
+        let positiveScore = 0;
+        let negativeScore = 0;
+        
+        positiveWords.forEach(word => {
+          const regex = new RegExp(`\\b${word}\\b`, 'gi');
+          const matches = journalContent.match(regex);
+          if (matches) positiveScore += matches.length;
+        });
+        
+        negativeWords.forEach(word => {
+          const regex = new RegExp(`\\b${word}\\b`, 'gi');
+          const matches = journalContent.match(regex);
+          if (matches) negativeScore += matches.length;
+        });
+        
+        // Calculate rating on a scale of 1-5
+        if (positiveScore > negativeScore * 2) {
+          inferredDayRating = 5; // Very positive
+        } else if (positiveScore > negativeScore) {
+          inferredDayRating = 4; // Positive
+        } else if (positiveScore === negativeScore || (positiveScore === 0 && negativeScore === 0)) {
+          inferredDayRating = 3; // Neutral
+        } else if (negativeScore > positiveScore) {
+          inferredDayRating = 2; // Negative
+        } else {
+          inferredDayRating = 1; // Very negative
+        }
+      }
+
       // Update journal with metadata and summary
       const updatedJournal = await db
         .update(journals)
@@ -630,6 +690,7 @@ const app = new Hono()
           summary: summary,
           title: metadata.title,
           synopsis: metadata.synopsis,
+          inferredDayRating: inferredDayRating,
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))

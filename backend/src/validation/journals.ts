@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createJournalSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   initialMessage: z.string().optional(),
+  dayRating: z.number().int().min(1).max(5).optional(),
 });
 
 export const updateJournalSchema = z.object({
@@ -12,6 +13,8 @@ export const updateJournalSchema = z.object({
   summary: z.string().optional(),
   title: z.string().optional(),
   synopsis: z.string().optional(),
+  dayRating: z.number().int().min(1).max(5).optional(),
+  inferredDayRating: z.number().int().min(1).max(5).optional(),
 });
 
 export const addChatMessageSchema = z.object({

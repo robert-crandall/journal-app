@@ -6,6 +6,7 @@
   import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
+  import JournalDayRating from './JournalDayRating.svelte';
 
   export let journal: JournalResponse;
 
@@ -49,6 +50,9 @@
       {/if}
     </div>
   </div>
+
+  <!-- Day Rating Card -->
+  <JournalDayRating dayRating={journal.dayRating} inferredDayRating={journal.inferredDayRating} readonly={true} />
 
   <!-- Summary Card -->
   {#if journal.summary}
