@@ -31,7 +31,7 @@
   $: journalMap = new Map(journals.map((journal) => [journal.date, journal]));
 
   // Get the activity level for a given date
-  function getActivityLevel(date: string): number {
+  function getActivityLevel(date: string, journalMap: Map<string, any>): number {
     const journal = journalMap.get(date);
     if (!journal) return 0;
 
@@ -63,7 +63,7 @@
   }
 
   // Get tooltip text for a date
-  function getTooltipText(date: string): string {
+  function getTooltipText(date: string, journalMap: Map<string, any>): string {
     const journal = journalMap.get(date);
     if (!journal) {
       return `${date}: No entry`;
@@ -144,10 +144,10 @@
           {#each Array(7) as _, dayIndex}
             {@const day = week.find((d) => d.dayOfWeek === dayIndex)}
             {#if day}
-              {@const level = getActivityLevel(day.date)}
+              {@const level = getActivityLevel(day.date, journalMap)}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <div class="activity-square {getActivityClass(level)}" title={getTooltipText(day.date)} on:click={() => handleDateClick(day.date)}></div>
+              <div class="activity-square {getActivityClass(level)}" title={getTooltipText(day.date, journalMap)} on:click={() => handleDateClick(day.date)}></div>
             {:else}
               <div class="activity-square bg-transparent"></div>
             {/if}
