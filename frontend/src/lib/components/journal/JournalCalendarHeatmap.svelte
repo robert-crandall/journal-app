@@ -74,18 +74,18 @@
   function getRatingColor(rating: number | null): string {
     if (!rating) return 'bg-base-200';
 
-    // Color scale from red (1) to green (5)
+    // Color progression from red (bad) to green (excellent)
     switch (rating) {
       case 1:
-        return 'bg-red-500';
+        return 'bg-error opacity-75'; // Red for poor days
       case 2:
-        return 'bg-orange-400';
+        return 'bg-warning opacity-75'; // Orange/yellow for below average
       case 3:
-        return 'bg-yellow-300';
+        return 'bg-info opacity-75'; // Blue for neutral/average
       case 4:
-        return 'bg-lime-400';
+        return 'bg-accent opacity-80'; // Purple/teal for good days
       case 5:
-        return 'bg-green-500';
+        return 'bg-success opacity-100'; // Green for excellent days
       default:
         return 'bg-base-200';
     }
@@ -99,8 +99,10 @@
     }
 
     const statusText = journal.status === 'complete' ? 'Complete' : journal.status === 'in_review' ? 'In Review' : 'Draft';
+    const rating = journal.dayRating || journal.inferredDayRating;
+    const ratingText = rating ? ` - Rating: ${rating}/5` : '';
 
-    return `${date}: ${journal.title || 'Journal Entry'} (${statusText})`;
+    return `${date}: ${journal.title || 'Journal Entry'} (${statusText})${ratingText}`;
   }
 
   // Handle clicking on a date
@@ -221,14 +223,16 @@
 
   <!-- Legend -->
   <div class="text-base-content/60 mt-4 flex items-center justify-between text-xs">
-    <span>Less</span>
+    <span>Poor (1)</span>
     <div class="flex items-center gap-1">
-      <div class="activity-square bg-base-300"></div>
-      <div class="activity-square bg-primary opacity-50"></div>
-      <div class="activity-square bg-warning opacity-75"></div>
-      <div class="activity-square bg-success opacity-100"></div>
+      <div class="activity-square bg-base-200" title="No entry"></div>
+      <div class="activity-square bg-error" title="Poor day (1)"></div>
+      <div class="activity-square bg-warning" title="Below average (2)"></div>
+      <div class="activity-square bg-info" title="Average (3)"></div>
+      <div class="activity-square bg-accent" title="Good day (4)"></div>
+      <div class="activity-square bg-success" title="Excellent day (5)"></div>
     </div>
-    <span>More</span>
+    <span>Excellent (5)</span>
   </div>
 </div>
 

@@ -178,15 +178,15 @@
     // Color scale from red (1) to green (5)
     switch (rating) {
       case 1:
-        return 'bg-red-500';
+        return 'bg-success opacity-20';
       case 2:
-        return 'bg-orange-400';
+        return 'bg-success opacity-40';
       case 3:
-        return 'bg-yellow-300';
+        return 'bg-success opacity-60';
       case 4:
-        return 'bg-lime-400';
+        return 'bg-success opacity-80';
       case 5:
-        return 'bg-green-500';
+        return 'bg-success opacity-100';
       default:
         return 'bg-base-200';
     }
