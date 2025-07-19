@@ -39,7 +39,7 @@ ${formatUserContextForPrompt(userContext)}
    - Personal growth areas
 
 3. **Style guidelines:**
-   - Write in third person about the user
+   - Write in first person from the user's perspective
    - Maintain a warm, observational tone
    - Connect themes across different entries
    - Be specific enough to trigger memories but concise
@@ -53,7 +53,7 @@ ${formatUserContextForPrompt(userContext)}
 }
 \`\`\`
 
-Focus on patterns and themes rather than day-by-day recaps. This summary should help provide rich context for future journal conversations.`;
+Focus on patterns and themes rather than day-by-day recaps. This summary should help provide rich context for future journal conversations. Markdown is supported.`;
 }
 
 /**
@@ -85,24 +85,9 @@ export async function generatePeriodSummary(
   journalEntries.forEach((journal, index) => {
     journalContent += `**${journal.date}**\n`;
     
-    if (journal.title) {
-      journalContent += `Title: ${journal.title}\n`;
-    }
-    
-    if (journal.synopsis) {
-      journalContent += `Synopsis: ${journal.synopsis}\n`;
-    }
-    
-    if (journal.summary) {
-      journalContent += `Summary: ${journal.summary}\n`;
-    } else if (journal.initialMessage) {
-      // If no summary, use initial message
+    // Since summary is AI generated, only use initialMessage for user's original voice
+    if (journal.initialMessage) {
       journalContent += `Content: ${journal.initialMessage}\n`;
-    }
-    
-    if (journal.dayRating || journal.inferredDayRating) {
-      const rating = journal.dayRating || journal.inferredDayRating;
-      journalContent += `Day Rating: ${rating}/5\n`;
     }
     
     journalContent += '\n---\n\n';
