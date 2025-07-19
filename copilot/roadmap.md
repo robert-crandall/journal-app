@@ -92,10 +92,13 @@
   - Can include summary, timeframe, and reflection
   - Dashboard includes: linked experiments, journal entries, XP stats
 
-- [ ] **Projects & Adventures**
+- [x] **Projects & Adventures**
   - Unified model with `type` field
   - Add subtasks, mark completed
   - Not shown on dashboard, but available in GPT task context
+
+- [ ] Plans should map to focus
+- [ ] Add edit button to experiments
 
 ---
 
