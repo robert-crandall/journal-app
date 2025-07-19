@@ -314,17 +314,23 @@
 
                   <!-- Reflection and Repeat Info for Completed Experiments -->
                   {#if experiment.reflection || experiment.shouldRepeat !== null}
-                    <div class="border-base-200 border-t pt-3 mb-4">
+                    <div class="border-base-200 mb-4 border-t pt-3">
                       {#if experiment.reflection}
                         <div class="mb-2">
-                          <p class="text-base-content/80 text-xs font-medium mb-1">Reflection:</p>
+                          <p class="text-base-content/80 mb-1 text-xs font-medium">Reflection:</p>
                           <p class="text-base-content/60 text-sm italic">"{experiment.reflection}"</p>
                         </div>
                       {/if}
                       {#if experiment.shouldRepeat !== null}
                         <div>
-                          <p class="text-base-content/80 text-xs font-medium mb-1">Would repeat:</p>
-                          <span class="badge badge-sm {experiment.shouldRepeat === true ? 'badge-success' : experiment.shouldRepeat === false ? 'badge-error' : 'badge-warning'}">
+                          <p class="text-base-content/80 mb-1 text-xs font-medium">Would repeat:</p>
+                          <span
+                            class="badge badge-sm {experiment.shouldRepeat === true
+                              ? 'badge-success'
+                              : experiment.shouldRepeat === false
+                                ? 'badge-error'
+                                : 'badge-warning'}"
+                          >
                             {experiment.shouldRepeat === true ? 'Yes' : experiment.shouldRepeat === false ? 'No' : 'Not sure'}
                           </span>
                         </div>

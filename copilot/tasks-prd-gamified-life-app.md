@@ -71,10 +71,10 @@
   - [ ] 9.4 Write frontend E2E tests for quests/experiments
   - [ ] 9.5 Ensure all quests/experiments tests pass
 
-- [ ] 10.0 Projects & Ad-Hoc Tasks
-  - [ ] 10.1 Design and implement projects and ad-hoc tasks (backend)
-  - [ ] 10.2 Write backend integration tests for projects/ad-hoc tasks
-  - [ ] 10.3 Implement frontend UI for projects/ad-hoc tasks
+- [x] 10.0 Projects & Ad-Hoc Tasks
+  - [x] 10.1 Design and implement projects and ad-hoc tasks (backend)
+  - [x] 10.2 Write backend integration tests for projects/ad-hoc tasks
+  - [x] 10.3 Implement frontend UI for projects/ad-hoc tasks
   - [ ] 10.4 Write frontend E2E tests for projects/ad-hoc tasks
   - [ ] 10.5 Ensure all projects/ad-hoc tasks tests pass
 
@@ -94,6 +94,14 @@
   - [ ] 13.2 Show progress, tasks, journal entries, XP, conclusions
   - [ ] 13.3 Write frontend E2E tests for quest/experiment dashboards
   - [ ] 13.4 Ensure all quest/experiment dashboard tests pass
+
+- [x] 14.0 Plans System (Multi-type Task Management)
+  - [x] 14.1 Design and implement plans system (projects, adventures, themes) (backend)
+  - [x] 14.2 Write backend integration tests for plans system
+  - [x] 14.3 Implement frontend UI for plans management
+  - [x] 14.4 Rename from "projects" to "plans" throughout frontend
+  - [x] 14.5 Add Plans menu item to navigation
+  - [x] 14.6 Ensure all plans functionality works correctly
 
 ---
 

@@ -301,15 +301,16 @@
             </div>
 
             <!-- Should Repeat -->
-            <div class="form-control">
-              <label class="label">
+            <fieldset class="form-control">
+              <legend class="label">
                 <span class="label-text font-medium">Would you repeat this experiment?</span>
-              </label>
+              </legend>
               <div class="flex gap-4">
                 <label class="label cursor-pointer gap-2">
                   <input
                     type="radio"
                     name="shouldRepeat"
+                    id="shouldRepeat-yes"
                     value="true"
                     checked={formData.shouldRepeat === true}
                     onchange={() => (formData.shouldRepeat = true)}
@@ -321,6 +322,7 @@
                   <input
                     type="radio"
                     name="shouldRepeat"
+                    id="shouldRepeat-no"
                     value="false"
                     checked={formData.shouldRepeat === false}
                     onchange={() => (formData.shouldRepeat = false)}
@@ -332,6 +334,7 @@
                   <input
                     type="radio"
                     name="shouldRepeat"
+                    id="shouldRepeat-unsure"
                     value="null"
                     checked={formData.shouldRepeat === null}
                     onchange={() => (formData.shouldRepeat = null)}
@@ -340,7 +343,7 @@
                   <span class="label-text">Not sure yet</span>
                 </label>
               </div>
-            </div>
+            </fieldset>
           </div>
         </div>
       </div>

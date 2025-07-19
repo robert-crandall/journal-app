@@ -50,6 +50,7 @@
         <a href="/journal" class="btn btn-ghost text-primary-content hover:bg-primary/80">Journal</a>
         <a href="/journals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Dashboard</a>
         <a href="/goals" class="btn btn-ghost text-primary-content hover:bg-primary/80">Goals</a>
+        <a href="/plans" class="btn btn-ghost text-primary-content hover:bg-primary/80">Plans</a>
         <a href="/quests" class="btn btn-ghost text-primary-content hover:bg-primary/80">Quests</a>
         <a href="/experiments" class="btn btn-ghost text-primary-content hover:bg-primary/80">Experiments</a>
         <a href="/stats" class="btn btn-ghost text-primary-content hover:bg-primary/80">Stats</a>
@@ -141,6 +142,22 @@
                   class="h-4 w-4"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg
                 >
                 Goals
+              </a>
+            </li>
+            <li>
+              <a href="/plans" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><path d="M9 5H2L5 3h4l3 2" /><path d="M7 3h5l5 2v8c0 1-1 2-2 2H9c-1 0-2-1-2-2Z" /></svg
+                >
+                Plans
               </a>
             </li>
             <li>

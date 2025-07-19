@@ -227,6 +227,7 @@
           on:mouseenter={() => showDayTooltip(day)}
           on:mouseleave={hideDayTooltip}
           role="button"
+          tabindex="0"
           aria-label="Day {day.dayOfMonth} {day.isCurrentMonth ? currentMonthName : ''}"
         >
           <button
