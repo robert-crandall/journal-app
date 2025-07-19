@@ -566,7 +566,7 @@
                                   <MoreVertical size={14} />
                                 </button>
                                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-                                <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-40 border p-2 shadow">
+                                <ul class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-40 border p-2 shadow">
                                   <li>
                                     <button onclick={() => startEditingSubtask(subtask)}>
                                       <Edit3 size={12} />

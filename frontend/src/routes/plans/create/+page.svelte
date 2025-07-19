@@ -74,7 +74,7 @@
       // Prepare the data
       const planData: CreatePlanRequest = {
         title: formData.title.trim(),
-        description: formData.description.trim() || undefined,
+        description: formData.description?.trim() || undefined,
         type: formData.type,
         isOrdered: formData.isOrdered,
         focusId: formData.focusId || undefined,
@@ -201,7 +201,7 @@
                 ></textarea>
                 <div class="label">
                   <span class="label-text-alt text-base-content/60">
-                    {formData.description.length}/1000 characters • Markdown supported
+                    {(formData.description ?? '').length}/1000 characters • Markdown supported
                   </span>
                 </div>
               </div>
