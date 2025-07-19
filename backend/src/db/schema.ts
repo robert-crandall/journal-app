@@ -16,6 +16,14 @@ export {
   getExperimentDashboardSchema,
 } from '../validation/experiments';
 export { createJournalSchema, updateJournalSchema, addChatMessageSchema, journalDateSchema, finishJournalSchema } from '../validation/journals';
+export {
+  createQuestSchema,
+  updateQuestSchema,
+  linkQuestExperimentSchema,
+  linkQuestJournalSchema,
+  questIdSchema,
+  questDashboardSchema,
+} from '../validation/quests';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -69,3 +77,18 @@ export type {
   ListJournalsResponse,
   JournalListItem,
 } from '../types/journals';
+export type {
+  Quest,
+  NewQuest,
+  QuestExperiment,
+  NewQuestExperiment,
+  QuestJournal,
+  NewQuestJournal,
+  CreateQuestRequest,
+  UpdateQuestRequest,
+  QuestResponse,
+  QuestWithExperimentsAndJournalsResponse,
+  QuestDashboardResponse,
+  LinkQuestExperimentRequest,
+  LinkQuestJournalRequest,
+} from '../types/quests';

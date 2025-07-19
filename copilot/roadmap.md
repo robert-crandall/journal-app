@@ -77,7 +77,7 @@
   - Grants XP to associated stat
   - Logged in a separate tab (not dashboard)
 
-- [ ] Create red -> green heatmap from journal entries
+- [x] Create red -> green heatmap from journal entries
 
 - [ ] **Dungeon Master GPT Task Generator**
   - Use character, goals, focus, family, weather, projects/adventures, past tasks
