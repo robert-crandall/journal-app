@@ -71,10 +71,10 @@
   - [ ] 9.4 Write frontend E2E tests for quests/experiments
   - [ ] 9.5 Ensure all quests/experiments tests pass
 
-- [ ] 10.0 Projects & Ad-Hoc Tasks
-  - [ ] 10.1 Design and implement projects and ad-hoc tasks (backend)
-  - [ ] 10.2 Write backend integration tests for projects/ad-hoc tasks
-  - [ ] 10.3 Implement frontend UI for projects/ad-hoc tasks
+- [x] 10.0 Projects & Ad-Hoc Tasks
+  - [x] 10.1 Design and implement projects and ad-hoc tasks (backend)
+  - [x] 10.2 Write backend integration tests for projects/ad-hoc tasks
+  - [x] 10.3 Implement frontend UI for projects/ad-hoc tasks
   - [ ] 10.4 Write frontend E2E tests for projects/ad-hoc tasks
   - [ ] 10.5 Ensure all projects/ad-hoc tasks tests pass
 
