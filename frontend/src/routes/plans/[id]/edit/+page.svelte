@@ -20,7 +20,7 @@
     description: '',
     type: 'project',
     isOrdered: true,
-    focusId: undefined
+    focusId: undefined,
   });
 
   // Form state
@@ -55,7 +55,7 @@
         description: planData.description || '',
         type: planData.type,
         isOrdered: planData.isOrdered,
-        focusId: planData.focusId || undefined
+        focusId: planData.focusId || undefined,
       };
     } catch (err) {
       console.error('Failed to load plan:', err);
@@ -71,40 +71,38 @@
 
   // Plan type options
   const planTypeOptions: { value: PlanType; label: string; icon: any; emoji: string; description: string }[] = [
-    { 
-      value: 'project', 
-      label: 'Project', 
-      icon: FolderKanban, 
+    {
+      value: 'project',
+      label: 'Project',
+      icon: FolderKanban,
       emoji: '🔧',
-      description: 'Structured work with ordered steps that build towards a goal'
+      description: 'Structured work with ordered steps that build towards a goal',
     },
-    { 
-      value: 'adventure', 
-      label: 'Adventure', 
-      icon: Compass, 
+    {
+      value: 'adventure',
+      label: 'Adventure',
+      icon: Compass,
       emoji: '🏔️',
-      description: 'Flexible goals with unordered objectives to explore and experience'
+      description: 'Flexible goals with unordered objectives to explore and experience',
     },
-    { 
-      value: 'theme', 
-      label: 'Theme', 
-      icon: Palette, 
+    {
+      value: 'theme',
+      label: 'Theme',
+      icon: Palette,
       emoji: '🎨',
-      description: 'Organized collections of related tasks around a central concept'
+      description: 'Organized collections of related tasks around a central concept',
     },
-    { 
-      value: 'other', 
-      label: 'Other', 
-      icon: FileText, 
+    {
+      value: 'other',
+      label: 'Other',
+      icon: FileText,
       emoji: '📄',
-      description: 'Everything else that needs organizing and tracking'
+      description: 'Everything else that needs organizing and tracking',
     },
   ];
 
   // Get current plan type details
-  let selectedTypeDetails = $derived(
-    planTypeOptions.find(option => option.value === formData.type) || planTypeOptions[0]
-  );
+  let selectedTypeDetails = $derived(planTypeOptions.find((option) => option.value === formData.type) || planTypeOptions[0]);
 
   // Validation
   let isValidTitle = $derived(formData.title && formData.title.trim().length >= 3);
@@ -125,13 +123,13 @@
         description: formData.description?.trim() || undefined,
         type: formData.type,
         isOrdered: formData.isOrdered,
-        focusId: formData.focusId || undefined
+        focusId: formData.focusId || undefined,
       };
 
       await plansApi.updatePlan(plan.id, updateData);
-      
+
       // Redirect back to plan details
-      goto(`/projects/${plan.id}`);
+      goto(`/plans/${plan.id}`);
     } catch (err) {
       console.error('Failed to update plan:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -146,9 +144,9 @@
 
   function goBack() {
     if (plan) {
-      goto(`/projects/${plan.id}`);
+      goto(`/plans/${plan.id}`);
     } else {
-      goto('/projects');
+      goto('/plans');
     }
   }
 
@@ -240,7 +238,7 @@
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body">
                 <h2 class="card-title text-lg">Basic Information</h2>
-                
+
                 <!-- Title -->
                 <div class="form-control">
                   <label class="label" for="title">
@@ -291,18 +289,17 @@
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body">
                 <h2 class="card-title text-lg">Plan Type</h2>
-                <p class="text-base-content/70 text-sm mb-4">Choose the type that best describes your plan</p>
-                
+                <p class="text-base-content/70 mb-4 text-sm">Choose the type that best describes your plan</p>
+
                 <div class="grid gap-3 sm:grid-cols-2">
                   {#each planTypeOptions as option (option.value)}
                     <label class="cursor-pointer">
-                      <input
-                        type="radio"
-                        bind:group={formData.type}
-                        value={option.value}
-                        class="sr-only"
-                      />
-                      <div class="card border-2 transition-all duration-200 {formData.type === option.value ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-400'}">
+                      <input type="radio" bind:group={formData.type} value={option.value} class="sr-only" />
+                      <div
+                        class="card border-2 transition-all duration-200 {formData.type === option.value
+                          ? 'border-primary bg-primary/10'
+                          : 'border-base-300 hover:border-base-400'}"
+                      >
                         <div class="card-body p-4">
                           <div class="flex items-center gap-3">
                             <div class="text-2xl">{option.emoji}</div>
@@ -326,7 +323,7 @@
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body">
                 <h2 class="card-title text-lg">Settings</h2>
-                
+
                 <!-- Task Ordering -->
                 <div class="form-control">
                   <label class="label cursor-pointer justify-start gap-3">
@@ -337,7 +334,7 @@
                       disabled={formData.type === 'project' || formData.type === 'adventure'}
                     />
                     <div class="flex-1">
-                      <span class="label-text font-medium flex items-center gap-2">
+                      <span class="label-text flex items-center gap-2 font-medium">
                         <Calendar size={16} />
                         Ordered Tasks
                       </span>
@@ -367,7 +364,7 @@
               <div class="card from-primary/10 to-secondary/10 border-primary/20 border bg-gradient-to-br">
                 <div class="card-body p-6">
                   <h3 class="text-primary mb-3 font-semibold">Selected Type</h3>
-                  <div class="flex items-center gap-3 mb-3">
+                  <div class="mb-3 flex items-center gap-3">
                     <div class="text-3xl">{selectedTypeDetails.emoji}</div>
                     <div>
                       <h4 class="font-semibold">{selectedTypeDetails.label}</h4>
@@ -393,11 +390,7 @@
               <div class="card bg-base-100 border-base-300 border shadow-xl">
                 <div class="card-body p-6">
                   <div class="space-y-3">
-                    <button
-                      type="submit"
-                      disabled={!canSubmit}
-                      class="btn btn-primary w-full gap-2 {isSubmitting ? 'loading' : ''}"
-                    >
+                    <button type="submit" disabled={!canSubmit} class="btn btn-primary w-full gap-2 {isSubmitting ? 'loading' : ''}">
                       {#if isSubmitting}
                         <span class="loading loading-spinner loading-sm"></span>
                         Saving...
@@ -406,12 +399,7 @@
                         Save Changes
                       {/if}
                     </button>
-                    <button
-                      type="button"
-                      onclick={goBack}
-                      class="btn btn-ghost w-full gap-2"
-                      disabled={isSubmitting}
-                    >
+                    <button type="button" onclick={goBack} class="btn btn-ghost w-full gap-2" disabled={isSubmitting}>
                       <ArrowLeft size={16} />
                       Cancel
                     </button>
@@ -423,9 +411,7 @@
               <div class="alert alert-info">
                 <div>
                   <div class="font-medium">💡 Type Change Impact</div>
-                  <div class="text-sm mt-1">
-                    Changing the plan type will update task ordering behavior but won't affect existing subtasks.
-                  </div>
+                  <div class="mt-1 text-sm">Changing the plan type will update task ordering behavior but won't affect existing subtasks.</div>
                 </div>
               </div>
             </div>

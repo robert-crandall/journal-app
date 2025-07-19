@@ -42,16 +42,17 @@
   }
 
   // Filter plans based on type
-  let filteredPlans = $derived(
-    userPlans.filter((plan) => selectedType === 'all' || plan.type === selectedType)
-  );
+  let filteredPlans = $derived(userPlans.filter((plan) => selectedType === 'all' || plan.type === selectedType));
 
   // Group plans by type for stats
   let planStats = $derived(() => {
-    return userPlans.reduce((acc, plan) => {
-      acc[plan.type] = (acc[plan.type] || 0) + 1;
-      return acc;
-    }, {} as Record<PlanType, number>);
+    return userPlans.reduce(
+      (acc, plan) => {
+        acc[plan.type] = (acc[plan.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<PlanType, number>,
+    );
   });
 
   // Helper functions
@@ -117,15 +118,15 @@
 
   // Navigation functions
   function createPlan() {
-    goto('/projects/create');
+    goto('/plans/create');
   }
 
   function editPlan(planId: string) {
-    goto(`/projects/${planId}/edit`);
+    goto(`/plans/${planId}/edit`);
   }
 
   function viewPlanDetails(planId: string) {
-    goto(`/projects/${planId}`);
+    goto(`/plans/${planId}`);
   }
 
   // Plan actions
@@ -155,7 +156,7 @@
 
 <svelte:head>
   <title>Plans - Gamified Life</title>
-  <meta name="description" content="Organize your projects, adventures, and themes with structured task management" />
+  <meta name="description" content="Organize your plans, adventures, and themes with structured task management" />
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
@@ -170,7 +171,7 @@
         </div>
         <div>
           <h1 class="text-primary text-3xl font-bold">Plans</h1>
-          <p class="text-base-content/70">Organize projects, adventures, and themes with structured task management</p>
+          <p class="text-base-content/70">Organize plans, adventures, and themes with structured task management</p>
         </div>
       </div>
     </div>
@@ -204,10 +205,7 @@
           <!-- Filter Tabs -->
           <div class="tabs tabs-boxed bg-base-100 p-1">
             {#each typeOptions as option (option.value)}
-              <button
-                class="tab {selectedType === option.value ? 'tab-active' : ''}"
-                onclick={() => (selectedType = option.value)}
-              >
+              <button class="tab {selectedType === option.value ? 'tab-active' : ''}" onclick={() => (selectedType = option.value)}>
                 <span class="mr-2">{option.emoji}</span>
                 {option.label}
                 {#if option.value !== 'all' && planStats()[option.value as PlanType]}
@@ -222,7 +220,7 @@
             <section>
               <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">
                 {selectedType === 'all' ? 'All Plans' : `${getPlanTypeLabel(selectedType as PlanType)}s`}
-                <span class="text-base font-normal text-base-content/60">({filteredPlans.length})</span>
+                <span class="text-base-content/60 text-base font-normal">({filteredPlans.length})</span>
               </h2>
               <div class="grid gap-6 md:grid-cols-2">
                 {#each filteredPlans as plan (plan.id)}
@@ -262,9 +260,7 @@
                           </div>
                         {/if}
                         {#if plan.focusId}
-                          <div class="badge badge-outline badge-sm gap-1">
-                            📎 Linked to Focus
-                          </div>
+                          <div class="badge badge-outline badge-sm gap-1">📎 Linked to Focus</div>
                         {/if}
                       </div>
 
@@ -283,7 +279,7 @@
                             <MoreVertical size={14} />
                           </button>
                           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-                          <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 z-10 w-52 rounded-box border p-2 shadow">
+                          <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
                             <li>
                               <button class="text-error hover:bg-error hover:text-error-content" onclick={() => deletePlan(plan)}>
                                 <Trash2 size={14} />
@@ -317,8 +313,8 @@
                     {selectedType === 'all' ? 'No Plans Yet' : `No ${getPlanTypeLabel(selectedType as PlanType)}s`}
                   </h3>
                   <p class="text-base-content/60 mb-6">
-                    {selectedType === 'all' 
-                      ? "Start organizing your work with structured plans and subtasks."
+                    {selectedType === 'all'
+                      ? 'Start organizing your work with structured plans and subtasks.'
                       : `Create your first ${getPlanTypeLabel(selectedType as PlanType).toLowerCase()} to get started.`}
                   </p>
                   <button onclick={createPlan} class="btn btn-primary btn-lg gap-2">

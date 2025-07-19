@@ -4,7 +4,23 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { plansApi, type PlanResponse, type PlanSubtaskResponse, type CreatePlanSubtaskRequest, type UpdatePlanSubtaskRequest } from '$lib/api/plans';
-  import { ArrowLeft, Plus, Edit3, Trash2, MoreVertical, Check, Circle, Calendar, Link, FolderKanban, Compass, Palette, FileText, ArrowUp, ArrowDown } from 'lucide-svelte';
+  import {
+    ArrowLeft,
+    Plus,
+    Edit3,
+    Trash2,
+    MoreVertical,
+    Check,
+    Circle,
+    Calendar,
+    Link,
+    FolderKanban,
+    Compass,
+    Palette,
+    FileText,
+    ArrowUp,
+    ArrowDown,
+  } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
   import { formatDateTime } from '$lib/utils/date';
@@ -138,18 +154,18 @@
   }
 
   // Progress calculation
-  let completedCount = $derived(subtasks.filter(t => t.isCompleted).length);
+  let completedCount = $derived(subtasks.filter((t) => t.isCompleted).length);
   let totalCount = $derived(subtasks.length);
   let progressPercentage = $derived(totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0);
 
   // Navigation functions
   function goBack() {
-    goto('/projects');
+    goto('/plans');
   }
 
   function editPlan() {
     if (!plan) return;
-    goto(`/projects/${plan.id}/edit`);
+    goto(`/plans/${plan.id}/edit`);
   }
 
   // Subtask actions
@@ -161,11 +177,11 @@
 
       const subtaskData: CreatePlanSubtaskRequest = {
         title: newSubtaskTitle.trim(),
-        description: newSubtaskDescription.trim() || undefined
+        description: newSubtaskDescription.trim() || undefined,
       };
 
       await plansApi.createSubtask(plan.id, subtaskData);
-      
+
       // Reset form and reload data
       newSubtaskTitle = '';
       newSubtaskDescription = '';
@@ -209,7 +225,7 @@
 
       const updateData: UpdatePlanSubtaskRequest = {
         title: editTitle.trim(),
-        description: editDescription.trim() || undefined
+        description: editDescription.trim() || undefined,
       };
 
       await plansApi.updateSubtask(plan.id, subtaskId, updateData);
@@ -241,13 +257,13 @@
     if (!plan?.isOrdered) return;
 
     // Find the current index of the subtask
-    const currentIndex = subtasks.findIndex(s => s.id === subtask.id);
+    const currentIndex = subtasks.findIndex((s) => s.id === subtask.id);
     if (currentIndex <= 0) return; // Already at the top
 
     // Create new order by swapping with the previous item
     const newOrder = [...subtasks];
     [newOrder[currentIndex - 1], newOrder[currentIndex]] = [newOrder[currentIndex], newOrder[currentIndex - 1]];
-    const subtaskIds = newOrder.map(s => s.id);
+    const subtaskIds = newOrder.map((s) => s.id);
 
     try {
       await plansApi.reorderSubtasks(plan.id, subtaskIds);
@@ -262,13 +278,13 @@
     if (!plan?.isOrdered) return;
 
     // Find the current index of the subtask
-    const currentIndex = subtasks.findIndex(s => s.id === subtask.id);
+    const currentIndex = subtasks.findIndex((s) => s.id === subtask.id);
     if (currentIndex >= subtasks.length - 1) return; // Already at the bottom
 
     // Create new order by swapping with the next item
     const newOrder = [...subtasks];
     [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
-    const subtaskIds = newOrder.map(s => s.id);
+    const subtaskIds = newOrder.map((s) => s.id);
 
     try {
       await plansApi.reorderSubtasks(plan.id, subtaskIds);
@@ -281,14 +297,14 @@
 
   async function deletePlan() {
     if (!plan) return;
-    
+
     if (!confirm(`Are you sure you want to delete "${plan.title}"? This will also delete all subtasks and cannot be undone.`)) {
       return;
     }
 
     try {
       await plansApi.deletePlan(plan.id);
-      goto('/projects');
+      goto('/plans');
     } catch (err) {
       console.error('Failed to delete plan:', err);
       error = err instanceof Error ? err.message : 'Failed to delete plan';
@@ -347,7 +363,7 @@
             <div class="flex items-center gap-3">
               <div class="text-3xl">{getPlanEmoji(plan.type)}</div>
               <div>
-                <div class="flex items-center gap-3 mb-1">
+                <div class="mb-1 flex items-center gap-3">
                   <h1 class="text-primary text-2xl font-bold">{plan.title}</h1>
                   <div class="badge {getPlanTypeColor(plan.type)}">
                     {getPlanTypeLabel(plan.type)}
@@ -369,7 +385,7 @@
               <MoreVertical size={20} />
             </button>
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 z-10 w-52 rounded-box border p-2 shadow">
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
               <li>
                 <button onclick={editPlan}>
                   <Edit3 size={16} />
@@ -407,15 +423,12 @@
           <!-- Subtasks Section -->
           <div class="card bg-base-100 border-base-300 border shadow-xl">
             <div class="card-body">
-              <div class="flex items-center justify-between mb-6">
+              <div class="mb-6 flex items-center justify-between">
                 <h2 class="card-title text-lg">
                   Subtasks
-                  <span class="text-base font-normal text-base-content/60">({completedCount}/{totalCount})</span>
+                  <span class="text-base-content/60 text-base font-normal">({completedCount}/{totalCount})</span>
                 </h2>
-                <button
-                  onclick={() => (showCreateSubtask = true)}
-                  class="btn btn-primary btn-sm gap-2"
-                >
+                <button onclick={() => (showCreateSubtask = true)} class="btn btn-primary btn-sm gap-2">
                   <Plus size={16} />
                   Add Subtask
                 </button>
@@ -424,7 +437,7 @@
               <!-- Progress Bar -->
               {#if totalCount > 0}
                 <div class="mb-6">
-                  <div class="flex items-center justify-between mb-2">
+                  <div class="mb-2 flex items-center justify-between">
                     <span class="text-sm font-medium">Progress</span>
                     <span class="text-sm">{progressPercentage}%</span>
                   </div>
@@ -434,17 +447,11 @@
 
               <!-- Create Subtask Form -->
               {#if showCreateSubtask}
-                <div class="card bg-base-200 border-base-300 border mb-6">
+                <div class="card bg-base-200 border-base-300 mb-6 border">
                   <div class="card-body p-4">
-                    <h3 class="font-semibold mb-3">Create New Subtask</h3>
+                    <h3 class="mb-3 font-semibold">Create New Subtask</h3>
                     <div class="space-y-3">
-                      <input
-                        type="text"
-                        bind:value={newSubtaskTitle}
-                        class="input input-bordered w-full"
-                        placeholder="Subtask title..."
-                        maxlength="200"
-                      />
+                      <input type="text" bind:value={newSubtaskTitle} class="input input-bordered w-full" placeholder="Subtask title..." maxlength="200" />
                       <textarea
                         bind:value={newSubtaskDescription}
                         class="textarea textarea-bordered w-full"
@@ -466,13 +473,7 @@
                             Create
                           {/if}
                         </button>
-                        <button
-                          onclick={cancelCreateSubtask}
-                          class="btn btn-ghost btn-sm"
-                          disabled={isCreatingSubtask}
-                        >
-                          Cancel
-                        </button>
+                        <button onclick={cancelCreateSubtask} class="btn btn-ghost btn-sm" disabled={isCreatingSubtask}> Cancel </button>
                       </div>
                     </div>
                   </div>
@@ -483,18 +484,14 @@
               {#if subtasks.length > 0}
                 <div class="space-y-3">
                   {#each subtasks as subtask, index (subtask.id)}
-                    <div class="card border-2 transition-all duration-200 {subtask.isCompleted ? 'border-success/30 bg-success/5' : 'border-base-300 bg-base-100'}">
+                    <div
+                      class="card border-2 transition-all duration-200 {subtask.isCompleted ? 'border-success/30 bg-success/5' : 'border-base-300 bg-base-100'}"
+                    >
                       <div class="card-body p-4">
                         {#if editingSubtask === subtask.id}
                           <!-- Edit Mode -->
                           <div class="space-y-3">
-                            <input
-                              type="text"
-                              bind:value={editTitle}
-                              class="input input-bordered w-full"
-                              placeholder="Subtask title..."
-                              maxlength="200"
-                            />
+                            <input type="text" bind:value={editTitle} class="input input-bordered w-full" placeholder="Subtask title..." maxlength="200" />
                             <textarea
                               bind:value={editDescription}
                               class="textarea textarea-bordered w-full"
@@ -516,23 +513,14 @@
                                   Save
                                 {/if}
                               </button>
-                              <button
-                                onclick={cancelEditingSubtask}
-                                class="btn btn-ghost btn-sm"
-                                disabled={isUpdatingSubtask}
-                              >
-                                Cancel
-                              </button>
+                              <button onclick={cancelEditingSubtask} class="btn btn-ghost btn-sm" disabled={isUpdatingSubtask}> Cancel </button>
                             </div>
                           </div>
                         {:else}
                           <!-- View Mode -->
                           <div class="flex items-start gap-3">
                             <!-- Completion Toggle -->
-                            <button
-                              onclick={() => toggleSubtaskCompletion(subtask)}
-                              class="btn btn-ghost btn-sm btn-circle p-0 mt-1"
-                            >
+                            <button onclick={() => toggleSubtaskCompletion(subtask)} class="btn btn-ghost btn-sm btn-circle mt-1 p-0">
                               {#if subtask.isCompleted}
                                 <Check size={20} class="text-success" />
                               {:else}
@@ -542,16 +530,16 @@
 
                             <!-- Content -->
                             <div class="flex-1">
-                              <h4 class="font-medium {subtask.isCompleted ? 'line-through text-base-content/60' : ''}">
+                              <h4 class="font-medium {subtask.isCompleted ? 'text-base-content/60 line-through' : ''}">
                                 {subtask.title}
                               </h4>
                               {#if subtask.description}
-                                <p class="text-base-content/70 text-sm mt-1 {subtask.isCompleted ? 'line-through' : ''}">
+                                <p class="text-base-content/70 mt-1 text-sm {subtask.isCompleted ? 'line-through' : ''}">
                                   {subtask.description}
                                 </p>
                               {/if}
                               {#if subtask.completedAt}
-                                <p class="text-success text-xs mt-1">
+                                <p class="text-success mt-1 text-xs">
                                   Completed {formatDateTime(subtask.completedAt, 'date-only')}
                                 </p>
                               {/if}
@@ -560,12 +548,7 @@
                             <!-- Action Buttons -->
                             <div class="flex items-center gap-1">
                               {#if plan.isOrdered}
-                                <button
-                                  onclick={() => moveSubtaskUp(subtask)}
-                                  disabled={index === 0}
-                                  class="btn btn-ghost btn-xs btn-circle"
-                                  title="Move up"
-                                >
+                                <button onclick={() => moveSubtaskUp(subtask)} disabled={index === 0} class="btn btn-ghost btn-xs btn-circle" title="Move up">
                                   <ArrowUp size={14} />
                                 </button>
                                 <button
@@ -577,13 +560,13 @@
                                   <ArrowDown size={14} />
                                 </button>
                               {/if}
-                              
+
                               <div class="dropdown dropdown-end">
                                 <button tabindex="0" class="btn btn-ghost btn-xs btn-circle">
                                   <MoreVertical size={14} />
                                 </button>
                                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-                                <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 z-10 w-40 rounded-box border p-2 shadow">
+                                <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-40 border p-2 shadow">
                                   <li>
                                     <button onclick={() => startEditingSubtask(subtask)}>
                                       <Edit3 size={12} />
@@ -615,10 +598,7 @@
                   </div>
                   <h3 class="mb-2 text-lg font-semibold">No Subtasks Yet</h3>
                   <p class="text-base-content/60 mb-4">Break down your plan into manageable subtasks.</p>
-                  <button
-                    onclick={() => (showCreateSubtask = true)}
-                    class="btn btn-primary gap-2"
-                  >
+                  <button onclick={() => (showCreateSubtask = true)} class="btn btn-primary gap-2">
                     <Plus size={16} />
                     Add First Subtask
                   </button>
@@ -654,7 +634,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Completed:</span>
-                    <span class="font-medium text-success">{completedCount}</span>
+                    <span class="text-success font-medium">{completedCount}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-sm">Remaining:</span>
@@ -698,10 +678,7 @@
                     <Edit3 size={16} />
                     Edit Plan
                   </button>
-                  <button
-                    onclick={() => (showCreateSubtask = true)}
-                    class="btn btn-ghost w-full gap-2"
-                  >
+                  <button onclick={() => (showCreateSubtask = true)} class="btn btn-ghost w-full gap-2">
                     <Plus size={16} />
                     Add Subtask
                   </button>
