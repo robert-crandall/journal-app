@@ -34,8 +34,11 @@
     } else {
       // Default to current week
       const boundaries = journalSummariesUtils.getCurrentWeekBoundaries();
-      formData.startDate = boundaries.startDate;
-      formData.endDate = boundaries.endDate;
+      formData = {
+        ...formData,
+        startDate: boundaries.startDate,
+        endDate: boundaries.endDate
+      };
     }
   });
 
@@ -63,12 +66,18 @@
     const now = new Date();
     if (formData.period === 'week') {
       const boundaries = journalSummariesUtils.getWeekBoundaries(now);
-      formData.startDate = boundaries.startDate;
-      formData.endDate = boundaries.endDate;
+      formData = {
+        ...formData,
+        startDate: boundaries.startDate,
+        endDate: boundaries.endDate
+      };
     } else {
       const boundaries = journalSummariesUtils.getMonthBoundaries(now);
-      formData.startDate = boundaries.startDate;
-      formData.endDate = boundaries.endDate;
+      formData = {
+        ...formData,
+        startDate: boundaries.startDate,
+        endDate: boundaries.endDate
+      };
     }
   }
 
@@ -84,19 +93,23 @@
       previousDate = new Date(startDate);
       previousDate.setDate(startDate.getDate() - 7);
       const boundaries = journalSummariesUtils.getWeekBoundaries(previousDate);
-      formData.startDate = boundaries.startDate;
-      formData.endDate = boundaries.endDate;
+      formData = {
+        ...formData,
+        startDate: boundaries.startDate,
+        endDate: boundaries.endDate
+      };
     } else {
       previousDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
       const boundaries = journalSummariesUtils.getMonthBoundaries(previousDate);
-      formData.startDate = boundaries.startDate;
-      formData.endDate = boundaries.endDate;
+      formData = {
+        ...formData,
+        startDate: boundaries.startDate,
+        endDate: boundaries.endDate
+      };
     }
   }
 
-  function isValid(): boolean {
-    return Boolean(formData.startDate && formData.endDate && formData.period) && !generating;
-  }
+  $: isFormValid = Boolean(formData.startDate && formData.endDate && formData.period) && !generating;
 
   $: periodLabel = formData.period === 'week' ? 'Weekly' : 'Monthly';
   $: dateRangeLabel = formData.startDate && formData.endDate 
@@ -245,7 +258,7 @@
           <div class="flex flex-col gap-3 sm:flex-row-reverse">
             <button 
               type="submit" 
-              disabled={!isValid()} 
+              disabled={!isFormValid} 
               class="btn btn-primary gap-2 flex-1 sm:flex-none"
             >
               {#if generating}
