@@ -72,7 +72,7 @@ describe('Environment Configuration Integration', () => {
       // Test database connectivity by trying to create a user
       const userData = {
         name: 'DB Test User',
-        email: 'dbtest@example.com',
+        email: `dbtest-${Date.now()}@example.com`,
         password: 'password123',
       };
 
