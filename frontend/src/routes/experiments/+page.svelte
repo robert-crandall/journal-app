@@ -285,7 +285,12 @@
                 <div class="card-body">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
-                      <h3 class="card-title text-base-content">{experiment.title}</h3>
+                      <div class="flex items-center gap-2">
+                        <h3 class="card-title text-base-content">{experiment.title}</h3>
+                        {#if experiment.reflection}
+                          <span class="badge badge-info badge-sm">Reviewed</span>
+                        {/if}
+                      </div>
                       {#if experiment.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
@@ -306,6 +311,26 @@
                       {getDuration(experiment.startDate, experiment.endDate)} days
                     </div>
                   </div>
+
+                  <!-- Reflection and Repeat Info for Completed Experiments -->
+                  {#if experiment.reflection || experiment.shouldRepeat !== null}
+                    <div class="border-base-200 border-t pt-3 mb-4">
+                      {#if experiment.reflection}
+                        <div class="mb-2">
+                          <p class="text-base-content/80 text-xs font-medium mb-1">Reflection:</p>
+                          <p class="text-base-content/60 text-sm italic">"{experiment.reflection}"</p>
+                        </div>
+                      {/if}
+                      {#if experiment.shouldRepeat !== null}
+                        <div>
+                          <p class="text-base-content/80 text-xs font-medium mb-1">Would repeat:</p>
+                          <span class="badge badge-sm {experiment.shouldRepeat === true ? 'badge-success' : experiment.shouldRepeat === false ? 'badge-error' : 'badge-warning'}">
+                            {experiment.shouldRepeat === true ? 'Yes' : experiment.shouldRepeat === false ? 'No' : 'Not sure'}
+                          </span>
+                        </div>
+                      {/if}
+                    </div>
+                  {/if}
 
                   <div class="card-actions justify-end">
                     <a href="/experiments/{experiment.id}" class="btn btn-primary btn-sm gap-1">
