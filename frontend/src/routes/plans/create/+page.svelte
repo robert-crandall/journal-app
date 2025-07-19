@@ -294,11 +294,7 @@
                       Link to Focus (Optional)
                     </span>
                   </label>
-                  <select
-                    id="focusId"
-                    bind:value={formData.focusId}
-                    class="select select-bordered w-full"
-                  >
+                  <select id="focusId" bind:value={formData.focusId} class="select select-bordered w-full">
                     <option value="">No focus link</option>
                     {#each allFocuses as focus (focus.id)}
                       <option value={focus.id}>
@@ -307,9 +303,7 @@
                     {/each}
                   </select>
                   <div class="label">
-                    <span class="label-text-alt text-base-content/60">
-                      Link this plan to a daily focus theme
-                    </span>
+                    <span class="label-text-alt text-base-content/60"> Link this plan to a daily focus theme </span>
                   </div>
                 </div>
               {:else if focusesLoading}
@@ -364,7 +358,7 @@
                     <span>Task Order: {formData.isOrdered ? 'Sequential' : 'Flexible'}</span>
                   </div>
                   {#if formData.focusId}
-                    {@const selectedFocus = allFocuses.find(f => f.id === formData.focusId)}
+                    {@const selectedFocus = allFocuses.find((f) => f.id === formData.focusId)}
                     {#if selectedFocus}
                       <div class="flex items-center gap-2">
                         <Target size={14} class="text-primary" />

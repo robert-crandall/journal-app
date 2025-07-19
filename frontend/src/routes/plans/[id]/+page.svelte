@@ -666,12 +666,12 @@
                         <Target size={14} class="text-primary" />
                         <span class="text-sm font-medium">Linked Focus</span>
                       </div>
-                      <div class="rounded-lg bg-base-200 p-3">
-                        <div class="flex items-center gap-2 mb-1">
-                          <h4 class="font-medium text-sm">{linkedFocus.title}</h4>
+                      <div class="bg-base-200 rounded-lg p-3">
+                        <div class="mb-1 flex items-center gap-2">
+                          <h4 class="text-sm font-medium">{linkedFocus.title}</h4>
                           <span class="badge badge-primary badge-xs">{getDayName(linkedFocus.dayOfWeek, 'short')}</span>
                         </div>
-                        <p class="text-xs text-base-content/70">{linkedFocus.description}</p>
+                        <p class="text-base-content/70 text-xs">{linkedFocus.description}</p>
                       </div>
                     </div>
                   {/if}

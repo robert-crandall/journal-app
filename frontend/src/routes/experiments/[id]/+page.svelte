@@ -4,7 +4,25 @@
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
   import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
-  import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X, MessageSquare, RotateCcw } from 'lucide-svelte';
+  import {
+    ArrowLeft,
+    Calendar,
+    BarChart,
+    Target,
+    Award,
+    TrendingUp,
+    CheckCircle2,
+    Clock,
+    Book,
+    Star,
+    Plus,
+    X,
+    MessageSquare,
+    RotateCcw,
+    MoreVertical,
+    Edit3,
+    Trash2,
+  } from 'lucide-svelte';
   import { formatDate } from '$lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
@@ -136,6 +154,11 @@
     const totalPossible = dashboard.stats.totalDays;
     return totalPossible > 0 ? Math.round((task.completionCount / totalPossible) * 100) : 0;
   }
+
+  function editExperiment() {
+    if (!experimentId) return;
+    goto(`/experiments/${experimentId}/edit`);
+  }
 </script>
 
 <svelte:head>
@@ -210,9 +233,24 @@
             </div>
 
             <!-- Progress Circle -->
-            <div class="flex-shrink-0">
+            <div class="flex flex-shrink-0 items-start gap-4">
               <div class="radial-progress text-primary" style="--value:{dashboard.stats.completionPercentage};" role="progressbar">
                 {dashboard.stats.completionPercentage}%
+              </div>
+
+              <!-- Actions Dropdown -->
+              <div class="dropdown dropdown-end">
+                <button tabindex="0" class="btn btn-ghost btn-circle">
+                  <MoreVertical class="h-5 w-5" />
+                </button>
+                <ul class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
+                  <li>
+                    <button onclick={editExperiment}>
+                      <Edit3 class="h-4 w-4" />
+                      Edit Experiment
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
