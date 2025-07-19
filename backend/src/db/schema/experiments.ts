@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, integer, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, integer, date, boolean } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { characterStats } from './stats';
 
@@ -12,6 +12,8 @@ export const experiments = pgTable('experiments', {
   description: text('description'),
   startDate: date('start_date').notNull(),
   endDate: date('end_date').notNull(),
+  reflection: text('reflection'), // User's reflection on how the experiment went
+  shouldRepeat: boolean('should_repeat'), // Whether the user would repeat this experiment
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

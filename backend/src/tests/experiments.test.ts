@@ -272,6 +272,32 @@ describe('Experiments API Integration Tests', () => {
       experimentId = data.data.id;
     });
 
+    it('should update experiment with reflection fields', async () => {
+      const updateData = {
+        title: 'Updated Title',
+        description: 'Updated description',
+        reflection: 'This experiment went really well. I felt more focused and productive.',
+        shouldRepeat: true,
+      };
+
+      const res = await app.request(`/api/experiments/${experimentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.data.title).toBe(updateData.title);
+      expect(data.data.description).toBe(updateData.description);
+      expect(data.data.reflection).toBe(updateData.reflection);
+      expect(data.data.shouldRepeat).toBe(updateData.shouldRepeat);
+    });
+
     it('should update experiment', async () => {
       const updateData = {
         title: 'Updated Title',
@@ -292,6 +318,65 @@ describe('Experiments API Integration Tests', () => {
       expect(data.success).toBe(true);
       expect(data.data.title).toBe(updateData.title);
       expect(data.data.description).toBe(updateData.description);
+    });
+
+    it('should update only reflection fields', async () => {
+      const updateData = {
+        reflection: 'Great experiment, learned a lot about consistency',
+        shouldRepeat: false,
+      };
+
+      const res = await app.request(`/api/experiments/${experimentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.data.reflection).toBe(updateData.reflection);
+      expect(data.data.shouldRepeat).toBe(updateData.shouldRepeat);
+      expect(data.data.title).toBe('Original Title'); // Should remain unchanged
+    });
+
+    it('should clear reflection fields when set to null/undefined', async () => {
+      // First add reflection
+      await app.request(`/api/experiments/${experimentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          reflection: 'Initial reflection',
+          shouldRepeat: true,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      // Then clear the reflection
+      const updateData = {
+        reflection: '',
+        shouldRepeat: false,
+      };
+
+      const res = await app.request(`/api/experiments/${experimentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.data.reflection).toBeNull();
+      expect(data.data.shouldRepeat).toBe(false);
     });
   });
 

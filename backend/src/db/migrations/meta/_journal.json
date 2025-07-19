@@ -169,6 +169,13 @@
       "when": 1752851142005,
       "tag": "0023_omniscient_the_captain",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1752934769311,
+      "tag": "0024_tiresome_xorn",
+      "breakpoints": true
     }
   ]
 }

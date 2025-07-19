@@ -27,6 +27,8 @@
     description: '',
     startDate: '',
     endDate: '',
+    reflection: '',
+    shouldRepeat: null,
   });
 
   // New task form
@@ -66,6 +68,8 @@
         description: experiment.description || '',
         startDate: experiment.startDate,
         endDate: experiment.endDate,
+        reflection: experiment.reflection || '',
+        shouldRepeat: experiment.shouldRepeat ?? null,
       };
     } catch (err) {
       console.error('Failed to load experiment:', err);
@@ -274,6 +278,69 @@
                 </span>
               </div>
             {/if}
+          </div>
+
+          <!-- Reflection Section -->
+          <div class="space-y-6">
+            <div class="divider">
+              <span class="text-base-content/60 text-sm font-medium">Experiment Reflection</span>
+            </div>
+
+            <!-- Reflection -->
+            <div class="form-control">
+              <label for="reflection" class="label">
+                <span class="label-text font-medium">How did it go?</span>
+                <span class="label-text-alt text-xs opacity-60">Optional reflection</span>
+              </label>
+              <textarea
+                id="reflection"
+                bind:value={formData.reflection}
+                placeholder="Reflect on your experiment experience... What worked well? What was challenging? What did you learn?"
+                class="textarea textarea-bordered textarea-lg focus:textarea-primary h-40 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
+              ></textarea>
+            </div>
+
+            <!-- Should Repeat -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Would you repeat this experiment?</span>
+              </label>
+              <div class="flex gap-4">
+                <label class="label cursor-pointer gap-2">
+                  <input
+                    type="radio"
+                    name="shouldRepeat"
+                    value="true"
+                    checked={formData.shouldRepeat === true}
+                    onchange={() => (formData.shouldRepeat = true)}
+                    class="radio radio-primary"
+                  />
+                  <span class="label-text">Yes, I'd repeat this</span>
+                </label>
+                <label class="label cursor-pointer gap-2">
+                  <input
+                    type="radio"
+                    name="shouldRepeat"
+                    value="false"
+                    checked={formData.shouldRepeat === false}
+                    onchange={() => (formData.shouldRepeat = false)}
+                    class="radio radio-primary"
+                  />
+                  <span class="label-text">No, I wouldn't repeat this</span>
+                </label>
+                <label class="label cursor-pointer gap-2">
+                  <input
+                    type="radio"
+                    name="shouldRepeat"
+                    value="null"
+                    checked={formData.shouldRepeat === null}
+                    onchange={() => (formData.shouldRepeat = null)}
+                    class="radio radio-primary"
+                  />
+                  <span class="label-text">Not sure yet</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -87,7 +87,7 @@
 
 ### 📚 Phase 4: Quests, Projects, & Adventure Tracking (Weeks 7–8)
 
-- [ ] **Quests**
+- [x] **Quests**
   - Long-term goal container
   - Can include summary, timeframe, and reflection
   - Dashboard includes: linked experiments, journal entries, XP stats

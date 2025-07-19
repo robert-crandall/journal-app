@@ -27,7 +27,10 @@ export type CreateExperimentRequest = {
   }>;
 };
 
-export type UpdateExperimentRequest = Partial<Omit<CreateExperimentRequest, 'tasks'>>;
+export type UpdateExperimentRequest = Partial<Omit<CreateExperimentRequest, 'tasks'>> & {
+  reflection?: string;
+  shouldRepeat?: boolean | null;
+};
 
 export type CreateExperimentTaskRequest = {
   description: string;
