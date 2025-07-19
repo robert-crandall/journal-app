@@ -10,6 +10,7 @@ export * from './todos';
 export * from './experiments';
 export * from './journals';
 export * from './quests';
+export * from './plans';
 // Future exports:
 // export * from './posts';
 // export * from './comments';
