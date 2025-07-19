@@ -384,8 +384,7 @@
             <button tabindex="0" class="btn btn-ghost btn-circle">
               <MoreVertical size={20} />
             </button>
-            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
+            <ul class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
               <li>
                 <button onclick={editPlan}>
                   <Edit3 size={16} />
@@ -565,7 +564,7 @@
                                 <button tabindex="0" class="btn btn-ghost btn-xs btn-circle">
                                   <MoreVertical size={14} />
                                 </button>
-                                <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+                                <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
                                 <ul class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-40 border p-2 shadow">
                                   <li>
                                     <button onclick={() => startEditingSubtask(subtask)}>

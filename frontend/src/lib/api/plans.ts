@@ -109,7 +109,7 @@ export const plansApi = {
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if (Number(response.status) === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);
@@ -159,7 +159,7 @@ export const plansApi = {
         const result = await response.json().catch(() => ({ error: 'Unknown error' }));
 
         // Handle validation errors specifically
-        if (response.status === 400 && (result as any).error?.issues) {
+        if (Number(response.status) === 400 && (result as any).error?.issues) {
           const issues = (result as any).error.issues;
           const messages = issues.map((issue: any) => issue.message).join(', ');
           throw new Error(`Validation error: ${messages}`);

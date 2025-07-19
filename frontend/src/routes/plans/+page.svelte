@@ -278,8 +278,7 @@
                           <button tabindex="0" class="btn btn-ghost btn-sm gap-1">
                             <MoreVertical size={14} />
                           </button>
-                          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-                          <ul tabindex="0" class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
+                          <ul class="dropdown-content menu bg-base-100 border-base-300 rounded-box z-10 w-52 border p-2 shadow">
                             <li>
                               <button class="text-error hover:bg-error hover:text-error-content" onclick={() => deletePlan(plan)}>
                                 <Trash2 size={14} />
