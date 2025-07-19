@@ -7,21 +7,19 @@ Add lightweight reflection functionality to Experiments, so users can reflect on
 
 **New Fields to Add:**
 
-* `reflection`: `TEXT`
+- `reflection`: `TEXT`
+  - Freeform field for user to jot down reflections like “worked well,” “too ambitious,” or “got sick halfway.”
 
-  * Freeform field for user to jot down reflections like “worked well,” “too ambitious,” or “got sick halfway.”
-
-* `should_repeat`: `BOOLEAN`
-
-  * Simple toggle: would I do this again?
-  * Can be used to suggest recurring or seasonal experiments.
+- `should_repeat`: `BOOLEAN`
+  - Simple toggle: would I do this again?
+  - Can be used to suggest recurring or seasonal experiments.
 
 ---
 
 **UI Enhancements:**
 
-* [ ] Add a "Wrap Up" section once an experiment ends:
+- [ ] Add a "Wrap Up" section once an experiment ends:
+  - Prompt user: **"How did it go?"** with a large text box
+  - Checkbox or toggle: **"Would you repeat this?"**
 
-  * Prompt user: **"How did it go?"** with a large text box
-  * Checkbox or toggle: **"Would you repeat this?"**
-* [ ] Display this info on the experiment dashboard or detail view
+- [ ] Display this info on the experiment dashboard or detail view
