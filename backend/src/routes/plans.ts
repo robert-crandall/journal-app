@@ -13,11 +13,7 @@ import {
   reorderPlanSubtasksSchema,
 } from '../validation/plans';
 import { handleApiError } from '../utils/logger';
-import type {
-  PlanResponse,
-  PlanSubtaskResponse,
-  PlanWithSubtasksResponse,
-} from '../types/plans';
+import type { PlanResponse, PlanSubtaskResponse, PlanWithSubtasksResponse } from '../types/plans';
 
 const app = new Hono()
   // Get user's plans
@@ -164,11 +160,7 @@ const app = new Hono()
         })
         .from(planSubtasks)
         .where(eq(planSubtasks.planId, planId))
-        .orderBy(
-          plan.isOrdered
-            ? asc(planSubtasks.orderIndex)
-            : desc(planSubtasks.createdAt)
-        );
+        .orderBy(plan.isOrdered ? asc(planSubtasks.orderIndex) : desc(planSubtasks.createdAt));
 
       const formattedSubtasks: PlanSubtaskResponse[] = subtasks.map((subtask) => ({
         id: subtask.id,
@@ -239,21 +231,17 @@ const app = new Hono()
       if (data.focusId !== undefined) updateData.focusId = data.focusId;
       if (data.isOrdered !== undefined) updateData.isOrdered = data.isOrdered;
 
-      const [updatedPlan] = await db
-        .update(plans)
-        .set(updateData)
-        .where(eq(plans.id, planId))
-        .returning({
-          id: plans.id,
-          title: plans.title,
-          type: plans.type,
-          description: plans.description,
-          focusId: plans.focusId,
-          isOrdered: plans.isOrdered,
-          lastActivityAt: plans.lastActivityAt,
-          createdAt: plans.createdAt,
-          updatedAt: plans.updatedAt,
-        });
+      const [updatedPlan] = await db.update(plans).set(updateData).where(eq(plans.id, planId)).returning({
+        id: plans.id,
+        title: plans.title,
+        type: plans.type,
+        description: plans.description,
+        focusId: plans.focusId,
+        isOrdered: plans.isOrdered,
+        lastActivityAt: plans.lastActivityAt,
+        createdAt: plans.createdAt,
+        updatedAt: plans.updatedAt,
+      });
 
       const formattedPlan: PlanResponse = {
         id: updatedPlan.id,
@@ -392,13 +380,7 @@ const app = new Hono()
       const existingSubtask = await db
         .select()
         .from(planSubtasks)
-        .where(
-          and(
-            eq(planSubtasks.id, subtaskId),
-            eq(planSubtasks.planId, planId),
-            eq(planSubtasks.userId, userId)
-          )
-        )
+        .where(and(eq(planSubtasks.id, subtaskId), eq(planSubtasks.planId, planId), eq(planSubtasks.userId, userId)))
         .limit(1);
 
       if (existingSubtask.length === 0) {
@@ -423,31 +405,24 @@ const app = new Hono()
       if (data.isCompleted !== undefined) {
         updateData.isCompleted = data.isCompleted;
         updateData.completedAt = data.isCompleted ? new Date() : null;
-        
+
         // Update plan's last activity time when a task is completed
         if (data.isCompleted) {
-          await db
-            .update(plans)
-            .set({ lastActivityAt: new Date(), updatedAt: new Date() })
-            .where(eq(plans.id, planId));
+          await db.update(plans).set({ lastActivityAt: new Date(), updatedAt: new Date() }).where(eq(plans.id, planId));
         }
       }
 
-      const [updatedSubtask] = await db
-        .update(planSubtasks)
-        .set(updateData)
-        .where(eq(planSubtasks.id, subtaskId))
-        .returning({
-          id: planSubtasks.id,
-          planId: planSubtasks.planId,
-          title: planSubtasks.title,
-          description: planSubtasks.description,
-          isCompleted: planSubtasks.isCompleted,
-          completedAt: planSubtasks.completedAt,
-          orderIndex: planSubtasks.orderIndex,
-          createdAt: planSubtasks.createdAt,
-          updatedAt: planSubtasks.updatedAt,
-        });
+      const [updatedSubtask] = await db.update(planSubtasks).set(updateData).where(eq(planSubtasks.id, subtaskId)).returning({
+        id: planSubtasks.id,
+        planId: planSubtasks.planId,
+        title: planSubtasks.title,
+        description: planSubtasks.description,
+        isCompleted: planSubtasks.isCompleted,
+        completedAt: planSubtasks.completedAt,
+        orderIndex: planSubtasks.orderIndex,
+        createdAt: planSubtasks.createdAt,
+        updatedAt: planSubtasks.updatedAt,
+      });
 
       const formattedSubtask: PlanSubtaskResponse = {
         id: updatedSubtask.id,
@@ -482,13 +457,7 @@ const app = new Hono()
       const existingSubtask = await db
         .select()
         .from(planSubtasks)
-        .where(
-          and(
-            eq(planSubtasks.id, subtaskId),
-            eq(planSubtasks.planId, planId),
-            eq(planSubtasks.userId, userId)
-          )
-        )
+        .where(and(eq(planSubtasks.id, subtaskId), eq(planSubtasks.planId, planId), eq(planSubtasks.userId, userId)))
         .limit(1);
 
       if (existingSubtask.length === 0) {
@@ -523,10 +492,7 @@ const app = new Hono()
 
       // Update plan's last activity time when a task is completed
       if (data.isCompleted) {
-        await db
-          .update(plans)
-          .set({ lastActivityAt: new Date(), updatedAt: new Date() })
-          .where(eq(plans.id, planId));
+        await db.update(plans).set({ lastActivityAt: new Date(), updatedAt: new Date() }).where(eq(plans.id, planId));
       }
 
       const formattedSubtask: PlanSubtaskResponse = {
@@ -561,13 +527,7 @@ const app = new Hono()
       const existingSubtask = await db
         .select()
         .from(planSubtasks)
-        .where(
-          and(
-            eq(planSubtasks.id, subtaskId),
-            eq(planSubtasks.planId, planId),
-            eq(planSubtasks.userId, userId)
-          )
-        )
+        .where(and(eq(planSubtasks.id, subtaskId), eq(planSubtasks.planId, planId), eq(planSubtasks.userId, userId)))
         .limit(1);
 
       if (existingSubtask.length === 0) {
@@ -630,13 +590,7 @@ const app = new Hono()
         db
           .update(planSubtasks)
           .set({ orderIndex: index, updatedAt: new Date() })
-          .where(
-            and(
-              eq(planSubtasks.id, subtaskId),
-              eq(planSubtasks.planId, planId),
-              eq(planSubtasks.userId, userId)
-            )
-          )
+          .where(and(eq(planSubtasks.id, subtaskId), eq(planSubtasks.planId, planId), eq(planSubtasks.userId, userId))),
       );
 
       await Promise.all(updatePromises);

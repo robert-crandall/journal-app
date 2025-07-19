@@ -208,39 +208,39 @@ test.describe('Experiments Feature', () => {
     await page.goto('/experiments/create');
     await page.getByLabel('Experiment Title').fill(uniqueTitle);
     await page.getByLabel('Description').fill('Testing reflection clearing');
-    
+
     // Set dates in the past to make it completed
     const pastStart = new Date();
     pastStart.setDate(pastStart.getDate() - 5);
     const pastEnd = new Date();
     pastEnd.setDate(pastEnd.getDate() - 1);
-    
+
     await page.getByLabel('Start Date').fill(pastStart.toISOString().split('T')[0]);
     await page.getByLabel('End Date').fill(pastEnd.toISOString().split('T')[0]);
-    
+
     await page.getByRole('button', { name: 'Create Experiment' }).click();
-    
+
     // Should redirect to dashboard
     await expect(page).toHaveURL(/\/experiments\/[a-f0-9-]+$/);
-    
+
     // Go to edit page
     await page.getByRole('link', { name: 'Add Reflection' }).click();
-    
+
     // Add reflection
     await page.getByLabel('How did it go?').fill('This experiment worked well');
     await page.getByLabel('Yes').check();
     await page.getByRole('button', { name: 'Save Changes' }).click();
-    
+
     // Go back to homepage to verify reflection shows up
     await page.goto('/experiments');
-    
+
     // Should see the reflection in the specific experiment card
     const experimentCard = page.locator('.card').filter({ hasText: uniqueTitle });
     await expect(experimentCard).toBeVisible();
     await expect(experimentCard.getByText('This experiment worked well')).toBeVisible();
     await expect(experimentCard.getByText('Reviewed')).toBeVisible();
     await expect(experimentCard.getByText('Yes')).toBeVisible();
-    
+
     // Verify the labels are present
     await expect(experimentCard.getByText('Reflection:')).toBeVisible();
     await expect(experimentCard.getByText('Would repeat:')).toBeVisible();
@@ -252,43 +252,43 @@ test.describe('Experiments Feature', () => {
     await page.goto('/experiments/create');
     await page.getByLabel('Experiment Title').fill(uniqueTitle);
     await page.getByLabel('Description').fill('Testing reflection display on homepage');
-    
+
     // Set dates in the past to make it completed
     const pastStart = new Date();
     pastStart.setDate(pastStart.getDate() - 7);
     const pastEnd = new Date();
     pastEnd.setDate(pastEnd.getDate() - 2);
-    
+
     await page.getByLabel('Start Date').fill(pastStart.toISOString().split('T')[0]);
     await page.getByLabel('End Date').fill(pastEnd.toISOString().split('T')[0]);
-    
+
     await page.getByRole('button', { name: 'Create Experiment' }).click();
-    
+
     // Go to edit page and add reflection
     await page.getByRole('link', { name: 'Add Reflection' }).click();
     await page.getByLabel('How did it go?').fill('This was a great learning experience');
     await page.getByLabel('Yes').check();
     await page.getByRole('button', { name: 'Save Changes' }).click();
-    
+
     // Navigate to experiments homepage
     await page.goto('/experiments');
-    
+
     // Verify the completed experiment section exists
     await expect(page.getByText('Completed Experiments')).toBeVisible();
-    
+
     // Verify the experiment card shows reflection information
     const experimentCard = page.locator('.card').filter({ hasText: uniqueTitle });
     await expect(experimentCard).toBeVisible();
-    
+
     // Check for "Reviewed" badge
     await expect(experimentCard.getByText('Reviewed')).toBeVisible();
-    
+
     // Check for reflection text
     await expect(experimentCard.getByText('This was a great learning experience')).toBeVisible();
-    
+
     // Check for would repeat status
     await expect(experimentCard.getByText('Yes')).toBeVisible();
-    
+
     // Verify the labels are present
     await expect(experimentCard.getByText('Reflection:')).toBeVisible();
     await expect(experimentCard.getByText('Would repeat:')).toBeVisible();

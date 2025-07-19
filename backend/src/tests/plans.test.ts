@@ -68,7 +68,7 @@ describe('Plans API Integration Tests', () => {
       ]);
 
       // Add a small delay to ensure different updatedAt timestamps
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await db.insert(schema.plans).values([
         {
@@ -657,11 +657,7 @@ describe('Plans API Integration Tests', () => {
 
       // Verify subtask was created in database
       const db = testDb();
-      const dbSubtask = await db
-        .select()
-        .from(schema.planSubtasks)
-        .where(eq(schema.planSubtasks.id, responseData.data.id))
-        .limit(1);
+      const dbSubtask = await db.select().from(schema.planSubtasks).where(eq(schema.planSubtasks.id, responseData.data.id)).limit(1);
 
       expect(dbSubtask).toHaveLength(1);
       expect(dbSubtask[0].title).toBe(subtaskData.title);
@@ -1048,11 +1044,7 @@ describe('Plans API Integration Tests', () => {
 
       // Verify the order was updated in database
       const db = testDb();
-      const dbSubtasks = await db
-        .select()
-        .from(schema.planSubtasks)
-        .where(eq(schema.planSubtasks.planId, planId))
-        .orderBy(schema.planSubtasks.orderIndex);
+      const dbSubtasks = await db.select().from(schema.planSubtasks).where(eq(schema.planSubtasks.planId, planId)).orderBy(schema.planSubtasks.orderIndex);
 
       expect(dbSubtasks[0].id).toBe(reorderedIds[0]);
       expect(dbSubtasks[1].id).toBe(reorderedIds[1]);

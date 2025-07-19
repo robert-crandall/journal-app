@@ -11,8 +11,7 @@ export const plans = pgTable('plans', {
   title: varchar('title', { length: 255 }).notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'project' | 'adventure' | 'theme' | 'other'
   description: text('description'), // optional long-form text
-  focusId: uuid('focus_id')
-    .references(() => focuses.id, { onDelete: 'set null' }), // optional focus alignment
+  focusId: uuid('focus_id').references(() => focuses.id, { onDelete: 'set null' }), // optional focus alignment
   isOrdered: boolean('is_ordered').default(false).notNull(), // determines if subtasks are sequential
   lastActivityAt: timestamp('last_activity_at', { withTimezone: true }), // last time a task was completed
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
