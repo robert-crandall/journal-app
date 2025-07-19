@@ -162,6 +162,13 @@
       "when": 1752776513776,
       "tag": "0022_boring_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1752851142005,
+      "tag": "0023_omniscient_the_captain",
+      "breakpoints": true
     }
   ]
 }

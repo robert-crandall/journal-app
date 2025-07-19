@@ -64,9 +64,9 @@
   - [ ] 8.6 Write frontend E2E tests for AI features
   - [ ] 8.7 Ensure all AI feature tests pass
 
-- [ ] 9.0 Quests & Experiments (Creation, Tasks, Conclusions)
-  - [ ] 9.1 Design and implement quests and experiments (backend)
-  - [ ] 9.2 Write backend integration tests for quests/experiments
+- [x] 9.0 Quests & Experiments (Creation, Tasks, Conclusions)
+  - [x] 9.1 Design and implement quests and experiments (backend)
+  - [x] 9.2 Write backend integration tests for quests/experiments
   - [ ] 9.3 Implement frontend UI for quests/experiments
   - [ ] 9.4 Write frontend E2E tests for quests/experiments
   - [ ] 9.5 Ensure all quests/experiments tests pass

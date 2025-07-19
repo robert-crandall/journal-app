@@ -12,6 +12,7 @@ import focusRoutes from './routes/focus';
 import todosRoutes from './routes/todos';
 import experimentsRoutes from './routes/experiments';
 import journalsRoutes from './routes/journals';
+import questsRoutes from './routes/quests';
 import xpGrantsRoutes from './routes/xpGrants';
 
 // Create main app instance
@@ -63,6 +64,8 @@ const routes = app
   .route('/api/experiments', experimentsRoutes)
   // Mount journal routes
   .route('/api/journals', journalsRoutes)
+  // Mount quest routes
+  .route('/api/quests', questsRoutes)
   // Mount XP grants routes
   .route('/api/xp-grants', xpGrantsRoutes);
 
