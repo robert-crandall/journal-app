@@ -9,7 +9,7 @@
     title: '',
     summary: '',
     startDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-    endDate: ''
+    endDate: '',
   };
 
   let isSubmitting = false;
@@ -53,7 +53,7 @@
 
       // Create the quest
       const quest = await questsApi.createQuest(questData);
-      
+
       // Redirect to the quest detail page
       goto(`/quests/${quest.id}`);
     } catch (err) {
@@ -73,20 +73,16 @@
   <title>New Quest - Life Journal</title>
 </svelte:head>
 
-<div class="max-w-2xl mx-auto p-4">
+<div class="mx-auto max-w-2xl p-4">
   <!-- Page Header -->
-  <div class="flex items-center gap-4 mb-6">
-    <button 
-      class="btn btn-ghost btn-sm" 
-      on:click={handleCancel}
-      disabled={isSubmitting}
-    >
-      <ArrowLeft class="w-4 h-4" />
+  <div class="mb-6 flex items-center gap-4">
+    <button class="btn btn-ghost btn-sm" on:click={handleCancel} disabled={isSubmitting}>
+      <ArrowLeft class="h-4 w-4" />
       Back
     </button>
     <div>
-      <h1 class="text-3xl font-bold flex items-center gap-3">
-        <Target class="w-8 h-8 text-primary" />
+      <h1 class="flex items-center gap-3 text-3xl font-bold">
+        <Target class="text-primary h-8 w-8" />
         New Quest
       </h1>
       <p class="text-base-content/60 mt-1">Create a new life adventure to track</p>
@@ -119,9 +115,7 @@
             required
           />
           <div class="label">
-            <span class="label-text-alt text-base-content/60">
-              Give your quest a memorable and inspiring name
-            </span>
+            <span class="label-text-alt text-base-content/60"> Give your quest a memorable and inspiring name </span>
           </div>
         </div>
 
@@ -138,27 +132,18 @@
             disabled={isSubmitting}
           ></textarea>
           <div class="label">
-            <span class="label-text-alt text-base-content/60">
-              Optional description of your quest goals and motivation
-            </span>
+            <span class="label-text-alt text-base-content/60"> Optional description of your quest goals and motivation </span>
           </div>
         </div>
 
         <!-- Date Range -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <!-- Start Date -->
           <div class="form-control">
             <label class="label" for="startDate">
               <span class="label-text font-medium">Start Date *</span>
             </label>
-            <input
-              id="startDate"
-              type="date"
-              class="input input-bordered w-full"
-              bind:value={formData.startDate}
-              disabled={isSubmitting}
-              required
-            />
+            <input id="startDate" type="date" class="input input-bordered w-full" bind:value={formData.startDate} disabled={isSubmitting} required />
           </div>
 
           <!-- End Date -->
@@ -175,9 +160,7 @@
               min={formData.startDate}
             />
             <div class="label">
-              <span class="label-text-alt text-base-content/60">
-                Optional target completion date
-              </span>
+              <span class="label-text-alt text-base-content/60"> Optional target completion date </span>
             </div>
           </div>
         </div>
@@ -185,25 +168,14 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
-      <button 
-        type="button" 
-        class="btn btn-outline" 
-        on:click={handleCancel}
-        disabled={isSubmitting}
-      >
-        Cancel
-      </button>
-      <button 
-        type="submit" 
-        class="btn btn-primary" 
-        disabled={isSubmitting || !formData.title.trim()}
-      >
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+      <button type="button" class="btn btn-outline" on:click={handleCancel} disabled={isSubmitting}> Cancel </button>
+      <button type="submit" class="btn btn-primary" disabled={isSubmitting || !formData.title.trim()}>
         {#if isSubmitting}
           <span class="loading loading-spinner loading-sm"></span>
           Creating Quest...
         {:else}
-          <Save class="w-4 h-4" />
+          <Save class="h-4 w-4" />
           Create Quest
         {/if}
       </button>

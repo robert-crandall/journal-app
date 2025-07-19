@@ -31,12 +31,11 @@
 
   // Filter quests based on search and status
   $: filteredQuests = quests.filter((quest) => {
-    const matchesSearch = searchQuery === '' || 
-      quest.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quest.summary?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const matchesSearch =
+      searchQuery === '' || quest.title.toLowerCase().includes(searchQuery.toLowerCase()) || quest.summary?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesStatus = statusFilter === 'all' || quest.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -73,35 +72,30 @@
   <title>Quests - Life Journal</title>
 </svelte:head>
 
-<div class="max-w-6xl mx-auto p-4 space-y-6">
+<div class="mx-auto max-w-6xl space-y-6 p-4">
   <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div>
       <h1 class="text-3xl font-bold">Quests</h1>
       <p class="text-base-content/60 mt-1">Track your life adventures and achievements</p>
     </div>
     <a href="/quests/new" class="btn btn-primary">
-      <Plus class="w-4 h-4" />
+      <Plus class="h-4 w-4" />
       New Quest
     </a>
   </div>
   <!-- Search and Filters -->
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4">
-      <div class="flex flex-col sm:flex-row gap-4">
+      <div class="flex flex-col gap-4 sm:flex-row">
         <!-- Search Input -->
         <div class="flex-1">
           <div class="form-control">
             <div class="input-group">
               <span class="bg-base-200">
-                <Search class="w-4 h-4" />
+                <Search class="h-4 w-4" />
               </span>
-              <input
-                type="text"
-                placeholder="Search quests..."
-                class="input input-bordered w-full"
-                bind:value={searchQuery}
-              />
+              <input type="text" placeholder="Search quests..." class="input input-bordered w-full" bind:value={searchQuery} />
             </div>
           </div>
         </div>
@@ -127,34 +121,31 @@
   {:else if error}
     <!-- Error State -->
     <div class="alert alert-error">
-      <AlertCircle class="w-5 h-5" />
+      <AlertCircle class="h-5 w-5" />
       <span>{error}</span>
-      <button class="btn btn-sm btn-ghost" on:click={loadQuests}>
-        Try Again
-      </button>
+      <button class="btn btn-sm btn-ghost" on:click={loadQuests}> Try Again </button>
     </div>
   {:else if filteredQuests.length === 0}
     <!-- Empty State -->
     <div class="card bg-base-100 shadow-sm">
-      <div class="card-body text-center py-12">
-        <Target class="w-16 h-16 mx-auto text-base-300 mb-4" />
+      <div class="card-body py-12 text-center">
+        <Target class="text-base-300 mx-auto mb-4 h-16 w-16" />
         {#if quests.length === 0}
-          <h3 class="text-xl font-semibold mb-2">No quests yet</h3>
-          <p class="text-base-content/60 mb-4">
-            Start your first quest to track your life adventures and achievements.
-          </p>
+          <h3 class="mb-2 text-xl font-semibold">No quests yet</h3>
+          <p class="text-base-content/60 mb-4">Start your first quest to track your life adventures and achievements.</p>
           <a href="/quests/new" class="btn btn-primary">
-            <Plus class="w-4 h-4" />
+            <Plus class="h-4 w-4" />
             Create Your First Quest
           </a>
         {:else}
-          <h3 class="text-xl font-semibold mb-2">No quests found</h3>
-          <p class="text-base-content/60 mb-4">
-            Try adjusting your search or filter criteria.
-          </p>
-          <button 
-            class="btn btn-outline" 
-            on:click={() => { searchQuery = ''; statusFilter = 'all'; }}
+          <h3 class="mb-2 text-xl font-semibold">No quests found</h3>
+          <p class="text-base-content/60 mb-4">Try adjusting your search or filter criteria.</p>
+          <button
+            class="btn btn-outline"
+            on:click={() => {
+              searchQuery = '';
+              statusFilter = 'all';
+            }}
           >
             Clear Filters
           </button>
@@ -165,22 +156,22 @@
     <!-- Quest Cards -->
     <div class="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
       {#each filteredQuests as quest (quest.id)}
-        <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+        <div class="card bg-base-100 shadow-sm transition-shadow hover:shadow-md">
           <div class="card-body p-6">
             <!-- Quest Header -->
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-start gap-3 flex-1">
+            <div class="mb-4 flex items-start justify-between">
+              <div class="flex flex-1 items-start gap-3">
                 <div class="text-primary">
-                  <svelte:component this={getQuestIcon(quest)} class="w-6 h-6" />
+                  <svelte:component this={getQuestIcon(quest)} class="h-6 w-6" />
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-semibold text-lg leading-tight">
+                  <h3 class="text-lg leading-tight font-semibold">
                     <a href="/quests/{quest.id}" class="link link-hover">
                       {quest.title}
                     </a>
                   </h3>
                   {#if quest.summary}
-                    <p class="text-sm text-base-content/60 mt-1 line-clamp-2">
+                    <p class="text-base-content/60 mt-1 line-clamp-2 text-sm">
                       {quest.summary}
                     </p>
                   {/if}
@@ -192,15 +183,15 @@
             </div>
 
             <!-- Quest Dates -->
-            <div class="flex flex-wrap gap-4 text-sm text-base-content/60 mb-4">
+            <div class="text-base-content/60 mb-4 flex flex-wrap gap-4 text-sm">
               <div class="flex items-center gap-1">
-                <Calendar class="w-4 h-4" />
+                <Calendar class="h-4 w-4" />
                 <span>Started {formatDateTime(quest.startDate).split(' ')[0]}</span>
               </div>
               {#if quest.endDate}
                 {@const daysRemaining = getDaysRemaining(quest)}
                 <div class="flex items-center gap-1">
-                  <Clock class="w-4 h-4" />
+                  <Clock class="h-4 w-4" />
                   {#if quest.status === 'completed'}
                     <span>Completed {formatDateTime(quest.endDate).split(' ')[0]}</span>
                   {:else if daysRemaining !== null}
@@ -218,19 +209,20 @@
 
             <!-- Quest Reflection -->
             {#if quest.reflection}
-              <div class="text-sm text-base-content/60 mb-4">
-                <strong>Reflection:</strong> {quest.reflection}
+              <div class="text-base-content/60 mb-4 text-sm">
+                <strong>Reflection:</strong>
+                {quest.reflection}
               </div>
             {/if}
 
             <!-- Actions -->
-            <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200">
+            <div class="card-actions border-base-200 mt-4 justify-end border-t pt-4">
               <a href="/quests/{quest.id}" class="btn btn-sm btn-outline">
-                <Eye class="w-4 h-4" />
+                <Eye class="h-4 w-4" />
                 View
               </a>
               <a href="/quests/{quest.id}/edit" class="btn btn-sm btn-primary">
-                <Edit3 class="w-4 h-4" />
+                <Edit3 class="h-4 w-4" />
                 Edit
               </a>
             </div>

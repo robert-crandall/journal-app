@@ -22,7 +22,7 @@
     startDate: '',
     endDate: '',
     reflection: '',
-    status: 'active'
+    status: 'active',
   };
 
   $: questId = $page.params.id;
@@ -38,7 +38,7 @@
       isLoading = true;
       error = '';
       quest = await questsApi.getQuest(questId);
-      
+
       if (quest) {
         // Populate form with quest data
         formData = {
@@ -47,7 +47,7 @@
           startDate: quest.startDate,
           endDate: quest.endDate || '',
           reflection: quest.reflection || '',
-          status: quest.status as 'active' | 'completed' | 'archived'
+          status: quest.status as 'active' | 'completed' | 'archived',
         };
       }
     } catch (err) {
@@ -84,7 +84,7 @@
       const updateData: UpdateQuestRequest = {
         title: formData.title.trim(),
         startDate: formData.startDate,
-        status: formData.status
+        status: formData.status,
       };
 
       if (formData.summary?.trim()) {
@@ -101,7 +101,7 @@
 
       // Update the quest
       const updatedQuest = await questsApi.updateQuest(questId, updateData);
-      
+
       if (updatedQuest) {
         // Redirect to the quest detail page
         goto(`/quests/${updatedQuest.id}`);
@@ -125,9 +125,9 @@
     try {
       error = '';
       isDeleting = true;
-      
+
       await questsApi.deleteQuest(questId);
-      
+
       // Redirect to quests list
       goto('/quests');
     } catch (err) {
@@ -147,7 +147,7 @@
   <title>Edit Quest - Life Journal</title>
 </svelte:head>
 
-<div class="max-w-2xl mx-auto p-4">
+<div class="mx-auto max-w-2xl p-4">
   <!-- Loading State -->
   {#if isLoading}
     <div class="flex justify-center py-12">
@@ -157,24 +157,18 @@
     <!-- Error State -->
     <div class="alert alert-error mb-6">
       <span>{error}</span>
-      <button class="btn btn-sm btn-ghost" on:click={loadQuest}>
-        Try Again
-      </button>
+      <button class="btn btn-sm btn-ghost" on:click={loadQuest}> Try Again </button>
     </div>
   {:else if quest}
     <!-- Page Header -->
-    <div class="flex items-center gap-4 mb-6">
-      <button 
-        class="btn btn-ghost btn-sm" 
-        on:click={handleCancel}
-        disabled={isSubmitting || isDeleting}
-      >
-        <ArrowLeft class="w-4 h-4" />
+    <div class="mb-6 flex items-center gap-4">
+      <button class="btn btn-ghost btn-sm" on:click={handleCancel} disabled={isSubmitting || isDeleting}>
+        <ArrowLeft class="h-4 w-4" />
         Back
       </button>
       <div>
-        <h1 class="text-3xl font-bold flex items-center gap-3">
-          <Target class="w-8 h-8 text-primary" />
+        <h1 class="flex items-center gap-3 text-3xl font-bold">
+          <Target class="text-primary h-8 w-8" />
           Edit Quest
         </h1>
         <p class="text-base-content/60 mt-1">Update your quest details</p>
@@ -223,7 +217,7 @@
           </div>
 
           <!-- Date Range -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Start Date -->
             <div class="form-control">
               <label class="label" for="startDate">
@@ -260,12 +254,7 @@
             <label class="label" for="status">
               <span class="label-text font-medium">Status</span>
             </label>
-            <select
-              id="status"
-              class="select select-bordered w-full"
-              bind:value={formData.status}
-              disabled={isSubmitting || isDeleting}
-            >
+            <select id="status" class="select select-bordered w-full" bind:value={formData.status} disabled={isSubmitting || isDeleting}>
               <option value="active">Active</option>
               <option value="completed">Completed</option>
               <option value="archived">Archived</option>
@@ -285,37 +274,24 @@
               disabled={isSubmitting || isDeleting}
             ></textarea>
             <div class="label">
-              <span class="label-text-alt text-base-content/60">
-                Optional notes about your progress and insights
-              </span>
+              <span class="label-text-alt text-base-content/60"> Optional notes about your progress and insights </span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
         <div class="flex gap-3">
-          <button 
-            type="button" 
-            class="btn btn-outline" 
-            on:click={handleCancel}
-            disabled={isSubmitting || isDeleting}
-          >
-            Cancel
-          </button>
+          <button type="button" class="btn btn-outline" on:click={handleCancel} disabled={isSubmitting || isDeleting}> Cancel </button>
         </div>
         <div class="flex gap-3">
-          <button 
-            type="submit" 
-            class="btn btn-primary" 
-            disabled={isSubmitting || isDeleting || !formData.title?.trim()}
-          >
+          <button type="submit" class="btn btn-primary" disabled={isSubmitting || isDeleting || !formData.title?.trim()}>
             {#if isSubmitting}
               <span class="loading loading-spinner loading-sm"></span>
               Updating...
             {:else}
-              <Save class="w-4 h-4" />
+              <Save class="h-4 w-4" />
               Update Quest
             {/if}
           </button>
@@ -324,14 +300,14 @@
     </form>
 
     <!-- Danger Zone -->
-    <div class="card bg-base-100 shadow-sm border border-error/20">
+    <div class="card bg-base-100 border-error/20 border shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-error">Danger Zone</h3>
         <div class="space-y-4">
-          <p class="text-sm text-base-content/60">
+          <p class="text-base-content/60 text-sm">
             Deleting a quest will permanently remove it and all its links to experiments and journals. This action cannot be undone.
           </p>
-          
+
           <!-- Delete Confirmation -->
           <div class="form-control">
             <label class="label" for="deleteConfirmation">
@@ -347,17 +323,12 @@
             />
           </div>
 
-          <button 
-            type="button"
-            class="btn btn-error"
-            disabled={isSubmitting || isDeleting || deleteConfirmation !== quest.title}
-            on:click={handleDelete}
-          >
+          <button type="button" class="btn btn-error" disabled={isSubmitting || isDeleting || deleteConfirmation !== quest.title} on:click={handleDelete}>
             {#if isDeleting}
               <span class="loading loading-spinner loading-sm"></span>
               Deleting...
             {:else}
-              <Trash2 class="w-4 h-4" />
+              <Trash2 class="h-4 w-4" />
               Delete Quest
             {/if}
           </button>
@@ -366,14 +337,12 @@
     </div>
   {:else}
     <!-- Quest Not Found -->
-    <div class="text-center py-12">
-      <Target class="w-16 h-16 mx-auto text-base-300 mb-4" />
-      <h2 class="text-xl font-semibold mb-2">Quest not found</h2>
-      <p class="text-base-content/60 mb-4">
-        The quest you're trying to edit doesn't exist or you don't have access to it.
-      </p>
+    <div class="py-12 text-center">
+      <Target class="text-base-300 mx-auto mb-4 h-16 w-16" />
+      <h2 class="mb-2 text-xl font-semibold">Quest not found</h2>
+      <p class="text-base-content/60 mb-4">The quest you're trying to edit doesn't exist or you don't have access to it.</p>
       <a href="/quests" class="btn btn-primary">
-        <ArrowLeft class="w-4 h-4" />
+        <ArrowLeft class="h-4 w-4" />
         Back to Quests
       </a>
     </div>

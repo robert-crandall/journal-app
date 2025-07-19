@@ -85,14 +85,14 @@ export class QuestService {
 
     return {
       ...quest,
-      experiments: linkedExperiments.map(exp => ({
+      experiments: linkedExperiments.map((exp) => ({
         id: exp.id,
         title: exp.title,
         description: exp.description || undefined,
         startDate: exp.startDate,
         endDate: exp.endDate,
       })),
-      journals: linkedJournals.map(journal => ({
+      journals: linkedJournals.map((journal) => ({
         id: journal.id,
         date: journal.date,
         title: journal.title || undefined,
@@ -233,10 +233,7 @@ export class QuestService {
     // Find journals within the quest date range
     let dateFilter;
     if (quest.endDate) {
-      dateFilter = and(
-        sql`${journals.date} >= ${quest.startDate}`,
-        sql`${journals.date} <= ${quest.endDate}`
-      );
+      dateFilter = and(sql`${journals.date} >= ${quest.startDate}`, sql`${journals.date} <= ${quest.endDate}`);
     } else {
       dateFilter = sql`${journals.date} >= ${quest.startDate}`;
     }
@@ -266,13 +263,14 @@ export class QuestService {
   }
 
   // Helper method to get XP by stats for a date range
-  private static async getQuestXpByStats(userId: string, startDate: string, endDate?: string): Promise<Array<{ statId: string; statName: string; totalXp: number }>> {
+  private static async getQuestXpByStats(
+    userId: string,
+    startDate: string,
+    endDate?: string,
+  ): Promise<Array<{ statId: string; statName: string; totalXp: number }>> {
     let dateFilter;
     if (endDate) {
-      dateFilter = and(
-        sql`DATE(${xpGrants.createdAt}) >= ${startDate}`,
-        sql`DATE(${xpGrants.createdAt}) <= ${endDate}`
-      );
+      dateFilter = and(sql`DATE(${xpGrants.createdAt}) >= ${startDate}`, sql`DATE(${xpGrants.createdAt}) <= ${endDate}`);
     } else {
       dateFilter = sql`DATE(${xpGrants.createdAt}) >= ${startDate}`;
     }
@@ -285,16 +283,10 @@ export class QuestService {
       })
       .from(xpGrants)
       .innerJoin(characterStats, eq(xpGrants.entityId, characterStats.id))
-      .where(
-        and(
-          eq(characterStats.userId, userId),
-          eq(xpGrants.entityType, 'character_stat'),
-          dateFilter
-        )
-      )
+      .where(and(eq(characterStats.userId, userId), eq(xpGrants.entityType, 'character_stat'), dateFilter))
       .groupBy(characterStats.id, characterStats.name);
 
-    return xpData.map(row => ({
+    return xpData.map((row) => ({
       statId: row.statId,
       statName: row.statName,
       totalXp: row.totalXp,
