@@ -9,6 +9,7 @@ export * from './focus';
 export * from './todos';
 export * from './experiments';
 export * from './journals';
+export * from './journal-summaries';
 export * from './quests';
 export * from './plans';
 // Future exports:
