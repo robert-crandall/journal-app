@@ -199,6 +199,12 @@ const app = new Hono()
       if (data.endDate !== undefined) {
         updateData.endDate = data.endDate;
       }
+      if (data.reflection !== undefined) {
+        updateData.reflection = data.reflection || null;
+      }
+      if (data.shouldRepeat !== undefined) {
+        updateData.shouldRepeat = data.shouldRepeat;
+      }
 
       const updatedExperiment = await db
         .update(experiments)

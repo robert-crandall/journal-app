@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
   import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
-  import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X } from 'lucide-svelte';
+  import { ArrowLeft, Calendar, BarChart, Target, Award, TrendingUp, CheckCircle2, Clock, Book, Star, Plus, X, MessageSquare, RotateCcw } from 'lucide-svelte';
   import { formatDate } from '$lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
@@ -145,9 +145,9 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
   <!-- Navigation -->
   <div class="mb-6">
-    <a href="/experiments/{experimentId}" class="text-base-content/60 hover:text-base-content inline-flex items-center gap-2 transition-colors">
+    <a href="/experiments" class="text-base-content/60 hover:text-base-content inline-flex items-center gap-2 transition-colors">
       <ArrowLeft class="h-4 w-4" />
-      Back to Experiment
+      Back to Experiments
     </a>
   </div>
 
@@ -198,6 +198,14 @@
                   <TrendingUp class="h-4 w-4" />
                   <span>{dashboard.stats.completionPercentage}% complete</span>
                 </div>
+                {#if getExperimentStatus(dashboard.experiment) === 'completed' && (!dashboard.experiment.reflection || !dashboard.experiment.reflection.trim())}
+                  <div class="flex items-center gap-2">
+                    <a href="/experiments/{experimentId}/edit" class="btn btn-accent btn-sm gap-1">
+                      <MessageSquare class="h-4 w-4" />
+                      Add Reflection
+                    </a>
+                  </div>
+                {/if}
               </div>
             </div>
 
@@ -210,6 +218,48 @@
           </div>
         </div>
       </div>
+
+      <!-- Reflection Section -->
+      {#if (dashboard.experiment.reflection && dashboard.experiment.reflection.trim()) || dashboard.experiment.shouldRepeat === true || dashboard.experiment.shouldRepeat === false}
+        <div class="card bg-base-100 border-base-300 border">
+          <div class="card-body">
+            <h2 class="text-base-content mb-4 flex items-center gap-2 text-xl font-bold">
+              <MessageSquare class="text-accent h-5 w-5" />
+              Experiment Reflection
+            </h2>
+
+            <div class="space-y-4">
+              {#if dashboard.experiment.reflection && dashboard.experiment.reflection.trim()}
+                <div>
+                  <h3 class="text-base-content/70 mb-2 text-sm font-medium">How did it go?</h3>
+                  <div class="bg-base-200 border-base-300 prose prose-sm max-w-none rounded-lg border p-4">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.reflection)))}
+                  </div>
+                </div>
+              {/if}
+
+              {#if dashboard.experiment.shouldRepeat !== null}
+                <div class="flex items-center gap-2">
+                  <RotateCcw class="text-primary h-4 w-4" />
+                  <span class="text-base-content/70 text-sm font-medium">Would repeat:</span>
+                  {#if dashboard.experiment.shouldRepeat === true}
+                    <span class="badge badge-success">Yes, I'd do this again</span>
+                  {:else if dashboard.experiment.shouldRepeat === false}
+                    <span class="badge badge-error">No, I wouldn't repeat this</span>
+                  {:else}
+                    <span class="badge badge-neutral">Not decided</span>
+                  {/if}
+                </div>
+              {/if}
+
+              <div class="mt-4 text-right">
+                <a href="/experiments/{experimentId}/edit" class="btn btn-ghost btn-sm"> Edit Reflection </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {/if}
 
       <!-- Key Stats Grid -->
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
