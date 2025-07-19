@@ -145,9 +145,9 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
   <!-- Navigation -->
   <div class="mb-6">
-    <a href="/experiments/{experimentId}" class="text-base-content/60 hover:text-base-content inline-flex items-center gap-2 transition-colors">
+    <a href="/experiments" class="text-base-content/60 hover:text-base-content inline-flex items-center gap-2 transition-colors">
       <ArrowLeft class="h-4 w-4" />
-      Back to Experiment
+      Back to Experiments
     </a>
   </div>
 
