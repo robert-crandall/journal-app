@@ -130,10 +130,14 @@ test.describe('Experiments Feature', () => {
     await expect(page.getByText('Would you repeat this experiment?')).toBeVisible();
 
     // Fill in reflection
-    await page.getByLabel('How did it go?').fill('This experiment went really well! I found that reading in the morning helped me stay focused throughout the day. The key was setting aside dedicated time without distractions.');
+    await page
+      .getByLabel('How did it go?')
+      .fill(
+        'This experiment went really well! I found that reading in the morning helped me stay focused throughout the day. The key was setting aside dedicated time without distractions.',
+      );
 
     // Select "Yes, I'd repeat this"
-    await page.getByRole('radio', { name: 'Yes, I\'d repeat this' }).click();
+    await page.getByRole('radio', { name: "Yes, I'd repeat this" }).click();
 
     // Save the changes
     await page.getByRole('button', { name: 'Save Changes' }).click();
@@ -146,7 +150,7 @@ test.describe('Experiments Feature', () => {
     await expect(page.getByText('How did it go?')).toBeVisible();
     await expect(page.getByText('This experiment went really well!')).toBeVisible();
     await expect(page.getByText('Would repeat:')).toBeVisible();
-    await expect(page.getByText('Yes, I\'d do this again')).toBeVisible();
+    await expect(page.getByText("Yes, I'd do this again")).toBeVisible();
 
     // The "Add Reflection" button should no longer be visible since reflection exists
     await expect(page.getByRole('link', { name: 'Add Reflection' })).not.toBeVisible();
@@ -173,7 +177,7 @@ test.describe('Experiments Feature', () => {
     // Add initial reflection
     await page.getByRole('link', { name: 'Add Reflection' }).click();
     await page.getByLabel('How did it go?').fill('Initial reflection text');
-    await page.getByRole('radio', { name: 'Yes, I\'d repeat this' }).click();
+    await page.getByRole('radio', { name: "Yes, I'd repeat this" }).click();
     await page.getByRole('button', { name: 'Save Changes' }).click();
 
     // Now test updating the reflection
@@ -181,17 +185,21 @@ test.describe('Experiments Feature', () => {
 
     // Update the reflection
     await page.getByLabel('How did it go?').clear();
-    await page.getByLabel('How did it go?').fill('Updated reflection: The meditation practice was transformative. I noticed improved focus and reduced anxiety. However, finding time in the morning was challenging on busy days.');
+    await page
+      .getByLabel('How did it go?')
+      .fill(
+        'Updated reflection: The meditation practice was transformative. I noticed improved focus and reduced anxiety. However, finding time in the morning was challenging on busy days.',
+      );
 
     // Change the repeat choice
-    await page.getByRole('radio', { name: 'No, I wouldn\'t repeat this' }).click();
+    await page.getByRole('radio', { name: "No, I wouldn't repeat this" }).click();
 
     // Save changes
     await page.getByRole('button', { name: 'Save Changes' }).click();
 
     // Verify updated reflection is displayed
     await expect(page.getByText('Updated reflection: The meditation practice was transformative')).toBeVisible();
-    await expect(page.getByText('No, I wouldn\'t repeat this')).toBeVisible();
+    await expect(page.getByText("No, I wouldn't repeat this")).toBeVisible();
   });
 
   test('should handle clearing reflection fields', async ({ page }) => {
@@ -212,7 +220,7 @@ test.describe('Experiments Feature', () => {
     // Add initial reflection
     await page.getByRole('link', { name: 'Add Reflection' }).click();
     await page.getByLabel('How did it go?').fill('Some reflection text');
-    await page.getByRole('radio', { name: 'Yes, I\'d repeat this' }).click();
+    await page.getByRole('radio', { name: "Yes, I'd repeat this" }).click();
     await page.getByRole('button', { name: 'Save Changes' }).click();
 
     // Edit to clear reflection

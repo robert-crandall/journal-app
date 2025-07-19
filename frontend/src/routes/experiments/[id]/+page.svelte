@@ -220,7 +220,7 @@
       </div>
 
       <!-- Reflection Section -->
-      {#if (dashboard.experiment.reflection && dashboard.experiment.reflection.trim()) || (dashboard.experiment.shouldRepeat === true || dashboard.experiment.shouldRepeat === false)}
+      {#if (dashboard.experiment.reflection && dashboard.experiment.reflection.trim()) || dashboard.experiment.shouldRepeat === true || dashboard.experiment.shouldRepeat === false}
         <div class="card bg-base-100 border-base-300 border">
           <div class="card-body">
             <h2 class="text-base-content mb-4 flex items-center gap-2 text-xl font-bold">
@@ -254,9 +254,7 @@
               {/if}
 
               <div class="mt-4 text-right">
-                <a href="/experiments/{experimentId}/edit" class="btn btn-ghost btn-sm">
-                  Edit Reflection
-                </a>
+                <a href="/experiments/{experimentId}/edit" class="btn btn-ghost btn-sm"> Edit Reflection </a>
               </div>
             </div>
           </div>
