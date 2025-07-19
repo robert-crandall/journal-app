@@ -4,7 +4,8 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { plansApi, type PlanResponse, type UpdatePlanRequest, type PlanType } from '$lib/api/plans';
-  import { ArrowLeft, Save, FolderKanban, Compass, Palette, FileText, Calendar, Link } from 'lucide-svelte';
+  import { getAllFocuses, type Focus, getDayName } from '$lib/api/focus';
+  import { ArrowLeft, Save, FolderKanban, Compass, Palette, FileText, Calendar, Link, Target } from 'lucide-svelte';
 
   // Get plan ID from URL params
   let planId = $derived($page.params.id);
@@ -13,6 +14,8 @@
   let plan: PlanResponse | null = $state(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let allFocuses: Focus[] = $state([]);
+  let focusesLoading = $state(false);
 
   // Form data
   let formData: UpdatePlanRequest & { focusId?: string } = $state({
@@ -57,6 +60,19 @@
         isOrdered: planData.isOrdered,
         focusId: planData.focusId || undefined,
       };
+
+      // Load focuses if we don't have them yet
+      if (allFocuses.length === 0) {
+        try {
+          focusesLoading = true;
+          allFocuses = await getAllFocuses();
+        } catch (err) {
+          console.warn('Failed to load focuses:', err);
+          // Don't fail the whole operation if focuses can't be loaded
+        } finally {
+          focusesLoading = false;
+        }
+      }
     } catch (err) {
       console.error('Failed to load plan:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -351,8 +367,55 @@
                   </label>
                 </div>
 
-                <!-- Focus Linking - Removed for now until focuses API is implemented -->
-                <!-- TODO: Add focus linking when focuses API is available -->
+                <!-- Focus Linking -->
+                {#if allFocuses.length > 0}
+                  <div class="form-control">
+                    <label class="label" for="focusId">
+                      <span class="label-text flex items-center gap-2 font-medium">
+                        <Target size={16} />
+                        Link to Focus (Optional)
+                      </span>
+                    </label>
+                    <select id="focusId" bind:value={formData.focusId} class="select select-bordered w-full">
+                      <option value="">No focus link</option>
+                      {#each allFocuses as focus (focus.id)}
+                        <option value={focus.id}>
+                          {focus.title} ({getDayName(focus.dayOfWeek, 'short')})
+                        </option>
+                      {/each}
+                    </select>
+                    <div class="label">
+                      <span class="label-text-alt text-base-content/60"> Link this plan to a daily focus theme </span>
+                    </div>
+                  </div>
+                {:else if focusesLoading}
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text flex items-center gap-2 font-medium">
+                        <Target size={16} />
+                        Link to Focus (Optional)
+                      </span>
+                    </label>
+                    <div class="skeleton h-12 w-full"></div>
+                  </div>
+                {:else}
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text flex items-center gap-2 font-medium">
+                        <Target size={16} />
+                        Link to Focus (Optional)
+                      </span>
+                    </label>
+                    <div class="alert alert-info">
+                      <div class="text-sm">
+                        <div>No focuses available</div>
+                        <div class="mt-1">
+                          <a href="/focus" class="link link-primary">Create some focuses first</a> to link plans to daily themes.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
               </div>
             </div>
           </div>
@@ -377,10 +440,13 @@
                       <span>Task Order: {formData.isOrdered ? 'Sequential' : 'Flexible'}</span>
                     </div>
                     {#if formData.focusId}
-                      <div class="flex items-center gap-2">
-                        <Link size={14} />
-                        <span>Linked to Focus</span>
-                      </div>
+                      {@const selectedFocus = allFocuses.find((f) => f.id === formData.focusId)}
+                      {#if selectedFocus}
+                        <div class="flex items-center gap-2">
+                          <Target size={14} class="text-primary" />
+                          <span>Linked to {selectedFocus.title} ({getDayName(selectedFocus.dayOfWeek, 'short')})</span>
+                        </div>
+                      {/if}
                     {/if}
                   </div>
                 </div>

@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { plansApi, type PlanResponse, type PlanSubtaskResponse, type CreatePlanSubtaskRequest, type UpdatePlanSubtaskRequest } from '$lib/api/plans';
+  import { getAllFocuses, type Focus, getDayName } from '$lib/api/focus';
   import {
     ArrowLeft,
     Plus,
@@ -20,6 +21,7 @@
     FileText,
     ArrowUp,
     ArrowDown,
+    Target,
   } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
@@ -33,6 +35,8 @@
   let subtasks: PlanSubtaskResponse[] = $state([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let linkedFocus: Focus | null = $state(null);
+  let allFocuses: Focus[] = $state([]);
 
   // Subtask creation state
   let showCreateSubtask = $state(false);
@@ -80,6 +84,23 @@
         updatedAt: planWithSubtasks.updatedAt,
       };
       subtasks = planWithSubtasks.subtasks;
+
+      // Load all focuses if we don't have them yet
+      if (allFocuses.length === 0) {
+        try {
+          allFocuses = await getAllFocuses();
+        } catch (err) {
+          console.warn('Failed to load focuses:', err);
+          // Don't fail the whole operation if focuses can't be loaded
+        }
+      }
+
+      // Find the linked focus if the plan has a focusId
+      if (plan?.focusId && allFocuses.length > 0) {
+        linkedFocus = allFocuses.find((focus) => focus.id === plan!.focusId) || null;
+      } else {
+        linkedFocus = null;
+      }
     } catch (err) {
       console.error('Failed to load plan:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -638,6 +659,22 @@
                     <span class="text-sm">Remaining:</span>
                     <span class="font-medium">{totalCount - completedCount}</span>
                   </div>
+                  {#if linkedFocus}
+                    <div class="divider my-2"></div>
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-2">
+                        <Target size={14} class="text-primary" />
+                        <span class="text-sm font-medium">Linked Focus</span>
+                      </div>
+                      <div class="bg-base-200 rounded-lg p-3">
+                        <div class="mb-1 flex items-center gap-2">
+                          <h4 class="text-sm font-medium">{linkedFocus.title}</h4>
+                          <span class="badge badge-primary badge-xs">{getDayName(linkedFocus.dayOfWeek, 'short')}</span>
+                        </div>
+                        <p class="text-base-content/70 text-xs">{linkedFocus.description}</p>
+                      </div>
+                    </div>
+                  {/if}
                 </div>
               </div>
             </div>
@@ -653,10 +690,15 @@
                       {plan.isOrdered ? 'Sequential Tasks' : 'Flexible Tasks'}
                     </span>
                   </div>
-                  {#if plan.focusId}
+                  {#if linkedFocus}
+                    <div class="flex items-center gap-2">
+                      <Target size={16} class="text-primary" />
+                      <span class="text-sm">Linked to {linkedFocus.title} ({getDayName(linkedFocus.dayOfWeek, 'short')})</span>
+                    </div>
+                  {:else if plan.focusId}
                     <div class="flex items-center gap-2">
                       <Link size={16} />
-                      <span class="text-sm">Linked to Focus</span>
+                      <span class="text-sm">Linked to Focus (loading...)</span>
                     </div>
                   {/if}
                   <div class="flex items-center gap-2">
