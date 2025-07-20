@@ -12,19 +12,53 @@
   import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for attributes data
-  let groupedAttributes: GroupedUserAttributes = $state({});
+  let groupedAttributes = $state({
+    priorities: [],
+    values: [],
+    motivators: [],
+    challenges: [],
+  } as GroupedUserAttributes);
   let loading = $state(true);
   let error = $state<string | null>(null);
 
   // Filter state
   let selectedSource: AttributeSource | 'all' = $state('all');
 
+  // Filter attributes based on source
+  let filteredGroupedAttributes = $derived.by(() => {
+    console.log('Derived function called');
+    console.log('selectedSource:', selectedSource);
+    console.log('groupedAttributes:', groupedAttributes);
+    console.log('Object.keys(groupedAttributes):', Object.keys(groupedAttributes));
+    
+    if (selectedSource === 'all') {
+      console.log('Returning all attributes:', groupedAttributes);
+      return groupedAttributes;
+    }
+
+    const filtered: GroupedUserAttributes = {};
+    for (const [category, attributes] of Object.entries(groupedAttributes)) {
+      if (Array.isArray(attributes)) {
+        const filteredAttrs = attributes.filter((attr: any) => attr.source === selectedSource);
+        if (filteredAttrs.length > 0) {
+          filtered[category] = filteredAttrs;
+        }
+      }
+    }
+    console.log('Returning filtered attributes:', filtered);
+    return filtered;
+  });
+
+  // Check if we have any attributes to display
+  let hasAnyAttributes = $derived(() => {
+    const attrs = filteredGroupedAttributes;
+    return Object.values(attrs).some(categoryAttrs => categoryAttrs && categoryAttrs.length > 0);
+  });
+
   // Load data on component mount
   onMount(async () => {
     await loadAttributesData();
   });
-
-  // Separate function to load attributes data
   async function loadAttributesData() {
     try {
       loading = true;
@@ -33,7 +67,27 @@
       console.log('Loading attributes data...');
       const attributesData = await userAttributesApi.getGroupedUserAttributes();
       console.log('Received attributes data:', attributesData);
-      groupedAttributes = attributesData;
+      console.log('Type of data:', typeof attributesData);
+      console.log('Object.keys:', Object.keys(attributesData));
+      console.log('Data structure check:');
+      console.log('- priorities:', attributesData.priorities?.length ?? 'undefined');
+      console.log('- values:', attributesData.values?.length ?? 'undefined');
+      console.log('- motivators:', attributesData.motivators?.length ?? 'undefined');
+      console.log('- challenges:', attributesData.challenges?.length ?? 'undefined');
+      
+      // Ensure all expected categories exist as arrays
+      groupedAttributes = {
+        // Include any other categories that might exist first
+        ...attributesData,
+        // Then override with guaranteed arrays for expected categories
+        priorities: attributesData.priorities || [],
+        values: attributesData.values || [],
+        motivators: attributesData.motivators || [],
+        challenges: attributesData.challenges || [],
+      };
+      
+      console.log('Final groupedAttributes:', groupedAttributes);
+      console.log('Final groupedAttributes keys:', Object.keys(groupedAttributes));
     } catch (err) {
       console.error('Failed to load attributes:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -45,22 +99,6 @@
       loading = false;
     }
   }
-
-  // Filter attributes based on source
-  let filteredGroupedAttributes = $derived(() => {
-    if (selectedSource === 'all') {
-      return groupedAttributes;
-    }
-
-    const filtered: GroupedUserAttributes = {};
-    for (const [category, attributes] of Object.entries(groupedAttributes)) {
-      const filteredAttrs = attributes.filter(attr => attr.source === selectedSource);
-      if (filteredAttrs.length > 0) {
-        filtered[category] = filteredAttrs;
-      }
-    }
-    return filtered;
-  });
 
   // Helper functions
   function getCategoryIcon(category: string) {
@@ -213,7 +251,7 @@
         Try Again
       </button>
     </div>
-  {:else if Object.keys(filteredGroupedAttributes).length === 0}
+  {:else if !hasAnyAttributes}
     <!-- Empty State -->
     <div class="text-center py-12">
       <User size={64} class="mx-auto text-base-content/30 mb-4" />
@@ -230,18 +268,38 @@
           Add Your First Attribute
         </button>
       {/if}
+      
+      <!-- Debug info -->
+      <details class="mt-4">
+        <summary class="text-xs text-base-content/50 cursor-pointer">Debug Info</summary>
+        <div class="text-xs text-left mt-2 p-2 bg-base-200 rounded">
+          <p>filteredGroupedAttributes keys: {Object.keys(filteredGroupedAttributes).join(', ')}</p>
+          <p>groupedAttributes keys: {Object.keys(groupedAttributes).join(', ')}</p>
+          <p>selectedSource: {selectedSource}</p>
+          <p>hasAnyAttributes: {hasAnyAttributes}</p>
+          <pre>{JSON.stringify(groupedAttributes, null, 2)}</pre>
+        </div>
+      </details>
     </div>
   {:else}
     <!-- Attributes Grid -->
     <div class="grid gap-6">
+      Hello
+      <p class="text-xs text-base-content/50 mb-2">
+        Debug: filteredGroupedAttributes has {Object.keys(filteredGroupedAttributes).length} keys: 
+        {Object.keys(filteredGroupedAttributes).join(', ')}
+      </p>
       {#each Object.entries(filteredGroupedAttributes) as [category, attributes]}
-        <div class="card bg-base-100 border border-base-300">
-          <div class="card-body">
-            <div class="flex items-center gap-3 mb-4">
-              <svelte:component this={getCategoryIcon(category)} size={24} class="text-primary" />
-              <h2 class="card-title text-xl capitalize">{category}</h2>
-              <div class="badge badge-neutral">{attributes.length}</div>
-            </div>
+      World
+        {#if attributes && attributes.length > 0}
+          {@const IconComponent = getCategoryIcon(category)}
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body">
+              <div class="flex items-center gap-3 mb-4">
+                <IconComponent size={24} class="text-primary" />
+                <h2 class="card-title text-xl capitalize">{category}</h2>
+                <div class="badge badge-neutral">{attributes.length}</div>
+              </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {#each attributes as attribute}
@@ -255,20 +313,16 @@
                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
                           </svg>
                         </div>
-                        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                          <li>
-                            <button onclick={() => navigateToEdit(attribute.id)} class="text-sm">
-                              <Edit3 size={14} />
-                              Edit
-                            </button>
-                          </li>
-                          <li>
-                            <button onclick={() => deleteAttribute(attribute.id)} class="text-sm text-error">
-                              <Trash2 size={14} />
-                              Delete
-                            </button>
-                          </li>
-                        </ul>
+                        <div class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
+                          <button onclick={() => navigateToEdit(attribute.id)} class="text-sm btn btn-ghost btn-sm justify-start">
+                            <Edit3 size={14} />
+                            Edit
+                          </button>
+                          <button onclick={() => deleteAttribute(attribute.id)} class="text-sm btn btn-ghost btn-sm justify-start text-error">
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -283,9 +337,10 @@
                   </div>
                 </div>
               {/each}
+              </div>
             </div>
           </div>
-        </div>
+        {/if}
       {/each}
     </div>
   {/if}
