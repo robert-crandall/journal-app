@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { testDb, getUniqueEmail, schema } from './setup';
-import { getJournalMemoryContext, formatJournalMemoryForPrompt } from '../utils/journalMemoryService';
+import { getJournalMemoryContext } from '../utils/journalMemoryService';
 
 const { journals, journalSummaries, users } = schema;
 
@@ -220,74 +220,6 @@ describe('Journal Memory Service', () => {
       // Should only include the completed journal
       expect(context.dailyJournals).toHaveLength(1);
       expect(context.dailyJournals[0].initialMessage).toBe('Journal entry 0');
-    });
-  });
-
-  describe('formatJournalMemoryForPrompt', () => {
-    it('should format empty context correctly', () => {
-      const context = {
-        dailyJournals: [],
-        weeklySummaries: [],
-        monthlySummaries: [],
-      };
-      
-      const formatted = formatJournalMemoryForPrompt(context);
-      expect(formatted).toBe('');
-    });
-
-    it('should format full context with proper sections and chronological order', () => {
-      const context = {
-        dailyJournals: [
-          {
-            date: '2024-01-15',
-            initialMessage: 'Today was productive',
-            assistantReply: 'That sounds great!',
-          },
-          {
-            date: '2024-01-14',
-            initialMessage: 'Feeling tired today',
-          },
-        ],
-        weeklySummaries: [
-          {
-            startDate: '2024-01-08',
-            endDate: '2024-01-14',
-            summary: 'This week was about finding balance.',
-          },
-          {
-            startDate: '2024-01-01',
-            endDate: '2024-01-07',
-            summary: 'New year, new goals.',
-          },
-        ],
-        monthlySummaries: [
-          {
-            startDate: '2023-12-01',
-            endDate: '2023-12-31',
-            summary: 'December was a month of reflection.',
-          },
-        ],
-      };
-      
-      const formatted = formatJournalMemoryForPrompt(context);
-      
-      expect(formatted).toContain('**Monthly Context:**');
-      expect(formatted).toContain('📆 **December 2023**');
-      expect(formatted).toContain('December was a month of reflection.');
-      
-      expect(formatted).toContain('**Weekly Context:**');
-      expect(formatted).toContain('📅 **Jan 1–Jan 7**');
-      expect(formatted).toContain('New year, new goals.');
-      expect(formatted).toContain('📅 **Jan 8–Jan 14**');
-      expect(formatted).toContain('This week was about finding balance.');
-      
-      expect(formatted).toContain('**Recent Daily Journals:**');
-      expect(formatted).toContain('🗓️ **Jan 15**');
-      expect(formatted).toContain('"Today was productive"');
-      expect(formatted).toContain('*Response: "That sounds great!"*');
-      expect(formatted).toContain('🗓️ **Jan 14**');
-      expect(formatted).toContain('"Feeling tired today"');
-      expect(formatted).not.toContain('*Response:'); // Should not have assistant reply for second entry
     });
   });
 });

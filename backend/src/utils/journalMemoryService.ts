@@ -36,11 +36,22 @@ export interface MonthlySummary {
  */
 export async function getJournalMemoryContext(userId: string): Promise<JournalMemoryContext> {
   try {
-    // 1. Get the most recent weekly summary to determine daily journal cutoff
+    // 1. Get the most recent weekly summary to determine daily journal cutoff at least 7 days old
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoDate = sevenDaysAgo.toISOString().split('T')[0]; // YYYY-MM-DD format for date field
+
     const latestWeeklySummary = await db
       .select()
       .from(journalSummaries)
-      .where(and(eq(journalSummaries.userId, userId), eq(journalSummaries.period, 'week')))
+      .where(
+        and(
+          eq(journalSummaries.userId, userId), 
+          eq(journalSummaries.period, 'week'),
+          lte(journalSummaries.endDate, sevenDaysAgoDate) // Only summaries that ended at least 7 days ago
+        )
+      )
       .orderBy(desc(journalSummaries.endDate))
       .limit(1);
 
@@ -48,7 +59,6 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
     // If we have a weekly summary, start from the day after it ends
     // Otherwise, get the last 14 days
     let dailyStartDate: string;
-    const today = new Date();
     
     if (latestWeeklySummary.length > 0) {
       const summaryEndDate = new Date(latestWeeklySummary[0].endDate);
@@ -60,8 +70,6 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
       dailyStartDate = fourteenDaysAgo.toISOString().split('T')[0];
     }
-
-    const todayString = today.toISOString().split('T')[0];
 
     // 2. Get daily journals (7-14 days worth after the last weekly summary)
     const dailyJournals = await db
@@ -76,7 +84,6 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
         and(
           eq(journals.userId, userId),
           gte(journals.date, dailyStartDate),
-          lte(journals.date, todayString),
           eq(journals.status, 'complete') // Only completed journals
         )
       )
@@ -103,7 +110,7 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
       return entry;
     });
 
-    // 3. Get weekly summaries (up to 3, excluding any that overlap with daily journals)
+    // 3. Get weekly summaries (up to 3, only those that ended at least 7 days ago)
     const weeklySummaries = await db
       .select({
         startDate: journalSummaries.startDate,
@@ -115,7 +122,7 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
         and(
           eq(journalSummaries.userId, userId),
           eq(journalSummaries.period, 'week'),
-          lte(journalSummaries.endDate, dailyStartDate) // Only summaries that end before daily journal period
+          lte(journalSummaries.endDate, sevenDaysAgoDate) // Only summaries that ended at least 7 days ago
         )
       )
       .orderBy(desc(journalSummaries.endDate))
@@ -168,54 +175,4 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
       monthlySummaries: [],
     };
   }
-}
-
-/**
- * Format journal memory context for user messages in GPT conversations
- */
-export function formatJournalMemoryForPrompt(memoryContext: JournalMemoryContext): string {
-  let promptContent = '';
-
-  // Monthly summaries first (oldest to newest for chronological flow)
-  if (memoryContext.monthlySummaries.length > 0) {
-    promptContent += `**Monthly Context:**\n\n`;
-    memoryContext.monthlySummaries.reverse().forEach(summary => {
-      const startDate = new Date(summary.startDate);
-      const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      promptContent += `📆 **${monthYear}**\n`;
-      promptContent += `${summary.summary}\n\n`;
-    });
-  }
-
-  // Weekly summaries (oldest to newest for chronological flow)
-  if (memoryContext.weeklySummaries.length > 0) {
-    promptContent += `**Weekly Context:**\n\n`;
-    memoryContext.weeklySummaries.reverse().forEach(summary => {
-      const startDate = new Date(summary.startDate);
-      const endDate = new Date(summary.endDate);
-      const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-      promptContent += `📅 **${dateRange}**\n`;
-      promptContent += `${summary.summary}\n\n`;
-    });
-  }
-
-  // Daily journals (most recent first)
-  if (memoryContext.dailyJournals.length > 0) {
-    promptContent += `**Recent Daily Journals:**\n\n`;
-    memoryContext.dailyJournals.forEach(entry => {
-      const date = new Date(entry.date);
-      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      
-      promptContent += `🗓️ **${formattedDate}**\n`;
-      promptContent += `"${entry.initialMessage}"\n`;
-      
-      if (entry.assistantReply) {
-        promptContent += `*Response: "${entry.assistantReply}"*\n`;
-      }
-      
-      promptContent += `\n`;
-    });
-  }
-
-  return promptContent;
 }
