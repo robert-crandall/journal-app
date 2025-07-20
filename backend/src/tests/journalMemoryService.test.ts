@@ -69,13 +69,13 @@ describe('Journal Memory Service', () => {
       expect(context.dailyJournals[5].assistantReply).toBeUndefined();
     });
 
-    it('should start daily journals after the last weekly summary end date', async () => {
+    it('should start daily journals after the last weekly summary end date and only include summaries older than 7 days', async () => {
       const db = testDb();
       const today = new Date();
 
-      // Create a weekly summary that ended 5 days ago
+      // Create a weekly summary that ended 10 days ago (meets the 7+ day requirement)
       const summaryEndDate = new Date(today);
-      summaryEndDate.setDate(summaryEndDate.getDate() - 5);
+      summaryEndDate.setDate(summaryEndDate.getDate() - 10);
       const summaryStartDate = new Date(summaryEndDate);
       summaryStartDate.setDate(summaryStartDate.getDate() - 6);
 
@@ -84,12 +84,26 @@ describe('Journal Memory Service', () => {
         period: 'week',
         startDate: summaryStartDate.toISOString().split('T')[0],
         endDate: summaryEndDate.toISOString().split('T')[0],
-        summary: 'Weekly summary content',
+        summary: 'Valid weekly summary content',
       });
 
-      // Create daily journals - some before and some after the summary
+      // Create a weekly summary that ended only 5 days ago (should be excluded)
+      const recentSummaryEndDate = new Date(today);
+      recentSummaryEndDate.setDate(recentSummaryEndDate.getDate() - 5);
+      const recentSummaryStartDate = new Date(recentSummaryEndDate);
+      recentSummaryStartDate.setDate(recentSummaryStartDate.getDate() - 6);
+
+      await db.insert(journalSummaries).values({
+        userId,
+        period: 'week',
+        startDate: recentSummaryStartDate.toISOString().split('T')[0],
+        endDate: recentSummaryEndDate.toISOString().split('T')[0],
+        summary: 'Too recent weekly summary',
+      });
+
+      // Create daily journals - some before and some after the valid summary
       const journalPromises = [];
-      for (let i = -10; i <= 0; i++) {
+      for (let i = -15; i <= 0; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + i);
         const dateString = date.toISOString().split('T')[0];
@@ -108,21 +122,22 @@ describe('Journal Memory Service', () => {
 
       const context = await getJournalMemoryContext(userId);
 
-      // Should only include journals after the weekly summary end date (last 4 days)
-      expect(context.dailyJournals.length).toBeLessThanOrEqual(4);
+      // Should only include journals after the valid weekly summary end date (last 9 days)
+      expect(context.dailyJournals.length).toBeLessThanOrEqual(10);
+      // Should only include the weekly summary that ended 7+ days ago
       expect(context.weeklySummaries).toHaveLength(1);
-      expect(context.weeklySummaries[0].summary).toBe('Weekly summary content');
+      expect(context.weeklySummaries[0].summary).toBe('Valid weekly summary content');
     });
 
-    it('should include up to 3 weekly summaries', async () => {
+    it('should include up to 3 weekly summaries that are at least 7 days old', async () => {
       const db = testDb();
       const today = new Date();
 
-      // Create 5 weekly summaries (more than the limit of 3)
+      // Create 5 weekly summaries (more than the limit of 3), all at least 7 days old
       const summaryPromises = [];
       for (let i = 0; i < 5; i++) {
         const endDate = new Date(today);
-        endDate.setDate(endDate.getDate() - (i * 7 + 10)); // Each week is 7 days apart, starting 10 days ago
+        endDate.setDate(endDate.getDate() - (i * 7 + 8)); // Each week is 7 days apart, starting 8 days ago (meets 7+ requirement)
         const startDate = new Date(endDate);
         startDate.setDate(startDate.getDate() - 6);
 
