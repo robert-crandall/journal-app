@@ -25,11 +25,19 @@ export type UpdateUserAttributeRequest = {
   source?: AttributeSource;
 };
 
-export type UserAttributeResponse = UserAttribute;
+export type UserAttributeResponse = {
+  id: string;
+  userId: string;
+  category: string;
+  value: string;
+  source: AttributeSource;
+  lastUpdated: string;
+  createdAt: string;
+};
 
 // Grouped attributes for UI display
 export type GroupedUserAttributes = {
-  [category: string]: UserAttribute[];
+  [category: string]: UserAttributeResponse[];
 };
 
 // For GPT inference during summary generation

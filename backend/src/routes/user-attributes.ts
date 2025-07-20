@@ -6,7 +6,7 @@ import { db } from '../db';
 import { userAttributes } from '../db/schema/user-attributes';
 import { createUserAttributeSchema, updateUserAttributeSchema, getUserAttributesSchema } from '../validation/user-attributes';
 import { handleApiError } from '../utils/logger';
-import type { CreateUserAttributeRequest, UpdateUserAttributeRequest, UserAttributeResponse, GroupedUserAttributes } from '../types/user-attributes';
+import type { CreateUserAttributeRequest, UpdateUserAttributeRequest, UserAttributeResponse, GroupedUserAttributes, AttributeSource } from '../types/user-attributes';
 
 // Chain methods for RPC compatibility
 const app = new Hono()
@@ -58,7 +58,14 @@ const app = new Hono()
         if (!grouped[attribute.category]) {
           grouped[attribute.category] = [];
         }
-        grouped[attribute.category].push(attribute);
+        // Map database model to response format
+        const responseAttribute: UserAttributeResponse = {
+          ...attribute,
+          source: attribute.source as AttributeSource,
+          lastUpdated: attribute.lastUpdated.toISOString(),
+          createdAt: attribute.createdAt.toISOString(),
+        };
+        grouped[attribute.category].push(responseAttribute);
       }
 
       return c.json({
