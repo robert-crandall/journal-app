@@ -103,6 +103,12 @@
   - [x] 14.5 Add Plans menu item to navigation
   - [x] 14.6 Ensure all plans functionality works correctly
 
+- [ ] 15.0 Journal Memory Enhancement (Layered Context for GPT)
+  - [x] 15.1 Design and implement enhanced context service for journal conversations (backend)
+  - [ ] 15.2 Write backend integration tests for enhanced journal context
+  - [x] 15.3 Update GPT conversation system to use layered context
+  - [ ] 15.4 Ensure all journal memory enhancement tests pass
+
 ---
 
 **Relevant files:**

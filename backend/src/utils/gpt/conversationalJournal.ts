@@ -3,6 +3,7 @@ import { callGptApi } from './client';
 import { createPrompt } from './utils';
 import { gptConfig } from './config';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
+import { getJournalMemoryContext } from '../journalMemoryService';
 import { db } from '../../db';
 import { characterStats, familyMembers } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -46,11 +47,13 @@ ${formatUserContextForPrompt(userContext)}
 
   if (userMessageCount < 2) {
     systemPrompt += `
-Write a reflection based on the journal. This is kicking off a conversation with the user. Your tone should feel:
+Talk to the user about their latest message. This is kicking off a conversation with the user. Your tone should feel:
 - Smart, compassionate, and conversational
 - Occasionally funny or sarcastic (if the moment calls for it)
 - Curious and human, like someone who's paying real attention
 - Sometimes validating, sometimes challenging — based on the vibe
+
+Your response should feel like a natural continuation of the conversation, not a summary or analysis. Focus on what the user just said, and how it connects to their ongoing journey. Ask them questions to understand what they are saying better.
 `;
   } else {
     systemPrompt += `
@@ -267,6 +270,7 @@ function createSummarySystemPrompt(userContext: ComprehensiveUserContext): strin
 export async function generateFollowUpResponse(
   conversation: ChatMessage[],
   userContext: ComprehensiveUserContext,
+  userId: string,
 ): Promise<{ response: string; shouldOfferSave: boolean }> {
   const userMessages = conversation.filter((msg) => msg.role === 'user');
   const shouldOfferSave = userMessages.length >= 3;
@@ -276,6 +280,56 @@ export async function generateFollowUpResponse(
 
   // Prepare the conversation messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
+
+  // Add journal memory context as individual messages (oldest to newest)
+  const journalMemory = await getJournalMemoryContext(userId);
+
+  // Add monthly summaries first (oldest to newest)
+  if (journalMemory.monthlySummaries.length > 0) {
+    journalMemory.monthlySummaries.reverse().forEach((summary) => {
+      const startDate = new Date(summary.startDate);
+      const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      messages.push({
+        role: 'user',
+        content: `📆 **Monthly Summary: ${monthYear}**\n\n${summary.summary}`,
+      });
+    });
+  }
+
+  // Add weekly summaries (oldest to newest)
+  if (journalMemory.weeklySummaries.length > 0) {
+    journalMemory.weeklySummaries.reverse().forEach((summary) => {
+      const startDate = new Date(summary.startDate);
+      const endDate = new Date(summary.endDate);
+      const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      messages.push({
+        role: 'user',
+        content: `📅 **Weekly Summary: ${dateRange}**\n\n${summary.summary}`,
+      });
+    });
+  }
+
+  // Add daily journals (oldest to newest)
+  if (journalMemory.dailyJournals.length > 0) {
+    journalMemory.dailyJournals.reverse().forEach((entry) => {
+      const date = new Date(entry.date);
+      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      // Add user journal entry
+      messages.push({
+        role: 'user',
+        content: `🗓️ **${formattedDate}**\n\n${entry.initialMessage}`,
+      });
+
+      // Add assistant reply if it exists
+      if (entry.assistantReply) {
+        messages.push({
+          role: 'assistant',
+          content: entry.assistantReply,
+        });
+      }
+    });
+  }
 
   // Add the recent conversation context (last 6 messages)
   const recentConversation = conversation.slice(-6);
@@ -364,12 +418,62 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
 /**
  * Generate a rich, narrative summary from a conversational journal session
  */
-export async function generateJournalSummary(conversation: ChatMessage[], userContext: ComprehensiveUserContext): Promise<string> {
+export async function generateJournalSummary(conversation: ChatMessage[], userContext: ComprehensiveUserContext, userId: string): Promise<string> {
   // Create the system prompt focused on summary generation
   const systemPrompt = createSummarySystemPrompt(userContext);
 
   // Prepare the conversation messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
+
+  // Add journal memory context as individual messages (oldest to newest)
+  const journalMemory = await getJournalMemoryContext(userId);
+
+  // Add monthly summaries first (oldest to newest)
+  if (journalMemory.monthlySummaries.length > 0) {
+    journalMemory.monthlySummaries.reverse().forEach((summary) => {
+      const startDate = new Date(summary.startDate);
+      const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      messages.push({
+        role: 'user',
+        content: `📆 **Monthly Summary: ${monthYear}**\n\n${summary.summary}`,
+      });
+    });
+  }
+
+  // Add weekly summaries (oldest to newest)
+  if (journalMemory.weeklySummaries.length > 0) {
+    journalMemory.weeklySummaries.reverse().forEach((summary) => {
+      const startDate = new Date(summary.startDate);
+      const endDate = new Date(summary.endDate);
+      const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      messages.push({
+        role: 'user',
+        content: `📅 **Weekly Summary: ${dateRange}**\n\n${summary.summary}`,
+      });
+    });
+  }
+
+  // Add daily journals (oldest to newest)
+  if (journalMemory.dailyJournals.length > 0) {
+    journalMemory.dailyJournals.reverse().forEach((entry) => {
+      const date = new Date(entry.date);
+      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      // Add user journal entry
+      messages.push({
+        role: 'user',
+        content: `🗓️ **${formattedDate}**\n\n${entry.initialMessage}`,
+      });
+
+      // Add assistant reply if it exists
+      if (entry.assistantReply) {
+        messages.push({
+          role: 'assistant',
+          content: entry.assistantReply,
+        });
+      }
+    });
+  }
 
   // Add the recent conversation context (only user messages)
   const recentConversation = conversation;

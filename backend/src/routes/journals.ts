@@ -467,7 +467,7 @@ const app = new Hono()
       ];
 
       // Generate a personalized AI response based on the user's context and journal entry
-      const { response: aiResponse } = await generateFollowUpResponse(initialChatSession, userContext);
+      const { response: aiResponse } = await generateFollowUpResponse(initialChatSession, userContext, userId);
 
       // Add the AI response to the chat session
       initialChatSession.push({
@@ -554,7 +554,7 @@ const app = new Hono()
       });
 
       // Generate AI response using the conversational journal utility
-      const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext);
+      const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext, userId);
 
       // Add AI response
       const aiMessage: ChatMessage = {
@@ -633,7 +633,7 @@ const app = new Hono()
       });
 
       // Generate journal metadata and summary in parallel
-      const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext)]);
+      const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
 
       // Check if a day rating was provided in the request
       const currentJournalData = await db
