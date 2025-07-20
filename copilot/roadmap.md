@@ -99,7 +99,7 @@
 
 - [x] Plans should map to focus
 - [x] Add edit button to experiments
-- [ ] Ability to summarize weeks and months
+- [x] Ability to summarize weeks and months
 
 ---
 
