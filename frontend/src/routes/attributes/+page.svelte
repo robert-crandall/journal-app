@@ -26,13 +26,7 @@
 
   // Filter attributes based on source
   let filteredGroupedAttributes = $derived.by(() => {
-    console.log('Derived function called');
-    console.log('selectedSource:', selectedSource);
-    console.log('groupedAttributes:', groupedAttributes);
-    console.log('Object.keys(groupedAttributes):', Object.keys(groupedAttributes));
-    
     if (selectedSource === 'all') {
-      console.log('Returning all attributes:', groupedAttributes);
       return groupedAttributes;
     }
 
@@ -45,7 +39,6 @@
         }
       }
     }
-    console.log('Returning filtered attributes:', filtered);
     return filtered;
   });
 
@@ -64,16 +57,7 @@
       loading = true;
       error = null;
 
-      console.log('Loading attributes data...');
       const attributesData = await userAttributesApi.getGroupedUserAttributes();
-      console.log('Received attributes data:', attributesData);
-      console.log('Type of data:', typeof attributesData);
-      console.log('Object.keys:', Object.keys(attributesData));
-      console.log('Data structure check:');
-      console.log('- priorities:', attributesData.priorities?.length ?? 'undefined');
-      console.log('- values:', attributesData.values?.length ?? 'undefined');
-      console.log('- motivators:', attributesData.motivators?.length ?? 'undefined');
-      console.log('- challenges:', attributesData.challenges?.length ?? 'undefined');
       
       // Ensure all expected categories exist as arrays
       groupedAttributes = {
@@ -85,9 +69,6 @@
         motivators: attributesData.motivators || [],
         challenges: attributesData.challenges || [],
       };
-      
-      console.log('Final groupedAttributes:', groupedAttributes);
-      console.log('Final groupedAttributes keys:', Object.keys(groupedAttributes));
     } catch (err) {
       console.error('Failed to load attributes:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -273,8 +254,6 @@
       <details class="mt-4">
         <summary class="text-xs text-base-content/50 cursor-pointer">Debug Info</summary>
         <div class="text-xs text-left mt-2 p-2 bg-base-200 rounded">
-          <p>filteredGroupedAttributes keys: {Object.keys(filteredGroupedAttributes).join(', ')}</p>
-          <p>groupedAttributes keys: {Object.keys(groupedAttributes).join(', ')}</p>
           <p>selectedSource: {selectedSource}</p>
           <p>hasAnyAttributes: {hasAnyAttributes}</p>
           <pre>{JSON.stringify(groupedAttributes, null, 2)}</pre>
@@ -284,13 +263,7 @@
   {:else}
     <!-- Attributes Grid -->
     <div class="grid gap-6">
-      Hello
-      <p class="text-xs text-base-content/50 mb-2">
-        Debug: filteredGroupedAttributes has {Object.keys(filteredGroupedAttributes).length} keys: 
-        {Object.keys(filteredGroupedAttributes).join(', ')}
-      </p>
       {#each Object.entries(filteredGroupedAttributes) as [category, attributes]}
-      World
         {#if attributes && attributes.length > 0}
           {@const IconComponent = getCategoryIcon(category)}
           <div class="card bg-base-100 border border-base-300">
