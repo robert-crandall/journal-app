@@ -24,6 +24,7 @@ export {
   questIdSchema,
   questDashboardSchema,
 } from '../validation/quests';
+export { createUserAttributeSchema, updateUserAttributeSchema, getUserAttributesSchema, inferredAttributeSchema, attributeInferenceResultSchema } from '../validation/user-attributes';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';
@@ -92,3 +93,16 @@ export type {
   LinkQuestExperimentRequest,
   LinkQuestJournalRequest,
 } from '../types/quests';
+export type {
+  UserAttribute,
+  CreateUserAttribute,
+  UpdateUserAttribute,
+  AttributeSource,
+  AttributeCategory,
+  CreateUserAttributeRequest,
+  UpdateUserAttributeRequest,
+  UserAttributeResponse,
+  GroupedUserAttributes,
+  InferredAttribute,
+  AttributeInferenceResult,
+} from '../types/user-attributes';
