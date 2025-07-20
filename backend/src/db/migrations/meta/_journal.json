@@ -183,6 +183,13 @@
       "when": 1752942873806,
       "tag": "0025_soft_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1752957825079,
+      "tag": "0026_new_impossible_man",
+      "breakpoints": true
     }
   ]
 }
