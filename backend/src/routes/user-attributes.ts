@@ -6,7 +6,13 @@ import { db } from '../db';
 import { userAttributes } from '../db/schema/user-attributes';
 import { createUserAttributeSchema, updateUserAttributeSchema, getUserAttributesSchema } from '../validation/user-attributes';
 import { handleApiError } from '../utils/logger';
-import type { CreateUserAttributeRequest, UpdateUserAttributeRequest, UserAttributeResponse, GroupedUserAttributes, AttributeSource } from '../types/user-attributes';
+import type {
+  CreateUserAttributeRequest,
+  UpdateUserAttributeRequest,
+  UserAttributeResponse,
+  GroupedUserAttributes,
+  AttributeSource,
+} from '../types/user-attributes';
 
 // Chain methods for RPC compatibility
 const app = new Hono()
@@ -117,10 +123,13 @@ const app = new Hono()
         })
         .returning();
 
-      return c.json({
-        success: true,
-        data: newAttribute,
-      }, 201);
+      return c.json(
+        {
+          success: true,
+          data: newAttribute,
+        },
+        201,
+      );
     } catch (error) {
       handleApiError(error, 'Failed to create user attribute');
       return;

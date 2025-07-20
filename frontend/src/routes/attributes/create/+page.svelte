@@ -1,10 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { userAttributesApi } from '$lib/api/user-attributes';
-  import type {
-    CreateUserAttributeRequest,
-    AttributeSource,
-  } from '../../../../../../backend/src/types/user-attributes';
+  import type { CreateUserAttributeRequest, AttributeSource } from '../../../../../../backend/src/types/user-attributes';
   import { ArrowLeft, Save, User, Brain, Lightbulb, Zap, Shield, Heart } from 'lucide-svelte';
 
   // Form state
@@ -28,15 +25,12 @@
   ];
 
   // Form validation
-  let isValid = $derived(
-    formData.category.trim().length > 0 &&
-    formData.value.trim().length > 0
-  );
+  let isValid = $derived(formData.category.trim().length > 0 && formData.value.trim().length > 0);
 
   // Handle form submission
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    
+
     if (!isValid || loading) return;
 
     try {
@@ -51,7 +45,7 @@
       };
 
       await userAttributesApi.createUserAttribute(cleanedData);
-      
+
       // Navigate back to attributes list
       goto('/attributes');
     } catch (err) {
@@ -78,22 +72,17 @@
   <meta name="description" content="Add a new personal attribute or trait" />
 </svelte:head>
 
-<div class="container mx-auto p-4 max-w-2xl">
+<div class="container mx-auto max-w-2xl p-4">
   <!-- Header -->
-  <div class="flex items-center gap-4 mb-8">
-    <button
-      class="btn btn-ghost btn-sm"
-      onclick={goBack}
-    >
+  <div class="mb-8 flex items-center gap-4">
+    <button class="btn btn-ghost btn-sm" onclick={goBack}>
       <ArrowLeft size={20} />
       Back
     </button>
-    
+
     <div>
-      <h1 class="text-2xl font-bold text-base-content">Add Personal Attribute</h1>
-      <p class="text-base-content/70 mt-1">
-        Add a new trait that represents your personality or preferences
-      </p>
+      <h1 class="text-base-content text-2xl font-bold">Add Personal Attribute</h1>
+      <p class="text-base-content/70 mt-1">Add a new trait that represents your personality or preferences</p>
     </div>
   </div>
 
@@ -110,26 +99,29 @@
         <span class="label-text font-medium">Category</span>
         <span class="label-text-alt">Required</span>
       </label>
-      
+
       <!-- Quick Category Selection -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+      <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
         {#each commonCategories as category}
           <button
             type="button"
-            class="card bg-base-200 border-2 border-base-300 hover:border-primary hover:bg-base-100 transition-colors cursor-pointer p-3 {formData.category === category.name ? 'border-primary bg-primary/10' : ''}"
+            class="card bg-base-200 border-base-300 hover:border-primary hover:bg-base-100 cursor-pointer border-2 p-3 transition-colors {formData.category ===
+            category.name
+              ? 'border-primary bg-primary/10'
+              : ''}"
             onclick={() => selectCategory(category.name)}
           >
             <div class="flex flex-col items-center gap-2 text-center">
               <svelte:component this={category.icon} size={20} class="text-primary" />
               <div>
-                <div class="font-medium text-sm capitalize">{category.name}</div>
-                <div class="text-xs text-base-content/60 mt-1">{category.description}</div>
+                <div class="text-sm font-medium capitalize">{category.name}</div>
+                <div class="text-base-content/60 mt-1 text-xs">{category.description}</div>
               </div>
             </div>
           </button>
         {/each}
       </div>
-      
+
       <!-- Custom Category Input -->
       <input
         id="category-input"
@@ -141,9 +133,7 @@
         required
       />
       <label class="label">
-        <span class="label-text-alt text-base-content/60">
-          Categories help organize your attributes (e.g., priorities, values, interests)
-        </span>
+        <span class="label-text-alt text-base-content/60"> Categories help organize your attributes (e.g., priorities, values, interests) </span>
       </label>
     </div>
 
@@ -163,9 +153,7 @@
         required
       />
       <label class="label">
-        <span class="label-text-alt text-base-content/60">
-          The specific trait or characteristic (e.g., "family", "learning", "adventure")
-        </span>
+        <span class="label-text-alt text-base-content/60"> The specific trait or characteristic (e.g., "family", "learning", "adventure") </span>
       </label>
     </div>
 
@@ -174,38 +162,21 @@
       <label class="label" for="source-select">
         <span class="label-text font-medium">Source</span>
       </label>
-      <select
-        id="source-select"
-        class="select select-bordered w-full"
-        bind:value={formData.source}
-      >
+      <select id="source-select" class="select select-bordered w-full" bind:value={formData.source}>
         <option value="user_set">User Set</option>
         <option value="gpt_summary">AI Summary</option>
         <option value="journal_analysis">Journal Analysis</option>
       </select>
       <label class="label">
-        <span class="label-text-alt text-base-content/60">
-          How this attribute was identified or created
-        </span>
+        <span class="label-text-alt text-base-content/60"> How this attribute was identified or created </span>
       </label>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row gap-3 pt-6">
-      <button
-        type="button"
-        class="btn btn-outline"
-        onclick={goBack}
-        disabled={loading}
-      >
-        Cancel
-      </button>
-      
-      <button
-        type="submit"
-        class="btn btn-primary flex-1"
-        disabled={!isValid || loading}
-      >
+    <div class="flex flex-col gap-3 pt-6 sm:flex-row">
+      <button type="button" class="btn btn-outline" onclick={goBack} disabled={loading}> Cancel </button>
+
+      <button type="submit" class="btn btn-primary flex-1" disabled={!isValid || loading}>
         {#if loading}
           <span class="loading loading-spinner loading-sm"></span>
           Creating...

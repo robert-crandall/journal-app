@@ -185,7 +185,7 @@ describe('User Attributes API Integration Tests', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.data).toHaveLength(4);
-      
+
       // Check ordering by category then value
       expect(data.data[0].category).toBe('motivators');
       expect(data.data[1].category).toBe('priorities');
@@ -275,13 +275,13 @@ describe('User Attributes API Integration Tests', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-      
+
       const grouped = data.data;
       expect(Object.keys(grouped)).toHaveLength(3);
       expect(grouped.priorities).toHaveLength(2);
       expect(grouped.values).toHaveLength(1);
       expect(grouped.motivators).toHaveLength(1);
-      
+
       // Check specific values
       expect(grouped.priorities.map((attr: any) => attr.value).sort()).toEqual(['family', 'health']);
       expect(grouped.values[0].value).toBe('creativity');

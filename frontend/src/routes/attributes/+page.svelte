@@ -3,11 +3,7 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { userAttributesApi } from '$lib/api/user-attributes';
-  import type {
-    GroupedUserAttributes,
-    UserAttribute,
-    AttributeSource,
-  } from '../../../../../backend/src/types/user-attributes';
+  import type { GroupedUserAttributes, UserAttribute, AttributeSource } from '../../../../../backend/src/types/user-attributes';
   import { Plus, User, Brain, Lightbulb, Zap, Shield, Heart, Edit3, Trash2, Filter } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
@@ -45,7 +41,7 @@
   // Check if we have any attributes to display
   let hasAnyAttributes = $derived(() => {
     const attrs = filteredGroupedAttributes;
-    return Object.values(attrs).some(categoryAttrs => categoryAttrs && categoryAttrs.length > 0);
+    return Object.values(attrs).some((categoryAttrs) => categoryAttrs && categoryAttrs.length > 0);
   });
 
   // Load data on component mount
@@ -58,7 +54,7 @@
       error = null;
 
       const attributesData = await userAttributesApi.getGroupedUserAttributes();
-      
+
       // Ensure all expected categories exist as arrays
       groupedAttributes = {
         // Include any other categories that might exist first
@@ -155,33 +151,28 @@
   <meta name="description" content="View and manage your personal attributes and traits" />
 </svelte:head>
 
-<div class="container mx-auto p-4 max-w-6xl">
+<div class="container mx-auto max-w-6xl p-4">
   <!-- Header -->
-  <div class="flex flex-col gap-4 mb-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="mb-8 flex flex-col gap-4">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-base-content">Personal Attributes</h1>
-        <p class="text-base-content/70 mt-2">
-          Track your values, priorities, motivators, and other personal traits
-        </p>
+        <h1 class="text-base-content text-3xl font-bold">Personal Attributes</h1>
+        <p class="text-base-content/70 mt-2">Track your values, priorities, motivators, and other personal traits</p>
       </div>
 
-      <button
-        class="btn btn-primary"
-        onclick={navigateToCreate}
-      >
+      <button class="btn btn-primary" onclick={navigateToCreate}>
         <Plus size={20} />
         Add Attribute
       </button>
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-wrap gap-4 items-center">
+    <div class="flex flex-wrap items-center gap-4">
       <div class="flex items-center gap-2">
         <Filter size={16} />
         <span class="text-sm font-medium">Filter by source:</span>
       </div>
-      
+
       <div class="join">
         <input
           class="join-item btn btn-sm"
@@ -189,7 +180,7 @@
           name="source-filter"
           aria-label="All"
           checked={selectedSource === 'all'}
-          onchange={() => selectedSource = 'all'}
+          onchange={() => (selectedSource = 'all')}
         />
         <input
           class="join-item btn btn-sm"
@@ -197,7 +188,7 @@
           name="source-filter"
           aria-label="User Set"
           checked={selectedSource === 'user_set'}
-          onchange={() => selectedSource = 'user_set'}
+          onchange={() => (selectedSource = 'user_set')}
         />
         <input
           class="join-item btn btn-sm"
@@ -205,7 +196,7 @@
           name="source-filter"
           aria-label="AI Summary"
           checked={selectedSource === 'gpt_summary'}
-          onchange={() => selectedSource = 'gpt_summary'}
+          onchange={() => (selectedSource = 'gpt_summary')}
         />
         <input
           class="join-item btn btn-sm"
@@ -213,7 +204,7 @@
           name="source-filter"
           aria-label="Journal Analysis"
           checked={selectedSource === 'journal_analysis'}
-          onchange={() => selectedSource = 'journal_analysis'}
+          onchange={() => (selectedSource = 'journal_analysis')}
         />
       </div>
     </div>
@@ -221,27 +212,24 @@
 
   <!-- Loading State -->
   {#if loading}
-    <div class="flex justify-center items-center py-12">
+    <div class="flex items-center justify-center py-12">
       <span class="loading loading-spinner loading-lg"></span>
     </div>
   {:else if error}
     <!-- Error State -->
     <div class="alert alert-error mb-6">
       <span>{error}</span>
-      <button class="btn btn-sm btn-outline" onclick={loadAttributesData}>
-        Try Again
-      </button>
+      <button class="btn btn-sm btn-outline" onclick={loadAttributesData}> Try Again </button>
     </div>
   {:else if !hasAnyAttributes}
     <!-- Empty State -->
-    <div class="text-center py-12">
-      <User size={64} class="mx-auto text-base-content/30 mb-4" />
-      <h3 class="text-xl font-semibold mb-2">No attributes found</h3>
+    <div class="py-12 text-center">
+      <User size={64} class="text-base-content/30 mx-auto mb-4" />
+      <h3 class="mb-2 text-xl font-semibold">No attributes found</h3>
       <p class="text-base-content/70 mb-6">
-        {selectedSource === 'all' 
-          ? "Start building your personal profile by adding some attributes about yourself."
-          : "No attributes found for the selected source filter."
-        }
+        {selectedSource === 'all'
+          ? 'Start building your personal profile by adding some attributes about yourself.'
+          : 'No attributes found for the selected source filter.'}
       </p>
       {#if selectedSource === 'all'}
         <button class="btn btn-primary" onclick={navigateToCreate}>
@@ -249,11 +237,11 @@
           Add Your First Attribute
         </button>
       {/if}
-      
+
       <!-- Debug info -->
       <details class="mt-4">
-        <summary class="text-xs text-base-content/50 cursor-pointer">Debug Info</summary>
-        <div class="text-xs text-left mt-2 p-2 bg-base-200 rounded">
+        <summary class="text-base-content/50 cursor-pointer text-xs">Debug Info</summary>
+        <div class="bg-base-200 mt-2 rounded p-2 text-left text-xs">
           <p>selectedSource: {selectedSource}</p>
           <p>hasAnyAttributes: {hasAnyAttributes}</p>
           <pre>{JSON.stringify(groupedAttributes, null, 2)}</pre>
@@ -266,50 +254,50 @@
       {#each Object.entries(filteredGroupedAttributes) as [category, attributes]}
         {#if attributes && attributes.length > 0}
           {@const IconComponent = getCategoryIcon(category)}
-          <div class="card bg-base-100 border border-base-300">
+          <div class="card bg-base-100 border-base-300 border">
             <div class="card-body">
-              <div class="flex items-center gap-3 mb-4">
+              <div class="mb-4 flex items-center gap-3">
                 <IconComponent size={24} class="text-primary" />
                 <h2 class="card-title text-xl capitalize">{category}</h2>
                 <div class="badge badge-neutral">{attributes.length}</div>
               </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {#each attributes as attribute}
-                <div class="card bg-base-200 border border-base-300">
-                  <div class="card-body p-4">
-                    <div class="flex items-start justify-between gap-2 mb-2">
-                      <h3 class="font-semibold text-base-content">{attribute.value}</h3>
-                      <div class="dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="btn btn-ghost btn-xs btn-square">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                          </svg>
-                        </div>
-                        <div class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                          <button onclick={() => navigateToEdit(attribute.id)} class="text-sm btn btn-ghost btn-sm justify-start">
-                            <Edit3 size={14} />
-                            Edit
-                          </button>
-                          <button onclick={() => deleteAttribute(attribute.id)} class="text-sm btn btn-ghost btn-sm justify-start text-error">
-                            <Trash2 size={14} />
-                            Delete
-                          </button>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {#each attributes as attribute}
+                  <div class="card bg-base-200 border-base-300 border">
+                    <div class="card-body p-4">
+                      <div class="mb-2 flex items-start justify-between gap-2">
+                        <h3 class="text-base-content font-semibold">{attribute.value}</h3>
+                        <div class="dropdown dropdown-end">
+                          <div tabindex="0" role="button" class="btn btn-ghost btn-xs btn-square">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                            </svg>
+                          </div>
+                          <div class="dropdown-content menu bg-base-100 rounded-box w-32 p-2 shadow">
+                            <button onclick={() => navigateToEdit(attribute.id)} class="btn btn-ghost btn-sm justify-start text-sm">
+                              <Edit3 size={14} />
+                              Edit
+                            </button>
+                            <button onclick={() => deleteAttribute(attribute.id)} class="btn btn-ghost btn-sm text-error justify-start text-sm">
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div class="flex items-center justify-between">
-                      <div class="badge {getSourceBadgeClass(attribute.source)} badge-sm">
-                        {getSourceLabel(attribute.source)}
-                      </div>
-                      <div class="text-xs text-base-content/50">
-                        {formatDateTime(new Date(attribute.lastUpdated))}
+                      <div class="flex items-center justify-between">
+                        <div class="badge {getSourceBadgeClass(attribute.source)} badge-sm">
+                          {getSourceLabel(attribute.source)}
+                        </div>
+                        <div class="text-base-content/50 text-xs">
+                          {formatDateTime(new Date(attribute.lastUpdated))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              {/each}
+                {/each}
               </div>
             </div>
           </div>

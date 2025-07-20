@@ -27,7 +27,7 @@ export const userAttributesApi = {
   async getUserAttributes(filters?: { category?: string; source?: AttributeSource }): Promise<UserAttribute[]> {
     try {
       const query: Record<string, string> = {};
-      
+
       if (filters?.category) {
         query.category = filters.category;
       }

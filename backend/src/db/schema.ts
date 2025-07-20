@@ -24,7 +24,13 @@ export {
   questIdSchema,
   questDashboardSchema,
 } from '../validation/quests';
-export { createUserAttributeSchema, updateUserAttributeSchema, getUserAttributesSchema, inferredAttributeSchema, attributeInferenceResultSchema } from '../validation/user-attributes';
+export {
+  createUserAttributeSchema,
+  updateUserAttributeSchema,
+  getUserAttributesSchema,
+  inferredAttributeSchema,
+  attributeInferenceResultSchema,
+} from '../validation/user-attributes';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../types/users';

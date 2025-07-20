@@ -3,11 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userAttributesApi } from '$lib/api/user-attributes';
-  import type {
-    UserAttribute,
-    UpdateUserAttributeRequest,
-    AttributeSource,
-  } from '../../../../../../../backend/src/types/user-attributes';
+  import type { UserAttribute, UpdateUserAttributeRequest, AttributeSource } from '../../../../../../../backend/src/types/user-attributes';
   import { ArrowLeft, Save, User, Brain, Lightbulb, Zap, Shield, Heart } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
@@ -48,7 +44,7 @@
       error = null;
 
       attribute = await userAttributesApi.getUserAttribute(attributeId);
-      
+
       // Initialize form with current attribute data
       formData = {
         category: attribute.category,
@@ -68,23 +64,16 @@
   }
 
   // Form validation
-  let isValid = $derived(
-    formData.category?.trim().length > 0 &&
-    formData.value?.trim().length > 0
-  );
+  let isValid = $derived(formData.category?.trim().length > 0 && formData.value?.trim().length > 0);
 
   let hasChanges = $derived(
-    attribute && (
-      formData.category !== attribute.category ||
-      formData.value !== attribute.value ||
-      formData.source !== attribute.source
-    )
+    attribute && (formData.category !== attribute.category || formData.value !== attribute.value || formData.source !== attribute.source),
   );
 
   // Handle form submission
   async function handleSubmit(event: Event) {
     event.preventDefault();
-    
+
     if (!isValid || saving || !hasChanges) return;
 
     try {
@@ -99,7 +88,7 @@
       };
 
       await userAttributesApi.updateUserAttribute(attributeId, cleanedData);
-      
+
       // Navigate back to attributes list
       goto('/attributes');
     } catch (err) {
@@ -139,19 +128,16 @@
   <meta name="description" content="Edit a personal attribute or trait" />
 </svelte:head>
 
-<div class="container mx-auto p-4 max-w-2xl">
+<div class="container mx-auto max-w-2xl p-4">
   <!-- Header -->
-  <div class="flex items-center gap-4 mb-8">
-    <button
-      class="btn btn-ghost btn-sm"
-      onclick={goBack}
-    >
+  <div class="mb-8 flex items-center gap-4">
+    <button class="btn btn-ghost btn-sm" onclick={goBack}>
       <ArrowLeft size={20} />
       Back
     </button>
-    
+
     <div class="flex-1">
-      <h1 class="text-2xl font-bold text-base-content">Edit Personal Attribute</h1>
+      <h1 class="text-base-content text-2xl font-bold">Edit Personal Attribute</h1>
       {#if attribute}
         <p class="text-base-content/70 mt-1">
           Last updated: {formatDateTime(new Date(attribute.lastUpdated))}
@@ -161,23 +147,21 @@
   </div>
 
   {#if loading}
-    <div class="flex justify-center items-center py-12">
+    <div class="flex items-center justify-center py-12">
       <span class="loading loading-spinner loading-lg"></span>
     </div>
   {:else if error}
     <div class="alert alert-error mb-6">
       <span>{error}</span>
-      <button class="btn btn-sm btn-outline" onclick={loadAttribute}>
-        Try Again
-      </button>
+      <button class="btn btn-sm btn-outline" onclick={loadAttribute}> Try Again </button>
     </div>
   {:else if attribute}
     <form onsubmit={handleSubmit} class="space-y-6">
       <!-- Current Info -->
-      <div class="card bg-base-200 border border-base-300">
+      <div class="card bg-base-200 border-base-300 border">
         <div class="card-body p-4">
-          <h3 class="font-semibold mb-2">Current Information</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <h3 class="mb-2 font-semibold">Current Information</h3>
+          <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
             <div>
               <span class="text-base-content/60">Category:</span>
               <div class="font-medium capitalize">{attribute.category}</div>
@@ -200,26 +184,29 @@
           <span class="label-text font-medium">Category</span>
           <span class="label-text-alt">Required</span>
         </label>
-        
+
         <!-- Quick Category Selection -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
           {#each commonCategories as category}
             <button
               type="button"
-              class="card bg-base-200 border-2 border-base-300 hover:border-primary hover:bg-base-100 transition-colors cursor-pointer p-3 {formData.category === category.name ? 'border-primary bg-primary/10' : ''}"
+              class="card bg-base-200 border-base-300 hover:border-primary hover:bg-base-100 cursor-pointer border-2 p-3 transition-colors {formData.category ===
+              category.name
+                ? 'border-primary bg-primary/10'
+                : ''}"
               onclick={() => selectCategory(category.name)}
             >
               <div class="flex flex-col items-center gap-2 text-center">
                 <svelte:component this={category.icon} size={20} class="text-primary" />
                 <div>
-                  <div class="font-medium text-sm capitalize">{category.name}</div>
-                  <div class="text-xs text-base-content/60 mt-1">{category.description}</div>
+                  <div class="text-sm font-medium capitalize">{category.name}</div>
+                  <div class="text-base-content/60 mt-1 text-xs">{category.description}</div>
                 </div>
               </div>
             </button>
           {/each}
         </div>
-        
+
         <!-- Custom Category Input -->
         <input
           id="category-input"
@@ -231,9 +218,7 @@
           required
         />
         <label class="label">
-          <span class="label-text-alt text-base-content/60">
-            Categories help organize your attributes (e.g., priorities, values, interests)
-          </span>
+          <span class="label-text-alt text-base-content/60"> Categories help organize your attributes (e.g., priorities, values, interests) </span>
         </label>
       </div>
 
@@ -253,9 +238,7 @@
           required
         />
         <label class="label">
-          <span class="label-text-alt text-base-content/60">
-            The specific trait or characteristic (e.g., "family", "learning", "adventure")
-          </span>
+          <span class="label-text-alt text-base-content/60"> The specific trait or characteristic (e.g., "family", "learning", "adventure") </span>
         </label>
       </div>
 
@@ -264,38 +247,21 @@
         <label class="label" for="source-select">
           <span class="label-text font-medium">Source</span>
         </label>
-        <select
-          id="source-select"
-          class="select select-bordered w-full"
-          bind:value={formData.source}
-        >
+        <select id="source-select" class="select select-bordered w-full" bind:value={formData.source}>
           <option value="user_set">User Set</option>
           <option value="gpt_summary">AI Summary</option>
           <option value="journal_analysis">Journal Analysis</option>
         </select>
         <label class="label">
-          <span class="label-text-alt text-base-content/60">
-            How this attribute was identified or created
-          </span>
+          <span class="label-text-alt text-base-content/60"> How this attribute was identified or created </span>
         </label>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-3 pt-6">
-        <button
-          type="button"
-          class="btn btn-outline"
-          onclick={goBack}
-          disabled={saving}
-        >
-          Cancel
-        </button>
-        
-        <button
-          type="submit"
-          class="btn btn-primary flex-1"
-          disabled={!isValid || saving || !hasChanges}
-        >
+      <div class="flex flex-col gap-3 pt-6 sm:flex-row">
+        <button type="button" class="btn btn-outline" onclick={goBack} disabled={saving}> Cancel </button>
+
+        <button type="submit" class="btn btn-primary flex-1" disabled={!isValid || saving || !hasChanges}>
           {#if saving}
             <span class="loading loading-spinner loading-sm"></span>
             Saving...

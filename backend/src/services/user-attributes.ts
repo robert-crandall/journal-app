@@ -16,10 +16,7 @@ export class UserAttributesService {
   /**
    * Get all attributes for a user, optionally filtered by category or source
    */
-  async getUserAttributes(
-    userId: string,
-    filters?: { category?: AttributeCategory; source?: AttributeSource }
-  ): Promise<UserAttributeResponse[]> {
+  async getUserAttributes(userId: string, filters?: { category?: AttributeCategory; source?: AttributeSource }): Promise<UserAttributeResponse[]> {
     const conditions = [eq(userAttributes.userId, userId)];
 
     if (filters?.category) {
@@ -79,11 +76,7 @@ export class UserAttributesService {
   /**
    * Update an existing user attribute
    */
-  async updateUserAttribute(
-    userId: string,
-    attributeId: string,
-    data: UpdateUserAttributeRequest
-  ): Promise<UserAttributeResponse | null> {
+  async updateUserAttribute(userId: string, attributeId: string, data: UpdateUserAttributeRequest): Promise<UserAttributeResponse | null> {
     const [attribute] = await db
       .update(userAttributes)
       .set({
@@ -112,7 +105,11 @@ export class UserAttributesService {
    * Batch create or update attributes from GPT inference
    * This handles the case where GPT infers new attributes during summary generation
    */
-  async batchUpsertInferredAttributes(userId: string, inferredAttributes: InferredAttribute[], source: AttributeSource = 'gpt_summary'): Promise<UserAttributeResponse[]> {
+  async batchUpsertInferredAttributes(
+    userId: string,
+    inferredAttributes: InferredAttribute[],
+    source: AttributeSource = 'gpt_summary',
+  ): Promise<UserAttributeResponse[]> {
     const results: UserAttributeResponse[] = [];
 
     for (const inferred of inferredAttributes) {
@@ -120,13 +117,7 @@ export class UserAttributesService {
       const existing = await db
         .select()
         .from(userAttributes)
-        .where(
-          and(
-            eq(userAttributes.userId, userId),
-            eq(userAttributes.category, inferred.category),
-            eq(userAttributes.value, inferred.value)
-          )
-        )
+        .where(and(eq(userAttributes.userId, userId), eq(userAttributes.category, inferred.category), eq(userAttributes.value, inferred.value)))
         .limit(1);
 
       if (existing.length > 0) {
