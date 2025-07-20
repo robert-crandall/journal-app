@@ -234,7 +234,20 @@ const app = new Hono()
       }
 
       // Generate summary using GPT
-      const { summary, tags } = await generatePeriodSummary(journalsInPeriod, data.period, userId);
+      const { summary, tags, attributes } = await generatePeriodSummary(journalsInPeriod, data.period, userId);
+
+      // Save extracted attributes to user_attributes table
+      if (attributes.length > 0) {
+        const { UserAttributesService } = await import('../services/user-attributes');
+        const userAttributesService = new UserAttributesService();
+
+        try {
+          await userAttributesService.batchUpsertInferredAttributes(userId, attributes, 'gpt_summary');
+        } catch (attributeError) {
+          console.error('Failed to save extracted attributes:', attributeError);
+          // Don't fail the summary creation if attribute saving fails
+        }
+      }
 
       // Create the summary record
       const newSummary = await db

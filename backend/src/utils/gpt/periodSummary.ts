@@ -2,6 +2,8 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { callGptApi } from './client';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
 import type { journals } from '../../db/schema/journals';
+import { UserAttributesService } from '../../services/user-attributes';
+import type { InferredAttribute, GroupedUserAttributes } from '../../types/user-attributes';
 
 /**
  * Interface for period summary generation result
@@ -9,18 +11,38 @@ import type { journals } from '../../db/schema/journals';
 export interface PeriodSummaryResult {
   summary: string;
   tags: string[];
+  attributes: InferredAttribute[];
 }
 
 /**
  * System prompt for generating period summaries
  */
-function createPeriodSummarySystemPrompt(userContext: ComprehensiveUserContext, period: 'week' | 'month'): string {
+function createPeriodSummarySystemPrompt(userContext: ComprehensiveUserContext, period: 'week' | 'month', existingAttributes?: GroupedUserAttributes): string {
+  let existingAttributesSection = '';
+
+  if (existingAttributes) {
+    const hasExistingAttrs = Object.values(existingAttributes).some((attrs) => attrs && attrs.length > 0);
+
+    if (hasExistingAttrs) {
+      existingAttributesSection = '\n\n## Existing User Attributes\nHere are attributes already identified for this user:\n\n';
+
+      Object.entries(existingAttributes).forEach(([category, attrs]) => {
+        if (attrs && attrs.length > 0) {
+          existingAttributesSection += `**${category.charAt(0).toUpperCase() + category.slice(1)}**: ${attrs.map((attr) => attr.value).join(', ')}\n`;
+        }
+      });
+
+      existingAttributesSection +=
+        '\nWhen extracting new attributes, avoid duplicating these exact values. However, you may identify related or complementary traits that provide additional insight.\n';
+    }
+  }
+
   return `You are a thoughtful journal curator helping ${userContext.name} understand patterns and themes across their ${period}.
 
 Your task is to create a cohesive narrative summary of their journal entries from this ${period}. This summary will be used to provide context for future journal conversations.
 
 ## User Context
-${formatUserContextForPrompt(userContext)}
+${formatUserContextForPrompt(userContext)}${existingAttributesSection}
 
 ## Instructions
 
@@ -38,18 +60,36 @@ ${formatUserContextForPrompt(userContext)}
    - Relationship dynamics
    - Personal growth areas
 
-3. **Style guidelines:**
+3. **Infer user attributes** based on patterns across multiple journal entries:
+   - **Priorities**: What the user consistently values or focuses on (e.g., "family", "health", "creativity")
+   - **Values**: Core beliefs and principles that guide their decisions (e.g., "authenticity", "growth", "balance")
+   - **Motivators**: What drives and energizes them (e.g., "accomplishment", "connection", "learning")
+   - **Challenges**: Recurring difficulties or obstacles they face (e.g., "time management", "self-doubt", "perfectionism")
+   
+   Guidelines for attribute extraction:
+   - Only extract traits that appear as patterns across multiple entries, not single events
+   - Limit to 3-5 attributes per category maximum
+   - Use clear, concise terms (1-3 words)
+   - Focus on actionable insights that could improve personalization
+
+4. **Style guidelines:**
    - Write in first person from the user's perspective
    - Maintain a warm, observational tone
    - Connect themes across different entries
    - Be specific enough to trigger memories but concise
    - Length: 2-4 paragraphs for weeks, 3-6 paragraphs for months
 
-4. **Format your response as JSON:**
+5. **Format your response as JSON:**
 \`\`\`json
 {
   "summary": "Your narrative summary here...",
-  "tags": ["tag1", "tag2", "tag3", "tag4"]
+  "tags": ["tag1", "tag2", "tag3", "tag4"],
+  "attributes": [
+    { "category": "priorities", "value": "family" },
+    { "category": "challenges", "value": "time management" },
+    { "category": "motivators", "value": "accomplishment" },
+    { "category": "values", "value": "authenticity" }
+  ]
 }
 \`\`\`
 
@@ -73,8 +113,12 @@ export async function generatePeriodSummary(
     includeExistingTags: false, // We'll generate fresh tags
   });
 
+  // Get existing user attributes to provide context for GPT
+  const userAttributesService = new UserAttributesService();
+  const existingAttributes = await userAttributesService.getGroupedUserAttributes(userId);
+
   // Create the system prompt
-  const systemPrompt = createPeriodSummarySystemPrompt(userContext, period);
+  const systemPrompt = createPeriodSummarySystemPrompt(userContext, period, existingAttributes);
 
   // Prepare the messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
@@ -126,9 +170,21 @@ export async function generatePeriodSummary(
       throw new Error('Invalid response format from GPT');
     }
 
+    // Validate attributes if present
+    const attributes: InferredAttribute[] = Array.isArray(result.attributes)
+      ? result.attributes.filter(
+          (attr: any) =>
+            attr &&
+            typeof attr.category === 'string' &&
+            typeof attr.value === 'string' &&
+            ['priorities', 'values', 'motivators', 'challenges'].includes(attr.category),
+        )
+      : [];
+
     return {
       summary: result.summary,
       tags: result.tags,
+      attributes,
     };
   } catch (error) {
     throw new Error(`Failed to parse GPT period summary response: ${error instanceof Error ? error.message : String(error)}`);

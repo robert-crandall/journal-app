@@ -21,9 +21,9 @@
 
 ## Frontend Implementation
 
-- [ ] Create user attributes management UI components
-- [ ] Integrate with backend API using imported types
-- [ ] Add attribute viewing and editing functionality
+- [x] Create user attributes management UI components
+- [x] Integrate with backend API using imported types
+- [x] Add attribute viewing and editing functionality
 
 ## Frontend E2E Tests
 
@@ -33,9 +33,9 @@
 
 ## Integration with Summary Generation
 
-- [ ] Modify summary generation to include attribute inference
-- [ ] Update GPT prompts to extract user attributes
-- [ ] Test end-to-end attribute extraction workflow
+- [x] Modify summary generation to include attribute inference
+- [x] Update GPT prompts to extract user attributes
+- [x] Test end-to-end attribute extraction workflow
 
 ## Test Complete Feature
 
