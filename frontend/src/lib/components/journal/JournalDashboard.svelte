@@ -4,7 +4,7 @@
   import { JournalService } from '$lib/api/journal';
   import type { JournalListItem, ListJournalsResponse } from '$lib/types/journal';
   import JournalHeatmap from '$lib/components/journal/JournalHeatmap.svelte';
-  import { BookOpenIcon, CalendarDaysIcon, ListIcon, PlusIcon } from 'lucide-svelte';
+  import { BookOpenIcon, CalendarDaysIcon, ListIcon, PlusIcon, SparklesIcon } from 'lucide-svelte';
   import { getTodayDateString, formatDate } from '$lib/utils/date';
 
   let loading = true;
@@ -58,6 +58,10 @@
     goto('/journals');
   }
 
+  function goToSummaries() {
+    goto('/journal-summaries');
+  }
+
   $: journals = journalData?.journals || [];
   $: completedJournals = journals.filter((j) => j.status === 'complete');
 
@@ -87,6 +91,10 @@
     </div>
 
     <div class="flex gap-2">
+      <button class="btn btn-ghost btn-sm" on:click={goToSummaries}>
+        <SparklesIcon size={16} />
+        <span class="hidden sm:inline">Summaries</span>
+      </button>
       <button class="btn btn-ghost btn-sm" on:click={goToJournalsList}>
         <ListIcon size={16} />
         <span class="hidden sm:inline">All Entries</span>
