@@ -47,10 +47,10 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
       .from(journalSummaries)
       .where(
         and(
-          eq(journalSummaries.userId, userId), 
+          eq(journalSummaries.userId, userId),
           eq(journalSummaries.period, 'week'),
-          lte(journalSummaries.endDate, sevenDaysAgoDate) // Only summaries that ended at least 7 days ago
-        )
+          lte(journalSummaries.endDate, sevenDaysAgoDate), // Only summaries that ended at least 7 days ago
+        ),
       )
       .orderBy(desc(journalSummaries.endDate))
       .limit(1);
@@ -59,7 +59,7 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
     // If we have a weekly summary, start from the day after it ends
     // Otherwise, get the last 14 days
     let dailyStartDate: string;
-    
+
     if (latestWeeklySummary.length > 0) {
       const summaryEndDate = new Date(latestWeeklySummary[0].endDate);
       summaryEndDate.setDate(summaryEndDate.getDate() + 1); // Day after summary ends
@@ -84,8 +84,8 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
         and(
           eq(journals.userId, userId),
           gte(journals.date, dailyStartDate),
-          eq(journals.status, 'complete') // Only completed journals
-        )
+          eq(journals.status, 'complete'), // Only completed journals
+        ),
       )
       .orderBy(desc(journals.date))
       .limit(14); // Maximum 14 days
@@ -101,7 +101,7 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
       if (index < 5 && journal.chatSession) {
         const chatSession = journal.chatSession as ChatMessage[];
         // Find the first assistant reply (usually the second message)
-        const assistantReply = chatSession.find(msg => msg.role === 'assistant');
+        const assistantReply = chatSession.find((msg) => msg.role === 'assistant');
         if (assistantReply) {
           entry.assistantReply = assistantReply.content;
         }
@@ -122,8 +122,8 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
         and(
           eq(journalSummaries.userId, userId),
           eq(journalSummaries.period, 'week'),
-          lte(journalSummaries.endDate, sevenDaysAgoDate) // Only summaries that ended at least 7 days ago
-        )
+          lte(journalSummaries.endDate, sevenDaysAgoDate), // Only summaries that ended at least 7 days ago
+        ),
       )
       .orderBy(desc(journalSummaries.endDate))
       .limit(3);
@@ -147,20 +147,20 @@ export async function getJournalMemoryContext(userId: string): Promise<JournalMe
         and(
           eq(journalSummaries.userId, userId),
           eq(journalSummaries.period, 'month'),
-          lte(journalSummaries.endDate, monthlyStartCutoff) // Only summaries that end before weekly/daily period
-        )
+          lte(journalSummaries.endDate, monthlyStartCutoff), // Only summaries that end before weekly/daily period
+        ),
       )
       .orderBy(desc(journalSummaries.endDate))
       .limit(2);
 
     return {
       dailyJournals: processedDailyJournals,
-      weeklySummaries: weeklySummaries.map(summary => ({
+      weeklySummaries: weeklySummaries.map((summary) => ({
         startDate: summary.startDate,
         endDate: summary.endDate,
         summary: summary.summary,
       })),
-      monthlySummaries: monthlySummaries.map(summary => ({
+      monthlySummaries: monthlySummaries.map((summary) => ({
         startDate: summary.startDate,
         endDate: summary.endDate,
         summary: summary.summary,

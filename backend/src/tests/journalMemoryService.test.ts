@@ -25,7 +25,7 @@ describe('Journal Memory Service', () => {
   describe('getJournalMemoryContext', () => {
     it('should return empty context when no data exists', async () => {
       const context = await getJournalMemoryContext(userId);
-      
+
       expect(context.dailyJournals).toEqual([]);
       expect(context.weeklySummaries).toEqual([]);
       expect(context.monthlySummaries).toEqual([]);
@@ -34,14 +34,14 @@ describe('Journal Memory Service', () => {
     it('should get daily journals from the last 14 days when no weekly summary exists', async () => {
       const db = testDb();
       const today = new Date();
-      
+
       // Create daily journals for the last 10 days
       const journalPromises = [];
       for (let i = 0; i < 10; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateString = date.toISOString().split('T')[0];
-        
+
         journalPromises.push(
           db.insert(journals).values({
             userId,
@@ -52,14 +52,14 @@ describe('Journal Memory Service', () => {
               { role: 'user', content: `Day ${i} journal entry`, timestamp: new Date().toISOString() },
               { role: 'assistant', content: `Day ${i} response`, timestamp: new Date().toISOString() },
             ],
-          })
+          }),
         );
       }
-      
+
       await Promise.all(journalPromises);
-      
+
       const context = await getJournalMemoryContext(userId);
-      
+
       expect(context.dailyJournals).toHaveLength(10);
       expect(context.dailyJournals[0].initialMessage).toBe('Day 0 journal entry');
       // Most recent 5 should have assistant replies
@@ -72,13 +72,13 @@ describe('Journal Memory Service', () => {
     it('should start daily journals after the last weekly summary end date', async () => {
       const db = testDb();
       const today = new Date();
-      
+
       // Create a weekly summary that ended 5 days ago
       const summaryEndDate = new Date(today);
       summaryEndDate.setDate(summaryEndDate.getDate() - 5);
       const summaryStartDate = new Date(summaryEndDate);
       summaryStartDate.setDate(summaryStartDate.getDate() - 6);
-      
+
       await db.insert(journalSummaries).values({
         userId,
         period: 'week',
@@ -86,28 +86,28 @@ describe('Journal Memory Service', () => {
         endDate: summaryEndDate.toISOString().split('T')[0],
         summary: 'Weekly summary content',
       });
-      
+
       // Create daily journals - some before and some after the summary
       const journalPromises = [];
       for (let i = -10; i <= 0; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + i);
         const dateString = date.toISOString().split('T')[0];
-        
+
         journalPromises.push(
           db.insert(journals).values({
             userId,
             date: dateString,
             status: 'complete',
             initialMessage: `Day ${i} journal entry`,
-          })
+          }),
         );
       }
-      
+
       await Promise.all(journalPromises);
-      
+
       const context = await getJournalMemoryContext(userId);
-      
+
       // Should only include journals after the weekly summary end date (last 4 days)
       expect(context.dailyJournals.length).toBeLessThanOrEqual(4);
       expect(context.weeklySummaries).toHaveLength(1);
@@ -117,7 +117,7 @@ describe('Journal Memory Service', () => {
     it('should include up to 3 weekly summaries', async () => {
       const db = testDb();
       const today = new Date();
-      
+
       // Create 5 weekly summaries (more than the limit of 3)
       const summaryPromises = [];
       for (let i = 0; i < 5; i++) {
@@ -125,7 +125,7 @@ describe('Journal Memory Service', () => {
         endDate.setDate(endDate.getDate() - (i * 7 + 10)); // Each week is 7 days apart, starting 10 days ago
         const startDate = new Date(endDate);
         startDate.setDate(startDate.getDate() - 6);
-        
+
         summaryPromises.push(
           db.insert(journalSummaries).values({
             userId,
@@ -133,14 +133,14 @@ describe('Journal Memory Service', () => {
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0],
             summary: `Weekly summary ${i}`,
-          })
+          }),
         );
       }
-      
+
       await Promise.all(summaryPromises);
-      
+
       const context = await getJournalMemoryContext(userId);
-      
+
       expect(context.weeklySummaries).toHaveLength(3);
       expect(context.weeklySummaries[0].summary).toBe('Weekly summary 0'); // Most recent
     });
@@ -148,13 +148,13 @@ describe('Journal Memory Service', () => {
     it('should include up to 2 monthly summaries that are older than weekly summaries', async () => {
       const db = testDb();
       const today = new Date();
-      
+
       // Create weekly summary
       const weeklyEndDate = new Date(today);
       weeklyEndDate.setDate(weeklyEndDate.getDate() - 10);
       const weeklyStartDate = new Date(weeklyEndDate);
       weeklyStartDate.setDate(weeklyStartDate.getDate() - 6);
-      
+
       await db.insert(journalSummaries).values({
         userId,
         period: 'week',
@@ -162,7 +162,7 @@ describe('Journal Memory Service', () => {
         endDate: weeklyEndDate.toISOString().split('T')[0],
         summary: 'Weekly summary',
       });
-      
+
       // Create monthly summaries - some before and after the weekly summary
       const monthlyPromises = [];
       for (let i = 0; i < 4; i++) {
@@ -170,7 +170,7 @@ describe('Journal Memory Service', () => {
         endDate.setDate(endDate.getDate() - (i * 30 + 20)); // Each month is 30 days apart, starting 20 days ago
         const startDate = new Date(endDate);
         startDate.setDate(startDate.getDate() - 29);
-        
+
         monthlyPromises.push(
           db.insert(journalSummaries).values({
             userId,
@@ -178,14 +178,14 @@ describe('Journal Memory Service', () => {
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0],
             summary: `Monthly summary ${i}`,
-          })
+          }),
         );
       }
-      
+
       await Promise.all(monthlyPromises);
-      
+
       const context = await getJournalMemoryContext(userId);
-      
+
       expect(context.monthlySummaries).toHaveLength(2);
       expect(context.weeklySummaries).toHaveLength(1);
     });
@@ -193,30 +193,30 @@ describe('Journal Memory Service', () => {
     it('should only include completed journals', async () => {
       const db = testDb();
       const today = new Date();
-      
+
       // Create journals with different statuses
       const journalPromises = [];
       const statuses = ['complete', 'draft', 'in_review'];
-      
+
       for (let i = 0; i < 3; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateString = date.toISOString().split('T')[0];
-        
+
         journalPromises.push(
           db.insert(journals).values({
             userId,
             date: dateString,
             status: statuses[i] as 'complete' | 'draft' | 'in_review',
             initialMessage: `Journal entry ${i}`,
-          })
+          }),
         );
       }
-      
+
       await Promise.all(journalPromises);
-      
+
       const context = await getJournalMemoryContext(userId);
-      
+
       // Should only include the completed journal
       expect(context.dailyJournals).toHaveLength(1);
       expect(context.dailyJournals[0].initialMessage).toBe('Journal entry 0');
