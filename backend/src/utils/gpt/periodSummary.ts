@@ -84,12 +84,12 @@ export async function generatePeriodSummary(
 
   journalEntries.forEach((journal, index) => {
     journalContent += `**${journal.date}**\n`;
-    
+
     // Since summary is AI generated, only use initialMessage for user's original voice
     if (journal.initialMessage) {
       journalContent += `Content: ${journal.initialMessage}\n`;
     }
-    
+
     journalContent += '\n---\n\n';
   });
 
@@ -140,18 +140,18 @@ export async function generatePeriodSummary(
  */
 export function getWeekBoundaries(date: Date): { startDate: string; endDate: string } {
   const inputDate = new Date(date);
-  
+
   // Find the Saturday that starts this week
   const dayOfWeek = inputDate.getDay(); // 0 = Sunday, 6 = Saturday
   const daysToSubtract = dayOfWeek === 6 ? 0 : dayOfWeek + 1; // Saturday = 0 days back
-  
+
   const saturday = new Date(inputDate);
   saturday.setDate(inputDate.getDate() - daysToSubtract);
-  
+
   // Friday is 6 days after Saturday
   const friday = new Date(saturday);
   friday.setDate(saturday.getDate() + 6);
-  
+
   return {
     startDate: saturday.toISOString().split('T')[0], // YYYY-MM-DD
     endDate: friday.toISOString().split('T')[0], // YYYY-MM-DD
@@ -163,10 +163,10 @@ export function getWeekBoundaries(date: Date): { startDate: string; endDate: str
  */
 export function getMonthBoundaries(date: Date): { startDate: string; endDate: string } {
   const inputDate = new Date(date);
-  
+
   const firstDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
   const lastDay = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0);
-  
+
   return {
     startDate: firstDay.toISOString().split('T')[0], // YYYY-MM-DD
     endDate: lastDay.toISOString().split('T')[0], // YYYY-MM-DD

@@ -4,14 +4,7 @@
   import { goto } from '$app/navigation';
   import { journalSummariesApi, journalSummariesUtils } from '$lib/api/journal-summaries';
   import type { GenerateJournalSummaryFormData } from '$lib/types/journal-summaries';
-  import { 
-    BookOpenIcon, 
-    CalendarIcon, 
-    ArrowLeftIcon,
-    SparklesIcon,
-    SaveIcon,
-    ClockIcon
-  } from 'lucide-svelte';
+  import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, SparklesIcon, SaveIcon, ClockIcon } from 'lucide-svelte';
 
   // State
   let formData: GenerateJournalSummaryFormData = {
@@ -37,7 +30,7 @@
       formData = {
         ...formData,
         startDate: boundaries.startDate,
-        endDate: boundaries.endDate
+        endDate: boundaries.endDate,
       };
     }
   });
@@ -69,14 +62,14 @@
       formData = {
         ...formData,
         startDate: boundaries.startDate,
-        endDate: boundaries.endDate
+        endDate: boundaries.endDate,
       };
     } else {
       const boundaries = journalSummariesUtils.getMonthBoundaries(now);
       formData = {
         ...formData,
         startDate: boundaries.startDate,
-        endDate: boundaries.endDate
+        endDate: boundaries.endDate,
       };
     }
   }
@@ -96,7 +89,7 @@
       formData = {
         ...formData,
         startDate: boundaries.startDate,
-        endDate: boundaries.endDate
+        endDate: boundaries.endDate,
       };
     } else {
       previousDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
@@ -104,7 +97,7 @@
       formData = {
         ...formData,
         startDate: boundaries.startDate,
-        endDate: boundaries.endDate
+        endDate: boundaries.endDate,
       };
     }
   }
@@ -112,9 +105,8 @@
   $: isFormValid = Boolean(formData.startDate && formData.endDate && formData.period) && !generating;
 
   $: periodLabel = formData.period === 'week' ? 'Weekly' : 'Monthly';
-  $: dateRangeLabel = formData.startDate && formData.endDate 
-    ? journalSummariesUtils.formatPeriod(formData.period, formData.startDate, formData.endDate)
-    : 'Select dates';
+  $: dateRangeLabel =
+    formData.startDate && formData.endDate ? journalSummariesUtils.formatPeriod(formData.period, formData.startDate, formData.endDate) : 'Select dates';
 </script>
 
 <svelte:head>
@@ -127,9 +119,7 @@
     <div class="breadcrumbs mb-6 text-sm">
       <ul>
         <li>
-          <button on:click={goBack} class="text-primary hover:text-primary-focus">
-            Journal Summaries
-          </button>
+          <button on:click={goBack} class="text-primary hover:text-primary-focus"> Journal Summaries </button>
         </li>
         <li class="text-base-content/60">Generate New Summary</li>
       </ul>
@@ -137,13 +127,11 @@
 
     <!-- Header -->
     <div class="mb-8 text-center">
-      <div class="flex items-center justify-center gap-3 mb-4">
+      <div class="mb-4 flex items-center justify-center gap-3">
         <SparklesIcon size={32} class="text-primary" />
         <h1 class="text-3xl font-bold">Generate Summary</h1>
       </div>
-      <p class="text-base-content/70">
-        Create an AI-generated summary of your journal entries for a specific time period
-      </p>
+      <p class="text-base-content/70">Create an AI-generated summary of your journal entries for a specific time period</p>
     </div>
 
     <!-- Form -->
@@ -152,26 +140,14 @@
         <form on:submit|preventDefault={generateSummary} class="space-y-6">
           <!-- Period Selection -->
           <div class="form-control">
-            <span class="label-text font-medium mb-2 block">Summary Period</span>
+            <span class="label-text mb-2 block font-medium">Summary Period</span>
             <div class="flex gap-4">
               <label class="label cursor-pointer">
-                <input 
-                  type="radio" 
-                  bind:group={formData.period} 
-                  value="week"
-                  on:change={handlePeriodChange}
-                  class="radio radio-primary" 
-                />
+                <input type="radio" bind:group={formData.period} value="week" on:change={handlePeriodChange} class="radio radio-primary" />
                 <span class="label-text ml-2">Weekly</span>
               </label>
               <label class="label cursor-pointer">
-                <input 
-                  type="radio" 
-                  bind:group={formData.period} 
-                  value="month"
-                  on:change={handlePeriodChange}
-                  class="radio radio-secondary" 
-                />
+                <input type="radio" bind:group={formData.period} value="month" on:change={handlePeriodChange} class="radio radio-secondary" />
                 <span class="label-text ml-2">Monthly</span>
               </label>
             </div>
@@ -192,25 +168,13 @@
               <label for="start-date" class="label">
                 <span class="label-text">Start Date</span>
               </label>
-              <input 
-                id="start-date"
-                type="date" 
-                bind:value={formData.startDate}
-                class="input input-bordered"
-                required 
-              />
+              <input id="start-date" type="date" bind:value={formData.startDate} class="input input-bordered" required />
             </div>
             <div class="form-control">
               <label for="end-date" class="label">
                 <span class="label-text">End Date</span>
               </label>
-              <input 
-                id="end-date"
-                type="date" 
-                bind:value={formData.endDate}
-                class="input input-bordered"
-                required 
-              />
+              <input id="end-date" type="date" bind:value={formData.endDate} class="input input-bordered" required />
             </div>
           </div>
 
@@ -218,18 +182,10 @@
           <div class="form-control">
             <span class="label-text mb-2 block">Quick Presets</span>
             <div class="flex flex-wrap gap-2">
-              <button 
-                type="button" 
-                on:click={setCurrentPeriod}
-                class="btn btn-outline btn-sm"
-              >
+              <button type="button" on:click={setCurrentPeriod} class="btn btn-outline btn-sm">
                 Current {formData.period === 'week' ? 'Week' : 'Month'}
               </button>
-              <button 
-                type="button" 
-                on:click={setPreviousPeriod}
-                class="btn btn-outline btn-sm"
-              >
+              <button type="button" on:click={setPreviousPeriod} class="btn btn-outline btn-sm">
                 Previous {formData.period === 'week' ? 'Week' : 'Month'}
               </button>
             </div>
@@ -248,19 +204,15 @@
             <div>
               <h4 class="font-medium">How it works</h4>
               <p class="text-sm opacity-75">
-                We'll analyze all your completed journal entries from the selected period and create a cohesive summary 
-                highlighting key themes, patterns, and insights.
+                We'll analyze all your completed journal entries from the selected period and create a cohesive summary highlighting key themes, patterns, and
+                insights.
               </p>
             </div>
           </div>
 
           <!-- Actions -->
           <div class="flex flex-col gap-3 sm:flex-row-reverse">
-            <button 
-              type="submit" 
-              disabled={!isFormValid} 
-              class="btn btn-primary gap-2 flex-1 sm:flex-none"
-            >
+            <button type="submit" disabled={!isFormValid} class="btn btn-primary flex-1 gap-2 sm:flex-none">
               {#if generating}
                 <span class="loading loading-spinner loading-sm"></span>
                 Generating...
@@ -269,12 +221,7 @@
                 Generate Summary
               {/if}
             </button>
-            <button 
-              type="button" 
-              on:click={goBack} 
-              class="btn btn-outline flex-1 sm:flex-none"
-              disabled={generating}
-            >
+            <button type="button" on:click={goBack} class="btn btn-outline flex-1 sm:flex-none" disabled={generating}>
               <ArrowLeftIcon size={16} />
               Cancel
             </button>
@@ -285,8 +232,8 @@
 
     <!-- Additional Info -->
     <div class="mt-8 text-center">
-      <div class="text-sm text-base-content/60">
-        <ClockIcon size={14} class="inline mr-1" />
+      <div class="text-base-content/60 text-sm">
+        <ClockIcon size={14} class="mr-1 inline" />
         Summary generation typically takes 10-30 seconds
       </div>
     </div>

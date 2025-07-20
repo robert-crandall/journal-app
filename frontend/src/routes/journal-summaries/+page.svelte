@@ -3,17 +3,7 @@
   import { goto } from '$app/navigation';
   import { journalSummariesApi, journalSummariesUtils } from '$lib/api/journal-summaries';
   import type { JournalSummaryResponse, ListJournalSummariesResponse } from '$lib/types/journal-summaries';
-  import { 
-    BookOpenIcon, 
-    CalendarIcon, 
-    PlusIcon, 
-    FilterIcon, 
-    RefreshCwIcon,
-    ClockIcon,
-    TagIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon
-  } from 'lucide-svelte';
+  import { BookOpenIcon, CalendarIcon, PlusIcon, FilterIcon, RefreshCwIcon, ClockIcon, TagIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // State
@@ -22,11 +12,11 @@
   let hasMore = false;
   let loading = true;
   let error: string | null = null;
-  
+
   // Filters
   let periodFilter: 'all' | 'week' | 'month' = 'all';
   let yearFilter: number | null = null;
-  
+
   // Pagination
   const ITEMS_PER_PAGE = 12;
   let currentPage = 0;
@@ -51,13 +41,13 @@
       if (reset) currentPage = 0;
 
       const response = await journalSummariesApi.getJournalSummaries(params);
-      
+
       if (reset) {
         summaries = response.summaries;
       } else {
         summaries = [...summaries, ...response.summaries];
       }
-      
+
       totalSummaries = response.total;
       hasMore = response.hasMore;
     } catch (err) {
@@ -149,11 +139,7 @@
               <label class="label py-0">
                 <span class="label-text text-xs">Period</span>
               </label>
-              <select 
-                bind:value={periodFilter} 
-                on:change={handleFilterChange}
-                class="select select-bordered select-sm"
-              >
+              <select bind:value={periodFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
                 <option value="all">All Periods</option>
                 <option value="week">Weekly</option>
                 <option value="month">Monthly</option>
@@ -165,11 +151,7 @@
               <label class="label py-0">
                 <span class="label-text text-xs">Year</span>
               </label>
-              <select 
-                bind:value={yearFilter} 
-                on:change={handleFilterChange}
-                class="select select-bordered select-sm"
-              >
+              <select bind:value={yearFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
                 <option value={null}>All Years</option>
                 {#each availableYears as year}
                   <option value={year}>{year}</option>
@@ -195,7 +177,7 @@
         </div>
       </div>
 
-    <!-- Error State -->
+      <!-- Error State -->
     {:else if error}
       <div class="card bg-error text-error-content shadow-xl">
         <div class="card-body text-center">
@@ -210,7 +192,7 @@
         </div>
       </div>
 
-    <!-- Empty State -->
+      <!-- Empty State -->
     {:else if summaries.length === 0}
       <div class="card bg-base-200">
         <div class="card-body py-20 text-center">
@@ -219,11 +201,9 @@
               <BookOpenIcon size={48} />
             </div>
           </div>
-          <h2 class="text-2xl font-bold mb-4">No Journal Summaries Yet</h2>
-          <p class="text-base-content/70 mb-6 max-w-md mx-auto">
-            Create your first journal summary to see patterns and themes from your journal entries.
-          </p>
-          <div class="flex flex-wrap gap-3 justify-center">
+          <h2 class="mb-4 text-2xl font-bold">No Journal Summaries Yet</h2>
+          <p class="text-base-content/70 mx-auto mb-6 max-w-md">Create your first journal summary to see patterns and themes from your journal entries.</p>
+          <div class="flex flex-wrap justify-center gap-3">
             <button on:click={createWeeklySummary} class="btn btn-primary gap-2">
               <PlusIcon size={16} />
               Create Weekly Summary
@@ -236,18 +216,20 @@
         </div>
       </div>
 
-    <!-- Summaries Grid -->
+      <!-- Summaries Grid -->
     {:else}
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {#each summaries as summary (summary.id)}
-          <div class="card bg-base-100 border-base-300 border shadow-xl hover:shadow-2xl transition-all duration-200 cursor-pointer" 
-               on:click={() => viewSummary(summary)}
-               on:keydown={(e) => e.key === 'Enter' && viewSummary(summary)}
-               role="button"
-               tabindex="0">
+          <div
+            class="card bg-base-100 border-base-300 cursor-pointer border shadow-xl transition-all duration-200 hover:shadow-2xl"
+            on:click={() => viewSummary(summary)}
+            on:keydown={(e) => e.key === 'Enter' && viewSummary(summary)}
+            role="button"
+            tabindex="0"
+          >
             <div class="card-body">
               <!-- Header -->
-              <div class="flex items-start justify-between mb-3">
+              <div class="mb-3 flex items-start justify-between">
                 <div class="flex items-center gap-2">
                   <CalendarIcon size={18} class="text-base-content/70" />
                   <span class="font-medium">
@@ -261,14 +243,14 @@
 
               <!-- Summary Preview -->
               <div class="flex-1">
-                <p class="text-base-content/80 text-sm line-clamp-4">
+                <p class="text-base-content/80 line-clamp-4 text-sm">
                   {summary.summary.length > 200 ? summary.summary.substring(0, 200) + '...' : summary.summary}
                 </p>
               </div>
 
               <!-- Tags -->
               {#if summary.tags && summary.tags.length > 0}
-                <div class="flex flex-wrap gap-1 mt-3">
+                <div class="mt-3 flex flex-wrap gap-1">
                   <TagIcon size={12} class="text-base-content/50 mt-0.5" />
                   {#each summary.tags.slice(0, 3) as tag}
                     <span class="badge badge-outline badge-xs">{tag}</span>
@@ -280,12 +262,12 @@
               {/if}
 
               <!-- Footer -->
-              <div class="flex items-center justify-between mt-4 pt-3 border-t border-base-300">
-                <div class="flex items-center gap-1 text-xs text-base-content/60">
+              <div class="border-base-300 mt-4 flex items-center justify-between border-t pt-3">
+                <div class="text-base-content/60 flex items-center gap-1 text-xs">
                   <ClockIcon size={12} />
                   {formatDateTime(summary.createdAt)}
                 </div>
-                <div class="text-xs text-base-content/60">
+                <div class="text-base-content/60 text-xs">
                   {summary.startDate} to {summary.endDate}
                 </div>
               </div>
@@ -297,11 +279,7 @@
       <!-- Load More -->
       {#if hasMore}
         <div class="mt-8 text-center">
-          <button 
-            on:click={loadMore} 
-            disabled={loading}
-            class="btn btn-outline gap-2"
-          >
+          <button on:click={loadMore} disabled={loading} class="btn btn-outline gap-2">
             {#if loading}
               <span class="loading loading-spinner loading-sm"></span>
             {/if}

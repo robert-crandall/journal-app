@@ -75,18 +75,18 @@ export const journalSummariesUtils = {
    */
   getWeekBoundaries(date: Date): { startDate: string; endDate: string } {
     const inputDate = new Date(date);
-    
+
     // Find the Saturday that starts this week
     const dayOfWeek = inputDate.getDay(); // 0 = Sunday, 6 = Saturday
     const daysToSubtract = dayOfWeek === 6 ? 0 : dayOfWeek + 1; // Saturday = 0 days back
-    
+
     const saturday = new Date(inputDate);
     saturday.setDate(inputDate.getDate() - daysToSubtract);
-    
+
     // Friday is 6 days after Saturday
     const friday = new Date(saturday);
     friday.setDate(saturday.getDate() + 6);
-    
+
     return {
       startDate: saturday.toISOString().split('T')[0], // YYYY-MM-DD
       endDate: friday.toISOString().split('T')[0], // YYYY-MM-DD
@@ -98,10 +98,10 @@ export const journalSummariesUtils = {
    */
   getMonthBoundaries(date: Date): { startDate: string; endDate: string } {
     const inputDate = new Date(date);
-    
+
     const firstDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
     const lastDay = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0);
-    
+
     return {
       startDate: firstDay.toISOString().split('T')[0], // YYYY-MM-DD
       endDate: lastDay.toISOString().split('T')[0], // YYYY-MM-DD
@@ -114,7 +114,7 @@ export const journalSummariesUtils = {
   formatPeriod(period: 'week' | 'month', startDate: string, endDate: string): string {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (period === 'month') {
       return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     } else {

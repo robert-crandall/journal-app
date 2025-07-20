@@ -352,11 +352,7 @@ describe('Journal Summaries API Integration Tests', () => {
 
       // Verify summary was created in database
       const db = testDb();
-      const dbSummary = await db
-        .select()
-        .from(schema.journalSummaries)
-        .where(eq(schema.journalSummaries.id, responseData.data.id))
-        .limit(1);
+      const dbSummary = await db.select().from(schema.journalSummaries).where(eq(schema.journalSummaries.id, responseData.data.id)).limit(1);
 
       expect(dbSummary).toHaveLength(1);
       expect(dbSummary[0].summary).toBe(summaryData.summary);
@@ -576,11 +572,7 @@ describe('Journal Summaries API Integration Tests', () => {
       expect(responseData.data.tags).toEqual(['updated', 'new']);
 
       // Verify update in database
-      const dbSummary = await db
-        .select()
-        .from(schema.journalSummaries)
-        .where(eq(schema.journalSummaries.id, summary.id))
-        .limit(1);
+      const dbSummary = await db.select().from(schema.journalSummaries).where(eq(schema.journalSummaries.id, summary.id)).limit(1);
 
       expect(dbSummary[0].summary).toBe('Updated summary');
       expect(dbSummary[0].tags).toEqual(['updated', 'new']);
@@ -654,11 +646,7 @@ describe('Journal Summaries API Integration Tests', () => {
       expect(responseData.data.id).toBe(summary.id);
 
       // Verify deletion in database
-      const dbSummary = await db
-        .select()
-        .from(schema.journalSummaries)
-        .where(eq(schema.journalSummaries.id, summary.id))
-        .limit(1);
+      const dbSummary = await db.select().from(schema.journalSummaries).where(eq(schema.journalSummaries.id, summary.id)).limit(1);
 
       expect(dbSummary).toHaveLength(0);
     });

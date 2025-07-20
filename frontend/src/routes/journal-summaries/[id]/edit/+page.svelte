@@ -4,13 +4,7 @@
   import { goto } from '$app/navigation';
   import { journalSummariesApi, journalSummariesUtils } from '$lib/api/journal-summaries';
   import type { JournalSummaryResponse, UpdateJournalSummaryFormData } from '$lib/types/journal-summaries';
-  import { 
-    BookOpenIcon, 
-    CalendarIcon, 
-    ArrowLeftIcon,
-    SaveIcon,
-    TagIcon
-  } from 'lucide-svelte';
+  import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, SaveIcon, TagIcon } from 'lucide-svelte';
 
   // State
   let summary: JournalSummaryResponse | null = null;
@@ -34,7 +28,7 @@
       loading = true;
       error = null;
       summary = await journalSummariesApi.getJournalSummary(summaryId);
-      
+
       if (summary) {
         formData = {
           summary: summary.summary,
@@ -60,8 +54,8 @@
       // Parse tags from input
       const tags = tagsInput
         .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
 
       const updateData: UpdateJournalSummaryFormData = {
         summary: formData.summary,
@@ -97,7 +91,9 @@
 
 <svelte:head>
   <title>
-    {summary ? `Edit ${journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)} Summary - Life Quest` : 'Edit Summary - Life Quest'}
+    {summary
+      ? `Edit ${journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)} Summary - Life Quest`
+      : 'Edit Summary - Life Quest'}
   </title>
 </svelte:head>
 
@@ -107,9 +103,7 @@
     <div class="breadcrumbs mb-6 text-sm">
       <ul>
         <li>
-          <button on:click={() => goto('/journal-summaries')} class="text-primary hover:text-primary-focus">
-            Journal Summaries
-          </button>
+          <button on:click={() => goto('/journal-summaries')} class="text-primary hover:text-primary-focus"> Journal Summaries </button>
         </li>
         <li>
           <button on:click={goBack} class="text-primary hover:text-primary-focus">
@@ -129,7 +123,7 @@
         </div>
       </div>
 
-    <!-- Error State -->
+      <!-- Error State -->
     {:else if error && !summary}
       <div class="card bg-error text-error-content shadow-xl">
         <div class="card-body text-center">
@@ -145,13 +139,13 @@
         </div>
       </div>
 
-    <!-- Edit Form -->
+      <!-- Edit Form -->
     {:else if summary}
       <div class="space-y-6">
         <!-- Header -->
         <div class="card bg-base-100 border-base-300 border shadow-xl">
           <div class="card-body">
-            <div class="flex items-center gap-3 mb-2">
+            <div class="mb-2 flex items-center gap-3">
               <CalendarIcon size={24} class="text-primary" />
               <h1 class="text-2xl font-bold">
                 Edit {journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)}
@@ -160,7 +154,7 @@
                 {summary.period}
               </span>
             </div>
-            <div class="text-sm text-base-content/70">
+            <div class="text-base-content/70 text-sm">
               {summary.startDate} to {summary.endDate}
             </div>
           </div>
@@ -175,7 +169,7 @@
                 <label for="summary-content" class="label">
                   <span class="label-text font-medium">Summary Content</span>
                 </label>
-                <textarea 
+                <textarea
                   id="summary-content"
                   bind:value={formData.summary}
                   class="textarea textarea-bordered h-48"
@@ -192,9 +186,9 @@
                 <label for="tags-input" class="label">
                   <span class="label-text font-medium">Tags</span>
                 </label>
-                <input 
+                <input
                   id="tags-input"
-                  type="text" 
+                  type="text"
                   bind:value={tagsInput}
                   class="input input-bordered"
                   placeholder="productivity, health, goals (comma-separated)"
@@ -213,11 +207,7 @@
 
               <!-- Actions -->
               <div class="flex flex-col gap-3 sm:flex-row-reverse">
-                <button 
-                  type="submit" 
-                  disabled={!isValid()} 
-                  class="btn btn-primary gap-2 flex-1 sm:flex-none"
-                >
+                <button type="submit" disabled={!isValid()} class="btn btn-primary flex-1 gap-2 sm:flex-none">
                   {#if saving}
                     <span class="loading loading-spinner loading-sm"></span>
                     Saving...
@@ -226,12 +216,7 @@
                     Save Changes
                   {/if}
                 </button>
-                <button 
-                  type="button" 
-                  on:click={goBack} 
-                  class="btn btn-outline flex-1 sm:flex-none"
-                  disabled={saving}
-                >
+                <button type="button" on:click={goBack} class="btn btn-outline flex-1 sm:flex-none" disabled={saving}>
                   <ArrowLeftIcon size={16} />
                   Cancel
                 </button>
@@ -244,20 +229,23 @@
         {#if formData.summary && formData.summary.trim().length > 0}
           <div class="card bg-base-200 border-base-300 border">
             <div class="card-body">
-              <h3 class="card-title text-lg mb-4">
+              <h3 class="card-title mb-4 text-lg">
                 <BookOpenIcon size={20} />
                 Preview
               </h3>
-              
+
               <!-- Tags Preview -->
               {#if tagsInput.trim()}
                 <div class="mb-4">
-                  <div class="flex items-center gap-2 mb-2">
+                  <div class="mb-2 flex items-center gap-2">
                     <TagIcon size={16} class="text-base-content/70" />
                     <span class="text-sm font-medium">Tags:</span>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    {#each tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) as tag}
+                    {#each tagsInput
+                      .split(',')
+                      .map((tag) => tag.trim())
+                      .filter((tag) => tag.length > 0) as tag}
                       <span class="badge badge-outline badge-sm">{tag}</span>
                     {/each}
                   </div>

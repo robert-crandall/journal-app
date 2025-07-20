@@ -4,15 +4,7 @@
   import { goto } from '$app/navigation';
   import { journalSummariesApi, journalSummariesUtils } from '$lib/api/journal-summaries';
   import type { JournalSummaryResponse } from '$lib/types/journal-summaries';
-  import { 
-    BookOpenIcon, 
-    CalendarIcon, 
-    ArrowLeftIcon,
-    EditIcon,
-    TrashIcon,
-    TagIcon,
-    ClockIcon
-  } from 'lucide-svelte';
+  import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, EditIcon, TrashIcon, TagIcon, ClockIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // State
@@ -46,7 +38,7 @@
 
   async function deleteSummary() {
     if (!summary) return;
-    
+
     try {
       deleting = true;
       await journalSummariesApi.deleteJournalSummary(summary.id);
@@ -77,14 +69,16 @@
   function formatSummaryContent(content: string): string {
     return content
       .split('\n\n')
-      .map(paragraph => `<p class="mb-4">${paragraph.replace(/\n/g, '<br>')}</p>`)
+      .map((paragraph) => `<p class="mb-4">${paragraph.replace(/\n/g, '<br>')}</p>`)
       .join('');
   }
 </script>
 
 <svelte:head>
   <title>
-    {summary ? `${journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)} Summary - Life Quest` : 'Journal Summary - Life Quest'}
+    {summary
+      ? `${journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)} Summary - Life Quest`
+      : 'Journal Summary - Life Quest'}
   </title>
 </svelte:head>
 
@@ -94,9 +88,7 @@
     <div class="breadcrumbs mb-6 text-sm">
       <ul>
         <li>
-          <button on:click={goBack} class="text-primary hover:text-primary-focus">
-            Journal Summaries
-          </button>
+          <button on:click={goBack} class="text-primary hover:text-primary-focus"> Journal Summaries </button>
         </li>
         <li class="text-base-content/60">
           {#if summary}
@@ -117,7 +109,7 @@
         </div>
       </div>
 
-    <!-- Error State -->
+      <!-- Error State -->
     {:else if error}
       <div class="card bg-error text-error-content shadow-xl">
         <div class="card-body text-center">
@@ -133,7 +125,7 @@
         </div>
       </div>
 
-    <!-- Summary Content -->
+      <!-- Summary Content -->
     {:else if summary}
       <div class="space-y-6">
         <!-- Header Card -->
@@ -141,7 +133,7 @@
           <div class="card-body">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div class="flex-1">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="mb-2 flex items-center gap-3">
                   <CalendarIcon size={24} class="text-primary" />
                   <h1 class="text-2xl font-bold">
                     {journalSummariesUtils.formatPeriod(summary.period, summary.startDate, summary.endDate)}
@@ -150,7 +142,7 @@
                     {summary.period}
                   </span>
                 </div>
-                <div class="flex items-center gap-4 text-sm text-base-content/70">
+                <div class="text-base-content/70 flex items-center gap-4 text-sm">
                   <span>{summary.startDate} to {summary.endDate}</span>
                   <div class="flex items-center gap-1">
                     <ClockIcon size={14} />
@@ -178,7 +170,7 @@
         {#if summary.tags && summary.tags.length > 0}
           <div class="card bg-base-100 border-base-300 border shadow-xl">
             <div class="card-body">
-              <h2 class="card-title text-lg mb-4">
+              <h2 class="card-title mb-4 text-lg">
                 <TagIcon size={20} />
                 Tags
               </h2>
@@ -194,7 +186,7 @@
         <!-- Summary Content -->
         <div class="card bg-base-100 border-base-300 border shadow-xl">
           <div class="card-body">
-            <h2 class="card-title text-lg mb-4">
+            <h2 class="card-title mb-4 text-lg">
               <BookOpenIcon size={20} />
               Summary
             </h2>
@@ -221,23 +213,11 @@
 {#if showDeleteModal}
   <div class="modal modal-open">
     <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Delete Summary</h3>
-      <p class="mb-6">
-        Are you sure you want to delete this journal summary? This action cannot be undone.
-      </p>
+      <h3 class="mb-4 text-lg font-bold">Delete Summary</h3>
+      <p class="mb-6">Are you sure you want to delete this journal summary? This action cannot be undone.</p>
       <div class="modal-action">
-        <button 
-          on:click={() => (showDeleteModal = false)} 
-          class="btn btn-outline"
-          disabled={deleting}
-        >
-          Cancel
-        </button>
-        <button 
-          on:click={deleteSummary} 
-          class="btn btn-error gap-2"
-          disabled={deleting}
-        >
+        <button on:click={() => (showDeleteModal = false)} class="btn btn-outline" disabled={deleting}> Cancel </button>
+        <button on:click={deleteSummary} class="btn btn-error gap-2" disabled={deleting}>
           {#if deleting}
             <span class="loading loading-spinner loading-sm"></span>
           {:else}
@@ -247,10 +227,6 @@
         </button>
       </div>
     </div>
-    <button 
-      class="modal-backdrop" 
-      on:click={() => (showDeleteModal = false)} 
-      aria-label="Close modal"
-    ></button>
+    <button class="modal-backdrop" on:click={() => (showDeleteModal = false)} aria-label="Close modal"></button>
   </div>
 {/if}
