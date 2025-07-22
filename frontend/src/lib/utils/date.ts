@@ -22,7 +22,7 @@ export function formatDate(dateString: string | null): string {
  * @param value - Date or DateTime string in YYYY-MM-DD format (e.g., "1990-01-15"), ISO format, or Date object
  * @returns Date object representing the parsed date
  */
-export function parseDateTime(value?: string | Date | null): Date | null {
+export function parseDateTime(value?: string | Date | null): Date {
   let date: Date;
 
   if (value === undefined || value === null) {
@@ -39,15 +39,15 @@ export function parseDateTime(value?: string | Date | null): Date | null {
       // eslint-disable-next-line custom/no-direct-date-conversion
       date = new Date(value);
     } else {
-      return null; // Invalid format
+      return new Date('Invalid date'); // Invalid format
     }
   } else {
-    return null;
+    return new Date('Invalid date'); // Not a string or Date
   }
 
   if (isNaN(date.getTime())) {
     console.warn('formatDateTime: Invalid datetime value:', value);
-    return null;
+    return new Date('Invalid date');
   }
 
   return date;
@@ -66,7 +66,7 @@ export function formatDateTime(
 ): string {
   const date = parseDateTime(value);
 
-  if (!date) {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
     return 'Invalid date';
   }
 
