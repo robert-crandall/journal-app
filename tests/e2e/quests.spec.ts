@@ -126,13 +126,6 @@ test.describe('Quests', () => {
     await page.selectOption('select', 'all');
     await expect(page.locator('h3:has-text("Active Quest")')).toBeVisible();
     await expect(page.locator('h3:has-text("Completed Quest")')).toBeVisible();
-
-    // Clean up - delete the quests
-    for (const questTitle of ['Active Quest', 'Completed Quest']) {
-      await page.click(`h3:has-text("${questTitle}") + div a[href$="/edit"]`);
-      await page.fill('#deleteConfirmation', questTitle);
-      await page.click('button:has-text("Delete Quest")');
-    }
   });
 
   test('can search quests', async ({ page }) => {
@@ -178,12 +171,5 @@ test.describe('Quests', () => {
     await page.fill('input[placeholder="Search quests..."]', '');
     await expect(page.locator('h3:has-text("Learning JavaScript")')).toBeVisible();
     await expect(page.locator('h3:has-text("Fitness Challenge")')).toBeVisible();
-
-    // Clean up
-    for (const questTitle of ['Learning JavaScript', 'Fitness Challenge']) {
-      await page.click(`h3:has-text("${questTitle}") + div a[href$="/edit"]`);
-      await page.fill('#deleteConfirmation', questTitle);
-      await page.click('button:has-text("Delete Quest")');
-    }
   });
 });

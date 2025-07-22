@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { questsApi } from '$lib/api/quests';
   import type { QuestResponse } from '$lib/types/quest';
-  import { formatDateTime } from '$lib/utils/date';
+  import { formatDate, parseDateTime } from '$lib/utils/date';
   import { Target, Plus, Search, Eye, Edit3, Calendar, Clock, CheckCircle, PauseCircle, AlertCircle } from 'lucide-svelte';
 
   let quests: QuestResponse[] = [];
@@ -61,7 +61,7 @@
   function getDaysRemaining(quest: QuestResponse): number | null {
     if (!quest.endDate) return null;
     const now = new Date();
-    const end = new Date(quest.endDate);
+    const end = parseDateTime(quest.endDate);
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -186,14 +186,14 @@
             <div class="text-base-content/60 mb-4 flex flex-wrap gap-4 text-sm">
               <div class="flex items-center gap-1">
                 <Calendar class="h-4 w-4" />
-                <span>Started {formatDateTime(quest.startDate).split(' ')[0]}</span>
+                <span>Started {formatDate(quest.startDate)}</span>
               </div>
               {#if quest.endDate}
                 {@const daysRemaining = getDaysRemaining(quest)}
                 <div class="flex items-center gap-1">
                   <Clock class="h-4 w-4" />
                   {#if quest.status === 'completed'}
-                    <span>Completed {formatDateTime(quest.endDate).split(' ')[0]}</span>
+                    <span>Completed {formatDate(quest.endDate)}</span>
                   {:else if daysRemaining !== null}
                     {#if daysRemaining > 0}
                       <span>{daysRemaining} days remaining</span>

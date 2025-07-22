@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { questsApi } from '$lib/api/quests';
   import type { QuestWithExperimentsAndJournalsResponse } from '$lib/types/quest';
-  import { formatDateTime } from '$lib/utils/date';
+  import { formatDate, parseDateTime } from '$lib/utils/date';
   import { Target, ArrowLeft, Edit3, Calendar, Clock, CheckCircle, PauseCircle, Award, BookOpen, Beaker, TrendingUp, AlertCircle } from 'lucide-svelte';
 
   let questId: string;
@@ -55,7 +55,7 @@
   function getDaysRemaining(quest: QuestWithExperimentsAndJournalsResponse): number | null {
     if (!quest.endDate) return null;
     const now = new Date();
-    const end = new Date(quest.endDate);
+    const end = parseDateTime(quest.endDate);
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -165,7 +165,7 @@
                 <div class="flex items-center gap-2">
                   <Calendar class="text-base-content/60 h-4 w-4" />
                   <span class="text-base-content/60">Started:</span>
-                  <span class="font-medium">{formatDateTime(quest.startDate).split(' ')[0]}</span>
+                  <span class="font-medium">{formatDate(quest.startDate)}</span>
                 </div>
                 {#if quest.endDate}
                   {@const daysRemaining = getDaysRemaining(quest)}
@@ -174,7 +174,7 @@
                     <span class="text-base-content/60">
                       {quest.status === 'completed' ? 'Completed:' : 'Due:'}
                     </span>
-                    <span class="font-medium">{formatDateTime(quest.endDate).split(' ')[0]}</span>
+                    <span class="font-medium">{formatDate(quest.endDate)}</span>
                     {#if quest.status !== 'completed' && daysRemaining !== null}
                       {#if daysRemaining > 0}
                         <span class="badge badge-info badge-sm">{daysRemaining} days left</span>
