@@ -12,6 +12,7 @@ export * from './journals';
 export * from './journal-summaries';
 export * from './quests';
 export * from './plans';
+export * from './user-attributes';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

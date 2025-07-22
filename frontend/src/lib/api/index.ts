@@ -4,6 +4,7 @@ export { usersApi } from './users';
 export { default as tagsApi } from './tags';
 export { experimentsApi } from './experiments';
 export { plansApi } from './plans';
+export { userAttributesApi } from './user-attributes';
 
 // Re-export types from API clients
 export type { GoalWithParsedTags, CreateGoalWithTags, UpdateGoalWithTags } from './goals';
