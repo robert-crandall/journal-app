@@ -99,9 +99,17 @@ const app = new Hono()
         return c.json({ success: false, error: 'Attribute not found' }, 404);
       }
 
+      // Map database model to response format
+      const responseAttribute: UserAttributeResponse = {
+        ...attribute,
+        source: attribute.source as AttributeSource,
+        lastUpdated: attribute.lastUpdated.toISOString(),
+        createdAt: attribute.createdAt.toISOString(),
+      };
+
       return c.json({
         success: true,
-        data: attribute,
+        data: responseAttribute,
       });
     } catch (error) {
       handleApiError(error, 'Failed to fetch user attribute');

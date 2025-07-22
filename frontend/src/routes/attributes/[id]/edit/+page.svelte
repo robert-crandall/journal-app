@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { userAttributesApi } from '$lib/api/user-attributes';
-  import type { UserAttribute, UpdateUserAttributeRequest, AttributeSource } from '../../../../../../../backend/src/types/user-attributes';
+  import type { UserAttributeResponse, UpdateUserAttributeRequest, AttributeSource } from '../../../../../.svelte-kit/backend-types/types/user-attributes';
   import { ArrowLeft, Save, User, Brain, Lightbulb, Zap, Shield, Heart } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
@@ -11,7 +11,7 @@
   let attributeId = $derived($page.params.id);
 
   // Component state
-  let attribute: UserAttribute | null = $state(null);
+  let attribute: UserAttributeResponse | null = $state(null);
   let loading = $state(true);
   let saving = $state(false);
   let error = $state<string | null>(null);
@@ -46,11 +46,13 @@
       attribute = await userAttributesApi.getUserAttribute(attributeId);
 
       // Initialize form with current attribute data
-      formData = {
-        category: attribute.category,
-        value: attribute.value,
-        source: attribute.source,
-      };
+      if (attribute) {
+        formData = {
+          category: attribute.category,
+          value: attribute.value,
+          source: attribute.source,
+        };
+      }
     } catch (err) {
       console.error('Failed to load attribute:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -64,11 +66,15 @@
   }
 
   // Form validation
-  let isValid = $derived(formData.category?.trim().length > 0 && formData.value?.trim().length > 0);
+  let isValid = $derived(formData.category?.trim() && formData.category.trim().length > 0 && 
+                         formData.value?.trim() && formData.value.trim().length > 0);
 
-  let hasChanges = $derived(
-    attribute && (formData.category !== attribute.category || formData.value !== attribute.value || formData.source !== attribute.source),
-  );
+  let hasChanges = $derived(() => {
+    if (!attribute) return false;
+    return formData.category !== attribute.category || 
+           formData.value !== attribute.value || 
+           formData.source !== attribute.source;
+  });
 
   // Handle form submission
   async function handleSubmit(event: Event) {

@@ -8,7 +8,8 @@ import type {
   GroupedUserAttributes,
   AttributeSource,
   AttributeCategory,
-} from '../../../../backend/src/types/user-attributes';
+  UserAttributeResponse,
+} from '../../../.svelte-kit/backend-types/types/user-attributes';
 
 // API response types
 interface ApiResponse<T> {
@@ -73,7 +74,7 @@ export const userAttributesApi = {
   },
 
   // Get specific attribute by ID
-  async getUserAttribute(attributeId: string): Promise<UserAttribute> {
+  async getUserAttribute(attributeId: string): Promise<UserAttributeResponse> {
     try {
       const response = await authenticatedClient.api['user-attributes'][':id'].$get({
         param: { id: attributeId },
@@ -85,7 +86,7 @@ export const userAttributesApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<UserAttribute>;
+      const result = (await response.json()) as ApiResponse<UserAttributeResponse>;
       return result.data;
     } catch (error) {
       console.error('Get user attribute API request failed:', error);

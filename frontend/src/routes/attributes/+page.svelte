@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { userAttributesApi } from '$lib/api/user-attributes';
-  import type { GroupedUserAttributes, UserAttribute, AttributeSource } from '../../../../../backend/src/types/user-attributes';
+  import type { GroupedUserAttributes, UserAttributeResponse, AttributeSource } from '../../../.svelte-kit/backend-types/types/user-attributes';
   import { Plus, User, Brain, Lightbulb, Zap, Shield, Heart, Edit3, Trash2, Filter } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
 
@@ -41,7 +41,10 @@
   // Check if we have any attributes to display
   let hasAnyAttributes = $derived(() => {
     const attrs = filteredGroupedAttributes;
-    return Object.values(attrs).some((categoryAttrs) => categoryAttrs && categoryAttrs.length > 0);
+    return Object.values(attrs).some((categoryAttrs) => {
+      const typedAttrs = categoryAttrs as UserAttributeResponse[];
+      return typedAttrs && typedAttrs.length > 0;
+    });
   });
 
   // Load data on component mount
@@ -252,18 +255,19 @@
     <!-- Attributes Grid -->
     <div class="grid gap-6">
       {#each Object.entries(filteredGroupedAttributes) as [category, attributes]}
-        {#if attributes && attributes.length > 0}
+        {#if attributes && (attributes as UserAttributeResponse[]).length > 0}
           {@const IconComponent = getCategoryIcon(category)}
+          {@const typedAttributes = attributes as UserAttributeResponse[]}
           <div class="card bg-base-100 border-base-300 border">
             <div class="card-body">
               <div class="mb-4 flex items-center gap-3">
                 <IconComponent size={24} class="text-primary" />
                 <h2 class="card-title text-xl capitalize">{category}</h2>
-                <div class="badge badge-neutral">{attributes.length}</div>
+                <div class="badge badge-neutral">{typedAttributes.length}</div>
               </div>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {#each attributes as attribute}
+                {#each typedAttributes as attribute}
                   <div class="card bg-base-200 border-base-300 border">
                     <div class="card-body p-4">
                       <div class="mb-2 flex items-start justify-between gap-2">
