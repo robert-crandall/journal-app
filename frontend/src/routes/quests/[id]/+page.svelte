@@ -218,7 +218,7 @@
                         <p class="text-base-content/60 mt-1 text-sm">{experiment.description}</p>
                       {/if}
                       <div class="text-base-content/50 mt-1 text-xs">
-                        {formatDateTime(experiment.startDate).split(' ')[0]} - {formatDateTime(experiment.endDate).split(' ')[0]}
+                        {formatDate(experiment.startDate)} - {formatDate(experiment.endDate)}
                       </div>
                     </div>
                     {#if experiment.status}
@@ -252,7 +252,7 @@
                         <p class="text-base-content/60 mt-1 text-sm">{journal.synopsis}</p>
                       {/if}
                       <div class="text-base-content/50 mt-1 text-xs">
-                        {formatDateTime(journal.date).split(' ')[0]}
+                        {formatDate(journal.date)}
                       </div>
                     </div>
                     <div class="badge badge-sm">
