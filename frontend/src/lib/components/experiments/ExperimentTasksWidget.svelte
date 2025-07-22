@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { experimentsApi, type ExperimentTaskWithCompletionsResponse, type ExperimentResponse } from '$lib/api/experiments';
+  import { experimentsApi } from '$lib/api/experiments';
+  import type { ExperimentTaskWithCompletionsResponse, ExperimentResponse } from '$lib/types/experiments';
   import { Beaker, CheckCircle, Circle, Plus, BarChart } from 'lucide-svelte';
   import { getTodayDateString } from '$lib/utils/date';
   import { marked } from 'marked';

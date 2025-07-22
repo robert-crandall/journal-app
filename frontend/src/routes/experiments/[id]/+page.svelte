@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
-  import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/api/experiments';
+  import type { ExperimentDashboardResponse, CompleteExperimentTaskRequest } from '$lib/types/experiments';
   import {
     ArrowLeft,
     Calendar,

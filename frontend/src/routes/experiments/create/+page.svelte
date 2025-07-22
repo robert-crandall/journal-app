@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { experimentsApi, type CreateExperimentRequest } from '$lib/api/experiments';
+  import { experimentsApi } from '$lib/api/experiments';
+  import type { CreateExperimentRequest } from '$lib/types/experiments';
   import { statsApi, type CharacterStatWithProgress } from '$lib/api/stats';
   import { Beaker, Plus, Trash2, Calendar, Target, Award, ArrowLeft } from 'lucide-svelte';
 

@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
-  import { experimentsApi, type ExperimentResponse } from '$lib/api/experiments';
+  import { experimentsApi } from '$lib/api/experiments';
+  import type { ExperimentResponse } from '$lib/types/experiments';
   import { Plus, Beaker, Calendar, BarChart, Trash2, Edit3, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';

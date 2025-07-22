@@ -1,6 +1,6 @@
 import { authenticatedClient } from '../api';
 
-// Import types from backend
+// Import experiment types from frontend barrel file (which re-exports from backend)
 import type {
   ExperimentResponse,
   ExperimentWithTasksResponse,
@@ -13,7 +13,7 @@ import type {
   CreateExperimentTaskRequest,
   UpdateExperimentTaskRequest,
   CompleteExperimentTaskRequest,
-} from '../../../../backend/src/types/experiments';
+} from '../types/experiments';
 
 // API response wrapper
 interface ApiResponse<T> {
@@ -198,18 +198,3 @@ export class ExperimentsApi {
 
 // Export a singleton instance
 export const experimentsApi = new ExperimentsApi();
-
-// Re-export types for convenience
-export type {
-  ExperimentResponse,
-  ExperimentWithTasksResponse,
-  ExperimentTaskResponse,
-  ExperimentTaskCompletionResponse,
-  ExperimentTaskWithCompletionsResponse,
-  ExperimentDashboardResponse,
-  CreateExperimentRequest,
-  UpdateExperimentRequest,
-  CreateExperimentTaskRequest,
-  UpdateExperimentTaskRequest,
-  CompleteExperimentTaskRequest,
-};
