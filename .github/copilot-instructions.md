@@ -20,7 +20,9 @@ Every new feature **must** follow this specific, sequential order. Do not skip o
 5.  **Frontend Implementation**: Build the SvelteKit components, importing types directly from the backend to ensure type safety.
 6.  **Frontend E2E Tests**: Write end-to-end tests that simulate user interaction and verify the feature works from the browser to the database.
 7.  **All frontend tests must pass before finalizing the feature.** Run `bun run test:e2e` in frontend
-8.  **Test entire feature**: Run `scripts/test_pr` to validate the complete feature.
+8.  **Test entire feature**: Run `bun run test` to validate the complete feature.
+
+Backend and Frontend can be checked with `bun run check` in the appropriate directory. Run this command whenever you make changes.
 
 ### 3. Document Key Decisions
 
