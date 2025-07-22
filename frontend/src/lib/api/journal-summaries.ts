@@ -7,6 +7,7 @@ import type {
   ListJournalSummariesRequest,
   GenerateJournalSummaryRequest,
 } from '../types/journal-summaries';
+import { parseDateTime } from '../utils/date';
 
 // Type-safe journal summaries API using fetch wrapper
 export const journalSummariesApi = {
@@ -97,7 +98,7 @@ export const journalSummariesUtils = {
    * Calculate month boundaries
    */
   getMonthBoundaries(date: Date): { startDate: string; endDate: string } {
-    const inputDate = new Date(date);
+    const inputDate = parseDateTime(date);
 
     const firstDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
     const lastDay = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0);
@@ -112,8 +113,8 @@ export const journalSummariesUtils = {
    * Format period for display
    */
   formatPeriod(period: 'week' | 'month', startDate: string, endDate: string): string {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseDateTime(startDate);
+    const end = parseDateTime(endDate);
 
     if (period === 'month') {
       return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
