@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { characterApi, type Character, type CreateCharacterData } from '../../lib/api/characters';
+  import { characterApi } from '../../lib/api/characters';
+  import type { Character } from '../../lib/types/characters';
+  import type { CreateCharacterForm as CreateCharacterData } from '../../lib/types/character-form';
 
   const dispatch = createEventDispatcher<{
     characterCreated: Character;
