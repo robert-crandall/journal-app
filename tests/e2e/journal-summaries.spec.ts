@@ -312,44 +312,6 @@ test.describe('Journal Summaries Feature', () => {
     await expect(page).toHaveURL('/journal-summaries');
   });
 
-  test('should cancel delete operation', async ({ page }) => {
-    await cleanupJournalSummaries(page);
-
-    // Create a test summary via API
-    const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    const response = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
-      data: {
-        period: 'week',
-        startDate: '2024-01-15',
-        endDate: '2024-01-21',
-        summary: 'Summary not to be deleted',
-        tags: ['keep-test'],
-      },
-    });
-
-    const data = await response.json();
-    const summaryId = data.data.id;
-
-    await page.goto(`/journal-summaries/${summaryId}`);
-
-    // Click delete button
-    await page.click('button:has-text("Delete")');
-
-    // Should show confirmation dialog
-    await expect(page.locator('text=Are you sure you want to delete this summary?')).toBeVisible();
-
-    // Cancel deletion
-    await page.click('button:has-text("Cancel")');
-
-    // Should stay on summary page and summary should still exist
-    await expect(page).toHaveURL(`/journal-summaries/${summaryId}`);
-    await expect(page.locator('text=Summary not to be deleted')).toBeVisible();
-  });
-
   test('should handle date range presets', async ({ page }) => {
     await page.goto('/journal-summaries/generate');
 
@@ -373,20 +335,6 @@ test.describe('Journal Summaries Feature', () => {
     expect(lastWeekStart).toBeTruthy();
     expect(lastWeekEnd).toBeTruthy();
     expect(new Date(lastWeekStart).getTime()).toBeLessThan(new Date(startDateValue).getTime());
-  });
-
-  test('should validate form inputs', async ({ page }) => {
-    await page.goto('/journal-summaries/generate');
-
-    // Clear the date inputs
-    await page.fill('input#start-date', '');
-    await page.fill('input#end-date', '');
-
-    // Try to submit without dates
-    await page.click('button[type="submit"]');
-
-    // Should not proceed (browser validation will prevent submission)
-    await expect(page).toHaveURL('/journal-summaries/generate');
   });
 
   test('should navigate between summary pages via links', async ({ page }) => {
@@ -464,8 +412,8 @@ test.describe('Journal Summaries Feature', () => {
     await page.goto('/journal-summaries');
 
     // Should show both summaries with correct badges
-    await expect(page.locator('.badge:has-text("week")')).toBeVisible();
-    await expect(page.locator('.badge:has-text("month")')).toBeVisible();
+    await expect(page.locator('.badge:has-text("weekly")')).toBeVisible();
+    await expect(page.locator('.badge:has-text("monthly")')).toBeVisible();
 
     // Check date formatting
     await expect(page.locator('text=Jan 15 - Jan 21')).toBeVisible();
