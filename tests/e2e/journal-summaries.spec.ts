@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginUser } from './test-helpers';
+import { TEST_CONFIG } from './test-config';
 
 test.describe('Journal Summaries Feature', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,7 +13,7 @@ test.describe('Journal Summaries Feature', () => {
       const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
 
       // Get all summaries to delete
-      const response = await page.request.get('/api/journal-summaries', {
+      const response = await page.request.get(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -23,7 +24,7 @@ test.describe('Journal Summaries Feature', () => {
         if (data.success && data.data.summaries.length > 0) {
           // Delete each summary
           for (const summary of data.data.summaries) {
-            await page.request.delete(`/api/journal-summaries/${summary.id}`, {
+            await page.request.delete(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries/${summary.id}`, {
               headers: {
                 Authorization: `Bearer ${authToken}`,
               },
@@ -58,7 +59,7 @@ test.describe('Journal Summaries Feature', () => {
     for (const journal of testJournals) {
       try {
         // First create the journal
-        const createRes = await page.request.post('/api/journals', {
+        const createRes = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journals`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
@@ -71,7 +72,7 @@ test.describe('Journal Summaries Feature', () => {
           const journalId = journalData.data.id;
 
           // Complete the journal to make it available for summaries
-          await page.request.put(`/api/journals/${journalId}/complete`, {
+          await page.request.put(`${TEST_CONFIG.API_BASE_URL}/api/journals/${journalId}/complete`, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${authToken}`,
@@ -162,7 +163,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Create a test summary via API
     const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    await page.request.post('/api/journal-summaries', {
+    await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
@@ -198,7 +199,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Create a test summary via API
     const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    const response = await page.request.post('/api/journal-summaries', {
+    const response = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
@@ -232,7 +233,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Create a test summary via API
     const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    const response = await page.request.post('/api/journal-summaries', {
+    const response = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
@@ -277,7 +278,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Create a test summary via API
     const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    const response = await page.request.post('/api/journal-summaries', {
+    const response = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
@@ -316,7 +317,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Create a test summary via API
     const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-    const response = await page.request.post('/api/journal-summaries', {
+    const response = await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
@@ -409,7 +410,7 @@ test.describe('Journal Summaries Feature', () => {
     await page.fill('input#end-date', '2024-01-21');
 
     // Mock API failure by intercepting the request
-    await page.route('/api/journal-summaries/generate', (route) => {
+    await page.route(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries/generate`, (route) => {
       route.fulfill({
         status: 500,
         contentType: 'application/json',
@@ -451,7 +452,7 @@ test.describe('Journal Summaries Feature', () => {
     ];
 
     for (const summary of summaries) {
-      await page.request.post('/api/journal-summaries', {
+      await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -495,7 +496,7 @@ test.describe('Journal Summaries Feature', () => {
     ];
 
     for (const summary of summaries) {
-      await page.request.post('/api/journal-summaries', {
+      await page.request.post(`${TEST_CONFIG.API_BASE_URL}/api/journal-summaries`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
