@@ -17,17 +17,14 @@ export function formatDate(dateString: string | null): string {
 }
 
 /**
- * Format a datetime ISO string with proper timezone handling
+ * Parses a date string or Date object into a Date object, handling various formats
  *
- * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only')
- * @param value - ISO datetime string (e.g., "2023-05-20T15:30:00Z") or DateObject
- * @returns Formatted datetime string
+ * @param value - Date or DateTime string in YYYY-MM-DD format (e.g., "1990-01-15"), ISO format, or Date object
+ * @returns Date object representing the parsed date
  */
-export function formatDateTime(
-  value?: string | Date | null,
-  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
-): string {
+export function parseDateTime(value?: string | Date | null): Date {
   let date: Date;
+
   if (value === undefined || value === null) {
     date = new Date();
   } else if (value instanceof Date) {
@@ -42,14 +39,34 @@ export function formatDateTime(
       // eslint-disable-next-line custom/no-direct-date-conversion
       date = new Date(value);
     } else {
-      return 'Invalid date';
+      return new Date('Invalid date'); // Invalid format
     }
   } else {
-    return 'Invalid date';
+    return new Date('Invalid date'); // Not a string or Date
   }
 
   if (isNaN(date.getTime())) {
     console.warn('formatDateTime: Invalid datetime value:', value);
+    return new Date('Invalid date');
+  }
+
+  return date;
+}
+
+/**
+ * Format a datetime ISO string with proper timezone handling
+ *
+ * @param format - Format type ('default', 'short', 'medium', 'full', 'time-only', 'date-only')
+ * @param value - ISO datetime string (e.g., "2023-05-20T15:30:00Z") or DateObject
+ * @returns Formatted datetime string
+ */
+export function formatDateTime(
+  value?: string | Date | null,
+  format: 'default' | 'short' | 'medium' | 'full' | 'time-only' | 'date-only' | 'yyyy-mm-dd' = 'default',
+): string {
+  const date = parseDateTime(value);
+
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
     return 'Invalid date';
   }
 

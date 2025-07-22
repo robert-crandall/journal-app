@@ -214,7 +214,7 @@
   <div class="modal modal-open">
     <div class="modal-box">
       <h3 class="mb-4 text-lg font-bold">Delete Summary</h3>
-      <p class="mb-6">Are you sure you want to delete this journal summary? This action cannot be undone.</p>
+      <p class="mb-6">Are you sure you want to delete this journal summary?</p>
       <div class="modal-action">
         <button on:click={() => (showDeleteModal = false)} class="btn btn-outline" disabled={deleting}> Cancel </button>
         <button on:click={deleteSummary} class="btn btn-error gap-2" disabled={deleting}>

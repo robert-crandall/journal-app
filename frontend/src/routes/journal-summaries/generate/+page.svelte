@@ -5,6 +5,7 @@
   import { journalSummariesApi, journalSummariesUtils } from '$lib/api/journal-summaries';
   import type { GenerateJournalSummaryFormData } from '$lib/types/journal-summaries';
   import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, SparklesIcon, SaveIcon, ClockIcon } from 'lucide-svelte';
+  import { parseDateTime } from '$lib/utils/date';
 
   // State
   let formData: GenerateJournalSummaryFormData = {
@@ -79,11 +80,11 @@
   }
 
   function setPreviousPeriod() {
-    const startDate = new Date(formData.startDate);
+    const startDate = parseDateTime(formData.startDate);
     let previousDate: Date;
 
     if (formData.period === 'week') {
-      previousDate = new Date(startDate);
+      previousDate = parseDateTime(startDate);
       previousDate.setDate(startDate.getDate() - 7);
       const boundaries = journalSummariesUtils.getWeekBoundaries(previousDate);
       formData = {
@@ -92,7 +93,7 @@
         endDate: boundaries.endDate,
       };
     } else {
-      previousDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+      previousDate = parseDateTime(`${startDate.getFullYear()}-${startDate.getMonth() + 1}-01`);
       const boundaries = journalSummariesUtils.getMonthBoundaries(previousDate);
       formData = {
         ...formData,

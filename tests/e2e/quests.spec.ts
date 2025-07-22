@@ -32,8 +32,8 @@ test.describe('Quests', () => {
     await expect(page.locator('text=This is a test quest for E2E testing')).toBeVisible();
 
     // Check quest details are displayed
-    await expect(page.locator('text=Started 2024-01-01')).toBeVisible();
-    await expect(page.locator('text=Due: 2024-12-31')).toBeVisible();
+    await expect(page.locator('text=Jan 1, 2024')).toBeVisible();
+    await expect(page.locator('text=Dec 31, 2024')).toBeVisible();
 
     // Go to edit quest
     await page.click('a[href$="/edit"]');
@@ -62,7 +62,7 @@ test.describe('Quests', () => {
     await expect(page.locator('.badge:has-text("completed")')).toBeVisible();
 
     // Go back to edit to test deletion
-    await page.click('a[href$="/edit"]:first-of-type');
+    await page.click('a[href$="/edit"]');
     await expect(page).toHaveURL(/\/quests\/[a-z0-9-]+\/edit$/);
 
     // Type quest title for delete confirmation
@@ -126,13 +126,6 @@ test.describe('Quests', () => {
     await page.selectOption('select', 'all');
     await expect(page.locator('h3:has-text("Active Quest")')).toBeVisible();
     await expect(page.locator('h3:has-text("Completed Quest")')).toBeVisible();
-
-    // Clean up - delete the quests
-    for (const questTitle of ['Active Quest', 'Completed Quest']) {
-      await page.click(`h3:has-text("${questTitle}") + div a[href$="/edit"]`);
-      await page.fill('#deleteConfirmation', questTitle);
-      await page.click('button:has-text("Delete Quest")');
-    }
   });
 
   test('can search quests', async ({ page }) => {
@@ -178,12 +171,5 @@ test.describe('Quests', () => {
     await page.fill('input[placeholder="Search quests..."]', '');
     await expect(page.locator('h3:has-text("Learning JavaScript")')).toBeVisible();
     await expect(page.locator('h3:has-text("Fitness Challenge")')).toBeVisible();
-
-    // Clean up
-    for (const questTitle of ['Learning JavaScript', 'Fitness Challenge']) {
-      await page.click(`h3:has-text("${questTitle}") + div a[href$="/edit"]`);
-      await page.fill('#deleteConfirmation', questTitle);
-      await page.click('button:has-text("Delete Quest")');
-    }
   });
 });

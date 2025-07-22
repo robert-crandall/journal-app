@@ -7,6 +7,7 @@ import type {
   ListJournalSummariesRequest,
   GenerateJournalSummaryRequest,
 } from '../types/journal-summaries';
+import { parseDateTime } from '../utils/date';
 
 // Type-safe journal summaries API using fetch wrapper
 export const journalSummariesApi = {
@@ -74,16 +75,18 @@ export const journalSummariesUtils = {
    * Calculate week boundaries (Saturday to Friday)
    */
   getWeekBoundaries(date: Date): { startDate: string; endDate: string } {
-    const inputDate = new Date(date);
+    const inputDate = parseDateTime(date);
 
     // Find the Saturday that starts this week
     const dayOfWeek = inputDate.getDay(); // 0 = Sunday, 6 = Saturday
     const daysToSubtract = dayOfWeek === 6 ? 0 : dayOfWeek + 1; // Saturday = 0 days back
 
+    // eslint-disable-next-line custom/no-direct-date-conversion
     const saturday = new Date(inputDate);
     saturday.setDate(inputDate.getDate() - daysToSubtract);
 
     // Friday is 6 days after Saturday
+    // eslint-disable-next-line custom/no-direct-date-conversion
     const friday = new Date(saturday);
     friday.setDate(saturday.getDate() + 6);
 
@@ -97,10 +100,12 @@ export const journalSummariesUtils = {
    * Calculate month boundaries
    */
   getMonthBoundaries(date: Date): { startDate: string; endDate: string } {
-    const inputDate = new Date(date);
+    const inputDate = parseDateTime(date);
 
+    // eslint-disable custom/no-direct-date-conversion
     const firstDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
     const lastDay = new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0);
+    // eslint-enable custom/no-direct-date-conversion
 
     return {
       startDate: firstDay.toISOString().split('T')[0], // YYYY-MM-DD
@@ -112,8 +117,8 @@ export const journalSummariesUtils = {
    * Format period for display
    */
   formatPeriod(period: 'week' | 'month', startDate: string, endDate: string): string {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseDateTime(startDate);
+    const end = parseDateTime(endDate);
 
     if (period === 'month') {
       return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });

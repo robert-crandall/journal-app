@@ -27,7 +27,7 @@ async function runDatabaseSetup(): Promise<void> {
     const env = { ...process.env };
     env.NODE_ENV = 'test';
 
-    const setupProcess = spawn('bun', ['scripts/setup-db.ts', '--force'], {
+    const setupProcess = spawn('bun', ['scripts/setup-db.ts', '--reset'], {
       stdio: 'inherit',
       env,
     });
