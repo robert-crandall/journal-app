@@ -96,7 +96,7 @@ async function runFrontendTests(): Promise<void> {
 
 async function runE2ETests(): Promise<void> {
   printSection('Running E2E tests (not in CI)');
-  await runCommand('bun', ['run', 'test:e2e'], PARENT_DIR);
+  await runCommand('playwright', ['test'], PARENT_DIR);
 }
 
 async function main(): Promise<void> {
