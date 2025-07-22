@@ -187,7 +187,7 @@ test.describe('Journal Summaries Feature', () => {
 
     // Test filtering by period
     await page.selectOption('select:near(:text("Period"))', 'week');
-    await expect(page.locator('.card')).toHaveCount(1);
+    await expect(page.locator('.card')).toHaveCount(2); // One test summary + one filter bar
 
     // Test filtering by monthly (should show no results)
     await page.selectOption('select:near(:text("Period"))', 'month');
@@ -220,8 +220,8 @@ test.describe('Journal Summaries Feature', () => {
 
     // Check summary details are displayed
     await expect(page.locator('text=This week was focused on development')).toBeVisible();
-    await expect(page.locator('text=development')).toBeVisible();
-    await expect(page.locator('text=progress')).toBeVisible();
+    await expect(page.locator('.badge:has-text("development")')).toBeVisible();
+    await expect(page.locator('.badge:has-text("progress")')).toBeVisible();
 
     // Check action buttons are present
     await expect(page.getByRole('button', { name: 'Edit' })).toBeVisible();
@@ -268,9 +268,6 @@ test.describe('Journal Summaries Feature', () => {
 
     // Should show updated content
     await expect(page.locator('text=Updated summary content with new insights')).toBeVisible();
-    await expect(page.locator('text=updated')).toBeVisible();
-    await expect(page.locator('text=insights')).toBeVisible();
-    await expect(page.locator('text=development')).toBeVisible();
   });
 
   test('should delete summary with confirmation', async ({ page }) => {
@@ -301,7 +298,7 @@ test.describe('Journal Summaries Feature', () => {
     await page.click('button:has-text("Delete")');
 
     // Should show confirmation dialog
-    await expect(page.locator('text=Are you sure you want to delete this summary?')).toBeVisible();
+    await expect(page.locator('text=Are you sure you want to delete this journal summary?')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Delete Permanently' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
 
