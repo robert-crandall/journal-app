@@ -111,7 +111,7 @@ async function main(): Promise<void> {
     printSection('Preparing for tests');
     console.log('Running formatter...');
     await runCommand('bun', ['run', 'format'], PARENT_DIR);
-    await runCommand('bun', ['run', 'db:setup:force'], PARENT_DIR);
+    await runCommand('bun', ['run', 'db:setup'], PARENT_DIR);
 
     // Run selected test suites
     if (options.runBackend) {
