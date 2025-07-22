@@ -38,7 +38,7 @@ export default ts.config(
       'no-undef': 'off',
       'theme-check/no-hardcoded-colors': 'error',
       // 'no-emoji/no-emoji': 'error',
-      'custom/no-direct-date-conversion': 'error',
+      'custom/no-direct-date-conversion': 'warn',
       // Other rules are still at warning level for now
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',

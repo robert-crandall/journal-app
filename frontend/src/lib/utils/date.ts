@@ -48,7 +48,7 @@ export function parseDateTime(value?: string | Date | null): Date | null {
   if (isNaN(date.getTime())) {
     console.warn('formatDateTime: Invalid datetime value:', value);
     return null;
-  } 
+  }
 
   return date;
 }
