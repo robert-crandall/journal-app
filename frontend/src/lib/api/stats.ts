@@ -1,72 +1,46 @@
 import { authenticatedClient } from '../api';
-import type { XpGrant as XpGrantBackend } from '../../../../backend/src/types/xp';
+import type {
+  CharacterStat,
+  NewCharacterStat,
+  CharacterStatExampleActivity,
+  CharacterStatLevelTitle,
+  NewCharacterStatLevelTitle,
+  CharacterStatWithProgress,
+  LevelCalculation,
+  PredefinedStat,
+  XpGrant,
+  NewXpGrant,
+  XpEntityType,
+  XpSourceType,
+  CreateXpGrantRequest,
+  XpGrantFilter,
+  XpGrantWithEntity,
+  CreateCharacterStatInput,
+  UpdateCharacterStatInput,
+} from '$lib/types/stats';
 
 // Serialized version of XpGrant for API responses (Date becomes string)
-export type XpGrantResponse = Omit<XpGrantBackend, 'createdAt'> & {
+export type XpGrantResponse = Omit<XpGrant, 'createdAt'> & {
   createdAt: string;
 };
 
-// Local type definitions (should match backend types)
-export interface CharacterStatExampleActivity {
-  description: string;
-  suggestedXp: number;
-}
-
-export interface CharacterStatXpGrant {
-  id: string;
-  statId: string;
-  userId: string;
-  xpAmount: number;
-  sourceType: string;
-  sourceId?: string | null;
-  reason?: string | null;
-  createdAt: string;
-}
-
-export interface CharacterStat {
-  id: string;
-  userId: string;
-  name: string;
-  description: string;
-  exampleActivities: CharacterStatExampleActivity[];
-  currentLevel: number;
-  totalXp: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CharacterStatWithProgress extends CharacterStat {
-  xpToNextLevel: number;
-  canLevelUp: boolean;
-  currentLevelTitle?: string;
-  nextLevelTitle?: string;
-}
-
-export interface PredefinedStat {
-  name: string;
-  description: string;
-  exampleActivities: CharacterStatExampleActivity[];
-}
-
-export interface CreateCharacterStatInput {
-  name: string;
-  description: string;
-  exampleActivities: CharacterStatExampleActivity[];
-}
-
-export interface UpdateCharacterStatInput {
-  name?: string;
-  description?: string;
-  exampleActivities?: CharacterStatExampleActivity[];
-}
-
-export interface GrantXpInput {
-  statId: string;
-  xpAmount: number;
-  sourceType: 'task' | 'journal' | 'adhoc' | 'quest' | 'experiment';
-  sourceId?: string;
-  reason?: string;
-}
+export type {
+  CharacterStat,
+  NewCharacterStat,
+  CharacterStatExampleActivity,
+  CharacterStatLevelTitle,
+  NewCharacterStatLevelTitle,
+  CharacterStatWithProgress,
+  LevelCalculation,
+  PredefinedStat,
+  XpGrant,
+  NewXpGrant,
+  XpEntityType,
+  XpSourceType,
+  CreateXpGrantRequest,
+  XpGrantFilter,
+  XpGrantWithEntity,
+};
 
 // API response types
 interface ApiResponse<T> {
@@ -93,7 +67,8 @@ export const statsApi = {
       }
 
       const result = (await response.json()) as ApiResponse<PredefinedStat[]>;
-      return result.data;
+  // No date conversion needed for PredefinedStat
+  return result.data;
     } catch (error) {
       console.error('Get predefined stats API request failed:', error);
       throw error;
@@ -114,7 +89,12 @@ export const statsApi = {
       }
 
       const result = (await response.json()) as ApiResponse<CharacterStatWithProgress[]>;
-      return result.data;
+      // Convert date strings to Date objects for CharacterStatWithProgress
+      return result.data.map((stat) => ({
+        ...stat,
+        createdAt: new Date(stat.createdAt),
+        updatedAt: new Date(stat.updatedAt),
+      }));
     } catch (error) {
       console.error('Create predefined stats API request failed:', error);
       throw error;
@@ -134,8 +114,14 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatWithProgress[]>;
-      return result.data;
+      const result = (await response.json()) as unknown;
+      // Convert date strings to Date objects for CharacterStatWithProgress[]
+      const data = (result as { success: boolean; data: any[] }).data;
+      return data.map((stat) => ({
+        ...stat,
+        createdAt: new Date(stat.createdAt),
+        updatedAt: new Date(stat.updatedAt),
+      })) as CharacterStatWithProgress[];
     } catch (error) {
       console.error('Get user stats API request failed:', error);
       throw error;
@@ -156,7 +142,12 @@ export const statsApi = {
       }
 
       const result = (await response.json()) as ApiResponse<CharacterStatWithProgress>;
-      return result.data;
+      // Convert date strings to Date objects for CharacterStatWithProgress
+      return {
+        ...result.data,
+        createdAt: new Date(result.data.createdAt),
+        updatedAt: new Date(result.data.updatedAt),
+      };
     } catch (error) {
       console.error('Get stat API request failed:', error);
       throw error;
@@ -185,7 +176,12 @@ export const statsApi = {
       }
 
       const result = (await response.json()) as ApiResponse<CharacterStatWithProgress>;
-      return result.data;
+      // Convert date strings to Date objects for CharacterStatWithProgress
+      return {
+        ...result.data,
+        createdAt: new Date(result.data.createdAt),
+        updatedAt: new Date(result.data.updatedAt),
+      };
     } catch (error) {
       console.error('Create stat API request failed:', error);
       throw error;
@@ -214,8 +210,14 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatWithProgress>;
-      return result.data;
+      const updateResult = (await response.json()) as unknown;
+      // Convert date strings to Date objects for CharacterStatWithProgress
+      const updateData = (updateResult as { success: boolean; data: any }).data;
+      return {
+        ...updateData,
+        createdAt: new Date(updateData.createdAt),
+        updatedAt: new Date(updateData.updatedAt),
+      } as CharacterStatWithProgress;
     } catch (error) {
       console.error('Update stat API request failed:', error);
       throw error;
