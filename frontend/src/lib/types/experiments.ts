@@ -1,4 +1,4 @@
-// Import experiment types from backend (single source of truth)
+// Import experiment types from shared folder (single source of truth)
 export type {
   ExperimentResponse,
   ExperimentWithTasksResponse,
@@ -11,4 +11,4 @@ export type {
   CreateExperimentTaskRequest,
   UpdateExperimentTaskRequest,
   CompleteExperimentTaskRequest,
-} from '../../../../backend/src/types/experiments';
+} from '../../../../shared/types/experiments';

@@ -1,4 +1,4 @@
-// Import family types from backend (single source of truth)
+// Import family types from shared folder (single source of truth)
 export type {
   FamilyMember,
   NewFamilyMember,
@@ -9,4 +9,6 @@ export type {
   CreateFamilyMemberRequest,
   UpdateFamilyMemberRequest,
   CreateFamilyTaskFeedbackRequest,
-} from '../../../../backend/src/types/family';
+  FamilyMemberResponse,
+  FamilyTaskFeedbackResponse,
+} from '../../../../shared/types/family';

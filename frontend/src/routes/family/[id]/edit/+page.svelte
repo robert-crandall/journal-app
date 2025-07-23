@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { familyApi } from '$lib/api/family';
-  import type { FamilyMember, UpdateFamilyMemberRequest } from '$lib/types/family';
+  import type { FamilyMemberResponse, UpdateFamilyMemberRequest } from '$lib/types/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
@@ -22,7 +22,7 @@
     avatar: undefined,
   });
 
-  let originalMember: FamilyMember | null = $state(null);
+  let originalMember: FamilyMemberResponse | null = $state(null);
   let loading = $state(false);
   let loadingData = $state(true);
   let avatarUploading = $state(false);

@@ -2,15 +2,16 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { getFamilyMember, deleteFamilyMember, getXpHistory } from '$lib/api/family.js';
-  import type { FamilyMember } from '$lib/types/family';
+  import { familyApi } from '$lib/api/family';
+  import { getXpHistory } from '$lib/api/family.js';
+  import type { FamilyMemberResponse } from '$lib/types/family';
   import type { XpGrantResponse } from '$lib/api/stats';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
   import { formatDate, formatDateTime } from '$lib/utils/date';
 
   // State
-  let familyMember = $state<FamilyMember | null>(null);
+  let familyMember = $state<FamilyMemberResponse | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
   let deletingMember = $state(false);
@@ -26,7 +27,7 @@
     }
 
     try {
-      familyMember = await getFamilyMember(memberId);
+      familyMember = await familyApi.getFamilyMember(memberId);
     } catch (err) {
       console.error('Failed to load family member:', err);
       error = 'Failed to load family member. Please try again.';
@@ -43,7 +44,7 @@
 
     deletingMember = true;
     try {
-      await deleteFamilyMember(familyMember.id);
+      await familyApi.deleteFamilyMember(familyMember.id);
       goto('/family');
     } catch (err) {
       console.error('Failed to delete family member:', err);

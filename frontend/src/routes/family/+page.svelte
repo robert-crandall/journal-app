@@ -3,13 +3,13 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { familyApi } from '$lib/api/family';
-  import type { FamilyMember } from '$lib/types/family';
+  import type { FamilyMemberResponse } from '$lib/types/family';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Plus, Users, Heart, Calendar, User, Edit3, Trash2, Eye, MessageCircle } from 'lucide-svelte';
   import { formatDate, formatDateTime } from '$lib/utils/date';
 
   // Reactive state for family data
-  let familyMembers: FamilyMember[] = $state([]);
+  let familyMembers: FamilyMemberResponse[] = $state([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
 
@@ -69,11 +69,11 @@
     return `${Math.ceil(diffDays / 30)} months ago`;
   }
 
-  function getConnectionLevel(member: FamilyMember): string {
+  function getConnectionLevel(member: FamilyMemberResponse): string {
     return `Level ${member.connectionLevel}`;
   }
 
-  function getConnectionProgress(member: FamilyMember): number {
+  function getConnectionProgress(member: FamilyMemberResponse): number {
     // Each level requires 100 XP
     const currentLevelXp = member.connectionXp % 100;
     return (currentLevelXp / 100) * 100;
@@ -97,7 +97,7 @@
   }
 
   // Family member actions
-  async function deleteFamilyMember(member: FamilyMember) {
+  async function deleteFamilyMember(member: FamilyMemberResponse) {
     if (!confirm(`Are you sure you want to delete "${member.name}"? This action cannot be undone.`)) {
       return;
     }

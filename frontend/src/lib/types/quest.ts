@@ -1,4 +1,4 @@
-// Import quest types from backend (single source of truth)
+// Import quest types from shared folder (single source of truth)
 export type {
   QuestResponse,
   QuestWithExperimentsAndJournalsResponse,
@@ -11,7 +11,7 @@ export type {
   NewQuest,
   QuestExperiment,
   QuestJournal,
-} from '../../../../backend/src/types/quests';
+} from '../../../../shared/types/quests';
 
 // Additional frontend-specific types for UI state
 export interface QuestFormData {

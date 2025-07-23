@@ -1,4 +1,4 @@
-// Import plan types from backend (single source of truth)
+// Import plan types from shared folder (single source of truth)
 export type {
   Plan,
   NewPlan,
@@ -14,4 +14,4 @@ export type {
   PlanResponse,
   PlanSubtaskResponse,
   PlanWithSubtasksResponse,
-} from '../../../../backend/src/types/plans';
+} from '../../../../shared/types/plans';

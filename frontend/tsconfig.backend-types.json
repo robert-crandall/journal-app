@@ -12,9 +12,9 @@
     "lib": ["esnext"],
     "isolatedModules": true,
     "verbatimModuleSyntax": false /* Changed to false to avoid type-only import issues */,
-    "rootDir": "../backend/src",
+    "rootDir": "../",
     "outDir": "./.svelte-kit/backend-types"
   },
-  "include": ["../backend/src/**/*.ts"],
+  "include": ["../backend/src/**/*.ts", "../shared/**/*.ts"],
   "exclude": ["../backend/src/**/*.test.ts", "../backend/src/tests/**/*"]
 }
