@@ -1,18 +1,7 @@
-import { apiFetch } from '../api';
 
-export interface XpGrantWithDetails {
-  id: string;
-  userId: string;
-  entityType: string;
-  entityId: string;
-  xpAmount: number;
-  sourceType: string;
-  sourceId?: string;
-  reason?: string;
-  createdAt: string;
-  entityName?: string; // For display purposes
-  entityDescription?: string;
-}
+import { apiFetch } from '../api';
+import type { XpGrantWithDetails } from '$lib/types/xpGrants';
+export type { XpGrantWithDetails } from '$lib/types/xpGrants';
 
 export class XpGrantsService {
   /**
