@@ -6,20 +6,9 @@
   import { statsApi } from '$lib/api/stats.js';
   import { Zap, ArrowLeft, Trophy, Target, Clock, CheckCircle2 } from 'lucide-svelte';
 
-  // Type definitions
-  interface Stat {
-    id: string;
-    name: string;
-    description: string;
-    currentLevel: number;
-    totalXp: number;
-    xpToNextLevel: number;
-    canLevelUp: boolean;
-    exampleActivities: Array<{
-      description: string;
-      suggestedXp: number;
-    }>;
-  }
+  // Use backend type for stat
+  import type { CharacterStatWithProgress } from '$lib/types/stats';
+  type Stat = CharacterStatWithProgress;
 
   // State
   let stat = $state<Stat | null>(null);
@@ -44,7 +33,11 @@
     try {
       loading = true;
       error = null;
-      stat = await statsApi.getStat(statId);
+      const apiStat = await statsApi.getStat(statId);
+      stat = {
+        ...apiStat,
+        exampleActivities: Array.isArray(apiStat.exampleActivities) ? apiStat.exampleActivities : [],
+      };
     } catch (err) {
       console.error('Error loading stat:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -307,7 +300,7 @@
       <!-- Sidebar - Example Activities and Tips -->
       <div class="space-y-6">
         <!-- Example Activities -->
-        {#if stat.exampleActivities && stat.exampleActivities.length > 0}
+        {#if (stat.exampleActivities?.length ?? 0) > 0}
           <div class="card bg-base-100 border-base-300 border shadow-xl">
             <div class="card-body">
               <h3 class="card-title border-base-300 mb-4 border-b pb-2 text-lg">
@@ -315,11 +308,11 @@
                 Example Activities
               </h3>
               <div class="space-y-3">
-                {#each stat.exampleActivities as activity}
+                {#each stat.exampleActivities ?? [] as activity}
                   <button
                     type="button"
                     class="bg-base-200 hover:bg-base-300 w-full rounded-lg p-3 text-left transition-colors duration-200
-											{selectedActivity === activity.description ? 'ring-primary ring-2' : ''}"
+                    {selectedActivity === activity.description ? 'ring-primary ring-2' : ''}"
                     onclick={() => selectActivity(activity)}
                     disabled={submitting}
                   >

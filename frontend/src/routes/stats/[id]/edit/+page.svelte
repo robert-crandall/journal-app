@@ -6,27 +6,11 @@
   import { statsApi } from '$lib/api/stats.js';
   import { Edit, ArrowLeft, Save, Plus, Trash2, Target, Lightbulb } from 'lucide-svelte';
 
-  // Type definitions
-  interface Stat {
-    id: string;
-    name: string;
-    description: string;
-    currentLevel: number;
-    totalXp: number;
-    exampleActivities: Array<{
-      description: string;
-      suggestedXp: number;
-    }>;
-  }
+  // Import types from backend via barrel file for DRY type safety
+  import type { CharacterStatWithProgress, UpdateCharacterStatInput } from '$lib/types/stats';
 
-  interface EditStatData {
-    name: string;
-    description: string;
-    exampleActivities: Array<{
-      description: string;
-      suggestedXp: number;
-    }>;
-  }
+  type Stat = CharacterStatWithProgress;
+  type EditStatData = Pick<UpdateCharacterStatInput, 'name' | 'description' | 'exampleActivities'>;
 
   // State
   let stat = $state<Stat | null>(null);
@@ -45,10 +29,10 @@
   const statId = $derived($page.params.id);
   const isValid = $derived(() => {
     return (
-      formData.name.trim().length >= 2 &&
-      formData.description.trim().length >= 10 &&
-      formData.exampleActivities.length > 0 &&
-      formData.exampleActivities.every((activity) => activity.description.trim().length > 0 && activity.suggestedXp > 0 && activity.suggestedXp <= 100)
+      (formData.name ?? '').trim().length >= 2 &&
+      (formData.description ?? '').trim().length >= 10 &&
+      (formData.exampleActivities?.length ?? 0) > 0 &&
+      (formData.exampleActivities ?? []).every((activity) => (activity.description ?? '').trim().length > 0 && activity.suggestedXp > 0 && activity.suggestedXp <= 100)
     );
   });
 
@@ -63,9 +47,11 @@
 
       // Populate form with current stat data
       formData = {
-        name: stat.name,
-        description: stat.description,
-        exampleActivities: stat.exampleActivities.length > 0 ? [...stat.exampleActivities] : [{ description: '', suggestedXp: 10 }],
+        name: stat.name ?? '',
+        description: stat.description ?? '',
+        exampleActivities: Array.isArray(stat.exampleActivities) && stat.exampleActivities.length > 0
+          ? [...stat.exampleActivities]
+          : [{ description: '', suggestedXp: 10 }],
       };
     } catch (err) {
       console.error('Error loading stat:', err);
@@ -87,10 +73,10 @@
       error = null;
 
       await statsApi.updateStat(stat.id, {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        exampleActivities: formData.exampleActivities.map((activity) => ({
-          description: activity.description.trim(),
+        name: (formData.name ?? '').trim(),
+        description: (formData.description ?? '').trim(),
+        exampleActivities: (formData.exampleActivities ?? []).map((activity) => ({
+          description: (activity.description ?? '').trim(),
           suggestedXp: activity.suggestedXp,
         })),
       });
@@ -106,12 +92,15 @@
   }
 
   function addExampleActivity() {
-    formData.exampleActivities = [...formData.exampleActivities, { description: '', suggestedXp: 10 }];
+    formData.exampleActivities = [
+      ...(formData.exampleActivities ?? []),
+      { description: '', suggestedXp: 10 },
+    ];
   }
 
   function removeExampleActivity(index: number) {
-    if (formData.exampleActivities.length > 1) {
-      formData.exampleActivities = formData.exampleActivities.filter((_, i) => i !== index);
+    if ((formData.exampleActivities?.length ?? 0) > 1) {
+      formData.exampleActivities = (formData.exampleActivities ?? []).filter((_, i) => i !== index);
     }
   }
 
@@ -216,7 +205,7 @@
                 />
                 <div class="label">
                   <span class="label-text-alt">
-                    {formData.name.length}/100 characters
+                    {(formData.name ?? '').length}/100 characters
                   </span>
                 </div>
               </div>
@@ -238,7 +227,7 @@
                 ></textarea>
                 <div class="label">
                   <span class="label-text-alt">
-                    {formData.description.length}/500 characters
+                    {(formData.description ?? '').length}/500 characters
                   </span>
                 </div>
               </div>
@@ -250,7 +239,7 @@
                   <span class="label-text-alt text-xs opacity-60">How you'll earn XP</span>
                 </div>
                 <div class="space-y-4">
-                  {#each formData.exampleActivities as activity, index}
+                  {#each formData.exampleActivities ?? [] as activity, index}
                     <div class="bg-base-200 grid grid-cols-1 gap-3 rounded-lg p-4 md:grid-cols-4">
                       <div class="md:col-span-3">
                         <label class="sr-only" for="activity-{index}">Activity {index + 1} description</label>
@@ -281,7 +270,7 @@
                           />
                           <span class="text-base-content/60 text-sm">XP</span>
                         </div>
-                        {#if formData.exampleActivities.length > 1}
+                        {#if (formData.exampleActivities?.length ?? 0) > 1}
                           <button
                             type="button"
                             class="btn btn-circle btn-sm btn-outline btn-error"

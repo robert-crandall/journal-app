@@ -213,7 +213,7 @@
               Example Activities
             </h2>
             <div class="grid gap-4 md:grid-cols-2">
-              {#each stat.exampleActivities as activity}
+              {#each stat.exampleActivities ?? [] as activity}
                 <div class="bg-base-200 rounded-lg p-4">
                   <div class="flex items-start justify-between gap-3">
                     <p class="flex-1 text-sm">{activity.description}</p>

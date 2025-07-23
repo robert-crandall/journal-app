@@ -40,6 +40,8 @@ export type {
   CreateXpGrantRequest,
   XpGrantFilter,
   XpGrantWithEntity,
+  CreateCharacterStatInput,
+  UpdateCharacterStatInput,
 };
 
 // API response types
@@ -88,13 +90,15 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatWithProgress[]>;
+      const result = (await response.json()) as unknown;
       // Convert date strings to Date objects for CharacterStatWithProgress
-      return result.data.map((stat) => ({
+      const data = (result as { success: boolean; data: any[] }).data;
+      return data.map((stat) => ({
         ...stat,
         createdAt: new Date(stat.createdAt),
         updatedAt: new Date(stat.updatedAt),
-      }));
+        exampleActivities: Array.isArray(stat.exampleActivities) ? stat.exampleActivities : [],
+      })) as CharacterStatWithProgress[];
     } catch (error) {
       console.error('Create predefined stats API request failed:', error);
       throw error;
@@ -121,6 +125,7 @@ export const statsApi = {
         ...stat,
         createdAt: new Date(stat.createdAt),
         updatedAt: new Date(stat.updatedAt),
+        exampleActivities: Array.isArray(stat.exampleActivities) ? stat.exampleActivities : [],
       })) as CharacterStatWithProgress[];
     } catch (error) {
       console.error('Get user stats API request failed:', error);
@@ -141,13 +146,15 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatWithProgress>;
+      const result = (await response.json()) as unknown;
       // Convert date strings to Date objects for CharacterStatWithProgress
+      const statData = (result as { success: boolean; data: any }).data;
       return {
-        ...result.data,
-        createdAt: new Date(result.data.createdAt),
-        updatedAt: new Date(result.data.updatedAt),
-      };
+        ...statData,
+        createdAt: new Date(statData.createdAt),
+        updatedAt: new Date(statData.updatedAt),
+        exampleActivities: Array.isArray(statData.exampleActivities) ? statData.exampleActivities : [],
+      } as CharacterStatWithProgress;
     } catch (error) {
       console.error('Get stat API request failed:', error);
       throw error;
@@ -175,13 +182,15 @@ export const statsApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<CharacterStatWithProgress>;
+      const result = (await response.json()) as unknown;
       // Convert date strings to Date objects for CharacterStatWithProgress
+      const statData = (result as { success: boolean; data: any }).data;
       return {
-        ...result.data,
-        createdAt: new Date(result.data.createdAt),
-        updatedAt: new Date(result.data.updatedAt),
-      };
+        ...statData,
+        createdAt: new Date(statData.createdAt),
+        updatedAt: new Date(statData.updatedAt),
+        exampleActivities: Array.isArray(statData.exampleActivities) ? statData.exampleActivities : [],
+      } as CharacterStatWithProgress;
     } catch (error) {
       console.error('Create stat API request failed:', error);
       throw error;
@@ -217,6 +226,7 @@ export const statsApi = {
         ...updateData,
         createdAt: new Date(updateData.createdAt),
         updatedAt: new Date(updateData.updatedAt),
+        exampleActivities: Array.isArray(updateData.exampleActivities) ? updateData.exampleActivities : [],
       } as CharacterStatWithProgress;
     } catch (error) {
       console.error('Update stat API request failed:', error);
