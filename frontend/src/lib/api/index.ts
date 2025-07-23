@@ -21,7 +21,7 @@ export type {
   CreateExperimentTaskRequest,
   UpdateExperimentTaskRequest,
   CompleteExperimentTaskRequest,
-} from './experiments';
+} from '../types/experiments';
 export type {
   PlanResponse,
   PlanSubtaskResponse,

@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Character } from '../api/characters';
+import type { Character } from '../types/characters';
 
 // Character store state
 interface CharacterState {

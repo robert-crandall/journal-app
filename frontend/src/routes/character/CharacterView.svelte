@@ -1,7 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { characterApi, type Character, type UpdateCharacterData } from '../../lib/api/characters';
-  import { formatDate } from '../../lib/utils/date';
+  import { characterApi } from '../../lib/api/characters';
+  import type { Character } from '../../lib/types/characters';
+  import type { UpdateCharacterForm as UpdateCharacterData } from '../../lib/types/character-form';
+  import { formatDateTime } from '../../lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
 
@@ -442,7 +444,7 @@
             <div class="stats stats-vertical bg-base-100/50 mb-6 shadow">
               <div class="stat py-3">
                 <div class="stat-title text-xs">Created</div>
-                <div class="stat-value text-sm">{formatDate(character.createdAt)}</div>
+                <div class="stat-value text-sm">{formatDateTime(character.createdAt, 'date-only')}</div>
               </div>
               <div class="stat py-3">
                 <div class="stat-title text-xs">Character Level</div>

@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { experimentsApi } from '$lib/api/experiments';
   import { statsApi } from '$lib/api/stats';
-  import type { ExperimentWithTasksResponse, UpdateExperimentRequest } from '$lib/api/experiments';
+  import type { ExperimentWithTasksResponse, UpdateExperimentRequest } from '$lib/types/experiments';
   import type { CharacterStatWithProgress } from '$lib/api/stats';
   import { ArrowLeft, Plus, Trash2, Calendar, Target, Award, Save } from 'lucide-svelte';
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { characterApi, type Character } from '../../lib/api/characters';
+  import { characterApi } from '../../lib/api/characters';
+  import type { Character } from '../../lib/types/characters';
   import { characterStore } from '../../lib/stores/character';
   import CharacterCreate from './CharacterCreate.svelte';
   import CharacterView from './CharacterView.svelte';

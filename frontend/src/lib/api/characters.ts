@@ -1,33 +1,8 @@
 import { authenticatedClient } from '../api';
 
-// Type definitions for character data (will be replaced with backend imports later)
-export interface Character {
-  id: string;
-  userId: string;
-  name: string;
-  characterClass: string;
-  backstory: string | null;
-  goals: string | null;
-  motto: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateCharacterData {
-  name: string;
-  characterClass: string;
-  backstory?: string;
-  goals?: string;
-  motto?: string;
-}
-
-export interface UpdateCharacterData {
-  name?: string;
-  characterClass?: string;
-  backstory?: string;
-  goals?: string;
-  motto?: string;
-}
+// Import character types from frontend barrel file (which re-exports from backend)
+import type { Character, CreateCharacter, UpdateCharacter } from '../types/characters';
+import type { CreateCharacterForm, UpdateCharacterForm } from '../types/character-form';
 
 // Type-safe character API using Hono client
 export const characterApi = {
@@ -51,10 +26,18 @@ export const characterApi = {
   },
 
   // Create a new character
-  async createCharacter(data: CreateCharacterData): Promise<Character> {
+  async createCharacter(data: CreateCharacterForm): Promise<Character> {
     try {
+      // Only send fields expected by the API, and convert empty strings to undefined
+      const payload: { name: string; characterClass: string; backstory?: string; goals?: string; motto?: string } = {
+        name: data.name,
+        characterClass: data.characterClass,
+        ...(data.backstory ? { backstory: data.backstory } : {}),
+        ...(data.goals ? { goals: data.goals } : {}),
+        ...(data.motto ? { motto: data.motto } : {}),
+      };
       const response = await authenticatedClient.api.characters.$post({
-        json: data,
+        json: payload,
       });
 
       if (!response.ok) {
@@ -80,10 +63,18 @@ export const characterApi = {
   },
 
   // Update user's character
-  async updateCharacter(data: UpdateCharacterData): Promise<Character> {
+  async updateCharacter(data: UpdateCharacterForm): Promise<Character> {
     try {
+      // Only send fields expected by the API, and convert empty strings to undefined
+      const payload: Partial<{ name: string; characterClass: string; backstory?: string; goals?: string; motto?: string }> = {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.characterClass !== undefined ? { characterClass: data.characterClass } : {}),
+        ...(data.backstory ? { backstory: data.backstory } : {}),
+        ...(data.goals ? { goals: data.goals } : {}),
+        ...(data.motto ? { motto: data.motto } : {}),
+      };
       const response = await authenticatedClient.api.characters.$put({
-        json: data,
+        json: payload,
       });
 
       if (!response.ok) {

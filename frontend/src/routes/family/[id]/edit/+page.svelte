@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { familyApi, type FamilyMember, type UpdateFamilyMemberRequest } from '$lib/api/family';
+  import { familyApi } from '$lib/api/family';
+  import type { FamilyMember, UpdateFamilyMemberRequest } from '$lib/types/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';

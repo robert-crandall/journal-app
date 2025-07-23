@@ -2,63 +2,8 @@
 import { createAuthenticatedFetch, authenticatedClient } from '../api';
 import type { XpGrantResponse } from './stats';
 
-// Import types from backend
-// TODO: Once module resolution is fixed, import directly from backend
-export interface FamilyMember {
-  id: string;
-  userId: string;
-  name: string;
-  relationship: string;
-  birthday?: string | null;
-  likes?: string | null;
-  dislikes?: string | null;
-  notes?: string | null;
-  avatar?: string | null; // Base64 encoded image
-  lastInteractionDate?: string | null;
-  connectionXp: number;
-  connectionLevel: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface FamilyTaskFeedback {
-  id: string;
-  familyMemberId: string;
-  taskDescription: string;
-  feedback?: string | null;
-  enjoyedIt?: boolean | null;
-  notes?: string | null;
-  xpGranted?: number | null;
-  createdAt: string;
-}
-
-export interface CreateFamilyMemberRequest {
-  name: string;
-  relationship: string;
-  birthday?: string;
-  likes?: string;
-  dislikes?: string;
-  notes?: string;
-  avatar?: string; // Base64 encoded image
-}
-
-export interface UpdateFamilyMemberRequest {
-  name?: string;
-  relationship?: string;
-  birthday?: string;
-  likes?: string;
-  dislikes?: string;
-  notes?: string;
-  avatar?: string; // Base64 encoded image
-}
-
-export interface CreateFamilyTaskFeedbackRequest {
-  taskDescription: string;
-  feedback?: string;
-  enjoyedIt?: boolean;
-  notes?: string;
-  xpGranted?: number;
-}
+// Import family types from frontend barrel file (which re-exports from backend)
+import type { FamilyMember, FamilyTaskFeedback, CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
 
 // API response types
 interface ApiResponse<T> {

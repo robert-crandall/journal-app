@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { familyApi, type CreateFamilyMemberRequest } from '$lib/api/family';
+  import { familyApi } from '$lib/api/family';
+  import type { CreateFamilyMemberRequest } from '$lib/types/family';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import { User, Heart, Calendar, Users, ArrowLeft, Save } from 'lucide-svelte';
 
