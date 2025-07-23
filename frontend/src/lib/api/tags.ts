@@ -1,21 +1,16 @@
 import { apiFetch } from '../api';
-import type { Tag as BackendTag, TagWithCount } from '../../../../backend/src/types/tags';
 
-// Re-export tag types for frontend use
-export type Tag = BackendTag;
-export type { TagWithCount };
+import type { Tag, TagWithCount, CreateTag, UpdateTag, CreateTagWithName } from '$lib/types/tags';
 
-export type CreateTagRequest = {
-  name: string;
-};
+export type CreateTagRequest = CreateTagWithName;
 
 export type BatchCreateTagsRequest = {
   tags: string[];
 };
 
-export type UpdateTagRequest = {
-  name?: string;
-};
+export type UpdateTagRequest = UpdateTag;
+
+export type { Tag, TagWithCount };
 
 const tagsApi = {
   // Get all user tags with usage counts
