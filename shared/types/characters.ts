@@ -5,11 +5,10 @@ export interface Character {
   id: string;
   userId: string;
   name: string;
-  class: string | null;
-  level: number;
-  xp: number;
-  avatar: string | null;
-  background: string | null;
+  characterClass: string;
+  backstory: string | null;
+  goals: string | null;
+  motto: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,13 +17,18 @@ export interface CreateCharacter {
   id?: string;
   userId: string;
   name: string;
-  class?: string | null;
-  level?: number;
-  xp?: number;
-  avatar?: string | null;
-  background?: string | null;
+  characterClass: string;
+  backstory?: string | null;
+  goals?: string | null;
+  motto?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export type UpdateCharacter = Partial<Omit<CreateCharacter, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
+
+// Response types with serialized dates
+export type CharacterResponse = Omit<Character, 'createdAt' | 'updatedAt'> & {
+  createdAt: string;
+  updatedAt: string;
+};

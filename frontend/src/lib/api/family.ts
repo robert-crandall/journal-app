@@ -3,7 +3,15 @@ import { createAuthenticatedFetch, authenticatedClient } from '../api';
 import type { XpGrantResponse } from './stats';
 
 // Import family types from frontend barrel file (which re-exports from backend)
-import type { FamilyMember, FamilyTaskFeedback, CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
+import type {
+  FamilyMember,
+  FamilyTaskFeedback,
+  FamilyMemberResponse,
+  FamilyTaskFeedbackResponse,
+  CreateFamilyMemberRequest,
+  UpdateFamilyMemberRequest,
+  CreateFamilyTaskFeedbackRequest,
+} from '../types/family';
 
 // API response types
 interface ApiResponse<T> {
@@ -19,7 +27,7 @@ interface ApiError {
 // Type-safe family API using shared authentication pattern
 export const familyApi = {
   // Get user's family members
-  async getFamilyMembers(): Promise<FamilyMember[]> {
+  async getFamilyMembers(): Promise<FamilyMemberResponse[]> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch('/api/family');
@@ -30,7 +38,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyMember[]>;
+      const result = (await response.json()) as ApiResponse<FamilyMemberResponse[]>;
       return result.data;
     } catch (error) {
       console.error('Get family members API request failed:', error);
@@ -39,7 +47,7 @@ export const familyApi = {
   },
 
   // Get specific family member by ID
-  async getFamilyMember(memberId: string): Promise<FamilyMember> {
+  async getFamilyMember(memberId: string): Promise<FamilyMemberResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(`/api/family/${memberId}`);
@@ -50,7 +58,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyMember>;
+      const result = (await response.json()) as ApiResponse<FamilyMemberResponse>;
       return result.data;
     } catch (error) {
       console.error('Get family member API request failed:', error);
@@ -59,7 +67,7 @@ export const familyApi = {
   },
 
   // Create a new family member
-  async createFamilyMember(data: CreateFamilyMemberRequest): Promise<FamilyMember> {
+  async createFamilyMember(data: CreateFamilyMemberRequest): Promise<FamilyMemberResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch('/api/family', {
@@ -81,7 +89,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyMember>;
+      const result = (await response.json()) as ApiResponse<FamilyMemberResponse>;
       return result.data;
     } catch (error) {
       console.error('Create family member API request failed:', error);
@@ -90,7 +98,7 @@ export const familyApi = {
   },
 
   // Update an existing family member
-  async updateFamilyMember(memberId: string, data: UpdateFamilyMemberRequest): Promise<FamilyMember> {
+  async updateFamilyMember(memberId: string, data: UpdateFamilyMemberRequest): Promise<FamilyMemberResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(`/api/family/${memberId}`, {
@@ -112,7 +120,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyMember>;
+      const result = (await response.json()) as ApiResponse<FamilyMemberResponse>;
       return result.data;
     } catch (error) {
       console.error('Update family member API request failed:', error);
@@ -142,7 +150,7 @@ export const familyApi = {
   },
 
   // Update/remove family member avatar
-  async updateFamilyMemberAvatar(memberId: string, avatar: string | null): Promise<FamilyMember> {
+  async updateFamilyMemberAvatar(memberId: string, avatar: string | null): Promise<FamilyMemberResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(`/api/family/${memberId}/avatar`, {
@@ -156,7 +164,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyMember>;
+      const result = (await response.json()) as ApiResponse<FamilyMemberResponse>;
       return result.data;
     } catch (error) {
       console.error('Update family member avatar API request failed:', error);
@@ -165,7 +173,7 @@ export const familyApi = {
   },
 
   // Add task feedback for a family member
-  async addTaskFeedback(memberId: string, data: CreateFamilyTaskFeedbackRequest): Promise<FamilyTaskFeedback> {
+  async addTaskFeedback(memberId: string, data: CreateFamilyTaskFeedbackRequest): Promise<FamilyTaskFeedbackResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(`/api/family/${memberId}/feedback`, {
@@ -187,7 +195,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyTaskFeedback>;
+      const result = (await response.json()) as ApiResponse<FamilyTaskFeedbackResponse>;
       return result.data;
     } catch (error) {
       console.error('Add task feedback API request failed:', error);
@@ -196,7 +204,7 @@ export const familyApi = {
   },
 
   // Get task feedback history for a family member
-  async getTaskFeedback(memberId: string, limit?: number): Promise<FamilyTaskFeedback[]> {
+  async getTaskFeedback(memberId: string, limit?: number): Promise<FamilyTaskFeedbackResponse[]> {
     try {
       const queryParams = new URLSearchParams();
       if (limit) {
@@ -215,7 +223,7 @@ export const familyApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<FamilyTaskFeedback[]>;
+      const result = (await response.json()) as ApiResponse<FamilyTaskFeedbackResponse[]>;
       return result.data;
     } catch (error) {
       console.error('Get task feedback API request failed:', error);

@@ -9,4 +9,6 @@ export type {
   CreateFamilyMemberRequest,
   UpdateFamilyMemberRequest,
   CreateFamilyTaskFeedbackRequest,
+  FamilyMemberResponse,
+  FamilyTaskFeedbackResponse,
 } from '../../../../shared/types/family';

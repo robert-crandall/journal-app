@@ -12,8 +12,9 @@ export interface FamilyMember {
   dislikes: string | null;
   notes: string | null;
   avatar: string | null;
-  xp: number;
-  level: number;
+  lastInteractionDate: Date | null;
+  connectionXp: number;
+  connectionLevel: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,8 +29,9 @@ export interface NewFamilyMember {
   dislikes?: string | null;
   notes?: string | null;
   avatar?: string | null;
-  xp?: number;
-  level?: number;
+  lastInteractionDate?: Date | null;
+  connectionXp?: number;
+  connectionLevel?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -45,6 +47,8 @@ export interface FamilyTaskFeedback {
   feedback: string | null;
   enjoyedIt: string | null;
   notes: string | null;
+  xpGranted: number | null;
+  completedAt: Date;
   createdAt: Date;
 }
 
@@ -56,6 +60,8 @@ export interface NewFamilyTaskFeedback {
   feedback?: string | null;
   enjoyedIt?: string | null;
   notes?: string | null;
+  xpGranted?: number | null;
+  completedAt?: Date;
   createdAt?: Date;
 }
 
@@ -81,3 +87,16 @@ export interface CreateFamilyTaskFeedbackRequest {
   enjoyedIt?: 'yes' | 'no';
   notes?: string;
 }
+
+// Response types with serialized dates
+export type FamilyMemberResponse = Omit<FamilyMember, 'createdAt' | 'updatedAt' | 'birthday' | 'lastInteractionDate'> & {
+  birthday: string | null; // ISO date string
+  lastInteractionDate: string | null; // ISO date string
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FamilyTaskFeedbackResponse = Omit<FamilyTaskFeedback, 'createdAt' | 'completedAt'> & {
+  createdAt: string;
+  completedAt: string;
+};

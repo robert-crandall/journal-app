@@ -104,7 +104,9 @@ export type CompleteExperimentTaskRequest = {
 };
 
 // Response types with serialized dates and populated relationships
-export type ExperimentResponse = Omit<Experiment, 'createdAt' | 'updatedAt'> & {
+export type ExperimentResponse = Omit<Experiment, 'createdAt' | 'updatedAt' | 'startDate' | 'endDate'> & {
+  startDate: string;
+  endDate: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -114,7 +116,8 @@ export type ExperimentTaskResponse = Omit<ExperimentTask, 'createdAt' | 'updated
   updatedAt: string;
 };
 
-export type ExperimentTaskCompletionResponse = Omit<ExperimentTaskCompletion, 'createdAt'> & {
+export type ExperimentTaskCompletionResponse = Omit<ExperimentTaskCompletion, 'createdAt' | 'completedDate'> & {
+  completedDate: string;
   createdAt: string;
 };
 
