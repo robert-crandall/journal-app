@@ -1,7 +1,7 @@
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { xpGrants, characterStats, familyMembers } from '../db/schema';
-import type { XpGrant, NewXpGrant, CreateXpGrantRequest, XpGrantFilter, XpGrantWithEntity, XpEntityType, XpSourceType } from '../types/xp';
+import type { XpGrant, NewXpGrant, CreateXpGrantRequest, XpGrantFilter, XpGrantWithEntity, XpEntityType, XpSourceType } from '../../../shared/types/xp';
 
 /**
  * Grant XP to any entity (character stat, family member, goal, etc.)
