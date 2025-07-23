@@ -1,21 +1,7 @@
 import { apiFetch, authenticatedClient } from '$lib/api';
+import type { Focus, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest, FocusUpdate, NewFocus } from '$lib/types/focus';
 
-// Local type definitions (should match backend types)
-export interface Focus {
-  id: string;
-  userId: string;
-  dayOfWeek: number;
-  title: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface CreateFocusRequest {
-  dayOfWeek: number;
-  title: string;
-  description: string;
-}
+export type { Focus, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest, FocusUpdate, NewFocus };
 
 // API response types
 interface ApiSuccessResponse<T> {

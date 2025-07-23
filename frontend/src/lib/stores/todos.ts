@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import type { SimpleTodoResponse } from '../../../.svelte-kit/backend-types/types/todos';
+import type { SimpleTodoResponse } from '$lib/types/todos';
 import { simpleTodosApi } from '../api/todos';
 
 // Types for the store

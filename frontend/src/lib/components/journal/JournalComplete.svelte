@@ -3,14 +3,14 @@
   import type { JournalResponse } from '$lib/types/journal';
   import { formatDate, formatDateTime } from '$lib/utils/date';
   import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
-  import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
+  import { XpGrantsService, type XpGrantWithEntity } from '$lib/api/xpGrants';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
   import JournalDayRating from './JournalDayRating.svelte';
 
   export let journal: JournalResponse;
 
-  let xpGrants: XpGrantWithDetails[] = [];
+  let xpGrants: XpGrantWithEntity[] = [];
   let loadingGrants = true;
 
   onMount(async () => {

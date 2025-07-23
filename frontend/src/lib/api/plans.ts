@@ -2,15 +2,38 @@ import { authenticatedClient } from '../api';
 
 // Import types directly from backend for type safety
 import type {
-  PlanResponse,
-  PlanSubtaskResponse,
-  PlanWithSubtasksResponse,
+  Plan,
+  NewPlan,
+  UpdatePlan,
+  PlanSubtask,
+  NewPlanSubtask,
+  UpdatePlanSubtask,
+  PlanType,
   CreatePlanRequest,
   UpdatePlanRequest,
   CreatePlanSubtaskRequest,
   UpdatePlanSubtaskRequest,
+  PlanResponse,
+  PlanSubtaskResponse,
+  PlanWithSubtasksResponse,
+} from '$lib/types/plans';
+
+export type {
+  Plan,
+  NewPlan,
+  UpdatePlan,
+  PlanSubtask,
+  NewPlanSubtask,
+  UpdatePlanSubtask,
   PlanType,
-} from '../../../../backend/src/types/plans';
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreatePlanSubtaskRequest,
+  UpdatePlanSubtaskRequest,
+  PlanResponse,
+  PlanSubtaskResponse,
+  PlanWithSubtasksResponse,
+};
 
 // API response types
 interface ApiResponse<T> {
@@ -271,13 +294,4 @@ export const plansApi = {
 };
 
 // Re-export types for convenience
-export type {
-  PlanResponse,
-  PlanSubtaskResponse,
-  PlanWithSubtasksResponse,
-  CreatePlanRequest,
-  UpdatePlanRequest,
-  CreatePlanSubtaskRequest,
-  UpdatePlanSubtaskRequest,
-  PlanType,
-};
+// (Removed duplicate type re-exports; now only re-exported at the top)

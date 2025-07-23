@@ -2,13 +2,13 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { JournalService } from '$lib/api/journal';
-  import { XpGrantsService, type XpGrantWithDetails } from '$lib/api/xpGrants';
+  import { XpGrantsService, type XpGrantWithEntity } from '$lib/api/xpGrants';
   import { formatDateTime, getTodayDateString } from '$lib/utils/date';
   import type { TodayJournalResponse } from '$lib/types/journal';
   import { BookOpenIcon, PlusCircleIcon, MessageSquareIcon, CheckCircleIcon, CalendarIcon, TrophyIcon, TagIcon } from 'lucide-svelte';
 
   let todayJournal: TodayJournalResponse | null = null;
-  let xpGrants: XpGrantWithDetails[] = [];
+  let xpGrants: XpGrantWithEntity[] = [];
   let loading = true;
   let error: string | null = null;
 

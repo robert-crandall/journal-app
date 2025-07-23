@@ -1,5 +1,5 @@
 import { createAuthenticatedClient } from '../api';
-import type { UpdateUserRequest, UpdateUserAvatarRequest } from '../../../../backend/src/types/users';
+import type { UpdateUserRequest, UpdateUserAvatarRequest } from '$lib/types/users';
 
 // API response user type (dates are serialized as strings in JSON)
 export interface ApiUser {

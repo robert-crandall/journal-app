@@ -1,46 +1,7 @@
 import { authenticatedClient } from '../api';
+import type { Goal, CreateGoal, UpdateGoal, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags, GoalWithParsedTags } from '$lib/types/goals';
 
-// Frontend types that match backend structure
-// TODO: Import these from backend once module resolution is fixed
-export interface Goal {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string | null;
-  tags?: string | null;
-  isActive: boolean;
-  isArchived: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface GoalWithParsedTags {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string | null;
-  tags: string[];
-  isActive: boolean;
-  isArchived: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateGoalWithTags {
-  title: string;
-  description?: string;
-  tags?: string[];
-  isActive?: boolean;
-  isArchived?: boolean;
-}
-
-export interface UpdateGoalWithTags {
-  title?: string;
-  description?: string;
-  tags?: string[];
-  isActive?: boolean;
-  isArchived?: boolean;
-}
+export type { Goal, CreateGoal, UpdateGoal, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags, GoalWithParsedTags };
 
 // API response types
 interface ApiResponse<T> {
@@ -100,8 +61,13 @@ export const goalsApi = {
   // Create a new goal
   async createGoal(data: CreateGoalWithTags): Promise<GoalWithParsedTags> {
     try {
+      // Map null/undefined description to string for API compatibility
+      const safeData = {
+        ...data,
+        description: data.description ?? undefined,
+      };
       const response = await authenticatedClient.api.goals.$post({
-        json: data,
+        json: safeData,
       });
 
       if (!response.ok) {
@@ -129,9 +95,14 @@ export const goalsApi = {
   // Update an existing goal
   async updateGoal(goalId: string, data: UpdateGoalWithTags): Promise<GoalWithParsedTags> {
     try {
+      // Map null/undefined description to string for API compatibility
+      const safeData = {
+        ...data,
+        description: data.description ?? undefined,
+      };
       const response = await authenticatedClient.api.goals[':id'].$put({
         param: { id: goalId },
-        json: data,
+        json: safeData,
       });
 
       if (!response.ok) {

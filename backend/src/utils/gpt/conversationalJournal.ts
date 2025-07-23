@@ -425,56 +425,6 @@ export async function generateJournalSummary(conversation: ChatMessage[], userCo
   // Prepare the conversation messages for the API
   const messages: ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }];
 
-  // Add journal memory context as individual messages (oldest to newest)
-  const journalMemory = await getJournalMemoryContext(userId);
-
-  // Add monthly summaries first (oldest to newest)
-  if (journalMemory.monthlySummaries.length > 0) {
-    journalMemory.monthlySummaries.reverse().forEach((summary) => {
-      const startDate = new Date(summary.startDate);
-      const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      messages.push({
-        role: 'user',
-        content: `📆 **Monthly Summary: ${monthYear}**\n\n${summary.summary}`,
-      });
-    });
-  }
-
-  // Add weekly summaries (oldest to newest)
-  if (journalMemory.weeklySummaries.length > 0) {
-    journalMemory.weeklySummaries.reverse().forEach((summary) => {
-      const startDate = new Date(summary.startDate);
-      const endDate = new Date(summary.endDate);
-      const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-      messages.push({
-        role: 'user',
-        content: `📅 **Weekly Summary: ${dateRange}**\n\n${summary.summary}`,
-      });
-    });
-  }
-
-  // Add daily journals (oldest to newest)
-  if (journalMemory.dailyJournals.length > 0) {
-    journalMemory.dailyJournals.reverse().forEach((entry) => {
-      const date = new Date(entry.date);
-      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-      // Add user journal entry
-      messages.push({
-        role: 'user',
-        content: `🗓️ **${formattedDate}**\n\n${entry.initialMessage}`,
-      });
-
-      // Add assistant reply if it exists
-      if (entry.assistantReply) {
-        messages.push({
-          role: 'assistant',
-          content: entry.assistantReply,
-        });
-      }
-    });
-  }
-
   // Add the recent conversation context (only user messages)
   const recentConversation = conversation;
   recentConversation.forEach((msg) => {
