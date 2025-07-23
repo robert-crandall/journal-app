@@ -32,7 +32,9 @@
       (formData.name ?? '').trim().length >= 2 &&
       (formData.description ?? '').trim().length >= 10 &&
       (formData.exampleActivities?.length ?? 0) > 0 &&
-      (formData.exampleActivities ?? []).every((activity) => (activity.description ?? '').trim().length > 0 && activity.suggestedXp > 0 && activity.suggestedXp <= 100)
+      (formData.exampleActivities ?? []).every(
+        (activity) => (activity.description ?? '').trim().length > 0 && activity.suggestedXp > 0 && activity.suggestedXp <= 100,
+      )
     );
   });
 
@@ -49,9 +51,8 @@
       formData = {
         name: stat.name ?? '',
         description: stat.description ?? '',
-        exampleActivities: Array.isArray(stat.exampleActivities) && stat.exampleActivities.length > 0
-          ? [...stat.exampleActivities]
-          : [{ description: '', suggestedXp: 10 }],
+        exampleActivities:
+          Array.isArray(stat.exampleActivities) && stat.exampleActivities.length > 0 ? [...stat.exampleActivities] : [{ description: '', suggestedXp: 10 }],
       };
     } catch (err) {
       console.error('Error loading stat:', err);
@@ -92,10 +93,7 @@
   }
 
   function addExampleActivity() {
-    formData.exampleActivities = [
-      ...(formData.exampleActivities ?? []),
-      { description: '', suggestedXp: 10 },
-    ];
+    formData.exampleActivities = [...(formData.exampleActivities ?? []), { description: '', suggestedXp: 10 }];
   }
 
   function removeExampleActivity(index: number) {

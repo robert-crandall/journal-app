@@ -1,23 +1,7 @@
 import { authenticatedClient } from '../api';
-import type {
-  Goal,
-  CreateGoal,
-  UpdateGoal,
-  GoalWithTags,
-  CreateGoalWithTags,
-  UpdateGoalWithTags,
-  GoalWithParsedTags,
-} from '$lib/types/goals';
+import type { Goal, CreateGoal, UpdateGoal, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags, GoalWithParsedTags } from '$lib/types/goals';
 
-export type {
-  Goal,
-  CreateGoal,
-  UpdateGoal,
-  GoalWithTags,
-  CreateGoalWithTags,
-  UpdateGoalWithTags,
-  GoalWithParsedTags,
-};
+export type { Goal, CreateGoal, UpdateGoal, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags, GoalWithParsedTags };
 
 // API response types
 interface ApiResponse<T> {

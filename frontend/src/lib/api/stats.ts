@@ -69,8 +69,8 @@ export const statsApi = {
       }
 
       const result = (await response.json()) as ApiResponse<PredefinedStat[]>;
-  // No date conversion needed for PredefinedStat
-  return result.data;
+      // No date conversion needed for PredefinedStat
+      return result.data;
     } catch (error) {
       console.error('Get predefined stats API request failed:', error);
       throw error;

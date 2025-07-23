@@ -22,12 +22,4 @@ export type {
   PredefinedStat,
 } from '../../../../backend/src/types/stats';
 
-export type {
-  XpGrant,
-  NewXpGrant,
-  XpEntityType,
-  XpSourceType,
-  CreateXpGrantRequest,
-  XpGrantFilter,
-  XpGrantWithEntity,
-} from '../../../../backend/src/types/xp';
+export type { XpGrant, NewXpGrant, XpEntityType, XpSourceType, CreateXpGrantRequest, XpGrantFilter, XpGrantWithEntity } from '../../../../backend/src/types/xp';
