@@ -15,7 +15,7 @@ import type {
   QuestDashboardResponse,
   LinkQuestExperimentRequest,
   LinkQuestJournalRequest,
-} from '../types/quests';
+} from '../../../shared/types/quests';
 
 export class QuestService {
   // Create a new quest

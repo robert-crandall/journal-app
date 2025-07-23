@@ -13,8 +13,8 @@ import {
   familyFeedbackQuerySchema,
   xpHistoryQuerySchema,
 } from '../validation/family';
-import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../types/family';
-import type { XpGrantFilter, XpSourceType } from '../types/xp';
+import type { CreateFamilyMemberRequest, UpdateFamilyMemberRequest, CreateFamilyTaskFeedbackRequest } from '../../../shared/types/family';
+import type { XpGrantFilter, XpSourceType } from '../../../shared/types/xp';
 import logger, { handleApiError } from '../utils/logger';
 import { grantXp, getXpGrantsWithEntityInfo } from '../utils/xpService';
 import { z } from 'zod';

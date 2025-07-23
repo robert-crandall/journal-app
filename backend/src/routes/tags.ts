@@ -7,7 +7,7 @@ import { tags } from '../db/schema/tags';
 import { createTagSchema, updateTagSchema, batchCreateTagsSchema } from '../validation/tags';
 import { handleApiError } from '../utils/logger';
 import { getUserTagsWithCounts, createOrGetTag, deleteUnusedTags } from '../utils/tags';
-import type { Tag, CreateTag, UpdateTag, TagWithCount } from '../types/tags';
+import type { Tag, CreateTag, UpdateTag, TagWithCount } from '../../../shared/types/tags';
 
 const app = new Hono()
   // Get all user's tags with usage counts

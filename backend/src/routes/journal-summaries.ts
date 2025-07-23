@@ -20,7 +20,7 @@ import type {
   GenerateJournalSummaryRequest,
   JournalSummaryResponse,
   ListJournalSummariesResponse,
-} from '../types/journal-summaries';
+} from '../../../shared/types/journal-summaries';
 
 /**
  * Helper function to serialize journal summary to response format

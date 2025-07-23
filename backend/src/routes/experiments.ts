@@ -26,7 +26,7 @@ import type {
   ExperimentWithTasksResponse,
   ExperimentTaskWithCompletionsResponse,
   ExperimentDashboardResponse,
-} from '../types/experiments';
+} from '../../../shared/types/experiments';
 
 // Helper function to serialize experiment dates
 const serializeExperiment = (experiment: any): ExperimentResponse => ({

@@ -25,7 +25,7 @@ import type {
   ListJournalsRequest,
   ListJournalsResponse,
   JournalListItem,
-} from '../types/journals';
+} from '../../../shared/types/journals';
 
 /**
  * Helper function to serialize journal to response format

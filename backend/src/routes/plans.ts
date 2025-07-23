@@ -13,7 +13,7 @@ import {
   reorderPlanSubtasksSchema,
 } from '../validation/plans';
 import { handleApiError } from '../utils/logger';
-import type { PlanResponse, PlanSubtaskResponse, PlanWithSubtasksResponse } from '../types/plans';
+import type { PlanResponse, PlanSubtaskResponse, PlanWithSubtasksResponse } from '../../../shared/types/plans';
 
 const app = new Hono()
   // Get user's plans
