@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
-  import { familyApi, type FamilyMember } from '$lib/api/family';
+  import { familyApi } from '$lib/api/family';
+  import type { FamilyMember } from '$lib/types/family';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Plus, Users, Heart, Calendar, User, Edit3, Trash2, Eye, MessageCircle } from 'lucide-svelte';
   import { formatDate, formatDateTime } from '$lib/utils/date';
@@ -208,7 +209,7 @@
 
                         <div class="flex items-center gap-2">
                           <Heart size={14} class="text-base-content/40" />
-                          <span>Last interaction: {formatLastInteraction(member.lastInteractionDate)}</span>
+                          <span>Last interaction: {formatLastInteraction(member.lastInteractionDate ? String(member.lastInteractionDate) : null)}</span>
                         </div>
                       </div>
 

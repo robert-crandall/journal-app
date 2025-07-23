@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { getFamilyMember, deleteFamilyMember, getXpHistory } from '$lib/api/family.js';
-  import type { FamilyMember } from '$lib/api/family.js';
+  import type { FamilyMember } from '$lib/types/family';
   import type { XpGrantResponse } from '$lib/api/stats';
   import AvatarDisplay from '$lib/components/AvatarDisplay.svelte';
   import { Calendar, Edit3, Trash2, User, Heart, MessageCircle, ArrowLeft, TrendingUp, Clock, Star } from 'lucide-svelte';
