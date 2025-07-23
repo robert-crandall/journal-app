@@ -1,7 +1,6 @@
-
 import { apiFetch } from '../api';
-import type { XpGrantWithDetails } from '$lib/types/xpGrants';
-export type { XpGrantWithDetails } from '$lib/types/xpGrants';
+import type { XpGrantWithEntity as XpGrantWithDetails } from '$lib/types/xpGrants';
+export type { XpGrantWithEntity as XpGrantWithDetails } from '$lib/types/xpGrants';
 
 export class XpGrantsService {
   /**
