@@ -1,4 +1,4 @@
-// Import types from backend (single source of truth)
+// Import types from shared folder (single source of truth)
 export type {
   JournalSummary,
   NewJournalSummary,
@@ -8,7 +8,7 @@ export type {
   GenerateJournalSummaryRequest,
   JournalSummaryResponse,
   ListJournalSummariesResponse,
-} from '../../../../backend/src/types/journal-summaries';
+} from '../../../../shared/types/journal-summaries';
 
 // Additional frontend-specific types for UI state
 export interface JournalSummaryFormData {

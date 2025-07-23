@@ -1,4 +1,4 @@
-// Barrel file for simple todo types, re-exporting from backend
+// Barrel file for simple todo types, re-exporting from shared folder
 export type {
   SimpleTodo,
   NewSimpleTodo,
@@ -6,4 +6,4 @@ export type {
   CreateSimpleTodoRequest,
   UpdateSimpleTodoRequest,
   SimpleTodoResponse,
-} from '../../../../backend/src/types/todos';
+} from '../../../../shared/types/todos';

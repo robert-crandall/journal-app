@@ -23,6 +23,7 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 *.tsbuildinfo
+*.d.ts
 
 # Logs
 logs

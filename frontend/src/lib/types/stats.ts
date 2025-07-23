@@ -10,7 +10,7 @@ export interface UpdateCharacterStatInput {
   description?: string;
   exampleActivities?: import('$lib/types/stats').CharacterStatExampleActivity[];
 }
-// Import stat and XP types from backend (single source of truth)
+// Import stat and XP types from shared folder (single source of truth)
 export type {
   CharacterStat,
   NewCharacterStat,
@@ -20,6 +20,6 @@ export type {
   CharacterStatWithProgress,
   LevelCalculation,
   PredefinedStat,
-} from '../../../../backend/src/types/stats';
+} from '../../../../shared/types/stats';
 
-export type { XpGrant, NewXpGrant, XpEntityType, XpSourceType, CreateXpGrantRequest, XpGrantFilter, XpGrantWithEntity } from '../../../../backend/src/types/xp';
+export type { XpGrant, NewXpGrant, XpEntityType, XpSourceType, CreateXpGrantRequest, XpGrantFilter, XpGrantWithEntity } from '../../../../shared/types/xp';

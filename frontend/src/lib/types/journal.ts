@@ -1,4 +1,4 @@
-// Import journal types from backend (single source of truth)
+// Import journal types from shared folder (single source of truth)
 export type {
   JournalResponse,
   TodayJournalResponse,
@@ -10,7 +10,7 @@ export type {
   ListJournalsRequest,
   ListJournalsResponse,
   JournalListItem,
-} from '../../../../backend/src/types/journals';
+} from '../../../../shared/types/journals';
 
 // Additional frontend-specific types for UI state
 export interface JournalFormData {
