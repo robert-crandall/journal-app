@@ -3,6 +3,7 @@
   import type { JournalListItem } from '$lib/types/journal';
   import { formatDate } from '$lib/utils/date';
   import { BookOpenIcon, MessageSquareIcon, CheckCircleIcon, EditIcon, CalendarIcon, FileTextIcon, TrophyIcon } from 'lucide-svelte';
+  import ToneTagsDisplay from './ToneTagsDisplay.svelte';
 
   export let journal: JournalListItem;
   export let viewMode: 'grid' | 'list' = 'grid';
@@ -104,6 +105,13 @@
         {#if journal.contentTags.length > (viewMode === 'grid' ? 3 : 5)}
           <span class="badge badge-ghost badge-xs">+{journal.contentTags.length - (viewMode === 'grid' ? 3 : 5)}</span>
         {/if}
+      </div>
+    {/if}
+
+    <!-- Tone Tags -->
+    {#if journal.toneTags && journal.toneTags.length > 0}
+      <div class="mt-2">
+        <ToneTagsDisplay toneTags={journal.toneTags} size="xs" showLabels={viewMode === 'list'} maxDisplay={viewMode === 'grid' ? 2 : 4} />
       </div>
     {/if}
 

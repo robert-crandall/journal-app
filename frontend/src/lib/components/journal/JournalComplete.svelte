@@ -7,6 +7,7 @@
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
   import JournalDayRating from './JournalDayRating.svelte';
+  import ToneTagsDisplay from './ToneTagsDisplay.svelte';
 
   export let journal: JournalResponse;
 
@@ -47,6 +48,13 @@
 
       {#if journal.synopsis}
         <p class="text-base-content/80 italic">{journal.synopsis}</p>
+      {/if}
+
+      {#if journal.toneTags && journal.toneTags.length > 0}
+        <div class="mt-4">
+          <h4 class="text-base-content/70 mb-2 text-sm font-medium">Emotional Tone</h4>
+          <ToneTagsDisplay toneTags={journal.toneTags} size="sm" showLabels={true} />
+        </div>
       {/if}
     </div>
   </div>

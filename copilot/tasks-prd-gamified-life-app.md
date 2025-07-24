@@ -109,6 +109,14 @@
   - [x] 15.3 Update GPT conversation system to use layered context
   - [ ] 15.4 Ensure all journal memory enhancement tests pass
 
+- [ ] 16.0 Emotion Tag Extraction for Journals (Tone Tags)
+  - [x] 16.1 Design and implement tone_tags field in journal schema with database migration (backend)
+  - [x] 16.2 Write backend integration tests for tone tags functionality
+  - [x] 16.3 Implement GPT tone extraction on journal completion (backend)
+  - [x] 16.4 Implement frontend UI for displaying tone tags on journal dashboard
+  - [ ] 16.5 Write frontend E2E tests for tone tags functionality
+  - [ ] 16.6 Ensure all tone tags tests pass
+
 ---
 
 **Relevant files:**

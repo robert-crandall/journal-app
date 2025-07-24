@@ -13,6 +13,7 @@ export const journals = pgTable('journals', {
   summary: text('summary'), // GPT-generated summary
   title: text('title'), // GPT-generated title
   synopsis: text('synopsis'), // GPT-generated synopsis
+  toneTags: jsonb('tone_tags'), // GPT-extracted emotional tone tags (max 2, constrained to fixed set)
   dayRating: integer('day_rating'), // User-provided rating of their day (1-5)
   inferredDayRating: integer('inferred_day_rating'), // AI-inferred rating of the day (1-5)
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

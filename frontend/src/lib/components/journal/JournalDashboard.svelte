@@ -4,6 +4,7 @@
   import { JournalService } from '$lib/api/journal';
   import type { JournalListItem, ListJournalsResponse } from '$lib/types/journal';
   import JournalHeatmap from '$lib/components/journal/JournalHeatmap.svelte';
+  import ToneTagsDisplay from '$lib/components/journal/ToneTagsDisplay.svelte';
   import { BookOpenIcon, CalendarDaysIcon, ListIcon, PlusIcon, SparklesIcon } from 'lucide-svelte';
   import { getTodayDateString, formatDate } from '$lib/utils/date';
 
@@ -80,6 +81,26 @@
   });
   $: bestDay = journalsSortedByRating[0] || null;
   $: worstDay = journalsSortedByRating[journalsSortedByRating.length - 1] || null;
+
+  // Calculate tone tag statistics
+  $: toneTagCounts = completedJournals
+    .filter((j) => j.toneTags && j.toneTags.length > 0)
+    .reduce(
+      (acc, journal) => {
+        journal.toneTags?.forEach((tag) => {
+          acc[tag] = (acc[tag] || 0) + 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+  $: mostCommonToneTags = Object.entries(toneTagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([tag, count]) => ({ tag: tag as any, count }));
+
+  $: journalsWithToneTags = completedJournals.filter((j) => j.toneTags && j.toneTags.length > 0).length;
 </script>
 
 <div class="space-y-6" data-test-id="journal-dashboard">
@@ -122,7 +143,7 @@
     <!-- Content -->
   {:else}
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <!-- Total Entries -->
       <div class="card bg-base-100 border-base-300 border shadow-sm">
         <div class="card-body p-4">
@@ -184,6 +205,24 @@
           {/if}
         </div>
       </div>
+
+      <!-- Emotional Insights -->
+      <div class="card bg-base-100 border-base-300 border shadow-sm">
+        <div class="card-body p-4">
+          <h3 class="text-base-content/70 card-title text-sm">Emotional Insights</h3>
+          {#if mostCommonToneTags.length > 0}
+            <div class="mt-2 space-y-1">
+              <ToneTagsDisplay toneTags={mostCommonToneTags.map((t) => t.tag)} size="xs" showLabels={false} />
+            </div>
+            <div class="text-base-content/60 mt-1 text-xs">
+              From {journalsWithToneTags} analyzed entries
+            </div>
+          {:else}
+            <p class="mt-2 text-2xl font-bold">-</p>
+            <div class="text-base-content/60 mt-1 text-xs">No emotional analysis yet</div>
+          {/if}
+        </div>
+      </div>
     </div>
 
     <!-- Heatmap -->
@@ -209,6 +248,7 @@
                 <tr>
                   <th>Date</th>
                   <th>Title</th>
+                  <th>Mood</th>
                   <th>Rating</th>
                   <th>Status</th>
                 </tr>
@@ -218,6 +258,13 @@
                   <tr class="hover cursor-pointer" on:click={() => goto(`/journal/${journal.date}`)}>
                     <td>{formatDate(journal.date)}</td>
                     <td>{journal.title || 'Untitled'}</td>
+                    <td>
+                      {#if journal.toneTags && journal.toneTags.length > 0}
+                        <ToneTagsDisplay toneTags={journal.toneTags} size="xs" showLabels={false} maxDisplay={2} />
+                      {:else}
+                        <span class="text-base-content/50">-</span>
+                      {/if}
+                    </td>
                     <td>
                       {#if journal.dayRating !== null}
                         <span class="badge">{journal.dayRating}</span>

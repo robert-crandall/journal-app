@@ -1,10 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { SearchIcon, FilterIcon, CalendarIcon, TagIcon, XIcon } from 'lucide-svelte';
+  import { SearchIcon, FilterIcon, CalendarIcon, TagIcon, HeartIcon, XIcon } from 'lucide-svelte';
+  import { TONE_TAGS, type ToneTag } from '$lib/types/journal';
+  import ToneTagsDisplay from './ToneTagsDisplay.svelte';
 
   export let searchTerm = '';
   export let statusFilter: 'all' | 'draft' | 'in_review' | 'complete' = 'all';
   export let selectedTags: string[] = [];
+  export let selectedToneTags: ToneTag[] = [];
   export let dateFrom = '';
   export let dateTo = '';
   export let availableTags: Array<{ id: string; name: string }> = [];
@@ -35,8 +38,22 @@
     handleFilterChange();
   }
 
+  function toggleToneTag(toneTag: ToneTag) {
+    if (selectedToneTags.includes(toneTag)) {
+      selectedToneTags = selectedToneTags.filter((tag) => tag !== toneTag);
+    } else {
+      selectedToneTags = [...selectedToneTags, toneTag];
+    }
+    handleFilterChange();
+  }
+
   function clearTag(tagId: string) {
     selectedTags = selectedTags.filter((id) => id !== tagId);
+    handleFilterChange();
+  }
+
+  function clearToneTag(toneTag: ToneTag) {
+    selectedToneTags = selectedToneTags.filter((tag) => tag !== toneTag);
     handleFilterChange();
   }
 
@@ -44,6 +61,7 @@
     searchTerm = '';
     statusFilter = 'all';
     selectedTags = [];
+    selectedToneTags = [];
     dateFrom = '';
     dateTo = '';
     handleFilterChange();
@@ -53,7 +71,7 @@
     handleFilterChange();
   }
 
-  $: hasActiveFilters = searchTerm.trim() || statusFilter !== 'all' || selectedTags.length > 0 || dateFrom || dateTo;
+  $: hasActiveFilters = searchTerm.trim() || statusFilter !== 'all' || selectedTags.length > 0 || selectedToneTags.length > 0 || dateFrom || dateTo;
   $: selectedTagNames = selectedTags.map((id) => availableTags.find((tag) => tag.id === id)?.name).filter(Boolean);
 </script>
 
@@ -102,6 +120,19 @@
         {#each selectedTagNames as tagName, index (tagName)}
           <button class="badge badge-primary gap-1" on:click={() => clearTag(selectedTags[index])}>
             {tagName}
+            <XIcon size={12} />
+          </button>
+        {/each}
+      </div>
+    {/if}
+
+    {#if selectedToneTags.length > 0}
+      <div class="mt-2 flex flex-wrap items-center gap-2">
+        <span class="text-base-content/70 text-sm">Mood:</span>
+        {#each selectedToneTags as toneTag (toneTag)}
+          <button class="badge badge-secondary gap-1" on:click={() => clearToneTag(toneTag)}>
+            <ToneTagsDisplay toneTags={[toneTag]} size="xs" showLabels={false} />
+            {toneTag}
             <XIcon size={12} />
           </button>
         {/each}
@@ -197,6 +228,29 @@
             </div>
           </div>
         {/if}
+
+        <!-- Tone Tags Filter -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text flex items-center gap-2 font-medium">
+              <HeartIcon size={16} />
+              Mood Tags
+            </span>
+          </label>
+          <div class="flex flex-wrap gap-2">
+            {#each TONE_TAGS as toneTag (toneTag)}
+              <button
+                class="btn btn-sm gap-1"
+                class:btn-secondary={selectedToneTags.includes(toneTag)}
+                class:btn-outline={!selectedToneTags.includes(toneTag)}
+                on:click={() => toggleToneTag(toneTag)}
+              >
+                <ToneTagsDisplay toneTags={[toneTag]} size="xs" showLabels={false} />
+                {toneTag.charAt(0).toUpperCase() + toneTag.slice(1)}
+              </button>
+            {/each}
+          </div>
+        </div>
       </div>
     {/if}
   </div>
