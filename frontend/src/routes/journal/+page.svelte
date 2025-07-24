@@ -133,12 +133,7 @@
 <div class="bg-base-100 min-h-screen">
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
-    <AppHeader
-      icon={BookOpenIcon}
-      title="Journal Dashboard"
-      subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`}
-      {buttons}
-    />
+    <AppHeader icon={BookOpenIcon} title="Journal Dashboard" subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`} {buttons} />
 
     <!-- Search and Filters -->
     <div class="mb-8">
@@ -196,9 +191,7 @@
             {/if}
           </p>
           <div class="card-actions justify-center">
-            <button on:click={createNewJournal} class="btn btn-primary gap-2">
-              Create First Journal
-            </button>
+            <button on:click={createNewJournal} class="btn btn-primary gap-2"> Create First Journal </button>
           </div>
         </div>
       </div>
