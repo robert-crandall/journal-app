@@ -3,7 +3,9 @@
   import { JournalService } from '$lib/api/journal';
   import { goto } from '$app/navigation';
   import type { ListJournalsResponse, JournalListItem, ToneTag } from '$lib/types/journal';
-  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon, PlusIcon, LayoutGridIcon, LayoutListIcon, SparklesIcon } from 'lucide-svelte';
+  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon } from 'lucide-svelte';
+  import AppHeader from '$lib/components/common/AppHeader.svelte';
+  import { LayoutGridIcon, LayoutListIcon, PlusIcon, SparklesIcon } from 'lucide-svelte';
   import JournalCard from '$lib/components/journal/JournalCard.svelte';
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
   import JournalCalendarHeatmap from '$lib/components/journal/JournalCalendarHeatmap.svelte';
@@ -96,6 +98,32 @@
   function toggleViewMode() {
     viewMode = viewMode === 'grid' ? 'list' : 'grid';
   }
+
+  // Header buttons array for AppHeader
+  $: buttons = [
+    {
+      label: 'Summaries',
+      icon: SparklesIcon,
+      onClick: goToSummaries,
+      class: 'btn btn-ghost btn-sm w-auto',
+      showLabel: true,
+    },
+    {
+      label: viewMode === 'grid' ? 'List' : 'Grid',
+      icon: viewMode === 'grid' ? LayoutListIcon : LayoutGridIcon,
+      onClick: toggleViewMode,
+      class: 'btn btn-ghost btn-sm w-auto',
+      showLabel: false,
+      title: 'Toggle view mode',
+    },
+    {
+      label: 'New Entry',
+      icon: PlusIcon,
+      onClick: createNewJournal,
+      class: 'btn btn-primary gap-2 w-auto',
+      showLabel: true,
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -105,40 +133,12 @@
 <div class="bg-base-100 min-h-screen">
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-0">
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-          <BookOpenIcon size={32} class="text-primary shrink-0" />
-          <div class="min-w-0">
-            <h1 class="text-gradient text-2xl sm:text-3xl font-bold truncate">Journal Dashboard</h1>
-            <p class="text-base-content/70 truncate">
-              {totalJournals}
-              {totalJournals === 1 ? 'entry' : 'entries'} found
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-          <button class="btn btn-ghost btn-sm w-auto" on:click={goToSummaries}>
-            <SparklesIcon size={16} />
-            <span class="sm:inline">Summaries</span>
-          </button>
-
-          <button on:click={toggleViewMode} class="btn btn-ghost btn-sm w-auto" title="Toggle view mode">
-            {#if viewMode === 'grid'}
-              <LayoutListIcon size={16} />
-            {:else}
-              <LayoutGridIcon size={16} />
-            {/if}
-          </button>
-
-          <button on:click={createNewJournal} class="btn btn-primary gap-2 w-auto">
-            <PlusIcon size={16} />
-            <span class="xs:inline">New Entry</span>
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppHeader
+      icon=BookOpenIcon
+      title="Journal Dashboard"
+      subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`}
+      {buttons}
+    />
 
     <!-- Search and Filters -->
     <div class="mb-8">
@@ -197,7 +197,6 @@
           </p>
           <div class="card-actions justify-center">
             <button on:click={createNewJournal} class="btn btn-primary gap-2">
-              <PlusIcon size={16} />
               Create First Journal
             </button>
           </div>
@@ -225,12 +224,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .text-gradient {
-    background: linear-gradient(to right, oklch(0.637 0.237 25.331), oklch(0.637 0.237 330));
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-</style>
