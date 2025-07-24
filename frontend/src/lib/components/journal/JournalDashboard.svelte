@@ -84,20 +84,23 @@
 
   // Calculate tone tag statistics
   $: toneTagCounts = completedJournals
-    .filter(j => j.toneTags && j.toneTags.length > 0)
-    .reduce((acc, journal) => {
-      journal.toneTags?.forEach(tag => {
-        acc[tag] = (acc[tag] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    .filter((j) => j.toneTags && j.toneTags.length > 0)
+    .reduce(
+      (acc, journal) => {
+        journal.toneTags?.forEach((tag) => {
+          acc[tag] = (acc[tag] || 0) + 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
   $: mostCommonToneTags = Object.entries(toneTagCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([tag, count]) => ({ tag: tag as any, count }));
 
-  $: journalsWithToneTags = completedJournals.filter(j => j.toneTags && j.toneTags.length > 0).length;
+  $: journalsWithToneTags = completedJournals.filter((j) => j.toneTags && j.toneTags.length > 0).length;
 </script>
 
 <div class="space-y-6" data-test-id="journal-dashboard">
@@ -209,7 +212,7 @@
           <h3 class="text-base-content/70 card-title text-sm">Emotional Insights</h3>
           {#if mostCommonToneTags.length > 0}
             <div class="mt-2 space-y-1">
-              <ToneTagsDisplay toneTags={mostCommonToneTags.map(t => t.tag)} size="xs" showLabels={false} />
+              <ToneTagsDisplay toneTags={mostCommonToneTags.map((t) => t.tag)} size="xs" showLabels={false} />
             </div>
             <div class="text-base-content/60 mt-1 text-xs">
               From {journalsWithToneTags} analyzed entries

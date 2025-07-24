@@ -276,7 +276,7 @@ describe('Journal Tone Tags Integration', () => {
           initialMessage: 'Feeling really happy and calm today!',
           chatSession: [
             { role: 'user', content: 'Feeling really happy and calm today!' },
-            { role: 'assistant', content: 'That\'s wonderful to hear! What contributed to those positive feelings?' },
+            { role: 'assistant', content: "That's wonderful to hear! What contributed to those positive feelings?" },
           ],
         });
 
@@ -328,7 +328,7 @@ describe('Journal Tone Tags Integration', () => {
 
     it('should include tone tags in individual journal responses', async () => {
       const date = '2024-01-21';
-      
+
       // Create a completed journal with tone tags
       await testDb()
         .insert(journals)

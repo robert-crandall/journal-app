@@ -54,15 +54,9 @@
     return tag.charAt(0).toUpperCase() + tag.slice(1);
   }
 
-  $: displayTags = toneTags 
-    ? (maxDisplay > 0 && toneTags.length > maxDisplay 
-        ? toneTags.slice(0, maxDisplay) 
-        : toneTags)
-    : [];
+  $: displayTags = toneTags ? (maxDisplay > 0 && toneTags.length > maxDisplay ? toneTags.slice(0, maxDisplay) : toneTags) : [];
 
-  $: remainingCount = toneTags && maxDisplay > 0 && toneTags.length > maxDisplay 
-    ? toneTags.length - maxDisplay 
-    : 0;
+  $: remainingCount = toneTags && maxDisplay > 0 && toneTags.length > maxDisplay ? toneTags.length - maxDisplay : 0;
 </script>
 
 {#if toneTags && toneTags.length > 0}
@@ -75,7 +69,7 @@
         {/if}
       </div>
     {/each}
-    
+
     {#if remainingCount > 0}
       <div class="badge badge-ghost badge-{size}">
         +{remainingCount}

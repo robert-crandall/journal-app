@@ -111,12 +111,7 @@
     <!-- Tone Tags -->
     {#if journal.toneTags && journal.toneTags.length > 0}
       <div class="mt-2">
-        <ToneTagsDisplay 
-          toneTags={journal.toneTags} 
-          size="xs" 
-          showLabels={viewMode === 'list'}
-          maxDisplay={viewMode === 'grid' ? 2 : 4}
-        />
+        <ToneTagsDisplay toneTags={journal.toneTags} size="xs" showLabels={viewMode === 'list'} maxDisplay={viewMode === 'grid' ? 2 : 4} />
       </div>
     {/if}
 
