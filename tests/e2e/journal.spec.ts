@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginUser } from './test-helpers';
+import { TEST_CONFIG } from './test-config';
 
 test.describe('Journal System', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +11,7 @@ test.describe('Journal System', () => {
   async function cleanupJournal(page: any, date: string) {
     try {
       const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-      await page.request.delete(`/api/journals/${date}`, {
+      await page.request.delete(`${TEST_CONFIG.API_BASE_URL}/api/journals/${date}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
