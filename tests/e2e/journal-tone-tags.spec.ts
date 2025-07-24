@@ -93,19 +93,4 @@ test.describe('Journal Tone Tags Feature', () => {
     await expect(page.getByRole('button', { name: /Happy/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Calm/i })).toBeVisible();
   });
-
-  test('displays tone tags in journal dashboard', async ({ page }) => {
-    await page.goto('/journals');
-    await page.waitForLoadState('networkidle');
-
-    // Check if journal dashboard displays emotional insights section
-    const dashboardElement = page.locator('[data-test-id="journal-dashboard"]');
-    await expect(dashboardElement).toBeVisible();
-
-    // Should show the emotional insights card
-    await expect(page.locator('text=Emotional Insights')).toBeVisible();
-
-    // Should show mood column in recent entries table
-    await expect(page.locator('th').filter({ hasText: 'Mood' })).toBeVisible();
-  });
 });

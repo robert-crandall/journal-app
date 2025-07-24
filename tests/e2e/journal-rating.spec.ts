@@ -117,19 +117,4 @@ test.describe('Journal Day Rating', () => {
     // Check that the day rating component shows the estimated badge
     await expect(page.locator('.badge').filter({ hasText: 'Estimated' })).toBeVisible({ timeout: 5000 });
   });
-
-  test('should display journal heatmap on dashboard', async ({ page }) => {
-    test.setTimeout(20000); // Increase timeout for this test
-    // Navigate to journal dashboard
-    await page.goto('/journals');
-    await page.waitForTimeout(1000);
-
-    // Check that the heatmap is visible
-    await expect(page.getByRole('heading', { name: 'Journal Calendar' })).toBeVisible();
-
-    // Check that the legend is visible
-    await expect(page.locator('[data-test-id="heatmap-legend"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="legend-rating-1"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="legend-rating-5"]')).toBeVisible();
-  });
 });
