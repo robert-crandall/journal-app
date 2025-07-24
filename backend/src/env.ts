@@ -24,10 +24,10 @@ export function loadEnv() {
   // Load environment variables from .env files in the parent directory
   if (process.env.NODE_ENV === 'test') {
     // For tests, load from parent .env.test
-    require('dotenv').config({ path: '../.env.test' });
+    require('dotenv').config({ path: '../.env.test', override: true });
   } else {
     // For development, load from parent .env
-    require('dotenv').config({ path: '../.env' });
+    require('dotenv').config({ path: '../.env', override: true });
   }
 }
 
