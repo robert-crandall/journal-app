@@ -1,0 +1,1 @@
+ALTER TABLE "journals" ADD COLUMN "tone_tags" jsonb;

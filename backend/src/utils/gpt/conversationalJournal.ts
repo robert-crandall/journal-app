@@ -27,6 +27,7 @@ export interface JournalMetadata {
   suggestedTags: string[]; // Tag IDs
   suggestedStatTags: Record<string, { xp: number; reason: string }>; // Stat IDs with XP amount and reason for XP
   suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family member IDs with XP amount and reason for interactions
+  toneTags: string[]; // Extracted emotional tone tags (from fixed set)
   suggestedTodos?: string[]; // Actionable items extracted from journal content
 }
 
@@ -102,8 +103,9 @@ Your task is to review the entire conversation and generate:
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
 3. **Content Tags**: 3-6 tags describing topics, activities, or themes
-4. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
-5. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
+4. **Tone Tags**: Up to 2 emotional tone tags from this fixed list: happy, calm, energized, overwhelmed, sad, angry, anxious. Only include tones that are clearly expressed or strongly implied.
+5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
+6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -199,6 +201,7 @@ IMPORTANT: Format your response exactly as JSON:
   "title": "Brief descriptive title",
   "synopsis": "1-2 sentence overview", 
   "suggestedTags": ["tag1", "tag2", "tag3"],
+  "toneTags": ["happy", "calm"],
   "suggestedStatTags": {
     "statName1": { "xp": 15, "reason": "Specific achievement or activity that developed this stat" },
     "statName2": { "xp": 25, "reason": "Specific achievement or activity that developed this stat" }
@@ -217,6 +220,8 @@ Only include todos that are explicitly mentioned in the conversation. Do not inv
 ## Tagging Guidelines
 
 **Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
+
+**Tone Tags**: Analyze the user's emotional state and mood throughout the conversation. Select up to 2 tone tags from this exact list: "happy", "calm", "energized", "overwhelmed", "sad", "angry", "anxious". Only include emotional tones that are clearly expressed or strongly implied. Prefer emotional tones that dominate the mood or are repeated, rather than fleeting moments.
 
 **Stat Tags**: Only suggest stats (current or available) that genuinely relate to activities or growth areas discussed. Consider both what the user did and what skills/qualities they demonstrated or worked on. For each stat, provide:
   - XP amount between 5-50 based on the significance and effort discussed
@@ -519,12 +524,24 @@ async function convertNamesToIds(rawMetadata: any, userId: string, userContext: 
     }
   }
 
+  // Extract and validate tone tags
+  const VALID_TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'];
+  const toneTags: string[] = [];
+  if (rawMetadata.toneTags && Array.isArray(rawMetadata.toneTags)) {
+    for (const tag of rawMetadata.toneTags) {
+      if (typeof tag === 'string' && VALID_TONE_TAGS.includes(tag.toLowerCase())) {
+        toneTags.push(tag.toLowerCase());
+      }
+    }
+  }
+
   return {
     title: rawMetadata.title || '',
     synopsis: rawMetadata.synopsis || '',
     suggestedTags,
     suggestedStatTags,
     suggestedFamilyTags,
+    toneTags,
     suggestedTodos: rawMetadata.suggestedTodos || [],
   };
 }

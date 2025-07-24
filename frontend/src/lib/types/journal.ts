@@ -6,11 +6,14 @@ export type {
   UpdateJournalRequest,
   AddChatMessageRequest,
   ChatMessage,
+  ToneTag,
   // Journal Dashboard Types
   ListJournalsRequest,
   ListJournalsResponse,
   JournalListItem,
 } from '../../../../shared/types/journals';
+
+export { TONE_TAGS } from '../../../../shared/types/journals';
 
 // Additional frontend-specific types for UI state
 export interface JournalFormData {

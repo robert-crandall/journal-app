@@ -190,6 +190,13 @@
       "when": 1752957825079,
       "tag": "0026_new_impossible_man",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1753318635006,
+      "tag": "0027_ambitious_prima",
+      "breakpoints": true
     }
   ]
 }

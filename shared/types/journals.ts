@@ -1,6 +1,10 @@
 // Journal types - shared between backend and frontend
 // Extracted from backend database schema to remove Drizzle dependencies
 
+// Allowed tone tags for emotional analysis
+export const TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'] as const;
+export type ToneTag = (typeof TONE_TAGS)[number];
+
 export interface Journal {
   id: string;
   userId: string;
@@ -11,6 +15,7 @@ export interface Journal {
   summary: string | null;
   title: string | null;
   synopsis: string | null;
+  toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags (max 2)
   dayRating: number | null;
   inferredDayRating: number | null;
   createdAt: Date;
@@ -27,6 +32,7 @@ export interface NewJournal {
   summary?: string | null;
   title?: string | null;
   synopsis?: string | null;
+  toneTags?: ToneTag[] | null; // GPT-extracted emotional tone tags (max 2)
   dayRating?: number | null;
   inferredDayRating?: number | null;
   createdAt?: Date;
@@ -47,6 +53,7 @@ export interface UpdateJournalRequest {
   summary?: string;
   title?: string;
   synopsis?: string;
+  toneTags?: ToneTag[]; // GPT-extracted emotional tone tags (max 2)
   dayRating?: number; // User-provided rating (1-5)
   inferredDayRating?: number; // AI-inferred rating (1-5)
 }
@@ -87,6 +94,7 @@ export interface JournalListItem {
   title: string | null;
   synopsis: string | null;
   initialMessage: string | null;
+  toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags
   dayRating: number | null;
   inferredDayRating: number | null;
   createdAt: string;
@@ -117,6 +125,7 @@ export interface JournalResponse {
   summary: string | null;
   title: string | null;
   synopsis: string | null;
+  toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags
   dayRating: number | null;
   inferredDayRating: number | null;
   createdAt: string;

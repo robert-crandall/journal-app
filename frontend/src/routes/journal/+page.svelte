@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import { goto } from '$app/navigation';
-  import type { ListJournalsResponse, JournalListItem } from '$lib/types/journal';
+  import type { ListJournalsResponse, JournalListItem, ToneTag } from '$lib/types/journal';
   import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon, PlusIcon, LayoutGridIcon, LayoutListIcon } from 'lucide-svelte';
   import JournalCard from '$lib/components/journal/JournalCard.svelte';
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
@@ -18,6 +18,7 @@
   let searchTerm = '';
   let statusFilter: 'all' | 'draft' | 'in_review' | 'complete' = 'all';
   let selectedTags: string[] = [];
+  let selectedToneTags: ToneTag[] = [];
   let dateFrom = '';
   let dateTo = '';
   let viewMode: 'grid' | 'list' = 'grid';
@@ -45,6 +46,8 @@
       if (dateFrom) params.dateFrom = dateFrom;
       if (dateTo) params.dateTo = dateTo;
       if (selectedTags.length > 0) params.tagIds = selectedTags;
+      // Note: Backend doesn't support tone tag filtering yet, but frontend is ready
+      // if (selectedToneTags.length > 0) params.toneTags = selectedToneTags;
 
       const response: ListJournalsResponse = await JournalService.listJournals(params);
 
@@ -134,6 +137,7 @@
         bind:searchTerm
         bind:statusFilter
         bind:selectedTags
+        bind:selectedToneTags
         bind:dateFrom
         bind:dateTo
         {availableTags}
