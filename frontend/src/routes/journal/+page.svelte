@@ -3,7 +3,7 @@
   import { JournalService } from '$lib/api/journal';
   import { goto } from '$app/navigation';
   import type { ListJournalsResponse, JournalListItem, ToneTag } from '$lib/types/journal';
-  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon, PlusIcon, LayoutGridIcon, LayoutListIcon } from 'lucide-svelte';
+  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon, PlusIcon, LayoutGridIcon, LayoutListIcon, SparklesIcon } from 'lucide-svelte';
   import JournalCard from '$lib/components/journal/JournalCard.svelte';
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
   import JournalCalendarHeatmap from '$lib/components/journal/JournalCalendarHeatmap.svelte';
@@ -21,7 +21,7 @@
   let selectedToneTags: ToneTag[] = [];
   let dateFrom = '';
   let dateTo = '';
-  let viewMode: 'grid' | 'list' = 'grid';
+  let viewMode: 'grid' | 'list' = 'list';
 
   // Pagination
   const ITEMS_PER_PAGE = 12;
@@ -30,6 +30,10 @@
   onMount(() => {
     loadJournals();
   });
+
+  function goToSummaries() {
+    goto('/journal-summaries');
+  }
 
   async function loadJournals(reset = true) {
     try {
@@ -115,6 +119,11 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <button class="btn btn-ghost btn-sm" on:click={goToSummaries}>
+            <SparklesIcon size={16} />
+            <span class="hidden sm:inline">Summaries</span>
+          </button>
+          
           <button on:click={toggleViewMode} class="btn btn-ghost btn-sm" title="Toggle view mode">
             {#if viewMode === 'grid'}
               <LayoutListIcon size={16} />
