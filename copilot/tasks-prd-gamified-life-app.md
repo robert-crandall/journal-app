@@ -114,8 +114,8 @@
   - [x] 16.2 Write backend integration tests for tone tags functionality
   - [x] 16.3 Implement GPT tone extraction on journal completion (backend)
   - [x] 16.4 Implement frontend UI for displaying tone tags on journal dashboard
-  - [ ] 16.5 Write frontend E2E tests for tone tags functionality
-  - [ ] 16.6 Ensure all tone tags tests pass
+  - [x] 16.5 Write frontend E2E tests for tone tags functionality
+  - [x] 16.6 Ensure all tone tags tests pass
 
 ---
 
