@@ -106,25 +106,25 @@
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
     <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <BookOpenIcon size={32} class="text-primary" />
-          <div>
-            <h1 class="text-gradient text-3xl font-bold">Journal Dashboard</h1>
-            <p class="text-base-content/70">
+      <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-0">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+          <BookOpenIcon size={32} class="text-primary shrink-0" />
+          <div class="min-w-0">
+            <h1 class="text-gradient text-2xl sm:text-3xl font-bold truncate">Journal Dashboard</h1>
+            <p class="text-base-content/70 truncate">
               {totalJournals}
               {totalJournals === 1 ? 'entry' : 'entries'} found
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button class="btn btn-ghost btn-sm" on:click={goToSummaries}>
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+          <button class="btn btn-ghost btn-sm w-auto" on:click={goToSummaries}>
             <SparklesIcon size={16} />
-            <span class="hidden sm:inline">Summaries</span>
+            <span class="sm:inline">Summaries</span>
           </button>
 
-          <button on:click={toggleViewMode} class="btn btn-ghost btn-sm" title="Toggle view mode">
+          <button on:click={toggleViewMode} class="btn btn-ghost btn-sm w-auto" title="Toggle view mode">
             {#if viewMode === 'grid'}
               <LayoutListIcon size={16} />
             {:else}
@@ -132,9 +132,9 @@
             {/if}
           </button>
 
-          <button on:click={createNewJournal} class="btn btn-primary gap-2">
+          <button on:click={createNewJournal} class="btn btn-primary gap-2 w-auto">
             <PlusIcon size={16} />
-            New Entry
+            <span class="xs:inline">New Entry</span>
           </button>
         </div>
       </div>
