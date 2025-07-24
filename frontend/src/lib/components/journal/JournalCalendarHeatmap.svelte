@@ -174,26 +174,13 @@
     <div class="flex items-center justify-between">
       <!-- Month Navigation -->
       <div class="flex items-center gap-2">
-        <button
-          class="btn btn-ghost btn-sm"
-          on:click={previousMonth}
-          aria-label="Previous month"
-        >
+        <button class="btn btn-ghost btn-sm" on:click={previousMonth} aria-label="Previous month">
           <ChevronLeftIcon size={16} />
         </button>
-        
-        <button
-          class="btn btn-ghost btn-sm"
-          on:click={getCurrentMonth}
-        >
-          Today
-        </button>
-        
-        <button
-          class="btn btn-ghost btn-sm"
-          on:click={nextMonth}
-          aria-label="Next month"
-        >
+
+        <button class="btn btn-ghost btn-sm" on:click={getCurrentMonth}> Today </button>
+
+        <button class="btn btn-ghost btn-sm" on:click={nextMonth} aria-label="Next month">
           <ChevronRightIcon size={16} />
         </button>
       </div>
@@ -228,10 +215,10 @@
           <button
             class="day-button
               {day.isCurrentMonth
-                ? day.rating
-                  ? getRatingColor(day.rating)
-                  : 'bg-base-100 hover:bg-base-200'
-                : 'bg-base-50 text-base-content/30 hover:bg-base-100'} 
+              ? day.rating
+                ? getRatingColor(day.rating)
+                : 'bg-base-100 hover:bg-base-200'
+              : 'bg-base-50 text-base-content/30 hover:bg-base-100'} 
               {day.isToday ? 'ring-primary ring-2' : ''}"
             on:click={() => handleDayClick(day)}
             title={day.journalId ? `${day.title || 'Journal Entry'} - Rating: ${day.rating || 'None'}` : `Create journal for ${formatDateToYYYYMMDD(day.date)}`}
@@ -249,11 +236,9 @@
   </div>
 
   <!-- Legend -->
-  <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="text-xs text-base-content/60">
-      Poor days
-    </div>
-    
+  <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="text-base-content/60 text-xs">Poor days</div>
+
     <div class="flex items-center gap-2">
       <div class="legend-square bg-base-200" title="No entry"></div>
       <div class="legend-square bg-error/75" title="Poor day (1)"></div>
@@ -262,10 +247,8 @@
       <div class="legend-square bg-accent/80" title="Good day (4)"></div>
       <div class="legend-square bg-success" title="Excellent day (5)"></div>
     </div>
-    
-    <div class="text-xs text-base-content/60">
-      Excellent days
-    </div>
+
+    <div class="text-base-content/60 text-xs">Excellent days</div>
   </div>
 </div>
 
@@ -356,12 +339,12 @@
     .day-cell {
       min-height: 40px;
     }
-    
+
     .day-header {
       padding: 6px 2px;
       font-size: 11px;
     }
-    
+
     .day-number {
       font-size: 13px;
     }
@@ -372,15 +355,15 @@
     .day-cell {
       min-height: 36px;
     }
-    
+
     .calendar-days {
       gap: 2px;
     }
-    
+
     .day-headers {
       gap: 2px;
     }
-    
+
     .day-number {
       font-size: 12px;
     }

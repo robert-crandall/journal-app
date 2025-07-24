@@ -123,7 +123,7 @@
             <SparklesIcon size={16} />
             <span class="hidden sm:inline">Summaries</span>
           </button>
-          
+
           <button on:click={toggleViewMode} class="btn btn-ghost btn-sm" title="Toggle view mode">
             {#if viewMode === 'grid'}
               <LayoutListIcon size={16} />
