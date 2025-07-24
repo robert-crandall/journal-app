@@ -134,7 +134,7 @@
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
     <AppHeader
-      icon=BookOpenIcon
+      icon={BookOpenIcon}
       title="Journal Dashboard"
       subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`}
       {buttons}

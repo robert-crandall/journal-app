@@ -1,23 +1,20 @@
 <script context="module" lang="ts">
   import type { SvelteComponent } from 'svelte';
-  export interface HeaderButton {
-    label: string;
-    icon?: any; // Accept any Svelte component, including Lucide icons
-    onClick: () => void;
-    class?: string;
-    title?: string;
-    showLabel?: boolean; // for responsive label hiding
-  }
 </script>
 <script lang="ts">
+  import type { HeaderButton } from './HeaderButton';
   export let title: string;
   export let subtitle: string = '';
   export let buttons: HeaderButton[] = [];
+  export let icon: any = null;
 </script>
 
 <div class="mb-8">
   <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-0">
     <div class="flex items-center gap-3 min-w-0 flex-1">
+      {#if icon}
+        <svelte:component this={icon} size={32} class="text-primary shrink-0" />
+      {/if}
       <div class="min-w-0">
         <h1 class="text-gradient text-2xl sm:text-3xl font-bold truncate">{title}</h1>
         {#if subtitle}
