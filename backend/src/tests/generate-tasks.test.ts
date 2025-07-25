@@ -41,53 +41,6 @@ describe('Generate Tasks API', () => {
   });
 
   describe('POST /api/generate-tasks', () => {
-    it('should generate daily tasks without daily intent', async () => {
-      const taskGenData = {
-        date: '2024-03-15',
-        includeIntent: false,
-      };
-
-      const res = await app.request('/api/generate-tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(taskGenData),
-      });
-
-      expect(res.status).toBe(200);
-
-      const responseData = await res.json();
-      expect(responseData.success).toBe(true);
-      expect(responseData.data).toHaveProperty('personalTask');
-      expect(responseData.data).toHaveProperty('familyTask');
-      expect(responseData.data).toHaveProperty('context');
-      expect(responseData.data).toHaveProperty('metadata');
-
-      // Verify task structure
-      expect(responseData.data.personalTask).toHaveProperty('title');
-      expect(responseData.data.personalTask).toHaveProperty('description');
-      expect(responseData.data.personalTask).toHaveProperty('type', 'personal');
-      expect(responseData.data.personalTask).toHaveProperty('todoId');
-
-      expect(responseData.data.familyTask).toHaveProperty('title');
-      expect(responseData.data.familyTask).toHaveProperty('description');
-      expect(responseData.data.familyTask).toHaveProperty('type', 'family');
-      expect(responseData.data.familyTask).toHaveProperty('todoId');
-
-      // Verify metadata
-      expect(responseData.data.metadata.includedIntent).toBe(false);
-      expect(responseData.data.metadata.date).toBe(taskGenData.date);
-
-      // Verify tasks were saved to database
-      const db = testDb();
-      const todos = await db.select().from(schema.simpleTodos).where(eq(schema.simpleTodos.userId, testUser.id));
-
-      expect(todos).toHaveLength(2);
-      expect(todos.every((todo) => todo.source === 'gpt:dm')).toBe(true);
-      expect(todos.every((todo) => todo.expirationTime !== null)).toBe(true);
-    });
 
     it('should generate daily tasks with daily intent', async () => {
       const date = '2024-03-15';

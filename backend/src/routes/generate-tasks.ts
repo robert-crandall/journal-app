@@ -38,7 +38,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     // Get family members
     const family = await db.select().from(familyMembers).where(eq(familyMembers.userId, userId));
 
-
     // Get today's focus (based on day of week)
     const [year, month, day] = date.split('-').map(Number);
     const today = new Date(year, month - 1, day); // month is 0-based
@@ -171,7 +170,7 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
       })),
       userGoals: userGoals.map((goal) => ({
         title: goal.title,
-        description: goal.description ?? ''
+        description: goal.description ?? '',
       })),
       familyMembers: family.map((member) => ({
         id: member.id,
@@ -192,7 +191,18 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     };
 
     // Generate tasks using GPT
-    const generatedTasks = await generateDailyTasks(taskGenRequest);
+    let generatedTasks;
+    try {
+      generatedTasks = await generateDailyTasks(taskGenRequest);
+    } catch (error) {
+      logger.error('Task generation failed:', error);
+      console.error('Detailed task generation error:', error);
+      return c.json({
+        success: false,
+        error: 'Failed to generate daily tasks',
+        details: error instanceof Error ? error.message : String(error)
+      }, 500);
+    }
 
     // Calculate expiration time (midnight of the next day)
     const expirationTime = new Date(date);
