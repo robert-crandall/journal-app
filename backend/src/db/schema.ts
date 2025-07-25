@@ -107,4 +107,4 @@ export type {
   GetWeatherRequest,
   OpenWeatherMapResponse,
   OpenWeatherMapDailyForecast,
-} from '../types/weather';
+} from '../../../shared/types/weather';

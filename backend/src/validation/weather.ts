@@ -7,11 +7,7 @@ export const getWeatherSchema = z.object({
     .refine((dateString) => {
       const date = new Date(dateString + 'T00:00:00.000Z');
       const [year, month, day] = dateString.split('-').map(Number);
-      return (
-        date.getUTCFullYear() === year &&
-        date.getUTCMonth() === month - 1 &&
-        date.getUTCDate() === day
-      );
+      return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
     }, 'Invalid date')
     .optional(),
 });
