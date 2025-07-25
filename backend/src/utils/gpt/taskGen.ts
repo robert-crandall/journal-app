@@ -8,6 +8,7 @@ export interface TaskGenerationRequest {
   userId: string;
   characterClass?: string;
   backstory?: string;
+  dailyIntent?: string;
   currentFocus?: string;
   activeQuests?: Array<{
     id: string;
@@ -81,7 +82,7 @@ Respond in this exact JSON format:
     "type": "personal",
     "suggestedStatId": "optional-stat-id-if-available",
     "estimatedXp": 30,
-    "suggestedDuration": "15-30 minutes"
+    "suggestedDuration": "15 minutes"
   },
   "familyTask": {
     "title": "Heartfelt or playful title",
@@ -90,7 +91,7 @@ Respond in this exact JSON format:
     "familyMemberId": "id-here",
     "suggestedStatId": "if available",
     "estimatedXp": 40,
-    "suggestedDuration": "30-60 minutes"
+    "suggestedDuration": "15 minutes"
   }
 }
 
@@ -111,80 +112,69 @@ Respond in this exact JSON format:
  * @returns Generated personal and family tasks
  */
 export async function generateDailyTasks(options: TaskGenerationRequest): Promise<TaskGenerationResponse> {
-  const { characterClass, backstory, currentFocus, activeQuests, activeProjects, familyMembers, weather, temperature = 0.8 } = options;
 
-  // Construct user prompt with all context
-  let userPromptContent = ``;
+  const {
+    characterClass,
+    backstory,
+    dailyIntent,
+    currentFocus,
+    activeQuests,
+    activeProjects,
+    familyMembers,
+    weather,
+    temperature = 0.8,
+  } = options;
 
-  // Add character information
-  if (characterClass) {
-    userPromptContent += `Character Class: ${characterClass}\n\n`;
-  }
+  // Build structured user context for the model
+  const userContext: any = {
+    character: characterClass || backstory ? {
+      class: characterClass,
+      backstory: backstory,
+    } : undefined,
+    dailyIntent: dailyIntent ? {
+      "priority": "highest",
+      "dailyIntent": dailyIntent,
+    } : undefined,
+    focus: currentFocus ? {
+      "priority": "high",
+      "currentFocus": currentFocus,
+    } : undefined,
+    activeProjects: activeProjects ? {
+      "priority": "medium",
+      "projects": activeProjects
+    } : undefined,
+    activeQuests: activeQuests ? {
+      "priority": "low",
+      "quests": activeQuests
+    } : undefined,
+    familyMembers,
+    weather,
+    // Optionally add more fields as needed
+  };
 
-  if (backstory) {
-    userPromptContent += `Backstory:\n${backstory}\n\n`;
-  }
+  // Remove undefined fields
+  Object.keys(userContext).forEach((key) => userContext[key] === undefined && delete userContext[key]);
 
-  // Add current focus
-  if (currentFocus) {
-    userPromptContent += `Current Focus: ${currentFocus}\n\n`;
-  }
+  // Compose the user message as an array of content blocks
+  const userMessageContent = [
+    { type: 'text', text: 'Please generate two tasks based on this information.' },
+    { type: 'json', data: userContext },
+  ];
 
-  // Add active quests
-  if (activeQuests && activeQuests.length > 0) {
-    userPromptContent += 'Active Quests:\n';
-    activeQuests.forEach((quest) => {
-      userPromptContent += `- ${quest.title}: ${quest.description}\n`;
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add active projects and adventures
-  if (activeProjects && activeProjects.length > 0) {
-    userPromptContent += 'Active Projects & Adventures:\n';
-    activeProjects.forEach((project) => {
-      userPromptContent += `- ${project.type.charAt(0).toUpperCase() + project.type.slice(1)}: ${project.title} - ${project.description}\n`;
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add family members
-  if (familyMembers && familyMembers.length > 0) {
-    userPromptContent += 'Family Members:\n';
-    familyMembers.forEach((member) => {
-      userPromptContent += `- ID: ${member.id}, Name: ${member.name}, Relationship: ${member.relationship}\n`;
-      if (member.likes && member.likes.length > 0) {
-        userPromptContent += `  Likes: ${member.likes.join(', ')}\n`;
-      }
-      if (member.dislikes && member.dislikes.length > 0) {
-        userPromptContent += `  Dislikes: ${member.dislikes.join(', ')}\n`;
-      }
-      if (member.lastActivityDate) {
-        userPromptContent += `  Last Activity: ${member.lastActivityDate}\n`;
-      }
-      if (member.lastActivityFeedback) {
-        userPromptContent += `  Last Feedback: ${member.lastActivityFeedback}\n`;
-      }
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add weather information
-  if (weather) {
-    userPromptContent += `Current Weather: ${weather.condition}, ${weather.temperature}°F\n`;
-    userPromptContent += `Forecast: ${weather.forecast}\n\n`;
-  }
-
-  userPromptContent += 'Please generate two tasks based on this information: one personal task and one family task.';
-
-  // Create the messages array
-  const messages = createPrompt(TASK_GENERATION_SYSTEM_PROMPT, userPromptContent);
+  // Compose the messages array in the new format
+  const messages = [
+    {
+      role: 'system',
+      content: TASK_GENERATION_SYSTEM_PROMPT,
+    },
+    {
+      role: 'user',
+      content: userMessageContent,
+    },
+  ];
 
   // TODO
-  logger.info("System prompt:")
-  logger.info(TASK_GENERATION_SYSTEM_PROMPT);
-  logger.info("User Prompt:")
-  logger.info(userPromptContent);
+  logger.info(JSON.stringify(messages, null, 2));
   throw new Error("hello");
   // Call GPT API
   const response = await callGptApi({
