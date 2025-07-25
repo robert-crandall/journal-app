@@ -29,10 +29,23 @@ export interface TaskGenerationRequest {
     title: string;
     description: string;
   }>;
-  activeProjects?: Array<{
+  projects?: Array<{
     title: string;
-    description: string;
-    type: 'project' | 'adventure';
+    description: string | null;
+    subtasks: Array<{
+      title: string;
+      description: string | null;
+      orderIndex: number | null;
+    }>;
+  }>;
+  adventures?: Array<{
+    title: string;
+    description: string | null;
+    subtasks: Array<{
+      title: string;
+      description: string | null;
+      orderIndex: number | null;
+    }>;
   }>;
   userGoals?: Array<{
     title: string;
@@ -137,7 +150,8 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     dailyIntent,
     currentFocus,
     activeQuests,
-    activeProjects,
+    projects,
+    adventures,
     userGoals,
     familyMembers,
     weather,
@@ -159,12 +173,19 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
       "priority": "high",
       "currentFocus": currentFocus,
     } : undefined,
-    activeProjects: activeProjects ? {
+    projects: projects ? {
       "priority": "medium",
-      "projects": activeProjects
+      "projects": projects
+    } : undefined,
+    adventures: adventures ? {
+      "priority": "low",
+      "adventures": adventures
     } : undefined,
     activeQuests: activeQuests ? {
       "quests": activeQuests
+    } : undefined,
+    goals: userGoals ? {
+      "goals": userGoals
     } : undefined,
     familyMembers,
     weather,

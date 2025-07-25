@@ -54,7 +54,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     // Get plans for today's focus (with subtasks)
     let focusPlansWithSubtasks = [];
     if (focus) {
-      // Get all plans for this focus
       const plansForFocus = await db
         .select({
           id: plans.id,
@@ -65,21 +64,51 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
         .from(plans)
         .where(and(eq(plans.userId, userId), eq(plans.focusId, focus.id)));
 
-      // For each plan, get its subtasks
       for (const plan of plansForFocus) {
         const subtasksRaw = await db
           .select({
-            // id: planSubtasks.id, // removed
             title: planSubtasks.title,
             description: planSubtasks.description,
             orderIndex: planSubtasks.orderIndex,
           })
           .from(planSubtasks)
           .where(and(eq(planSubtasks.planId, plan.id), eq(planSubtasks.isCompleted, false)));
-  const subtasks = subtasksRaw;
-        // Remove id from plan
+        const subtasks = subtasksRaw;
         const { id, ...planWithoutId } = plan;
         focusPlansWithSubtasks.push({ ...planWithoutId, subtasks });
+      }
+    }
+
+    // Get all projects and adventures for the user (not just for today's focus)
+    const allProjectsAndAdventures = await db
+      .select({
+        id: plans.id,
+        title: plans.title,
+        type: plans.type,
+        description: plans.description,
+      })
+      .from(plans)
+      .where(eq(plans.userId, userId));
+
+    // For each, get subtasks
+    const allProjects = [];
+    const allAdventures = [];
+    for (const plan of allProjectsAndAdventures) {
+      if (plan.type !== 'project' && plan.type !== 'adventure') continue;
+      const subtasksRaw = await db
+        .select({
+          title: planSubtasks.title,
+          description: planSubtasks.description,
+          orderIndex: planSubtasks.orderIndex,
+        })
+        .from(planSubtasks)
+        .where(and(eq(planSubtasks.planId, plan.id), eq(planSubtasks.isCompleted, false)));
+      const subtasks = subtasksRaw;
+      const { id, ...planWithoutId } = plan;
+      if (plan.type === 'project') {
+        allProjects.push({ ...planWithoutId, subtasks });
+      } else if (plan.type === 'adventure') {
+        allAdventures.push({ ...planWithoutId, subtasks });
       }
     }
 
@@ -130,10 +159,14 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
         title: quest.title,
         description: quest.summary || '',
       })),
-      activeProjects: focusPlansWithSubtasks.map((plan) => ({
+      projects: allProjects.map((plan) => ({
         title: plan.title,
         description: plan.description || '',
-        type: plan.type as 'project' | 'adventure',
+        subtasks: plan.subtasks,
+      })),
+      adventures: allAdventures.map((plan) => ({
+        title: plan.title,
+        description: plan.description || '',
         subtasks: plan.subtasks,
       })),
       userGoals: userGoals.map((goal) => ({
