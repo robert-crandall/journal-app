@@ -143,7 +143,6 @@ User input will be provided as a JSON object with fields like character, focus, 
  * @returns Generated personal and family tasks
  */
 export async function generateDailyTasks(options: TaskGenerationRequest): Promise<TaskGenerationResponse> {
-
   const {
     characterClass,
     backstory,
@@ -161,33 +160,48 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
 
   // Build structured user context for the model
   const userContext: any = {
-    character: characterClass || backstory ? {
-      class: characterClass,
-      backstory: backstory,
-      // longTermGoals: characterGoals,
-    } : undefined,
-    dailyIntent: dailyIntent ? {
-      "priority": "highest",
-      "dailyIntent": dailyIntent,
-    } : undefined,
-    focus: currentFocus ? {
-      "priority": "high",
-      "currentFocus": currentFocus,
-    } : undefined,
-    projects: projects ? {
-      "priority": "medium",
-      "projects": projects
-    } : undefined,
-    adventures: adventures ? {
-      "priority": "low",
-      "adventures": adventures
-    } : undefined,
-    activeQuests: activeQuests ? {
-      "quests": activeQuests
-    } : undefined,
-    goals: userGoals ? {
-      "goals": userGoals
-    } : undefined,
+    character:
+      characterClass || backstory
+        ? {
+            class: characterClass,
+            backstory: backstory,
+            // longTermGoals: characterGoals,
+          }
+        : undefined,
+    dailyIntent: dailyIntent
+      ? {
+          priority: 'highest',
+          dailyIntent: dailyIntent,
+        }
+      : undefined,
+    focus: currentFocus
+      ? {
+          priority: 'high',
+          currentFocus: currentFocus,
+        }
+      : undefined,
+    projects: projects
+      ? {
+          priority: 'medium',
+          projects: projects,
+        }
+      : undefined,
+    adventures: adventures
+      ? {
+          priority: 'low',
+          adventures: adventures,
+        }
+      : undefined,
+    activeQuests: activeQuests
+      ? {
+          quests: activeQuests,
+        }
+      : undefined,
+    goals: userGoals
+      ? {
+          goals: userGoals,
+        }
+      : undefined,
     familyMembers,
     weather,
     // Optionally add more fields as needed
@@ -197,10 +211,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
   Object.keys(userContext).forEach((key) => userContext[key] === undefined && delete userContext[key]);
 
   // Compose the user message as an array of content blocks
-  const userMessageContent = [
-    { type: 'text', text: 'Please generate two tasks based on this information.' },
-    { type: 'json', data: userContext },
-  ];
+  const userMessageContent = JSON.stringify(userContext);
 
   // Compose the messages array in the required format
   const messages = [
@@ -225,12 +236,6 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     const result = JSON.parse(response.content) as TaskGenerationResponse;
     return result;
   } catch (error: any) {
-    throw new Error(
-      `Failed to parse GPT response: ${
-        (error && typeof error === 'object' && 'message' in error)
-          ? error.message
-          : String(error)
-      }`
-    );
+    throw new Error(`Failed to parse GPT response: ${error && typeof error === 'object' && 'message' in error ? error.message : String(error)}`);
   }
 }
