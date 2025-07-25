@@ -67,16 +67,19 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
 
       // For each plan, get its subtasks
       for (const plan of plansForFocus) {
-        const subtasks = await db
+        const subtasksRaw = await db
           .select({
-            id: planSubtasks.id,
+            // id: planSubtasks.id, // removed
             title: planSubtasks.title,
             description: planSubtasks.description,
             orderIndex: planSubtasks.orderIndex,
           })
           .from(planSubtasks)
           .where(and(eq(planSubtasks.planId, plan.id), eq(planSubtasks.isCompleted, false)));
-        focusPlansWithSubtasks.push({ ...plan, subtasks });
+  const subtasks = subtasksRaw;
+        // Remove id from plan
+        const { id, ...planWithoutId } = plan;
+        focusPlansWithSubtasks.push({ ...planWithoutId, subtasks });
       }
     }
 
