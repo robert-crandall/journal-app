@@ -1,6 +1,5 @@
 import { callGptApi } from './client';
 import { createPrompt } from './utils';
-
 /**
  * Interface for daily task generation request
  */
@@ -8,17 +7,48 @@ export interface TaskGenerationRequest {
   userId: string;
   characterClass?: string;
   backstory?: string;
-  currentFocus?: string;
+  characterGoals?: string;
+  dailyIntent?: string;
+  currentFocus?:
+    | string
+    | {
+        title: string;
+        description: string;
+        plans: Array<{
+          title: string;
+          description: string | null;
+          subtasks: Array<{
+            title: string;
+            description: string | null;
+            orderIndex: number | null;
+          }>;
+        }>;
+      };
   activeQuests?: Array<{
-    id: string;
     title: string;
     description: string;
   }>;
-  activeProjects?: Array<{
-    id: string;
+  projects?: Array<{
+    title: string;
+    description: string | null;
+    subtasks: Array<{
+      title: string;
+      description: string | null;
+      orderIndex: number | null;
+    }>;
+  }>;
+  adventures?: Array<{
+    title: string;
+    description: string | null;
+    subtasks: Array<{
+      title: string;
+      description: string | null;
+      orderIndex: number | null;
+    }>;
+  }>;
+  userGoals?: Array<{
     title: string;
     description: string;
-    type: 'project' | 'adventure';
   }>;
   familyMembers?: Array<{
     id: string;
@@ -56,59 +86,55 @@ export interface GeneratedTask {
 export interface TaskGenerationResponse {
   personalTask: GeneratedTask;
   familyTask: GeneratedTask;
-  context: {
-    weatherConsidered: boolean;
-    questsConsidered: boolean;
-    focusConsidered: boolean;
-    projectsConsidered: boolean;
-  };
 }
 
 /**
  * System prompt for daily task generation
  */
 const TASK_GENERATION_SYSTEM_PROMPT = `
-You are a creative Dungeon Master (DM) who helps users generate meaningful daily tasks.
-Your goal is to suggest two tasks:
-1. A personal task that aligns with the user's character class, backstory, current focus, and active quests
-2. A family task that involves one family member, considering their preferences and past activities
+You are a clever, grounded, and occasionally cheeky Dungeon Master (DM), guiding a modern-day adventurer through real life.
 
-IMPORTANT: Format your response exactly as follows (JSON format):
+Each day, you present two meaningful “quests”:
+
+1. **A personal quest** — this should reflect the user's character class, current focus, priorities, backstory, active quests, and the current weather. It might build strength, deepen presence, reconnect them with values, or help them break free from distraction. If a daily priority is set (e.g. "Check into X"), make that the core of the task.
+
+2. **A family quest** — an activity with one specific family member, taking into account their interests, past activities, and the user's relationship with them. Make it bonding, playful, or meaningful. Avoid repeats and reflect weather where relevant.
+
+🎨 **Tone**: Encouraging, humorous, and friendly. You're not a boss — you're the loyal voice saying: *“Let's do something real today.”* Use markdown, emoji, and personality.
+
+🎯 **Format**:
+Respond in this exact JSON format:
 {
   "personalTask": {
-    "title": "Clear, action-oriented task title",
-    "description": "Detailed description with motivation and context",
+    "title": "Fun and action-oriented title",
+    "description": "Speak like a friend — add motivation, context, and encouragement. Markdown and emojis welcome.",
     "type": "personal",
-    "suggestedStatId": "optional-stat-id-if-provided",
+    "suggestedStatId": "optional-stat-id-if-available",
     "estimatedXp": 30,
-    "suggestedDuration": "15-30 minutes"
+    "suggestedDuration": "15 minutes"
   },
   "familyTask": {
-    "title": "Clear, action-oriented task title",
-    "description": "Detailed description with motivation and context",
+    "title": "Heartfelt or playful title",
+    "description": "Reference the chosen family member, their interests, and the spirit of the activity. Keep it light, meaningful, or fun.",
     "type": "family",
-    "familyMemberId": "id-of-family-member",
-    "suggestedStatId": "optional-stat-id-if-provided",
+    "familyMemberId": "id-here",
+    "suggestedStatId": "if available",
     "estimatedXp": 40,
-    "suggestedDuration": "30-60 minutes"
-  },
-  "context": {
-    "weatherConsidered": true,
-    "questsConsidered": true, 
-    "focusConsidered": true,
-    "projectsConsidered": true
+    "suggestedDuration": "15 minutes"
   }
 }
 
-Task generation guidelines:
-1. Tasks should be concrete and actionable (not vague like "be more mindful")
-2. Consider the current weather in your suggestions when appropriate
-3. Align tasks with character development and growth
-4. For family tasks, consider past feedback and avoid recently done activities
-5. Make tasks realistic for the suggested duration
-6. Be creative but practical - suggest tasks that are genuinely meaningful
-7. Estimated XP should reflect effort and impact (10-50 range)
-8. Reference backstory and quests to create narrative continuity
+🧭 **Guidelines**:
+- Base tasks entirely on the user context (character class, backstory, focus, quests, weather, family members, etc.)
+- Priority for tasks: daily intent is first, then daily focus, then plans, then quests.
+- Tasks must be concrete and actionable, not abstract (“be more mindful” is not enough)
+- Be creative, but make suggestions realistic for the suggested duration
+- Avoid recent family activities when suggesting new ones
+- Weather can influence task selection (e.g. outdoor vs indoor)
+- XP should reflect effort and impact (range: 10-50)
+- Maintain narrative continuity — grow the user's story
+
+User input will be provided as a JSON object with fields like character, focus, quests, weather, etc.
 `;
 
 /**
@@ -117,78 +143,91 @@ Task generation guidelines:
  * @returns Generated personal and family tasks
  */
 export async function generateDailyTasks(options: TaskGenerationRequest): Promise<TaskGenerationResponse> {
-  const { characterClass, backstory, currentFocus, activeQuests, activeProjects, familyMembers, weather, temperature = 0.7 } = options;
+  const {
+    characterClass,
+    backstory,
+    characterGoals,
+    dailyIntent,
+    currentFocus,
+    activeQuests,
+    projects,
+    adventures,
+    userGoals,
+    familyMembers,
+    weather,
+    temperature = 0.8,
+  } = options;
 
-  // Construct user prompt with all context
-  let userPromptContent = ``;
+  // Build structured user context for the model
+  const userContext: any = {
+    character:
+      characterClass || backstory
+        ? {
+            class: characterClass,
+            backstory: backstory,
+            // longTermGoals: characterGoals,
+          }
+        : undefined,
+    dailyIntent: dailyIntent
+      ? {
+          priority: 'highest',
+          dailyIntent: dailyIntent,
+        }
+      : undefined,
+    focus: currentFocus
+      ? {
+          priority: 'high',
+          currentFocus: currentFocus,
+        }
+      : undefined,
+    projects: projects
+      ? {
+          priority: 'medium',
+          projects: projects,
+        }
+      : undefined,
+    adventures: adventures
+      ? {
+          priority: 'low',
+          adventures: adventures,
+        }
+      : undefined,
+    activeQuests: activeQuests
+      ? {
+          quests: activeQuests,
+        }
+      : undefined,
+    goals: userGoals
+      ? {
+          goals: userGoals,
+        }
+      : undefined,
+    familyMembers,
+    weather,
+    // Optionally add more fields as needed
+  };
 
-  // Add character information
-  if (characterClass) {
-    userPromptContent += `Character Class: ${characterClass}\n\n`;
-  }
+  // Remove undefined fields
+  Object.keys(userContext).forEach((key) => userContext[key] === undefined && delete userContext[key]);
 
-  if (backstory) {
-    userPromptContent += `Backstory:\n${backstory}\n\n`;
-  }
+  // Compose the user message as an array of content blocks
+  const userMessageContent = JSON.stringify(userContext);
 
-  // Add current focus
-  if (currentFocus) {
-    userPromptContent += `Current Focus: ${currentFocus}\n\n`;
-  }
-
-  // Add active quests
-  if (activeQuests && activeQuests.length > 0) {
-    userPromptContent += 'Active Quests:\n';
-    activeQuests.forEach((quest) => {
-      userPromptContent += `- ${quest.title}: ${quest.description}\n`;
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add active projects and adventures
-  if (activeProjects && activeProjects.length > 0) {
-    userPromptContent += 'Active Projects & Adventures:\n';
-    activeProjects.forEach((project) => {
-      userPromptContent += `- ${project.type.charAt(0).toUpperCase() + project.type.slice(1)}: ${project.title} - ${project.description}\n`;
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add family members
-  if (familyMembers && familyMembers.length > 0) {
-    userPromptContent += 'Family Members:\n';
-    familyMembers.forEach((member) => {
-      userPromptContent += `- ID: ${member.id}, Name: ${member.name}, Relationship: ${member.relationship}\n`;
-      if (member.likes && member.likes.length > 0) {
-        userPromptContent += `  Likes: ${member.likes.join(', ')}\n`;
-      }
-      if (member.dislikes && member.dislikes.length > 0) {
-        userPromptContent += `  Dislikes: ${member.dislikes.join(', ')}\n`;
-      }
-      if (member.lastActivityDate) {
-        userPromptContent += `  Last Activity: ${member.lastActivityDate}\n`;
-      }
-      if (member.lastActivityFeedback) {
-        userPromptContent += `  Last Feedback: ${member.lastActivityFeedback}\n`;
-      }
-    });
-    userPromptContent += '\n';
-  }
-
-  // Add weather information
-  if (weather) {
-    userPromptContent += `Current Weather: ${weather.condition}, ${weather.temperature}°F\n`;
-    userPromptContent += `Forecast: ${weather.forecast}\n\n`;
-  }
-
-  userPromptContent += 'Please generate two tasks based on this information: one personal task and one family task.';
-
-  // Create the messages array
-  const messages = createPrompt(TASK_GENERATION_SYSTEM_PROMPT, userPromptContent);
+  // Compose the messages array in the required format
+  const messages = [
+    {
+      role: 'system',
+      content: TASK_GENERATION_SYSTEM_PROMPT,
+    },
+    {
+      role: 'user',
+      content: userMessageContent,
+    },
+  ];
 
   // Call GPT API
   const response = await callGptApi({
-    messages,
+    messages: messages as import('openai/resources').ChatCompletionMessageParam[],
     temperature,
   });
 
@@ -196,7 +235,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     // Parse the JSON response
     const result = JSON.parse(response.content) as TaskGenerationResponse;
     return result;
-  } catch (error) {
-    throw new Error(`Failed to parse GPT response: ${error instanceof Error ? error.message : String(error)}`);
+  } catch (error: any) {
+    throw new Error(`Failed to parse GPT response: ${error && typeof error === 'object' && 'message' in error ? error.message : String(error)}`);
   }
 }
