@@ -94,7 +94,8 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     const taskGenRequest: TaskGenerationRequest = {
       userId,
       characterClass: character[0]?.characterClass || undefined,
-      backstory: undefined, //character[0]?.backstory
+      backstory: character[0]?.backstory || undefined,
+      dailyIntent: dailyIntent,
       currentFocus: focus[0]?.title + (focus[0]?.description ? `: ${focus[0].description}` : ''),
       activeQuests: activeQuests.map((quest) => ({
         id: quest.id,
@@ -124,11 +125,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
           }
         : undefined,
     };
-
-    // Add daily intent to the backstory if available
-    if (dailyIntent) {
-      taskGenRequest.backstory = (taskGenRequest.backstory || '') + `\n\nToday's most important thing: "${dailyIntent}"`;
-    }
 
     // Generate tasks using GPT
     const generatedTasks = await generateDailyTasks(taskGenRequest);
