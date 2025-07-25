@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { env } from '../env';
 import { format } from 'date-fns';
 import type { DailyWeather, NewDailyWeather, WeatherResponse, OpenWeatherMapResponse } from '../../../shared/types/weather';
+import { sampleOpenWeatherMapResponse } from './weather.mock';
 
 export class WeatherService {
   // Get weather for a specific date (defaults to today)
@@ -30,48 +31,45 @@ export class WeatherService {
 
   // Fetch weather data from OpenWeatherMap API and store it
   static async fetchAndStoreWeatherData(date: string): Promise<DailyWeather | null> {
-    // In test environment, return mock data instead of calling real API
+    let apiData: OpenWeatherMapResponse;
     if (process.env.NODE_ENV === 'test') {
-      return this.createMockWeatherData(date);
-    }
-
-    if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
-      console.warn('Weather API key or ZIP code not configured');
-      return null;
-    }
-
-    try {
-      // Use Current Weather API - free tier
-      const url = `https://api.openweathermap.org/data/2.5/weather?zip=${env.ZIP_CODE}&appid=${env.OPENWEATHER_API_KEY}&units=metric`;
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`OpenWeatherMap API error: ${response.status} ${response.statusText}`);
+      // Use a realistic mock OpenWeatherMap response in test
+      apiData = sampleOpenWeatherMapResponse;
+    } else {
+      if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
+        console.warn('Weather API key or ZIP code not configured');
+        return null;
       }
-
-      const apiData = (await response.json()) as OpenWeatherMapResponse;
-
-      // Transform API data to our schema
-      const weatherData: NewDailyWeather = {
-        date,
-        highTempC: apiData.main.temp_max,
-        lowTempC: apiData.main.temp_min,
-        condition: apiData.weather[0]?.main || 'Unknown',
-        chanceOfRain: Math.round((apiData.clouds.all / 100) * 100), // Approximate using cloud coverage
-        isRainExpected: apiData.weather[0]?.main.toLowerCase().includes('rain') || apiData.weather[0]?.main.toLowerCase().includes('thunderstorm') || false,
-        windSpeedKph: Math.round(apiData.wind.speed * 3.6), // Convert m/s to km/h
-        humidityPercent: apiData.main.humidity,
-        rawData: apiData,
-      };
-
-      // Store in database
-      const [storedWeather] = await db.insert(dailyWeather).values(weatherData).returning();
-
-      return storedWeather;
-    } catch (error) {
-      console.error('Failed to fetch weather data:', error);
-      return null;
+      try {
+        // Use Current Weather API - free tier
+        const url = `https://api.openweathermap.org/data/2.5/weather?zip=${env.ZIP_CODE}&appid=${env.OPENWEATHER_API_KEY}&units=metric`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`OpenWeatherMap API error: ${response.status} ${response.statusText}`);
+        }
+        apiData = (await response.json()) as OpenWeatherMapResponse;
+      } catch (error) {
+        console.error('Failed to fetch weather data:', error);
+        return null;
+      }
     }
+
+    // Transform API data to our schema (shared logic)
+    const weatherData: NewDailyWeather = {
+      date,
+      highTempC: apiData.main.temp_max,
+      lowTempC: apiData.main.temp_min,
+      condition: apiData.weather[0]?.main || 'Unknown',
+      chanceOfRain: Math.round((apiData.clouds.all / 100) * 100),
+      isRainExpected: apiData.weather[0]?.main.toLowerCase().includes('rain') || apiData.weather[0]?.main.toLowerCase().includes('thunderstorm') || false,
+      windSpeedKph: Math.round(apiData.wind.speed * 3.6),
+      humidityPercent: apiData.main.humidity,
+      rawData: apiData,
+    };
+
+    // Store in database
+    const [storedWeather] = await db.insert(dailyWeather).values(weatherData).returning();
+    return storedWeather;
   }
 
   // Create mock weather data for testing
