@@ -6,7 +6,7 @@ import { db } from '../db';
 import { simpleTodos } from '../db/schema/todos';
 import { createSimpleTodoSchema, updateSimpleTodoSchema, completeSimpleTodoSchema } from '../validation/todos';
 import { handleApiError } from '../utils/logger';
-import type { SimpleTodoResponse } from '../types/todos';
+import type { SimpleTodoResponse } from '../../../shared/types/todos';
 
 const app = new Hono()
   // Get user's simple todos (only active/incomplete ones by default)

@@ -13,8 +13,8 @@ import {
   statsQuerySchema,
   xpHistoryQuerySchema,
 } from '../validation/stats';
-import { PREDEFINED_STATS, type CharacterStatWithProgress, type LevelCalculation } from '../types/stats';
-import { type XpGrant, type NewXpGrant, type CreateXpGrantRequest } from '../types/xp';
+import { PREDEFINED_STATS, type CharacterStatWithProgress, type LevelCalculation } from '../../../shared/types/stats';
+import { type XpGrant, type NewXpGrant, type CreateXpGrantRequest } from '../../../shared/types/xp';
 import { grantXp, getXpGrants } from '../utils/xpService';
 import { calculateLevelInfo, canLevelUp as canLevelUpUtil } from '../utils/stats';
 import logger, { handleApiError } from '../utils/logger';

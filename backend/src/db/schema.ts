@@ -27,9 +27,9 @@ export {
 export { getWeatherSchema, weatherResponseSchema, openWeatherMapResponseSchema } from '../validation/weather';
 
 // Re-export types for backward compatibility
-export type { User, NewUser, PublicUser } from '../types/users';
-export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
-export type { Tag, CreateTag, UpdateTag, GoalTag, CreateGoalTag, TagWithCount, CreateTagWithName } from '../types/tags';
+export type { User, NewUser, PublicUser } from '../../../shared/types/users';
+export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../../../shared/types/goals';
+export type { Tag, CreateTag, UpdateTag, GoalTag, CreateGoalTag, TagWithCount, CreateTagWithName } from '../../../shared/types/tags';
 export type {
   FamilyMember,
   NewFamilyMember,
@@ -39,9 +39,16 @@ export type {
   CreateFamilyMemberRequest,
   UpdateFamilyMemberRequest,
   CreateFamilyTaskFeedbackRequest,
-} from '../types/family';
-export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../types/focus';
-export type { SimpleTodo, NewSimpleTodo, UpdateSimpleTodo, CreateSimpleTodoRequest, UpdateSimpleTodoRequest, SimpleTodoResponse } from '../types/todos';
+} from '../../../shared/types/family';
+export type { Focus, NewFocus, FocusUpdate, CreateFocusRequest, UpdateFocusRequest, BatchUpdateFocusesRequest } from '../../../shared/types/focus';
+export type {
+  SimpleTodo,
+  NewSimpleTodo,
+  UpdateSimpleTodo,
+  CreateSimpleTodoRequest,
+  UpdateSimpleTodoRequest,
+  SimpleTodoResponse,
+} from '../../../shared/types/todos';
 export type {
   Experiment,
   CreateExperiment,
@@ -62,7 +69,7 @@ export type {
   ExperimentWithTasksResponse,
   ExperimentTaskWithCompletionsResponse,
   ExperimentDashboardResponse,
-} from '../types/experiments';
+} from '../../../shared/types/experiments';
 export type {
   Journal,
   NewJournal,
@@ -77,7 +84,7 @@ export type {
   ListJournalsRequest,
   ListJournalsResponse,
   JournalListItem,
-} from '../types/journals';
+} from '../../../shared/types/journals';
 export type {
   Quest,
   NewQuest,
@@ -92,7 +99,7 @@ export type {
   QuestDashboardResponse,
   LinkQuestExperimentRequest,
   LinkQuestJournalRequest,
-} from '../types/quests';
+} from '../../../shared/types/quests';
 export type {
   DailyWeather,
   NewDailyWeather,
@@ -100,4 +107,4 @@ export type {
   GetWeatherRequest,
   OpenWeatherMapResponse,
   OpenWeatherMapDailyForecast,
-} from '../types/weather';
+} from '../../../shared/types/weather';

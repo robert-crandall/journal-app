@@ -8,11 +8,11 @@ Fetch daily weather data using OpenWeatherMap, to provide GPT with environmental
 
 ### 📦 Requirements
 
-* [ ] Add `ZIP_CODE` as an environment variable
-* [ ] Once per day, before GPT task generation, fetch weather data from OpenWeatherMap using ZIP
-  * Use the **One Call API** or **Current + Daily Forecast** depending on plan
-* [ ] Store weather using `YYYY-MM-DD` as the primary key (same as journal)
-  * Create a `daily_weather` table:
+- [ ] Add `ZIP_CODE` as an environment variable
+- [ ] Once per day, before GPT task generation, fetch weather data from OpenWeatherMap using ZIP
+  - Use the **One Call API** or **Current + Daily Forecast** depending on plan
+- [ ] Store weather using `YYYY-MM-DD` as the primary key (same as journal)
+  - Create a `daily_weather` table:
 
     ```ts
     {
@@ -28,5 +28,5 @@ Fetch daily weather data using OpenWeatherMap, to provide GPT with environmental
     }
     ```
 
-* [ ] Fetch this on dashboard load if it's not available for today yet
-* [ ] Handle API errors gracefully and allow re-fetching manually (CLI or dashboard)
+- [ ] Fetch this on dashboard load if it's not available for today yet
+- [ ] Handle API errors gracefully and allow re-fetching manually (CLI or dashboard)

@@ -1,4 +1,4 @@
-import type { LevelCalculation } from '../types/stats';
+import type { LevelCalculation } from '../../../shared/types/stats';
 
 /**
  * Calculate the total XP required to reach a specific level

@@ -1,7 +1,7 @@
 import { db } from '../db';
 import { tags, goalTags, goals } from '../db/schema';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
-import type { Tag, CreateTag, TagWithCount, GoalWithTags } from '../types';
+import type { Tag, CreateTag, TagWithCount, GoalWithTags } from '../../../shared/types';
 
 /**
  * Tag utility functions for normalized tag operations

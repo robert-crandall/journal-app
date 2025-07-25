@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import appExport from '../index';
 import { testDb, getUniqueEmail, schema } from './setup';
 import { eq, and } from 'drizzle-orm';
-import type { PlanType } from '../types/plans';
+import type { PlanType } from '../../../shared/types/plans';
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {

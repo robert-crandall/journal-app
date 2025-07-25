@@ -9,9 +9,9 @@ const app = new Hono()
   .get('/', zValidator('query', getWeatherSchema), async (c) => {
     try {
       const { date } = c.req.valid('query');
-      
+
       const weather = await WeatherService.getWeather(date);
-      
+
       if (!weather) {
         return c.json(
           {
@@ -35,7 +35,7 @@ const app = new Hono()
   .get('/today', async (c) => {
     try {
       const weather = await WeatherService.getWeather();
-      
+
       if (!weather) {
         return c.json(
           {
@@ -51,7 +51,7 @@ const app = new Hono()
         data: weather,
       });
     } catch (error) {
-      return handleApiError(error, 'Failed to fetch today\'s weather');
+      return handleApiError(error, "Failed to fetch today's weather");
     }
   })
 
@@ -60,9 +60,9 @@ const app = new Hono()
     try {
       const { date } = c.req.valid('json');
       const targetDate = date || new Date().toISOString().split('T')[0];
-      
+
       const weather = await WeatherService.refreshWeatherData(targetDate);
-      
+
       if (!weather) {
         return c.json(
           {
@@ -86,9 +86,9 @@ const app = new Hono()
   .get('/outdoor-advice', zValidator('query', getWeatherSchema), async (c) => {
     try {
       const { date } = c.req.valid('query');
-      
+
       const advice = await WeatherService.shouldAvoidOutdoorTasks(date);
-      
+
       return c.json({
         success: true,
         data: advice,

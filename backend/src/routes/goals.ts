@@ -7,7 +7,7 @@ import { goals } from '../db/schema/goals';
 import { createGoalSchema, updateGoalSchema } from '../validation/goals';
 import { handleApiError } from '../utils/logger';
 import { getGoalTags, setGoalTags, serializeGoalWithTags } from '../utils/tags';
-import type { GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../types/goals';
+import type { GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../../../shared/types/goals';
 
 // Helper function for backwards compatibility - converts GoalWithTags to GoalWithParsedTags
 const convertToLegacyFormat = (goalWithTags: GoalWithTags): GoalWithParsedTags => ({

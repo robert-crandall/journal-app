@@ -14,7 +14,7 @@ const app = {
 describe('Weather API Integration Tests', () => {
   const testDate = '2024-01-15'; // Use a fixed historical date for tests
   let mockFetch: any;
-  
+
   beforeEach(async () => {
     // Create and setup mock fetch
     mockFetch = vi.fn().mockResolvedValue({
@@ -61,7 +61,7 @@ describe('Weather API Integration Tests', () => {
         cod: 200,
       }),
     });
-    
+
     // Assign mock to global
     (global as any).fetch = mockFetch;
 
@@ -324,11 +324,7 @@ describe('Weather API Integration Tests', () => {
       });
 
       // Verify data was stored correctly in database
-      const storedWeather = await db
-        .select()
-        .from(schema.dailyWeather)
-        .where(eq(schema.dailyWeather.date, testDate5))
-        .limit(1);
+      const storedWeather = await db.select().from(schema.dailyWeather).where(eq(schema.dailyWeather.date, testDate5)).limit(1);
 
       expect(storedWeather).toHaveLength(1);
       expect(storedWeather[0]).toMatchObject(testWeatherData);

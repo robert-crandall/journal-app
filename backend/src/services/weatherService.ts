@@ -3,12 +3,7 @@ import { dailyWeather } from '../db/schema/weather';
 import { eq } from 'drizzle-orm';
 import { env } from '../env';
 import { format } from 'date-fns';
-import type {
-  DailyWeather,
-  NewDailyWeather,
-  WeatherResponse,
-  OpenWeatherMapResponse,
-} from '../types/weather';
+import type { DailyWeather, NewDailyWeather, WeatherResponse, OpenWeatherMapResponse } from '../../../shared/types/weather';
 
 export class WeatherService {
   // Get weather for a specific date (defaults to today)
@@ -16,10 +11,7 @@ export class WeatherService {
     const targetDate = date || format(new Date(), 'yyyy-MM-dd');
 
     // First, check if we already have weather data for this date
-    const [existingWeather] = await db
-      .select()
-      .from(dailyWeather)
-      .where(eq(dailyWeather.date, targetDate));
+    const [existingWeather] = await db.select().from(dailyWeather).where(eq(dailyWeather.date, targetDate));
 
     if (existingWeather) {
       return this.formatWeatherResponse(existingWeather);
@@ -38,6 +30,11 @@ export class WeatherService {
 
   // Fetch weather data from OpenWeatherMap API and store it
   static async fetchAndStoreWeatherData(date: string): Promise<DailyWeather | null> {
+    // In test environment, return mock data instead of calling real API
+    if (process.env.NODE_ENV === 'test') {
+      return this.createMockWeatherData(date);
+    }
+
     if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
       console.warn('Weather API key or ZIP code not configured');
       return null;
@@ -46,14 +43,14 @@ export class WeatherService {
     try {
       // Use Current Weather API - free tier
       const url = `https://api.openweathermap.org/data/2.5/weather?zip=${env.ZIP_CODE}&appid=${env.OPENWEATHER_API_KEY}&units=metric`;
-      
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`OpenWeatherMap API error: ${response.status} ${response.statusText}`);
       }
 
-      const apiData = await response.json() as OpenWeatherMapResponse;
-      
+      const apiData = (await response.json()) as OpenWeatherMapResponse;
+
       // Transform API data to our schema
       const weatherData: NewDailyWeather = {
         date,
@@ -61,19 +58,14 @@ export class WeatherService {
         lowTempC: apiData.main.temp_min,
         condition: apiData.weather[0]?.main || 'Unknown',
         chanceOfRain: Math.round((apiData.clouds.all / 100) * 100), // Approximate using cloud coverage
-        isRainExpected: apiData.weather[0]?.main.toLowerCase().includes('rain') || 
-                       apiData.weather[0]?.main.toLowerCase().includes('thunderstorm') ||
-                       false,
+        isRainExpected: apiData.weather[0]?.main.toLowerCase().includes('rain') || apiData.weather[0]?.main.toLowerCase().includes('thunderstorm') || false,
         windSpeedKph: Math.round(apiData.wind.speed * 3.6), // Convert m/s to km/h
         humidityPercent: apiData.main.humidity,
         rawData: apiData,
       };
 
       // Store in database
-      const [storedWeather] = await db
-        .insert(dailyWeather)
-        .values(weatherData)
-        .returning();
+      const [storedWeather] = await db.insert(dailyWeather).values(weatherData).returning();
 
       return storedWeather;
     } catch (error) {
@@ -82,8 +74,80 @@ export class WeatherService {
     }
   }
 
-  // Manually refresh weather data for a date
+  // Create mock weather data for testing
+  private static async createMockWeatherData(date: string): Promise<DailyWeather | null> {
+    try {
+      const mockWeatherData: NewDailyWeather = {
+        date,
+        highTempC: 22.1,
+        lowTempC: 18.2,
+        condition: 'Clear',
+        chanceOfRain: 10,
+        isRainExpected: false,
+        windSpeedKph: 13, // 3.6 m/s converted to km/h
+        humidityPercent: 65,
+        rawData: {
+          coord: { lon: -122.08, lat: 37.39 },
+          weather: [
+            {
+              id: 800,
+              main: 'Clear',
+              description: 'clear sky',
+              icon: '01d',
+            },
+          ],
+          base: 'stations',
+          main: {
+            temp: 20.5,
+            feels_like: 19.8,
+            temp_min: 18.2,
+            temp_max: 22.1,
+            pressure: 1013,
+            humidity: 65,
+          },
+          visibility: 10000,
+          wind: {
+            speed: 3.6,
+            deg: 220,
+          },
+          clouds: {
+            all: 10,
+          },
+          dt: 1609459200,
+          sys: {
+            type: 1,
+            id: 5122,
+            country: 'US',
+            sunrise: 1609422000,
+            sunset: 1609458000,
+          },
+          timezone: -28800,
+          id: 420006353,
+          name: 'Mountain View',
+          cod: 200,
+        },
+      };
+
+      // Store in database
+      const [storedWeather] = await db.insert(dailyWeather).values(mockWeatherData).returning();
+
+      return storedWeather;
+    } catch (error) {
+      console.error('Failed to create mock weather data:', error);
+      return null;
+    }
+  } // Manually refresh weather data for a date
   static async refreshWeatherData(date: string): Promise<WeatherResponse | null> {
+    // In test environment, allow refreshing with mock data
+    if (process.env.NODE_ENV === 'test') {
+      // Delete existing data if it exists
+      await db.delete(dailyWeather).where(eq(dailyWeather.date, date));
+
+      // Fetch mock data
+      const weatherData = await this.createMockWeatherData(date);
+      return weatherData ? this.formatWeatherResponse(weatherData) : null;
+    }
+
     if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
       throw new Error('Weather API key or ZIP code not configured');
     }
@@ -103,12 +167,9 @@ export class WeatherService {
 
   // Get weather data for multiple dates
   static async getWeatherRange(startDate: string, endDate: string): Promise<WeatherResponse[]> {
-    const weatherData = await db
-      .select()
-      .from(dailyWeather)
-      .where(
-        eq(dailyWeather.date, startDate) // Note: This is simplified - in production you'd use BETWEEN
-      );
+    const weatherData = await db.select().from(dailyWeather).where(
+      eq(dailyWeather.date, startDate), // Note: This is simplified - in production you'd use BETWEEN
+    );
 
     return weatherData.map(this.formatWeatherResponse);
   }
@@ -120,16 +181,14 @@ export class WeatherService {
     weather?: WeatherResponse;
   }> {
     const weather = await this.getWeather(date);
-    
+
     if (!weather) {
       return { avoid: false };
     }
 
     // Define conditions that should avoid outdoor tasks
     const badConditions = ['rain', 'thunderstorm', 'snow', 'storm'];
-    const isBadWeather = badConditions.some(condition => 
-      weather.condition.toLowerCase().includes(condition)
-    );
+    const isBadWeather = badConditions.some((condition) => weather.condition.toLowerCase().includes(condition));
 
     if (isBadWeather) {
       return {

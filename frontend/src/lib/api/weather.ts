@@ -22,7 +22,7 @@ export async function getTodaysWeather(): Promise<WeatherResponse> {
   const data = (await response.json()) as ApiResponse<WeatherResponse>;
 
   if (!data.success) {
-    throw new Error('error' in data ? data.error : 'Failed to fetch today\'s weather');
+    throw new Error('error' in data ? data.error : "Failed to fetch today's weather");
   }
 
   return data.data;

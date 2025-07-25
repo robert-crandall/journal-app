@@ -26,7 +26,7 @@ import type {
   ListJournalsResponse,
   JournalListItem,
   ToneTag,
-} from '../types/journals';
+} from '../../../shared/types/journals';
 
 /**
  * Helper function to serialize journal to response format

@@ -8,7 +8,7 @@ import { sign } from 'hono/jwt';
 import { hashPassword, verifyPassword } from '../utils/auth';
 import { registerSchema, loginSchema, updateUserValidationSchema } from '../validation/users';
 import { jwtAuth } from '../middleware/auth';
-import type { UpdateUserRequest, UpdateUserAvatarRequest } from '../types/users';
+import type { UpdateUserRequest, UpdateUserAvatarRequest } from '../../../shared/types/users';
 import logger, { handleApiError } from '../utils/logger';
 import { z } from 'zod';
 import { createAvatarSchema } from '../utils/avatar';
