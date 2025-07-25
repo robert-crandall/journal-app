@@ -8,18 +8,35 @@ export interface TaskGenerationRequest {
   userId: string;
   characterClass?: string;
   backstory?: string;
+  characterGoals?: string;
   dailyIntent?: string;
-  currentFocus?: string;
+  currentFocus?:
+    | string
+    | {
+        title: string;
+        description: string;
+        plans: Array<{
+          title: string;
+          description: string | null;
+          subtasks: Array<{
+            title: string;
+            description: string | null;
+            orderIndex: number | null;
+          }>;
+        }>;
+      };
   activeQuests?: Array<{
-    id: string;
     title: string;
     description: string;
   }>;
   activeProjects?: Array<{
-    id: string;
     title: string;
     description: string;
     type: 'project' | 'adventure';
+  }>;
+  userGoals?: Array<{
+    title: string;
+    description: string;
   }>;
   familyMembers?: Array<{
     id: string;
@@ -116,10 +133,12 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
   const {
     characterClass,
     backstory,
+    characterGoals,
     dailyIntent,
     currentFocus,
     activeQuests,
     activeProjects,
+    userGoals,
     familyMembers,
     weather,
     temperature = 0.8,
@@ -130,6 +149,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     character: characterClass || backstory ? {
       class: characterClass,
       backstory: backstory,
+      // longTermGoals: characterGoals,
     } : undefined,
     dailyIntent: dailyIntent ? {
       "priority": "highest",
@@ -161,7 +181,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     { type: 'json', data: userContext },
   ];
 
-  // Compose the messages array in the new format
+  // Compose the messages array in the required format
   const messages = [
     {
       role: 'system',
@@ -178,7 +198,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
   throw new Error("hello");
   // Call GPT API
   const response = await callGptApi({
-    messages,
+    messages: messages as import('openai/resources').ChatCompletionMessageParam[],
     temperature,
   });
 
@@ -186,7 +206,13 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     // Parse the JSON response
     const result = JSON.parse(response.content) as TaskGenerationResponse;
     return result;
-  } catch (error) {
-    throw new Error(`Failed to parse GPT response: ${error instanceof Error ? error.message : String(error)}`);
+  } catch (error: any) {
+    throw new Error(
+      `Failed to parse GPT response: ${
+        (error && typeof error === 'object' && 'message' in error)
+          ? error.message
+          : String(error)
+      }`
+    );
   }
 }
