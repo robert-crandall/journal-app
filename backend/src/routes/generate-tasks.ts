@@ -197,11 +197,14 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     } catch (error) {
       logger.error('Task generation failed:', error);
       console.error('Detailed task generation error:', error);
-      return c.json({
-        success: false,
-        error: 'Failed to generate daily tasks',
-        details: error instanceof Error ? error.message : String(error)
-      }, 500);
+      return c.json(
+        {
+          success: false,
+          error: 'Failed to generate daily tasks',
+          details: error instanceof Error ? error.message : String(error),
+        },
+        500,
+      );
     }
 
     // Calculate expiration time (midnight of the next day)

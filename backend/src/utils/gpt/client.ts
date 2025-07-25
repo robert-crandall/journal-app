@@ -63,7 +63,12 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       mockResponse = "Hi there! I'm here to help you reflect on whatever's on your mind today. What would you like to share?";
     } else if (content.includes('journal conversation') && !content.includes('Generate metadata')) {
       mockResponse = 'That sounds really meaningful. Can you tell me more about what that experience was like for you?';
-    } else if (content.includes('two tasks based on this information') || content.includes('character') || content.includes('projects') || content.includes('adventures')) {
+    } else if (
+      content.includes('two tasks based on this information') ||
+      content.includes('character') ||
+      content.includes('projects') ||
+      content.includes('adventures')
+    ) {
       // Task generation mock response
       mockResponse = JSON.stringify({
         personalTask: {

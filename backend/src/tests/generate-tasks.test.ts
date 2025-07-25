@@ -41,7 +41,6 @@ describe('Generate Tasks API', () => {
   });
 
   describe('POST /api/generate-tasks', () => {
-
     it('should generate daily tasks with daily intent', async () => {
       const date = '2024-03-15';
       const importanceStatement = 'Focus on completing my coding project and connecting with family';
