@@ -125,12 +125,7 @@ app.get('/', async (c) => {
 
     logger.info(`Getting recent daily intents for user ${userId}, limit: ${limit}`);
 
-    const intents = await db
-      .select()
-      .from(dailyIntents)
-      .where(eq(dailyIntents.userId, userId))
-      .orderBy(dailyIntents.date)
-      .limit(limit);
+    const intents = await db.select().from(dailyIntents).where(eq(dailyIntents.userId, userId)).orderBy(dailyIntents.date).limit(limit);
 
     return c.json({
       success: true,

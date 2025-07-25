@@ -7,67 +7,64 @@ Create a GPT-powered system that generates **2 meaningful tasks per day** — on
 
 #### ✅ Features
 
-* **🧭 Morning Prompt**
+- **🧭 Morning Prompt**
+  - Each morning (or first open of the day), ask the user:
 
-  * Each morning (or first open of the day), ask the user:
+    > _"What is the most important thing you can do today?"_
 
-    > *"What is the most important thing you can do today?"*
-  * Response is optional.
-  * If provided, it becomes part of GPT’s input and is prioritized when generating tasks.
+  - Response is optional.
+  - If provided, it becomes part of GPT’s input and is prioritized when generating tasks.
 
-* **🎯 Daily GPT Task Generation**
+- **🎯 Daily GPT Task Generation**
+  - GPT suggests **2 tasks**:
+    - **Personal Task** — aligned with goals, character, projects, plans (if their focus is aligned with daily focus), daily focus, weather, adventures.
+    - **Family Task** — supports relationships and connection.
 
-  * GPT suggests **2 tasks**:
-
-    * **Personal Task** — aligned with goals, character, projects, plans (if their focus is aligned with daily focus), daily focus, weather, adventures.
-    * **Family Task** — supports relationships and connection.
-  * Tasks should feel narrative-driven and tied into ongoing efforts or emotional tone.
-  * Generated tasks are added to the `simple_todos` table with `source = "gpt:dm"`, and expiration at midnight.
+  - Tasks should feel narrative-driven and tied into ongoing efforts or emotional tone.
+  - Generated tasks are added to the `simple_todos` table with `source = "gpt:dm"`, and expiration at midnight.
 
 ---
 
 #### 🧠 GPT Context Inputs
 
-* 🧬 **Character Sheet**
+- 🧬 **Character Sheet**
+  - Stats, archetypes, personal growth areas.
 
-  * Stats, archetypes, personal growth areas.
-* 🌱 **Goals**
+- 🌱 **Goals**
+  - Short- and long-term goals.
 
-  * Short- and long-term goals.
-* 🔦 **Daily Focus**
+- 🔦 **Daily Focus**
+  - Themed guidance for tone or domain (e.g. “Clean”, “Create”, “Connect”).
+  - Plans if they align with the daily focus.
 
-  * Themed guidance for tone or domain (e.g. “Clean”, “Create”, “Connect”).
-  * Plans if they align with the daily focus.
+- 🏗️ **Projects & Adventures**
+  - Any relevant plans that need traction.
 
-* 🏗️ **Projects & Adventures**
+- 📋 **Past Tasks**
+  - Avoid repeat suggestions; build momentum.
 
-  * Any relevant plans that need traction.
-* 📋 **Past Tasks**
+- 🌤️ **Weather / Season**
+  - Optional context for physical or mood-appropriate activities.
 
-  * Avoid repeat suggestions; build momentum.
-* 🌤️ **Weather / Season**
+- 📔 **Journal Trends**
+  - Use recent summaries (daily, weekly, monthly) for emotional alignment.
 
-  * Optional context for physical or mood-appropriate activities.
-* 📔 **Journal Trends**
-
-  * Use recent summaries (daily, weekly, monthly) for emotional alignment.
-* 💡 **Today’s Intent**
-
-  * If the user provided a “most important thing,” GPT should factor it in strongly.
+- 💡 **Today’s Intent**
+  - If the user provided a “most important thing,” GPT should factor it in strongly.
 
 ---
 
 #### 🛠️ Implementation Notes
 
-* Store the morning answer in a `daily_intents` table:
+- Store the morning answer in a `daily_intents` table:
 
   ```ts
-  date: Date
-  user_id: string
-  importance_statement: string
+  date: Date;
+  user_id: string;
+  importance_statement: string;
   ```
-* Tasks generated should reference this if relevant (for traceability).
-* Tasks may include optional metadata:
 
-  * `related_plan_id`
-  * `focus_tag`
+- Tasks generated should reference this if relevant (for traceability).
+- Tasks may include optional metadata:
+  - `related_plan_id`
+  - `focus_tag`

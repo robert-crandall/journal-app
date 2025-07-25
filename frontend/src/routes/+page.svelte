@@ -6,6 +6,8 @@
   import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
   import ExperimentTasksWidget from '$lib/components/experiments/ExperimentTasksWidget.svelte';
   import JournalWidget from '$lib/components/journal/JournalWidget.svelte';
+  import DailyIntentWidget from '$lib/components/daily-intents/DailyIntentWidget.svelte';
+  import GenerateTasksWidget from '$lib/components/generate-tasks/GenerateTasksWidget.svelte';
 
   let user: User | null = null;
   let token: string | null = null;
@@ -43,6 +45,20 @@
             <div class="card-body p-3 sm:p-6">
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
+                <!-- Daily Intent Widget -->
+                <div>
+                  <DailyIntentWidget />
+                </div>
+
+                <div class="divider my-3 sm:my-4"></div>
+
+                <!-- AI Task Generation Widget -->
+                <div>
+                  <GenerateTasksWidget />
+                </div>
+
+                <div class="divider my-3 sm:my-4"></div>
+
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />

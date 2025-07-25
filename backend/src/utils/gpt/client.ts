@@ -67,26 +67,26 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       // Task generation mock response
       mockResponse = JSON.stringify({
         personalTask: {
-          title: "Complete daily coding practice",
-          description: "Spend 30 minutes practicing coding skills to build technical expertise and maintain momentum in your software development journey.",
-          type: "personal",
+          title: 'Complete daily coding practice',
+          description: 'Spend 30 minutes practicing coding skills to build technical expertise and maintain momentum in your software development journey.',
+          type: 'personal',
           estimatedXp: 25,
-          suggestedDuration: "30 minutes"
+          suggestedDuration: '30 minutes',
         },
         familyTask: {
-          title: "Have a meaningful conversation with family",
-          description: "Take time to connect with a family member through genuine conversation, asking about their day and sharing yours.",
-          type: "family",
-          familyMemberId: "mock-family-id",
+          title: 'Have a meaningful conversation with family',
+          description: 'Take time to connect with a family member through genuine conversation, asking about their day and sharing yours.',
+          type: 'family',
+          familyMemberId: 'mock-family-id',
           estimatedXp: 30,
-          suggestedDuration: "20-30 minutes"
+          suggestedDuration: '20-30 minutes',
         },
         context: {
           weatherConsidered: true,
           questsConsidered: false,
           focusConsidered: true,
-          projectsConsidered: false
-        }
+          projectsConsidered: false,
+        },
       });
     } else if (
       content.includes('Generate metadata') ||

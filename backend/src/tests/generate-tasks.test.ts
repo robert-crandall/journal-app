@@ -82,14 +82,11 @@ describe('Generate Tasks API', () => {
 
       // Verify tasks were saved to database
       const db = testDb();
-      const todos = await db
-        .select()
-        .from(schema.simpleTodos)
-        .where(eq(schema.simpleTodos.userId, testUser.id));
+      const todos = await db.select().from(schema.simpleTodos).where(eq(schema.simpleTodos.userId, testUser.id));
 
       expect(todos).toHaveLength(2);
-      expect(todos.every(todo => todo.source === 'gpt:dm')).toBe(true);
-      expect(todos.every(todo => todo.expirationTime !== null)).toBe(true);
+      expect(todos.every((todo) => todo.source === 'gpt:dm')).toBe(true);
+      expect(todos.every((todo) => todo.expirationTime !== null)).toBe(true);
     });
 
     it('should generate daily tasks with daily intent', async () => {
@@ -133,7 +130,7 @@ describe('Generate Tasks API', () => {
 
     it('should generate tasks with character information', async () => {
       const db = testDb();
-      
+
       // Create character for the user
       await db.insert(schema.characters).values({
         userId: testUser.id,
@@ -165,7 +162,7 @@ describe('Generate Tasks API', () => {
 
     it('should generate tasks with family members', async () => {
       const db = testDb();
-      
+
       // Create family member for the user
       await db.insert(schema.familyMembers).values({
         userId: testUser.id,

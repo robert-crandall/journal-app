@@ -103,10 +103,7 @@ describe('Daily Intents API', () => {
 
       // Verify only one record exists for this date
       const db = testDb();
-      const intents = await db
-        .select()
-        .from(schema.dailyIntents)
-        .where(eq(schema.dailyIntents.userId, testUser.id));
+      const intents = await db.select().from(schema.dailyIntents).where(eq(schema.dailyIntents.userId, testUser.id));
 
       expect(intents).toHaveLength(1);
       expect(intents[0].importanceStatement).toBe(updatedStatement);
@@ -255,7 +252,7 @@ describe('Daily Intents API', () => {
       const responseData = await res.json();
       expect(responseData.success).toBe(true);
       expect(responseData.data).toHaveLength(3);
-      
+
       // Should be ordered by date
       expect(responseData.data[0].date).toBe('2024-03-13');
       expect(responseData.data[1].date).toBe('2024-03-14');

@@ -32,28 +32,18 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     logger.info(`Generating daily tasks for user ${userId} on ${date}`);
 
     // Get user character information
-    const character = await db
-      .select()
-      .from(characters)
-      .where(eq(characters.userId, userId))
-      .limit(1);
+    const character = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
 
     // Get user goals
-    const userGoals = await db
-      .select()
-      .from(goals)
-      .where(eq(goals.userId, userId));
+    const userGoals = await db.select().from(goals).where(eq(goals.userId, userId));
 
     // Get family members
-    const family = await db
-      .select()
-      .from(familyMembers)
-      .where(eq(familyMembers.userId, userId));
+    const family = await db.select().from(familyMembers).where(eq(familyMembers.userId, userId));
 
     // Get today's focus (based on day of week)
     const today = new Date(date);
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    
+
     const focus = await db
       .select()
       .from(focuses)
@@ -69,11 +59,7 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
         description: plans.description,
       })
       .from(plans)
-      .where(
-        focus.length > 0 
-          ? and(eq(plans.userId, userId), eq(plans.focusId, focus[0].id))
-          : eq(plans.userId, userId)
-      )
+      .where(focus.length > 0 ? and(eq(plans.userId, userId), eq(plans.focusId, focus[0].id)) : eq(plans.userId, userId))
       .limit(10);
 
     // Get active quests
@@ -90,7 +76,7 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
         .from(dailyIntents)
         .where(and(eq(dailyIntents.userId, userId), eq(dailyIntents.date, date)))
         .limit(1);
-      
+
       if (intent.length > 0) {
         dailyIntent = intent[0].importanceStatement;
       }
@@ -111,37 +97,38 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
       characterClass: character[0]?.characterClass || undefined,
       backstory: character[0]?.backstory || undefined,
       currentFocus: focus[0]?.title + (focus[0]?.description ? `: ${focus[0].description}` : ''),
-      activeQuests: activeQuests.map(quest => ({
+      activeQuests: activeQuests.map((quest) => ({
         id: quest.id,
         title: quest.title,
         description: quest.summary || '',
       })),
-      activeProjects: activePlans.map(plan => ({
+      activeProjects: activePlans.map((plan) => ({
         id: plan.id,
         title: plan.title,
         description: plan.description || '',
         type: plan.type as 'project' | 'adventure',
       })),
-      familyMembers: family.map(member => ({
+      familyMembers: family.map((member) => ({
         id: member.id,
         name: member.name,
         relationship: member.relationship,
-        likes: member.likes ? member.likes.split(',').map(item => item.trim()) : [],
-        dislikes: member.dislikes ? member.dislikes.split(',').map(item => item.trim()) : [],
+        likes: member.likes ? member.likes.split(',').map((item) => item.trim()) : [],
+        dislikes: member.dislikes ? member.dislikes.split(',').map((item) => item.trim()) : [],
         lastActivityDate: member.lastInteractionDate?.toISOString(),
         lastActivityFeedback: undefined, // Not implemented yet
       })),
-      weather: weather ? {
-        temperature: weather.highTempC,
-        condition: weather.condition,
-        forecast: `High: ${weather.highTempC}°C, Low: ${weather.lowTempC}°C, ${weather.condition}`,
-      } : undefined,
+      weather: weather
+        ? {
+            temperature: weather.highTempC,
+            condition: weather.condition,
+            forecast: `High: ${weather.highTempC}°C, Low: ${weather.lowTempC}°C, ${weather.condition}`,
+          }
+        : undefined,
     };
 
     // Add daily intent to the backstory if available
     if (dailyIntent) {
-      taskGenRequest.backstory = (taskGenRequest.backstory || '') + 
-        `\n\nToday's most important thing: "${dailyIntent}"`;
+      taskGenRequest.backstory = (taskGenRequest.backstory || '') + `\n\nToday's most important thing: "${dailyIntent}"`;
     }
 
     // Generate tasks using GPT
@@ -198,7 +185,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
         },
       },
     });
-
   } catch (error) {
     return handleApiError(error, 'Failed to generate daily tasks');
   }
@@ -235,13 +221,7 @@ app.get('/:date', async (c) => {
     const tasks = await db
       .select()
       .from(simpleTodos)
-      .where(
-        and(
-          eq(simpleTodos.userId, userId),
-          eq(simpleTodos.source, 'gpt:dm'),
-          eq(simpleTodos.expirationTime, targetExpirationTime)
-        )
-      )
+      .where(and(eq(simpleTodos.userId, userId), eq(simpleTodos.source, 'gpt:dm'), eq(simpleTodos.expirationTime, targetExpirationTime)))
       .orderBy(desc(simpleTodos.createdAt));
 
     // Get daily intent for this date
@@ -259,7 +239,6 @@ app.get('/:date', async (c) => {
         intent: intent[0] || null,
       },
     });
-
   } catch (error) {
     return handleApiError(error, 'Failed to get generated tasks');
   }
