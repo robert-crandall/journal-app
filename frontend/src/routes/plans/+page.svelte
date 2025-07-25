@@ -4,6 +4,8 @@
   import { authStore } from '$lib/stores/auth';
   import { plansApi, type PlanResponse, type PlanType } from '$lib/api/plans';
   import { Plus, FolderKanban, Compass, Palette, FileText, Edit3, Trash2, Eye, MoreVertical, Calendar } from 'lucide-svelte';
+  import AppHeader from '$lib/components/common/AppHeader.svelte';
+  import PageContainer from '$lib/components/common/PageContainer.svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
   import { formatDateTime } from '$lib/utils/date';
@@ -160,25 +162,13 @@
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
-  <!-- Page Header -->
-  <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
-    <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex items-center gap-3">
-        <div class="avatar placeholder">
-          <div class="bg-primary text-primary-content w-12 rounded-full">
-            <FolderKanban size={24} />
-          </div>
-        </div>
-        <div>
-          <h1 class="text-primary text-3xl font-bold">Plans</h1>
-          <p class="text-base-content/70">Organize plans, adventures, and themes with structured task management</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="mx-auto max-w-7xl px-4 py-8">
+  <AppHeader
+    title="Plans"
+    subtitle="Organize plans, adventures, and themes with structured task management"
+    icon={FolderKanban}
+    buttons={[{ label: 'Create Plan', icon: Plus, onClick: createPlan }]}
+  />
+  <PageContainer>
     {#if loading}
       <!-- Loading State -->
       <div class="flex items-center justify-center py-20">
@@ -248,7 +238,7 @@
 
                       {#if plan.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</p>
                       {/if}
 
                       <!-- Plan Features -->
@@ -411,5 +401,5 @@
         </div>
       </div>
     {/if}
-  </div>
+  </PageContainer>
 </div>

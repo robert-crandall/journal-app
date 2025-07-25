@@ -5,6 +5,8 @@
   import { characterStore } from '../../lib/stores/character';
   import CharacterCreate from './CharacterCreate.svelte';
   import CharacterView from './CharacterView.svelte';
+  import AppHeader from '$lib/components/common/AppHeader.svelte';
+  import { UserIcon } from 'lucide-svelte';
 
   // State variables
   let character: Character | null = null;
@@ -59,14 +61,10 @@
 <div class="bg-base-200 min-h-screen">
   <main class="mx-auto w-full max-w-7xl px-4 py-8">
     <!-- Header Section -->
-    <div class="mb-8 text-center">
-      <div class="badge badge-primary badge-lg mb-4">Character System</div>
-      <h1 class="text-primary mb-2 text-4xl font-bold">Your Character</h1>
-      <p class="text-base-content/70 mx-auto max-w-2xl text-lg">Create and manage your character to start your gamified life journey</p>
-    </div>
+    <AppHeader title="Your Character" subtitle="Create and manage your character to start your gamified life journey" icon={UserIcon} />
 
     <!-- Main Content Area -->
-    <div class="mx-auto max-w-6xl">
+    <div class="mx-auto max-w-7xl">
       {#if loading}
         <div class="flex min-h-[400px] items-center justify-center">
           <div class="text-center">
