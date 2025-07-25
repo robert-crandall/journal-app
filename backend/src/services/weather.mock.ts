@@ -1,42 +1,53 @@
-import type { OpenWeatherMapResponse } from '../../../shared/types/weather';
+import type { WeatherGovForecastResponse } from '../../../shared/types/weather';
 
-export const sampleOpenWeatherMapResponse: OpenWeatherMapResponse = {
-  coord: { lon: -122.08, lat: 37.39 },
-  weather: [
-    {
-      id: 800,
-      main: 'Clear',
-      description: 'clear sky',
-      icon: '01d',
-    },
-  ],
-  base: 'stations',
-  main: {
-    temp: 20.5,
-    feels_like: 19.8,
-    temp_min: 18.2,
-    temp_max: 22.1,
-    pressure: 1013,
-    humidity: 65,
+// Sample Weather.gov forecast response for testing
+export const sampleWeatherGovResponse: WeatherGovForecastResponse = {
+  properties: {
+    periods: [
+      {
+        number: 1,
+        name: 'Today',
+        startTime: '2025-07-25T06:00:00-07:00',
+        endTime: '2025-07-25T18:00:00-07:00',
+        isDaytime: true,
+        temperature: 75,
+        temperatureUnit: 'F',
+        windSpeed: '5 to 10 mph',
+        windDirection: 'W',
+        icon: 'https://api.weather.gov/icons/land/day/few?size=medium',
+        shortForecast: 'Mostly Sunny',
+        detailedForecast: 'Mostly sunny, with a high near 75. West wind 5 to 10 mph.',
+        probabilityOfPrecipitation: {
+          unitCode: 'wmoUnit:percent',
+          value: 10,
+        },
+        relativeHumidity: {
+          unitCode: 'wmoUnit:percent',
+          value: 65,
+        },
+      },
+      {
+        number: 2,
+        name: 'Tonight',
+        startTime: '2025-07-25T18:00:00-07:00',
+        endTime: '2025-07-26T06:00:00-07:00',
+        isDaytime: false,
+        temperature: 58,
+        temperatureUnit: 'F',
+        windSpeed: '5 mph',
+        windDirection: 'W',
+        icon: 'https://api.weather.gov/icons/land/night/few?size=medium',
+        shortForecast: 'Mostly Clear',
+        detailedForecast: 'Mostly clear, with a low around 58. West wind around 5 mph.',
+        probabilityOfPrecipitation: {
+          unitCode: 'wmoUnit:percent',
+          value: 5,
+        },
+        relativeHumidity: {
+          unitCode: 'wmoUnit:percent',
+          value: 75,
+        },
+      },
+    ],
   },
-  visibility: 10000,
-  wind: {
-    speed: 3.6,
-    deg: 220,
-  },
-  clouds: {
-    all: 10,
-  },
-  dt: 1609459200,
-  sys: {
-    type: 1,
-    id: 5122,
-    country: 'US',
-    sunrise: 1609422000,
-    sunset: 1609458000,
-  },
-  timezone: -28800,
-  id: 420006353,
-  name: 'Mountain View',
-  cod: 200,
 };

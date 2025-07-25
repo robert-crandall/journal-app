@@ -24,10 +24,6 @@
   onMount(() => {
     fetchWeather();
   });
-
-  function celsiusToFahrenheit(celsius: number): number {
-    return Math.round((celsius * 9) / 5 + 32);
-  }
 </script>
 
 <div class="bg-base-100 border-base-200 rounded-lg border p-4 shadow-sm">
@@ -47,28 +43,23 @@
     <div class="space-y-2">
       <div class="flex items-center justify-between">
         <div class="text-primary text-2xl font-bold">
-          {celsiusToFahrenheit(weather.highTempC)}°F
+          {weather.highTempF}°F
         </div>
         <div class="text-right">
-          <div class="text-base-content font-medium capitalize">
-            {weather.condition}
+          <div class="text-base-content font-medium">
+            {weather.shortForecast}
           </div>
-          <div class="text-base-content/70 text-sm">
-            Low: {celsiusToFahrenheit(weather.lowTempC)}°F
-          </div>
+          {#if weather.probabilityOfPrecipitation && weather.probabilityOfPrecipitation > 0}
+            <div class="text-info text-sm">
+              💧 Rain: {weather.probabilityOfPrecipitation}%
+            </div>
+          {/if}
         </div>
       </div>
 
-      <div class="text-base-content/70 flex items-center justify-between text-sm">
-        <span>Humidity: {weather.humidityPercent}%</span>
-        <span>Wind: {Math.round(weather.windSpeedKph * 0.621)} mph</span>
+      <div class="text-base-content/70 text-sm">
+        {weather.detailedForecast}
       </div>
-
-      {#if weather.chanceOfRain > 0}
-        <div class="text-info text-sm">
-          💧 Rain chance: {weather.chanceOfRain}%
-        </div>
-      {/if}
     </div>
   {:else}
     <div class="text-base-content/70">No weather data available</div>

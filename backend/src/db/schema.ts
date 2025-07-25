@@ -105,6 +105,6 @@ export type {
   NewDailyWeather,
   WeatherResponse,
   GetWeatherRequest,
-  OpenWeatherMapResponse,
-  OpenWeatherMapDailyForecast,
+  WeatherGovForecastResponse,
+  WeatherGovPointResponse,
 } from '../../../shared/types/weather';

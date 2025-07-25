@@ -3,8 +3,20 @@ import { dailyWeather } from '../db/schema/weather';
 import { eq } from 'drizzle-orm';
 import { env } from '../env';
 import { format } from 'date-fns';
-import type { DailyWeather, NewDailyWeather, WeatherResponse, OpenWeatherMapResponse } from '../../../shared/types/weather';
-import { sampleOpenWeatherMapResponse } from './weather.mock';
+import type { DailyWeather, NewDailyWeather, WeatherResponse, WeatherGovForecastResponse } from '../../../shared/types/weather';
+import { sampleWeatherGovResponse } from './weather.mock';
+
+/**
+ * WeatherService - Now uses Weather.gov API (free, no API key required)
+ *
+ * Setup:
+ * 1. Set WEATHER_LAT and WEATHER_LON environment variables with your location coordinates
+ * 2. Weather.gov API only covers US locations
+ *
+ * Example .env:
+ * WEATHER_LAT=37.7749
+ * WEATHER_LON=-122.4194
+ */
 
 export class WeatherService {
   // Get weather for a specific date (defaults to today)
@@ -29,42 +41,66 @@ export class WeatherService {
     return null;
   }
 
-  // Fetch weather data from OpenWeatherMap API and store it
-  static async fetchAndStoreWeatherData(date: string): Promise<DailyWeather | null> {
-    let apiData: OpenWeatherMapResponse;
+  // Fetch weather data from Weather.gov API and store it
+  static async fetchAndStoreWeatherData(date?: string): Promise<DailyWeather | null> {
+    const targetDate = date || format(new Date(), 'yyyy-MM-dd');
+    let forecastData: WeatherGovForecastResponse;
+
     if (process.env.NODE_ENV === 'test') {
-      // Use a realistic mock OpenWeatherMap response in test
-      apiData = sampleOpenWeatherMapResponse;
+      // Use a realistic mock Weather.gov response in test
+      forecastData = sampleWeatherGovResponse;
     } else {
-      if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
-        console.warn('Weather API key or ZIP code not configured');
+      if (!env.WEATHER_LAT || !env.WEATHER_LON) {
+        console.warn('Weather latitude/longitude not configured. Please set WEATHER_LAT and WEATHER_LON environment variables.');
         return null;
       }
+
       try {
-        // Use Current Weather API - free tier
-        const url = `https://api.openweathermap.org/data/2.5/weather?zip=${env.ZIP_CODE}&appid=${env.OPENWEATHER_API_KEY}&units=metric`;
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`OpenWeatherMap API error: ${response.status} ${response.statusText}`);
+        // Weather.gov API requires two calls:
+        // 1. Get grid coordinates from lat/lon
+        const pointUrl = `https://api.weather.gov/points/${env.WEATHER_LAT},${env.WEATHER_LON}`;
+        const pointResponse = await fetch(pointUrl, {
+          headers: {
+            'User-Agent': 'journal-app/1.0 (contact@example.com)', // Weather.gov requires User-Agent
+          },
+        });
+
+        if (!pointResponse.ok) {
+          throw new Error(`Weather.gov point API error: ${pointResponse.status} ${pointResponse.statusText}`);
         }
-        apiData = (await response.json()) as OpenWeatherMapResponse;
+
+        const pointData = (await pointResponse.json()) as any;
+        const forecastUrl = pointData.properties.forecast;
+
+        // 2. Get forecast from grid coordinates
+        const forecastResponse = await fetch(forecastUrl, {
+          headers: {
+            'User-Agent': 'journal-app/1.0 (contact@example.com)',
+          },
+        });
+
+        if (!forecastResponse.ok) {
+          throw new Error(`Weather.gov forecast API error: ${forecastResponse.status} ${forecastResponse.statusText}`);
+        }
+
+        forecastData = (await forecastResponse.json()) as WeatherGovForecastResponse;
       } catch (error) {
-        console.error('Failed to fetch weather data:', error);
+        console.error('Failed to fetch weather data from Weather.gov:', error);
         return null;
       }
     }
 
-    // Transform API data to our schema (shared logic)
+    // Transform Weather.gov API data to our schema
+    const periods = forecastData.properties.periods;
+    const todayPeriod = periods.find((p) => p.isDaytime) || periods[0];
+
     const weatherData: NewDailyWeather = {
-      date,
-      highTempC: apiData.main.temp_max,
-      lowTempC: apiData.main.temp_min,
-      condition: apiData.weather[0]?.main || 'Unknown',
-      chanceOfRain: Math.round((apiData.clouds.all / 100) * 100),
-      isRainExpected: apiData.weather[0]?.main.toLowerCase().includes('rain') || apiData.weather[0]?.main.toLowerCase().includes('thunderstorm') || false,
-      windSpeedKph: Math.round(apiData.wind.speed * 3.6),
-      humidityPercent: apiData.main.humidity,
-      rawData: apiData,
+      date: targetDate,
+      highTempF: todayPeriod.temperature, // Already in Fahrenheit from Weather.gov
+      probabilityOfPrecipitation: todayPeriod.probabilityOfPrecipitation?.value || null,
+      shortForecast: todayPeriod.shortForecast,
+      detailedForecast: todayPeriod.detailedForecast,
+      rawData: forecastData,
     };
 
     // Store in database
@@ -72,69 +108,7 @@ export class WeatherService {
     return storedWeather;
   }
 
-  // Create mock weather data for testing
-  private static async createMockWeatherData(date: string): Promise<DailyWeather | null> {
-    try {
-      const mockWeatherData: NewDailyWeather = {
-        date,
-        highTempC: 22.1,
-        lowTempC: 18.2,
-        condition: 'Clear',
-        chanceOfRain: 10,
-        isRainExpected: false,
-        windSpeedKph: 13, // 3.6 m/s converted to km/h
-        humidityPercent: 65,
-        rawData: {
-          coord: { lon: -122.08, lat: 37.39 },
-          weather: [
-            {
-              id: 800,
-              main: 'Clear',
-              description: 'clear sky',
-              icon: '01d',
-            },
-          ],
-          base: 'stations',
-          main: {
-            temp: 20.5,
-            feels_like: 19.8,
-            temp_min: 18.2,
-            temp_max: 22.1,
-            pressure: 1013,
-            humidity: 65,
-          },
-          visibility: 10000,
-          wind: {
-            speed: 3.6,
-            deg: 220,
-          },
-          clouds: {
-            all: 10,
-          },
-          dt: 1609459200,
-          sys: {
-            type: 1,
-            id: 5122,
-            country: 'US',
-            sunrise: 1609422000,
-            sunset: 1609458000,
-          },
-          timezone: -28800,
-          id: 420006353,
-          name: 'Mountain View',
-          cod: 200,
-        },
-      };
-
-      // Store in database
-      const [storedWeather] = await db.insert(dailyWeather).values(mockWeatherData).returning();
-
-      return storedWeather;
-    } catch (error) {
-      console.error('Failed to create mock weather data:', error);
-      return null;
-    }
-  } // Manually refresh weather data for a date
+  // Manually refresh weather data for a date
   static async refreshWeatherData(date: string): Promise<WeatherResponse | null> {
     // In test environment, allow refreshing with mock data
     if (process.env.NODE_ENV === 'test') {
@@ -142,12 +116,12 @@ export class WeatherService {
       await db.delete(dailyWeather).where(eq(dailyWeather.date, date));
 
       // Fetch mock data
-      const weatherData = await this.createMockWeatherData(date);
+      const weatherData = await this.fetchAndStoreWeatherData(date);
       return weatherData ? this.formatWeatherResponse(weatherData) : null;
     }
 
-    if (!env.OPENWEATHER_API_KEY || !env.ZIP_CODE) {
-      throw new Error('Weather API key or ZIP code not configured');
+    if (!env.WEATHER_LAT || !env.WEATHER_LON) {
+      throw new Error('Weather latitude/longitude not configured. Please set WEATHER_LAT and WEATHER_LON environment variables.');
     }
 
     try {
@@ -184,31 +158,32 @@ export class WeatherService {
       return { avoid: false };
     }
 
-    // Define conditions that should avoid outdoor tasks
-    const badConditions = ['rain', 'thunderstorm', 'snow', 'storm'];
-    const isBadWeather = badConditions.some((condition) => weather.condition.toLowerCase().includes(condition));
+    // Define conditions that should avoid outdoor tasks based on shortForecast
+    const badConditions = ['rain', 'thunderstorm', 'snow', 'storm', 'showers'];
+    const isBadWeather = badConditions.some((condition) => weather.shortForecast.toLowerCase().includes(condition));
 
     if (isBadWeather) {
       return {
         avoid: true,
-        reason: `${weather.condition} expected`,
+        reason: `${weather.shortForecast} expected`,
         weather,
       };
     }
 
-    if (weather.isRainExpected || weather.chanceOfRain > 70) {
+    if (weather.probabilityOfPrecipitation && weather.probabilityOfPrecipitation > 70) {
       return {
         avoid: true,
-        reason: `High chance of rain (${weather.chanceOfRain}%)`,
+        reason: `High chance of rain (${weather.probabilityOfPrecipitation}%)`,
         weather,
       };
     }
 
-    // Extreme temperatures (adjust based on your preference)
-    if (weather.highTempC > 35 || weather.lowTempC < -10) {
+    // Extreme temperatures (converted from Fahrenheit)
+    if (weather.highTempF > 95 || weather.highTempF < 14) {
+      // 95°F = 35°C, 14°F = -10°C
       return {
         avoid: true,
-        reason: `Extreme temperature (${weather.lowTempC}°C - ${weather.highTempC}°C)`,
+        reason: `Extreme temperature (${weather.highTempF}°F)`,
         weather,
       };
     }
@@ -220,13 +195,10 @@ export class WeatherService {
   private static formatWeatherResponse(weather: DailyWeather): WeatherResponse {
     return {
       date: weather.date,
-      highTempC: weather.highTempC,
-      lowTempC: weather.lowTempC,
-      condition: weather.condition,
-      chanceOfRain: weather.chanceOfRain,
-      isRainExpected: weather.isRainExpected,
-      windSpeedKph: weather.windSpeedKph,
-      humidityPercent: weather.humidityPercent,
+      highTempF: weather.highTempF,
+      probabilityOfPrecipitation: weather.probabilityOfPrecipitation,
+      shortForecast: weather.shortForecast,
+      detailedForecast: weather.detailedForecast,
     };
   }
 }
