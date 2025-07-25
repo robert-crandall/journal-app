@@ -2,8 +2,9 @@
   import { onMount } from 'svelte';
   import { generateTasksStore } from '$lib/stores/generate-tasks';
   import { simpleTodosStore } from '$lib/stores/todos';
+  import { getTodayDateString } from '$lib/utils/date';
 
-  let currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  let currentDate = getTodayDateString();
   let generating = false;
   let includeIntent = true;
 
