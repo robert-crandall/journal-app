@@ -15,6 +15,7 @@ import journalsRoutes from './routes/journals';
 import journalSummariesRoutes from './routes/journal-summaries';
 import questsRoutes from './routes/quests';
 import plansRoutes from './routes/plans';
+import weatherRoutes from './routes/weather';
 import xpGrantsRoutes from './routes/xpGrants';
 
 // Create main app instance
@@ -72,6 +73,8 @@ const routes = app
   .route('/api/quests', questsRoutes)
   // Mount plans routes
   .route('/api/plans', plansRoutes)
+  // Mount weather routes
+  .route('/api/weather', weatherRoutes)
   // Mount XP grants routes
   .route('/api/xp-grants', xpGrantsRoutes);
 

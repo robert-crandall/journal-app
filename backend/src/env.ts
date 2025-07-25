@@ -18,6 +18,10 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('false'),
+
+  // Weather API settings
+  OPENWEATHER_API_KEY: z.string().optional(),
+  ZIP_CODE: z.string().optional(),
 });
 
 export function loadEnv() {
