@@ -1,6 +1,5 @@
 import { callGptApi } from './client';
 import { createPrompt } from './utils';
-import { logger } from '../logger' // TODO
 /**
  * Interface for daily task generation request
  */
@@ -134,6 +133,8 @@ Respond in this exact JSON format:
 - Weather can influence task selection (e.g. outdoor vs indoor)
 - XP should reflect effort and impact (range: 10-50)
 - Maintain narrative continuity — grow the user's story
+
+User input will be provided as a JSON object with fields like character, focus, quests, weather, etc.
 `;
 
 /**
@@ -213,9 +214,6 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
     },
   ];
 
-  // TODO
-  logger.info(JSON.stringify(messages, null, 2));
-  throw new Error("hello");
   // Call GPT API
   const response = await callGptApi({
     messages: messages as import('openai/resources').ChatCompletionMessageParam[],
