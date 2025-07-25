@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { dailyIntents, simpleTodos, characters, goals, familyMembers, focuses, plans, quests, experiments, characterStats } from '../db/schema';
+import { dailyIntents, simpleTodos, characters, goals, familyMembers, focuses, plans, planSubtasks, quests, experiments, characterStats } from '../db/schema';
 import { jwtAuth } from '../middleware/auth';
 import logger, { handleApiError } from '../utils/logger';
 import { generateDailyTasks, type TaskGenerationRequest, type TaskGenerationResponse } from '../utils/gpt/taskGen';
@@ -38,28 +38,47 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     // Get family members
     const family = await db.select().from(familyMembers).where(eq(familyMembers.userId, userId));
 
+
     // Get today's focus (based on day of week)
     const [year, month, day] = date.split('-').map(Number);
     const today = new Date(year, month - 1, day); // month is 0-based
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-    const focus = await db
+    const focusArr = await db
       .select()
       .from(focuses)
       .where(and(eq(focuses.userId, userId), eq(focuses.dayOfWeek, dayOfWeek)))
       .limit(1);
+    const focus = focusArr[0];
 
-    // Get active plans that align with today's focus
-    const activePlans = await db
-      .select({
-        id: plans.id,
-        title: plans.title,
-        type: plans.type,
-        description: plans.description,
-      })
-      .from(plans)
-      .where(focus.length > 0 ? and(eq(plans.userId, userId), eq(plans.focusId, focus[0].id)) : eq(plans.userId, userId))
-      .limit(10);
+    // Get plans for today's focus (with subtasks)
+    let focusPlansWithSubtasks = [];
+    if (focus) {
+      // Get all plans for this focus
+      const plansForFocus = await db
+        .select({
+          id: plans.id,
+          title: plans.title,
+          type: plans.type,
+          description: plans.description,
+        })
+        .from(plans)
+        .where(and(eq(plans.userId, userId), eq(plans.focusId, focus.id)));
+
+      // For each plan, get its subtasks
+      for (const plan of plansForFocus) {
+        const subtasks = await db
+          .select({
+            id: planSubtasks.id,
+            title: planSubtasks.title,
+            description: planSubtasks.description,
+            orderIndex: planSubtasks.orderIndex,
+          })
+          .from(planSubtasks)
+          .where(and(eq(planSubtasks.planId, plan.id), eq(planSubtasks.isCompleted, false)));
+        focusPlansWithSubtasks.push({ ...plan, subtasks });
+      }
+    }
 
     // Get active quests
     const activeQuests = await db
@@ -95,18 +114,28 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
       userId,
       characterClass: character[0]?.characterClass || undefined,
       backstory: character[0]?.backstory || undefined,
+      characterGoals: character[0]?.goals || undefined,
       dailyIntent: dailyIntent,
-      currentFocus: focus[0]?.title + (focus[0]?.description ? `: ${focus[0].description}` : ''),
+      currentFocus: focus
+        ? {
+            title: focus.title,
+            description: focus.description,
+            plans: focusPlansWithSubtasks,
+          }
+        : undefined,
       activeQuests: activeQuests.map((quest) => ({
-        id: quest.id,
         title: quest.title,
         description: quest.summary || '',
       })),
-      activeProjects: activePlans.map((plan) => ({
-        id: plan.id,
+      activeProjects: focusPlansWithSubtasks.map((plan) => ({
         title: plan.title,
         description: plan.description || '',
         type: plan.type as 'project' | 'adventure',
+        subtasks: plan.subtasks,
+      })),
+      userGoals: userGoals.map((goal) => ({
+        title: goal.title,
+        description: goal.description ?? ''
       })),
       familyMembers: family.map((member) => ({
         id: member.id,
@@ -171,9 +200,9 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
           includedIntent: !!dailyIntent,
           intentStatement: dailyIntent,
           characterClass: character[0]?.characterClass,
-          currentFocus: focus[0]?.title,
+          currentFocus: focus ? focus.title : undefined,
           questsCount: activeQuests.length,
-          plansCount: activePlans.length,
+          plansCount: focusPlansWithSubtasks.length,
           familyCount: family.length,
           hasWeather: !!weather,
         },
