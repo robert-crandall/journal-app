@@ -164,7 +164,6 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
       "projects": activeProjects
     } : undefined,
     activeQuests: activeQuests ? {
-      "priority": "low",
       "quests": activeQuests
     } : undefined,
     familyMembers,
