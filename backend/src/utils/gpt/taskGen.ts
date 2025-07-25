@@ -117,10 +117,10 @@ Task generation guidelines:
  * @returns Generated personal and family tasks
  */
 export async function generateDailyTasks(options: TaskGenerationRequest): Promise<TaskGenerationResponse> {
-  const { userId, characterClass, backstory, currentFocus, activeQuests, activeProjects, familyMembers, weather, temperature = 0.7 } = options;
+  const { characterClass, backstory, currentFocus, activeQuests, activeProjects, familyMembers, weather, temperature = 0.7 } = options;
 
   // Construct user prompt with all context
-  let userPromptContent = `User ID: ${userId}\n\n`;
+  let userPromptContent = ``;
 
   // Add character information
   if (characterClass) {
