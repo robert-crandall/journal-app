@@ -29,8 +29,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     const { date, includeIntent } = c.req.valid('json');
     const userId = c.var.userId;
 
-    logger.info(`Generating daily tasks for user ${userId} on ${date}`);
-
     // Get user character information
     const character = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
 
@@ -41,7 +39,8 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     const family = await db.select().from(familyMembers).where(eq(familyMembers.userId, userId));
 
     // Get today's focus (based on day of week)
-    const today = new Date(date);
+    const [year, month, day] = date.split('-').map(Number);
+    const today = new Date(year, month - 1, day); // month is 0-based
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
     const focus = await db
@@ -95,7 +94,7 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     const taskGenRequest: TaskGenerationRequest = {
       userId,
       characterClass: character[0]?.characterClass || undefined,
-      backstory: character[0]?.backstory || undefined,
+      backstory: undefined, //character[0]?.backstory
       currentFocus: focus[0]?.title + (focus[0]?.description ? `: ${focus[0].description}` : ''),
       activeQuests: activeQuests.map((quest) => ({
         id: quest.id,
@@ -171,7 +170,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
           ...generatedTasks.familyTask,
           todoId: familyTodo.id,
         },
-        context: generatedTasks.context,
         metadata: {
           date,
           includedIntent: !!dailyIntent,
