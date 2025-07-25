@@ -81,12 +81,6 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
           estimatedXp: 30,
           suggestedDuration: '20-30 minutes',
         },
-        context: {
-          weatherConsidered: true,
-          questsConsidered: false,
-          focusConsidered: true,
-          projectsConsidered: false,
-        },
       });
     } else if (
       content.includes('Generate metadata') ||
