@@ -45,29 +45,35 @@
   }
 </script>
 
-<div class="w-full">
-  <div class="mb-4 flex items-center gap-3">
-    <div class="text-primary">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-      </svg>
+<div class="bg-base-100 rounded-lg border border-base-300 p-4 sm:p-6">
+  <!-- Header with icon and title -->
+  <div class="mb-4">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="text-primary">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-base-content">Today's Focus</h3>
     </div>
-    <h3 class="text-xl font-semibold">Today's Most Important Thing</h3>
+    <p class="text-sm text-base-content/70 leading-relaxed">
+      What's the most important thing you can accomplish today? This helps generate personalized tasks.
+    </p>
   </div>
 
   {#if loading && !currentIntent}
-    <div class="flex justify-center py-4">
-      <span class="loading loading-spinner loading-md"></span>
+    <div class="flex justify-center py-8">
+      <span class="loading loading-spinner loading-md text-primary"></span>
     </div>
   {:else if error}
     <div class="alert alert-error mb-4">
@@ -89,44 +95,40 @@
       <span class="text-sm">{error}</span>
     </div>
   {:else}
-    <div class="space-y-4">
-      <p class="text-base-content/70 text-sm">What is the most important thing you can do today? This will help guide your daily task generation.</p>
-
-      <div class="form-control">
+    <form on:submit|preventDefault={saveIntent} class="space-y-4">
+      <div class="form-control w-full">
         <textarea
-          class="textarea textarea-bordered focus:textarea-primary min-h-20 transition-all duration-200"
-          placeholder="The most important thing I can do today is..."
+          id="intent-input"
+          class="textarea textarea-bordered focus:textarea-primary resize-none transition-colors duration-200 text-sm leading-relaxed w-full sm:text-base"
+          class:textarea-error={error}
+          placeholder="The most important thing I can accomplish today is..."
           bind:value={importanceStatement}
           on:keypress={handleKeyPress}
           disabled={saving}
-          maxlength="500"
-        ></textarea>
-        <div class="label">
-          <span class="label-text-alt text-base-content/50">
-            {importanceStatement.length}/500 characters
-          </span>
-          <span class="label-text-alt">
-            {#if currentIntent}
-              <span class="text-success">
-                Last updated: {new Date(currentIntent.updatedAt).toLocaleDateString()}
-              </span>
-            {/if}
-          </span>
-        </div>
+          maxlength="300"
+          rows="3"
+        ></textarea>      
       </div>
 
-      <div class="flex justify-end">
-        <button class="btn btn-primary transition-all duration-200 hover:scale-105" on:click={saveIntent} disabled={saving || !importanceStatement.trim()}>
+      <!-- Action buttons -->
+      <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <button 
+          type="submit" 
+          class="btn btn-primary btn-sm sm:btn-md"
+          disabled={saving || !importanceStatement.trim()}
+        >
           {#if saving}
-            <span class="loading loading-spinner loading-sm"></span>
+            <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
             Saving...
           {:else if currentIntent}
-            Update Intent
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Update Focus
           {:else}
-            Save Intent
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+            Set Focus
           {/if}
         </button>
       </div>
-    </div>
+    </form>
   {/if}
 </div>
