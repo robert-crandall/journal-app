@@ -21,6 +21,7 @@ Every new feature **must** follow this specific, sequential order. Do not skip o
 6.  **Frontend E2E Tests**: Write end-to-end tests that simulate user interaction and verify the feature works from the browser to the database.
 7.  **All frontend tests must pass before finalizing the feature.** Run `bun run test:e2e` in frontend
 8.  **Test entire feature**: Run `bun run test` to validate the complete feature.
+9.  **DELETE OLD CODE**: Never consider backwards compatibility. Never keep deprecated components. Delete old code.
 
 Backend and Frontend can be checked with `bun run check` in the appropriate directory. Run this command whenever you make changes.
 
