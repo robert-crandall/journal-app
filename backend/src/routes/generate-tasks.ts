@@ -119,9 +119,9 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
       })),
       weather: weather
         ? {
-            temperature: weather.highTempC,
-            condition: weather.condition,
-            forecast: `High: ${weather.highTempC}°C, Low: ${weather.lowTempC}°C, ${weather.condition}`,
+            temperature: weather.highTempF,
+            condition: weather.shortForecast,
+            forecast: weather.detailedForecast,
           }
         : undefined,
     };
@@ -209,8 +209,6 @@ app.get('/:date', async (c) => {
         400,
       );
     }
-
-    logger.info(`Getting generated tasks for user ${userId} on ${date}`);
 
     // Get tasks generated for this date
     // Note: Tasks for date X have expirationTime of midnight of X+1

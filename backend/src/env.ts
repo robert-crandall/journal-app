@@ -19,7 +19,11 @@ const envSchema = z.object({
     .transform((val) => val === 'true')
     .default('false'),
 
-  // Weather API settings
+  // Weather API settings - Weather.gov (free, no API key required)
+  WEATHER_LAT: z.string().optional(), // Latitude for Weather.gov API
+  WEATHER_LON: z.string().optional(), // Longitude for Weather.gov API
+
+  // Legacy OpenWeatherMap settings (kept for backward compatibility)
   OPENWEATHER_API_KEY: z.string().optional(),
   ZIP_CODE: z.string().optional(),
 });

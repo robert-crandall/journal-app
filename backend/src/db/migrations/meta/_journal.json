@@ -211,6 +211,13 @@
       "when": 1753412891621,
       "tag": "0029_lovely_killmonger",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1753465716128,
+      "tag": "0030_charming_manta",
+      "breakpoints": true
     }
   ]
 }
