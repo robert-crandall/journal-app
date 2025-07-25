@@ -181,7 +181,7 @@
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -235,7 +235,7 @@
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -294,7 +294,7 @@
                       </div>
                       {#if experiment.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/60 prose prose-sm mb-3 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
+                        <p class="text-base-content/60 prose prose-sm mb-3">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">

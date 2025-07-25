@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// Import the tone tags from shared types for validation
+const TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'] as const;
+
 export const createJournalSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   initialMessage: z.string().optional(),
@@ -13,6 +16,7 @@ export const updateJournalSchema = z.object({
   summary: z.string().optional(),
   title: z.string().optional(),
   synopsis: z.string().optional(),
+  toneTags: z.array(z.enum(TONE_TAGS)).max(2, 'Maximum 2 tone tags allowed').optional(),
   dayRating: z.number().int().min(1).max(5).optional(),
   inferredDayRating: z.number().int().min(1).max(5).optional(),
 });

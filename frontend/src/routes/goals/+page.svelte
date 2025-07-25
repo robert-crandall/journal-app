@@ -4,6 +4,8 @@
   import { authStore } from '$lib/stores/auth';
   import { goalsApi, type GoalWithParsedTags } from '$lib/api/goals';
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
+  import AppHeader from '$lib/components/common/AppHeader.svelte';
+  import PageContainer from '$lib/components/common/PageContainer.svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
   import { formatDateTime } from '$lib/utils/date';
@@ -106,23 +108,9 @@
 </svelte:head>
 
 <div class="bg-base-200 min-h-screen">
-  <!-- Page Header -->
-  <div class="from-primary/10 to-secondary/10 border-primary/20 border-b bg-gradient-to-br">
-    <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex items-center gap-3">
-        <div class="avatar placeholder">
-          <div class="bg-primary text-primary-content w-12 rounded-full">🎯</div>
-        </div>
-        <div>
-          <h1 class="text-primary text-3xl font-bold">Goals</h1>
-          <p class="text-base-content/70">Define and track your personal objectives</p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <PageContainer>
+    <AppHeader title="Goals" subtitle="Define and track your personal objectives" icon={Target} />
 
-  <!-- Main Content -->
-  <div class="mx-auto max-w-7xl px-4 py-8">
     {#if loading}
       <!-- Loading State -->
       <div class="flex items-center justify-center py-20">
@@ -175,7 +163,7 @@
 
                       {#if goal.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html DOMPurify.sanitize(String(marked.parse(goal.description)))}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4">{@html DOMPurify.sanitize(String(marked.parse(goal.description)))}</p>
                       {/if}
 
                       <!-- Tags -->
@@ -319,5 +307,5 @@
         </div>
       </div>
     {/if}
-  </div>
+  </PageContainer>
 </div>

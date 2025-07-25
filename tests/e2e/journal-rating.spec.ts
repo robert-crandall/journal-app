@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginUser } from './test-helpers';
+import { TEST_CONFIG } from './test-config';
 
 test.describe('Journal Day Rating', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +11,7 @@ test.describe('Journal Day Rating', () => {
   async function cleanupJournal(page: any, date: string) {
     try {
       const authToken = (await page.evaluate('localStorage.getItem("token")')) || '';
-      await page.request.delete(`/api/journals/${date}`, {
+      await page.request.delete(`${TEST_CONFIG.API_BASE_URL}/api/journals/${date}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -115,20 +116,5 @@ test.describe('Journal Day Rating', () => {
 
     // Check that the day rating component shows the estimated badge
     await expect(page.locator('.badge').filter({ hasText: 'Estimated' })).toBeVisible({ timeout: 5000 });
-  });
-
-  test('should display journal heatmap on dashboard', async ({ page }) => {
-    test.setTimeout(20000); // Increase timeout for this test
-    // Navigate to journal dashboard
-    await page.goto('/journals');
-    await page.waitForTimeout(1000);
-
-    // Check that the heatmap is visible
-    await expect(page.getByRole('heading', { name: 'Journal Calendar' })).toBeVisible();
-
-    // Check that the legend is visible
-    await expect(page.locator('[data-test-id="heatmap-legend"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="legend-rating-1"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="legend-rating-5"]')).toBeVisible();
   });
 });

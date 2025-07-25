@@ -78,10 +78,16 @@
   - [ ] 10.4 Write frontend E2E tests for projects/ad-hoc tasks
   - [ ] 10.5 Ensure all projects/ad-hoc tasks tests pass
 
-- [ ] 11.0 Weather API Integration
-  - [ ] 11.1 Integrate real weather API for task generation (backend)
-  - [ ] 11.2 Write backend integration tests for weather API
-  - [ ] 11.3 Ensure all weather API tests pass
+- [x] 11.0 Weather API Integration
+  - [x] 11.1 Add ZIP_CODE environment variable and update env schema
+  - [x] 11.2 Create daily_weather database schema and migration
+  - [x] 11.3 Implement weather service with OpenWeatherMap API integration (backend)
+  - [x] 11.4 Create weather API endpoints (backend)
+  - [x] 11.5 Write backend integration tests for weather API
+  - [x] 11.6 Ensure all weather API tests pass
+  - [ ] 11.7 Implement frontend weather dashboard integration (if needed)
+  - [ ] 11.8 Write frontend E2E tests for weather functionality (if needed)
+  - [ ] 11.9 Ensure all weather tests pass
 
 - [ ] 12.0 Main Dashboard (Tasks, XP Animation, Quick Journal)
   - [ ] 12.1 Design and implement main dashboard UI (frontend)
@@ -108,6 +114,14 @@
   - [ ] 15.2 Write backend integration tests for enhanced journal context
   - [x] 15.3 Update GPT conversation system to use layered context
   - [ ] 15.4 Ensure all journal memory enhancement tests pass
+
+- [ ] 16.0 Emotion Tag Extraction for Journals (Tone Tags)
+  - [x] 16.1 Design and implement tone_tags field in journal schema with database migration (backend)
+  - [x] 16.2 Write backend integration tests for tone tags functionality
+  - [x] 16.3 Implement GPT tone extraction on journal completion (backend)
+  - [x] 16.4 Implement frontend UI for displaying tone tags on journal dashboard
+  - [x] 16.5 Write frontend E2E tests for tone tags functionality
+  - [x] 16.6 Ensure all tone tags tests pass
 
 ---
 

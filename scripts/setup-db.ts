@@ -42,7 +42,7 @@ if (!existsSync(envPath)) {
 }
 
 console.log(`📋 Loading environment from: ${envFile}`);
-config({ path: envPath });
+config({ path: envPath, override: true });
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {

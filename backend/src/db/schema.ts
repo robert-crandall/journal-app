@@ -24,6 +24,7 @@ export {
   questIdSchema,
   questDashboardSchema,
 } from '../validation/quests';
+export { getWeatherSchema, weatherResponseSchema, openWeatherMapResponseSchema } from '../validation/weather';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../../../shared/types/users';
@@ -99,3 +100,11 @@ export type {
   LinkQuestExperimentRequest,
   LinkQuestJournalRequest,
 } from '../../../shared/types/quests';
+export type {
+  DailyWeather,
+  NewDailyWeather,
+  WeatherResponse,
+  GetWeatherRequest,
+  OpenWeatherMapResponse,
+  OpenWeatherMapDailyForecast,
+} from '../types/weather';

@@ -25,6 +25,7 @@ import type {
   ListJournalsRequest,
   ListJournalsResponse,
   JournalListItem,
+  ToneTag,
 } from '../../../shared/types/journals';
 
 /**
@@ -41,6 +42,7 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     summary: journal.summary,
     title: journal.title,
     synopsis: journal.synopsis,
+    toneTags: journal.toneTags ? (journal.toneTags as ToneTag[]) : null,
     dayRating: journal.dayRating,
     inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
@@ -63,6 +65,7 @@ const serializeJournalListItem = (journal: typeof journals.$inferSelect): Journa
     title: journal.title,
     synopsis: journal.synopsis,
     initialMessage: journal.initialMessage,
+    toneTags: journal.toneTags ? (journal.toneTags as ToneTag[]) : null,
     dayRating: journal.dayRating,
     inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
@@ -176,6 +179,7 @@ const app = new Hono()
             summary: journals.summary,
             title: journals.title,
             synopsis: journals.synopsis,
+            toneTags: journals.toneTags,
             dayRating: journals.dayRating,
             inferredDayRating: journals.inferredDayRating,
             createdAt: journals.createdAt,
@@ -389,13 +393,16 @@ const app = new Hono()
       if (data.synopsis !== undefined) {
         updateData.synopsis = data.synopsis;
       }
+      if (data.toneTags !== undefined) {
+        updateData.toneTags = data.toneTags;
+      }
       if (data.dayRating !== undefined) {
         updateData.dayRating = data.dayRating;
       }
       if (data.inferredDayRating !== undefined) {
         updateData.inferredDayRating = data.inferredDayRating;
       }
-      // Note: toneTags, contentTags, and statTags are deprecated - now using xpGrants table
+      // Note: toneTags are now supported as GPT-extracted emotional tags
 
       const updatedJournal = await db
         .update(journals)
@@ -688,6 +695,17 @@ const app = new Hono()
       }
 
       // Update journal with metadata and summary
+      // Validate and normalize tone tags
+      const VALID_TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'];
+      const validatedToneTags: string[] = [];
+      if (metadata.toneTags && Array.isArray(metadata.toneTags)) {
+        for (const tag of metadata.toneTags) {
+          if (typeof tag === 'string' && VALID_TONE_TAGS.includes(tag.toLowerCase())) {
+            validatedToneTags.push(tag.toLowerCase());
+          }
+        }
+      }
+
       const updatedJournal = await db
         .update(journals)
         .set({
@@ -695,6 +713,7 @@ const app = new Hono()
           summary: summary,
           title: metadata.title,
           synopsis: metadata.synopsis,
+          toneTags: validatedToneTags,
           inferredDayRating: inferredDayRating,
           updatedAt: new Date(),
         })

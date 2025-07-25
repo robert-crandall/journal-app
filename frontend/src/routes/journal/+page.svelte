@@ -2,8 +2,10 @@
   import { onMount } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import { goto } from '$app/navigation';
-  import type { ListJournalsResponse, JournalListItem } from '$lib/types/journal';
-  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon, PlusIcon, LayoutGridIcon, LayoutListIcon } from 'lucide-svelte';
+  import type { ListJournalsResponse, JournalListItem, ToneTag } from '$lib/types/journal';
+  import { BookOpenIcon, SearchIcon, CalendarIcon, FilterIcon } from 'lucide-svelte';
+  import AppHeader from '$lib/components/common/AppHeader.svelte';
+  import { LayoutGridIcon, LayoutListIcon, PlusIcon, SparklesIcon } from 'lucide-svelte';
   import JournalCard from '$lib/components/journal/JournalCard.svelte';
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
   import JournalCalendarHeatmap from '$lib/components/journal/JournalCalendarHeatmap.svelte';
@@ -18,9 +20,10 @@
   let searchTerm = '';
   let statusFilter: 'all' | 'draft' | 'in_review' | 'complete' = 'all';
   let selectedTags: string[] = [];
+  let selectedToneTags: ToneTag[] = [];
   let dateFrom = '';
   let dateTo = '';
-  let viewMode: 'grid' | 'list' = 'grid';
+  let viewMode: 'grid' | 'list' = 'list';
 
   // Pagination
   const ITEMS_PER_PAGE = 12;
@@ -29,6 +32,10 @@
   onMount(() => {
     loadJournals();
   });
+
+  function goToSummaries() {
+    goto('/journal-summaries');
+  }
 
   async function loadJournals(reset = true) {
     try {
@@ -45,6 +52,8 @@
       if (dateFrom) params.dateFrom = dateFrom;
       if (dateTo) params.dateTo = dateTo;
       if (selectedTags.length > 0) params.tagIds = selectedTags;
+      // Note: Backend doesn't support tone tag filtering yet, but frontend is ready
+      // if (selectedToneTags.length > 0) params.toneTags = selectedToneTags;
 
       const response: ListJournalsResponse = await JournalService.listJournals(params);
 
@@ -89,6 +98,32 @@
   function toggleViewMode() {
     viewMode = viewMode === 'grid' ? 'list' : 'grid';
   }
+
+  // Header buttons array for AppHeader
+  $: buttons = [
+    {
+      label: 'Summaries',
+      icon: SparklesIcon,
+      onClick: goToSummaries,
+      class: 'btn btn-ghost btn-sm w-auto',
+      showLabel: true,
+    },
+    {
+      label: viewMode === 'grid' ? 'List' : 'Grid',
+      icon: viewMode === 'grid' ? LayoutListIcon : LayoutGridIcon,
+      onClick: toggleViewMode,
+      class: 'btn btn-ghost btn-sm w-auto',
+      showLabel: false,
+      title: 'Toggle view mode',
+    },
+    {
+      label: 'New Entry',
+      icon: PlusIcon,
+      onClick: createNewJournal,
+      class: 'btn btn-primary gap-2 w-auto',
+      showLabel: true,
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -98,35 +133,7 @@
 <div class="bg-base-100 min-h-screen">
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <BookOpenIcon size={32} class="text-primary" />
-          <div>
-            <h1 class="text-gradient text-3xl font-bold">Journal Dashboard</h1>
-            <p class="text-base-content/70">
-              {totalJournals}
-              {totalJournals === 1 ? 'entry' : 'entries'} found
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button on:click={toggleViewMode} class="btn btn-ghost btn-sm" title="Toggle view mode">
-            {#if viewMode === 'grid'}
-              <LayoutListIcon size={16} />
-            {:else}
-              <LayoutGridIcon size={16} />
-            {/if}
-          </button>
-
-          <button on:click={createNewJournal} class="btn btn-primary gap-2">
-            <PlusIcon size={16} />
-            New Entry
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppHeader icon={BookOpenIcon} title="Journal Dashboard" subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`} {buttons} />
 
     <!-- Search and Filters -->
     <div class="mb-8">
@@ -134,6 +141,7 @@
         bind:searchTerm
         bind:statusFilter
         bind:selectedTags
+        bind:selectedToneTags
         bind:dateFrom
         bind:dateTo
         {availableTags}
@@ -183,10 +191,7 @@
             {/if}
           </p>
           <div class="card-actions justify-center">
-            <button on:click={createNewJournal} class="btn btn-primary gap-2">
-              <PlusIcon size={16} />
-              Create First Journal
-            </button>
+            <button on:click={createNewJournal} class="btn btn-primary gap-2"> Create First Journal </button>
           </div>
         </div>
       </div>
@@ -212,12 +217,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .text-gradient {
-    background: linear-gradient(to right, oklch(0.637 0.237 25.331), oklch(0.637 0.237 330));
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-</style>

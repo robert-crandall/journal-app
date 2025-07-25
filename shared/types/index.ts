@@ -12,4 +12,5 @@ export * from './journals';
 export * from './journal-summaries';
 export * from './quests';
 export * from './plans';
+export * from './weather';
 export * from './xp';

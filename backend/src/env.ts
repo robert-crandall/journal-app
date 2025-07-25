@@ -18,16 +18,20 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('false'),
+
+  // Weather API settings
+  OPENWEATHER_API_KEY: z.string().optional(),
+  ZIP_CODE: z.string().optional(),
 });
 
 export function loadEnv() {
   // Load environment variables from .env files in the parent directory
   if (process.env.NODE_ENV === 'test') {
     // For tests, load from parent .env.test
-    require('dotenv').config({ path: '../.env.test' });
+    require('dotenv').config({ path: '../.env.test', override: true });
   } else {
     // For development, load from parent .env
-    require('dotenv').config({ path: '../.env' });
+    require('dotenv').config({ path: '../.env', override: true });
   }
 }
 
