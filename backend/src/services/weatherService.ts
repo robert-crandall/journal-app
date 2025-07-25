@@ -52,7 +52,7 @@ export class WeatherService {
         throw new Error(`OpenWeatherMap API error: ${response.status} ${response.statusText}`);
       }
 
-      const apiData: OpenWeatherMapResponse = await response.json();
+      const apiData = await response.json() as OpenWeatherMapResponse;
       
       // Transform API data to our schema
       const weatherData: NewDailyWeather = {

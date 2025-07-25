@@ -2,6 +2,7 @@
   import { authStore, type User } from '$lib/stores/auth';
   import Navigation from '$lib/components/Navigation.svelte';
   import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
+  import WeatherWidget from '$lib/components/weather/WeatherWidget.svelte';
   import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
   import ExperimentTasksWidget from '$lib/components/experiments/ExperimentTasksWidget.svelte';
   import JournalWidget from '$lib/components/journal/JournalWidget.svelte';
@@ -45,6 +46,11 @@
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />
+                </div>
+
+                <!-- Weather Widget -->
+                <div>
+                  <WeatherWidget />
                 </div>
 
                 <div class="divider my-3 sm:my-4"></div>
