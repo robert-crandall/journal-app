@@ -238,7 +238,7 @@
 
                       {#if plan.description}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/80 prose prose-sm mb-4 text-sm">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</p>
+                        <p class="text-base-content/80 prose prose-sm mb-4">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</p>
                       {/if}
 
                       <!-- Plan Features -->

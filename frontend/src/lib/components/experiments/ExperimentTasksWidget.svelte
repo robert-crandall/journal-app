@@ -200,7 +200,7 @@
                 </h4>
                 {#if experiment.description}
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  <p class="text-base-content/70 prose prose-sm mt-1 text-sm">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
+                  <p class="text-base-content/70 prose prose-sm mt-1">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
                 {/if}
               </div>
               <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
