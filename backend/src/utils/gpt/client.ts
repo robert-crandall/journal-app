@@ -63,6 +63,31 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       mockResponse = "Hi there! I'm here to help you reflect on whatever's on your mind today. What would you like to share?";
     } else if (content.includes('journal conversation') && !content.includes('Generate metadata')) {
       mockResponse = 'That sounds really meaningful. Can you tell me more about what that experience was like for you?';
+    } else if (content.includes('two tasks based on this information')) {
+      // Task generation mock response
+      mockResponse = JSON.stringify({
+        personalTask: {
+          title: 'Complete daily coding practice',
+          description: 'Spend 30 minutes practicing coding skills to build technical expertise and maintain momentum in your software development journey.',
+          type: 'personal',
+          estimatedXp: 25,
+          suggestedDuration: '30 minutes',
+        },
+        familyTask: {
+          title: 'Have a meaningful conversation with family',
+          description: 'Take time to connect with a family member through genuine conversation, asking about their day and sharing yours.',
+          type: 'family',
+          familyMemberId: 'mock-family-id',
+          estimatedXp: 30,
+          suggestedDuration: '20-30 minutes',
+        },
+        context: {
+          weatherConsidered: true,
+          questsConsidered: false,
+          focusConsidered: true,
+          projectsConsidered: false,
+        },
+      });
     } else if (
       content.includes('Generate metadata') ||
       content.includes('Analyze this journal conversation') ||

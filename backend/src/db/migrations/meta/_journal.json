@@ -204,6 +204,13 @@
       "when": 1753404227771,
       "tag": "0028_petite_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1753412891621,
+      "tag": "0029_lovely_killmonger",
+      "breakpoints": true
     }
   ]
 }
