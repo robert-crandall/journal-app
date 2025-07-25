@@ -17,6 +17,8 @@ import questsRoutes from './routes/quests';
 import plansRoutes from './routes/plans';
 import weatherRoutes from './routes/weather';
 import xpGrantsRoutes from './routes/xpGrants';
+import dailyIntentsRoutes from './routes/daily-intents';
+import generateTasksRoutes from './routes/generate-tasks';
 
 // Create main app instance
 const app = new Hono();
@@ -76,7 +78,11 @@ const routes = app
   // Mount weather routes
   .route('/api/weather', weatherRoutes)
   // Mount XP grants routes
-  .route('/api/xp-grants', xpGrantsRoutes);
+  .route('/api/xp-grants', xpGrantsRoutes)
+  // Mount daily intents routes
+  .route('/api/daily-intents', dailyIntentsRoutes)
+  // Mount generate tasks routes
+  .route('/api/generate-tasks', generateTasksRoutes);
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {

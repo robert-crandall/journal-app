@@ -57,9 +57,9 @@
 
 - [ ] 8.0 AI Dungeon Master Integration (Level Titles, Daily Task Generation, Journal Analysis)
   - [ ] 8.1 Integrate GPT for level title generation (backend)
-  - [ ] 8.2 Integrate GPT for daily task generation (backend)
+  - [x] 8.2 Integrate GPT for daily task generation (backend)
   - [ ] 8.3 Integrate GPT for journal analysis (backend)
-  - [ ] 8.4 Write backend integration tests for AI features
+  - [x] 8.4 Write backend integration tests for AI features
   - [ ] 8.5 Implement frontend UI for AI-generated content
   - [ ] 8.6 Write frontend E2E tests for AI features
   - [ ] 8.7 Ensure all AI feature tests pass
