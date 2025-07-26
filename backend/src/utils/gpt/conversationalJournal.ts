@@ -406,7 +406,6 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   }
 }
 
-
 /**
  * Generate a rich, narrative summary from a conversational journal session
  */

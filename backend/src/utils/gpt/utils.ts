@@ -77,7 +77,10 @@ export function parseXPFromText(xpText: string): number {
 export function parseGptJsonResponse(content: string): any {
   let trimmed = content.trim();
   if (trimmed.startsWith('```json')) {
-    trimmed = trimmed.replace(/```json/, '').replace(/```/, '').trim();
+    trimmed = trimmed
+      .replace(/```json/, '')
+      .replace(/```/, '')
+      .trim();
   } else if (trimmed.startsWith('```')) {
     trimmed = trimmed.replace(/```/, '').replace(/```/, '').trim();
   }
