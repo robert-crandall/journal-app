@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, boolean, timestamp, text } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // Simple todos table - lightweight one-off tasks for the homepage
@@ -7,7 +7,7 @@ export const simpleTodos = pgTable('simple_todos', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  description: varchar('description', { length: 500 }).notNull(),
+  description: text('description').notNull(),
   isCompleted: boolean('is_completed').default(false).notNull(),
   completedAt: timestamp('completed_at', { withTimezone: true }),
   expirationTime: timestamp('expiration_time', { withTimezone: true }),
