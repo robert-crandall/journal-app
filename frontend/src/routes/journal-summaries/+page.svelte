@@ -247,6 +247,7 @@
               <!-- Summary Preview -->
               <div class="flex-1">
                 <p class="text-base-content/80 prose prose-sm text-sm">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                   {@html DOMPurify.sanitize(String(marked.parse(summary.summary)))}
                 </p>
               </div>

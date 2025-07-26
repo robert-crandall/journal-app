@@ -17,7 +17,7 @@
 
   // Set default dates (last 30 days)
   const today = new Date();
-  const thirtyDaysAgo = new Date(today);
+  const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(today.getDate() - 30);
 
   formData.endDate = formatDateTime(today, 'yyyy-mm-dd');
@@ -64,7 +64,7 @@
   // Quick date presets
   function setDateRange(days: number) {
     const end = new Date();
-    const start = new Date(end);
+    const start = new Date();
     start.setDate(end.getDate() - days);
 
     formData.endDate = formatDateTime(end, 'yyyy-mm-dd');
@@ -76,10 +76,10 @@
     const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
     const daysToSubtract = dayOfWeek === 6 ? 0 : dayOfWeek + 1; // Saturday = 0 days back
 
-    const saturday = new Date(today);
+    const saturday = new Date();
     saturday.setDate(today.getDate() - daysToSubtract);
 
-    const friday = new Date(saturday);
+    const friday = new Date();
     friday.setDate(saturday.getDate() + 6);
 
     formData.startDate = formatDateTime(saturday, 'yyyy-mm-dd');
