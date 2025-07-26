@@ -1,0 +1,1 @@
+ALTER TABLE "simple_todos" ALTER COLUMN "description" SET DATA TYPE text;
