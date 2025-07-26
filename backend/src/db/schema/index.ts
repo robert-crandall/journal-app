@@ -14,6 +14,7 @@ export * from './journal-summaries';
 export * from './quests';
 export * from './plans';
 export * from './weather';
+export * from './metric-summaries';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

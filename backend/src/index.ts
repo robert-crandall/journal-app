@@ -16,6 +16,7 @@ import journalSummariesRoutes from './routes/journal-summaries';
 import questsRoutes from './routes/quests';
 import plansRoutes from './routes/plans';
 import weatherRoutes from './routes/weather';
+import metricSummariesRoutes from './routes/metric-summaries';
 import xpGrantsRoutes from './routes/xpGrants';
 import dailyIntentsRoutes from './routes/daily-intents';
 import generateTasksRoutes from './routes/generate-tasks';
@@ -77,6 +78,8 @@ const routes = app
   .route('/api/plans', plansRoutes)
   // Mount weather routes
   .route('/api/weather', weatherRoutes)
+  // Mount metric summaries routes
+  .route('/api/metric-summaries', metricSummariesRoutes)
   // Mount XP grants routes
   .route('/api/xp-grants', xpGrantsRoutes)
   // Mount daily intents routes

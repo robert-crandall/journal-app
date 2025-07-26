@@ -25,6 +25,7 @@ export {
   questDashboardSchema,
 } from '../validation/quests';
 export { getWeatherSchema, weatherResponseSchema, openWeatherMapResponseSchema } from '../validation/weather';
+export { generateMetricsSchema, listMetricSummariesSchema, metricSummaryIdSchema } from '../validation/metric-summaries';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser } from '../../../shared/types/users';
@@ -108,3 +109,12 @@ export type {
   WeatherGovForecastResponse,
   WeatherGovPointResponse,
 } from '../../../shared/types/weather';
+export type {
+  MetricSummary,
+  NewMetricSummary,
+  PeriodMetrics,
+  MetricSummaryResponse,
+  ListMetricSummariesRequest,
+  ListMetricSummariesResponse,
+  GenerateMetricsRequest,
+} from '../../../shared/types/metric-summaries';
