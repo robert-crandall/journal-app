@@ -23,7 +23,7 @@ function serializeMetricSummary(summary: typeof metricSummaries.$inferSelect): M
   return {
     id: summary.id,
     userId: summary.userId,
-    type: summary.type as 'journal' | 'experiment',
+    type: summary.type as 'journal' | 'experiment' | 'custom',
     sourceId: summary.sourceId,
     startDate: summary.startDate,
     endDate: summary.endDate,
@@ -41,7 +41,7 @@ function serializeMetricSummary(summary: typeof metricSummaries.$inferSelect): M
   };
 }
 
-// Generate metrics for a specific time period (utility endpoint)
+// Generate and save metrics for a specific time period
 app.post('/generate', jwtAuth, zValidator('json', generateMetricsSchema), async (c) => {
   try {
     const userId = getUserId(c);
@@ -53,9 +53,34 @@ app.post('/generate', jwtAuth, zValidator('json', generateMetricsSchema), async 
       endDate,
     });
 
+    // Save the metrics to database
+    const [savedMetrics] = await db
+      .insert(metricSummaries)
+      .values({
+        userId,
+        type: 'custom',
+        sourceId: null,
+        startDate,
+        endDate,
+        totalXp: metrics.totalXp,
+        avgDayRating: metrics.avgDayRating,
+        daysLogged: metrics.daysLogged,
+        tasksCompleted: metrics.tasksCompleted,
+        averageTasksPerDay: metrics.averageTasksPerDay,
+        toneTagCounts: metrics.toneTagCounts || {},
+        mostCommonTone: metrics.mostCommonTone,
+        xpByStat: metrics.xpByStat || {},
+        logStreak: metrics.logStreak,
+      })
+      .returning();
+
+    if (!savedMetrics) {
+      return c.json({ success: false, error: 'Failed to save metrics' }, 500);
+    }
+
     return c.json({
       success: true,
-      data: metrics,
+      data: serializeMetricSummary(savedMetrics),
     });
   } catch (error) {
     return handleApiError(error, 'Failed to generate metrics');

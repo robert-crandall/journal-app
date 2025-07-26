@@ -9,8 +9,8 @@ export const metricSummaries = pgTable('metric_summaries', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  type: varchar('type', { length: 20 }).notNull(), // 'journal' | 'experiment'
-  sourceId: uuid('source_id').notNull(), // journalSummaryId or experimentId
+  type: varchar('type', { length: 20 }).notNull(), // 'journal' | 'experiment' | 'custom'
+  sourceId: uuid('source_id'), // journalSummaryId or experimentId (nullable for custom metrics)
 
   // Period definition
   startDate: date('start_date').notNull(),

@@ -2,8 +2,8 @@
 export interface MetricSummary {
   id: string;
   userId: string;
-  type: 'journal' | 'experiment';
-  sourceId: string;
+  type: 'journal' | 'experiment' | 'custom';
+  sourceId: string | null;
   startDate: Date;
   endDate: Date;
   totalXp: number;
@@ -22,8 +22,8 @@ export interface MetricSummary {
 export interface NewMetricSummary {
   id?: string;
   userId: string;
-  type: 'journal' | 'experiment';
-  sourceId: string;
+  type: 'journal' | 'experiment' | 'custom';
+  sourceId: string | null;
   startDate: Date;
   endDate: Date;
   totalXp?: number;
@@ -57,8 +57,8 @@ export interface PeriodMetrics {
 export interface MetricSummaryResponse {
   id: string;
   userId: string;
-  type: 'journal' | 'experiment';
-  sourceId: string;
+  type: 'journal' | 'experiment' | 'custom';
+  sourceId: string | null;
   startDate: string;
   endDate: string;
   totalXp: number;
@@ -75,7 +75,7 @@ export interface MetricSummaryResponse {
 }
 
 export interface ListMetricSummariesRequest {
-  type?: 'journal' | 'experiment';
+  type?: 'journal' | 'experiment' | 'custom';
   limit?: number;
   offset?: number;
   sortBy?: 'totalXp' | 'avgDayRating' | 'daysLogged' | 'tasksCompleted' | 'createdAt';

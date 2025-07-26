@@ -3,7 +3,7 @@
   import { metricSummariesApi } from '$lib/api/metric-summaries';
   import type { MetricSummaryFormData } from '$lib/types/metric-summaries';
   import { BarChart3Icon, CalendarIcon, LoaderIcon, CheckIcon, ArrowLeftIcon } from 'lucide-svelte';
-  import { formatDateTime } from '$lib/utils/date';
+  import { formatDateTime, formatDate } from '$lib/utils/date';
 
   // Form state
   let formData: MetricSummaryFormData = {

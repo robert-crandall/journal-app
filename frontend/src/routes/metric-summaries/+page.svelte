@@ -93,8 +93,17 @@
     goto(`/metric-summaries/${summary.id}`);
   }
 
-  function getTypeBadgeClass(type: 'journal' | 'experiment'): string {
-    return type === 'journal' ? 'badge-primary' : 'badge-secondary';
+  function getTypeBadgeClass(type: 'journal' | 'experiment' | 'custom'): string {
+    switch (type) {
+      case 'journal':
+        return 'badge-primary';
+      case 'experiment':
+        return 'badge-secondary';
+      case 'custom':
+        return 'badge-accent';
+      default:
+        return 'badge-neutral';
+    }
   }
 
   function getRatingColor(rating: number | null): string {
@@ -153,6 +162,7 @@
                 <option value="all">All Types</option>
                 <option value="journal">Journal</option>
                 <option value="experiment">Experiment</option>
+                <option value="custom">Custom</option>
               </select>
             </div>
 
