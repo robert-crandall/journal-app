@@ -7,6 +7,7 @@
   import { Plus, Beaker, Calendar, BarChart, Trash2, Edit3, Eye } from 'lucide-svelte';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
+  import CompactMetricsDisplay from '$lib/components/metrics/CompactMetricsDisplay.svelte';
 
   // Reactive state for experiments data
   let userExperiments: ExperimentResponse[] = $state([]);
@@ -280,7 +281,7 @@
             <span class="bg-neutral h-3 w-3 rounded-full"></span>
             Completed Experiments ({groupedExperiments().completed.length})
           </h2>
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-2">
             {#each groupedExperiments().completed as experiment (experiment.id)}
               <div class="card bg-base-100 opacity-75 shadow-lg transition-shadow hover:shadow-xl">
                 <div class="card-body">
@@ -338,6 +339,9 @@
                       {/if}
                     </div>
                   {/if}
+
+                  <!-- Compact Metrics Display -->
+                  <CompactMetricsDisplay type="experiment" sourceId={experiment.id} />
 
                   <div class="card-actions justify-end">
                     <a href="/experiments/{experiment.id}" class="btn btn-primary btn-sm gap-1">
