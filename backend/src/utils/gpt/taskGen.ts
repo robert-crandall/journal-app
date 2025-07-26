@@ -204,7 +204,6 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
       : undefined,
     familyMembers,
     weather,
-    // Optionally add more fields as needed
   };
 
   // Remove undefined fields

@@ -1,5 +1,6 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { callGptApi } from './client';
+import { parseJsonResponse } from './helper';
 import { createPrompt } from './utils';
 import { gptConfig } from './config';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
@@ -398,27 +399,15 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   });
 
   try {
-    let responseContent = response.content.trim();
-
-    // Check if the response content starts with ```json
-    if (responseContent.startsWith('```json')) {
-      // Remove the code block formatting
-      const jsonContent = responseContent
-        .replace(/```json/, '')
-        .replace(/```/, '')
-        .trim();
-      responseContent = jsonContent;
-    }
-    const rawResult = JSON.parse(responseContent);
-
+    const rawResult = parseJsonResponse(response.content);
     // Convert names to IDs
     const convertedResult = await convertNamesToIds(rawResult, userId, enhancedContext);
-
     return convertedResult;
   } catch (error) {
     throw new Error(`Failed to parse GPT metadata response: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
+
 
 /**
  * Generate a rich, narrative summary from a conversational journal session
