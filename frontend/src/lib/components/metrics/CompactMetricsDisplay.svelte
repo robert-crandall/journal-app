@@ -35,29 +35,24 @@
   // Get top stat by XP
   function getTopStat() {
     if (!metrics?.xpByStat) return null;
-    
+
     const entries = Object.entries(metrics.xpByStat);
     if (entries.length === 0) return null;
-    
-    return entries.reduce((max, [stat, xp]) => 
-      xp > max.xp ? { stat, xp } : max, 
-      { stat: entries[0][0], xp: entries[0][1] }
-    );
+
+    return entries.reduce((max, [stat, xp]) => (xp > max.xp ? { stat, xp } : max), { stat: entries[0][0], xp: entries[0][1] });
   }
 </script>
 
 {#if loading}
   <div class="border-base-200 border-t pt-3">
-    <div class="flex items-center gap-2 text-xs text-base-content/40">
+    <div class="text-base-content/40 flex items-center gap-2 text-xs">
       <span class="loading loading-spinner loading-xs"></span>
       Loading metrics...
     </div>
   </div>
 {:else if error}
   <div class="border-base-200 border-t pt-3">
-    <div class="text-xs text-error">
-      Failed to load metrics
-    </div>
+    <div class="text-error text-xs">Failed to load metrics</div>
   </div>
 {:else if metrics}
   <div class="border-base-200 border-t pt-3">
@@ -65,7 +60,7 @@
       <!-- Average Rating -->
       {#if metrics.avgDayRating !== null}
         <div class="flex items-center gap-1">
-          <Star class="h-3 w-3 text-warning" />
+          <Star class="text-warning h-3 w-3" />
           <span class="text-base-content/60">
             {metrics.avgDayRating.toFixed(1)}/5
           </span>
@@ -74,7 +69,7 @@
 
       <!-- Total XP -->
       <div class="flex items-center gap-1">
-        <Zap class="h-3 w-3 text-accent" />
+        <Zap class="text-accent h-3 w-3" />
         <span class="text-base-content/60">
           {metrics.totalXp} XP
         </span>
@@ -83,7 +78,7 @@
       <!-- Top Stat -->
       {#if getTopStat()}
         <div class="flex items-center gap-1">
-          <TrendingUp class="h-3 w-3 text-success" />
+          <TrendingUp class="text-success h-3 w-3" />
           <span class="text-base-content/60">
             {getTopStat()?.stat}: {getTopStat()?.xp}
           </span>
