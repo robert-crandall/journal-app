@@ -7,11 +7,7 @@ import { metricSummaries } from '../db/schema/metric-summaries';
 import { journalSummaries } from '../db/schema/journal-summaries';
 import { experiments } from '../db/schema/experiments';
 import { calculatePeriodMetrics } from '../services/metricsService';
-import {
-  generateMetricsSchema,
-  listMetricSummariesSchema,
-  metricSummaryIdSchema,
-} from '../validation/metric-summaries';
+import { generateMetricsSchema, listMetricSummariesSchema, metricSummaryIdSchema } from '../validation/metric-summaries';
 import { handleApiError } from '../utils/logger';
 import type {
   GenerateMetricsRequest,
@@ -120,10 +116,13 @@ app.post('/journal-summary/:sourceId', jwtAuth, async (c) => {
       })
       .returning();
 
-    return c.json({
-      success: true,
-      data: serializeMetricSummary(savedMetrics),
-    }, 201);
+    return c.json(
+      {
+        success: true,
+        data: serializeMetricSummary(savedMetrics),
+      },
+      201,
+    );
   } catch (error) {
     return handleApiError(error, 'Failed to generate journal summary metrics');
   }
@@ -183,10 +182,13 @@ app.post('/experiment/:sourceId', jwtAuth, async (c) => {
       })
       .returning();
 
-    return c.json({
-      success: true,
-      data: serializeMetricSummary(savedMetrics),
-    }, 201);
+    return c.json(
+      {
+        success: true,
+        data: serializeMetricSummary(savedMetrics),
+      },
+      201,
+    );
   } catch (error) {
     return handleApiError(error, 'Failed to generate experiment metrics');
   }
@@ -209,19 +211,19 @@ app.get('/', jwtAuth, zValidator('query', listMetricSummariesSchema), async (c) 
 
     // Build filters
     const filters = [eq(metricSummaries.userId, userId)];
-    
+
     if (type) {
       filters.push(eq(metricSummaries.type, type));
     }
-    
+
     if (minAvgDayRating !== undefined) {
       filters.push(gte(metricSummaries.avgDayRating, minAvgDayRating));
     }
-    
+
     if (mostCommonTone) {
       filters.push(eq(metricSummaries.mostCommonTone, mostCommonTone));
     }
-    
+
     if (minTotalXp !== undefined) {
       filters.push(gte(metricSummaries.totalXp, minTotalXp));
     }

@@ -228,11 +228,8 @@ describe('Metric Summaries API', () => {
       });
 
       // Verify it was saved to database
-      const savedMetrics = await db
-        .select()
-        .from(schema.metricSummaries)
-        .where(eq(schema.metricSummaries.sourceId, journalSummary.id));
-      
+      const savedMetrics = await db.select().from(schema.metricSummaries).where(eq(schema.metricSummaries.sourceId, journalSummary.id));
+
       expect(savedMetrics).toHaveLength(1);
       expect(savedMetrics[0].type).toBe('journal');
     });
@@ -405,7 +402,7 @@ describe('Metric Summaries API', () => {
       const result = await response.json();
       expect(result.success).toBe(true);
       expect(result.data.summaries).toHaveLength(2);
-      expect(result.data.total).toBe("2");
+      expect(result.data.total).toBe('2');
       expect(result.data.limit).toBe(20);
       expect(result.data.offset).toBe(0);
     });
@@ -718,11 +715,8 @@ describe('Metric Summaries API', () => {
       expect(result.success).toBe(true);
 
       // Verify it was deleted
-      const deleted = await db
-        .select()
-        .from(schema.metricSummaries)
-        .where(eq(schema.metricSummaries.id, metricSummary.id));
-      
+      const deleted = await db.select().from(schema.metricSummaries).where(eq(schema.metricSummaries.id, metricSummary.id));
+
       expect(deleted).toHaveLength(0);
     });
 

@@ -36,24 +36,20 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
         eq(journals.userId, userId),
         gte(journals.date, startDate),
         lte(journals.date, endDate),
-        eq(journals.status, 'complete') // Only include completed journals
-      )
+        eq(journals.status, 'complete'), // Only include completed journals
+      ),
     );
 
   // 2. Calculate average day rating
-  const ratingsForAverage = journalEntries
-    .map(j => j.dayRating || j.inferredDayRating)
-    .filter((rating): rating is number => rating !== null);
-  
-  const avgDayRating = ratingsForAverage.length > 0 
-    ? ratingsForAverage.reduce((sum, rating) => sum + rating, 0) / ratingsForAverage.length 
-    : null;
+  const ratingsForAverage = journalEntries.map((j) => j.dayRating || j.inferredDayRating).filter((rating): rating is number => rating !== null);
+
+  const avgDayRating = ratingsForAverage.length > 0 ? ratingsForAverage.reduce((sum, rating) => sum + rating, 0) / ratingsForAverage.length : null;
 
   // 3. Calculate tone tag counts and most common tone
   const toneTagCounts: Record<string, number> = {};
-  journalEntries.forEach(journal => {
+  journalEntries.forEach((journal) => {
     if (journal.toneTags && Array.isArray(journal.toneTags)) {
-      journal.toneTags.forEach(tag => {
+      journal.toneTags.forEach((tag) => {
         if (typeof tag === 'string') {
           toneTagCounts[tag] = (toneTagCounts[tag] || 0) + 1;
         }
@@ -61,27 +57,19 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
     }
   });
 
-  const mostCommonTone = Object.keys(toneTagCounts).length > 0
-    ? Object.entries(toneTagCounts).sort(([,a], [,b]) => b - a)[0][0]
-    : undefined;
+  const mostCommonTone = Object.keys(toneTagCounts).length > 0 ? Object.entries(toneTagCounts).sort(([, a], [, b]) => b - a)[0][0] : undefined;
 
   // 4. Get all XP grants in the period
   const xpGrantsInPeriod = await db
     .select()
     .from(xpGrants)
-    .where(
-      and(
-        eq(xpGrants.userId, userId),
-        gte(xpGrants.createdAt, startDateObj),
-        lte(xpGrants.createdAt, endDateObj)
-      )
-    );
+    .where(and(eq(xpGrants.userId, userId), gte(xpGrants.createdAt, startDateObj), lte(xpGrants.createdAt, endDateObj)));
 
   const totalXp = xpGrantsInPeriod.reduce((sum, grant) => sum + grant.xpAmount, 0);
 
   // 5. Calculate XP by stat
   const xpByStat: Record<string, number> = {};
-  
+
   // Get all character stats for this user to map stat IDs to names
   const userStats = await db
     .select({
@@ -91,9 +79,9 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
     .from(characterStats)
     .where(eq(characterStats.userId, userId));
 
-  const statIdToName = Object.fromEntries(userStats.map(stat => [stat.id, stat.name]));
+  const statIdToName = Object.fromEntries(userStats.map((stat) => [stat.id, stat.name]));
 
-  xpGrantsInPeriod.forEach(grant => {
+  xpGrantsInPeriod.forEach((grant) => {
     if (grant.entityType === 'character_stat' && grant.entityId) {
       const statName = statIdToName[grant.entityId];
       if (statName) {
@@ -110,8 +98,8 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
       and(
         eq(experimentTaskCompletions.userId, userId),
         gte(experimentTaskCompletions.completedDate, startDate),
-        lte(experimentTaskCompletions.completedDate, endDate)
-      )
+        lte(experimentTaskCompletions.completedDate, endDate),
+      ),
     );
 
   const tasksCompleted = taskCompletions.length;
