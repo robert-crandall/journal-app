@@ -3,10 +3,11 @@
   import { generateTasksStore } from '$lib/stores/generate-tasks';
   import { simpleTodosStore } from '$lib/stores/todos';
   import { getTodayDateString } from '$lib/utils/date';
+  import DailyIntentModal from '$lib/components/daily-intents/DailyIntentModal.svelte';
 
   let currentDate = getTodayDateString();
   let generating = false;
-  let includeIntent = true;
+  let showIntentModal = false;
 
   // Reactive references to store state
   $: ({ lastGenerated, currentDateTasks, loading, error } = $generateTasksStore);
@@ -23,12 +24,20 @@
     }
   }
 
-  async function generateDailyTasks() {
+  function handleGenerateClick() {
+    // Always show the modal first to get/confirm daily intent
+    showIntentModal = true;
+  }
+
+  async function handleIntentConfirmed(intentText: string) {
+    showIntentModal = false;
+
     if (generating) return;
 
     generating = true;
     try {
-      await generateTasksStore.generateTasks(currentDate, includeIntent);
+      // Always include intent (true) since we just captured it in the modal
+      await generateTasksStore.generateTasks(currentDate, true);
       // Refresh the todos list to show the new generated tasks
       await simpleTodosStore.loadTodos();
       // Also refresh the tasks for this date
@@ -38,6 +47,10 @@
     } finally {
       generating = false;
     }
+  }
+
+  function handleIntentCancelled() {
+    showIntentModal = false;
   }
 
   function formatTaskDescription(task: any): string {
@@ -73,7 +86,7 @@
       <h3 class="text-xl font-semibold">AI Daily Tasks</h3>
     </div>
 
-    <button class="btn btn-secondary btn-sm transition-all duration-200 hover:scale-105" on:click={generateDailyTasks} disabled={generating}>
+    <button class="btn btn-secondary btn-sm transition-all duration-200 hover:scale-105" on:click={handleGenerateClick} disabled={generating}>
       {#if generating}
         <span class="loading loading-spinner loading-xs"></span>
         Generating...
@@ -123,13 +136,8 @@
       <span class="text-sm">{error}</span>
     </div>
   {:else}
-    <div class="space-y-4">
-      <div class="form-control">
-        <label class="label cursor-pointer justify-start gap-3">
-          <input type="checkbox" class="checkbox checkbox-secondary" bind:checked={includeIntent} />
-          <span class="label-text">Include today's intent in task generation</span>
-        </label>
-      </div>
-    </div>
+    <div class="text-left text-xs text-gray-500">Create personalized tasks based on your habits and goals</div>
   {/if}
 </div>
+
+<DailyIntentModal isOpen={showIntentModal} onConfirm={handleIntentConfirmed} onCancel={handleIntentCancelled} />

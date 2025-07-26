@@ -6,38 +6,6 @@ test.describe('Daily Intents & Task Generation', () => {
     await loginUser(page);
   });
 
-  test('should display daily intent widget on dashboard', async ({ page }) => {
-    await page.goto('/');
-
-    // Check that the daily intent widget is visible
-    await expect(page.locator('h3:has-text("Today\'s Most Important Thing")')).toBeVisible();
-
-    // Check for the textarea
-    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
-
-    // Check for the save button
-    await expect(page.locator('button').filter({ hasText: /Save Intent|Update Intent/ })).toBeVisible();
-  });
-
-  test('should save daily intent successfully', async ({ page }) => {
-    await page.goto('/');
-
-    const intentText = `Focus on completing the task generation feature ${Date.now()}`;
-
-    // Fill in the daily intent
-    await page.fill('textarea[placeholder*="The most important thing"]', intentText);
-
-    // Save the intent
-    await page.click('button:has-text("Save Intent")');
-
-    // Wait for success indication (button text change or success message)
-    await expect(page.locator('button:has-text("Update Intent")')).toBeVisible({ timeout: 5000 });
-
-    // Refresh the page and verify the intent persists
-    await page.reload();
-    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toHaveValue(intentText);
-  });
-
   test('should display AI task generation widget on dashboard', async ({ page }) => {
     await page.goto('/');
 
@@ -47,24 +15,41 @@ test.describe('Daily Intents & Task Generation', () => {
     // Check for the generate button
     await expect(page.locator('button:has-text("Generate")')).toBeVisible();
 
-    // Check for the include intent checkbox
-    await expect(page.locator('input[type="checkbox"]').first()).toBeVisible();
-    await expect(page.locator("text=Include today's intent in task generation")).toBeVisible();
+    // The checkbox should no longer be visible as intent is handled via modal
+    await expect(page.locator('input[type="checkbox"]')).not.toBeVisible();
+  });
+
+  test('should show daily intent modal when generating tasks', async ({ page }) => {
+    await page.goto('/');
+
+    // Click the Generate button
+    await page.click('button:has-text("Generate")');
+
+    // Check that the daily intent modal appears
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
+
+    // Check for the modal buttons
+    await expect(page.locator('button:has-text("Continue & Generate Tasks")')).toBeVisible();
+    await expect(page.locator('button:has-text("Skip")')).toBeVisible();
   });
 
   test('should generate daily tasks successfully', async ({ page }) => {
     await page.goto('/');
 
-    // First, set a daily intent to make task generation more interesting
-    const intentText = `Complete an important project milestone ${Date.now()}`;
-    await page.fill('textarea[placeholder*="The most important thing"]', intentText);
-    await page.click('button:has-text("Save Intent")');
-    await expect(page.locator('button:has-text("Update Intent")')).toBeVisible({ timeout: 5000 });
-
-    // Generate tasks
+    // Click the Generate button to open the modal
     await page.click('button:has-text("Generate")');
 
-    // Wait for generation to complete
+    // Wait for the modal to appear
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
+
+    // Fill in a daily intent
+    const intentText = `Complete an important project milestone ${Date.now()}`;
+    await page.fill('textarea[placeholder*="The most important thing"]', intentText);
+
+    // Click "Continue & Generate Tasks" to save intent and generate tasks
+    await page.click('button:has-text("Continue & Generate Tasks")');
+
+    // Wait for generation to complete (modal should close and show generated tasks)
     await expect(page.locator('button:has-text("Generate")')).toBeVisible({ timeout: 10000 });
 
     // Check for generated tasks display
@@ -77,8 +62,12 @@ test.describe('Daily Intents & Task Generation', () => {
   test('should show generated tasks in todos widget', async ({ page }) => {
     await page.goto('/');
 
-    // Generate tasks first
+    // Generate tasks first by opening modal and clicking "Skip"
     await page.click('button:has-text("Generate")');
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
+    await page.click('button:has-text("Skip")');
+
+    // Wait for generation to complete
     await expect(page.locator('button:has-text("Generate")')).toBeVisible({ timeout: 10000 });
 
     // Look for AI-generated tasks in the todos section (tasks with AI badge)
@@ -96,9 +85,12 @@ test.describe('Daily Intents & Task Generation', () => {
   test('should handle task generation with and without intent', async ({ page }) => {
     await page.goto('/');
 
-    // Test without intent first
-    await page.uncheck('input[type="checkbox"]');
+    // Test without intent first - click Generate and then Skip
     await page.click('button:has-text("Generate")');
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
+    await page.click('button:has-text("Skip")');
+
+    // Wait for generation
     await expect(page.locator('button:has-text("Generate")')).toBeVisible({ timeout: 10000 });
 
     // Should still generate tasks
@@ -106,13 +98,12 @@ test.describe('Daily Intents & Task Generation', () => {
 
     // Now test with intent
     const intentText = `Work on high-priority project ${Date.now()}`;
-    await page.fill('textarea[placeholder*="The most important thing"]', intentText);
-    await page.click('button:has-text("Save Intent")');
-    await expect(page.locator('button:has-text("Update Intent")')).toBeVisible({ timeout: 5000 });
-
-    // Enable intent inclusion and generate again
-    await page.check('input[type="checkbox"]');
     await page.click('button:has-text("Generate")');
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
+    await page.fill('textarea[placeholder*="The most important thing"]', intentText);
+    await page.click('button:has-text("Continue & Generate Tasks")');
+
+    // Wait for generation
     await expect(page.locator('button:has-text("Generate")')).toBeVisible({ timeout: 10000 });
 
     // Should see the intent included in the generated tasks display
@@ -124,21 +115,30 @@ test.describe('Daily Intents & Task Generation', () => {
 
     await page.goto('/');
 
-    // Set an intent
+    // Set an intent via the modal
+    await page.click('button:has-text("Generate")');
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
     await page.fill('textarea[placeholder*="The most important thing"]', intentText);
-    await page.click('button:has-text("Save Intent")');
-    await expect(page.locator('button:has-text("Update Intent")')).toBeVisible({ timeout: 5000 });
+    await page.click('button:has-text("Continue & Generate Tasks")');
+
+    // Wait for generation to complete
+    await expect(page.locator('button:has-text("Generate")')).toBeVisible({ timeout: 10000 });
 
     // Navigate away and back
     await page.goto('/goals');
     await page.goto('/');
 
-    // Verify intent is still there
+    // Open modal again and verify intent is still there
+    await page.click('button:has-text("Generate")');
     await expect(page.locator('textarea[placeholder*="The most important thing"]')).toHaveValue(intentText);
   });
 
   test('should handle errors gracefully', async ({ page }) => {
     await page.goto('/');
+
+    // Open the modal
+    await page.click('button:has-text("Generate")');
+    await expect(page.locator('textarea[placeholder*="The most important thing"]')).toBeVisible();
 
     // Test with very long intent text (over limit)
     const longText = 'A'.repeat(600); // Over the 500 character limit
@@ -148,7 +148,7 @@ test.describe('Daily Intents & Task Generation', () => {
     await expect(page.locator('text=/600\/500/')).toBeVisible();
 
     // Button should be disabled or show validation error
-    const saveButton = page.locator('button').filter({ hasText: /Save Intent|Update Intent/ });
+    const saveButton = page.locator('button:has-text("Continue & Generate Tasks")');
     // We expect the button to be disabled when over limit, but this depends on implementation
     // For now, just check that the character counter is working
   });
