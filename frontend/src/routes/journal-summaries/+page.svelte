@@ -5,6 +5,9 @@
   import type { JournalSummaryResponse, ListJournalSummariesResponse } from '$lib/types/journal-summaries';
   import { BookOpenIcon, CalendarIcon, PlusIcon, FilterIcon, RefreshCwIcon, ClockIcon, TagIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
+  import CompactMetricsDisplay from '$lib/components/metrics/CompactMetricsDisplay.svelte';
+  import DOMPurify from 'dompurify';
+  import { marked } from 'marked';
 
   // State
   let summaries: JournalSummaryResponse[] = [];
@@ -218,7 +221,7 @@
 
       <!-- Summaries Grid -->
     {:else}
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-2">
         {#each summaries as summary (summary.id)}
           <div
             class="card bg-base-100 border-base-300 cursor-pointer border shadow-xl transition-all duration-200 hover:shadow-2xl"
@@ -243,10 +246,14 @@
 
               <!-- Summary Preview -->
               <div class="flex-1">
-                <p class="text-base-content/80 line-clamp-4 text-sm">
-                  {summary.summary.length > 200 ? summary.summary.substring(0, 200) + '...' : summary.summary}
+                <p class="text-base-content/80 prose prose-sm text-sm">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html DOMPurify.sanitize(String(marked.parse(summary.summary)))}
                 </p>
               </div>
+
+              <!-- Compact Metrics Display -->
+              <CompactMetricsDisplay type="journal" sourceId={summary.id} />
 
               <!-- Tags -->
               {#if summary.tags && summary.tags.length > 0}

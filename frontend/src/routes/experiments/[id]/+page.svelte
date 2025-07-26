@@ -26,6 +26,7 @@
   import { formatDate } from '$lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
+  import MetricSummaryWidget from '$lib/components/metrics/MetricSummaryWidget.svelte';
 
   // Reactive state
   let dashboard: ExperimentDashboardResponse | null = $state(null);
@@ -508,6 +509,11 @@
           {/if}
         </div>
       </div>
+
+      <!-- Metric Summary Widget -->
+      {#if getExperimentStatus(dashboard.experiment) === 'completed'}
+        <MetricSummaryWidget type="experiment" sourceId={dashboard.experiment.id} />
+      {/if}
     </div>
   {:else}
     <!-- Not found state -->

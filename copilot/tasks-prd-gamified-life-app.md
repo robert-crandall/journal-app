@@ -123,6 +123,17 @@
   - [x] 16.5 Write frontend E2E tests for tone tags functionality
   - [x] 16.6 Ensure all tone tags tests pass
 
+- [ ] 17.0 Metric Summaries System (Journal & Experiment Analytics)
+  - [x] 17.1 Design and implement metric summaries database schema with migration (backend)
+  - [x] 17.2 Implement shared types for metric summaries API (backend)
+  - [x] 17.3 Implement metrics calculation service with comprehensive data aggregation (backend)
+  - [x] 17.4 Implement metric summaries API endpoints with CRUD operations (backend)
+  - [x] 17.5 Write comprehensive backend integration tests for metric summaries
+  - [x] 17.6 Ensure all backend metric summaries tests pass
+  - [x] 17.7 Implement frontend UI for metric summaries display and filtering
+  - [ ] 17.8 Write frontend E2E tests for metric summaries functionality
+  - [ ] 17.9 Ensure all metric summaries tests pass
+
 ---
 
 **Relevant files:**

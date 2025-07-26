@@ -6,3 +6,4 @@ export { experimentsApi } from './experiments';
 export { plansApi } from './plans';
 export { dailyIntentsApi } from './daily-intents';
 export { generateTasksApi } from './generate-tasks';
+export { metricSummariesApi } from './metric-summaries';

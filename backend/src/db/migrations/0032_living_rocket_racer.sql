@@ -1,0 +1,1 @@
+ALTER TABLE "metric_summaries" ALTER COLUMN "source_id" DROP NOT NULL;
