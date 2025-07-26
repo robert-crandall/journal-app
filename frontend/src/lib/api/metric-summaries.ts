@@ -35,6 +35,14 @@ export const metricSummariesApi = {
     return response.data;
   },
 
+  // Fetch existing metrics or generate them if they don't exist
+  async fetchOrGenerateMetrics(type: 'journal' | 'experiment', sourceId: string): Promise<MetricSummaryResponse> {
+    const response = await apiFetch(`/api/metric-summaries/for/${type}/${sourceId}`, {
+      method: 'GET',
+    });
+    return response.data;
+  },
+
   // Get user's metric summaries with filtering and pagination
   async getMetricSummaries(params: Partial<MetricSummaryUIFilters> = {}): Promise<ListMetricSummariesResponse> {
     const searchParams = new URLSearchParams();

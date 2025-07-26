@@ -354,4 +354,99 @@ app.delete('/:id', jwtAuth, zValidator('param', metricSummaryIdSchema), async (c
   }
 });
 
+// Fetch or generate metrics for a source (journal summary or experiment)
+app.get('/for/:type/:sourceId', jwtAuth, async (c) => {
+  try {
+    const userId = getUserId(c);
+    const sourceId = c.req.param('sourceId');
+    const type = c.req.param('type') as 'journal' | 'experiment';
+
+    if (!['journal', 'experiment'].includes(type)) {
+      return c.json({ success: false, error: 'Invalid type. Must be journal or experiment' }, 400);
+    }
+
+    // First, try to fetch existing metrics
+    const [existingMetrics] = await db
+      .select()
+      .from(metricSummaries)
+      .where(and(eq(metricSummaries.sourceId, sourceId), eq(metricSummaries.type, type), eq(metricSummaries.userId, userId)));
+
+    if (existingMetrics) {
+      return c.json({
+        success: true,
+        data: serializeMetricSummary(existingMetrics),
+      });
+    }
+
+    // If no existing metrics, generate them
+    let sourceStartDate: string;
+    let sourceEndDate: string;
+
+    if (type === 'journal') {
+      // Verify the journal summary exists and belongs to the user
+      const [journalSummary] = await db
+        .select()
+        .from(journalSummaries)
+        .where(and(eq(journalSummaries.id, sourceId), eq(journalSummaries.userId, userId)));
+
+      if (!journalSummary) {
+        return c.json({ success: false, error: 'Journal summary not found' }, 404);
+      }
+
+      sourceStartDate = journalSummary.startDate;
+      sourceEndDate = journalSummary.endDate;
+    } else if (type === 'experiment') {
+      // Verify the experiment exists and belongs to the user
+      const [experiment] = await db
+        .select()
+        .from(experiments)
+        .where(and(eq(experiments.id, sourceId), eq(experiments.userId, userId)));
+
+      if (!experiment) {
+        return c.json({ success: false, error: 'Experiment not found' }, 404);
+      }
+
+      sourceStartDate = experiment.startDate;
+      sourceEndDate = experiment.endDate;
+    } else {
+      return c.json({ success: false, error: 'Invalid source type' }, 400);
+    }
+
+    // Calculate metrics for the source period
+    const metrics = await calculatePeriodMetrics({
+      userId,
+      startDate: sourceStartDate,
+      endDate: sourceEndDate,
+    });
+
+    // Save the metrics
+    const [savedMetrics] = await db
+      .insert(metricSummaries)
+      .values({
+        userId,
+        type,
+        sourceId,
+        startDate: sourceStartDate,
+        endDate: sourceEndDate,
+        totalXp: metrics.totalXp,
+        avgDayRating: metrics.avgDayRating,
+        daysLogged: metrics.daysLogged,
+        tasksCompleted: metrics.tasksCompleted,
+        averageTasksPerDay: metrics.averageTasksPerDay,
+        toneTagCounts: metrics.toneTagCounts,
+        mostCommonTone: metrics.mostCommonTone,
+        xpByStat: metrics.xpByStat,
+        logStreak: metrics.logStreak,
+      })
+      .returning();
+
+    return c.json({
+      success: true,
+      data: serializeMetricSummary(savedMetrics),
+    });
+  } catch (error) {
+    return handleApiError(error, 'Failed to fetch or generate metrics');
+  }
+});
+
 export default app;

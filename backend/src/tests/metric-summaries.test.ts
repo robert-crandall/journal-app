@@ -731,4 +731,133 @@ describe('Metric Summaries API', () => {
       expect(response.status).toBe(404);
     });
   });
+
+  describe('GET /api/metric-summaries/for/:type/:sourceId', () => {
+    test('should return existing metric summary if found', async () => {
+      const db = testDb();
+
+      const sourceId = generateTestUUID(20);
+      const [metricSummary] = await db
+        .insert(schema.metricSummaries)
+        .values({
+          userId,
+          type: 'journal',
+          sourceId,
+          startDate: '2024-01-01',
+          endDate: '2024-01-07',
+          totalXp: 100,
+          daysLogged: 5,
+          tasksCompleted: 10,
+          averageTasksPerDay: 2.0,
+        })
+        .returning();
+
+      const response = await app.request(`/api/metric-summaries/for/journal/${sourceId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const result = await response.json();
+      expect(result.success).toBe(true);
+      expect(result.data.id).toBe(metricSummary.id);
+      expect(result.data.totalXp).toBe(100);
+    });
+
+    test('should generate new metric summary if none exists for journal summary', async () => {
+      const db = testDb();
+
+      // Create a journal summary
+      const [journalSummary] = await db
+        .insert(schema.journalSummaries)
+        .values({
+          userId,
+          period: 'week',
+          startDate: '2024-01-01',
+          endDate: '2024-01-07',
+          summary: 'Test weekly summary',
+        })
+        .returning();
+
+      const response = await app.request(`/api/metric-summaries/for/journal/${journalSummary.id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const result = await response.json();
+      expect(result.success).toBe(true);
+      expect(result.data.type).toBe('journal');
+      expect(result.data.sourceId).toBe(journalSummary.id);
+      expect(result.data.startDate).toBe('2024-01-01');
+      expect(result.data.endDate).toBe('2024-01-07');
+    });
+
+    test('should generate new metric summary if none exists for experiment', async () => {
+      const db = testDb();
+
+      // Create an experiment
+      const [experiment] = await db
+        .insert(schema.experiments)
+        .values({
+          userId,
+          title: 'Test Experiment',
+          startDate: '2024-01-01',
+          endDate: '2024-01-07',
+        })
+        .returning();
+
+      const response = await app.request(`/api/metric-summaries/for/experiment/${experiment.id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const result = await response.json();
+      expect(result.success).toBe(true);
+      expect(result.data.type).toBe('experiment');
+      expect(result.data.sourceId).toBe(experiment.id);
+      expect(result.data.startDate).toBe('2024-01-01');
+      expect(result.data.endDate).toBe('2024-01-07');
+    });
+
+    test('should return 404 for non-existent journal summary', async () => {
+      const response = await app.request('/api/metric-summaries/for/journal/00000000-0000-0000-0000-000000000000', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(404);
+    });
+
+    test('should return 404 for non-existent experiment', async () => {
+      const response = await app.request('/api/metric-summaries/for/experiment/00000000-0000-0000-0000-000000000000', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(404);
+    });
+
+    test('should require authentication', async () => {
+      const response = await app.request('/api/metric-summaries/for/journal/00000000-0000-0000-0000-000000000000');
+
+      expect(response.status).toBe(401);
+    });
+
+    test('should validate type parameter', async () => {
+      const response = await app.request('/api/metric-summaries/for/invalid/00000000-0000-0000-0000-000000000000', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(response.status).toBe(400);
+    });
+  });
 });

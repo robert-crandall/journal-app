@@ -6,6 +6,7 @@
   import type { JournalSummaryResponse } from '$lib/types/journal-summaries';
   import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, EditIcon, TrashIcon, TagIcon, ClockIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
+  import MetricSummaryWidget from '$lib/components/metrics/MetricSummaryWidget.svelte';
 
   // State
   let summary: JournalSummaryResponse | null = null;
@@ -196,6 +197,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Metric Summary Widget -->
+        <MetricSummaryWidget type="journal" sourceId={summary.id} />
 
         <!-- Back Button -->
         <div class="text-center">
