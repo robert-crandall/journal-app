@@ -1,5 +1,5 @@
 import { callGptApi } from './client';
-import { createPrompt } from './utils';
+import { parseGptJsonResponse } from './utils';
 /**
  * Interface for daily task generation request
  */
@@ -231,8 +231,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
   });
 
   try {
-    // Parse the JSON response
-    const result = JSON.parse(response.content) as TaskGenerationResponse;
+    const result = parseGptJsonResponse(response.content) as TaskGenerationResponse;
     return result;
   } catch (error: any) {
     throw new Error(`Failed to parse GPT response: ${error && typeof error === 'object' && 'message' in error ? error.message : String(error)}`);

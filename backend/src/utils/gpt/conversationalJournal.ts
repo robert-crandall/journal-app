@@ -1,12 +1,10 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { callGptApi } from './client';
-import { parseJsonResponse } from './helper';
-import { createPrompt } from './utils';
-import { gptConfig } from './config';
+import { parseGptJsonResponse } from './utils';
 import { getUserContext, formatUserContextForPrompt, type ComprehensiveUserContext } from '../userContextService';
 import { getJournalMemoryContext } from '../journalMemoryService';
 import { db } from '../../db';
-import { characterStats, familyMembers } from '../../db/schema';
+import { characterStats } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createOrGetTag } from '../tags';
 
@@ -399,7 +397,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   });
 
   try {
-    const rawResult = parseJsonResponse(response.content);
+    const rawResult = parseGptJsonResponse(response.content);
     // Convert names to IDs
     const convertedResult = await convertNamesToIds(rawResult, userId, enhancedContext);
     return convertedResult;
