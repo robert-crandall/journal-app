@@ -462,6 +462,7 @@ const app = new Hono()
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,
+        includeUserAttributes: true,
       });
 
       // Initialize chat session with the initial message
@@ -558,6 +559,7 @@ const app = new Hono()
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,
+        includeUserAttributes: true,
       });
 
       // Generate AI response using the conversational journal utility
