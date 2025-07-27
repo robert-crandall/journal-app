@@ -23,8 +23,7 @@
     ArrowDown,
     Target,
   } from 'lucide-svelte';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // Get plan ID from URL params
@@ -434,8 +433,7 @@
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body">
                 <h2 class="card-title text-lg">Description</h2>
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                <div class="prose prose-sm max-w-none">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</div>
+                <Markdown content={plan.description} classes="prose-sm max-w-none" />
               </div>
             </div>
           {/if}

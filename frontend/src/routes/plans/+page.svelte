@@ -6,8 +6,7 @@
   import { Plus, FolderKanban, Compass, Palette, FileText, Edit3, Trash2, Eye, MoreVertical, Calendar } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for plans data
@@ -237,8 +236,7 @@
                       </div>
 
                       {#if plan.description}
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/80 prose prose-sm mb-4">{@html DOMPurify.sanitize(String(marked.parse(plan.description)))}</p>
+                        <Markdown content={plan.description} classes="text-base-content/80 prose-sm mb-4" />
                       {/if}
 
                       <!-- Plan Features -->

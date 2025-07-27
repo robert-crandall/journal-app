@@ -6,8 +6,7 @@
   import type { UpdateCharacterForm as UpdateCharacterData } from '../../lib/types/character-form';
   import type { UserAttribute } from '../../lib/types/user-attributes';
   import { formatDateTime } from '../../lib/utils/date';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
 
   const dispatch = createEventDispatcher<{
     characterUpdated: Character;
@@ -602,8 +601,7 @@
                   Backstory
                 </h3>
                 <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(character.backstory)))}
+                  <Markdown content={character.backstory} classes="prose-sm max-w-none text-left leading-relaxed" />
                 </div>
               </div>
             </div>
