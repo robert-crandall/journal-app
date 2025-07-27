@@ -4,12 +4,11 @@
 
 <div class="mx-auto w-full px-4 py-8
   max-w-sm
-  sm:max-w-md
-  md:max-w-lg
-  lg:max-w-xl
-  xl:max-w-2xl
-  2xl:max-w-4xl
-  3xl:max-w-7xl
+  sm:max-w-lg
+  md:max-w-2xl
+  lg:max-w-4xl
+  xl:max-w-5xl
+  2xl:max-w-7xl
 ">
   <slot />
 </div>
