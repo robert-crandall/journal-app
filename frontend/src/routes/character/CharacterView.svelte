@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { characterApi } from '../../lib/api/characters';
+  import { userAttributesApi } from '../../lib/api/user-attributes';
   import type { Character } from '../../lib/types/characters';
   import type { UpdateCharacterForm as UpdateCharacterData } from '../../lib/types/character-form';
+  import type { UserAttribute } from '../../lib/types/user-attributes';
   import { formatDateTime } from '../../lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
@@ -20,8 +22,32 @@
   let error: string | null = null;
   let deleteConfirmOpen = false;
 
+  // User attributes state
+  let userAttributes: UserAttribute[] = [];
+  let attributesLoading = false;
+  let attributesError: string | null = null;
+
   // Form data for editing
   let editData: UpdateCharacterData = {};
+
+  // Load user attributes
+  async function loadUserAttributes() {
+    try {
+      attributesLoading = true;
+      attributesError = null;
+      userAttributes = await userAttributesApi.getUserAttributes();
+    } catch (e: unknown) {
+      attributesError = e instanceof Error ? e.message : 'Failed to load user attributes';
+      console.error('Error loading user attributes:', e);
+    } finally {
+      attributesLoading = false;
+    }
+  }
+
+  // Load attributes on component mount
+  onMount(() => {
+    loadUserAttributes();
+  });
 
   // Start editing
   function startEdit() {
@@ -29,7 +55,6 @@
       name: character.name,
       characterClass: character.characterClass,
       backstory: character.backstory || '',
-      goals: character.goals || '',
       motto: character.motto || '',
     };
     isEditing = true;
@@ -92,10 +117,6 @@
 
       if (editData.backstory?.trim() !== (character.backstory || '')) {
         updateData.backstory = editData.backstory?.trim() || undefined;
-      }
-
-      if (editData.goals?.trim() !== (character.goals || '')) {
-        updateData.goals = editData.goals?.trim() || undefined;
       }
 
       if (editData.motto?.trim() !== (character.motto || '')) {
@@ -305,21 +326,6 @@
                       class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
                       placeholder="Tell us about your character's background..."
                       bind:value={editData.backstory}
-                    ></textarea>
-                  </div>
-                </div>
-
-                <!-- Goals -->
-                <div class="form-control">
-                  <label class="label" for="edit-goals">
-                    <span class="label-text font-medium">Goals & Aspirations</span>
-                  </label>
-                  <div class="relative">
-                    <textarea
-                      id="edit-goals"
-                      class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
-                      placeholder="What does your character want to achieve?"
-                      bind:value={editData.goals}
                     ></textarea>
                   </div>
                 </div>
@@ -546,33 +552,58 @@
             </div>
           {/if}
 
-          <!-- Goals -->
-          {#if character.goals}
-            <div class="card bg-base-100 border-base-300 border shadow-xl">
-              <div class="card-body p-6">
-                <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
-                  </svg>
-                  Goals & Aspirations
-                </h3>
-                <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(character.goals)))}
+          <!-- Attributes -->
+          <div class="card bg-base-100 border-base-300 border shadow-xl">
+            <div class="card-body p-6">
+              <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+                </svg>
+                Character Attributes
+              </h3>
+
+              {#if attributesLoading}
+                <div class="flex justify-center py-4">
+                  <span class="loading loading-spinner loading-md"></span>
                 </div>
-              </div>
+              {:else if attributesError}
+                <div class="alert alert-error">
+                  <span>{attributesError}</span>
+                  <button class="btn btn-sm" on:click={loadUserAttributes}>Retry</button>
+                </div>
+              {:else if userAttributes.length === 0}
+                <div class="text-base-content/60 py-6 text-center">
+                  <p class="mb-2">No attributes discovered yet</p>
+                  <p class="text-sm">Attributes will appear here as you write journal entries</p>
+                </div>
+              {:else}
+                <div class="flex flex-wrap gap-2">
+                  {#each userAttributes as attribute (attribute.id)}
+                    <div class="badge badge-primary badge-lg gap-1 p-3">
+                      <span>{attribute.value}</span>
+                      {#if attribute.source}
+                        <span class="text-xs opacity-70">({attribute.source})</span>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+                <div class="text-base-content/60 mt-3 text-xs">
+                  {userAttributes.length} attribute{userAttributes.length === 1 ? '' : 's'} discovered
+                </div>
+              {/if}
             </div>
-          {/if}
+          </div>
         </div>
 
         <!-- Character Progress Section (Placeholder) -->

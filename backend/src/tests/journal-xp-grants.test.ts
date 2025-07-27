@@ -337,5 +337,59 @@ describe('Journal XP Grants Integration', () => {
         expect(todo.isCompleted).toBe(false);
       }
     });
+
+    it('should create user attributes when journal is finished with GPT suggestions', async () => {
+      // Mock the GPT response to return suggested attributes
+      (mockGenerateJournalMetadata as any).mockResolvedValue({
+        title: 'Daily Reflection',
+        synopsis: 'User shared thoughts and discovered personality traits',
+        summary: 'A reflective journal entry',
+        suggestedTags: [],
+        suggestedStatTags: {},
+        suggestedFamilyTags: {},
+        suggestedTodos: [],
+        suggestedAttributes: ['Goal-oriented', 'Reflective', 'Growth-minded'],
+      });
+
+      const date = '2024-01-18';
+
+      // Create journal in review state
+      await testDb()
+        .insert(journals)
+        .values({
+          userId,
+          date,
+          status: 'in_review',
+          initialMessage: 'I spent today reflecting on my goals and thinking about my personal growth.',
+          chatSession: [
+            { role: 'user', content: 'I spent today reflecting on my goals and thinking about my personal growth.', timestamp: new Date().toISOString() },
+            { role: 'assistant', content: 'That sounds like valuable self-reflection!', timestamp: new Date().toISOString() },
+          ],
+        });
+
+      // Finish the journal
+      const finishResponse = await app.request(`/api/journals/${date}/finish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      expect(finishResponse.status).toBe(200);
+
+      // Verify user attributes were created
+      const createdAttributes = await testDb()
+        .select()
+        .from(schema.userAttributes)
+        .where(eq(schema.userAttributes.userId, userId));
+
+      expect(createdAttributes.length).toBe(3);
+      expect(createdAttributes.map(attr => attr.value)).toEqual(
+        expect.arrayContaining(['Goal-oriented', 'Reflective', 'Growth-minded'])
+      );
+      expect(createdAttributes.every(attr => attr.source === 'journal_analysis')).toBe(true);
+    });
   });
 });
