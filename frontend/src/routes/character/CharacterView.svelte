@@ -649,59 +649,118 @@
                   {#each userAttributes as attribute, index (attribute.id)}
                     <div class="flex items-center justify-between py-3 {index < userAttributes.length - 1 ? 'border-base-300 border-b' : ''}">
                       <div class="flex-1">
-                        <span class="text-base font-medium">{attribute.value}</span>
-                        {#if attribute.source}
-                          <span class="text-base-content/60 ml-2 text-xs">
-                            ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
-                          </span>
+                        {#if editingAttributeId === attribute.id}
+                          <!-- Inline editing mode -->
+                          <div class="flex items-center gap-2">
+                            <input
+                              type="text"
+                              bind:value={editingAttributeValue}
+                              on:keydown={handleAttributeKeydown}
+                              on:blur={saveEditAttribute}
+                              class="input input-bordered input-sm flex-1"
+                              placeholder="Attribute value"
+                              autofocus
+                            />
+                            <button
+                              class="btn btn-ghost btn-xs hover:btn-success"
+                              on:click={saveEditAttribute}
+                              title="Save changes"
+                              aria-label="Save changes"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <polyline points="20,6 9,17 4,12" />
+                              </svg>
+                            </button>
+                            <button
+                              class="btn btn-ghost btn-xs hover:btn-error"
+                              on:click={cancelEditAttribute}
+                              title="Cancel editing"
+                              aria-label="Cancel editing"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                              </svg>
+                            </button>
+                          </div>
+                        {:else}
+                          <!-- Display mode -->
+                          <span class="text-base font-medium">{attribute.value}</span>
+                          {#if attribute.source}
+                            <span class="text-base-content/60 ml-2 text-xs">
+                              ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
+                            </span>
+                          {/if}
                         {/if}
                       </div>
-                      <div class="ml-4 flex items-center gap-1">
-                        <!-- Edit button -->
-                        <button
-                          class="btn btn-ghost btn-xs hover:btn-primary"
-                          on:click={() => editAttribute(attribute.id, attribute.value)}
-                          title="Edit attribute"
-                          aria-label="Edit attribute"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                      {#if editingAttributeId !== attribute.id}
+                        <div class="ml-4 flex items-center gap-1">
+                          <!-- Edit button -->
+                          <button
+                            class="btn btn-ghost btn-xs hover:btn-primary"
+                            on:click={() => startEditAttribute(attribute.id, attribute.value)}
+                            title="Edit attribute"
+                            aria-label="Edit attribute"
                           >
-                            <path d="M12 20h9" />
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                          </svg>
-                        </button>
-                        <!-- Delete button -->
-                        <button
-                          class="btn btn-ghost btn-xs hover:btn-error"
-                          on:click={() => deleteAttribute(attribute.id, attribute.value)}
-                          title="Delete attribute"
-                          aria-label="Delete attribute"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                          </button>
+                          <!-- Delete button -->
+                          <button
+                            class="btn btn-ghost btn-xs hover:btn-error"
+                            on:click={() => deleteAttribute(attribute.id, attribute.value)}
+                            title="Delete attribute"
+                            aria-label="Delete attribute"
                           >
-                            <polyline points="3,6 5,6 21,6" />
-                            <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
-                          </svg>
-                        </button>
-                      </div>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <polyline points="3,6 5,6 21,6" />
+                              <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/if}
                     </div>
                   {/each}
                 </div>
