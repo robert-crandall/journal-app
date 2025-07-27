@@ -1,6 +1,6 @@
 <script lang="ts">
   import { authStore, type User } from '$lib/stores/auth';
-  import Navigation from '$lib/components/Navigation.svelte';
+  import PageContainer from '$lib/components/common/PageContainer.svelte';
   import DailyFocusWidget from '$lib/components/focus/DailyFocusWidget.svelte';
   import WeatherWidget from '$lib/components/weather/WeatherWidget.svelte';
   import SimpleTodosWidget from '$lib/components/todos/SimpleTodosWidget.svelte';
@@ -26,11 +26,11 @@
 
 <div class="min-h-screen">
   <!-- Main content -->
-  <main class="mx-auto w-full max-w-7xl px-3 sm:px-4">
-    <div class="flex flex-1 flex-col items-center justify-center py-12 sm:py-20">
+  <PageContainer>
+    <div class="flex flex-1 flex-col items-center justify-center">
       {#if user}
         <!-- Logged-in View -->
-        <section class="flex w-full max-w-full flex-col items-center sm:max-w-2xl">
+        <section class="flex w-full flex-col items-center">
           <div class="hero-content mb-6 text-center sm:mb-8">
             <div>
               <h1 class="text-primary mb-2 text-3xl font-bold sm:mb-3 sm:text-4xl">
@@ -41,7 +41,7 @@
           </div>
 
           <div class="card bg-base-100 w-full shadow-xl">
-            <div class="card-body p-3 sm:p-6">
+            <div class="card-body sm:p-6">
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
                 <!-- AI Task Generation Widget -->
@@ -149,5 +149,5 @@
         </section>
       {/if}
     </div>
-  </main>
+  </PageContainer>
 </div>
