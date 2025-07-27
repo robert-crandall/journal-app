@@ -28,6 +28,7 @@ export interface JournalMetadata {
   suggestedFamilyTags: Record<string, { xp: number; reason: string }>; // Family member IDs with XP amount and reason for interactions
   toneTags: string[]; // Extracted emotional tone tags (from fixed set)
   suggestedTodos?: string[]; // Actionable items extracted from journal content
+  suggestedAttributes?: string[]; // New user attributes discovered (personality traits, characteristics, etc.)
 }
 
 /**
@@ -104,7 +105,8 @@ Your task is to review the entire conversation and generate:
 3. **Content Tags**: 3-6 tags describing topics, activities, or themes
 4. **Tone Tags**: Up to 2 emotional tone tags from this fixed list: happy, calm, energized, overwhelmed, sad, angry, anxious. Only include tones that are clearly expressed or strongly implied.
 5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
-6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)`;
+6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)
+7. **User Attributes**: New personality traits, characteristics, motivators, or patterns about the user that emerge from the conversation. Only suggest attributes that are NOT already known and are clearly evident from the discussion.`;
 
   // Add existing content tags if available
   if (userContext.existingTags && userContext.existingTags.length > 0) {
@@ -127,6 +129,13 @@ These are the user's current character stats that could receive XP:`;
     systemPrompt += `\n\n### Family Members
 These are the user's family members that could receive connection XP:`;
     systemPrompt += formatFamilyMembersForPrompt(userContext.familyMembers);
+  }
+
+  // Add existing user attributes to avoid duplicates
+  if (userContext.userAttributes && userContext.userAttributes.length > 0) {
+    systemPrompt += `\n\n### Existing User Attributes
+The following attributes about the user are already known. DO NOT suggest these again:
+${userContext.userAttributes.map((attr) => `- ${attr.value} (source: ${attr.source})`).join('\n')}`;
   }
 
   // Helper function for formatting character stats for the prompt
@@ -209,7 +218,8 @@ IMPORTANT: Format your response exactly as JSON:
     "familyMemberName1": { "xp": 20, "reason": "Specific interaction or quality time spent with this person" },
     "familyMemberName2": { "xp": 15, "reason": "Specific interaction or quality time spent with this person" }
   },
-  "suggestedTodos": ["Actionable item 1", "Actionable item 2"]
+  "suggestedTodos": ["Actionable item 1", "Actionable item 2"],
+  "suggestedAttributes": ["New personality trait or characteristic", "Another insight about the user"]
 }
 
 ## Todo Guidelines
@@ -237,6 +247,13 @@ Only include todos that are explicitly mentioned in the conversation. Do not inv
   - XP amount between 5-50 based on the significance of the interaction
   - A specific reason describing the interaction or quality time spent with them
   - Use the exact family member names provided in the context
+
+**User Attributes**: Extract 0-3 new insights about the user's personality, characteristics, motivators, values, or behavioral patterns that become evident from the conversation. Guidelines:
+  - Only suggest attributes that are NOT already in the existing attributes list
+  - Focus on deeper personality traits, characteristics, motivators, or patterns rather than temporary states
+  - Be specific and meaningful (e.g., "Prefers to process emotions through creative expression" rather than "Creative")
+  - Avoid duplicating or paraphrasing existing attributes
+  - Only include attributes that are clearly demonstrated or discussed in the conversation
 
 DO NOT GUESS. If you cannot determine a field, leave it empty or null. Focus on the content of the conversation, not external context.
 
@@ -366,6 +383,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     includeFamilyMembers: true,
     includeCharacterStats: true, // Stats will be provided in the metadata
     includeExistingTags: true,
+    includeUserAttributes: true, // Include existing user attributes to avoid duplicates
   });
 
   // Create the system prompt with enhanced user context
@@ -529,5 +547,6 @@ async function convertNamesToIds(rawMetadata: any, userId: string, userContext: 
     suggestedFamilyTags,
     toneTags,
     suggestedTodos: rawMetadata.suggestedTodos || [],
+    suggestedAttributes: rawMetadata.suggestedAttributes || [],
   };
 }
