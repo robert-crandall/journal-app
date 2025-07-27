@@ -26,6 +26,8 @@
   let userAttributes: UserAttribute[] = [];
   let attributesLoading = false;
   let attributesError: string | null = null;
+  let editingAttributeId: string | null = null;
+  let editingAttributeValue: string = '';
 
   // Form data for editing
   let editData: UpdateCharacterData = {};
@@ -150,6 +152,61 @@
       console.error('Error deleting character:', e);
     } finally {
       loading = false;
+    }
+  }
+
+  // Start editing attribute inline
+  function startEditAttribute(attributeId: string, currentValue: string) {
+    editingAttributeId = attributeId;
+    editingAttributeValue = currentValue;
+  }
+
+  // Cancel editing attribute
+  function cancelEditAttribute() {
+    editingAttributeId = null;
+    editingAttributeValue = '';
+  }
+
+  // Save edited attribute
+  async function saveEditAttribute() {
+    if (!editingAttributeId || !editingAttributeValue.trim()) {
+      return;
+    }
+
+    try {
+      await userAttributesApi.updateAttribute(editingAttributeId, {
+        value: editingAttributeValue.trim(),
+      });
+      await loadUserAttributes(); // Refresh the list
+      editingAttributeId = null;
+      editingAttributeValue = '';
+    } catch (e: unknown) {
+      attributesError = e instanceof Error ? e.message : 'Failed to update attribute';
+      console.error('Error updating attribute:', e);
+    }
+  }
+
+  // Handle keyboard events for inline editing
+  function handleAttributeKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveEditAttribute();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelEditAttribute();
+    }
+  }
+
+  // Delete attribute
+  async function deleteAttribute(attributeId: string, attributeValue: string) {
+    if (confirm(`Are you sure you want to delete "${attributeValue}"?`)) {
+      try {
+        await userAttributesApi.deleteAttribute(attributeId);
+        await loadUserAttributes(); // Refresh the list
+      } catch (e: unknown) {
+        attributesError = e instanceof Error ? e.message : 'Failed to delete attribute';
+        console.error('Error deleting attribute:', e);
+      }
     }
   }
 </script>
@@ -588,17 +645,67 @@
                   <p class="text-sm">Attributes will appear here as you write journal entries</p>
                 </div>
               {:else}
-                <div class="flex flex-wrap gap-2">
-                  {#each userAttributes as attribute (attribute.id)}
-                    <div class="badge badge-primary badge-lg gap-1 p-3">
-                      <span>{attribute.value}</span>
-                      {#if attribute.source}
-                        <span class="text-xs opacity-70">({attribute.source})</span>
-                      {/if}
+                <div class="space-y-0">
+                  {#each userAttributes as attribute, index (attribute.id)}
+                    <div class="flex items-center justify-between py-3 {index < userAttributes.length - 1 ? 'border-base-300 border-b' : ''}">
+                      <div class="flex-1">
+                        <span class="text-base font-medium">{attribute.value}</span>
+                        {#if attribute.source}
+                          <span class="text-base-content/60 ml-2 text-xs">
+                            ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
+                          </span>
+                        {/if}
+                      </div>
+                      <div class="ml-4 flex items-center gap-1">
+                        <!-- Edit button -->
+                        <button
+                          class="btn btn-ghost btn-xs hover:btn-primary"
+                          on:click={() => editAttribute(attribute.id, attribute.value)}
+                          title="Edit attribute"
+                          aria-label="Edit attribute"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                          </svg>
+                        </button>
+                        <!-- Delete button -->
+                        <button
+                          class="btn btn-ghost btn-xs hover:btn-error"
+                          on:click={() => deleteAttribute(attribute.id, attribute.value)}
+                          title="Delete attribute"
+                          aria-label="Delete attribute"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="3,6 5,6 21,6" />
+                            <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   {/each}
                 </div>
-                <div class="text-base-content/60 mt-3 text-xs">
+                <div class="text-base-content/60 mt-4 text-xs">
                   {userAttributes.length} attribute{userAttributes.length === 1 ? '' : 's'} discovered
                 </div>
               {/if}

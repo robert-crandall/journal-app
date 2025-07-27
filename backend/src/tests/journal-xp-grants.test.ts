@@ -380,16 +380,11 @@ describe('Journal XP Grants Integration', () => {
       expect(finishResponse.status).toBe(200);
 
       // Verify user attributes were created
-      const createdAttributes = await testDb()
-        .select()
-        .from(schema.userAttributes)
-        .where(eq(schema.userAttributes.userId, userId));
+      const createdAttributes = await testDb().select().from(schema.userAttributes).where(eq(schema.userAttributes.userId, userId));
 
       expect(createdAttributes.length).toBe(3);
-      expect(createdAttributes.map(attr => attr.value)).toEqual(
-        expect.arrayContaining(['Goal-oriented', 'Reflective', 'Growth-minded'])
-      );
-      expect(createdAttributes.every(attr => attr.source === 'journal_analysis')).toBe(true);
+      expect(createdAttributes.map((attr) => attr.value)).toEqual(expect.arrayContaining(['Goal-oriented', 'Reflective', 'Growth-minded']));
+      expect(createdAttributes.every((attr) => attr.source === 'journal_analysis')).toBe(true);
     });
   });
 });
