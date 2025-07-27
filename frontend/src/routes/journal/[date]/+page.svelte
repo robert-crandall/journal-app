@@ -10,7 +10,6 @@
   import JournalComplete from '$lib/components/journal/JournalComplete.svelte';
   import { BookIcon, CalendarIcon, ArrowLeftIcon } from 'lucide-svelte';
   import { getTodayDateString } from '$lib/utils/date';
-  // Get date from URL params
   $: date = $page.params.date;
 
   let journal: JournalResponse | null = null;
@@ -22,19 +21,16 @@
       goto('/journal/' + getTodayDateString());
       return;
     }
-
     await loadJournal();
   });
 
   async function loadJournal() {
     if (!date) return;
-
     try {
       loading = true;
       error = null;
       journal = await JournalService.getJournalByDate(date);
     } catch (err) {
-      // If journal doesn't exist for this date, that's ok - we'll show create form
       if (err instanceof Error && err.message.includes('not found')) {
         journal = null;
       } else {
@@ -50,18 +46,21 @@
   }
 
   function goBack() {
-    goto('/');
+    goto('/journal');
   }
 </script>
+
+<div class="mb-4">
+  <button class="btn btn-ghost gap-2" on:click={goBack}>
+    <ArrowLeftIcon size={18} />
+    Back to Journal
+  </button>
+</div>
 
 <svelte:head>
   <title>Journal - {date ? formatDate(date) : 'Loading...'}</title>
 </svelte:head>
 
-
-<!-- Back Button and Page Title should be handled by layout header if needed -->
-
-<!-- Content -->
 <div class="flex flex-grow flex-col">
   {#if loading}
     <div class="flex flex-grow items-center justify-center py-12">
