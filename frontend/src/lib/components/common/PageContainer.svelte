@@ -3,9 +3,9 @@
 </script>
 
 <div
-  class="mx-auto w-full max-w-sm px-4
-  py-8
-  sm:max-w-lg
+  class="mx-auto w-full max-w-full px-3
+  py-6
+  sm:max-w-lg sm:px-6
   md:max-w-2xl
   lg:max-w-4xl
   xl:max-w-5xl
