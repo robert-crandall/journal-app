@@ -35,16 +35,11 @@
 
 - After changes, verify that all pages have consistent headers, containers, and spacing.
 
-
 # How to Refactor a Page for AppHeader + PageContainer (with Dynamic Header & Back Button)
 
 - [ ] Step 1: Remove any custom header markup (titles, subtitles, icons, badges, etc.) at the top of the page.
 - [ ] Step 2: If not already present, add `<AppHeader>` and `<PageContainer>` to the appropriate `+layout.svelte` (root or section-specific).
-- [ ] Step 3: Make the header dynamic in the layout:
-		- Use SvelteKit's `$page` store to detect the current route.
-		- Render a context-aware header, e.g.:
-			- Show `Journal Dashboard` on the dashboard page.
-			- Show `Journal Entry` and the entry date on entry pages.
+- [ ] Step 3: Make the header dynamic in the layout: - Use SvelteKit's `$page` store to detect the current route. - Render a context-aware header, e.g.: - Show `Journal Dashboard` on the dashboard page. - Show `Journal Entry` and the entry date on entry pages.
 - [ ] Step 4: For child/detail pages, add a back button above the main content (e.g., "Back to Journal").
 - [ ] Step 5: In your `+page.svelte`, keep only the unique page content. Do **not** include headers or containers.
 - [ ] Step 6: Remove any container divs or classes (`max-w-7xl`, `mx-auto`, `px-4`, `py-8`) from the page. The layout handles all of this.
