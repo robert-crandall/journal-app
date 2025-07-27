@@ -176,7 +176,7 @@
         <div class="flex items-center">
           <button
             data-test-id="save-draft-button"
-            on:click={saveJournal}
+            on:click={() => saveJournal()}
             disabled={saving || !initialMessage.trim()}
             class="btn btn-outline btn-sm sm:btn-md w-full gap-1 sm:w-auto sm:gap-2"
           >
