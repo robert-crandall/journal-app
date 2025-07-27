@@ -16,6 +16,7 @@ export * from './plans';
 export * from './weather';
 export * from './metric-summaries';
 export * from './user-attributes';
+export * from './goal-alignment-summaries';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

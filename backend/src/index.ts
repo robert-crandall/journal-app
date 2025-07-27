@@ -13,6 +13,7 @@ import todosRoutes from './routes/todos';
 import experimentsRoutes from './routes/experiments';
 import journalsRoutes from './routes/journals';
 import journalSummariesRoutes from './routes/journal-summaries';
+import goalAlignmentSummariesRoutes from './routes/goal-alignment-summaries';
 import questsRoutes from './routes/quests';
 import plansRoutes from './routes/plans';
 import weatherRoutes from './routes/weather';
@@ -73,6 +74,8 @@ const routes = app
   .route('/api/journals', journalsRoutes)
   // Mount journal summaries routes
   .route('/api/journal-summaries', journalSummariesRoutes)
+  // Mount goal alignment summaries routes
+  .route('/api/goal-alignment-summaries', goalAlignmentSummariesRoutes)
   // Mount quest routes
   .route('/api/quests', questsRoutes)
   // Mount plans routes

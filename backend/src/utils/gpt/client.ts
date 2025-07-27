@@ -55,6 +55,8 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
   if (process.env.NODE_ENV === 'test' || process.env.OPENAI_API_KEY === 'sk-test-key-for-testing-only') {
     const lastMessage = messages[messages.length - 1];
     const content = typeof lastMessage?.content === 'string' ? lastMessage.content : '';
+    const systemMessage = messages.find(m => m.role === 'system');
+    const systemContent = typeof systemMessage?.content === 'string' ? systemMessage.content : '';
 
     // Generate appropriate mock responses based on the prompt content
     let mockResponse = '';
@@ -102,6 +104,31 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
         toneTags: ['reflective', 'thoughtful'],
         statTags: [],
         suggestedTodos: ["Continue reflecting on today's experiences"],
+      });
+    } else if (content.includes('goal alignment') || content.includes('aligned with their goals') || content.includes('alignmentScore') || systemContent.includes('goal alignment') || systemContent.includes('alignmentScore') || systemContent.includes('aligned with their goals')) {
+      // Mock response for goal alignment summary generation
+      mockResponse = JSON.stringify({
+        alignmentScore: 75,
+        alignedGoals: [
+          {
+            goalId: 'mock-goal-1',
+            goalTitle: 'Mock Goal 1',
+            evidence: ['User mentioned working on this goal in their journal', 'Made progress on related activities']
+          }
+        ],
+        neglectedGoals: [
+          {
+            goalId: 'mock-goal-2',
+            goalTitle: 'Mock Goal 2',
+            reason: 'Limited time available during this period'
+          }
+        ],
+        suggestedNextSteps: [
+          'Continue making progress on aligned goals',
+          'Set aside specific time for neglected goals',
+          'Review goal priorities regularly'
+        ],
+        summary: 'During this period, you demonstrated solid alignment with your primary goals, showing consistent effort in key areas. While some goals received less attention, this appears to be due to natural prioritization rather than lack of commitment. Your journal entries reveal a thoughtful approach to goal pursuit and strong self-awareness about your progress and challenges.'
       });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
