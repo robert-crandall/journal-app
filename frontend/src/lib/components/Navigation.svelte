@@ -254,6 +254,22 @@
               </a>
             </li>
             <li>
+              <a href="/goal-alignment-summaries" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg
+                >
+                Goal Alignment
+              </a>
+            </li>
+            <li>
               <a href="/profile" class="text-base-content" on:click={closeDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -307,6 +323,22 @@
                   class="h-4 w-4"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M7 11L12 6l4 4 5-5" /></svg
                 >
                 Metric Summaries
+              </a>
+            </li>
+            <li>
+              <a href="/goal-alignment-summaries" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg
+                >
+                Goal Alignment
               </a>
             </li>
             <li class="menu-title">
