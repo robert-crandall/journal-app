@@ -661,12 +661,7 @@
                               placeholder="Attribute value"
                               autofocus
                             />
-                            <button
-                              class="btn btn-ghost btn-xs hover:btn-success"
-                              on:click={saveEditAttribute}
-                              title="Save changes"
-                              aria-label="Save changes"
-                            >
+                            <button class="btn btn-ghost btn-xs hover:btn-success" on:click={saveEditAttribute} title="Save changes" aria-label="Save changes">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="14"

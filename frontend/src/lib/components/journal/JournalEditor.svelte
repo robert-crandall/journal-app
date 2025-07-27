@@ -47,7 +47,7 @@
     // Store cursor position and focus state if we need to preserve focus
     let cursorPosition = 0;
     let wasFocused = false;
-    
+
     if (preserveFocus && textareaElement) {
       wasFocused = document.activeElement === textareaElement;
       cursorPosition = textareaElement.selectionStart;
