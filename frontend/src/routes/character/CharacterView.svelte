@@ -210,13 +210,11 @@
   }
 </script>
 
-<!-- Character View/Edit with Material Design -->
-<div class="mx-auto max-w-7xl">
-  {#if isEditing}
-    <!-- Edit Mode - Material Design Form -->
-    <div class="grid gap-8 lg:grid-cols-3">
-      <!-- Left Column: Edit Form -->
-      <div class="lg:col-span-2">
+{#if isEditing}
+  <!-- Edit Mode - Material Design Form -->
+  <div class="grid gap-8 lg:grid-cols-3">
+    <!-- Left Column: Edit Form -->
+    <div class="lg:col-span-2">
         <div class="card bg-base-100 border-base-300 border shadow-2xl">
           <div class="card-body p-8">
             <div class="mb-8 text-center">
@@ -483,100 +481,30 @@
       </div>
     </div>
   {:else}
-    <!-- View Mode - Enhanced Layout -->
-    <div class="grid gap-8 lg:grid-cols-4">
-      <!-- Left Column: Character Profile -->
-      <div class="lg:col-span-1">
-        <div class="card from-primary/10 to-secondary/10 border-primary/20 sticky top-8 border bg-gradient-to-br shadow-2xl">
-          <div class="card-body p-8 text-center">
-            <!-- Character Avatar -->
-            <div class="avatar placeholder mb-6">
-              <div class="bg-primary text-primary-content w-24 rounded-full">
-                <span class="text-3xl font-bold">
-                  {character.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            </div>
-
-            <!-- Character Name & Class -->
-            <h2 class="text-primary mb-2 text-2xl font-bold">{character.name}</h2>
-            <div class="badge badge-primary badge-lg mb-4">{character.characterClass}</div>
-
-            <!-- Character Stats -->
-            <div class="stats stats-vertical bg-base-100/50 mb-6 shadow">
-              <div class="stat py-3">
-                <div class="stat-title text-xs">Created</div>
-                <div class="stat-value text-sm">{formatDateTime(character.createdAt, 'date-only')}</div>
-              </div>
-              <div class="stat py-3">
-                <div class="stat-title text-xs">Character Level</div>
-                <div class="stat-value text-sm">1</div>
-              </div>
-            </div>
-
-            <!-- Character Motto -->
-            {#if character.motto}
-              <blockquote class="text-primary text-lg leading-relaxed font-medium italic">
-                "{character.motto}"
-              </blockquote>
-            {/if}
-          </div>
+    <div class="grid gap-8 py-8">
+      <div class="card bg-primary/20 border-primary/60 sticky top-8 border bg-gradient-to-br shadow-2xl">
+        <div class="card-body p-8 text-center">
+          {#if character.motto}
+            <blockquote class="text-primary text-lg leading-relaxed font-medium italic">
+              "{character.motto}"
+            </blockquote>
+          {/if}
+          <h2 class="text-primary mb-2 text-xl font-bold">{character.name} - {character.characterClass}</h2>
         </div>
       </div>
+    </div>
 
-      <!-- Right Column: Character Details -->
-      <div class="space-y-8 lg:col-span-3">
-        {#if error}
-          <div class="alert alert-error">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{error}</span>
-          </div>
-        {/if}
-
-        <!-- Action Buttons -->
-        <div class="flex justify-start gap-4">
-          <button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105" on:click={startEdit} disabled={loading}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-            </svg>
-            Edit Character
-          </button>
-          <button
-            class="btn btn-error btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105"
-            on:click={() => (deleteConfirmOpen = true)}
-            disabled={loading}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="3,6 5,6 21,6" />
-              <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
-            </svg>
-            Delete Character
-          </button>
-        </div>
-
+    {#if error}
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{error}</span>
+      </div>
+    {/if}
+    
+    <!-- View Mode - Enhanced Layout -->
+    <div class="grid gap-8 lg:grid-cols-2">
         <!-- Character Story Content -->
         <div class="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
           <!-- Backstory -->
@@ -764,48 +692,50 @@
             </div>
           </div>
         </div>
-
-        <!-- Character Progress Section (Placeholder) -->
-        <div class="card from-accent/10 to-secondary/10 border-accent/20 border bg-gradient-to-r">
-          <div class="card-body p-6">
-            <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="10,8 16,12 10,16" />
-              </svg>
-              Character Progress
-            </h3>
-            <div class="grid gap-4 text-center md:grid-cols-3">
-              <div class="stat">
-                <div class="stat-title">Quests Completed</div>
-                <div class="stat-value text-primary text-2xl">0</div>
-              </div>
-              <div class="stat">
-                <div class="stat-title">Experience Points</div>
-                <div class="stat-value text-secondary text-2xl">0</div>
-              </div>
-              <div class="stat">
-                <div class="stat-title">Achievements</div>
-                <div class="stat-value text-accent text-2xl">0</div>
-              </div>
-            </div>
-            <p class="text-base-content/60 mt-4 text-center">Start completing quests to see your character's progress!</p>
-          </div>
-        </div>
-      </div>
     </div>
   {/if}
-</div>
+
+  <!-- Action Buttons -->
+        <div class="flex justify-start gap-4">
+          <button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105" on:click={startEdit} disabled={loading}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Edit Character
+          </button>
+          <button
+            class="btn btn-error btn-outline btn-lg gap-2 transition-all duration-200 hover:scale-105"
+            on:click={() => (deleteConfirmOpen = true)}
+            disabled={loading}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="3,6 5,6 21,6" />
+              <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
+            </svg>
+            Delete Character
+          </button>
+        </div>
 
 <!-- Delete Confirmation Modal -->
 {#if deleteConfirmOpen}
