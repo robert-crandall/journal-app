@@ -6,8 +6,7 @@
   import { Plus, Target, Archive, Tag, Edit3, Trash2, Eye } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for goals data
@@ -162,8 +161,7 @@
                       </div>
 
                       {#if goal.description}
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        <p class="text-base-content/80 prose prose-sm mb-4">{@html DOMPurify.sanitize(String(marked.parse(goal.description)))}</p>
+                        <Markdown content={goal.description} classes="text-base-content/80 prose-sm mb-4" />
                       {/if}
 
                       <!-- Tags -->

@@ -24,8 +24,7 @@
     Trash2,
   } from 'lucide-svelte';
   import { formatDate } from '$lib/utils/date';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import MetricSummaryWidget from '$lib/components/metrics/MetricSummaryWidget.svelte';
 
   // Reactive state
@@ -203,10 +202,7 @@
               </div>
 
               {#if dashboard.experiment.description}
-                <p class="text-base-content/70 prose prose-sm mb-4 text-lg">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.description)))}
-                </p>
+                <Markdown content={dashboard.experiment.description} classes="text-base-content/70 prose-sm mb-4 text-lg" />
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">
@@ -272,8 +268,7 @@
                 <div>
                   <h3 class="text-base-content/70 mb-2 text-sm font-medium">How did it go?</h3>
                   <div class="bg-base-200 border-base-300 prose prose-sm max-w-none rounded-lg border p-4">
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html DOMPurify.sanitize(String(marked.parse(dashboard.experiment.reflection)))}
+                    <Markdown content={dashboard.experiment.reflection} classes="prose-sm max-w-none" />
                   </div>
                 </div>
               {/if}

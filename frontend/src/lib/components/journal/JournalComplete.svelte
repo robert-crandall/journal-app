@@ -4,8 +4,7 @@
   import { formatDate, formatDateTime } from '$lib/utils/date';
   import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithEntity } from '$lib/api/xpGrants';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalDayRating from './JournalDayRating.svelte';
   import ToneTagsDisplay from './ToneTagsDisplay.svelte';
 
@@ -72,8 +71,7 @@
         </div>
 
         <div class="prose prose-sm max-w-none">
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          <p class="text-base-content/90 prose prose-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(journal.summary)))}</p>
+          <Markdown content={journal.summary} classes="text-base-content/90 prose-sm leading-relaxed" />
         </div>
       </div>
     </div>
@@ -187,8 +185,7 @@
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
                 <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  <p class="prose prose-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
+                  <Markdown content={message.content} classes="prose-sm leading-relaxed" />
                 </div>
 
                 {#if message.timestamp}

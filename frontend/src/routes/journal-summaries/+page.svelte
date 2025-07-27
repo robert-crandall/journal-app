@@ -6,8 +6,7 @@
   import { BookOpenIcon, CalendarIcon, PlusIcon, FilterIcon, RefreshCwIcon, ClockIcon, TagIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
   import CompactMetricsDisplay from '$lib/components/metrics/CompactMetricsDisplay.svelte';
-  import DOMPurify from 'dompurify';
-  import { marked } from 'marked';
+  import Markdown from '$lib/components/common/Markdown.svelte';
 
   // State
   let summaries: JournalSummaryResponse[] = [];
@@ -246,10 +245,7 @@
 
               <!-- Summary Preview -->
               <div class="flex-1">
-                <p class="text-base-content/80 prose prose-sm text-sm">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(summary.summary)))}
-                </p>
+                <Markdown content={summary.summary} classes="text-base-content/80 prose-sm text-sm" />
               </div>
 
               <!-- Compact Metrics Display -->

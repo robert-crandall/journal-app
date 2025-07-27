@@ -5,8 +5,7 @@
   import type { ExperimentTaskWithCompletionsResponse, ExperimentResponse } from '$lib/types/experiments';
   import { Beaker, CheckCircle, Circle, Plus, BarChart } from 'lucide-svelte';
   import { getTodayDateString } from '$lib/utils/date';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
 
   // State
   let loading = $state(true);
@@ -199,8 +198,7 @@
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  <p class="text-base-content/70 prose prose-sm mt-1">{@html DOMPurify.sanitize(String(marked.parse(experiment.description)))}</p>
+                  <Markdown content={experiment.description} classes="text-base-content/70 prose-sm mt-1" />
                 {/if}
               </div>
               <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
