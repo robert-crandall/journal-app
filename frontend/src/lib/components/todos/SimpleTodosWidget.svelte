@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { simpleTodosStore } from '$lib/stores/todos';
-
+  import Markdown from '../common/Markdown.svelte';
+  import { marked } from 'marked';
   // Export the showTitle prop with default value of true
   export let showTitle: boolean = true;
 
@@ -149,7 +150,7 @@
       {#each incompleteTodos as todo (todo.id)}
         <div class="bg-base-200/50 hover:bg-base-200 flex items-center gap-3 rounded-lg p-3 transition-all duration-200">
           <input type="checkbox" class="checkbox checkbox-accent" checked={false} on:change={() => toggleTodo(todo.id, true)} />
-          <span class="flex-1 text-sm">{todo.description}</span>
+          <Markdown content={todo.description} classes="text-sm" />
           <button
             class="btn btn-ghost btn-xs text-error hover:bg-error hover:text-error-content transition-all duration-200"
             on:click={() => deleteTodo(todo.id)}
