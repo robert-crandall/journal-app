@@ -31,7 +31,7 @@
 
 <div class="space-y-6" data-test-id="journal-complete">
   <!-- Header Card -->
-  <div class="card from-success/10 to-accent/10 border-success/20 border bg-gradient-to-br">
+  <div class="card bg-success/20 border-success/60 border">
     <div class="card-body">
       <div class="mb-4 flex items-center gap-3">
         <CheckCircleIcon size={32} class="text-success" />
@@ -70,8 +70,8 @@
           <h3 class="text-lg font-semibold">Summary</h3>
         </div>
 
-        <div class="prose prose-sm max-w-none">
-          <Markdown content={journal.summary} classes="text-base-content/90 prose-sm leading-relaxed" />
+        <div class="max-w-none">
+          <Markdown content={journal.summary} classes="text-base-content/90 leading-relaxed" />
         </div>
       </div>
     </div>
@@ -184,8 +184,8 @@
 
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
-                <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
-                  <Markdown content={message.content} classes="prose-sm leading-relaxed" />
+                <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary border-primary border' : 'bg-base-200'}">
+                  <Markdown content={message.content} classes="leading-relaxed {message.role === 'user' ? 'text-primary-content' : 'text-base-content'}" />
                 </div>
 
                 {#if message.timestamp}

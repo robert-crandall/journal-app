@@ -253,7 +253,7 @@
               {/if}
 
               <!-- Summary Preview -->
-              <div class="prose prose-sm max-w-none">
+              <div class="max-w-none">
                 {#each formData.summary.split('\n\n') as paragraph}
                   {#if paragraph.trim()}
                     <p>{paragraph.replace(/\n/g, ' ')}</p>

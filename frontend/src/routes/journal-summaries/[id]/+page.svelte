@@ -7,6 +7,7 @@
   import { BookOpenIcon, CalendarIcon, ArrowLeftIcon, EditIcon, TrashIcon, TagIcon, ClockIcon } from 'lucide-svelte';
   import { formatDateTime } from '$lib/utils/date';
   import MetricSummaryWidget from '$lib/components/metrics/MetricSummaryWidget.svelte';
+  import Markdown from '$lib/components/common/Markdown.svelte';
 
   // State
   let summary: JournalSummaryResponse | null = null;
@@ -191,9 +192,8 @@
               <BookOpenIcon size={20} />
               Summary
             </h2>
-            <div class="prose prose-sm max-w-none">
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html formatSummaryContent(summary.summary)}
+            <div class="max-w-none">
+              <Markdown content={summary.summary} />
             </div>
           </div>
         </div>

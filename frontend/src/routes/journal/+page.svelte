@@ -130,90 +130,83 @@
   <title>Journal Dashboard - Life Quest</title>
 </svelte:head>
 
-<div class="bg-base-100 min-h-screen">
-  <div class="mx-auto max-w-7xl px-4 py-8">
-    <!-- Header -->
-    <AppHeader icon={BookOpenIcon} title="Journal Dashboard" subtitle={`${totalJournals} ${totalJournals === 1 ? 'entry' : 'entries'} found`} {buttons} />
+<!-- Search and Filters -->
+<div class="mb-8">
+  <JournalFilterBar
+    bind:searchTerm
+    bind:statusFilter
+    bind:selectedTags
+    bind:selectedToneTags
+    bind:dateFrom
+    bind:dateTo
+    {availableTags}
+    on:search={handleSearch}
+    on:filter={handleFilterChange}
+  />
+</div>
 
-    <!-- Search and Filters -->
-    <div class="mb-8">
-      <JournalFilterBar
-        bind:searchTerm
-        bind:statusFilter
-        bind:selectedTags
-        bind:selectedToneTags
-        bind:dateFrom
-        bind:dateTo
-        {availableTags}
-        on:search={handleSearch}
-        on:filter={handleFilterChange}
-      />
+<!-- Calendar Heatmap -->
+<div class="mb-8">
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <h2 class="card-title flex items-center gap-2">
+        <CalendarIcon size={20} />
+        Activity Overview
+      </h2>
+      <JournalCalendarHeatmap {journals} />
     </div>
-
-    <!-- Calendar Heatmap -->
-    <div class="mb-8">
-      <div class="card bg-base-200">
-        <div class="card-body">
-          <h2 class="card-title flex items-center gap-2">
-            <CalendarIcon size={20} />
-            Activity Overview
-          </h2>
-          <JournalCalendarHeatmap {journals} />
-        </div>
-      </div>
-    </div>
-
-    <!-- Content -->
-    {#if loading && journals.length === 0}
-      <div class="flex items-center justify-center py-12">
-        <span class="loading loading-spinner loading-lg text-primary"></span>
-      </div>
-    {:else if error}
-      <div class="card bg-error/10 border-error/20 border">
-        <div class="card-body">
-          <h3 class="card-title text-error">Error Loading Journals</h3>
-          <p>{error}</p>
-          <div class="card-actions">
-            <button class="btn btn-outline" on:click={() => loadJournals(true)}> Try Again </button>
-          </div>
-        </div>
-      </div>
-    {:else if journals.length === 0}
-      <div class="card bg-base-200">
-        <div class="card-body text-center">
-          <BookOpenIcon size={48} class="text-base-content/30 mx-auto mb-4" />
-          <h3 class="card-title mb-2 justify-center">No Journals Found</h3>
-          <p class="text-base-content/70 mb-4">
-            {#if searchTerm || statusFilter !== 'all' || selectedTags.length > 0 || dateFrom || dateTo}
-              Try adjusting your search filters or create a new journal entry.
-            {:else}
-              Start your journaling journey by creating your first entry.
-            {/if}
-          </p>
-          <div class="card-actions justify-center">
-            <button on:click={createNewJournal} class="btn btn-primary gap-2"> Create First Journal </button>
-          </div>
-        </div>
-      </div>
-    {:else}
-      <!-- Journal Grid/List -->
-      <div class={viewMode === 'grid' ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
-        {#each journals as journal (journal.id)}
-          <JournalCard {journal} {viewMode} on:click={() => handleJournalClick(journal)} />
-        {/each}
-      </div>
-
-      <!-- Load More -->
-      {#if hasMore}
-        <div class="mt-8 flex justify-center">
-          <button on:click={handleLoadMore} class="btn btn-outline" disabled={loading}>
-            {#if loading}
-              <span class="loading loading-spinner loading-sm"></span>
-            {/if}
-            Load More
-          </button>
-        </div>
-      {/if}
-    {/if}
   </div>
 </div>
+
+<!-- Content -->
+{#if loading && journals.length === 0}
+  <div class="flex items-center justify-center py-12">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+  </div>
+{:else if error}
+  <div class="card bg-error/10 border-error/20 border">
+    <div class="card-body">
+      <h3 class="card-title text-error">Error Loading Journals</h3>
+      <p>{error}</p>
+      <div class="card-actions">
+        <button class="btn btn-outline" on:click={() => loadJournals(true)}> Try Again </button>
+      </div>
+    </div>
+  </div>
+{:else if journals.length === 0}
+  <div class="card bg-base-200">
+    <div class="card-body text-center">
+      <BookOpenIcon size={48} class="text-base-content/30 mx-auto mb-4" />
+      <h3 class="card-title mb-2 justify-center">No Journals Found</h3>
+      <p class="text-base-content/70 mb-4">
+        {#if searchTerm || statusFilter !== 'all' || selectedTags.length > 0 || dateFrom || dateTo}
+          Try adjusting your search filters or create a new journal entry.
+        {:else}
+          Start your journaling journey by creating your first entry.
+        {/if}
+      </p>
+      <div class="card-actions justify-center">
+        <button on:click={createNewJournal} class="btn btn-primary gap-2"> Create First Journal </button>
+      </div>
+    </div>
+  </div>
+{:else}
+  <!-- Journal Grid/List -->
+  <div class={viewMode === 'grid' ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
+    {#each journals as journal (journal.id)}
+      <JournalCard {journal} {viewMode} on:click={() => handleJournalClick(journal)} />
+    {/each}
+  </div>
+
+  <!-- Load More -->
+  {#if hasMore}
+    <div class="mt-8 flex justify-center">
+      <button on:click={handleLoadMore} class="btn btn-outline" disabled={loading}>
+        {#if loading}
+          <span class="loading loading-spinner loading-sm"></span>
+        {/if}
+        Load More
+      </button>
+    </div>
+  {/if}
+{/if}

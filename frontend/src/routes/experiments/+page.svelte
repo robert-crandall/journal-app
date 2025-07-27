@@ -180,7 +180,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <Markdown content={experiment.description} classes="text-base-content/60 prose-sm mb-3" />
+                        <Markdown content={experiment.description} classes="text-base-content/60 mb-3" />
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -233,7 +233,7 @@
                     <div class="flex-1">
                       <h3 class="card-title text-base-content">{experiment.title}</h3>
                       {#if experiment.description}
-                        <Markdown content={experiment.description} classes="text-base-content/60 prose-sm mb-3" />
+                        <Markdown content={experiment.description} classes="text-base-content/60 mb-3" />
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">
@@ -291,7 +291,7 @@
                         {/if}
                       </div>
                       {#if experiment.description}
-                        <Markdown content={experiment.description} classes="text-base-content/60 prose-sm mb-3" />
+                        <Markdown content={experiment.description} classes="text-base-content/60 mb-3" />
                       {/if}
                     </div>
                     <span class="badge {getExperimentStatusColor(getExperimentStatus(experiment))}">

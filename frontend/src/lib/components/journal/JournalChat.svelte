@@ -159,7 +159,7 @@
             <!-- Message Content -->
             <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
               <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary' : 'bg-base-200'}">
-                <Markdown content={message.content} classes="prose-sm leading-relaxed {message.role === 'user' ? 'text-primary-content' : 'text-base-content'}" />
+                <Markdown content={message.content} classes="leading-relaxed {message.role === 'user' ? 'text-primary-content' : 'text-base-content'}" />
               </div>
 
               {#if message.timestamp}

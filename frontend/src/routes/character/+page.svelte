@@ -58,59 +58,28 @@
   <title>Character - Journal App</title>
 </svelte:head>
 
-<div class="bg-base-200 min-h-screen">
-  <main class="mx-auto w-full max-w-7xl px-4 py-8">
-    <!-- Header Section -->
-    <AppHeader title="Your Character" subtitle="Create and manage your character to start your gamified life journey" icon={UserIcon} />
-
-    <!-- Main Content Area -->
-    <div class="mx-auto max-w-7xl">
-      {#if loading}
-        <div class="flex min-h-[400px] items-center justify-center">
-          <div class="text-center">
-            <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
-            <p class="text-lg">Loading character...</p>
-          </div>
-        </div>
-      {:else if error}
-        <div class="mx-auto max-w-md">
-          <div class="alert alert-error">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <h3 class="font-bold">Error Loading Character</h3>
-              <div class="text-xs">{error}</div>
-            </div>
-            <button class="btn btn-sm btn-outline" on:click={loadCharacter}> Try Again </button>
-          </div>
-        </div>
-      {:else if character}
-        <CharacterView {character} on:characterUpdated={handleCharacterUpdated} on:characterDeleted={handleCharacterDeleted} />
-      {:else}
-        <CharacterCreate on:characterCreated={handleCharacterCreated} />
-      {/if}
+{#if loading}
+  <div class="flex min-h-[400px] items-center justify-center">
+    <div class="text-center">
+      <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
+      <p class="text-lg">Loading character...</p>
     </div>
-
-    <!-- Navigation -->
-    <div class="mt-12 text-center">
-      <a href="/" class="btn btn-outline btn-lg gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="m12 19-7-7 7-7" />
-          <path d="M19 12H5" />
-        </svg>
-        Back to Home
-      </a>
+  </div>
+{:else if error}
+  <div class="mx-auto max-w-md">
+    <div class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Error Loading Character</h3>
+        <div class="text-xs">{error}</div>
+      </div>
+      <button class="btn btn-sm btn-outline" on:click={loadCharacter}> Try Again </button>
     </div>
-  </main>
-</div>
+  </div>
+{:else if character}
+  <CharacterView {character} on:characterUpdated={handleCharacterUpdated} on:characterDeleted={handleCharacterDeleted} />
+{:else}
+  <CharacterCreate on:characterCreated={handleCharacterCreated} />
+{/if}

@@ -202,7 +202,7 @@
               </div>
 
               {#if dashboard.experiment.description}
-                <Markdown content={dashboard.experiment.description} classes="text-base-content/70 prose-sm mb-4 text-lg" />
+                <Markdown content={dashboard.experiment.description} classes="text-base-content/70 mb-4 text-lg" />
               {/if}
 
               <div class="text-base-content/60 flex flex-wrap items-center gap-6 text-sm">
@@ -267,8 +267,8 @@
               {#if dashboard.experiment.reflection && dashboard.experiment.reflection.trim()}
                 <div>
                   <h3 class="text-base-content/70 mb-2 text-sm font-medium">How did it go?</h3>
-                  <div class="bg-base-200 border-base-300 prose prose-sm max-w-none rounded-lg border p-4">
-                    <Markdown content={dashboard.experiment.reflection} classes="prose-sm max-w-none" />
+                  <div class="bg-base-200 border-base-300 max-w-none rounded-lg border p-4">
+                    <Markdown content={dashboard.experiment.reflection} classes="max-w-none" />
                   </div>
                 </div>
               {/if}

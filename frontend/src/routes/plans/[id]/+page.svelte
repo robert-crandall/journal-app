@@ -433,7 +433,7 @@
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body">
                 <h2 class="card-title text-lg">Description</h2>
-                <Markdown content={plan.description} classes="prose-sm max-w-none" />
+                <Markdown content={plan.description} classes="max-w-none" />
               </div>
             </div>
           {/if}

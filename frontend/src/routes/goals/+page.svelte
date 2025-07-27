@@ -161,7 +161,7 @@
                       </div>
 
                       {#if goal.description}
-                        <Markdown content={goal.description} classes="text-base-content/80 prose-sm mb-4" />
+                        <Markdown content={goal.description} classes="text-base-content/80 mb-4" />
                       {/if}
 
                       <!-- Tags -->
