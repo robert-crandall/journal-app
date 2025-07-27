@@ -49,18 +49,8 @@ export class UserAttributesService {
       lastUpdated: new Date(),
     }));
 
-    return await db
-      .insert(userAttributes)
-      .values(values)
-      .onConflictDoUpdate({
-        target: [userAttributes.userId, userAttributes.value],
-        set: {
-          source: excluded(userAttributes.source),
-          lastUpdated: new Date(),
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    // Insert all attributes, ignore conflicts (do not update existing)
+    return await db.insert(userAttributes).values(values).onConflictDoNothing().returning();
   }
 
   /**
