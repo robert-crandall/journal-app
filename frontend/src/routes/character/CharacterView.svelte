@@ -481,7 +481,7 @@
     </div>
   </div>
 {:else}
-  <div class="grid gap-8">
+  <div class="grid gap-8 pb-8">
     <div class="card bg-primary/20 border-primary/60 sticky top-8 border bg-gradient-to-br shadow-2xl">
       <div class="card-body p-8 text-center">
         {#if character.motto}
@@ -504,7 +504,7 @@
   {/if}
 
   <!-- View Mode - Enhanced Layout -->
-  <div class="grid gap-8 py-8 lg:grid-cols-2">
+  <div class="grid gap-8 lg:grid-cols-2">
     <!-- Backstory -->
     {#if character.backstory}
       <div class="card bg-base-100 border-base-300 border shadow-xl">
@@ -687,7 +687,7 @@
 {/if}
 
 <!-- Action Buttons -->
-<div class="flex justify-start gap-4">
+<div class="flex justify-start gap-4 pt-8">
   <button class="btn btn-primary btn-lg gap-2 shadow-lg transition-all duration-200 hover:scale-105" on:click={startEdit} disabled={loading}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
