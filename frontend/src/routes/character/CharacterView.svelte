@@ -1,4 +1,23 @@
 <script lang="ts">
+  // Add new attribute
+  async function addNewAttribute() {
+    if (!newAttributeValue.trim()) {
+      addAttributeError = 'Attribute value cannot be empty';
+      return;
+    }
+    try {
+      addAttributeLoading = true;
+      addAttributeError = null;
+      await userAttributesApi.createAttribute({ value: newAttributeValue.trim(), source: 'user_set' });
+      newAttributeValue = '';
+      await loadUserAttributes();
+    } catch (e: unknown) {
+      addAttributeError = e instanceof Error ? e.message : 'Failed to add attribute';
+      console.error('Error adding attribute:', e);
+    } finally {
+      addAttributeLoading = false;
+    }
+  }
   import { createEventDispatcher, onMount } from 'svelte';
   import { characterApi } from '../../lib/api/characters';
   import { userAttributesApi } from '../../lib/api/user-attributes';
@@ -27,6 +46,11 @@
   let attributesError: string | null = null;
   let editingAttributeId: string | null = null;
   let editingAttributeValue: string = '';
+
+  // Add attribute state
+  let newAttributeValue: string = '';
+  let addAttributeLoading = false;
+  let addAttributeError: string | null = null;
 
   // Form data for editing
   let editData: UpdateCharacterData = {};
@@ -562,29 +586,118 @@
             <span>{attributesError}</span>
             <button class="btn btn-sm" on:click={loadUserAttributes}>Retry</button>
           </div>
-        {:else if userAttributes.length === 0}
-          <div class="text-base-content/60 py-6 text-center">
-            <p class="mb-2">No attributes discovered yet</p>
-            <p class="text-sm">Attributes will appear here as you write journal entries</p>
-          </div>
         {:else}
-          <div class="space-y-0">
-            {#each userAttributes as attribute, index (attribute.id)}
-              <div class="flex items-center justify-between py-3 {index < userAttributes.length - 1 ? 'border-base-300 border-b' : ''}">
-                <div class="flex-1">
-                  {#if editingAttributeId === attribute.id}
-                    <!-- Inline editing mode -->
-                    <div class="flex items-center gap-2">
-                      <input
-                        type="text"
-                        bind:value={editingAttributeValue}
-                        on:keydown={handleAttributeKeydown}
-                        on:blur={saveEditAttribute}
-                        class="input input-bordered input-sm flex-1"
-                        placeholder="Attribute value"
-                        autofocus
-                      />
-                      <button class="btn btn-ghost btn-xs hover:btn-success" on:click={saveEditAttribute} title="Save changes" aria-label="Save changes">
+          <!-- Add Attribute UI -->
+          <form class="mb-4 flex items-center gap-2" on:submit|preventDefault={addNewAttribute}>
+            <input
+              type="text"
+              class="input input-bordered input-sm flex-1"
+              placeholder="Add new attribute..."
+              bind:value={newAttributeValue}
+              maxlength="100"
+              aria-label="New attribute value"
+              disabled={addAttributeLoading}
+            />
+            <button type="submit" class="btn btn-primary btn-sm" disabled={addAttributeLoading || !newAttributeValue.trim()} aria-label="Add attribute">
+              {#if addAttributeLoading}
+                <span class="loading loading-spinner loading-xs"></span>
+              {:else}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+                </svg>
+                Add
+              {/if}
+            </button>
+          </form>
+          {#if addAttributeError}
+            <div class="alert alert-error mb-2 px-3 py-2 text-xs">
+              <span>{addAttributeError}</span>
+            </div>
+          {/if}
+          {#if userAttributes.length === 0}
+            <div class="text-base-content/60 py-6 text-center">
+              <p class="mb-2">No attributes discovered yet</p>
+              <p class="text-sm">Attributes will appear here as you write journal entries or add them above</p>
+            </div>
+          {:else}
+            <div class="space-y-0">
+              {#each userAttributes as attribute, index (attribute.id)}
+                <div class="flex items-center justify-between py-3 {index < userAttributes.length - 1 ? 'border-base-300 border-b' : ''}">
+                  <div class="flex-1">
+                    {#if editingAttributeId === attribute.id}
+                      <!-- Inline editing mode -->
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="text"
+                          bind:value={editingAttributeValue}
+                          on:keydown={handleAttributeKeydown}
+                          on:blur={saveEditAttribute}
+                          class="input input-bordered input-sm flex-1"
+                          placeholder="Attribute value"
+                          autofocus
+                        />
+                        <button class="btn btn-ghost btn-xs hover:btn-success" on:click={saveEditAttribute} title="Save changes" aria-label="Save changes">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="20,6 9,17 4,12" />
+                          </svg>
+                        </button>
+                        <button class="btn btn-ghost btn-xs hover:btn-error" on:click={cancelEditAttribute} title="Cancel editing" aria-label="Cancel editing">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    {:else}
+                      <!-- Display mode -->
+                      <span class="text-base font-medium">{attribute.value}</span>
+                      {#if attribute.source}
+                        <span class="text-base-content/60 ml-2 text-xs">
+                          ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
+                        </span>
+                      {/if}
+                    {/if}
+                  </div>
+                  {#if editingAttributeId !== attribute.id}
+                    <div class="ml-4 flex items-center gap-1">
+                      <!-- Edit button -->
+                      <button
+                        class="btn btn-ghost btn-xs hover:btn-primary"
+                        on:click={() => startEditAttribute(attribute.id, attribute.value)}
+                        title="Edit attribute"
+                        aria-label="Edit attribute"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="14"
@@ -596,10 +709,17 @@
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         >
-                          <polyline points="20,6 9,17 4,12" />
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                         </svg>
                       </button>
-                      <button class="btn btn-ghost btn-xs hover:btn-error" on:click={cancelEditAttribute} title="Cancel editing" aria-label="Cancel editing">
+                      <!-- Delete button -->
+                      <button
+                        class="btn btn-ghost btn-xs hover:btn-error"
+                        on:click={() => deleteAttribute(attribute.id, attribute.value)}
+                        title="Delete attribute"
+                        aria-label="Delete attribute"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="14"
@@ -611,75 +731,19 @@
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
+                          <polyline points="3,6 5,6 21,6" />
+                          <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
                         </svg>
                       </button>
                     </div>
-                  {:else}
-                    <!-- Display mode -->
-                    <span class="text-base font-medium">{attribute.value}</span>
-                    {#if attribute.source}
-                      <span class="text-base-content/60 ml-2 text-xs">
-                        ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
-                      </span>
-                    {/if}
                   {/if}
                 </div>
-                {#if editingAttributeId !== attribute.id}
-                  <div class="ml-4 flex items-center gap-1">
-                    <!-- Edit button -->
-                    <button
-                      class="btn btn-ghost btn-xs hover:btn-primary"
-                      on:click={() => startEditAttribute(attribute.id, attribute.value)}
-                      title="Edit attribute"
-                      aria-label="Edit attribute"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M12 20h9" />
-                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                      </svg>
-                    </button>
-                    <!-- Delete button -->
-                    <button
-                      class="btn btn-ghost btn-xs hover:btn-error"
-                      on:click={() => deleteAttribute(attribute.id, attribute.value)}
-                      title="Delete attribute"
-                      aria-label="Delete attribute"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="3,6 5,6 21,6" />
-                        <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
-                      </svg>
-                    </button>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-          <div class="text-base-content/60 mt-4 text-xs">
-            {userAttributes.length} attribute{userAttributes.length === 1 ? '' : 's'} discovered
-          </div>
+              {/each}
+            </div>
+            <div class="text-base-content/60 mt-4 text-xs">
+              {userAttributes.length} attribute{userAttributes.length === 1 ? '' : 's'} discovered
+            </div>
+          {/if}
         {/if}
       </div>
     </div>
