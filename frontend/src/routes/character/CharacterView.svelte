@@ -600,8 +600,8 @@
                   </svg>
                   Backstory
                 </h3>
-                <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  <Markdown content={character.backstory} classes="prose-sm max-w-none text-left leading-relaxed" />
+                <div class="max-w-none text-left leading-relaxed">
+                  <Markdown content={character.backstory} classes="max-w-none text-left leading-relaxed" />
                 </div>
               </div>
             </div>

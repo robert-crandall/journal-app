@@ -245,7 +245,7 @@
 
               <!-- Summary Preview -->
               <div class="flex-1">
-                <Markdown content={summary.summary} classes="text-base-content/80 prose-sm text-sm" />
+                <Markdown content={summary.summary} classes="text-base-content/80 text-sm" />
               </div>
 
               <!-- Compact Metrics Display -->

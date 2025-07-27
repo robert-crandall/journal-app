@@ -236,7 +236,7 @@
                       </div>
 
                       {#if plan.description}
-                        <Markdown content={plan.description} classes="text-base-content/80 prose-sm mb-4" />
+                        <Markdown content={plan.description} classes="text-base-content/80 mb-4" />
                       {/if}
 
                       <!-- Plan Features -->

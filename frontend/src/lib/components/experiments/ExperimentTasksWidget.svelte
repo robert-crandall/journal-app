@@ -198,7 +198,7 @@
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
-                  <Markdown content={experiment.description} classes="text-base-content/70 prose-sm mt-1" />
+                  <Markdown content={experiment.description} classes="text-base-content/70 mt-1" />
                 {/if}
               </div>
               <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">

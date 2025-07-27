@@ -70,8 +70,8 @@
           <h3 class="text-lg font-semibold">Summary</h3>
         </div>
 
-        <div class="prose prose-sm max-w-none">
-          <Markdown content={journal.summary} classes="text-base-content/90 prose-sm leading-relaxed" />
+        <div class="max-w-none">
+          <Markdown content={journal.summary} classes="text-base-content/90 leading-relaxed" />
         </div>
       </div>
     </div>
@@ -185,7 +185,7 @@
               <!-- Message Content -->
               <div class="max-w-md flex-1 {message.role === 'user' ? 'text-right' : ''}">
                 <div class="rounded-lg px-4 py-3 {message.role === 'user' ? 'bg-primary/10 border-primary/20 border' : 'bg-base-200'}">
-                  <Markdown content={message.content} classes="prose-sm leading-relaxed" />
+                  <Markdown content={message.content} classes="leading-relaxed" />
                 </div>
 
                 {#if message.timestamp}
