@@ -1,4 +1,3 @@
-
 # Svelte 5 UI Consistency & DRY Principles
 
 ## Core Principles
@@ -10,28 +9,33 @@
 ## Svelte 5 Layout Best Practices
 
 1. **Use Root Layout for Global UI:**
-  - Create or update `src/routes/+layout.svelte` to include your global wrappers (e.g., `<PageContainer>`, `<AppHeader>`, nav, etc.).
-  - All pages will automatically inherit this structure.
+
+- Create or update `src/routes/+layout.svelte` to include your global wrappers (e.g., `<PageContainer>`, `<AppHeader>`, nav, etc.).
+- All pages will automatically inherit this structure.
 
 2. **Nested Layouts for Sections:**
-  - For areas needing a different layout (e.g., dashboard, marketing), use layout groups: create a folder like `(dashboard)/+layout.svelte`.
-  - Only put section-specific wrappers in these nested layouts.
+
+- For areas needing a different layout (e.g., dashboard, marketing), use layout groups: create a folder like `(dashboard)/+layout.svelte`.
+- Only put section-specific wrappers in these nested layouts.
 
 3. **Page Files for Content Only:**
-  - Only put unique, page-specific content in `+page.svelte` files. Never repeat headers, containers, or nav here.
+
+- Only put unique, page-specific content in `+page.svelte` files. Never repeat headers, containers, or nav here.
 
 4. **Component Reuse:**
-  - Place all reusable UI (headers, containers, buttons, etc.) in `$lib` and import them in layouts/pages as needed.
+
+- Place all reusable UI (headers, containers, buttons, etc.) in `$lib` and import them in layouts/pages as needed.
 
 5. **Advanced: Layout Resets & Composition:**
-  - Use `+layout@.svelte` or `+page@.svelte` to break out of inherited layouts if needed.
-  - Prefer composition (wrapping with reusable components) over copy-pasting markup.
+
+- Use `+layout@.svelte` or `+page@.svelte` to break out of inherited layouts if needed.
+- Prefer composition (wrapping with reusable components) over copy-pasting markup.
 
 6. **Testing Consistency:**
-  - After changes, verify that all pages have consistent headers, containers, and spacing.
+
+- After changes, verify that all pages have consistent headers, containers, and spacing.
 
 # How to Refactor a Page for AppHeader + PageContainer
-
 
 - [ ] Step 1: Remove any custom header markup (titles, subtitles, icons, badges, etc.) at the top of the page.
 - [ ] Step 2: If not already present, add `<AppHeader>` and `<PageContainer>` to the appropriate `+layout.svelte` (root or section-specific).
@@ -43,5 +47,6 @@
 ---
 
 **References:**
+
 - [SvelteKit Layouts Documentation](https://kit.svelte.dev/docs/layouts)
 - [SvelteKit Advanced Routing & Layouts](https://svelte.dev/docs/kit/advanced-routing)
