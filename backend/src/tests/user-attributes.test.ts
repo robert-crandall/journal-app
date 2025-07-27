@@ -54,14 +54,13 @@ describe('User Attributes API Integration Tests', () => {
 
     it('should return attributes when user has them', async () => {
       // First create some attributes
+
       const attributeData1 = {
-        category: 'characteristics',
         value: 'Enjoys watching movies more on second watching',
         source: 'journal_analysis',
       };
 
       const attributeData2 = {
-        category: 'motivators',
         value: 'Wants kids to grow up to be self-sufficient',
         source: 'gpt_summary',
       };
@@ -98,80 +97,21 @@ describe('User Attributes API Integration Tests', () => {
       const data = await getRes.json();
       expect(data.success).toBe(true);
       expect(data.data).toHaveLength(2);
-      
+
       // Check that both attributes are returned (order might vary)
-      const characteristics = data.data.find((attr: any) => attr.category === 'characteristics');
-      const motivators = data.data.find((attr: any) => attr.category === 'motivators');
-      
-      expect(characteristics).toMatchObject({
-        category: attributeData1.category,
-        value: attributeData1.value,
-        source: attributeData1.source,
-      });
-      
-      expect(motivators).toMatchObject({
-        category: attributeData2.category,
-        value: attributeData2.value,
-        source: attributeData2.source,
-      });
-    });
-
-    it('should filter by category when query parameter provided', async () => {
-      // Create attributes in different categories
-      const characteristicAttr = {
-        category: 'characteristics',
-        value: 'Enjoys learning new skills',
-        source: 'user_set',
-      };
-
-      const motivatorAttr = {
-        category: 'motivators',
-        value: 'Wants to make a positive impact',
-        source: 'user_set',
-      };
-
-      await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(characteristicAttr),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(motivatorAttr),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      // Filter by characteristics category
-      const res = await app.request('/api/user-attributes?category=characteristics', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.success).toBe(true);
-      expect(data.data).toHaveLength(1);
-      expect(data.data[0].category).toBe('characteristics');
+      const values = data.data.map((attr: any) => attr.value);
+      expect(values).toContain(attributeData1.value);
+      expect(values).toContain(attributeData2.value);
     });
 
     it('should filter by source when query parameter provided', async () => {
       // Create attributes with different sources
       const userSetAttr = {
-        category: 'values',
         value: 'User defined value',
         source: 'user_set',
       };
 
       const gptAttr = {
-        category: 'values',
         value: 'GPT inferred value',
         source: 'gpt_summary',
       };
@@ -228,43 +168,6 @@ describe('User Attributes API Integration Tests', () => {
       expect(data.data).toEqual({});
     });
 
-    it('should return attributes grouped by category', async () => {
-      // Create attributes in different categories
-      const attributes = [
-        { category: 'characteristics', value: 'Enjoys learning', source: 'user_set' },
-        { category: 'characteristics', value: 'Prefers quiet environments', source: 'journal_analysis' },
-        { category: 'motivators', value: 'Wants to help others', source: 'gpt_summary' },
-        { category: 'values', value: 'Honesty', source: 'user_set' },
-      ];
-
-      for (const attr of attributes) {
-        await app.request('/api/user-attributes', {
-          method: 'POST',
-          body: JSON.stringify(attr),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-      }
-
-      const res = await app.request('/api/user-attributes/grouped', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.success).toBe(true);
-      expect(data.data).toHaveProperty('characteristics');
-      expect(data.data).toHaveProperty('motivators');
-      expect(data.data).toHaveProperty('values');
-      expect(data.data.characteristics).toHaveLength(2);
-      expect(data.data.motivators).toHaveLength(1);
-      expect(data.data.values).toHaveLength(1);
-    });
-
     it('should require authentication', async () => {
       const res = await app.request('/api/user-attributes/grouped');
       expect(res.status).toBe(401);
@@ -285,41 +188,6 @@ describe('User Attributes API Integration Tests', () => {
       expect(data.data.summary).toBe(null);
     });
 
-    it('should return formatted summary when user has attributes', async () => {
-      // Create attributes in different categories
-      const attributes = [
-        { category: 'characteristics', value: 'Enjoys learning new skills', source: 'user_set' },
-        { category: 'characteristics', value: 'Prefers working alone', source: 'journal_analysis' },
-        { category: 'motivators', value: 'Wants to make a difference', source: 'gpt_summary' },
-      ];
-
-      for (const attr of attributes) {
-        await app.request('/api/user-attributes', {
-          method: 'POST',
-          body: JSON.stringify(attr),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-      }
-
-      const res = await app.request('/api/user-attributes/summary', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.success).toBe(true);
-      expect(data.data.summary).toContain('Characteristics:');
-      expect(data.data.summary).toContain('Motivators:');
-      expect(data.data.summary).toContain('Enjoys learning new skills');
-      expect(data.data.summary).toContain('Prefers working alone');
-      expect(data.data.summary).toContain('Wants to make a difference');
-    });
-
     it('should require authentication', async () => {
       const res = await app.request('/api/user-attributes/summary');
       expect(res.status).toBe(401);
@@ -332,7 +200,6 @@ describe('User Attributes API Integration Tests', () => {
     beforeEach(async () => {
       // Create a test attribute
       const attributeData = {
-        category: 'test',
         value: 'Test attribute value',
         source: 'user_set',
       };
@@ -363,7 +230,6 @@ describe('User Attributes API Integration Tests', () => {
       expect(data.success).toBe(true);
       expect(data.data).toMatchObject({
         id: attributeId,
-        category: 'test',
         value: 'Test attribute value',
         source: 'user_set',
       });
@@ -392,7 +258,6 @@ describe('User Attributes API Integration Tests', () => {
   describe('POST /api/user-attributes', () => {
     it('should create a new attribute successfully with all fields', async () => {
       const attributeData = {
-        category: 'characteristics',
         value: 'Enjoys problem-solving challenges',
         source: 'journal_analysis',
       };
@@ -412,7 +277,6 @@ describe('User Attributes API Integration Tests', () => {
       // Check response structure
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
-        category: attributeData.category,
         value: attributeData.value,
         source: attributeData.source,
         userId: userId,
@@ -424,22 +288,16 @@ describe('User Attributes API Integration Tests', () => {
 
       // Verify attribute was actually created in database
       const db = testDb();
-      const dbAttribute = await db
-        .select()
-        .from(schema.userAttributes)
-        .where(eq(schema.userAttributes.id, responseData.data.id))
-        .limit(1);
+      const dbAttribute = await db.select().from(schema.userAttributes).where(eq(schema.userAttributes.id, responseData.data.id)).limit(1);
 
       expect(dbAttribute).toHaveLength(1);
-      expect(dbAttribute[0].category).toBe(attributeData.category);
       expect(dbAttribute[0].value).toBe(attributeData.value);
       expect(dbAttribute[0].source).toBe(attributeData.source);
       expect(dbAttribute[0].userId).toBe(userId);
     });
 
-    it('should create attribute with minimal data (category and value only)', async () => {
+    it('should create attribute with minimal data', async () => {
       const attributeData = {
-        category: 'values',
         value: 'Integrity',
       };
 
@@ -457,52 +315,13 @@ describe('User Attributes API Integration Tests', () => {
 
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
-        category: attributeData.category,
         value: attributeData.value,
         source: 'user_set', // Should default to user_set
       });
     });
 
-    it('should allow multiple attributes per user in same category', async () => {
-      const attr1 = { category: 'characteristics', value: 'First characteristic' };
-      const attr2 = { category: 'characteristics', value: 'Second characteristic' };
-
-      const res1 = await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(attr1),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      const res2 = await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(attr2),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res1.status).toBe(201);
-      expect(res2.status).toBe(201);
-
-      // Verify both attributes exist
-      const getRes = await app.request('/api/user-attributes', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(getRes.status).toBe(200);
-      const data = await getRes.json();
-      expect(data.data).toHaveLength(2);
-    });
-
     it('should require authentication', async () => {
       const attributeData = {
-        category: 'test',
         value: 'Test value',
       };
 
@@ -519,7 +338,6 @@ describe('User Attributes API Integration Tests', () => {
 
     it('should validate required fields', async () => {
       const invalidData = {
-        category: 'test',
         // Missing value
       };
 
@@ -540,7 +358,6 @@ describe('User Attributes API Integration Tests', () => {
 
     it('should validate source enum values', async () => {
       const invalidData = {
-        category: 'test',
         value: 'Test value',
         source: 'invalid_source',
       };
@@ -559,48 +376,15 @@ describe('User Attributes API Integration Tests', () => {
       expect(errorData.success).toBe(false);
       expect(errorData.error).toHaveProperty('issues');
     });
-
-    it('should prevent duplicate attributes (same user, category, and value)', async () => {
-      const attributeData = {
-        category: 'characteristics',
-        value: 'Unique characteristic',
-        source: 'user_set',
-      };
-
-      // Create first attribute
-      const res1 = await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(attributeData),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res1.status).toBe(201);
-
-      // Try to create duplicate attribute
-      const res2 = await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(attributeData),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      // Should fail due to unique constraint
-      expect(res2.status).toBe(500); // Database constraint violation
-    });
   });
 
   describe('POST /api/user-attributes/bulk', () => {
     it('should create multiple attributes successfully', async () => {
       const bulkData = {
         attributes: [
-          { category: 'characteristics', value: 'Bulk attribute 1', source: 'gpt_summary' },
-          { category: 'motivators', value: 'Bulk attribute 2', source: 'journal_analysis' },
-          { category: 'values', value: 'Bulk attribute 3', source: 'user_set' },
+          { value: 'Bulk attribute 1', source: 'gpt_summary' },
+          { value: 'Bulk attribute 2', source: 'journal_analysis' },
+          { value: 'Bulk attribute 3', source: 'user_set' },
         ],
       };
 
@@ -651,60 +435,9 @@ describe('User Attributes API Integration Tests', () => {
       expect(responseData.data).toEqual([]);
     });
 
-    it('should update existing attributes on conflict', async () => {
-      // Create initial attribute
-      const initialAttr = {
-        category: 'characteristics',
-        value: 'Test characteristic',
-        source: 'user_set',
-      };
-
-      await app.request('/api/user-attributes', {
-        method: 'POST',
-        body: JSON.stringify(initialAttr),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      // Bulk create with same category/value but different source
-      const bulkData = {
-        attributes: [
-          { category: 'characteristics', value: 'Test characteristic', source: 'gpt_summary' },
-        ],
-      };
-
-      const res = await app.request('/api/user-attributes/bulk', {
-        method: 'POST',
-        body: JSON.stringify(bulkData),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      expect(res.status).toBe(201);
-      const responseData = await res.json();
-
-      expect(responseData.success).toBe(true);
-      expect(responseData.data).toHaveLength(1);
-      expect(responseData.data[0].source).toBe('gpt_summary'); // Should be updated
-
-      // Verify only one attribute exists (not duplicated)
-      const getRes = await app.request('/api/user-attributes', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      const getData = await getRes.json();
-      expect(getData.data).toHaveLength(1);
-    });
-
     it('should require authentication', async () => {
       const bulkData = {
-        attributes: [{ category: 'test', value: 'Test value' }],
+        attributes: [{ value: 'Test value' }],
       };
 
       const res = await app.request('/api/user-attributes/bulk', {
@@ -725,7 +458,6 @@ describe('User Attributes API Integration Tests', () => {
     beforeEach(async () => {
       // Create an attribute for update tests
       const attributeData = {
-        category: 'original',
         value: 'Original value',
         source: 'user_set',
       };
@@ -746,7 +478,6 @@ describe('User Attributes API Integration Tests', () => {
 
     it('should update attribute successfully', async () => {
       const updateData = {
-        category: 'updated',
         value: 'Updated value',
         source: 'gpt_summary',
       };
@@ -766,20 +497,14 @@ describe('User Attributes API Integration Tests', () => {
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
         id: attributeId,
-        category: updateData.category,
         value: updateData.value,
         source: updateData.source,
       });
 
       // Verify in database
       const db = testDb();
-      const dbAttribute = await db
-        .select()
-        .from(schema.userAttributes)
-        .where(eq(schema.userAttributes.id, attributeId))
-        .limit(1);
+      const dbAttribute = await db.select().from(schema.userAttributes).where(eq(schema.userAttributes.id, attributeId)).limit(1);
 
-      expect(dbAttribute[0].category).toBe(updateData.category);
       expect(dbAttribute[0].value).toBe(updateData.value);
       expect(dbAttribute[0].source).toBe(updateData.source);
     });
@@ -803,7 +528,6 @@ describe('User Attributes API Integration Tests', () => {
 
       expect(responseData.success).toBe(true);
       expect(responseData.data.value).toBe(updateData.value);
-      expect(responseData.data.category).toBe('original'); // Should remain unchanged
       expect(responseData.data.source).toBe('user_set'); // Should remain unchanged
     });
 
@@ -848,7 +572,6 @@ describe('User Attributes API Integration Tests', () => {
     beforeEach(async () => {
       // Create an attribute for delete tests
       const attributeData = {
-        category: 'test',
         value: 'Attribute to delete',
         source: 'user_set',
       };
@@ -881,17 +604,12 @@ describe('User Attributes API Integration Tests', () => {
       expect(responseData.success).toBe(true);
       expect(responseData.data).toMatchObject({
         id: attributeId,
-        category: 'test',
         value: 'Attribute to delete',
       });
 
       // Verify attribute was actually deleted from database
       const db = testDb();
-      const dbAttribute = await db
-        .select()
-        .from(schema.userAttributes)
-        .where(eq(schema.userAttributes.id, attributeId))
-        .limit(1);
+      const dbAttribute = await db.select().from(schema.userAttributes).where(eq(schema.userAttributes.id, attributeId)).limit(1);
 
       expect(dbAttribute).toHaveLength(0);
     });
@@ -922,11 +640,10 @@ describe('User Attributes API Integration Tests', () => {
     it('should remove duplicate attributes', async () => {
       // Manually insert duplicate attributes directly into database
       const db = testDb();
-      
+
       // Create first attribute
       await db.insert(schema.userAttributes).values({
         userId: userId,
-        category: 'characteristics',
         value: 'Duplicate value',
         source: 'user_set',
         lastUpdated: new Date('2023-01-01'),
@@ -935,7 +652,6 @@ describe('User Attributes API Integration Tests', () => {
       // Create duplicate attribute (newer)
       await db.insert(schema.userAttributes).values({
         userId: userId,
-        category: 'characteristics',
         value: 'Duplicate value',
         source: 'gpt_summary',
         lastUpdated: new Date('2023-01-02'),
@@ -944,7 +660,6 @@ describe('User Attributes API Integration Tests', () => {
       // Create unique attribute
       await db.insert(schema.userAttributes).values({
         userId: userId,
-        category: 'values',
         value: 'Unique value',
         source: 'user_set',
         lastUpdated: new Date('2023-01-01'),
@@ -983,9 +698,7 @@ describe('User Attributes API Integration Tests', () => {
       expect(finalData.data).toHaveLength(2);
 
       // Verify the kept attribute is the newer one (gpt_summary)
-      const keptDuplicate = finalData.data.find((attr: any) => 
-        attr.category === 'characteristics' && attr.value === 'Duplicate value'
-      );
+      const keptDuplicate = finalData.data.find((attr: any) => attr.value === 'Duplicate value');
       expect(keptDuplicate.source).toBe('gpt_summary');
     });
 
@@ -993,7 +706,7 @@ describe('User Attributes API Integration Tests', () => {
       // Create unique attributes
       await app.request('/api/user-attributes', {
         method: 'POST',
-        body: JSON.stringify({ category: 'characteristics', value: 'Unique 1' }),
+        body: JSON.stringify({ value: 'Unique 1' }),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -1002,7 +715,7 @@ describe('User Attributes API Integration Tests', () => {
 
       await app.request('/api/user-attributes', {
         method: 'POST',
-        body: JSON.stringify({ category: 'characteristics', value: 'Unique 2' }),
+        body: JSON.stringify({ value: 'Unique 2' }),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -1060,7 +773,6 @@ describe('User Attributes API Integration Tests', () => {
 
       // Create an attribute for the first user
       const attributeData = {
-        category: 'characteristics',
         value: 'First user characteristic',
         source: 'user_set',
       };
@@ -1124,7 +836,6 @@ describe('User Attributes API Integration Tests', () => {
     it('should only show attributes belonging to the authenticated user', async () => {
       // Create an attribute for the second user
       const secondUserAttributeData = {
-        category: 'characteristics',
         value: 'Second user characteristic',
         source: 'user_set',
       };

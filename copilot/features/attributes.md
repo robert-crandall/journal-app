@@ -36,10 +36,7 @@ user_attributes (
 
   ```json
   {
-    "attributes": [
-      { "characteristics": "Enjoys watching movies more on second watching" },
-      { "motivators": "Wants kids to grow up to be self-sufficient" }
-    ]
+    "attributes": [{ "characteristics": "Enjoys watching movies more on second watching" }, { "motivators": "Wants kids to grow up to be self-sufficient" }]
   }
   ```
 

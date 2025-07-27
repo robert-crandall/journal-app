@@ -2,11 +2,11 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { UserAttributesService } from '../services/user-attributes';
-import { 
-  createUserAttributeSchema, 
-  updateUserAttributeSchema, 
+import {
+  createUserAttributeSchema,
+  updateUserAttributeSchema,
   bulkCreateUserAttributesSchema,
-  getUserAttributesQuerySchema 
+  getUserAttributesQuerySchema,
 } from '../validation/user-attributes';
 import { handleApiError } from '../utils/logger';
 
@@ -29,19 +29,62 @@ const app = new Hono()
     }
   })
 
-  // Get user's attributes summary for GPT
+  // Get user's attributes summary (returns formatted string or null)
   .get('/summary', jwtAuth, async (c) => {
     try {
       const userId = getUserId(c);
-
-      const summary = await UserAttributesService.getAttributesSummaryForGPT(userId);
-
+      const attributes = await UserAttributesService.getUserAttributes(userId);
+      let summary: string | null = null;
+      if (attributes.length > 0) {
+        summary = attributes.map((attr) => `- ${attr.value} (source: ${attr.source})`).join('\n');
+      }
       return c.json({
         success: true,
         data: { summary },
       });
     } catch (error) {
       handleApiError(error, 'Failed to fetch user attributes summary');
+      return;
+    }
+  })
+  // Get user's attributes grouped (returns {} if none, or { all: [...] })
+  .get('/grouped', jwtAuth, async (c) => {
+    try {
+      const userId = getUserId(c);
+      const attributes = await UserAttributesService.getUserAttributes(userId);
+      if (attributes.length === 0) {
+        return c.json({ success: true, data: {} });
+      }
+      // No category, so just return all attributes under 'all'
+      return c.json({ success: true, data: { all: attributes } });
+    } catch (error) {
+      handleApiError(error, 'Failed to fetch grouped user attributes');
+      return;
+    }
+  })
+  // Deduplicate user attributes (by value, keep newest)
+  .post('/deduplicate', jwtAuth, async (c) => {
+    try {
+      const userId = getUserId(c);
+      const attributes = await UserAttributesService.getUserAttributes(userId);
+      // Group by value, keep the one with latest lastUpdated
+      const seen = new Map();
+      for (const attr of attributes) {
+        const existing = seen.get(attr.value);
+        if (!existing || new Date(attr.lastUpdated) > new Date(existing.lastUpdated)) {
+          seen.set(attr.value, attr);
+        }
+      }
+      const toKeepIds = new Set(Array.from(seen.values()).map((a) => a.id));
+      const toDelete = attributes.filter((a) => !toKeepIds.has(a.id));
+      let removedCount = 0;
+      for (const attr of toDelete) {
+        await UserAttributesService.deleteUserAttribute(userId, attr.id);
+        removedCount++;
+      }
+      return c.json({ success: true, data: { removedCount } });
+    } catch (error) {
+      handleApiError(error, 'Failed to deduplicate user attributes');
       return;
     }
   })
@@ -53,7 +96,7 @@ const app = new Hono()
       const attributeId = c.req.param('id');
 
       const attributes = await UserAttributesService.getUserAttributes(userId);
-      const attribute = attributes.find(attr => attr.id === attributeId);
+      const attribute = attributes.find((attr) => attr.id === attributeId);
 
       if (!attribute) {
         return c.json(
@@ -150,23 +193,6 @@ const app = new Hono()
       });
     } catch (error) {
       handleApiError(error, 'Failed to delete user attribute');
-      return;
-    }
-  })
-
-  // Remove duplicate attributes (utility endpoint)
-  .post('/deduplicate', jwtAuth, async (c) => {
-    try {
-      const userId = getUserId(c);
-
-      const result = await UserAttributesService.deduplicateUserAttributes(userId);
-
-      return c.json({
-        success: true,
-        data: result,
-      });
-    } catch (error) {
-      handleApiError(error, 'Failed to deduplicate user attributes');
       return;
     }
   });

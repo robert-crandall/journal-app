@@ -13,10 +13,12 @@ export const updateUserAttributeSchema = z.object({
 });
 
 export const bulkCreateUserAttributesSchema = z.object({
-  attributes: z.array(z.object({
-    value: z.string().min(1, 'Value is required'),
-    source: userAttributeSourceSchema.optional().default('user_set'),
-  })),
+  attributes: z.array(
+    z.object({
+      value: z.string().min(1, 'Value is required'),
+      source: userAttributeSourceSchema.optional().default('user_set'),
+    }),
+  ),
 });
 
 export const getUserAttributesQuerySchema = z.object({

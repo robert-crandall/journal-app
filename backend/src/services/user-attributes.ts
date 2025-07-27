@@ -14,11 +14,7 @@ export class UserAttributesService {
       whereClause = and(whereClause, eq(userAttributes.source, query.source))!;
     }
 
-    return await db
-      .select()
-      .from(userAttributes)
-      .where(whereClause)
-      .orderBy(desc(userAttributes.lastUpdated));
+    return await db.select().from(userAttributes).where(whereClause).orderBy(desc(userAttributes.lastUpdated));
   }
 
   /**
@@ -46,7 +42,7 @@ export class UserAttributesService {
       return [];
     }
 
-    const values = data.attributes.map(attr => ({
+    const values = data.attributes.map((attr) => ({
       userId,
       value: attr.value,
       source: attr.source,
