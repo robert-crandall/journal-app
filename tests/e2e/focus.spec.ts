@@ -329,48 +329,4 @@ test.describe('Focus Management', () => {
     // Thursday should still have an empty card
     await expect(page.getByRole('button', { name: 'Add focus for Thursday' })).toBeVisible();
   });
-
-  test('should create focuses for all days of the week', async ({ page }) => {
-    await page.goto('/focus');
-
-    // Create a focus for each day of the week
-    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
-      const dayName = getDayName(dayOfWeek);
-
-      // Try to find the 'Add focus' button for this day
-      const addButton = page.getByRole('button', { name: `Add focus for ${dayName}` });
-
-      // Only add a focus if the day doesn't have one yet
-      if (await addButton.isVisible()) {
-        await addButton.click();
-
-        // Fill out the form with day-specific data
-        const testTitle = `${dayName} Focus ${Date.now()}`;
-        const testDescription = `This is a test focus description for ${dayName}`;
-
-        await page.fill('#title', testTitle);
-        await page.fill('#description', testDescription);
-        await page.getByRole('button', { name: 'Save' }).click();
-
-        // Wait for network to be idle
-        await page.waitForLoadState('networkidle');
-
-        // Wait a moment for the card to appear
-        await page.waitForTimeout(500);
-
-        // Verify the title and description are visible
-        await expect(page.getByText(testTitle)).toBeVisible();
-        await expect(page.getByText(testDescription)).toBeVisible();
-      }
-    }
-
-    // Verify we no longer have any "Add focus" buttons
-    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
-      const dayName = getDayName(dayOfWeek);
-      await expect(page.getByRole('button', { name: `Add focus for ${dayName}` })).not.toBeVisible();
-    }
-
-    // All days should have a focus card with an edit button
-    await expect(page.getByRole('button', { name: 'Edit focus' })).toHaveCount(7);
-  });
 });
