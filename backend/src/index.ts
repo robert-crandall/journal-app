@@ -20,6 +20,7 @@ import metricSummariesRoutes from './routes/metric-summaries';
 import xpGrantsRoutes from './routes/xpGrants';
 import dailyIntentsRoutes from './routes/daily-intents';
 import generateTasksRoutes from './routes/generate-tasks';
+import userAttributesRoutes from './routes/user-attributes';
 
 // Create main app instance
 const app = new Hono();
@@ -85,7 +86,9 @@ const routes = app
   // Mount daily intents routes
   .route('/api/daily-intents', dailyIntentsRoutes)
   // Mount generate tasks routes
-  .route('/api/generate-tasks', generateTasksRoutes);
+  .route('/api/generate-tasks', generateTasksRoutes)
+  // Mount user attributes routes
+  .route('/api/user-attributes', userAttributesRoutes);
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {
