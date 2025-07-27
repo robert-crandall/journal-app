@@ -159,9 +159,9 @@
 
             <!-- Message Content -->
             <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
-              <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}">
+              <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary' : 'bg-base-200'}">
                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                <p class="prose prose-sm leading-relaxed">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
+                <p class="prose prose-sm leading-relaxed {message.role === 'user' ? '!text-primary-content prose-headings:!text-primary-content prose-strong:!text-primary-content prose-em:!text-primary-content prose-code:!text-primary-content' : 'text-base-content'}">{@html DOMPurify.sanitize(String(marked.parse(message.content)))}</p>
               </div>
 
               {#if message.timestamp}
