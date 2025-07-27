@@ -15,6 +15,7 @@ export * from './quests';
 export * from './plans';
 export * from './weather';
 export * from './metric-summaries';
+export * from './user-attributes';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

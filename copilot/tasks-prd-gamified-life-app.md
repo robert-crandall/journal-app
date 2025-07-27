@@ -123,7 +123,7 @@
   - [x] 16.5 Write frontend E2E tests for tone tags functionality
   - [x] 16.6 Ensure all tone tags tests pass
 
-- [ ] 17.0 Metric Summaries System (Journal & Experiment Analytics)
+- [x] 17.0 Metric Summaries System (Journal & Experiment Analytics)
   - [x] 17.1 Design and implement metric summaries database schema with migration (backend)
   - [x] 17.2 Implement shared types for metric summaries API (backend)
   - [x] 17.3 Implement metrics calculation service with comprehensive data aggregation (backend)
@@ -133,6 +133,18 @@
   - [x] 17.7 Implement frontend UI for metric summaries display and filtering
   - [ ] 17.8 Write frontend E2E tests for metric summaries functionality
   - [ ] 17.9 Ensure all metric summaries tests pass
+
+- [x] 18.0 User Attributes System (Personality Trait Tracking & GPT Integration)
+  - [x] 18.1 Design and implement user attributes database schema with migration (backend)
+  - [x] 18.2 Implement shared types for user attributes API (backend)
+  - [x] 18.3 Implement user attributes service with CRUD, bulk operations, and deduplication (backend)
+  - [x] 18.4 Implement user attributes API endpoints with comprehensive operations (backend)
+  - [x] 18.5 Write comprehensive backend integration tests for user attributes (33 tests)
+  - [x] 18.6 Ensure all backend user attributes tests pass
+  - [x] 18.7 Integrate user attributes into GPT conversational journal metadata extraction
+  - [x] 18.8 Implement frontend API client for user attributes operations
+  - [x] 18.9 Replace Goals section with User Attributes on character page
+  - [x] 18.10 Ensure all user attributes functionality works correctly
 
 ---
 

@@ -16,3 +16,4 @@ export * from './weather';
 export * from './xp';
 export * from './daily-intents';
 export * from './generate-tasks';
+export * from './user-attributes';

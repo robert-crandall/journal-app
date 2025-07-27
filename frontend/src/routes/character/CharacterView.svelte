@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { characterApi } from '../../lib/api/characters';
+  import { userAttributesApi } from '../../lib/api/user-attributes';
   import type { Character } from '../../lib/types/characters';
   import type { UpdateCharacterForm as UpdateCharacterData } from '../../lib/types/character-form';
+  import type { UserAttribute } from '../../lib/types/user-attributes';
   import { formatDateTime } from '../../lib/utils/date';
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
@@ -20,8 +22,34 @@
   let error: string | null = null;
   let deleteConfirmOpen = false;
 
+  // User attributes state
+  let userAttributes: UserAttribute[] = [];
+  let attributesLoading = false;
+  let attributesError: string | null = null;
+  let editingAttributeId: string | null = null;
+  let editingAttributeValue: string = '';
+
   // Form data for editing
   let editData: UpdateCharacterData = {};
+
+  // Load user attributes
+  async function loadUserAttributes() {
+    try {
+      attributesLoading = true;
+      attributesError = null;
+      userAttributes = await userAttributesApi.getUserAttributes();
+    } catch (e: unknown) {
+      attributesError = e instanceof Error ? e.message : 'Failed to load user attributes';
+      console.error('Error loading user attributes:', e);
+    } finally {
+      attributesLoading = false;
+    }
+  }
+
+  // Load attributes on component mount
+  onMount(() => {
+    loadUserAttributes();
+  });
 
   // Start editing
   function startEdit() {
@@ -29,7 +57,6 @@
       name: character.name,
       characterClass: character.characterClass,
       backstory: character.backstory || '',
-      goals: character.goals || '',
       motto: character.motto || '',
     };
     isEditing = true;
@@ -94,10 +121,6 @@
         updateData.backstory = editData.backstory?.trim() || undefined;
       }
 
-      if (editData.goals?.trim() !== (character.goals || '')) {
-        updateData.goals = editData.goals?.trim() || undefined;
-      }
-
       if (editData.motto?.trim() !== (character.motto || '')) {
         updateData.motto = editData.motto?.trim() || undefined;
       }
@@ -129,6 +152,61 @@
       console.error('Error deleting character:', e);
     } finally {
       loading = false;
+    }
+  }
+
+  // Start editing attribute inline
+  function startEditAttribute(attributeId: string, currentValue: string) {
+    editingAttributeId = attributeId;
+    editingAttributeValue = currentValue;
+  }
+
+  // Cancel editing attribute
+  function cancelEditAttribute() {
+    editingAttributeId = null;
+    editingAttributeValue = '';
+  }
+
+  // Save edited attribute
+  async function saveEditAttribute() {
+    if (!editingAttributeId || !editingAttributeValue.trim()) {
+      return;
+    }
+
+    try {
+      await userAttributesApi.updateAttribute(editingAttributeId, {
+        value: editingAttributeValue.trim(),
+      });
+      await loadUserAttributes(); // Refresh the list
+      editingAttributeId = null;
+      editingAttributeValue = '';
+    } catch (e: unknown) {
+      attributesError = e instanceof Error ? e.message : 'Failed to update attribute';
+      console.error('Error updating attribute:', e);
+    }
+  }
+
+  // Handle keyboard events for inline editing
+  function handleAttributeKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveEditAttribute();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelEditAttribute();
+    }
+  }
+
+  // Delete attribute
+  async function deleteAttribute(attributeId: string, attributeValue: string) {
+    if (confirm(`Are you sure you want to delete "${attributeValue}"?`)) {
+      try {
+        await userAttributesApi.deleteAttribute(attributeId);
+        await loadUserAttributes(); // Refresh the list
+      } catch (e: unknown) {
+        attributesError = e instanceof Error ? e.message : 'Failed to delete attribute';
+        console.error('Error deleting attribute:', e);
+      }
     }
   }
 </script>
@@ -305,21 +383,6 @@
                       class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
                       placeholder="Tell us about your character's background..."
                       bind:value={editData.backstory}
-                    ></textarea>
-                  </div>
-                </div>
-
-                <!-- Goals -->
-                <div class="form-control">
-                  <label class="label" for="edit-goals">
-                    <span class="label-text font-medium">Goals & Aspirations</span>
-                  </label>
-                  <div class="relative">
-                    <textarea
-                      id="edit-goals"
-                      class="textarea textarea-bordered textarea-lg focus:textarea-secondary h-32 w-full resize-none transition-all duration-200 focus:scale-[1.02]"
-                      placeholder="What does your character want to achieve?"
-                      bind:value={editData.goals}
                     ></textarea>
                   </div>
                 </div>
@@ -546,33 +609,162 @@
             </div>
           {/if}
 
-          <!-- Goals -->
-          {#if character.goals}
-            <div class="card bg-base-100 border-base-300 border shadow-xl">
-              <div class="card-body p-6">
-                <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
-                  </svg>
-                  Goals & Aspirations
-                </h3>
-                <div class="prose prose-sm max-w-none text-left leading-relaxed">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(character.goals)))}
+          <!-- Attributes -->
+          <div class="card bg-base-100 border-base-300 border shadow-xl">
+            <div class="card-body p-6">
+              <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+                </svg>
+                Character Attributes
+              </h3>
+
+              {#if attributesLoading}
+                <div class="flex justify-center py-4">
+                  <span class="loading loading-spinner loading-md"></span>
                 </div>
-              </div>
+              {:else if attributesError}
+                <div class="alert alert-error">
+                  <span>{attributesError}</span>
+                  <button class="btn btn-sm" on:click={loadUserAttributes}>Retry</button>
+                </div>
+              {:else if userAttributes.length === 0}
+                <div class="text-base-content/60 py-6 text-center">
+                  <p class="mb-2">No attributes discovered yet</p>
+                  <p class="text-sm">Attributes will appear here as you write journal entries</p>
+                </div>
+              {:else}
+                <div class="space-y-0">
+                  {#each userAttributes as attribute, index (attribute.id)}
+                    <div class="flex items-center justify-between py-3 {index < userAttributes.length - 1 ? 'border-base-300 border-b' : ''}">
+                      <div class="flex-1">
+                        {#if editingAttributeId === attribute.id}
+                          <!-- Inline editing mode -->
+                          <div class="flex items-center gap-2">
+                            <input
+                              type="text"
+                              bind:value={editingAttributeValue}
+                              on:keydown={handleAttributeKeydown}
+                              on:blur={saveEditAttribute}
+                              class="input input-bordered input-sm flex-1"
+                              placeholder="Attribute value"
+                              autofocus
+                            />
+                            <button class="btn btn-ghost btn-xs hover:btn-success" on:click={saveEditAttribute} title="Save changes" aria-label="Save changes">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <polyline points="20,6 9,17 4,12" />
+                              </svg>
+                            </button>
+                            <button
+                              class="btn btn-ghost btn-xs hover:btn-error"
+                              on:click={cancelEditAttribute}
+                              title="Cancel editing"
+                              aria-label="Cancel editing"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                              </svg>
+                            </button>
+                          </div>
+                        {:else}
+                          <!-- Display mode -->
+                          <span class="text-base font-medium">{attribute.value}</span>
+                          {#if attribute.source}
+                            <span class="text-base-content/60 ml-2 text-xs">
+                              ({attribute.source === 'journal_analysis' ? 'discovered' : attribute.source})
+                            </span>
+                          {/if}
+                        {/if}
+                      </div>
+                      {#if editingAttributeId !== attribute.id}
+                        <div class="ml-4 flex items-center gap-1">
+                          <!-- Edit button -->
+                          <button
+                            class="btn btn-ghost btn-xs hover:btn-primary"
+                            on:click={() => startEditAttribute(attribute.id, attribute.value)}
+                            title="Edit attribute"
+                            aria-label="Edit attribute"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                          </button>
+                          <!-- Delete button -->
+                          <button
+                            class="btn btn-ghost btn-xs hover:btn-error"
+                            on:click={() => deleteAttribute(attribute.id, attribute.value)}
+                            title="Delete attribute"
+                            aria-label="Delete attribute"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <polyline points="3,6 5,6 21,6" />
+                              <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+                <div class="text-base-content/60 mt-4 text-xs">
+                  {userAttributes.length} attribute{userAttributes.length === 1 ? '' : 's'} discovered
+                </div>
+              {/if}
             </div>
-          {/if}
+          </div>
         </div>
 
         <!-- Character Progress Section (Placeholder) -->

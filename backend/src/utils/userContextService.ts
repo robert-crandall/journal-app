@@ -1,6 +1,6 @@
 import { db } from '../db';
-import { users, characters, goals, familyMembers, characterStats } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { users, characters, goals, familyMembers, characterStats, userAttributes } from '../db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 import { getUserTagsWithCounts } from './tags';
 
 /**
@@ -51,6 +51,14 @@ export interface ComprehensiveUserContext {
     usageCount: number;
   }>;
 
+  // User attributes (personality traits, characteristics, motivators, etc.)
+  userAttributes?: Array<{
+    id: string;
+    value: string;
+    source: string;
+    lastUpdated: Date;
+  }>;
+
   // Future: projects, adventures, quests, focuses, etc.
 }
 
@@ -68,6 +76,7 @@ export async function getUserContext(
     includeFamilyMembers?: boolean;
     includeCharacterStats?: boolean;
     includeExistingTags?: boolean;
+    includeUserAttributes?: boolean;
     includeProjects?: boolean; // Future
     includeAdventures?: boolean; // Future
     includeQuests?: boolean; // Future
@@ -80,6 +89,7 @@ export async function getUserContext(
     includeFamilyMembers = true,
     includeCharacterStats = true,
     includeExistingTags = false,
+    includeUserAttributes = false,
   } = options || {};
 
   try {
@@ -200,6 +210,24 @@ export async function getUserContext(
       }
     }
 
+    // Get user attributes (personality traits, characteristics, etc.)
+    if (includeUserAttributes) {
+      const attributes = await db
+        .select({
+          id: userAttributes.id,
+          value: userAttributes.value,
+          source: userAttributes.source,
+          lastUpdated: userAttributes.lastUpdated,
+        })
+        .from(userAttributes)
+        .where(eq(userAttributes.userId, userId))
+        .orderBy(desc(userAttributes.lastUpdated));
+
+      if (attributes.length > 0) {
+        baseContext.userAttributes = attributes;
+      }
+    }
+
     return baseContext;
   } catch (error) {
     console.error('Error fetching user context:', error);
@@ -276,6 +304,15 @@ export function formatUserContextForPrompt(context: ComprehensiveUserContext): s
     promptContent += `### Character Stats\n\n`;
     context.characterStats.forEach((stat) => {
       promptContent += `- **${stat.name}** (Level ${stat.currentLevel}, ${stat.totalXp} XP): ${stat.description}\n`;
+    });
+  }
+
+  // User attributes (personality traits, characteristics, etc.)
+  if (context.userAttributes && context.userAttributes.length > 0) {
+    promptContent += `### User Attributes\n\n`;
+    promptContent += `These are known characteristics, traits, and attributes about the user:\n`;
+    context.userAttributes.forEach((attr) => {
+      promptContent += `- ${attr.value} (source: ${attr.source})\n`;
     });
   }
 

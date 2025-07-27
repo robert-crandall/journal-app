@@ -16,6 +16,7 @@ import {
 import { handleApiError } from '../utils/logger';
 import { generateFollowUpResponse, generateJournalMetadata, generateJournalSummary, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
+import { UserAttributesService } from '../services/user-attributes';
 import type {
   CreateJournalRequest,
   UpdateJournalRequest,
@@ -462,6 +463,7 @@ const app = new Hono()
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,
+        includeUserAttributes: true,
       });
 
       // Initialize chat session with the initial message
@@ -558,6 +560,7 @@ const app = new Hono()
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,
+        includeUserAttributes: true,
       });
 
       // Generate AI response using the conversational journal utility
@@ -815,6 +818,18 @@ const app = new Hono()
         }));
 
         await db.insert(simpleTodos).values(todosToInsert);
+      }
+
+      // Create user attributes from GPT suggestions
+      if (metadata.suggestedAttributes && metadata.suggestedAttributes.length > 0) {
+        const attributesToInsert = metadata.suggestedAttributes.map((attributeValue) => ({
+          value: attributeValue,
+          source: 'journal_analysis' as const,
+        }));
+
+        await UserAttributesService.bulkCreateUserAttributes(userId, {
+          attributes: attributesToInsert,
+        });
       }
 
       return c.json({

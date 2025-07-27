@@ -15,6 +15,7 @@
   let saving = false;
   let startingReflection = false;
   let error: string | null = null;
+  let textareaElement: HTMLTextAreaElement;
 
   // Auto-save timeout
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -32,16 +33,25 @@
       clearTimeout(saveTimeout);
     }
 
-    // Set new auto-save timeout (3 seconds after user stops typing)
+    // Set new auto-save timeout (5 seconds after user stops typing)
     saveTimeout = setTimeout(() => {
       if (hasUnsavedChanges) {
-        saveJournal();
+        saveJournal(true); // Pass true to preserve focus during auto-save
       }
-    }, 3000);
+    }, 5000);
   }
 
-  async function saveJournal() {
+  async function saveJournal(preserveFocus = false) {
     if (!initialMessage.trim()) return;
+
+    // Store cursor position and focus state if we need to preserve focus
+    let cursorPosition = 0;
+    let wasFocused = false;
+
+    if (preserveFocus && textareaElement) {
+      wasFocused = document.activeElement === textareaElement;
+      cursorPosition = textareaElement.selectionStart;
+    }
 
     try {
       saving = true;
@@ -64,6 +74,15 @@
 
       hasUnsavedChanges = false;
       dispatch('update', updatedJournal);
+
+      // Restore focus and cursor position if needed
+      if (preserveFocus && wasFocused && textareaElement) {
+        // Use requestAnimationFrame to ensure the DOM has updated
+        requestAnimationFrame(() => {
+          textareaElement.focus();
+          textareaElement.setSelectionRange(cursorPosition, cursorPosition);
+        });
+      }
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to save journal';
     } finally {
@@ -72,11 +91,8 @@
   }
 
   async function startReflection() {
-    if (!journal) {
-      // Need to save first
-      await saveJournal();
-      if (!journal) return; // saveJournal should have updated journal via dispatch
-    }
+    await saveJournal();
+    if (!journal) return; // saveJournal should have updated journal via dispatch
 
     try {
       startingReflection = true;
@@ -136,6 +152,7 @@
     <div class="space-y-3 sm:space-y-4">
       <div class="form-control">
         <textarea
+          bind:this={textareaElement}
           data-test-id="journal-editor-textarea"
           bind:value={initialMessage}
           on:input={handleInput}
@@ -159,7 +176,7 @@
         <div class="flex items-center">
           <button
             data-test-id="save-draft-button"
-            on:click={saveJournal}
+            on:click={() => saveJournal()}
             disabled={saving || !initialMessage.trim()}
             class="btn btn-outline btn-sm sm:btn-md w-full gap-1 sm:w-auto sm:gap-2"
           >
@@ -176,7 +193,7 @@
         <button
           data-test-id="start-reflection-button"
           on:click={startReflection}
-          disabled={startingReflection || !journal || !initialMessage.trim()}
+          disabled={startingReflection || !initialMessage.trim()}
           class="btn btn-primary btn-sm sm:btn-md gap-1 sm:gap-2"
         >
           {#if startingReflection}
