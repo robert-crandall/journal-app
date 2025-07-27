@@ -32,12 +32,12 @@
       clearTimeout(saveTimeout);
     }
 
-    // Set new auto-save timeout (3 seconds after user stops typing)
+    // Set new auto-save timeout (5 seconds after user stops typing)
     saveTimeout = setTimeout(() => {
       if (hasUnsavedChanges) {
         saveJournal();
       }
-    }, 3000);
+    }, 5000);
   }
 
   async function saveJournal() {
@@ -72,11 +72,8 @@
   }
 
   async function startReflection() {
-    if (!journal) {
-      // Need to save first
-      await saveJournal();
-      if (!journal) return; // saveJournal should have updated journal via dispatch
-    }
+    await saveJournal();
+    if (!journal) return; // saveJournal should have updated journal via dispatch
 
     try {
       startingReflection = true;
@@ -176,7 +173,7 @@
         <button
           data-test-id="start-reflection-button"
           on:click={startReflection}
-          disabled={startingReflection || !journal || !initialMessage.trim()}
+          disabled={startingReflection || !initialMessage.trim()}
           class="btn btn-primary btn-sm sm:btn-md gap-1 sm:gap-2"
         >
           {#if startingReflection}
