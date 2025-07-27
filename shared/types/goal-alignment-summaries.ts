@@ -66,6 +66,9 @@ export interface ListGoalAlignmentSummariesRequest {
   year?: number;
 }
 
+// Alias for compatibility
+export type GetGoalAlignmentSummariesQuery = ListGoalAlignmentSummariesRequest;
+
 export interface GenerateGoalAlignmentSummaryRequest {
   startDate: string; // YYYY-MM-DD format
   endDate: string; // YYYY-MM-DD format

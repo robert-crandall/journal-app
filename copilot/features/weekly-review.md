@@ -7,48 +7,40 @@ Create a weekly goal alignment summary that analyzes journal entries, family int
 
 ### ✅ Tasks
 
-* [ ] **New module**: Create a `goal_alignment.ts` module that:
+- [ ] **New module**: Create a `goal_alignment.ts` module that:
+  - Accepts journal entries, quests, character stats, and tone tags from a 7-day window
+  - Evidence of progress toward active goals and quests
+  - Identifies **neglected or conflicting goals**
+  - Suggests **next actions** to realign with goals
 
-  * Accepts journal entries, quests, character stats, and tone tags from a 7-day window
-  * Evidence of progress toward active goals and quests
-  * Identifies **neglected or conflicting goals**
-  * Suggests **next actions** to realign with goals
+- [ ] **Trigger on Weekly Summary**
+  - This module should run automatically as part of the `generateWeeklyJournalSummary()` flow
 
-* [ ] **Trigger on Weekly Summary**
+- [ ] **Summarize** the week’s alignment in natural language:
+  - What the user did that aligned with their goals
+  - What they may have missed or ignored
+  - Suggestions for what they could do next week
 
-  * This module should run automatically as part of the `generateWeeklyJournalSummary()` flow
+- [ ] **Save summary to database**
+  - Schema should support:
+    - `periodStartDate`
+    - `periodEndDate`
+    - `alignmentScore` (optional numeric 0–100 or simple status)
+    - `alignedGoals` (array of goal IDs + evidence/excerpts)
+    - `neglectedGoals` (array of goal ID + optional reason)
+    - `suggestedNextSteps` (string\[])
+    - `createdAt`
 
-* [ ] **Summarize** the week’s alignment in natural language:
+- [ ] **Display this summary** in the Weekly Review UI
+  - Allow user to mark goals as complete or adjust them
+  - Optionally annotate or reflect on summary
 
-  * What the user did that aligned with their goals
-  * What they may have missed or ignored
-  * Suggestions for what they could do next week
+- [ ] **Link it to ongoing journal/experiment summaries**
+  - Weekly summary may optionally pull data from those summaries
+  - Include references to key journal entries or experiments
 
-* [ ] **Save summary to database**
-
-  * Schema should support:
-
-    * `periodStartDate`
-    * `periodEndDate`
-    * `alignmentScore` (optional numeric 0–100 or simple status)
-    * `alignedGoals` (array of goal IDs + evidence/excerpts)
-    * `neglectedGoals` (array of goal ID + optional reason)
-    * `suggestedNextSteps` (string\[])
-    * `createdAt`
-
-* [ ] **Display this summary** in the Weekly Review UI
-
-  * Allow user to mark goals as complete or adjust them
-  * Optionally annotate or reflect on summary
-
-* [ ] **Link it to ongoing journal/experiment summaries**
-
-  * Weekly summary may optionally pull data from those summaries
-  * Include references to key journal entries or experiments
-
-* [ ] **Optionally show comparison to previous weeks**
-
-  * e.g. “More aligned than last week” or “Consistent with 3-week trend”
+- [ ] **Optionally show comparison to previous weeks**
+  - e.g. “More aligned than last week” or “Consistent with 3-week trend”
 
 ---
 

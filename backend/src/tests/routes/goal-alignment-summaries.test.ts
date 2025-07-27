@@ -446,10 +446,7 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
     test('requires active goals', async () => {
       const db = testDb();
       // Make the goal inactive
-      await db
-        .update(schema.goals)
-        .set({ isActive: false })
-        .where(eq(schema.goals.id, testGoalId));
+      await db.update(schema.goals).set({ isActive: false }).where(eq(schema.goals.id, testGoalId));
 
       const generateData: GenerateGoalAlignmentSummaryRequest = {
         startDate: '2024-01-15',

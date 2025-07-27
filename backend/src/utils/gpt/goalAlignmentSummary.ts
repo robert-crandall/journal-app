@@ -21,14 +21,9 @@ type Goal = typeof goals.$inferSelect;
 /**
  * System prompt for generating goal alignment summaries
  */
-function createGoalAlignmentSystemPrompt(
-  userContext: ComprehensiveUserContext,
-  userGoals: Goal[],
-  startDate: string,
-  endDate: string,
-): string {
+function createGoalAlignmentSystemPrompt(userContext: ComprehensiveUserContext, userGoals: Goal[], startDate: string, endDate: string): string {
   const goalsList = userGoals.map((goal: Goal) => `- **${goal.title}**: ${goal.description || 'No description'}`).join('\n');
-  
+
   return `You are an insightful life coach helping ${userContext.name} understand how well their activities aligned with their goals during the period from ${startDate} to ${endDate}.
 
 Your task is to analyze their journal entries and evaluate how well they aligned with their active goals during this period.
