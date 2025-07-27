@@ -4,8 +4,7 @@
   import { formatDateTime } from '$lib/utils/date';
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
+  import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
 
   export let journal: JournalResponse;
@@ -160,10 +159,7 @@
             <!-- Message Content -->
             <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg {message.role === 'user' ? 'text-right' : ''}">
               <div class="rounded-lg px-3 py-2 sm:px-4 sm:py-3 {message.role === 'user' ? 'bg-primary' : 'bg-base-200'}">
-                <p class="prose prose-sm leading-relaxed {message.role === 'user' ? 'text-primary-content' : 'text-base-content'}">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html DOMPurify.sanitize(String(marked.parse(message.content)))}
-                </p>
+                <Markdown content={message.content} classes="prose-sm leading-relaxed {message.role === 'user' ? 'text-primary-content' : 'text-base-content'}" />
               </div>
 
               {#if message.timestamp}
