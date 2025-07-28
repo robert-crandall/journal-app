@@ -57,7 +57,7 @@ export interface JournalMetadata {
  */
 function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shouldOfferSave: boolean, userMessageCount: number): string {
   const toneInstruction = getConversationalToneInstruction(userContext.gptTone);
-  
+
   let systemPrompt = `You are a brilliant, emotionally intelligent friend to ${userContext.name}, helping them process their thoughts and feelings in a conversational journal session.
 
 **Tone Instructions**: ${toneInstruction}

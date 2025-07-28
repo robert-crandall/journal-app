@@ -3,7 +3,20 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { dailyIntents, simpleTodos, characters, goals, familyMembers, focuses, plans, planSubtasks, quests, experiments, characterStats, users } from '../db/schema';
+import {
+  dailyIntents,
+  simpleTodos,
+  characters,
+  goals,
+  familyMembers,
+  focuses,
+  plans,
+  planSubtasks,
+  quests,
+  experiments,
+  characterStats,
+  users,
+} from '../db/schema';
 import { jwtAuth } from '../middleware/auth';
 import logger, { handleApiError } from '../utils/logger';
 import { generateDailyTasks, type TaskGenerationRequest, type TaskGenerationResponse } from '../utils/gpt/taskGen';

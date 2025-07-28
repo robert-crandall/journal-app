@@ -115,11 +115,9 @@
   }
 
   // Check if profile data has changed
-  $: hasChanges = $authStore.user && (
-    profileData.name !== $authStore.user.name || 
-    profileData.email !== $authStore.user.email ||
-    profileData.gptTone !== $authStore.user.gptTone
-  );
+  $: hasChanges =
+    $authStore.user &&
+    (profileData.name !== $authStore.user.name || profileData.email !== $authStore.user.email || profileData.gptTone !== $authStore.user.gptTone);
 </script>
 
 <svelte:head>
@@ -199,12 +197,18 @@
             {#each GPT_TONES as tone}
               <option value={tone}>
                 {tone.charAt(0).toUpperCase() + tone.slice(1)}
-                {#if tone === 'friendly'} - Warm, approachable (default)
-                {:else if tone === 'motivational'} - High-energy, coaching style
-                {:else if tone === 'funny'} - Light humor and playful language
-                {:else if tone === 'serious'} - Direct, efficient, no fluff  
-                {:else if tone === 'minimal'} - Terse, no elaboration
-                {:else if tone === 'wholesome'} - Calm, thoughtful, encouraging
+                {#if tone === 'friendly'}
+                  - Warm, approachable (default)
+                {:else if tone === 'motivational'}
+                  - High-energy, coaching style
+                {:else if tone === 'funny'}
+                  - Light humor and playful language
+                {:else if tone === 'serious'}
+                  - Direct, efficient, no fluff
+                {:else if tone === 'minimal'}
+                  - Terse, no elaboration
+                {:else if tone === 'wholesome'}
+                  - Calm, thoughtful, encouraging
                 {/if}
               </option>
             {/each}

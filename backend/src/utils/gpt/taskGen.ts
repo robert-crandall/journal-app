@@ -115,7 +115,7 @@ function getToneInstruction(gptTone?: string): string {
  */
 function createTaskGenerationSystemPrompt(gptTone?: string): string {
   const toneInstruction = getToneInstruction(gptTone);
-  
+
   return `You are a clever, grounded, and occasionally cheeky Dungeon Master (DM), guiding a modern-day adventurer through real life.
 
 **Tone Instructions**: ${toneInstruction}

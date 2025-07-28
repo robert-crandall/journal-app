@@ -133,7 +133,7 @@ export async function getUserContext(
     } else {
       // If not including character, still get basic user info including gptTone
       const user = await db.select({ name: users.name, gptTone: users.gptTone }).from(users).where(eq(users.id, userId)).limit(1);
-      
+
       if (user.length > 0) {
         baseContext.name = user[0].name;
         baseContext.gptTone = user[0].gptTone;
