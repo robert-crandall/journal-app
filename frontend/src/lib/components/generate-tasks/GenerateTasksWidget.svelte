@@ -4,7 +4,6 @@
   import { simpleTodosStore } from '$lib/stores/todos';
   import { getTodayDateString } from '$lib/utils/date';
   import DailyIntentModal from '$lib/components/daily-intents/DailyIntentModal.svelte';
-  // Export the showTitle prop with default value of true
 
   let currentDate = getTodayDateString();
   let generating = false;
@@ -66,7 +65,7 @@
 
 <div class="w-full flex flex-col items-end text-right">
   <div class="mb-4 flex items-center justify-end w-full">
-    <button class="btn btn-secondary btn-sm transition-all duration-200 hover:scale-105" on:click={handleGenerateClick} disabled={generating}>
+    <button class="btn btn-primary btn-sm transition-all duration-200 hover:scale-105" on:click={handleGenerateClick} disabled={generating}>
       {#if generating}
         <span class="loading loading-spinner loading-xs"></span>
         Generating...
