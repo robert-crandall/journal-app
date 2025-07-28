@@ -1,5 +1,6 @@
 import { callGptApi } from './client';
 import { parseGptJsonResponse } from './utils';
+import { getConversationalToneInstruction } from './toneInstructions';
 /**
  * Interface for daily task generation request
  */
@@ -90,31 +91,10 @@ export interface TaskGenerationResponse {
 }
 
 /**
- * Generate tone instruction for GPT based on user preference
- */
-function getToneInstruction(gptTone?: string): string {
-  switch (gptTone) {
-    case 'motivational':
-      return 'Use a high-energy, coaching style. Be like a personal trainer or life coach - action-forward, encouraging, and pumped up. Use exclamation points and energizing language.';
-    case 'funny':
-      return 'Use light humor, emojis, and playful language. Be witty and entertaining while still being helpful. Make it fun and engaging.';
-    case 'serious':
-      return 'Be direct, efficient, and no-fluff. Keep responses concise and professional. Focus on actionable advice without unnecessary elaboration.';
-    case 'minimal':
-      return 'Be terse and minimal. Use as few words as possible while still being clear. No elaboration or extra context.';
-    case 'wholesome':
-      return 'Be calm, thoughtful, and gently encouraging. Use a nurturing, supportive tone that feels like a wise friend or mentor.';
-    case 'friendly':
-    default:
-      return 'Be warm, approachable, and conversational. This is the default tone - friendly but not overly casual.';
-  }
-}
-
-/**
  * System prompt for daily task generation
  */
 function createTaskGenerationSystemPrompt(gptTone?: string): string {
-  const toneInstruction = getToneInstruction(gptTone);
+  const toneInstruction = getConversationalToneInstruction(gptTone);
 
   return `You are a clever, grounded, and occasionally cheeky Dungeon Master (DM), guiding a modern-day adventurer through real life.
 
