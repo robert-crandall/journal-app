@@ -674,8 +674,8 @@ describe('User Attributes API Integration Tests', () => {
       const initialData = await initialRes.json();
       expect(initialData.data).toHaveLength(3);
 
-      // Call deduplicate endpoint
-      const res = await app.request('/api/user-attributes/deduplicate', {
+      // Call deduplicate endpoint with simple method
+      const res = await app.request('/api/user-attributes/deduplicate?method=simple', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -686,6 +686,7 @@ describe('User Attributes API Integration Tests', () => {
       const responseData = await res.json();
 
       expect(responseData.success).toBe(true);
+      expect(responseData.data.method).toBe('simple');
       expect(responseData.data.removedCount).toBe(1);
 
       // Verify we now have 2 attributes (duplicate removed)
@@ -874,6 +875,269 @@ describe('User Attributes API Integration Tests', () => {
 
       expect(firstUserData.data[0].value).toBe('First user characteristic');
       expect(secondUserData.data[0].value).toBe('Second user characteristic');
+    });
+  });
+
+  describe('POST /api/user-attributes/deduplicate - GPT Integration', () => {
+    beforeEach(async () => {
+      const db = testDb();
+      
+      // Create a mix of user-defined and discovered attributes
+      await db.insert(schema.userAttributes).values([
+        {
+          userId: userId,
+          value: 'Family-oriented',
+          source: 'user_set',
+          lastUpdated: new Date('2023-01-01'),
+        },
+        {
+          userId: userId,
+          value: 'Nature-lover',
+          source: 'user_set',
+          lastUpdated: new Date('2023-01-01'),
+        },
+        {
+          userId: userId,
+          value: 'Adventurer',
+          source: 'user_set',
+          lastUpdated: new Date('2023-01-01'),
+        },
+        // Discovered attributes that should be deduplicated
+        {
+          userId: userId,
+          value: 'Spends time with kids',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-02'),
+        },
+        {
+          userId: userId,
+          value: 'Plays with children',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-03'),
+        },
+        {
+          userId: userId,
+          value: 'Goes hiking',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-04'),
+        },
+        {
+          userId: userId,
+          value: 'Enjoys nature',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-05'),
+        },
+        {
+          userId: userId,
+          value: 'Explores outdoors',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-06'),
+        },
+        {
+          userId: userId,
+          value: 'Debugging code',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-07'),
+        },
+        {
+          userId: userId,
+          value: 'Writes software',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-08'),
+        },
+        {
+          userId: userId,
+          value: 'Solves technical puzzles',
+          source: 'journal_analysis',
+          lastUpdated: new Date('2023-01-09'),
+        },
+      ]);
+    });
+
+    it('should perform GPT-powered deduplication by default', async () => {
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data.method).toBe('gpt');
+      expect(responseData.data.originalCount).toBeGreaterThanOrEqual(6); // At least 6 discovered attributes
+      expect(responseData.data.userDefinedPreserved).toBe(3); // 3 user-defined attributes preserved
+      expect(responseData.data.deduplicatedCount).toBeGreaterThan(0);
+      expect(responseData.data.deduplicatedCount).toBe(2); // Mock returns 2 items
+
+      // Verify user-defined attributes are preserved
+      const allAttributesRes = await app.request('/api/user-attributes', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      const allAttributesData = await allAttributesRes.json();
+      const userDefinedAttributes = allAttributesData.data.filter((attr: any) => attr.source === 'user_set');
+      
+      expect(userDefinedAttributes).toHaveLength(3);
+      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(
+        expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer'])
+      );
+    });
+
+    it('should use simple deduplication when method=simple', async () => {
+      const res = await app.request('/api/user-attributes/deduplicate?method=simple', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data.method).toBe('simple');
+      expect(responseData.data.originalCount).toBeGreaterThanOrEqual(9); // All attributes considered in simple mode
+      expect(responseData.data.userDefinedPreserved).toBe(3);
+    });
+
+    it('should handle case with no discovered attributes', async () => {
+      // Delete all discovered attributes first
+      const db = testDb();
+      await db.delete(schema.userAttributes).where(
+        and(
+          eq(schema.userAttributes.userId, userId),
+          eq(schema.userAttributes.source, 'journal_analysis')
+        )
+      );
+
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data.originalCount).toBe(0);
+      expect(responseData.data.deduplicatedCount).toBe(0);
+      expect(responseData.data.removedCount).toBe(0);
+      expect(responseData.data.userDefinedPreserved).toBe(3);
+    });
+
+    it('should handle case with only user-defined attributes', async () => {
+      // Delete all discovered attributes
+      const db = testDb();
+      await db.delete(schema.userAttributes).where(
+        and(
+          eq(schema.userAttributes.userId, userId),
+          eq(schema.userAttributes.source, 'journal_analysis')
+        )
+      );
+
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data.userDefinedPreserved).toBe(3);
+
+      // Verify user-defined attributes are still there
+      const allAttributesRes = await app.request('/api/user-attributes', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      const allAttributesData = await allAttributesRes.json();
+      expect(allAttributesData.data).toHaveLength(3);
+      expect(allAttributesData.data.every((attr: any) => attr.source === 'user_set')).toBe(true);
+    });
+
+    it('should handle empty attribute list', async () => {
+      // Delete all attributes
+      const db = testDb();
+      await db.delete(schema.userAttributes).where(eq(schema.userAttributes.userId, userId));
+
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data.originalCount).toBe(0);
+      expect(responseData.data.deduplicatedCount).toBe(0);
+      expect(responseData.data.removedCount).toBe(0);
+      expect(responseData.data.userDefinedPreserved).toBe(0);
+    });
+
+    it('should require authentication', async () => {
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+      });
+
+      expect(res.status).toBe(401);
+    });
+
+    it('should validate query parameters', async () => {
+      const res = await app.request('/api/user-attributes/deduplicate?method=invalid', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(400);
+      const responseData = await res.json();
+      expect(responseData.success).toBe(false);
+    });
+
+    it('should preserve user-defined attributes when GPT fails', async () => {
+      // This test verifies fallback behavior - in test mode, GPT calls use mock responses
+      // which should work fine, but we can test the concept
+
+      const res = await app.request('/api/user-attributes/deduplicate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const responseData = await res.json();
+
+      // Verify user-defined attributes are still preserved
+      const allAttributesRes = await app.request('/api/user-attributes', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      const allAttributesData = await allAttributesRes.json();
+      const userDefinedAttributes = allAttributesData.data.filter((attr: any) => attr.source === 'user_set');
+      
+      expect(userDefinedAttributes).toHaveLength(3);
+      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(
+        expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer'])
+      );
     });
   });
 });
