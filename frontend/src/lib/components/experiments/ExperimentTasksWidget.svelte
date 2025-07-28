@@ -92,47 +92,35 @@
   }
 </script>
 
-{#if loading}
-  <div class="mb-6">
-    <div class="mb-3 flex items-center gap-2">
-      <Beaker class="text-secondary h-5 w-5" />
+
+<div class="mb-6">
+  <div class="mb-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <Beaker class="text-primary h-5 w-5" />
       <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
     </div>
+    <a href="/experiments" class="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium">
+      <BarChart class="h-4 w-4" />
+      View All
+    </a>
+  </div>
+
+  {#if loading}
     <div class="animate-pulse">
       <div class="bg-base-200 h-16 rounded-lg"></div>
     </div>
-  </div>
-{:else if error}
-  <div class="mb-6">
-    <div class="mb-3 flex items-center gap-2">
-      <Beaker class="text-secondary h-5 w-5" />
-      <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-    </div>
+  {:else if error}
     <div class="border-error bg-error/10 rounded-lg border p-4">
       <p class="text-error text-sm">{error}</p>
       <button onclick={loadExperimentTasks} class="text-error hover:text-error/80 mt-2 text-sm underline"> Try again </button>
     </div>
-  </div>
-{:else if todaysTasks.length === 0}
-  <!-- Show experiments prompt if there are no active experiment tasks -->
-  <div class="mb-6">
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <Beaker class="text-secondary h-5 w-5" />
-        <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-      </div>
-      <a href="/experiments" class="text-secondary hover:text-secondary/80 flex items-center gap-1 text-sm font-medium">
-        <BarChart class="h-4 w-4" />
-        View All
-      </a>
-    </div>
-
+  {:else if todaysTasks.length === 0}
     {#if activeExperiments.length === 0}
       <!-- No active experiments -->
       <div class="card from-secondary/10 to-accent/10 border-secondary/20 border bg-gradient-to-br">
         <div class="card-body p-4">
           <div class="flex items-start gap-3">
-            <Beaker class="text-secondary mt-0.5 h-6 w-6 flex-shrink-0" />
+            <Beaker class="text-primary mt-0.5 h-6 w-6 flex-shrink-0" />
             <div class="flex-1">
               <p class="text-base-content mb-1 text-sm font-medium">No active experiments</p>
               <p class="text-base-content/70 mb-3 text-sm">Start an experiment to test life changes and track what makes you happier.</p>
@@ -164,22 +152,9 @@
         </div>
       </div>
     {/if}
-  </div>
-{:else}
-  <!-- Show active experiment tasks -->
-  <div class="mb-6">
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <Beaker class="text-secondary h-5 w-5" />
-        <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-      </div>
-      <a href="/experiments" class="text-secondary hover:text-secondary/80 flex items-center gap-1 text-sm font-medium">
-        <BarChart class="h-4 w-4" />
-        View All
-      </a>
-    </div>
-
-    <div class="card bg-base-100 border-base-300 border shadow-xl">
+  {:else}
+    <!-- Show active experiment tasks -->
+    <div class="card">
       <!-- Group tasks by experiment -->
       {#each Object.entries(todaysTasks.reduce((acc, { experiment, task }) => {
             if (!acc[experiment.id]) {
@@ -188,30 +163,29 @@
             acc[experiment.id].tasks.push(task);
             return acc;
           }, {} as Record<string, { experiment: ExperimentResponse; tasks: ExperimentTaskWithCompletionsResponse[] }>)) as [id, { experiment, tasks }] (id)}
-        <div class="border-base-300 border-b last:border-b-0">
+        <div class="">
           <!-- Experiment Header -->
-          <div class="bg-base-200/50 p-4">
+          <div class="p-4">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-secondary flex items-center gap-2 text-lg font-medium">
-                  <Beaker class="h-5 w-5" />
+                <h4 class="text-primary flex items-center gap-2 text-lg font-medium">
                   {experiment.title}
                 </h4>
                 {#if experiment.description}
-                  <Markdown content={experiment.description} classes="text-base-content/70 mt-1" />
+                  <Markdown content={experiment.description} classes="text-base-content/70 mt-1 text-sm" />
                 {/if}
               </div>
-              <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
+              <!-- <a href="/experiments/{experiment.id}" class="btn btn-ghost btn-sm gap-1" title="View experiment dashboard">
                 <BarChart class="h-4 w-4" />
                 Details
-              </a>
+              </a> -->
             </div>
           </div>
 
           <!-- Tasks for this experiment -->
           <div class="divide-base-300/50 divide-y">
             {#each tasks as task (task.id)}
-              <div class="hover:bg-base-200 p-4 transition-colors">
+              <div class="hover:bg-base-200 p-2 transition-colors">
                 <div class="flex items-center gap-3">
                   <!-- Completion Button -->
                   <button
@@ -223,7 +197,7 @@
                     {#if task.isCompleteToday}
                       <CheckCircle class="text-success h-6 w-6" />
                     {:else}
-                      <Circle class="text-base-content/40 hover:text-secondary h-6 w-6" />
+                      <Circle class="text-base-content/40 hover:text-primary h-6 w-6" />
                     {/if}
                   </button>
 
@@ -254,19 +228,6 @@
           </div>
         </div>
       {/each}
-
-      <!-- Footer with summary -->
-      <div class="bg-base-200 rounded-b-lg px-4 py-3">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-base-content/60">
-            {todaysTasks.filter((t) => t.task.isCompleteToday).length} of {todaysTasks.length} tasks completed today ({activeExperiments.length} active experiment{activeExperiments.length !==
-            1
-              ? 's'
-              : ''})
-          </span>
-          <a href="/experiments" class="text-secondary hover:text-secondary/80 font-medium"> View all experiments → </a>
-        </div>
-      </div>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>

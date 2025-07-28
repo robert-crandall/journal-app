@@ -44,17 +44,13 @@
             <div class="card-body p-3 sm:p-6">
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
-                <!-- AI Task Generation Widget -->
-                <div>
-                  <GenerateTasksWidget />
-                </div>
-
-                <div class="divider my-3 sm:my-4"></div>
 
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />
                 </div>
+
+                <div class="divider my-3 sm:my-4"></div>
 
                 <!-- Weather Widget -->
                 <div>
@@ -62,22 +58,29 @@
                 </div>
 
                 <div class="divider my-3 sm:my-4"></div>
+
                 <!-- Experiment Tasks Widget -->
                 <div>
                   <ExperimentTasksWidget />
                 </div>
 
+                <div class="divider my-3 sm:my-4"></div>
+
                 <div>
-                  <SimpleTodosWidget showTitle={false} />
+                  <SimpleTodosWidget />
                 </div>
+                <!-- AI Task Generation Widget -->
+                <div>
+                  <GenerateTasksWidget />
+                </div>
+
+                <div class="divider my-3 sm:my-4"></div>
 
                 <!-- Journal Widget -->
                 <div>
                   <JournalWidget />
                 </div>
               </div>
-
-              <div class="divider my-3 sm:my-4"></div>
             </div>
           </div>
         </section>

@@ -17,7 +17,7 @@
   });
 </script>
 
-<div class="card bg-base-100 border-base-300 border-l-primary border-l-4 p-5 shadow-xl transition-all duration-200 hover:shadow-2xl">
+<div class="card">
   <h3 class="card-title text-base-content flex items-center gap-2">
     Today's Focus
     <span class="badge badge-primary badge-sm">
