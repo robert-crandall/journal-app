@@ -138,9 +138,7 @@ export class JournalService {
     if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom);
     if (params.dateTo) searchParams.set('dateTo', params.dateTo);
     if (params.search) searchParams.set('search', params.search);
-    if (params.tagIds && params.tagIds.length > 0) {
-      params.tagIds.forEach((tagId) => searchParams.append('tagIds', tagId));
-    }
+    if (params.tagId) searchParams.set('tagId', params.tagId);
 
     const queryString = searchParams.toString();
     const url = queryString ? `/api/journals?${queryString}` : '/api/journals';

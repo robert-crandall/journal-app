@@ -48,13 +48,5 @@ export const listJournalsSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
     .optional(),
-  tagIds: z
-    .union([z.string(), z.array(z.string())])
-    .optional()
-    .transform((val) => {
-      if (typeof val === 'string') {
-        return val.split(',').filter(Boolean);
-      }
-      return val || [];
-    }),
+  tagId: z.string().optional(),
 });

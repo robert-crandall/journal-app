@@ -84,7 +84,7 @@ export interface ListJournalsRequest {
   search?: string; // Search in title, synopsis, initialMessage
   dateFrom?: string; // YYYY-MM-DD format
   dateTo?: string; // YYYY-MM-DD format
-  tagIds?: string[]; // Content tag IDs to filter by
+  tagId?: string; // Single content tag ID to filter by
 }
 
 export interface JournalListItem {

@@ -165,10 +165,10 @@ const app = new Hono()
         );
       }
 
-      // If filtering by tags, we need a more complex query
+      // If filtering by a single tag, use tagId
       let journalsQuery;
-      if (filters.tagIds && filters.tagIds.length > 0) {
-        // Get journals that have XP grants for the specified content tags
+      if (filters.tagId) {
+        // Get journals that have XP grants for the specified content tag
         journalsQuery = db
           .selectDistinct({
             id: journals.id,
@@ -188,7 +188,7 @@ const app = new Hono()
           })
           .from(journals)
           .innerJoin(xpGrants, and(eq(xpGrants.sourceId, journals.id), eq(xpGrants.sourceType, 'journal'), eq(xpGrants.entityType, 'content_tag')))
-          .where(and(...conditions, sql`${xpGrants.entityId} = ANY(${filters.tagIds})`))
+          .where(and(...conditions, eq(xpGrants.entityId, filters.tagId)))
           .orderBy(desc(journals.date));
       } else {
         journalsQuery = db

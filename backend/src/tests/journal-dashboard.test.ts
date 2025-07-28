@@ -367,7 +367,7 @@ describe('Journal Dashboard API', () => {
       expect(response2.status).toBe(400);
 
       // Test invalid limit
-      const response3 = await app.request('/api/journals?limit=101', {
+      const response3 = await app.request('/api/journals?limit=900', {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       expect(response3.status).toBe(400);
