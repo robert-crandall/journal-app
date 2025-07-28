@@ -10,8 +10,10 @@
   import JournalFilterBar from '$lib/components/journal/JournalFilterBar.svelte';
   import JournalCalendarHeatmap from '$lib/components/journal/JournalCalendarHeatmap.svelte';
   import { getTodayDateString } from '$lib/utils/date';
+
   // State
   let journals: JournalListItem[] = [];
+  let heatmapJournals: JournalListItem[] = [];
   let totalJournals = 0;
   let hasMore = false;
   let availableTags: Array<{ id: string; name: string }> = [];
@@ -31,7 +33,24 @@
 
   onMount(() => {
     loadJournals();
+    loadHeatmapJournals();
   });
+
+  async function loadHeatmapJournals() {
+    try {
+      // Get last year's date and today in YYYY-MM-DD
+      const today = new Date();
+      const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const lastYearDate = `${lastYear.getFullYear()}-${pad(lastYear.getMonth() + 1)}-${pad(lastYear.getDate())}`;
+      const todayDate = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+      const response: ListJournalsResponse = await JournalService.listJournals({ dateFrom: lastYearDate, dateTo: todayDate, limit: 366 });
+      heatmapJournals = response.journals;
+    } catch (err) {
+      // Don't block page load if this fails
+      heatmapJournals = [];
+    }
+  }
 
   function goToSummaries() {
     goto('/journal-summaries');
@@ -153,7 +172,7 @@
         <CalendarIcon size={20} />
         Activity Overview
       </h2>
-      <JournalCalendarHeatmap {journals} />
+      <JournalCalendarHeatmap journals={heatmapJournals} />
     </div>
   </div>
 </div>

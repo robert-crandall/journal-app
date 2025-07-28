@@ -36,7 +36,7 @@ export const finishJournalSchema = z.object({
 
 // Schema for listing journals with filters
 export const listJournalsSchema = z.object({
-  limit: z.coerce.number().min(1).max(100).optional().default(20),
+  limit: z.coerce.number().min(1).max(750).optional().default(20),
   offset: z.coerce.number().min(0).optional().default(0),
   status: z.enum(['draft', 'in_review', 'complete']).optional(),
   search: z.string().optional(),
