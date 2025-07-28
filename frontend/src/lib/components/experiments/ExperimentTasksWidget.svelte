@@ -92,41 +92,29 @@
   }
 </script>
 
-{#if loading}
-  <div class="mb-6">
-    <div class="mb-3 flex items-center gap-2">
+
+<div class="mb-6">
+  <div class="mb-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
       <Beaker class="text-primary h-5 w-5" />
       <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
     </div>
+    <a href="/experiments" class="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium">
+      <BarChart class="h-4 w-4" />
+      View All
+    </a>
+  </div>
+
+  {#if loading}
     <div class="animate-pulse">
       <div class="bg-base-200 h-16 rounded-lg"></div>
     </div>
-  </div>
-{:else if error}
-  <div class="mb-6">
-    <div class="mb-3 flex items-center gap-2">
-      <Beaker class="text-primary h-5 w-5" />
-      <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-    </div>
+  {:else if error}
     <div class="border-error bg-error/10 rounded-lg border p-4">
       <p class="text-error text-sm">{error}</p>
       <button onclick={loadExperimentTasks} class="text-error hover:text-error/80 mt-2 text-sm underline"> Try again </button>
     </div>
-  </div>
-{:else if todaysTasks.length === 0}
-  <!-- Show experiments prompt if there are no active experiment tasks -->
-  <div class="mb-6">
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <Beaker class="text-primary h-5 w-5" />
-        <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-      </div>
-      <a href="/experiments" class="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium">
-        <BarChart class="h-4 w-4" />
-        View All
-      </a>
-    </div>
-
+  {:else if todaysTasks.length === 0}
     {#if activeExperiments.length === 0}
       <!-- No active experiments -->
       <div class="card from-secondary/10 to-accent/10 border-secondary/20 border bg-gradient-to-br">
@@ -164,21 +152,8 @@
         </div>
       </div>
     {/if}
-  </div>
-{:else}
-  <!-- Show active experiment tasks -->
-  <div class="mb-6">
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <Beaker class="text-primary h-5 w-5" />
-        <h3 class="text-base-content text-lg font-semibold">Today's Experiments</h3>
-      </div>
-      <a href="/experiments" class="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium">
-        <BarChart class="h-4 w-4" />
-        View All
-      </a>
-    </div>
-
+  {:else}
+    <!-- Show active experiment tasks -->
     <div class="card">
       <!-- Group tasks by experiment -->
       {#each Object.entries(todaysTasks.reduce((acc, { experiment, task }) => {
@@ -254,5 +229,5 @@
         </div>
       {/each}
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
