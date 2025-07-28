@@ -1,6 +1,9 @@
 import { pgTable, uuid, text, date, timestamp, jsonb, integer } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
+// Analysis type enum for different periods
+export type AnalysisType = 'weekly' | 'monthly' | 'quarterly';
+
 // Weekly analyses table - combines journal summary, goal alignment, and metrics in one place
 export const weeklyAnalyses = pgTable('weekly_analyses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -8,7 +11,10 @@ export const weeklyAnalyses = pgTable('weekly_analyses', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
 
-  // Period definition (Saturday to Friday for weeks)
+  // Analysis type (weekly, monthly, quarterly)
+  analysisType: text('analysis_type').$type<AnalysisType>().notNull().default('weekly'),
+
+  // Period definition (Saturday to Friday for weeks, month start/end for monthly, quarter start/end for quarterly)
   periodStartDate: date('period_start_date').notNull(),
   periodEndDate: date('period_end_date').notNull(),
 

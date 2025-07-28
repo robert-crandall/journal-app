@@ -1,4 +1,6 @@
-// Weekly Analysis types - shared between backend and frontend
+// Analysis types - shared between backend and frontend
+
+export type AnalysisType = 'weekly' | 'monthly' | 'quarterly';
 
 export interface WeeklyAnalysisMetrics {
   totalXpGained: number;
@@ -33,6 +35,7 @@ export interface WeeklyAnalysisNeglectedGoal {
 export interface WeeklyAnalysis {
   id: string;
   userId: string;
+  analysisType: AnalysisType;
   periodStartDate: Date;
   periodEndDate: Date;
 
@@ -74,6 +77,7 @@ export interface WeeklyAnalysis {
 export interface NewWeeklyAnalysis {
   id?: string;
   userId: string;
+  analysisType?: AnalysisType;
   periodStartDate: Date;
   periodEndDate: Date;
   journalSummary: string;
@@ -105,6 +109,7 @@ export interface NewWeeklyAnalysis {
 
 // API Request/Response Types
 export interface CreateWeeklyAnalysisRequest {
+  analysisType?: AnalysisType;
   periodStartDate: string; // ISO date string
   periodEndDate: string; // ISO date string
   journalSummary: string;
@@ -159,13 +164,15 @@ export interface UpdateWeeklyAnalysisRequest {
 }
 
 export interface GenerateWeeklyAnalysisRequest {
-  startDate: string; // ISO date string (Saturday)
-  endDate: string; // ISO date string (Friday)
+  analysisType?: AnalysisType;
+  startDate: string; // ISO date string
+  endDate: string; // ISO date string
 }
 
 export interface WeeklyAnalysisResponse {
   id: string;
   userId: string;
+  analysisType: AnalysisType;
   periodStartDate: string; // ISO date string
   periodEndDate: string; // ISO date string
   journalSummary: string;
@@ -199,6 +206,7 @@ export interface ListWeeklyAnalysesRequest {
   limit?: number;
   offset?: number;
   year?: number;
+  analysisType?: AnalysisType;
 }
 
 export interface ListWeeklyAnalysesResponse {

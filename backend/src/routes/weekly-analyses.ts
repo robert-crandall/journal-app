@@ -30,6 +30,7 @@ const serializeWeeklyAnalysis = (analysis: typeof weeklyAnalyses.$inferSelect): 
   return {
     id: analysis.id,
     userId: analysis.userId,
+    analysisType: analysis.analysisType as any, // Cast from DB type
     periodStartDate: analysis.periodStartDate,
     periodEndDate: analysis.periodEndDate,
     journalSummary: analysis.journalSummary,
@@ -67,6 +68,10 @@ const app = new Hono()
         const yearEnd = `${filters.year}-12-31`;
         conditions.push(gte(weeklyAnalyses.periodStartDate, yearStart));
         conditions.push(lte(weeklyAnalyses.periodStartDate, yearEnd));
+      }
+
+      if (filters.analysisType) {
+        conditions.push(eq(weeklyAnalyses.analysisType, filters.analysisType));
       }
 
       // Get total count
@@ -165,6 +170,7 @@ const app = new Hono()
         .insert(weeklyAnalyses)
         .values({
           userId,
+          analysisType: data.analysisType || 'weekly',
           periodStartDate: data.periodStartDate,
           periodEndDate: data.periodEndDate,
           journalSummary: data.journalSummary,
@@ -274,6 +280,7 @@ const app = new Hono()
         .insert(weeklyAnalyses)
         .values({
           userId,
+          analysisType: data.analysisType || 'weekly',
           periodStartDate: data.startDate,
           periodEndDate: data.endDate,
           journalSummary,

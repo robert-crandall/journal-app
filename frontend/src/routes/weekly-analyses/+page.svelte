@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { getWeeklyAnalyses, getCurrentWeekRange, formatWeekRange, type GetWeeklyAnalysesOptions } from '$lib/api/weekly-analyses';
-  import type { WeeklyAnalysisResponse } from '../../../../shared/types/weekly-analyses';
-  import { ArrowRight, Calendar, TrendingUp, Target, Brain } from 'lucide-svelte';
+  import { getWeeklyAnalyses, getCurrentWeekRange, formatWeekRange, formatAnalysisType, type GetWeeklyAnalysesOptions } from '$lib/api/weekly-analyses';
+  import type { WeeklyAnalysisResponse, AnalysisType } from '../../../../shared/types/weekly-analyses';
+  import { ArrowRight, Calendar, TrendingUp, Target, Brain, Filter } from 'lucide-svelte';
+  import { formatDate as formatDateUtil } from '$lib/utils/date';
 
   let analyses: WeeklyAnalysisResponse[] = [];
   let loading = true;
@@ -11,6 +12,10 @@
   let currentPage = 1;
   let totalItems = 0;
   let hasMore = false;
+
+  // Filter options
+  let analysisTypeFilter: AnalysisType | 'all' = 'all';
+  let yearFilter: number | 'all' = 'all';
 
   const ITEMS_PER_PAGE = 10;
 
@@ -26,6 +31,8 @@
         ...options,
         limit: ITEMS_PER_PAGE,
         page: currentPage,
+        analysisType: analysisTypeFilter !== 'all' ? analysisTypeFilter : undefined,
+        year: yearFilter !== 'all' ? yearFilter : undefined,
       });
 
       analyses = response.analyses || [];
@@ -61,16 +68,26 @@
     }
   }
 
+  function handleFilterChange() {
+    currentPage = 1; // Reset to first page when filters change
+    loadAnalyses();
+  }
+
   // Calculate total pages for display
   $: totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
+  // Generate year options
+  function getYearOptions(): number[] {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = currentYear; year >= currentYear - 5; year--) {
+      years.push(year);
+    }
+    return years;
+  }
+
   function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return formatDateUtil(dateString);
   }
 
   function getAnalysisPreview(analysis: WeeklyAnalysisResponse): string {
@@ -86,7 +103,7 @@
 </script>
 
 <svelte:head>
-  <title>Weekly Analyses</title>
+  <title>Period Analyses</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-8">
@@ -95,16 +112,63 @@
     <div>
       <h1 class="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
         <Brain class="text-purple-600" size={32} />
-        Weekly Analyses
+        Period Analyses
       </h1>
-      <p class="mt-2 text-gray-600 dark:text-gray-400">Combined insights from your journal entries and goal alignment</p>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Combined insights from your journal entries and goal alignment across different time periods</p>
     </div>
 
     <button type="button" class="btn btn-primary flex items-center gap-2" on:click={handleAnalyzeThisWeek}>
       <TrendingUp size={20} />
-      Analyze My Week
-      <span class="text-sm opacity-80">({formatWeekRange(currentWeek.startDate, currentWeek.endDate)})</span>
+      Generate Analysis
     </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <Filter size={16} class="text-gray-500" />
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filters:</span>
+      </div>
+
+      <div class="form-control">
+        <label class="label py-0">
+          <span class="label-text text-xs">Type</span>
+        </label>
+        <select bind:value={analysisTypeFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
+          <option value="all">All Types</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+        </select>
+      </div>
+
+      <div class="form-control">
+        <label class="label py-0">
+          <span class="label-text text-xs">Year</span>
+        </label>
+        <select bind:value={yearFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
+          <option value="all">All Years</option>
+          {#each getYearOptions() as year}
+            <option value={year}>{year}</option>
+          {/each}
+        </select>
+      </div>
+
+      {#if analysisTypeFilter !== 'all' || yearFilter !== 'all'}
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          on:click={() => {
+            analysisTypeFilter = 'all';
+            yearFilter = 'all';
+            handleFilterChange();
+          }}
+        >
+          Clear Filters
+        </button>
+      {/if}
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -124,13 +188,13 @@
     <!-- Empty State -->
     <div class="py-12 text-center">
       <Brain class="mx-auto mb-4 text-gray-400" size={64} />
-      <h3 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">No weekly analyses yet</h3>
+      <h3 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">No analyses yet</h3>
       <p class="mb-6 text-gray-600 dark:text-gray-400">
-        Get started by analyzing your current week to see combined insights from your journal entries and goals.
+        Get started by generating your first analysis to see combined insights from your journal entries and goals.
       </p>
       <button type="button" class="btn btn-primary mx-auto flex items-center gap-2" on:click={handleAnalyzeThisWeek}>
         <TrendingUp size={20} />
-        Analyze This Week
+        Generate Analysis
       </button>
     </div>
   {:else}
@@ -147,6 +211,7 @@
                 <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
                   <Calendar size={18} class="text-purple-600" />
                   {formatWeekRange(analysis.periodStartDate, analysis.periodEndDate)}
+                  <span class="badge badge-outline badge-sm ml-2">{formatAnalysisType(analysis.analysisType)}</span>
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                   Created {formatDate(analysis.createdAt)}

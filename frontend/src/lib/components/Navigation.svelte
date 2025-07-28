@@ -222,7 +222,7 @@
               </a>
             </li>
             <li>
-              <a href="/journal-summaries" class="text-base-content" on:click={closeDropdown}>
+              <a href="/weekly-analyses" class="text-base-content" on:click={closeDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -234,39 +234,7 @@
                   stroke-linejoin="round"
                   class="h-4 w-4"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg
                 >
-                Journal Summaries
-              </a>
-            </li>
-            <li>
-              <a href="/metric-summaries" class="text-base-content" on:click={closeDropdown}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M7 11L12 6l4 4 5-5" /></svg
-                >
-                Metric Summaries
-              </a>
-            </li>
-            <li>
-              <a href="/goal-alignment-summaries" class="text-base-content" on:click={closeDropdown}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg
-                >
-                Goal Alignment
+                Weekly Analyses
               </a>
             </li>
             <li>
@@ -294,7 +262,7 @@
               <span class="text-xs">Analytics & Summaries</span>
             </li>
             <li>
-              <a href="/journal-summaries" class="text-base-content" on:click={closeDropdown}>
+              <a href="/weekly-analyses" class="text-base-content" on:click={closeDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -306,39 +274,7 @@
                   stroke-linejoin="round"
                   class="h-4 w-4"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg
                 >
-                Journal Summaries
-              </a>
-            </li>
-            <li>
-              <a href="/metric-summaries" class="text-base-content" on:click={closeDropdown}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M7 11L12 6l4 4 5-5" /></svg
-                >
-                Metric Summaries
-              </a>
-            </li>
-            <li>
-              <a href="/goal-alignment-summaries" class="text-base-content" on:click={closeDropdown}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg
-                >
-                Goal Alignment
+                Weekly Analyses
               </a>
             </li>
             <li class="menu-title">

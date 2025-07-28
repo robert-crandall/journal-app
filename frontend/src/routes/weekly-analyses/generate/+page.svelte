@@ -1,13 +1,27 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { generateWeeklyAnalysis, getCurrentWeekRange, formatWeekRange } from '$lib/api/weekly-analyses';
-  import type { GenerateWeeklyAnalysisRequest } from '../../../../../shared/types/weekly-analyses';
+  import {
+    generateWeeklyAnalysis,
+    getCurrentWeekRange,
+    getCurrentMonthRange,
+    getCurrentQuarterRange,
+    getCustomDateRange,
+    formatWeekRange,
+    formatAnalysisType,
+    getDateRangeForType,
+  } from '$lib/api/weekly-analyses';
+  import type { GenerateWeeklyAnalysisRequest, AnalysisType } from '../../../../../shared/types/weekly-analyses';
   import { ArrowLeft, Brain, TrendingUp, Calendar, Loader2 } from 'lucide-svelte';
 
   let generating = false;
   let error = '';
-  let currentWeek = getCurrentWeekRange();
+
+  // Analysis type and date range
+  let analysisType: AnalysisType = 'weekly';
+  let dateRangeType: 'current' | 'custom' = 'current';
+  let customStartDate = '';
+  let customEndDate = '';
 
   // Form state
   let includeJournalSummary = true;
@@ -15,9 +29,23 @@
   let includeMetrics = true;
   let customPrompt = '';
 
+  // Get current date range based on analysis type
+  $: currentRange = getDateRangeForType(analysisType);
+  $: effectiveRange = dateRangeType === 'custom' && customStartDate && customEndDate ? getCustomDateRange(customStartDate, customEndDate) : currentRange;
+
   async function handleGenerate() {
     if (!includeJournalSummary && !includeGoalAlignment && !includeMetrics) {
       error = 'Please select at least one analysis type';
+      return;
+    }
+
+    if (dateRangeType === 'custom' && (!customStartDate || !customEndDate)) {
+      error = 'Please provide both start and end dates for custom range';
+      return;
+    }
+
+    if (dateRangeType === 'custom' && customStartDate >= customEndDate) {
+      error = 'End date must be after start date';
       return;
     }
 
@@ -26,8 +54,9 @@
       error = '';
 
       const request: GenerateWeeklyAnalysisRequest = {
-        startDate: currentWeek.startDate,
-        endDate: currentWeek.endDate,
+        analysisType,
+        startDate: effectiveRange.startDate,
+        endDate: effectiveRange.endDate,
       };
 
       const response = await generateWeeklyAnalysis(request);
@@ -35,8 +64,8 @@
       // Navigate to the generated analysis
       goto(`/weekly-analyses/${response.id}`);
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to generate weekly analysis';
-      console.error('Error generating weekly analysis:', err);
+      error = err instanceof Error ? err.message : 'Failed to generate analysis';
+      console.error('Error generating analysis:', err);
     } finally {
       generating = false;
     }
@@ -48,12 +77,15 @@
 
   // Update current week on mount
   onMount(() => {
-    currentWeek = getCurrentWeekRange();
+    // Set default custom dates to current week
+    const current = getCurrentWeekRange();
+    customStartDate = current.startDate;
+    customEndDate = current.endDate;
   });
 </script>
 
 <svelte:head>
-  <title>Analyze My Week</title>
+  <title>Generate Analysis</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-2xl px-4 py-8">
@@ -67,11 +99,9 @@
     <div>
       <h1 class="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
         <Brain class="text-purple-600" size={32} />
-        Analyze My Week
+        Generate Analysis
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
-        {formatWeekRange(currentWeek.startDate, currentWeek.endDate)}
-      </p>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">Create insights from your journal entries and goal progress</p>
     </div>
   </div>
 
@@ -80,7 +110,7 @@
     <div class="card-body">
       <h2 class="mb-6 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
         <TrendingUp size={20} class="text-purple-600" />
-        What would you like to analyze?
+        Configure Your Analysis
       </h2>
 
       {#if error}
@@ -92,8 +122,61 @@
         </div>
       {/if}
 
-      <!-- Analysis Type Selection -->
+      <!-- Analysis Type and Date Range -->
       <div class="mb-6 space-y-4">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Analysis Type -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Analysis Type</span>
+            </label>
+            <select bind:value={analysisType} class="select select-bordered" disabled={generating}>
+              <option value="weekly">Weekly Analysis</option>
+              <option value="monthly">Monthly Analysis</option>
+              <option value="quarterly">Quarterly Analysis</option>
+            </select>
+          </div>
+
+          <!-- Date Range Type -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Date Range</span>
+            </label>
+            <select bind:value={dateRangeType} class="select select-bordered" disabled={generating}>
+              <option value="current">Current {formatAnalysisType(analysisType)}</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Date Range -->
+        {#if dateRangeType === 'custom'}
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Start Date</span>
+              </label>
+              <input type="date" class="input input-bordered" bind:value={customStartDate} disabled={generating} />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">End Date</span>
+              </label>
+              <input type="date" class="input input-bordered" bind:value={customEndDate} disabled={generating} />
+            </div>
+          </div>
+        {/if}
+
+        <!-- Date Range Display -->
+        <div class="alert alert-info">
+          <Calendar size={16} />
+          <span>Analyzing: {formatWeekRange(effectiveRange.startDate, effectiveRange.endDate)}</span>
+        </div>
+      </div>
+
+      <!-- What to Include -->
+      <div class="mb-6 space-y-4">
+        <h3 class="font-medium text-gray-900 dark:text-white">What would you like to include?</h3>
         <div class="form-control">
           <label class="label cursor-pointer">
             <div class="flex items-center gap-3">
@@ -175,7 +258,7 @@
     <div class="card-body">
       <h3 class="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
         <Calendar size={18} class="text-blue-600" />
-        About Weekly Analysis
+        About {formatAnalysisType(analysisType)} Analysis
       </h3>
       <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
         <p>
@@ -188,7 +271,7 @@
           • <strong>Metrics:</strong> Provides quantitative summary of your XP, completed tasks, and progress indicators
         </p>
         <p class="mt-3 text-xs opacity-80">
-          Analysis typically takes 30-60 seconds to complete and will combine all selected components into a unified weekly insight.
+          Analysis typically takes 30-60 seconds to complete and will combine all selected components into a unified insight for the selected period.
         </p>
       </div>
     </div>

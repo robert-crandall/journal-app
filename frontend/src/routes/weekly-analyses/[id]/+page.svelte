@@ -5,6 +5,7 @@
   import { getWeeklyAnalysis, formatWeekRange } from '$lib/api/weekly-analyses';
   import type { WeeklyAnalysisResponse } from '../../../../../shared/types/weekly-analyses';
   import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users } from 'lucide-svelte';
+  import { formatDate as formatDateUtil } from '$lib/utils/date';
 
   let analysis: WeeklyAnalysisResponse | null = null;
   let loading = true;
@@ -36,13 +37,7 @@
   }
 
   function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return formatDateUtil(dateString);
   }
 
   function formatPercentage(value: number | null): string {
@@ -127,8 +122,46 @@
         </div>
       {/if}
 
-      <!-- Three-Column Layout -->
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <!-- Metrics Section -->
+      <div class="card bg-base-100 border-base-300 border shadow-lg">
+        <div class="card-body">
+          <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <BarChart3 class="text-blue-600" size={20} />
+            Weekly Metrics
+          </h3>
+
+          <div class="space-y-4">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="stat-item">
+                <div class="stat-value text-green-600">{analysis.totalXpGained}</div>
+                <div class="stat-label">XP Gained</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value text-blue-600">{analysis.tasksCompleted}</div>
+                <div class="stat-label">Tasks Done</div>
+              </div>
+            </div>
+
+            <!-- Additional Metrics -->
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Goal Alignment:</span>
+                <span class="font-medium">{formatPercentage(analysis.alignmentScore)}</span>
+              </div>
+              {#if analysis.toneFrequency && analysis.toneFrequency.length > 0}
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">Primary Tone:</span>
+                  <span class="font-medium capitalize">{analysis.toneFrequency[0].tone}</span>
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Column Layout -->
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Journal Summary Section -->
         {#if analysis.journalSummary}
           <div class="card bg-base-100 border-base-300 border shadow-lg">
@@ -161,44 +194,6 @@
             </div>
           </div>
         {/if}
-
-        <!-- Metrics Section -->
-        <div class="card bg-base-100 border-base-300 border shadow-lg">
-          <div class="card-body">
-            <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-              <BarChart3 class="text-blue-600" size={20} />
-              Weekly Metrics
-            </h3>
-
-            <div class="space-y-4">
-              <!-- Key Metrics -->
-              <div class="grid grid-cols-2 gap-4">
-                <div class="stat-item">
-                  <div class="stat-value text-green-600">{analysis.totalXpGained}</div>
-                  <div class="stat-label">XP Gained</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value text-blue-600">{analysis.tasksCompleted}</div>
-                  <div class="stat-label">Tasks Done</div>
-                </div>
-              </div>
-
-              <!-- Additional Metrics -->
-              <div class="space-y-3 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Goal Alignment:</span>
-                  <span class="font-medium">{formatPercentage(analysis.alignmentScore)}</span>
-                </div>
-                {#if analysis.toneFrequency && analysis.toneFrequency.length > 0}
-                  <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Primary Tone:</span>
-                    <span class="font-medium capitalize">{analysis.toneFrequency[0].tone}</span>
-                  </div>
-                {/if}
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Goal Alignment Section -->
         {#if analysis.goalAlignmentSummary}

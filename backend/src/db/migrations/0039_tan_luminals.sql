@@ -1,0 +1,1 @@
+ALTER TABLE "weekly_analyses" ADD COLUMN "analysis_type" text DEFAULT 'weekly' NOT NULL;

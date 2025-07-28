@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 // Weekly analysis validation schemas
 
+const analysisTypeSchema = z.enum(['weekly', 'monthly', 'quarterly']);
+
 const xpByStatsSchema = z.array(
   z.object({
     statId: z.string().uuid('Invalid stat ID'),
@@ -38,6 +40,7 @@ const neglectedGoalSchema = z.object({
 
 // Base schema for weekly analysis data
 const weeklyAnalysisBaseSchema = z.object({
+  analysisType: analysisTypeSchema.default('weekly'),
   periodStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
   periodEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
   journalSummary: z.string().min(1, 'Journal summary is required').max(10000, 'Journal summary is too long'),
@@ -68,6 +71,7 @@ export const updateWeeklyAnalysisSchema = weeklyAnalysisBaseSchema
 
 // Generate weekly analysis schema
 export const generateWeeklyAnalysisSchema = z.object({
+  analysisType: analysisTypeSchema.default('weekly'),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
 });
@@ -94,6 +98,12 @@ export const listWeeklyAnalysesSchema = z.object({
     .transform((val) => (val ? parseInt(val, 10) : undefined))
     .refine((val) => val === undefined || (val >= 2020 && val <= 2030), {
       message: 'Year must be between 2020 and 2030',
+    }),
+  analysisType: z
+    .string()
+    .optional()
+    .refine((val) => val === undefined || ['weekly', 'monthly', 'quarterly'].includes(val), {
+      message: 'Analysis type must be weekly, monthly, or quarterly',
     }),
 });
 
