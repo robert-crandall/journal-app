@@ -5,7 +5,7 @@ export interface Character {
   id: string;
   userId: string;
   name: string;
-  characterClass: string;
+  characterClass: string | null;
   backstory: string | null;
   goals: string | null;
   motto: string | null;
@@ -17,7 +17,7 @@ export interface CreateCharacter {
   id?: string;
   userId: string;
   name: string;
-  characterClass: string;
+  characterClass?: string | null;
   backstory?: string | null;
   goals?: string | null;
   motto?: string | null;

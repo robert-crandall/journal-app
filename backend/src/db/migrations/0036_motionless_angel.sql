@@ -1,0 +1,1 @@
+ALTER TABLE "characters" ALTER COLUMN "character_class" DROP NOT NULL;

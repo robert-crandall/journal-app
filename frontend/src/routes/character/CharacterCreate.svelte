@@ -11,7 +11,6 @@
   // Form state
   let formData: CreateCharacterData = {
     name: '',
-    characterClass: '',
     backstory: '',
     goals: '',
     motto: '',
@@ -54,17 +53,17 @@
   function handleClassSelection() {
     if (selectedClass === 'Custom') {
       showCustomClass = true;
-      formData.characterClass = customClass;
+      formData = { ...formData, characterClass: customClass };
     } else {
       showCustomClass = false;
-      formData.characterClass = selectedClass;
+      formData = { ...formData, characterClass: selectedClass };
       customClass = '';
     }
   }
 
   // Handle custom class input
   function handleCustomClassInput() {
-    formData.characterClass = customClass;
+    formData = { ...formData, characterClass: customClass };
   }
 
   // Validate form
@@ -73,15 +72,11 @@
       error = 'Character name is required';
       return false;
     }
-    if (!formData.characterClass.trim()) {
-      error = 'Character class is required';
-      return false;
-    }
     if (formData.name.length > 100) {
       error = 'Character name must be 100 characters or less';
       return false;
     }
-    if (formData.characterClass.length > 100) {
+    if (formData.characterClass && formData.characterClass.length > 100) {
       error = 'Character class must be 100 characters or less';
       return false;
     }
@@ -106,8 +101,11 @@
       // Prepare data - only send non-empty optional fields
       const submitData: CreateCharacterData = {
         name: formData.name.trim(),
-        characterClass: formData.characterClass.trim(),
       };
+
+      if (formData.characterClass?.trim()) {
+        submitData.characterClass = formData.characterClass.trim();
+      }
 
       if (formData.backstory?.trim()) {
         submitData.backstory = formData.backstory.trim();
@@ -216,7 +214,7 @@
             <!-- Character Class -->
             <div class="form-control">
               <label class="label" for="class">
-                <span class="label-text font-medium">Character Class *</span>
+                <span class="label-text font-medium">Character Class</span>
               </label>
               <div class="relative">
                 <select
@@ -224,7 +222,6 @@
                   class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
                   bind:value={selectedClass}
                   on:change={handleClassSelection}
-                  required
                 >
                   <option value="">Choose your character archetype</option>
                   {#each predefinedClasses as classOption (classOption)}

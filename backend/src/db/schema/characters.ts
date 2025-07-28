@@ -7,7 +7,7 @@ export const characters = pgTable('characters', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
-  characterClass: varchar('character_class', { length: 100 }).notNull(),
+  characterClass: varchar('character_class', { length: 100 }),
   backstory: text('backstory'),
   goals: text('goals'),
   motto: varchar('motto', { length: 200 }),
