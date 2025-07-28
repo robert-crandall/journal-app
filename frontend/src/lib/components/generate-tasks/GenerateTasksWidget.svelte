@@ -62,9 +62,8 @@
   }
 </script>
 
-
-<div class="w-full flex flex-col items-end text-right">
-  <div class="mb-4 flex items-center justify-end w-full">
+<div class="flex w-full flex-col items-end text-right">
+  <div class="mb-4 flex w-full items-center justify-end">
     <button class="btn btn-primary btn-sm transition-all duration-200 hover:scale-105" on:click={handleGenerateClick} disabled={generating}>
       {#if generating}
         <span class="loading loading-spinner loading-xs"></span>
@@ -92,11 +91,11 @@
   </div>
 
   {#if loading && !currentDateTasks}
-    <div class="flex justify-end py-4 w-full">
+    <div class="flex w-full justify-end py-4">
       <span class="loading loading-spinner loading-md"></span>
     </div>
   {:else if error}
-    <div class="alert alert-error mb-4 w-full flex justify-end">
+    <div class="alert alert-error mb-4 flex w-full justify-end">
       <div class="flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +116,7 @@
       </div>
     </div>
   {:else}
-    <div class="text-xs text-gray-500 w-full text-right">Create personalized tasks based on your habits and goals</div>
+    <div class="w-full text-right text-xs text-gray-500">Create personalized tasks based on your habits and goals</div>
   {/if}
 </div>
 

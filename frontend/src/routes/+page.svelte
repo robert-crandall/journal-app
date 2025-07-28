@@ -44,7 +44,6 @@
             <div class="card-body p-3 sm:p-6">
               <!-- Widgets Container -->
               <div class="space-y-4 sm:space-y-6">
-
                 <!-- Daily Focus Widget -->
                 <div>
                   <DailyFocusWidget />

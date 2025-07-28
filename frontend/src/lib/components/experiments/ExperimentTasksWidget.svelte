@@ -92,7 +92,6 @@
   }
 </script>
 
-
 <div class="mb-6">
   <div class="mb-3 flex items-center justify-between">
     <div class="flex items-center gap-2">
