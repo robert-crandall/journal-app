@@ -13,7 +13,7 @@
 
   // State
   let journals: JournalListItem[] = [];
-  let heatmapJournals: JournalListItem[] = [];
+  let allFilteredJournals: JournalListItem[] = []; // All journals matching current filters
   let totalJournals = 0;
   let hasMore = false;
   let availableTags: Array<{ id: string; name: string }> = [];
@@ -33,24 +33,7 @@
 
   onMount(() => {
     loadJournals();
-    loadHeatmapJournals();
   });
-
-  async function loadHeatmapJournals() {
-    try {
-      // Get last year's date and today in YYYY-MM-DD
-      const today = new Date();
-      const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-      const pad = (n: number) => n.toString().padStart(2, '0');
-      const lastYearDate = `${lastYear.getFullYear()}-${pad(lastYear.getMonth() + 1)}-${pad(lastYear.getDate())}`;
-      const todayDate = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-      const response: ListJournalsResponse = await JournalService.listJournals({ dateFrom: lastYearDate, dateTo: todayDate, limit: 366 });
-      heatmapJournals = response.journals;
-    } catch (err) {
-      // Don't block page load if this fails
-      heatmapJournals = [];
-    }
-  }
 
   function goToSummaries() {
     goto('/journal-summaries');
@@ -61,31 +44,38 @@
       loading = true;
       error = null;
 
-      const params: any = {
-        limit: ITEMS_PER_PAGE,
-        offset: reset ? 0 : currentPage * ITEMS_PER_PAGE,
-      };
-
-      if (searchTerm.trim()) params.search = searchTerm.trim();
-      if (statusFilter !== 'all') params.status = statusFilter;
-      if (dateFrom) params.dateFrom = dateFrom;
-      if (dateTo) params.dateTo = dateTo;
-      if (selectedTags.length > 0) params.tagIds = selectedTags;
+      // Build filter params
+      const filterParams: any = {};
+      if (searchTerm.trim()) filterParams.search = searchTerm.trim();
+      if (statusFilter !== 'all') filterParams.status = statusFilter;
+      if (dateFrom) filterParams.dateFrom = dateFrom;
+      if (dateTo) filterParams.dateTo = dateTo;
+      if (selectedTags.length > 0) filterParams.tagId = selectedTags[0]; // Only use first tag since backend now supports single tagId
       // Note: Backend doesn't support tone tag filtering yet, but frontend is ready
-      // if (selectedToneTags.length > 0) params.toneTags = selectedToneTags;
 
-      const response: ListJournalsResponse = await JournalService.listJournals(params);
+      // Load all filtered journals for heatmap (limit to reasonable amount)
+      const allJournalsParams = {
+        ...filterParams,
+        limit: 500, // Reasonable limit for heatmap data
+        offset: 0,
+      };
+      const allJournalsResponse: ListJournalsResponse = await JournalService.listJournals(allJournalsParams);
+      allFilteredJournals = allJournalsResponse.journals;
+      availableTags = allJournalsResponse.availableTags;
+      totalJournals = allJournalsResponse.total;
 
+      // For paginated display, slice the journals
       if (reset) {
-        journals = response.journals;
         currentPage = 0;
+        journals = allFilteredJournals.slice(0, ITEMS_PER_PAGE);
       } else {
-        journals = [...journals, ...response.journals];
+        const startIndex = currentPage * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        journals = [...journals, ...allFilteredJournals.slice(startIndex, endIndex)];
       }
 
-      totalJournals = response.total;
-      hasMore = response.hasMore;
-      availableTags = response.availableTags;
+      // Update hasMore based on local data
+      hasMore = journals.length < allFilteredJournals.length;
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load journals';
     } finally {
@@ -103,7 +93,10 @@
 
   function handleLoadMore() {
     currentPage++;
-    loadJournals(false);
+    const startIndex = currentPage * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    journals = [...journals, ...allFilteredJournals.slice(startIndex, endIndex)];
+    hasMore = journals.length < allFilteredJournals.length;
   }
 
   function handleJournalClick(journal: JournalListItem) {
@@ -172,7 +165,7 @@
         <CalendarIcon size={20} />
         Activity Overview
       </h2>
-      <JournalCalendarHeatmap journals={heatmapJournals} />
+      <JournalCalendarHeatmap journals={allFilteredJournals} />
     </div>
   </div>
 </div>
