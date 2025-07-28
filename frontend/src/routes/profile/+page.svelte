@@ -3,11 +3,13 @@
   import { authStore } from '$lib/stores/auth';
   import { usersApi } from '$lib/api/users';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
+  import { GPT_TONES, type GptTone } from '../../../../shared/types/users';
 
   let profileData = {
     name: '',
     email: '',
     avatar: null as string | null,
+    gptTone: 'friendly' as GptTone,
   };
 
   let loading = false;
@@ -23,6 +25,7 @@
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        gptTone: (user.gptTone as GptTone) || 'friendly',
       };
     }
   });
@@ -39,6 +42,7 @@
         name: profileData.name,
         email: profileData.email,
         avatar: profileData.avatar || undefined,
+        gptTone: profileData.gptTone,
       });
 
       // Update the auth store with new user data
@@ -111,7 +115,11 @@
   }
 
   // Check if profile data has changed
-  $: hasChanges = $authStore.user && (profileData.name !== $authStore.user.name || profileData.email !== $authStore.user.email);
+  $: hasChanges = $authStore.user && (
+    profileData.name !== $authStore.user.name || 
+    profileData.email !== $authStore.user.email ||
+    profileData.gptTone !== $authStore.user.gptTone
+  );
 </script>
 
 <svelte:head>
@@ -172,6 +180,35 @@
             required
             disabled={saving}
           />
+        </div>
+
+        <!-- GPT Tone Selection -->
+        <div class="form-control">
+          <label class="label" for="gpt-tone">
+            <span class="label-text font-medium">GPT Assistant Tone</span>
+          </label>
+          <div class="text-base-content/70 mb-3 text-sm">
+            Choose how you'd like the AI assistant to communicate with you in conversations and task suggestions.
+          </div>
+          <select
+            id="gpt-tone"
+            bind:value={profileData.gptTone}
+            class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
+            disabled={saving}
+          >
+            {#each GPT_TONES as tone}
+              <option value={tone}>
+                {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                {#if tone === 'friendly'} - Warm, approachable (default)
+                {:else if tone === 'motivational'} - High-energy, coaching style
+                {:else if tone === 'funny'} - Light humor and playful language
+                {:else if tone === 'serious'} - Direct, efficient, no fluff  
+                {:else if tone === 'minimal'} - Terse, no elaboration
+                {:else if tone === 'wholesome'} - Calm, thoughtful, encouraging
+                {/if}
+              </option>
+            {/each}
+          </select>
         </div>
 
         <!-- Submit Button -->

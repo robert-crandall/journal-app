@@ -79,6 +79,7 @@ export async function initializeAuth(): Promise<void> {
           name: result.data.name,
           email: result.data.email,
           avatar: result.data.avatar,
+          gptTone: result.data.gptTone || 'friendly',
           createdAt: result.data.createdAt,
         };
 
@@ -95,6 +96,7 @@ export async function initializeAuth(): Promise<void> {
       name: payload.name,
       email: payload.email,
       avatar: null,
+      gptTone: 'friendly', // Default fallback
       createdAt: new Date(payload.iat * 1000).toISOString(),
     };
 
@@ -108,6 +110,7 @@ export async function initializeAuth(): Promise<void> {
       name: payload.name,
       email: payload.email,
       avatar: null,
+      gptTone: 'friendly', // Default fallback
       createdAt: new Date(payload.iat * 1000).toISOString(),
     };
 

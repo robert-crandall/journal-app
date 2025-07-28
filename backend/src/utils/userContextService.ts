@@ -9,6 +9,7 @@ import { getUserTagsWithCounts } from './tags';
 export interface ComprehensiveUserContext {
   // Basic user info
   name: string;
+  gptTone?: string;
 
   // Character info
   characterClass?: string;
@@ -104,8 +105,10 @@ export async function getUserContext(
           backstory: characters.backstory,
           goals: characters.goals,
           motto: characters.motto,
+          gptTone: users.gptTone,
         })
         .from(characters)
+        .leftJoin(users, eq(characters.userId, users.id))
         .where(eq(characters.userId, userId))
         .limit(1);
 
@@ -116,14 +119,24 @@ export async function getUserContext(
           backstory: character[0].backstory || undefined,
           characterGoals: character[0].goals || undefined,
           motto: character[0].motto || undefined,
+          gptTone: character[0].gptTone || 'friendly',
         };
       } else {
         // Fallback to user name if no character exists
-        const user = await db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1);
+        const user = await db.select({ name: users.name, gptTone: users.gptTone }).from(users).where(eq(users.id, userId)).limit(1);
 
         if (user.length > 0) {
           baseContext.name = user[0].name;
+          baseContext.gptTone = user[0].gptTone;
         }
+      }
+    } else {
+      // If not including character, still get basic user info including gptTone
+      const user = await db.select({ name: users.name, gptTone: users.gptTone }).from(users).where(eq(users.id, userId)).limit(1);
+      
+      if (user.length > 0) {
+        baseContext.name = user[0].name;
+        baseContext.gptTone = user[0].gptTone;
       }
     }
 
