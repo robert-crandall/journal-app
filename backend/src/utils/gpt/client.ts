@@ -134,6 +134,30 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
         summary:
           'During this period, you demonstrated solid alignment with your primary goals, showing consistent effort in key areas. While some goals received less attention, this appears to be due to natural prioritization rather than lack of commitment. Your journal entries reveal a thoughtful approach to goal pursuit and strong self-awareness about your progress and challenges.',
       });
+    } else if (
+      (content.includes('Please generate a') &&
+        (content.includes('ly summary based on these journal entries') || content.includes('weekly summary') || content.includes('monthly summary'))) ||
+      systemContent.includes('period summary') ||
+      systemContent.includes('weekly summary') ||
+      systemContent.includes('monthly summary')
+    ) {
+      // Mock response for period summary generation
+      mockResponse = JSON.stringify({
+        summary:
+          'This week showed consistent progress in learning and personal development. You demonstrated dedication to your Spanish learning goals through regular practice sessions, while maintaining a positive and energized mindset. The balance between focused study time and reflection created a productive routine that supported both immediate learning and long-term retention. Your commitment to daily practice is building strong foundations for continued growth.',
+        tags: ['learning', 'spanish', 'consistency', 'progress', 'dedication'],
+      });
+    } else if (
+      content.includes('unified weekly reflection') ||
+      content.includes('combined reflection') ||
+      content.includes('weekly analysis') ||
+      systemContent.includes('unified weekly reflection') ||
+      systemContent.includes('combined reflection') ||
+      systemContent.includes('weekly analysis')
+    ) {
+      // Mock response for combined weekly analysis reflection
+      mockResponse =
+        "This week showed great progress in learning and personal development. Your consistent effort in practicing Spanish and maintaining daily routines demonstrates strong self-discipline. The balance between productivity and reflection created a positive momentum that carried through each day. Moving forward, consider building on this foundation by setting slightly more challenging goals while maintaining the sustainable pace you've established.";
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
     }

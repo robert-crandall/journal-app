@@ -17,6 +17,7 @@ export * from './weather';
 export * from './metric-summaries';
 export * from './user-attributes';
 export * from './goal-alignment-summaries';
+export * from './weekly-analyses';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

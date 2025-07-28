@@ -51,7 +51,7 @@
       if (dateFrom) filterParams.dateFrom = dateFrom;
       if (dateTo) filterParams.dateTo = dateTo;
       if (selectedTags.length > 0) filterParams.tagId = selectedTags[0]; // Only use first tag since backend now supports single tagId
-      if (selectedToneTags.length > 0 ) filterParams.toneTag = selectedToneTags[0];
+      if (selectedToneTags.length > 0) filterParams.toneTag = selectedToneTags[0];
 
       // Load all filtered journals for heatmap (limit to reasonable amount)
       const allJournalsParams = {
