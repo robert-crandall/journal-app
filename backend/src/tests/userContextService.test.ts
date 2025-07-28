@@ -159,7 +159,7 @@ describe('User Context Service', () => {
         includeCharacterStats: false,
       });
 
-      expect(contextGoalsOnly.name).toBe('User'); // Fallback when character not included
+      expect(contextGoalsOnly.name).toBe('Context Test User'); // Fallback when character not included
       expect(contextGoalsOnly.characterClass).toBeUndefined();
       expect(contextGoalsOnly.activeGoals).toHaveLength(1);
       expect(contextGoalsOnly.activeGoals![0].title).toBe('Test Goal');

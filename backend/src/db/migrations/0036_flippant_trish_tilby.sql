@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "gpt_tone" varchar(20) DEFAULT 'friendly' NOT NULL;

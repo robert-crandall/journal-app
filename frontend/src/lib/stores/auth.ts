@@ -7,6 +7,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string | null;
+  gptTone: string;
   createdAt: string;
 }
 
