@@ -113,7 +113,7 @@ Your task is to review the entire conversation and generate:
     systemPrompt += `## Context for Tag Suggestions
 
 ### Existing Content Tags
-Consider using these existing tags when appropriate (sorted by usage frequency):
+Consider using these existing tags when appropriate. You can create new tags if needed.
 ${userContext.existingTags.map((tag) => `- "${tag.name}"`).join('\n')}`;
   }
 
@@ -209,7 +209,7 @@ IMPORTANT: Format your response exactly as JSON:
   "title": "Brief descriptive title",
   "synopsis": "1-2 sentence overview", 
   "suggestedTags": ["tag1", "tag2", "tag3"],
-  "toneTags": ["happy", "calm"],
+  "toneTags": ["tag1", "tag2"],
   "suggestedStatTags": {
     "statName1": { "xp": 15, "reason": "Specific achievement or activity that developed this stat" },
     "statName2": { "xp": 25, "reason": "Specific achievement or activity that developed this stat" }
