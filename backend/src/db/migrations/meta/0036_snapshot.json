@@ -1,5 +1,5 @@
 {
-  "id": "43f2ce07-3149-4860-bc6f-cacb0727de5b",
+  "id": "fbcfadaa-bfcb-4eb6-b517-317e85aeb1ee",
   "prevId": "2da87552-8770-4f52-9ba4-52caa30dc4f9",
   "version": "7",
   "dialect": "postgresql",
@@ -38,6 +38,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "gpt_tone": {
+          "name": "gpt_tone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'friendly'"
         },
         "created_at": {
           "name": "created_at",
@@ -97,7 +104,7 @@
           "name": "character_class",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "backstory": {
           "name": "backstory",

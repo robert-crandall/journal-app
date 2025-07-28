@@ -7,6 +7,7 @@ export interface ApiUser {
   name: string;
   email: string;
   avatar: string | null;
+  gptTone: string;
   createdAt: string;
   updatedAt: string;
 }

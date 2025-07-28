@@ -1,10 +1,12 @@
 import { callGptApi } from './client';
 import { parseGptJsonResponse } from './utils';
+import { getConversationalToneInstruction } from './toneInstructions';
 /**
  * Interface for daily task generation request
  */
 export interface TaskGenerationRequest {
   userId: string;
+  gptTone?: string;
   characterClass?: string;
   backstory?: string;
   characterGoals?: string;
@@ -91,8 +93,12 @@ export interface TaskGenerationResponse {
 /**
  * System prompt for daily task generation
  */
-const TASK_GENERATION_SYSTEM_PROMPT = `
-You are a clever, grounded, and occasionally cheeky Dungeon Master (DM), guiding a modern-day adventurer through real life.
+function createTaskGenerationSystemPrompt(gptTone?: string): string {
+  const toneInstruction = getConversationalToneInstruction(gptTone);
+
+  return `You are a clever, grounded, and occasionally cheeky Dungeon Master (DM), guiding a modern-day adventurer through real life.
+
+**Tone Instructions**: ${toneInstruction}
 
 Each day, you present two meaningful “quests”:
 
@@ -136,6 +142,7 @@ Respond in this exact JSON format:
 
 User input will be provided as a JSON object with fields like character, focus, quests, weather, etc.
 `;
+}
 
 /**
  * Generate daily tasks for a user
@@ -144,6 +151,7 @@ User input will be provided as a JSON object with fields like character, focus, 
  */
 export async function generateDailyTasks(options: TaskGenerationRequest): Promise<TaskGenerationResponse> {
   const {
+    gptTone,
     characterClass,
     backstory,
     characterGoals,
@@ -216,7 +224,7 @@ export async function generateDailyTasks(options: TaskGenerationRequest): Promis
   const messages = [
     {
       role: 'system',
-      content: TASK_GENERATION_SYSTEM_PROMPT,
+      content: createTaskGenerationSystemPrompt(gptTone),
     },
     {
       role: 'user',

@@ -1,4 +1,5 @@
 import { api } from '../api';
+import type { GptTone } from '../../../../shared/types/users';
 
 // Type-safe authentication API using Hono client
 export const authApi = {
@@ -12,12 +13,13 @@ export const authApi = {
   },
 
   // Register a new user
-  async register(data: { name: string; email: string; password: string; avatar?: string }): Promise<{
+  async register(data: { name: string; email: string; password: string; gptTone?: GptTone; avatar?: string }): Promise<{
     user: {
       id: string;
       name: string;
       email: string;
       avatar: string | null;
+      gptTone: string;
       createdAt: string;
     };
     token: string;
@@ -41,6 +43,7 @@ export const authApi = {
         name: string;
         email: string;
         avatar: string | null;
+        gptTone: string;
         createdAt: string;
       };
       token: string;
@@ -54,6 +57,7 @@ export const authApi = {
       name: string;
       email: string;
       avatar: string | null;
+      gptTone: string;
       createdAt: string;
     };
     token: string;
@@ -77,6 +81,7 @@ export const authApi = {
         name: string;
         email: string;
         avatar: string | null;
+        gptTone: string;
         createdAt: string;
       };
       token: string;
