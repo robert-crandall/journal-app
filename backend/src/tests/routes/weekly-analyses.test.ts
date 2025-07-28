@@ -334,10 +334,7 @@ describe('Weekly Analyses API Integration Tests', () => {
     test('requires active goals', async () => {
       // Deactivate the test goal
       const db = testDb();
-      await db
-        .update(schema.goals)
-        .set({ isActive: false })
-        .where(eq(schema.goals.id, testGoalId));
+      await db.update(schema.goals).set({ isActive: false }).where(eq(schema.goals.id, testGoalId));
 
       const generateData: GenerateWeeklyAnalysisRequest = {
         startDate: '2024-01-15',
@@ -594,10 +591,7 @@ describe('Weekly Analyses API Integration Tests', () => {
 
       // Verify deletion
       const db = testDb();
-      const deletedAnalysis = await db
-        .select()
-        .from(schema.weeklyAnalyses)
-        .where(eq(schema.weeklyAnalyses.id, analysisId));
+      const deletedAnalysis = await db.select().from(schema.weeklyAnalyses).where(eq(schema.weeklyAnalyses.id, analysisId));
 
       expect(deletedAnalysis).toHaveLength(0);
     });

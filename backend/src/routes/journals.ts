@@ -167,9 +167,7 @@ const app = new Hono()
 
       if (filters.toneTag) {
         // Filter by tone tag - check if the specified tone tag exists in the toneTags array
-        conditions.push(
-          sql`${journals.toneTags} ? ${filters.toneTag}`,
-        );
+        conditions.push(sql`${journals.toneTags} ? ${filters.toneTag}`);
       }
 
       // If filtering by a single tag, use tagId

@@ -35,11 +35,11 @@ export interface WeeklyAnalysis {
   userId: string;
   periodStartDate: Date;
   periodEndDate: Date;
-  
+
   // Journal Summary Section
   journalSummary: string;
   journalTags: string[];
-  
+
   // Metrics Summary Section
   totalXpGained: number;
   tasksCompleted: number;
@@ -56,17 +56,17 @@ export interface WeeklyAnalysis {
     tag: string;
     count: number;
   }>;
-  
+
   // Goal Alignment Section
   alignmentScore: number | null;
   alignedGoals: WeeklyAnalysisAlignedGoal[];
   neglectedGoals: WeeklyAnalysisNeglectedGoal[];
   suggestedNextSteps: string[];
   goalAlignmentSummary: string;
-  
+
   // Optional combined reflection
   combinedReflection?: string;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }

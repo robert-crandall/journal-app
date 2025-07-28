@@ -205,13 +205,7 @@ const app = new Hono()
       const existingAnalysis = await db
         .select()
         .from(weeklyAnalyses)
-        .where(
-          and(
-            eq(weeklyAnalyses.userId, userId),
-            eq(weeklyAnalyses.periodStartDate, data.startDate),
-            eq(weeklyAnalyses.periodEndDate, data.endDate),
-          ),
-        )
+        .where(and(eq(weeklyAnalyses.userId, userId), eq(weeklyAnalyses.periodStartDate, data.startDate), eq(weeklyAnalyses.periodEndDate, data.endDate)))
         .limit(1);
 
       if (existingAnalysis.length > 0) {
@@ -272,16 +266,8 @@ const app = new Hono()
       });
 
       // Generate combined weekly analysis using GPT
-      const {
-        journalSummary,
-        journalTags,
-        alignmentScore,
-        alignedGoals,
-        neglectedGoals,
-        suggestedNextSteps,
-        goalAlignmentSummary,
-        combinedReflection,
-      } = await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, metrics, data.startDate, data.endDate, userId);
+      const { journalSummary, journalTags, alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, goalAlignmentSummary, combinedReflection } =
+        await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, metrics, data.startDate, data.endDate, userId);
 
       // Create the analysis record
       const newAnalysis = await db

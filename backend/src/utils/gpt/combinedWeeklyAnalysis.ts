@@ -42,8 +42,14 @@ function createCombinedReflectionSystemPrompt(
   startDate: string,
   endDate: string,
 ): string {
-  const topStats = metrics.xpByStats.slice(0, 3).map((stat) => `${stat.statName} (+${stat.xpGained} XP)`).join(', ');
-  const topTones = metrics.toneFrequency.slice(0, 3).map((tone) => tone.tone).join(', ');
+  const topStats = metrics.xpByStats
+    .slice(0, 3)
+    .map((stat) => `${stat.statName} (+${stat.xpGained} XP)`)
+    .join(', ');
+  const topTones = metrics.toneFrequency
+    .slice(0, 3)
+    .map((tone) => tone.tone)
+    .join(', ');
 
   return `You are an insightful life coach creating a unified weekly reflection for ${userContext.name} for the period from ${startDate} to ${endDate}.
 
@@ -106,7 +112,7 @@ export async function generateCombinedWeeklyAnalysis(
 
   // Generate combined reflection if both summaries exist
   let combinedReflection: string | undefined;
-  
+
   if (journalResult.summary && goalAlignmentResult.summary) {
     try {
       const userContext = await getUserContext(userId, {
@@ -117,14 +123,7 @@ export async function generateCombinedWeeklyAnalysis(
         includeExistingTags: false,
       });
 
-      const systemPrompt = createCombinedReflectionSystemPrompt(
-        userContext,
-        journalResult.summary,
-        goalAlignmentResult.summary,
-        metrics,
-        startDate,
-        endDate,
-      );
+      const systemPrompt = createCombinedReflectionSystemPrompt(userContext, journalResult.summary, goalAlignmentResult.summary, metrics, startDate, endDate);
 
       const messages: ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },
