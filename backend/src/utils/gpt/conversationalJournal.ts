@@ -54,7 +54,7 @@ ${formatUserContextForPrompt(userContext)}
 
   if (userMessageCount < 2) {
     systemPrompt += `
-Talk to the user about their latest message. This is kicking off a conversation with the user. Your response should feel like a natural continuation of the conversation, not a summary or analysis. Focus on what the user just said, and how it connects to their ongoing journey. Ask them questions to understand what they are saying better.
+Kick off a conversation with the user. Your response should feel like a natural continuation of the conversation, not a summary or analysis. Focus on what the user just said, and how it connects to their ongoing journey. Ask them questions to understand what they are saying better.
 `;
   } else {
     systemPrompt += `
