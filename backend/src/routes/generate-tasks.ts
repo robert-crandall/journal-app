@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { dailyIntents, simpleTodos, characters, goals, familyMembers, focuses, plans, planSubtasks, quests, experiments, characterStats } from '../db/schema';
+import { dailyIntents, simpleTodos, characters, goals, familyMembers, focuses, plans, planSubtasks, quests, experiments, characterStats, users } from '../db/schema';
 import { jwtAuth } from '../middleware/auth';
 import logger, { handleApiError } from '../utils/logger';
 import { generateDailyTasks, type TaskGenerationRequest, type TaskGenerationResponse } from '../utils/gpt/taskGen';
@@ -31,6 +31,10 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
 
     // Get user character information
     const character = await db.select().from(characters).where(eq(characters.userId, userId)).limit(1);
+
+    // Get user info for gptTone
+    const userData = await db.select({ gptTone: users.gptTone }).from(users).where(eq(users.id, userId)).limit(1);
+    const gptTone = userData[0]?.gptTone || 'friendly';
 
     // Get user goals
     const userGoals = await db.select().from(goals).where(eq(goals.userId, userId));
@@ -143,6 +147,7 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     // Prepare task generation request
     const taskGenRequest: TaskGenerationRequest = {
       userId,
+      gptTone,
       characterClass: character[0]?.characterClass || undefined,
       backstory: character[0]?.backstory || undefined,
       characterGoals: character[0]?.goals || undefined,
