@@ -13,14 +13,14 @@ export const getBaseUrl = () => {
     // If we're on localhost:4173 (SvelteKit preview) or other dev ports, use backend port
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       // Try to get port from environment variable, fallback to default
-      const port = import.meta.env.PORT || '3001';
+      const port = import.meta.env.VITE_API_PORT || '3001';
       return `http://localhost:${port}`;
     }
     // In production, assume API is on same origin or configure via env
     return origin;
   }
   // Fallback for SSR (though we've disabled SSR) - use env var or default
-  const port = import.meta.env.PORT || '3001';
+  const port = import.meta.env.VITE_API_PORT || '3001';
   return `http://localhost:${port}`;
 };
 
