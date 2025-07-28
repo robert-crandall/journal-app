@@ -180,6 +180,34 @@ describe('Characters API Integration Tests', () => {
       });
     });
 
+    it('should create character with name only (no character class)', async () => {
+      const characterData = {
+        name: 'Minimalist Hero',
+      };
+
+      const res = await app.request('/api/characters', {
+        method: 'POST',
+        body: JSON.stringify(characterData),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(201);
+      const responseData = await res.json();
+
+      expect(responseData.success).toBe(true);
+      expect(responseData.data).toMatchObject({
+        name: characterData.name,
+        characterClass: null,
+        backstory: null,
+        goals: null,
+        motto: null,
+        userId: userId,
+      });
+    });
+
     it('should prevent creating multiple characters for same user', async () => {
       const characterData = {
         name: 'First Character',

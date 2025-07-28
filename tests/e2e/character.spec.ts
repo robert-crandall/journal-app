@@ -55,6 +55,27 @@ test.describe('Character Creation', () => {
     await expect(page.getByRole('button', { name: 'Edit Character' })).toBeVisible();
   });
 
+  test('creates a character with name only (no character class)', async ({ page }) => {
+    // Login first
+    await loginUser(page);
+
+    // Clean up any existing character
+    await cleanupCharacter(page);
+
+    // Navigate to the character page
+    await page.goto('/character');
+
+    // Fill out the minimal character creation form (name only)
+    await page.fill('input[id="name"]', 'Simple Hero');
+
+    // Submit the form without selecting a character class
+    await page.click('button[type="submit"]');
+
+    // Wait for character to be created and page to update
+    await expect(page.getByRole('heading', { name: 'Simple Hero' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Edit Character' })).toBeVisible();
+  });
+
   test('creates a character with custom class and full data', async ({ page }) => {
     // Login first
     await loginUser(page);

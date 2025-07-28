@@ -29,9 +29,9 @@ export const characterApi = {
   async createCharacter(data: CreateCharacterForm): Promise<Character> {
     try {
       // Only send fields expected by the API, and convert empty strings to undefined
-      const payload: { name: string; characterClass: string; backstory?: string; goals?: string; motto?: string } = {
+      const payload: { name: string; characterClass?: string; backstory?: string; goals?: string; motto?: string } = {
         name: data.name,
-        characterClass: data.characterClass,
+        ...(data.characterClass ? { characterClass: data.characterClass } : {}),
         ...(data.backstory ? { backstory: data.backstory } : {}),
         ...(data.goals ? { goals: data.goals } : {}),
         ...(data.motto ? { motto: data.motto } : {}),

@@ -3,7 +3,7 @@
 
 export interface CreateCharacterForm {
   name: string;
-  characterClass: string;
+  characterClass?: string;
   backstory?: string;
   goals?: string;
   motto?: string;

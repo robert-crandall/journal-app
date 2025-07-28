@@ -78,7 +78,7 @@
   function startEdit() {
     editData = {
       name: character.name,
-      characterClass: character.characterClass,
+      characterClass: character.characterClass || '',
       backstory: character.backstory || '',
       motto: character.motto || '',
     };
@@ -99,15 +99,11 @@
       error = 'Character name is required';
       return false;
     }
-    if (!editData.characterClass?.trim()) {
-      error = 'Character class is required';
-      return false;
-    }
     if (editData.name.length > 100) {
       error = 'Character name must be 100 characters or less';
       return false;
     }
-    if (editData.characterClass.length > 100) {
+    if (editData.characterClass && editData.characterClass.length > 100) {
       error = 'Character class must be 100 characters or less';
       return false;
     }
@@ -322,7 +318,7 @@
               <!-- Character Class -->
               <div class="form-control">
                 <label class="label" for="edit-class">
-                  <span class="label-text font-medium">Character Class *</span>
+                  <span class="label-text font-medium">Character Class</span>
                   <span class="label-text-alt text-xs opacity-60">{(editData.characterClass || '').length}/100</span>
                 </label>
                 <div class="relative">
@@ -333,7 +329,6 @@
                     class="input input-bordered input-lg focus:input-secondary w-full transition-all duration-200 focus:scale-[1.02]"
                     bind:value={editData.characterClass}
                     maxlength="100"
-                    required
                   />
                   <div class="absolute inset-y-0 right-3 flex items-center">
                     <svg
@@ -513,7 +508,9 @@
             "{character.motto}"
           </blockquote>
         {/if}
-        <h2 class="text-primary mb-2 text-xl font-bold">{character.name} - {character.characterClass}</h2>
+        <h2 class="text-primary mb-2 text-xl font-bold">
+          {character.name}{character.characterClass ? ` - ${character.characterClass}` : ''}
+        </h2>
       </div>
     </div>
   </div>

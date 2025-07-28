@@ -1,6 +1,6 @@
 {
-  "id": "fbcfadaa-bfcb-4eb6-b517-317e85aeb1ee",
-  "prevId": "2da87552-8770-4f52-9ba4-52caa30dc4f9",
+  "id": "5f88fe89-38ac-482e-9e6f-5c42366d9809",
+  "prevId": "fbcfadaa-bfcb-4eb6-b517-317e85aeb1ee",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -104,7 +104,7 @@
           "name": "character_class",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "backstory": {
           "name": "backstory",
