@@ -75,7 +75,7 @@
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
         </svg>
       </div>
-      <h3 class="text-xl font-semibold">Quick Tasks</h3>
+      <h3 class="text-xl font-semibold">Today's Tasks</h3>
     </div>
   {/if}
 

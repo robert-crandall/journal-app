@@ -4,6 +4,7 @@
   import { simpleTodosStore } from '$lib/stores/todos';
   import { getTodayDateString } from '$lib/utils/date';
   import DailyIntentModal from '$lib/components/daily-intents/DailyIntentModal.svelte';
+  // Export the showTitle prop with default value of true
 
   let currentDate = getTodayDateString();
   let generating = false;
@@ -62,30 +63,9 @@
   }
 </script>
 
-<div class="w-full">
-  <div class="mb-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="text-secondary">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M5.636 5.636l-.707-.707M12 21v-1m6.364-1.636l-.707-.707M5.636 18.364l.707-.707"
-          />
-          <circle cx="12" cy="12" r="5" />
-        </svg>
-      </div>
-      <h3 class="text-xl font-semibold">AI Daily Tasks</h3>
-    </div>
 
+<div class="w-full flex flex-col items-end text-right">
+  <div class="mb-4 flex items-center justify-end w-full">
     <button class="btn btn-secondary btn-sm transition-all duration-200 hover:scale-105" on:click={handleGenerateClick} disabled={generating}>
       {#if generating}
         <span class="loading loading-spinner loading-xs"></span>
@@ -113,30 +93,32 @@
   </div>
 
   {#if loading && !currentDateTasks}
-    <div class="flex justify-center py-4">
+    <div class="flex justify-end py-4 w-full">
       <span class="loading loading-spinner loading-md"></span>
     </div>
   {:else if error}
-    <div class="alert alert-error mb-4">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 6v6" />
-        <path d="M12 16h.01" />
-      </svg>
-      <span class="text-sm">{error}</span>
+    <div class="alert alert-error mb-4 w-full flex justify-end">
+      <div class="flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6" />
+          <path d="M12 16h.01" />
+        </svg>
+        <span class="text-sm">{error}</span>
+      </div>
     </div>
   {:else}
-    <div class="text-left text-xs text-gray-500">Create personalized tasks based on your habits and goals</div>
+    <div class="text-xs text-gray-500 w-full text-right">Create personalized tasks based on your habits and goals</div>
   {/if}
 </div>
 

@@ -53,7 +53,7 @@
         : "Start Today's Journal";
 </script>
 
-<div class="card bg-base-100 border-base-300 border shadow-xl" data-test-id="journal-widget">
+<div class="card" data-test-id="journal-widget">
   <div class="card-body">
     <div class="mb-4 flex items-center gap-3">
       <BookOpenIcon size={24} class="text-primary" />

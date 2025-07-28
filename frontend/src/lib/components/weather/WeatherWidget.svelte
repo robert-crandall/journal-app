@@ -26,7 +26,7 @@
   });
 </script>
 
-<div class="bg-base-100 border-base-200 rounded-lg border p-4 shadow-sm">
+<div>
   <h3 class="text-base-content mb-2 text-lg font-semibold">Today's Weather</h3>
 
   {#if loading}
