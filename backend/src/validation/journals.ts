@@ -49,4 +49,5 @@ export const listJournalsSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
     .optional(),
   tagId: z.string().optional(),
+  toneTag: z.enum(TONE_TAGS).optional(),
 });

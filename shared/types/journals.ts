@@ -85,6 +85,7 @@ export interface ListJournalsRequest {
   dateFrom?: string; // YYYY-MM-DD format
   dateTo?: string; // YYYY-MM-DD format
   tagId?: string; // Single content tag ID to filter by
+  toneTag?: ToneTag; // Single tone tag to filter by
 }
 
 export interface JournalListItem {

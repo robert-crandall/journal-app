@@ -139,6 +139,7 @@ export class JournalService {
     if (params.dateTo) searchParams.set('dateTo', params.dateTo);
     if (params.search) searchParams.set('search', params.search);
     if (params.tagId) searchParams.set('tagId', params.tagId);
+    if (params.toneTag) searchParams.set('toneTag', params.toneTag);
 
     const queryString = searchParams.toString();
     const url = queryString ? `/api/journals?${queryString}` : '/api/journals';

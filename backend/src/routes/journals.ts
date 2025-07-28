@@ -165,6 +165,13 @@ const app = new Hono()
         );
       }
 
+      if (filters.toneTag) {
+        // Filter by tone tag - check if the specified tone tag exists in the toneTags array
+        conditions.push(
+          sql`${journals.toneTags} ? ${filters.toneTag}`,
+        );
+      }
+
       // If filtering by a single tag, use tagId
       let journalsQuery;
       if (filters.tagId) {
@@ -199,10 +206,20 @@ const app = new Hono()
       }
 
       // Get total count for pagination
-      const countQuery = db
-        .select({ count: count() })
-        .from(journals)
-        .where(and(...conditions));
+      let countQuery;
+      if (filters.tagId) {
+        // When filtering by tagId, we need to count distinct journals that have XP grants for the specified content tag
+        countQuery = db
+          .selectDistinct({ count: count() })
+          .from(journals)
+          .innerJoin(xpGrants, and(eq(xpGrants.sourceId, journals.id), eq(xpGrants.sourceType, 'journal'), eq(xpGrants.entityType, 'content_tag')))
+          .where(and(...conditions, eq(xpGrants.entityId, filters.tagId)));
+      } else {
+        countQuery = db
+          .select({ count: count() })
+          .from(journals)
+          .where(and(...conditions));
+      }
       const [totalResult] = await countQuery;
       const total = totalResult.count;
 
