@@ -1,17 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { characterApi } from '../../lib/api/characters';
+  import { userAttributesApi } from '../../lib/api/user-attributes';
   import type { Character } from '../../lib/types/characters';
   import { characterStore } from '../../lib/stores/character';
   import CharacterCreate from './CharacterCreate.svelte';
   import CharacterView from './CharacterView.svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
-  import { UserIcon } from 'lucide-svelte';
+  import { UserIcon, Sparkles } from 'lucide-svelte';
 
   // State variables
   let character: Character | null = null;
   let loading = true;
   let error: string | null = null;
+  let deduplicating = false;
+  let deduplicationResult: string | null = null;
 
   // Subscribe to character store
   characterStore.subscribe((state) => {
@@ -52,6 +55,28 @@
   function handleCharacterDeleted() {
     characterStore.setCharacter(null);
   }
+
+  // Handle GPT deduplication
+  async function handleGPTDeduplication() {
+    try {
+      deduplicating = true;
+      deduplicationResult = null;
+      
+      const result = await userAttributesApi.deduplicateAttributes('gpt');
+      
+      if (result.removedCount > 0) {
+        deduplicationResult = `✨ GPT deduplication complete! Removed ${result.removedCount} duplicate attributes out of ${result.beforeCount} total (${result.processedCount} processed).`;
+      } else {
+        deduplicationResult = `✅ No duplicate attributes found. Your ${result.beforeCount} attributes are already well-organized!`;
+      }
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to deduplicate attributes';
+      deduplicationResult = `❌ Error: ${errorMessage}`;
+      console.error('Error deduplicating attributes:', e);
+    } finally {
+      deduplicating = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -80,6 +105,49 @@
   </div>
 {:else if character}
   <CharacterView {character} on:characterUpdated={handleCharacterUpdated} on:characterDeleted={handleCharacterDeleted} />
+  
+  <!-- GPT Deduplication Section -->
+  <div class="mt-8 max-w-2xl mx-auto">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title flex items-center gap-2">
+          <Sparkles class="w-5 h-5 text-primary" />
+          AI-Powered Attribute Cleanup
+        </h2>
+        <p class="text-sm text-base-content/70 mb-4">
+          Use GPT to intelligently deduplicate and organize your discovered character attributes while preserving your manually-defined ones.
+        </p>
+        
+        <div class="card-actions justify-start">
+          <button 
+            class="btn btn-primary gap-2" 
+            class:loading={deduplicating}
+            disabled={deduplicating}
+            on:click={handleGPTDeduplication}
+          >
+            {#if deduplicating}
+              <span class="loading loading-spinner loading-sm"></span>
+              Analyzing attributes...
+            {:else}
+              <Sparkles class="w-4 h-4" />
+              Clean up attributes with AI
+            {/if}
+          </button>
+        </div>
+        
+        {#if deduplicationResult}
+          <div class="mt-4">
+            <div class="alert alert-info">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="text-sm">{deduplicationResult}</span>
+            </div>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </div>
 {:else}
   <CharacterCreate on:characterCreated={handleCharacterCreated} />
 {/if}

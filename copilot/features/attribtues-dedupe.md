@@ -16,6 +16,13 @@ This will be done via a GPT-powered deduplication step, which will be **aware of
 - [x] Write comprehensive tests for GPT deduplication
 - [x] Verify all backend tests pass
 
+### Frontend Integration
+
+- [x] Update frontend API client to support GPT method parameter
+- [x] Add deduplication button to character page
+- [x] Implement loading states and result feedback
+- [x] Test functionality with development server
+
 ### 🧠 GPT Prompt Design:
 
 Send both sets to GPT like so:
