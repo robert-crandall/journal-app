@@ -2,6 +2,7 @@ import { db } from '../db';
 import { tags, goalTags, goals } from '../db/schema';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import type { Tag, CreateTag, TagWithCount, GoalWithTags } from '../../../shared/types';
+import { deduplicateTags } from './gpt/tagDeduplication';
 
 /**
  * Tag utility functions for normalized tag operations
@@ -10,7 +11,7 @@ import type { Tag, CreateTag, TagWithCount, GoalWithTags } from '../../../shared
 /**
  * Create a tag for a user if it doesn't already exist
  */
-export async function createOrGetTag(userId: string, tagName: string): Promise<Tag> {
+export async function createOrGetTag(userId: string, tagName: string, source: 'user' | 'discovered' | 'system' = 'discovered'): Promise<Tag> {
   const trimmedName = tagName.trim().toLowerCase();
 
   // Try to find existing tag
@@ -21,7 +22,17 @@ export async function createOrGetTag(userId: string, tagName: string): Promise<T
     .limit(1);
 
   if (existingTag.length > 0) {
-    return existingTag[0];
+    // Increment usage count
+    const updatedTag = await db
+      .update(tags)
+      .set({
+        timesUsed: existingTag[0].timesUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(tags.id, existingTag[0].id))
+      .returning();
+
+    return updatedTag[0] as Tag;
   }
 
   // Create new tag
@@ -30,10 +41,13 @@ export async function createOrGetTag(userId: string, tagName: string): Promise<T
     .values({
       name: trimmedName,
       userId,
+      source,
+      timesUsed: 1,
+      status: 'active',
     })
     .returning();
 
-  return newTag[0];
+  return newTag[0] as Tag;
 }
 
 /**
@@ -45,17 +59,20 @@ export async function getUserTagsWithCounts(userId: string): Promise<TagWithCoun
       id: tags.id,
       name: tags.name,
       userId: tags.userId,
+      source: tags.source,
+      timesUsed: tags.timesUsed,
+      status: tags.status,
       createdAt: tags.createdAt,
       updatedAt: tags.updatedAt,
-      usageCount: sql<number>`count(${goalTags.tagId})::int`,
+      usageCount: sql<number>`CAST(count(${goalTags.tagId}) AS INTEGER)`.as('usageCount'),
     })
     .from(tags)
     .leftJoin(goalTags, eq(tags.id, goalTags.tagId))
-    .where(eq(tags.userId, userId))
-    .groupBy(tags.id)
-    .orderBy(desc(sql`count(${goalTags.tagId})`), tags.name);
+    .where(and(eq(tags.userId, userId), eq(tags.status, 'active')))
+    .groupBy(tags.id, tags.name, tags.userId, tags.source, tags.timesUsed, tags.status, tags.createdAt, tags.updatedAt)
+    .orderBy(desc(sql<number>`CAST(count(${goalTags.tagId}) AS INTEGER)`), tags.name);
 
-  return userTags;
+  return userTags as TagWithCount[];
 }
 
 /**
@@ -67,6 +84,9 @@ export async function getGoalTags(goalId: string): Promise<Tag[]> {
       id: tags.id,
       name: tags.name,
       userId: tags.userId,
+      source: tags.source,
+      timesUsed: tags.timesUsed,
+      status: tags.status,
       createdAt: tags.createdAt,
       updatedAt: tags.updatedAt,
     })
@@ -75,7 +95,7 @@ export async function getGoalTags(goalId: string): Promise<Tag[]> {
     .where(eq(goalTags.goalId, goalId))
     .orderBy(tags.name);
 
-  return goalTagsData;
+  return goalTagsData as Tag[];
 }
 
 /**
@@ -182,4 +202,35 @@ export function serializeGoalWithTags(goal: any, goalTagsData: Tag[]): GoalWithT
     createdAt: goal.createdAt.toISOString(),
     updatedAt: goal.updatedAt.toISOString(),
   };
+}
+
+/**
+ * Create tags with GPT deduplication against existing tags
+ */
+export async function createDeduplicatedTags(userId: string, newTagNames: string[]): Promise<Tag[]> {
+  if (newTagNames.length === 0) {
+    return [];
+  }
+
+  // Get existing tags for the user
+  const existingTags = await db
+    .select({ name: tags.name })
+    .from(tags)
+    .where(and(eq(tags.userId, userId), eq(tags.status, 'active')));
+
+  const existingTagNames = existingTags.map((tag) => tag.name);
+
+  // Use GPT to deduplicate the new tags
+  const deduplicatedTagNames = await deduplicateTags(existingTagNames, newTagNames, userId);
+
+  // Create the deduplicated tags
+  const createdTags: Tag[] = [];
+  const uniqueTagNames = [...new Set(deduplicatedTagNames)]; // Remove duplicates within the array
+
+  for (const tagName of uniqueTagNames) {
+    const tag = await createOrGetTag(userId, tagName, 'discovered');
+    createdTags.push(tag);
+  }
+
+  return createdTags;
 }

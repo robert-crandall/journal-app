@@ -281,6 +281,13 @@
       "when": 1753743088736,
       "tag": "0039_tan_luminals",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1753752510708,
+      "tag": "0040_useful_krista_starr",
+      "breakpoints": true
     }
   ]
 }

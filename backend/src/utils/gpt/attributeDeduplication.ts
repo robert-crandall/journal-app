@@ -46,9 +46,7 @@ Output: ["Engages in outdoor activities", "Problem-solving and programming"]`;
  * @param request The deduplication request with user and discovered attributes
  * @returns Promise resolving to deduplicated attributes
  */
-export async function generateDeduplicatedAttributes(
-  request: AttributeDeduplicationRequest
-): Promise<AttributeDeduplicationResponse> {
+export async function generateDeduplicatedAttributes(request: AttributeDeduplicationRequest): Promise<AttributeDeduplicationResponse> {
   const { userAttributes, discoveredAttributes } = request;
 
   // If there are no discovered attributes to deduplicate, return empty array
@@ -62,10 +60,10 @@ export async function generateDeduplicatedAttributes(
   }
 
   const userMessage = `User-defined attributes (DO NOT modify these):
-${userAttributes.map(attr => `- ${attr}`).join('\n')}
+${userAttributes.map((attr) => `- ${attr}`).join('\n')}
 
 Discovered attributes to deduplicate:
-${discoveredAttributes.map(attr => `- ${attr}`).join('\n')}
+${discoveredAttributes.map((attr) => `- ${attr}`).join('\n')}
 
 Please consolidate the discovered attributes into a cleaner, deduplicated list. Remember to avoid creating attributes that overlap with the user-defined ones.`;
 
@@ -89,15 +87,13 @@ Please consolidate the discovered attributes into a cleaner, deduplicated list. 
   try {
     // Parse the response as a JSON array of strings
     const parsed = parseGptJsonResponse(response.content);
-    
+
     // Validate that the response is an array of strings
     if (!Array.isArray(parsed)) {
       throw new Error('GPT response is not an array');
     }
 
-    const deduplicatedAttributes = parsed.filter(item => 
-      typeof item === 'string' && item.trim().length > 0
-    );
+    const deduplicatedAttributes = parsed.filter((item) => typeof item === 'string' && item.trim().length > 0);
 
     return { deduplicatedAttributes };
   } catch (error: any) {
@@ -114,8 +110,8 @@ export function separateAttributesBySource(attributes: UserAttribute[]): {
   userDefined: UserAttribute[];
   discovered: UserAttribute[];
 } {
-  const userDefined = attributes.filter(attr => attr.source === 'user_set');
-  const discovered = attributes.filter(attr => attr.source === 'journal_analysis');
+  const userDefined = attributes.filter((attr) => attr.source === 'user_set');
+  const discovered = attributes.filter((attr) => attr.source === 'journal_analysis');
 
   return { userDefined, discovered };
 }
