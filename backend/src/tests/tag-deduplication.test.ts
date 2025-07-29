@@ -179,13 +179,6 @@ describe('Tag Deduplication', () => {
       // Check that tags were created but deduplicated
       const allUserTags = await db.select().from(schema.tags).where(eq(schema.tags.userId, userId));
 
-      console.log('Test env check - Total user tags after journal completion:', allUserTags.length);
-      console.log(
-        'Test env check - Tag names:',
-        allUserTags.map((tag) => `${tag.name}(${tag.source})`),
-      );
-      console.log('Test env check - Expected more than 2 tags from deduplication');
-
       // Should have more than the initial 2 tags, but GPT should have prevented exact duplicates
       // The key thing is that deduplication occurred - we should see evidence of new tags being created
       // even if some were deduplicated away

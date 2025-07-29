@@ -408,8 +408,6 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     temperature: 0.3, // Lower temperature for more consistent structured output
   });
 
-  console.log(`Response: ${response}`);
-
   try {
     const rawResult = parseGptJsonResponse(response.content);
     // Convert names to IDs

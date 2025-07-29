@@ -267,8 +267,6 @@ describe('Journal XP Grants Integration', () => {
         body: JSON.stringify({}),
       });
 
-      console.log('Response:', response.status, await response.text());
-
       expect(response.status).toBe(200);
 
       // Check that content tag XP grants were created with 0 XP
