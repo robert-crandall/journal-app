@@ -158,6 +158,16 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       // Mock response for combined weekly analysis reflection
       mockResponse =
         "This week showed great progress in learning and personal development. Your consistent effort in practicing Spanish and maintaining daily routines demonstrates strong self-discipline. The balance between productivity and reflection created a positive momentum that carried through each day. Moving forward, consider building on this foundation by setting slightly more challenging goals while maintaining the sustainable pace you've established.";
+    } else if (
+      content.includes('Discovered attributes to deduplicate:') ||
+      systemContent.includes('intelligently deduplicate and clean up discovered attributes') ||
+      systemContent.includes('consolidate similar discovered attributes')
+    ) {
+      // Mock response for attribute deduplication
+      mockResponse = JSON.stringify([
+        'Outdoor activities and exploration',
+        'Programming and problem-solving'
+      ]);
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
     }

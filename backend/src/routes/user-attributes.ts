@@ -9,6 +9,12 @@ import {
   getUserAttributesQuerySchema,
 } from '../validation/user-attributes';
 import { handleApiError } from '../utils/logger';
+import { z } from 'zod';
+
+// Schema for deduplication query parameters
+const deduplicationQuerySchema = z.object({
+  method: z.enum(['simple', 'gpt']).optional().default('gpt'),
+});
 
 const app = new Hono()
   // Get user's attributes
@@ -62,27 +68,26 @@ const app = new Hono()
       return;
     }
   })
-  // Deduplicate user attributes (by value, keep newest)
-  .post('/deduplicate', jwtAuth, async (c) => {
+  // Deduplicate user attributes with GPT or simple method
+  .post('/deduplicate', jwtAuth, zValidator('query', deduplicationQuerySchema), async (c) => {
     try {
       const userId = getUserId(c);
-      const attributes = await UserAttributesService.getUserAttributes(userId);
-      // Group by value, keep the one with latest lastUpdated
-      const seen = new Map();
-      for (const attr of attributes) {
-        const existing = seen.get(attr.value);
-        if (!existing || new Date(attr.lastUpdated) > new Date(existing.lastUpdated)) {
-          seen.set(attr.value, attr);
+      const query = c.req.valid('query');
+
+      let result;
+      if (query.method === 'simple') {
+        result = await UserAttributesService.simpleDeduplicateAttributes(userId);
+      } else {
+        result = await UserAttributesService.gptDeduplicateAttributes(userId);
+      }
+
+      return c.json({ 
+        success: true, 
+        data: {
+          method: query.method,
+          ...result,
         }
-      }
-      const toKeepIds = new Set(Array.from(seen.values()).map((a) => a.id));
-      const toDelete = attributes.filter((a) => !toKeepIds.has(a.id));
-      let removedCount = 0;
-      for (const attr of toDelete) {
-        await UserAttributesService.deleteUserAttribute(userId, attr.id);
-        removedCount++;
-      }
-      return c.json({ success: true, data: { removedCount } });
+      });
     } catch (error) {
       handleApiError(error, 'Failed to deduplicate user attributes');
       return;

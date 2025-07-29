@@ -30,6 +30,10 @@ export type { ComprehensiveUserContext } from '../userContextService';
 export { generateDailyTasks } from './taskGen';
 export type { TaskGenerationRequest, TaskGenerationResponse, GeneratedTask } from './taskGen';
 
+// Attribute deduplication
+export { generateDeduplicatedAttributes, separateAttributesBySource } from './attributeDeduplication';
+export type { AttributeDeduplicationRequest, AttributeDeduplicationResponse } from './attributeDeduplication';
+
 // Future exports:
 // export { generateQuestTitle } from './questTitleGen';
 // export { generateStatLevelTitles } from './statNamer';
