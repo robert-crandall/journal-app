@@ -78,7 +78,7 @@
       hasUnsavedChanges = false;
       dispatch('update', updatedJournal);
       journal = updatedJournal; // TODO: replace dispath then remove this
-      
+
       // Restore focus and cursor position if needed
       if (preserveFocus && wasFocused && textareaElement) {
         // Use requestAnimationFrame to ensure the DOM has updated
