@@ -64,7 +64,7 @@ const app = new Hono()
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateTag;
 
-      const tag = await createOrGetTag(userId, data.name, data.source || 'user');
+      const tag = await createOrGetTag(userId, data.name);
 
       return c.json(
         {
@@ -91,7 +91,7 @@ const app = new Hono()
 
       const createdTags: Tag[] = [];
       for (const tagName of tagNames) {
-        const tag = await createOrGetTag(userId, tagName, 'user');
+        const tag = await createOrGetTag(userId, tagName);
         createdTags.push(tag);
       }
 

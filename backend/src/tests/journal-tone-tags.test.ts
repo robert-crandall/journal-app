@@ -47,12 +47,6 @@ describe('Journal Tone Tags Integration', () => {
   afterEach(async () => {
     // Clean up test data
     await testDb().delete(journals).where(eq(journals.userId, userId));
-
-    // Clean up mocks
-    if (mockGenerateJournalMetadata) {
-      mockGenerateJournalMetadata.mockRestore();
-    }
-    vi.restoreAllMocks();
   });
 
   describe('Tone Tags Extraction on Journal Completion', () => {

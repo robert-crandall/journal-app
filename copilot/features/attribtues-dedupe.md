@@ -1,4 +1,4 @@
-# Deduplicate Discovered Attributes
+# Deduplicate Discovered Attributes 
 
 **Description:**
 
@@ -32,14 +32,8 @@ Send both sets to GPT like so:
   "prompt": "Here is a list of user-defined attributes and a separate list of attributes discovered from journal entries. Please deduplicate and clean up the discovered list. Do not create duplicates of the user-defined attributes. Return a cleaned-up version of the discovered list only.",
   "user_attributes": ["Family-oriented", "Nature-lover", "Adventurer"],
   "discovered_attributes": [
-    "Spends time with kids",
-    "Plays with children",
-    "Goes hiking",
-    "Enjoys nature",
-    "Explores outdoors",
-    "Debugging",
-    "Writes code",
-    "Solves puzzles"
+    "Spends time with kids", "Plays with children", "Goes hiking",
+    "Enjoys nature", "Explores outdoors", "Debugging", "Writes code", "Solves puzzles"
   ]
 }
 ```
@@ -47,14 +41,17 @@ Send both sets to GPT like so:
 Example GPT output:
 
 ```json
-["Outdoor explorer", "Problem-solving and programming"]
+[
+  "Outdoor explorer",
+  "Problem-solving and programming"
+]
 ```
 
 ---
 
 ### 🎯 Implementation Notes:
 
-- **Data Structure**: Attributes are already stored with `source` field: `"user_set"` vs. `"journal_analysis"` vs. `"gpt_summary"`
-- **Preservation**: Only attributes with `source: "journal_analysis"` will be modified or deleted
-- **Trigger**: Can be run manually via API or integrated into weekly summary generation
-- **Error Handling**: Fallback to simple deduplication if GPT fails
+* **Data Structure**: Attributes are already stored with `source` field: `"user_set"` vs. `"journal_analysis"` vs. `"gpt_summary"`
+* **Preservation**: Only attributes with `source: "journal_analysis"` will be modified or deleted
+* **Trigger**: Can be run manually via API or integrated into weekly summary generation
+* **Error Handling**: Fallback to simple deduplication if GPT fails

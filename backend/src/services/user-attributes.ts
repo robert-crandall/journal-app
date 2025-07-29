@@ -77,7 +77,7 @@ export class UserAttributesService {
         .returning();
 
       // Insert new deduplicated attributes
-      let insertedAttributes: (typeof userAttributes.$inferSelect)[] = [];
+      let insertedAttributes: typeof userAttributes.$inferSelect[] = [];
       if (newAttributes.length > 0) {
         const values = newAttributes.map((value) => ({
           userId,
@@ -102,7 +102,7 @@ export class UserAttributesService {
   static async gptDeduplicateAttributes(userId: string) {
     // Get all user attributes
     const allAttributes = await this.getUserAttributes(userId);
-
+    
     // Separate by source
     const { userDefined, discovered } = separateAttributesBySource(allAttributes);
 
@@ -117,8 +117,8 @@ export class UserAttributesService {
     }
 
     // Extract values for GPT processing
-    const userDefinedValues = userDefined.map((attr) => attr.value);
-    const discoveredValues = discovered.map((attr) => attr.value);
+    const userDefinedValues = userDefined.map(attr => attr.value);
+    const discoveredValues = discovered.map(attr => attr.value);
 
     try {
       // Call GPT to get deduplicated attributes
@@ -149,7 +149,7 @@ export class UserAttributesService {
    */
   static async simpleDeduplicateAttributes(userId: string) {
     const attributes = await this.getUserAttributes(userId);
-
+    
     // Group by value, keep the one with latest lastUpdated
     const seen = new Map();
     for (const attr of attributes) {
@@ -158,21 +158,21 @@ export class UserAttributesService {
         seen.set(attr.value, attr);
       }
     }
-
+    
     const toKeepIds = new Set(Array.from(seen.values()).map((a) => a.id));
     const toDelete = attributes.filter((a) => !toKeepIds.has(a.id));
-
+    
     let removedCount = 0;
     for (const attr of toDelete) {
       await this.deleteUserAttribute(userId, attr.id);
       removedCount++;
     }
-
+    
     return {
       originalCount: attributes.length,
       deduplicatedCount: attributes.length - removedCount,
       removedCount,
-      userDefinedPreserved: attributes.filter((a) => a.source === 'user_set').length,
+      userDefinedPreserved: attributes.filter(a => a.source === 'user_set').length,
     };
   }
 

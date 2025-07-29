@@ -7,7 +7,7 @@ import { db } from '../../db';
 import { characterStats } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 
-import { createOrGetTag, createDeduplicatedTags } from '../tags';
+import { createOrGetTag } from '../tags';
 import { getConversationalToneInstruction } from './toneInstructions';
 
 /**
@@ -102,14 +102,20 @@ Your task is to review the entire conversation and generate:
 
 1. **Title**: A 6-10 word descriptive title capturing the main theme
 2. **Synopsis**: A 1-2 sentence summary of the key points discussed
-3. **Content Tags**: 3-6 tags describing topics, activities, or themes. Be concise and descriptive. Generate new tags organically based on the conversation content.
+3. **Content Tags**: 3-6 tags describing topics, activities, or themes
 4. **Tone Tags**: Up to 2 emotional tone tags from this fixed list: happy, calm, energized, overwhelmed, sad, angry, anxious. Only include tones that are clearly expressed or strongly implied.
 5. **Stat Tags**: Character stats that could be relevant based on the content discussed, formatted as a hash where keys are stat names and values are XP amounts to award (5-50 XP based on significance)
 6. **Family Tags**: Family members mentioned or involved in activities discussed, formatted as a hash where keys are family member names and values are XP amounts to award for relationship interactions (5-50 XP based on significance)
 7. **User Attributes**: New personality traits, characteristics, motivators, or patterns about the user that emerge from the conversation. Only suggest attributes that are NOT already known and are clearly evident from the discussion.`;
 
-  // Add existing content tags if available - REMOVED per feature requirements
-  // GPT should now generate tags freely without being constrained by existing list
+  // Add existing content tags if available
+  if (userContext.existingTags && userContext.existingTags.length > 0) {
+    systemPrompt += `## Context for Tag Suggestions
+
+### Existing Content Tags
+Consider using these existing tags when appropriate. You can create new tags if needed.
+${userContext.existingTags.map((tag) => `- "${tag.name}"`).join('\n')}`;
+  }
 
   // Add available character stats information
   if (userContext.characterStats && userContext.characterStats.length > 0) {
@@ -222,7 +228,7 @@ Only include todos that are explicitly mentioned in the conversation. Do not inv
 
 ## Tagging Guidelines
 
-**Content Tags**: Generate 3-6 content tags (topics, themes, or activities) that summarize the entry. Be concise and descriptive. Create new tags based on the conversation content without worrying about existing tags.
+**Content Tags**: Prefer existing tags when they fit the content. Create new tags only when existing ones don't capture the conversation themes. Use lowercase, concise terms.
 
 **Tone Tags**: Analyze the user's emotional state and mood throughout the conversation. Select up to 2 tone tags from this exact list: "happy", "calm", "energized", "overwhelmed", "sad", "angry", "anxious". Only include emotional tones that are clearly expressed or strongly implied. Prefer emotional tones that dominate the mood or are repeated, rather than fleeting moments.
 
@@ -457,24 +463,17 @@ export async function generateJournalSummary(conversation: ChatMessage[], userCo
  * Convert tag names, stat names, and family member names to their respective IDs
  */
 async function convertNamesToIds(rawMetadata: any, userId: string, userContext: ComprehensiveUserContext): Promise<JournalMetadata> {
-  // Convert content tags to IDs using deduplication
+  // Convert content tags to IDs (create if they don't exist)
   const suggestedTags: string[] = [];
   if (rawMetadata.suggestedTags || rawMetadata.contentTags) {
     const tagNames = rawMetadata.suggestedTags || rawMetadata.contentTags || [];
-    const validTagNames = tagNames.filter((tagName: any) => typeof tagName === 'string' && tagName.trim());
-
-    try {
-      const deduplicatedTags = await createDeduplicatedTags(userId, validTagNames);
-      suggestedTags.push(...deduplicatedTags.map((tag) => tag.id));
-    } catch (error) {
-      console.warn('Failed to create deduplicated tags:', error);
-      // Fallback to old method if deduplication fails
-      for (const tagName of validTagNames) {
+    for (const tagName of tagNames) {
+      if (typeof tagName === 'string' && tagName.trim()) {
         try {
-          const tag = await createOrGetTag(userId, tagName.toLowerCase().trim(), 'discovered');
+          const tag = await createOrGetTag(userId, tagName.toLowerCase().trim());
           suggestedTags.push(tag.id);
-        } catch (tagError) {
-          console.warn(`Failed to create/get tag "${tagName}":`, tagError);
+        } catch (error) {
+          console.warn(`Failed to create/get tag "${tagName}":`, error);
         }
       }
     }

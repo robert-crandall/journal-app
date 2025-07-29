@@ -5,9 +5,6 @@ export interface Tag {
   id: string;
   userId: string;
   name: string;
-  source: 'user' | 'discovered' | 'system';
-  timesUsed: number;
-  status: 'active' | 'deprecated';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,9 +13,6 @@ export interface CreateTag {
   id?: string;
   userId: string;
   name: string;
-  source?: 'user' | 'discovered' | 'system';
-  timesUsed?: number;
-  status?: 'active' | 'deprecated';
   createdAt?: Date;
   updatedAt?: Date;
 }

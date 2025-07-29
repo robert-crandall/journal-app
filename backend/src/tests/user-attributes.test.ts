@@ -881,7 +881,7 @@ describe('User Attributes API Integration Tests', () => {
   describe('POST /api/user-attributes/deduplicate - GPT Integration', () => {
     beforeEach(async () => {
       const db = testDb();
-
+      
       // Create a mix of user-defined and discovered attributes
       await db.insert(schema.userAttributes).values([
         {
@@ -981,9 +981,11 @@ describe('User Attributes API Integration Tests', () => {
 
       const allAttributesData = await allAttributesRes.json();
       const userDefinedAttributes = allAttributesData.data.filter((attr: any) => attr.source === 'user_set');
-
+      
       expect(userDefinedAttributes).toHaveLength(3);
-      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer']));
+      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(
+        expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer'])
+      );
     });
 
     it('should use simple deduplication when method=simple', async () => {
@@ -1006,7 +1008,12 @@ describe('User Attributes API Integration Tests', () => {
     it('should handle case with no discovered attributes', async () => {
       // Delete all discovered attributes first
       const db = testDb();
-      await db.delete(schema.userAttributes).where(and(eq(schema.userAttributes.userId, userId), eq(schema.userAttributes.source, 'journal_analysis')));
+      await db.delete(schema.userAttributes).where(
+        and(
+          eq(schema.userAttributes.userId, userId),
+          eq(schema.userAttributes.source, 'journal_analysis')
+        )
+      );
 
       const res = await app.request('/api/user-attributes/deduplicate', {
         method: 'POST',
@@ -1028,7 +1035,12 @@ describe('User Attributes API Integration Tests', () => {
     it('should handle case with only user-defined attributes', async () => {
       // Delete all discovered attributes
       const db = testDb();
-      await db.delete(schema.userAttributes).where(and(eq(schema.userAttributes.userId, userId), eq(schema.userAttributes.source, 'journal_analysis')));
+      await db.delete(schema.userAttributes).where(
+        and(
+          eq(schema.userAttributes.userId, userId),
+          eq(schema.userAttributes.source, 'journal_analysis')
+        )
+      );
 
       const res = await app.request('/api/user-attributes/deduplicate', {
         method: 'POST',
@@ -1121,9 +1133,11 @@ describe('User Attributes API Integration Tests', () => {
 
       const allAttributesData = await allAttributesRes.json();
       const userDefinedAttributes = allAttributesData.data.filter((attr: any) => attr.source === 'user_set');
-
+      
       expect(userDefinedAttributes).toHaveLength(3);
-      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer']));
+      expect(userDefinedAttributes.map((attr: any) => attr.value)).toEqual(
+        expect.arrayContaining(['Family-oriented', 'Nature-lover', 'Adventurer'])
+      );
     });
   });
 });
