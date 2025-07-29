@@ -1,32 +1,51 @@
-import { app } from '../app';
-import { Hono } from 'hono';
-import { createTestUser, testDb } from './setup';
-import { journals } from '../db/schema';
-import { createAuth } from '../utils/auth';
+import { describe, it, expect, beforeEach } from 'vitest';
+import appExport from '../index';
+import { testDb, getUniqueEmail, schema } from './setup';
 import { sql } from 'drizzle-orm';
-import { expect, it, describe, beforeEach } from 'vitest';
+
+// Create wrapper to maintain compatibility with test expectations
+const app = {
+  request: (url: string, init?: RequestInit) => {
+    const absoluteUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+    return appExport.fetch(new Request(absoluteUrl, init));
+  },
+};
 
 describe('Journal API', () => {
-  let userId: number;
   let authToken: string;
-  let testApp: Hono;
+  let userId: string;
+  let testUser: { name: string; email: string; password: string };
 
   beforeEach(async () => {
-    const auth = createAuth();
-    testApp = app;
-    const user = await createTestUser();
-    userId = user.id;
-    authToken = await auth.createToken(userId);
+    // Create a test user with unique email and get auth token for protected routes
+    testUser = {
+      name: 'Test User',
+      email: getUniqueEmail('journals'),
+      password: 'testpassword123',
+    };
+
+    const registerRes = await app.request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(testUser),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    expect(registerRes.status).toBe(201);
+    const registerData = await registerRes.json();
+    authToken = registerData.token;
+    userId = registerData.user.id;
 
     // Clean up any journals from previous tests
     await testDb()
-      .delete(journals)
+      .delete(schema.journals)
       .where(sql`1=1`);
   });
 
   describe('GET /api/journals/today', () => {
     it('should return null when no journal exists for today', async () => {
-      const response = await testApp.request('/api/journals/today', {
+      const response = await app.request('/api/journals/today', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -36,7 +55,7 @@ describe('Journal API', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-      expect(data.data).toBe(null);
+      expect(data.data.exists).toBe(false);
     });
 
     it("should return today's journal when it exists", async () => {
@@ -44,15 +63,15 @@ describe('Journal API', () => {
       const today = now.toISOString().split('T')[0];
 
       // Insert a journal for today
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId: userId,
         date: today,
-        content: "Today's journal entry",
+        initialMessage: "Today's journal entry",
         status: 'draft',
         chatSession: [],
       });
 
-      const response = await testApp.request('/api/journals/today', {
+      const response = await app.request('/api/journals/today', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -62,13 +81,14 @@ describe('Journal API', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-      expect(data.data).not.toBe(null);
-      expect(data.data.date).toBe(today);
-      expect(data.data.content).toBe("Today's journal entry");
+      expect(data.data.exists).toBe(true);
+      expect(data.data.journal).not.toBe(null);
+      expect(data.data.journal.date).toBe(today);
+      expect(data.data.journal.initialMessage).toBe("Today's journal entry");
     });
 
     it('should require authentication', async () => {
-      const response = await testApp.request('/api/journals/today', {
+      const response = await app.request('/api/journals/today', {
         method: 'GET',
       });
 
@@ -79,7 +99,7 @@ describe('Journal API', () => {
   describe('POST /api/journals', () => {
     it('should create a new journal entry', async () => {
       const date = '2023-12-25';
-      const response = await testApp.request('/api/journals', {
+      const response = await app.request('/api/journals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +107,7 @@ describe('Journal API', () => {
         },
         body: JSON.stringify({
           date,
-          content: 'Christmas journal entry',
+          initialMessage: 'Christmas journal entry',
         }),
       });
 
@@ -95,7 +115,7 @@ describe('Journal API', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.data.date).toBe(date);
-      expect(data.data.content).toBe('Christmas journal entry');
+      expect(data.data.initialMessage).toBe('Christmas journal entry');
       expect(data.data.status).toBe('draft');
     });
 
@@ -103,7 +123,7 @@ describe('Journal API', () => {
       const date = '2023-12-26';
 
       // Create the first journal
-      await testApp.request('/api/journals', {
+      await app.request('/api/journals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,12 +131,12 @@ describe('Journal API', () => {
         },
         body: JSON.stringify({
           date,
-          content: 'First entry',
+          initialMessage: 'First entry',
         }),
       });
 
       // Try to create another journal for the same date
-      const response = await testApp.request('/api/journals', {
+      const response = await app.request('/api/journals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,25 +144,25 @@ describe('Journal API', () => {
         },
         body: JSON.stringify({
           date,
-          content: 'Second entry',
+          initialMessage: 'Second entry',
         }),
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       const data = await response.json();
       expect(data.success).toBe(false);
       expect(data.error).toContain('already exists');
     });
 
     it('should require authentication', async () => {
-      const response = await testApp.request('/api/journals', {
+      const response = await app.request('/api/journals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           date: '2023-12-27',
-          content: 'Test entry',
+          initialMessage: 'Test entry',
         }),
       });
 
@@ -155,23 +175,23 @@ describe('Journal API', () => {
       const date = '2024-01-01';
 
       // Create a journal first
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId,
         date,
-        content: 'Original content',
+        initialMessage: 'Original content',
         status: 'draft',
         chatSession: [],
       });
 
       // Update the journal
-      const response = await testApp.request(`/api/journals/${date}`, {
+      const response = await app.request(`/api/journals/${date}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          content: 'Updated content',
+          initialMessage: 'Updated content',
         }),
       });
 
@@ -179,18 +199,18 @@ describe('Journal API', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.data.date).toBe(date);
-      expect(data.data.content).toBe('Updated content');
+      expect(data.data.initialMessage).toBe('Updated content');
     });
 
     it('should return 404 for non-existent journal', async () => {
-      const response = await testApp.request('/api/journals/2099-12-31', {
+      const response = await app.request('/api/journals/2099-12-31', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          content: "This journal doesn't exist",
+          initialMessage: "This journal doesn't exist",
         }),
       });
 
@@ -203,15 +223,15 @@ describe('Journal API', () => {
       const date = '2024-01-10';
 
       // Create a draft journal
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId,
         date,
-        content: 'Draft content',
+        initialMessage: 'Draft content',
         status: 'draft',
         chatSession: [],
       });
 
-      const response = await testApp.request(`/api/journals/${date}/start-reflection`, {
+      const response = await app.request(`/api/journals/${date}/start-reflection`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,16 +252,16 @@ describe('Journal API', () => {
 
       // Create a journal already in review
       await testDb()
-        .insert(journals)
+        .insert(schema.journals)
         .values({
           userId,
           date,
-          content: 'In review content',
+          initialMessage: 'In review content',
           status: 'in_review',
           chatSession: [{ role: 'system', content: 'Initial message' }],
         });
 
-      const response = await testApp.request(`/api/journals/${date}/start-reflection`, {
+      const response = await app.request(`/api/journals/${date}/start-reflection`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,16 +281,16 @@ describe('Journal API', () => {
 
       // Create a journal in review
       await testDb()
-        .insert(journals)
+        .insert(schema.journals)
         .values({
           userId,
           date,
-          content: 'Journal content for chat',
+          initialMessage: 'Journal content for chat',
           status: 'in_review',
           chatSession: [{ role: 'system', content: 'Initial message' }],
         });
 
-      const response = await testApp.request(`/api/journals/${date}/chat`, {
+      const response = await app.request(`/api/journals/${date}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -291,15 +311,15 @@ describe('Journal API', () => {
       const date = '2024-01-13';
 
       // Create a draft journal
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId,
         date,
-        content: 'Draft journal',
+        initialMessage: 'Draft journal',
         status: 'draft',
         chatSession: [],
       });
 
-      const response = await testApp.request(`/api/journals/${date}/chat`, {
+      const response = await app.request(`/api/journals/${date}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -320,16 +340,16 @@ describe('Journal API', () => {
 
       // Create journal in review status
       await testDb()
-        .insert(journals)
+        .insert(schema.journals)
         .values({
           userId,
           date,
-          content: 'Journal content',
+          initialMessage: 'Journal content',
           status: 'in_review',
           chatSession: [{ role: 'system', content: 'Initial message' }],
         });
 
-      const response = await testApp.request(`/api/journals/${date}/finish`, {
+      const response = await app.request(`/api/journals/${date}/finish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -341,7 +361,7 @@ describe('Journal API', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.success).toBe(true);
-      expect(data.data.status).toBe('completed');
+      expect(data.data.status).toBe('complete');
       expect(data.data.summary).toBeTruthy();
     });
 
@@ -349,8 +369,8 @@ describe('Journal API', () => {
       const date = '2024-01-15';
 
       // Create journal in completed status
-      await testDb().insert(journals).values({
-        userId: userId,
+      await testDb().insert(schema.journals).values({
+        userId,
         date,
         status: 'completed',
         chatSession: [],
@@ -369,7 +389,7 @@ describe('Journal API', () => {
       expect(response.status).toBe(400);
       const data = await response.json();
       expect(data.success).toBe(false);
-      expect(data.error).toContain('already completed');
+      expect(data.error).toContain('Can only finish journal');
     });
   });
 
@@ -378,15 +398,15 @@ describe('Journal API', () => {
       const date = '2024-01-16';
 
       // Create a journal
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId,
         date,
-        content: 'Journal content',
+        initialMessage: 'Journal content',
         status: 'draft',
         chatSession: [],
       });
 
-      const response = await testApp.request(`/api/journals/${date}`, {
+      const response = await app.request(`/api/journals/${date}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -397,11 +417,11 @@ describe('Journal API', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.data.date).toBe(date);
-      expect(data.data.content).toBe('Journal content');
+      expect(data.data.initialMessage).toBe('Journal content');
     });
 
     it('should return 404 for non-existent journal', async () => {
-      const response = await testApp.request('/api/journals/2099-01-01', {
+      const response = await app.request('/api/journals/2099-01-01', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -417,15 +437,15 @@ describe('Journal API', () => {
       const date = '2024-01-17';
 
       // Create a journal
-      await testDb().insert(journals).values({
+      await testDb().insert(schema.journals).values({
         userId,
         date,
-        content: 'Journal to delete',
+        initialMessage: 'Journal to delete',
         status: 'draft',
         chatSession: [],
       });
 
-      const response = await testApp.request(`/api/journals/${date}`, {
+      const response = await app.request(`/api/journals/${date}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -435,7 +455,7 @@ describe('Journal API', () => {
       expect(response.status).toBe(200);
 
       // Verify it's deleted
-      const checkResponse = await testApp.request(`/api/journals/${date}`, {
+      const checkResponse = await app.request(`/api/journals/${date}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -446,7 +466,7 @@ describe('Journal API', () => {
     });
 
     it('should return 404 for non-existent journal', async () => {
-      const response = await testApp.request('/api/journals/2099-01-02', {
+      const response = await app.request('/api/journals/2099-01-02', {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${authToken}`,
