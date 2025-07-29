@@ -61,9 +61,9 @@
     try {
       deduplicating = true;
       deduplicationResult = null;
-      
+
       const result = await userAttributesApi.deduplicateAttributes('gpt');
-      
+
       if (result.removedCount > 0) {
         deduplicationResult = `✨ GPT deduplication complete! Removed ${result.removedCount} duplicate attributes out of ${result.beforeCount} total (${result.processedCount} processed).`;
       } else {
@@ -105,40 +105,35 @@
   </div>
 {:else if character}
   <CharacterView {character} on:characterUpdated={handleCharacterUpdated} on:characterDeleted={handleCharacterDeleted} />
-  
+
   <!-- GPT Deduplication Section -->
-  <div class="mt-8 max-w-2xl mx-auto">
+  <div class="mx-auto mt-8 max-w-2xl">
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title flex items-center gap-2">
-          <Sparkles class="w-5 h-5 text-primary" />
+          <Sparkles class="text-primary h-5 w-5" />
           AI-Powered Attribute Cleanup
         </h2>
-        <p class="text-sm text-base-content/70 mb-4">
+        <p class="text-base-content/70 mb-4 text-sm">
           Use GPT to intelligently deduplicate and organize your discovered character attributes while preserving your manually-defined ones.
         </p>
-        
+
         <div class="card-actions justify-start">
-          <button 
-            class="btn btn-primary gap-2" 
-            class:loading={deduplicating}
-            disabled={deduplicating}
-            on:click={handleGPTDeduplication}
-          >
+          <button class="btn btn-primary gap-2" class:loading={deduplicating} disabled={deduplicating} on:click={handleGPTDeduplication}>
             {#if deduplicating}
               <span class="loading loading-spinner loading-sm"></span>
               Analyzing attributes...
             {:else}
-              <Sparkles class="w-4 h-4" />
+              <Sparkles class="h-4 w-4" />
               Clean up attributes with AI
             {/if}
           </button>
         </div>
-        
+
         {#if deduplicationResult}
           <div class="mt-4">
             <div class="alert alert-info">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <span class="text-sm">{deduplicationResult}</span>

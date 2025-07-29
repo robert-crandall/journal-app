@@ -81,12 +81,12 @@ const app = new Hono()
         result = await UserAttributesService.gptDeduplicateAttributes(userId);
       }
 
-      return c.json({ 
-        success: true, 
+      return c.json({
+        success: true,
         data: {
           method: query.method,
           ...result,
-        }
+        },
       });
     } catch (error) {
       handleApiError(error, 'Failed to deduplicate user attributes');
