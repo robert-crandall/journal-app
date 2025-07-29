@@ -609,7 +609,7 @@ const app = new Hono()
     }
   })
 
-  // Finish journal (transition from in_review to complete)
+  // Finish journal (transition from draft or in_review to complete)
   .post('/:date/finish', jwtAuth, zValidator('param', journalDateSchema), zValidator('json', finishJournalSchema), async (c) => {
     try {
       const userId = getUserId(c);
@@ -634,19 +634,16 @@ const app = new Hono()
 
       const currentJournal = journal[0];
 
-      // Only allow transition from in_review to complete
-      if (currentJournal.status !== 'in_review') {
+      // Allow transition from draft or in_review to complete
+      if (currentJournal.status !== 'in_review' && currentJournal.status !== 'draft') {
         return c.json(
           {
             success: false,
-            error: 'Can only finish journal from in_review status',
+            error: 'Can only finish journal from draft or in_review status',
           },
           400,
         );
       }
-
-      // Get the chat session for analysis
-      const chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
 
       // Get user context for summary generation
       const userContext = await getUserContext(userId, {
@@ -657,8 +654,31 @@ const app = new Hono()
         includeExistingTags: true,
       });
 
-      // Generate journal metadata and summary in parallel
-      const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
+      let metadata;
+      let summary;
+      let chatSession: ChatMessage[];
+
+      // If status is draft, we need to handle differently than in_review
+      if (currentJournal.status === 'draft') {
+        // For draft, create a simple chat session with just the initial message
+        chatSession = [
+          {
+            role: 'user',
+            content: currentJournal.initialMessage || '',
+            timestamp: new Date().toISOString(),
+          },
+        ];
+
+        // Only generate metadata, use the initial message as summary
+        metadata = await generateJournalMetadata(chatSession, userId);
+        summary = currentJournal.initialMessage || '';
+      } else {
+        // For in_review, process normally with chat session
+        chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
+
+        // Generate journal metadata and summary in parallel
+        [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
+      }
 
       // Check if a day rating was provided in the request
       const currentJournalData = await db

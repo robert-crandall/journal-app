@@ -2,7 +2,8 @@
   import { createEventDispatcher } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import type { JournalResponse } from '$lib/types/journal';
-  import { PenIcon, MessageCircleIcon, SaveIcon } from 'lucide-svelte';
+  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon } from 'lucide-svelte';
+  import JournalFinishDialog from './JournalFinishDialog.svelte';
 
   export let journal: JournalResponse | null;
   export let date: string;
@@ -14,8 +15,10 @@
   let initialMessage = journal?.initialMessage || '';
   let saving = false;
   let startingReflection = false;
+  let finishing = false;
   let error: string | null = null;
   let textareaElement: HTMLTextAreaElement;
+  let showFinishDialog = false;
 
   // Auto-save timeout
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -74,6 +77,7 @@
 
       hasUnsavedChanges = false;
       dispatch('update', updatedJournal);
+      journal = updatedJournal; // TODO: replace dispath then remove this
 
       // Restore focus and cursor position if needed
       if (preserveFocus && wasFocused && textareaElement) {
@@ -105,6 +109,41 @@
     } finally {
       startingReflection = false;
     }
+  }
+
+  function openFinishDialog() {
+    showFinishDialog = true;
+  }
+
+  async function finishJournal(dayRating: number | null = null) {
+    finishing = true;
+
+    await saveJournal();
+    if (!journal) {
+      finishing = false;
+      return; // saveJournal should have updated journal via dispatch
+    }
+
+    try {
+      error = null;
+
+      // First update the journal with day rating if provided
+      if (dayRating !== null) {
+        await JournalService.updateJournal(date, { dayRating });
+      }
+
+      // Then finish the journal
+      const completedJournal = await JournalService.finishJournal(date);
+      dispatch('update', completedJournal);
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Failed to finish journal';
+    } finally {
+      finishing = false;
+    }
+  }
+
+  function handleFinish(event: CustomEvent<{ dayRating: number | null }>) {
+    finishJournal(event.detail.dayRating);
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -173,12 +212,12 @@
 
       <!-- Action Buttons -->
       <div class="flex flex-col items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center sm:gap-0 sm:pt-4">
-        <div class="flex items-center">
+        <div class="flex items-center gap-2">
           <button
             data-test-id="save-draft-button"
             on:click={() => saveJournal()}
             disabled={saving || !initialMessage.trim()}
-            class="btn btn-outline btn-sm sm:btn-md w-full gap-1 sm:w-auto sm:gap-2"
+            class="btn btn-outline btn-sm sm:btn-md gap-1 sm:gap-2"
           >
             {#if saving}
               <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
@@ -187,6 +226,21 @@
               <SaveIcon size={16} class="hidden sm:block" />
             {/if}
             Save Draft
+          </button>
+
+          <button
+            data-test-id="finish-journal-button"
+            on:click={openFinishDialog}
+            disabled={finishing || !initialMessage.trim()}
+            class="btn btn-success btn-sm sm:btn-md gap-1 sm:gap-2"
+          >
+            {#if finishing}
+              <span class="loading loading-spinner loading-xs sm:loading-sm"></span>
+            {:else}
+              <CheckCircleIcon size={14} class="sm:hidden" />
+              <CheckCircleIcon size={16} class="hidden sm:block" />
+            {/if}
+            Complete Journal
           </button>
         </div>
 
@@ -205,6 +259,9 @@
           Start Reflection
         </button>
       </div>
+
+      <!-- Finish Dialog -->
+      <JournalFinishDialog bind:open={showFinishDialog} on:finish={handleFinish} on:cancel={() => (showFinishDialog = false)} />
     </div>
   </div>
 </div>
