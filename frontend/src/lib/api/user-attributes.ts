@@ -213,7 +213,9 @@ export const userAttributesApi = {
   },
 
   // Deduplicate user attributes with optional method (gpt or simple)
-  async deduplicateAttributes(method: 'gpt' | 'simple' = 'gpt'): Promise<{ method: string; removedCount: number; processedCount: number; beforeCount: number; afterCount: number }> {
+  async deduplicateAttributes(
+    method: 'gpt' | 'simple' = 'gpt',
+  ): Promise<{ method: string; removedCount: number; processedCount: number; beforeCount: number; afterCount: number }> {
     try {
       const response = await authenticatedClient.api['user-attributes'].deduplicate.$post({
         query: { method },
@@ -225,7 +227,13 @@ export const userAttributesApi = {
         throw new Error((result as any).error || `Error ${response.status}: ${response.statusText}`);
       }
 
-      const result = (await response.json()) as ApiResponse<{ method: string; removedCount: number; processedCount: number; beforeCount: number; afterCount: number }>;
+      const result = (await response.json()) as ApiResponse<{
+        method: string;
+        removedCount: number;
+        processedCount: number;
+        beforeCount: number;
+        afterCount: number;
+      }>;
       return result.data;
     } catch (error) {
       console.error('Deduplicate attributes API request failed:', error);

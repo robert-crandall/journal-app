@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, unique, integer } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { goals } from './goals';
 
@@ -11,6 +11,9 @@ export const tags = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    source: varchar('source', { length: 20 }).notNull().default('discovered'),
+    timesUsed: integer('times_used').notNull().default(0),
+    status: varchar('status', { length: 20 }).notNull().default('active'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },

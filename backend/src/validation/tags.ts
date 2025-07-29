@@ -3,6 +3,7 @@ import { z } from 'zod';
 // Tag validation schemas
 export const createTagSchema = z.object({
   name: z.string().min(1, 'Tag name is required').max(100, 'Tag name must be 100 characters or less').trim(),
+  source: z.enum(['user', 'discovered', 'system']).default('discovered'),
 });
 
 export const updateTagSchema = createTagSchema.partial();

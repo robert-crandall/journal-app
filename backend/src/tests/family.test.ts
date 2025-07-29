@@ -69,11 +69,6 @@ describe('Family API', () => {
         },
       });
 
-      if (response.status !== 201) {
-        const errorData = await response.text();
-        console.log('Error response:', response.status, errorData);
-      }
-
       expect(response.status).toBe(201);
       const data = await response.json();
       expect(data.success).toBe(true);

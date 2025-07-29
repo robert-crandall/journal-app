@@ -164,10 +164,15 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
       systemContent.includes('consolidate similar discovered attributes')
     ) {
       // Mock response for attribute deduplication
-      mockResponse = JSON.stringify([
-        'Outdoor activities and exploration',
-        'Programming and problem-solving'
-      ]);
+      mockResponse = JSON.stringify(['Outdoor activities and exploration', 'Programming and problem-solving']);
+    } else if ((content.includes('existingTags') && content.includes('newTags')) || systemContent.includes('tag list clean and readable')) {
+      // Mock response for tag deduplication - should return reasonable deduplication of typical content tags
+      // This simulates GPT keeping new unique tags while avoiding duplicates
+      // For the journal integration test, we want to return some deduplicated tags that would be generated
+      // from content like "reflection" and "family" conversations
+      mockResponse = JSON.stringify({
+        deduplicatedTags: ['thoughts', 'personal', 'introspection'],
+      });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
     }
