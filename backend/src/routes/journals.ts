@@ -658,10 +658,7 @@ const app = new Hono()
       });
 
       // Generate journal metadata and summary in parallel
-      const [metadata, summary] = await Promise.all([
-        generateJournalMetadata(chatSession, userId), 
-        generateJournalSummary(chatSession, userContext, userId)
-      ]);
+      const [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
 
       // Check if a day rating was provided in the request
       const currentJournalData = await db
@@ -774,7 +771,7 @@ const app = new Hono()
                 sourceId: journalId,
                 reason: data.reason || 'XP from journal stat analysis',
               });
-              
+
               // Update the character stat's total XP
               await db
                 .update(characterStats)
@@ -790,7 +787,7 @@ const app = new Hono()
             await db.insert(xpGrants).values(statGrantsToInsert);
           }
         } catch (error) {
-          console.error("Error processing stat tags:", error);
+          console.error('Error processing stat tags:', error);
           // Continue execution - don't fail the entire operation due to stat tag issues
         }
       }

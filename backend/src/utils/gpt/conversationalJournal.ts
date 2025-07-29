@@ -536,7 +536,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   // Run both content and context analysis in parallel for efficiency
   const [contentMetadata, contextMetadata] = await Promise.all([
     generateJournalContentMetadata(conversation, userId),
-    generateJournalContextMetadata(conversation, userId)
+    generateJournalContextMetadata(conversation, userId),
   ]);
 
   // Convert tag names to IDs
@@ -556,15 +556,14 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   return {
     title: contentMetadata.title,
     synopsis: contentMetadata.synopsis,
-    suggestedTags: tagIds,  // Use converted tag IDs
+    suggestedTags: tagIds, // Use converted tag IDs
     suggestedTodos: contentMetadata.suggestedTodos,
     suggestedAttributes: contentMetadata.suggestedAttributes,
     toneTags: contextMetadata.toneTags,
     suggestedStatTags: contextMetadata.suggestedStatTags,
-    suggestedFamilyTags: contextMetadata.suggestedFamilyTags
+    suggestedFamilyTags: contextMetadata.suggestedFamilyTags,
   };
 }
-
 
 /**
  * Generate a rich, narrative summary from a conversational journal session
