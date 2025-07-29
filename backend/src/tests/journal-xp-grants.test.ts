@@ -70,6 +70,12 @@ describe('Journal XP Grants Integration', () => {
   });
 
   afterEach(async () => {
+    // Clean up mocks
+    if (mockGenerateJournalMetadata) {
+      mockGenerateJournalMetadata.mockRestore();
+    }
+    vi.restoreAllMocks();
+
     // Clean up test data
     await testDb().delete(simpleTodos).where(eq(simpleTodos.userId, userId));
     await testDb().delete(xpGrants).where(eq(xpGrants.userId, userId));
@@ -260,8 +266,6 @@ describe('Journal XP Grants Integration', () => {
         },
         body: JSON.stringify({}),
       });
-
-      console.log('Response:', response.status, await response.text());
 
       expect(response.status).toBe(200);
 
