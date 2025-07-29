@@ -70,6 +70,12 @@ describe('Journal XP Grants Integration', () => {
   });
 
   afterEach(async () => {
+    // Clean up mocks
+    if (mockGenerateJournalMetadata) {
+      mockGenerateJournalMetadata.mockRestore();
+    }
+    vi.restoreAllMocks();
+
     // Clean up test data
     await testDb().delete(simpleTodos).where(eq(simpleTodos.userId, userId));
     await testDb().delete(xpGrants).where(eq(xpGrants.userId, userId));
