@@ -757,33 +757,38 @@ const app = new Hono()
 
       // Create XP grants for character stats
       if (metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object') {
-        const statGrantsToInsert = [];
+        try {
+          const statGrantsToInsert = [];
 
-        for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
-          if (typeof data === 'object' && data !== null && data.xp > 0) {
-            statGrantsToInsert.push({
-              userId,
-              entityType: 'character_stat' as const,
-              entityId: statId,
-              xpAmount: data.xp,
-              sourceType: 'journal' as const,
-              sourceId: journalId,
-              reason: data.reason || 'XP from journal reflection',
-            });
+          for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
+            if (typeof data === 'object' && data !== null && 'xp' in data && typeof data.xp === 'number' && data.xp > 0) {
+              statGrantsToInsert.push({
+                userId,
+                entityType: 'character_stat' as const,
+                entityId: statId,
+                xpAmount: data.xp,
+                sourceType: 'journal' as const,
+                sourceId: journalId,
+                reason: data.reason || 'XP from journal stat analysis',
+              });
 
-            // Update the character stat's total XP
-            await db
-              .update(characterStats)
-              .set({
-                totalXp: sql`total_xp + ${data.xp}`,
-                updatedAt: new Date(),
-              })
-              .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+              // Update the character stat's total XP
+              await db
+                .update(characterStats)
+                .set({
+                  totalXp: sql`total_xp + ${data.xp}`,
+                  updatedAt: new Date(),
+                })
+                .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+            }
           }
-        }
 
-        if (statGrantsToInsert.length > 0) {
-          await db.insert(xpGrants).values(statGrantsToInsert);
+          if (statGrantsToInsert.length > 0) {
+            await db.insert(xpGrants).values(statGrantsToInsert);
+          }
+        } catch (error) {
+          console.error('Error processing stat tags:', error);
+          // Continue execution - don't fail the entire operation due to stat tag issues
         }
       }
 

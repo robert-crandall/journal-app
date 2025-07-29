@@ -89,12 +89,33 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
           suggestedDuration: '20-30 minutes',
         },
       });
+    } else if (content.includes('Generate content metadata')) {
+      // Return properly formatted JSON for content-based journal metadata
+      mockResponse = JSON.stringify({
+        title: 'Reflective Journal Session',
+        synopsis: 'A thoughtful conversation about current experiences and feelings.',
+        suggestedTags: ['reflection', 'thoughts', 'personal'],
+        suggestedTodos: ["Continue reflecting on today's experiences"],
+        suggestedAttributes: ['Introspective thinker', 'Values personal growth'],
+      });
+    } else if (content.includes('Generate context metadata')) {
+      // Return properly formatted JSON for context-based journal metadata
+      mockResponse = JSON.stringify({
+        toneTags: ['happy', 'calm'],
+        suggestedStatTags: {
+          '12345678-1234-1234-1234-123456789012': { xp: 25, reason: 'Expressed creative ideas in journal' },
+          '87654321-4321-4321-4321-210987654321': { xp: 20, reason: 'Practiced self-reflection' },
+        },
+        suggestedFamilyTags: {
+          '11111111-1111-1111-1111-111111111111': { xp: 15, reason: 'Mentioned quality time spent together' },
+        },
+      });
     } else if (
       content.includes('Generate metadata') ||
       content.includes('Analyze this journal conversation') ||
       content.includes('analyze this journal entry')
     ) {
-      // Return properly formatted JSON for journal analysis
+      // Return properly formatted JSON for journal analysis (legacy format)
       mockResponse = JSON.stringify({
         summary:
           'In this journal session, the user shared their thoughts and feelings in a meaningful conversation. The discussion touched on personal experiences and provided space for reflection.',
@@ -165,14 +186,6 @@ export async function callGptApi(options: GptOptions): Promise<GptResponse> {
     ) {
       // Mock response for attribute deduplication
       mockResponse = JSON.stringify(['Outdoor activities and exploration', 'Programming and problem-solving']);
-    } else if ((content.includes('existingTags') && content.includes('newTags')) || systemContent.includes('tag list clean and readable')) {
-      // Mock response for tag deduplication - should return reasonable deduplication of typical content tags
-      // This simulates GPT keeping new unique tags while avoiding duplicates
-      // For the journal integration test, we want to return some deduplicated tags that would be generated
-      // from content like "reflection" and "family" conversations
-      mockResponse = JSON.stringify({
-        deduplicatedTags: ['thoughts', 'personal', 'introspection'],
-      });
     } else {
       mockResponse = 'This is a mock response for testing purposes.';
     }
