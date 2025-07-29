@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { CheckCircleIcon } from 'lucide-svelte';
-  import JournalDayRating from '../JournalDayRating.svelte';
+  import JournalDayRating from './JournalDayRating.svelte';
 
   export let open = false;
 

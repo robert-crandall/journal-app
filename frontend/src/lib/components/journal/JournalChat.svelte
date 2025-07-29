@@ -5,7 +5,7 @@
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
   import Markdown from '$lib/components/common/Markdown.svelte';
-  import JournalFinishDialog from './shared/JournalFinishDialog.svelte';
+  import JournalFinishDialog from './JournalFinishDialog.svelte';
 
   export let journal: JournalResponse;
   export let date: string;

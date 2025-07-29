@@ -3,7 +3,7 @@
   import { JournalService } from '$lib/api/journal';
   import type { JournalResponse } from '$lib/types/journal';
   import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon } from 'lucide-svelte';
-  import JournalFinishDialog from './shared/JournalFinishDialog.svelte';
+  import JournalFinishDialog from './JournalFinishDialog.svelte';
 
   export let journal: JournalResponse | null;
   export let date: string;
@@ -116,11 +116,15 @@
   }
 
   async function finishJournal(dayRating: number | null = null) {
+    finishing = true;
+
     await saveJournal();
-    if (!journal) return; // saveJournal should have updated journal via dispatch
+    if (!journal) {
+      finishing = false;
+      return; // saveJournal should have updated journal via dispatch
+    }
 
     try {
-      finishing = true;
       error = null;
 
       // First update the journal with day rating if provided
