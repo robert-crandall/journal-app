@@ -8,6 +8,7 @@ import { characterStats } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 
 import { createOrGetTag } from '../tags';
+import { convertStatNamesToIds } from '../stats';
 import { getConversationalToneInstruction } from './toneInstructions';
 
 /**
@@ -552,7 +553,18 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     }
   }
 
-  // Combine results into the full metadata structure
+  // Convert stat names to IDs
+  const statNames = Object.keys(contextMetadata.suggestedStatTags);
+  const statNameToIdMap = await convertStatNamesToIds(userId, statNames);
+  
+  // Rebuild the suggestedStatTags object with stat IDs as keys
+  const suggestedStatTagsWithIds: Record<string, { xp: number; reason: string }> = {};
+  for (const [statName, statData] of Object.entries(contextMetadata.suggestedStatTags)) {
+    const statId = statNameToIdMap[statName];
+    if (statId) {
+      suggestedStatTagsWithIds[statId] = statData;
+    }
+  }  // Combine results into the full metadata structure
   return {
     title: contentMetadata.title,
     synopsis: contentMetadata.synopsis,
@@ -560,7 +572,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     suggestedTodos: contentMetadata.suggestedTodos,
     suggestedAttributes: contentMetadata.suggestedAttributes,
     toneTags: contextMetadata.toneTags,
-    suggestedStatTags: contextMetadata.suggestedStatTags,
+    suggestedStatTags: suggestedStatTagsWithIds, // Use converted stat IDs
     suggestedFamilyTags: contextMetadata.suggestedFamilyTags,
   };
 }

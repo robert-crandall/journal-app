@@ -1,4 +1,43 @@
 import type { LevelCalculation } from '../../../shared/types/stats';
+import { db } from '../db';
+import { characterStats } from '../db/schema';
+import { eq, and, ilike, or } from 'drizzle-orm';
+
+/**
+ * Convert stat names to stat IDs for a specific user
+ * Performs case-insensitive matching
+ * Returns a mapping of stat names (original case) to their IDs
+ */
+export async function convertStatNamesToIds(userId: string, statNames: string[]): Promise<Record<string, string>> {
+  if (!statNames || statNames.length === 0) {
+    return {};
+  }
+
+  // Remove duplicates and filter out empty strings
+  const uniqueStatNames = [...new Set(statNames.filter((name) => name && name.trim()))];
+
+  if (uniqueStatNames.length === 0) {
+    return {};
+  }
+
+  // Query the database for stats matching the names (case-insensitive)
+  const stats = await db
+    .select({ id: characterStats.id, name: characterStats.name })
+    .from(characterStats)
+    .where(and(eq(characterStats.userId, userId), or(...uniqueStatNames.map((name) => ilike(characterStats.name, name)))));
+
+  // Create a mapping from original stat names to their IDs
+  const nameToIdMap: Record<string, string> = {};
+  
+  for (const originalName of uniqueStatNames) {
+    const matchingStat = stats.find((stat) => stat.name.toLowerCase() === originalName.toLowerCase());
+    if (matchingStat) {
+      nameToIdMap[originalName] = matchingStat.id;
+    }
+  }
+
+  return nameToIdMap;
+}
 
 /**
  * Calculate the total XP required to reach a specific level
