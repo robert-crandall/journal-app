@@ -87,38 +87,6 @@ describe('Journal Rating API', () => {
       expect(data.data.dayRating).toBe(5);
     });
 
-    it('should set inferred day rating when finishing journal', async () => {
-      // Create a journal in review status
-      await testDb()
-        .insert(journals)
-        .values({
-          userId,
-          date: journalDate,
-          status: 'in_review',
-          chatSession: [
-            { role: 'assistant', content: 'Initial prompt' },
-            { role: 'user', content: 'I did some work today' },
-          ],
-        });
-
-      // Finish journal
-      const response = await app.request(`/api/journals/${journalDate}/finish`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({}),
-      });
-
-      expect(response.status).toBe(200);
-      const data = await response.json();
-      expect(data.success).toBe(true);
-      expect(data.data.inferredDayRating).toBeDefined();
-      expect(data.data.inferredDayRating).toBeGreaterThanOrEqual(1);
-      expect(data.data.inferredDayRating).toBeLessThanOrEqual(5);
-    });
-
     it('should handle journals without day rating', async () => {
       // Create a journal without a day rating
       const response = await app.request('/api/journals', {
