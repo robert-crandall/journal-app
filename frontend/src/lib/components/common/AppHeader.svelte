@@ -10,7 +10,7 @@
   export let icon: any = null;
 </script>
 
-<div class="mb-8">
+<div class="mb-2 sm:mb-4 lg:mb-8">
   <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-0">
     <div class="flex min-w-0 flex-1 items-center gap-3">
       {#if icon}

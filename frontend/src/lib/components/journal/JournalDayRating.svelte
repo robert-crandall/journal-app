@@ -3,7 +3,6 @@
   import { StarIcon } from 'lucide-svelte';
 
   export let dayRating: number | null = null;
-  export let inferredDayRating: number | null = null;
   export let readonly = false;
   export let showEmoji = true;
 
@@ -20,8 +19,7 @@
     }
   }
 
-  $: displayRating = dayRating || inferredDayRating;
-  $: isInferred = !dayRating && inferredDayRating;
+  $: displayRating = dayRating;
 </script>
 
 <div class="card bg-base-100 border-base-300 border shadow-xl">
@@ -29,9 +27,6 @@
     <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold">
       <StarIcon size={24} class="text-warning" />
       <span>Day Rating</span>
-      {#if isInferred}
-        <span class="badge badge-sm badge-warning">Estimated</span>
-      {/if}
     </h3>
 
     <div class="flex flex-col items-center justify-center gap-4">
