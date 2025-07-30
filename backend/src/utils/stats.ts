@@ -28,7 +28,7 @@ export async function convertStatNamesToIds(userId: string, statNames: string[])
 
   // Create a mapping from original stat names to their IDs
   const nameToIdMap: Record<string, string> = {};
-  
+
   for (const originalName of uniqueStatNames) {
     const matchingStat = stats.find((stat) => stat.name.toLowerCase() === originalName.toLowerCase());
     if (matchingStat) {

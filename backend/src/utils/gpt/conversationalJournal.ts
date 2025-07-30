@@ -9,6 +9,7 @@ import { eq, and } from 'drizzle-orm';
 
 import { createOrGetTag } from '../tags';
 import { convertStatNamesToIds } from '../stats';
+import { convertFamilyNamesToIds } from '../family';
 import { getConversationalToneInstruction } from './toneInstructions';
 
 /**
@@ -556,7 +557,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
   // Convert stat names to IDs
   const statNames = Object.keys(contextMetadata.suggestedStatTags);
   const statNameToIdMap = await convertStatNamesToIds(userId, statNames);
-  
+
   // Rebuild the suggestedStatTags object with stat IDs as keys
   const suggestedStatTagsWithIds: Record<string, { xp: number; reason: string }> = {};
   for (const [statName, statData] of Object.entries(contextMetadata.suggestedStatTags)) {
@@ -564,7 +565,22 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     if (statId) {
       suggestedStatTagsWithIds[statId] = statData;
     }
-  }  // Combine results into the full metadata structure
+  }
+
+  // Convert family member names to IDs
+  const familyNames = Object.keys(contextMetadata.suggestedFamilyTags);
+  const familyNameToIdMap = await convertFamilyNamesToIds(userId, familyNames);
+
+  // Rebuild the suggestedFamilyTags object with family member IDs as keys
+  const suggestedFamilyTagsWithIds: Record<string, { xp: number; reason: string }> = {};
+  for (const [familyName, familyData] of Object.entries(contextMetadata.suggestedFamilyTags)) {
+    const familyId = familyNameToIdMap[familyName];
+    if (familyId) {
+      suggestedFamilyTagsWithIds[familyId] = familyData;
+    }
+  }
+
+  // Combine results into the full metadata structure
   return {
     title: contentMetadata.title,
     synopsis: contentMetadata.synopsis,
@@ -573,7 +589,7 @@ export async function generateJournalMetadata(conversation: ChatMessage[], userI
     suggestedAttributes: contentMetadata.suggestedAttributes,
     toneTags: contextMetadata.toneTags,
     suggestedStatTags: suggestedStatTagsWithIds, // Use converted stat IDs
-    suggestedFamilyTags: contextMetadata.suggestedFamilyTags,
+    suggestedFamilyTags: suggestedFamilyTagsWithIds, // Use converted family member IDs
   };
 }
 

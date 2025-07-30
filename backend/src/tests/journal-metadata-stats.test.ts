@@ -22,22 +22,25 @@ describe('Journal Metadata with Stat ID Conversion', () => {
     testUserId = user.id;
 
     // Create some test stats
-    const stats = await db.insert(characterStats).values([
-      {
-        userId: testUserId,
-        name: 'Strength',
-        description: 'Physical power and endurance',
-        currentLevel: 1,
-        totalXp: 0,
-      },
-      {
-        userId: testUserId,
-        name: 'Intelligence',
-        description: 'Mental acuity and learning ability',
-        currentLevel: 2,
-        totalXp: 150,
-      },
-    ]).returning();
+    const stats = await db
+      .insert(characterStats)
+      .values([
+        {
+          userId: testUserId,
+          name: 'Strength',
+          description: 'Physical power and endurance',
+          currentLevel: 1,
+          totalXp: 0,
+        },
+        {
+          userId: testUserId,
+          name: 'Intelligence',
+          description: 'Mental acuity and learning ability',
+          currentLevel: 2,
+          totalXp: 150,
+        },
+      ])
+      .returning();
 
     strengthStatId = stats[0].id;
     intelligenceStatId = stats[1].id;
@@ -61,20 +64,16 @@ describe('Journal Metadata with Stat ID Conversion', () => {
 
     // Check that suggestedStatTags now uses stat IDs as keys
     expect(metadata.suggestedStatTags).toBeDefined();
-    
+
     // If any stat tags were suggested, they should use IDs as keys
     const statTagKeys = Object.keys(metadata.suggestedStatTags);
     for (const key of statTagKeys) {
       // UUIDs are 36 characters long
       expect(key).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-      
+
       // Verify the ID corresponds to one of our test stats
-      const stat = await db
-        .select()
-        .from(characterStats)
-        .where(eq(characterStats.id, key))
-        .limit(1);
-      
+      const stat = await db.select().from(characterStats).where(eq(characterStats.id, key)).limit(1);
+
       expect(stat).toHaveLength(1);
       expect(stat[0].userId).toBe(testUserId);
     }

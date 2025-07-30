@@ -127,10 +127,7 @@ describe('Stats Helper Functions', () => {
       expect(statNameToIdMap['Strength']).toBeDefined();
 
       // Verify the returned ID belongs to our test user
-      const [stat] = await db
-        .select()
-        .from(characterStats)
-        .where(eq(characterStats.id, statNameToIdMap['Strength']));
+      const [stat] = await db.select().from(characterStats).where(eq(characterStats.id, statNameToIdMap['Strength']));
 
       expect(stat.userId).toBe(testUserId);
     });
