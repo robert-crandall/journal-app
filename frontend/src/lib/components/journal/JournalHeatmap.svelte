@@ -82,7 +82,7 @@
         isCurrentMonth: true,
         journalId: journalForDay?.id,
         journalDate: journalForDay?.date,
-        rating: journalForDay?.dayRating || journalForDay?.inferredDayRating || null,
+        rating: journalForDay?.dayRating || null,
         title: journalForDay?.title || null,
         isToday,
       });

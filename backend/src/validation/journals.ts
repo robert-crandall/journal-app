@@ -18,7 +18,6 @@ export const updateJournalSchema = z.object({
   synopsis: z.string().optional(),
   toneTags: z.array(z.enum(TONE_TAGS)).max(2, 'Maximum 2 tone tags allowed').optional(),
   dayRating: z.number().int().min(1).max(5).optional(),
-  inferredDayRating: z.number().int().min(1).max(5).optional(),
 });
 
 export const addChatMessageSchema = z.object({

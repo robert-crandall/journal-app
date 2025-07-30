@@ -1,0 +1,1 @@
+ALTER TABLE "journals" DROP COLUMN "inferred_day_rating";
