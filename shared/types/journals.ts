@@ -17,7 +17,6 @@ export interface Journal {
   synopsis: string | null;
   toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags (max 2)
   dayRating: number | null;
-  inferredDayRating: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,7 +33,6 @@ export interface NewJournal {
   synopsis?: string | null;
   toneTags?: ToneTag[] | null; // GPT-extracted emotional tone tags (max 2)
   dayRating?: number | null;
-  inferredDayRating?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -55,7 +53,6 @@ export interface UpdateJournalRequest {
   synopsis?: string;
   toneTags?: ToneTag[]; // GPT-extracted emotional tone tags (max 2)
   dayRating?: number; // User-provided rating (1-5)
-  inferredDayRating?: number; // AI-inferred rating (1-5)
 }
 
 export interface ChatMessage {
@@ -97,7 +94,6 @@ export interface JournalListItem {
   initialMessage: string | null;
   toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags
   dayRating: number | null;
-  inferredDayRating: number | null;
   createdAt: string;
   updatedAt: string;
   // Include tag information for filtering
@@ -128,7 +124,6 @@ export interface JournalResponse {
   synopsis: string | null;
   toneTags: ToneTag[] | null; // GPT-extracted emotional tone tags
   dayRating: number | null;
-  inferredDayRating: number | null;
   createdAt: string;
   updatedAt: string;
 }

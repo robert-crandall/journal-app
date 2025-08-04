@@ -45,7 +45,6 @@ const serializeJournal = (journal: typeof journals.$inferSelect): JournalRespons
     synopsis: journal.synopsis,
     toneTags: journal.toneTags ? (journal.toneTags as ToneTag[]) : null,
     dayRating: journal.dayRating,
-    inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
   };
@@ -68,7 +67,6 @@ const serializeJournalListItem = (journal: typeof journals.$inferSelect): Journa
     initialMessage: journal.initialMessage,
     toneTags: journal.toneTags ? (journal.toneTags as ToneTag[]) : null,
     dayRating: journal.dayRating,
-    inferredDayRating: journal.inferredDayRating,
     createdAt: journal.createdAt.toISOString(),
     updatedAt: journal.updatedAt.toISOString(),
     characterCount,
@@ -187,7 +185,6 @@ const app = new Hono()
             synopsis: journals.synopsis,
             toneTags: journals.toneTags,
             dayRating: journals.dayRating,
-            inferredDayRating: journals.inferredDayRating,
             createdAt: journals.createdAt,
             updatedAt: journals.updatedAt,
           })
@@ -414,9 +411,6 @@ const app = new Hono()
       }
       if (data.dayRating !== undefined) {
         updateData.dayRating = data.dayRating;
-      }
-      if (data.inferredDayRating !== undefined) {
-        updateData.inferredDayRating = data.inferredDayRating;
       }
       // Note: toneTags are now supported as GPT-extracted emotional tags
 
@@ -709,7 +703,6 @@ const app = new Hono()
           title: metadata.title,
           synopsis: metadata.synopsis,
           toneTags: validatedToneTags,
-          inferredDayRating: null, // TODO: remove this field
           updatedAt: new Date(),
         })
         .where(and(eq(journals.userId, userId), eq(journals.date, date)))

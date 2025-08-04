@@ -59,7 +59,7 @@
   </div>
 
   <!-- Day Rating Card -->
-  <JournalDayRating dayRating={journal.dayRating} inferredDayRating={journal.inferredDayRating} readonly={true} />
+  <JournalDayRating dayRating={journal.dayRating} readonly={true} />
 
   <!-- Summary Card -->
   {#if journal.summary}

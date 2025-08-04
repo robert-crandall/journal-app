@@ -60,24 +60,10 @@
       saving = true;
       error = null;
 
-      let updatedJournal: JournalResponse;
-
-      if (journal) {
-        // Update existing journal
-        updatedJournal = await JournalService.updateJournal(date, {
-          initialMessage: initialMessage.trim(),
-        });
-      } else {
-        // Create new journal
-        updatedJournal = await JournalService.createJournal({
-          date,
-          initialMessage: initialMessage.trim(),
-        });
+      const updatedJournal = await ensureJournalSaved();
+      if (updatedJournal) {
+        dispatch('update', updatedJournal);
       }
-
-      hasUnsavedChanges = false;
-      dispatch('update', updatedJournal);
-      journal = updatedJournal; // TODO: replace dispath then remove this
 
       // Restore focus and cursor position if needed
       if (preserveFocus && wasFocused && textareaElement) {
@@ -94,16 +80,48 @@
     }
   }
 
-  async function startReflection() {
-    await saveJournal();
-    if (!journal) return; // saveJournal should have updated journal via dispatch
+  // Shared helper function to ensure journal exists with current content
+  async function ensureJournalSaved(): Promise<JournalResponse | null> {
+    if (!initialMessage.trim()) return null;
 
+    try {
+      let updatedJournal: JournalResponse | null;
+      updatedJournal = null;
+
+      if (journal) {
+        // Update existing journal if there are unsaved changes
+        if (hasUnsavedChanges) {
+          updatedJournal = await JournalService.updateJournal(date, {
+            initialMessage: initialMessage.trim(),
+          });
+          hasUnsavedChanges = false;
+        }
+        return updatedJournal;
+      } else {
+        // Create new journal
+        updatedJournal = await JournalService.createJournal({
+          date,
+          initialMessage: initialMessage.trim(),
+        });
+        hasUnsavedChanges = false;
+        return updatedJournal;
+      }
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Failed to save journal';
+      return null;
+    }
+  }
+
+  async function startReflection() {
     try {
       startingReflection = true;
       error = null;
 
-      const updatedJournal = await JournalService.startReflection(date);
-      dispatch('update', updatedJournal);
+      const savedJournal = await ensureJournalSaved();
+      if (savedJournal) {
+        const updatedJournal = await JournalService.startReflection(date);
+        dispatch('update', updatedJournal);
+      }
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to start reflection';
     } finally {
@@ -116,25 +134,20 @@
   }
 
   async function finishJournal(dayRating: number | null = null) {
-    finishing = true;
-
-    await saveJournal();
-    if (!journal) {
-      finishing = false;
-      return; // saveJournal should have updated journal via dispatch
-    }
-
     try {
+      finishing = true;
       error = null;
 
-      // First update the journal with day rating if provided
-      if (dayRating !== null) {
-        await JournalService.updateJournal(date, { dayRating });
+      const savedJournal = await ensureJournalSaved();
+      if (savedJournal) {
+          // Update with day rating if provided
+        if (dayRating !== null) {
+          await JournalService.updateJournal(date, { dayRating });
+        }
+        // Then finish the journal
+        const completedJournal = await JournalService.finishJournal(date);
+        dispatch('update', completedJournal);
       }
-
-      // Then finish the journal
-      const completedJournal = await JournalService.finishJournal(date);
-      dispatch('update', completedJournal);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to finish journal';
     } finally {
@@ -197,7 +210,7 @@
           on:input={handleInput}
           on:keydown={handleKeydown}
           placeholder="What's on your mind today? Write freely about your thoughts, experiences, feelings, or anything that comes to mind..."
-          class="textarea textarea-bordered textarea-lg h-48 w-full resize-none text-sm leading-relaxed transition-all duration-200 focus:scale-[1.01] sm:h-64 sm:text-base sm:focus:scale-[1.02]"
+          class="textarea textarea-bordered textarea-lg w-full text-sm leading-relaxed transition-all duration-200 focus:scale-[1.01] sm:text-base sm:focus:scale-[1.02]"
           rows="12"
         ></textarea>
 

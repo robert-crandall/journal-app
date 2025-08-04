@@ -27,7 +27,6 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
       id: journals.id,
       date: journals.date,
       dayRating: journals.dayRating,
-      inferredDayRating: journals.inferredDayRating,
       toneTags: journals.toneTags,
     })
     .from(journals)
@@ -41,7 +40,7 @@ export async function calculatePeriodMetrics(options: CalculateMetricsOptions): 
     );
 
   // 2. Calculate average day rating
-  const ratingsForAverage = journalEntries.map((j) => j.dayRating || j.inferredDayRating).filter((rating): rating is number => rating !== null);
+  const ratingsForAverage = journalEntries.map((j) => j.dayRating).filter((rating): rating is number => rating !== null);
 
   const avgDayRating = ratingsForAverage.length > 0 ? ratingsForAverage.reduce((sum, rating) => sum + rating, 0) / ratingsForAverage.length : null;
 
