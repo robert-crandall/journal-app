@@ -95,6 +95,9 @@
             initialMessage: initialMessage.trim(),
           });
           hasUnsavedChanges = false;
+        } else {
+          // No unsaved changes, just return the existing journal
+          updatedJournal = journal;
         }
         return updatedJournal;
       } else {
