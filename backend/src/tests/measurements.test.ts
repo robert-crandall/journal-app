@@ -76,7 +76,7 @@ describe('Measurements API Integration Tests', () => {
       expect(measurement.weightLbs).toBe(185.5);
       expect(measurement.notes).toBe('Morning measurement');
       expect(measurement.bodyFatPercentage).toBeNull(); // No waist/neck measurements
-      expect(measurement.timestamp).toBeDefined();
+      expect(measurement.recordedDate).toBeDefined();
     });
 
     it('should create a measurement with body fat calculation for male', async () => {
@@ -180,7 +180,7 @@ describe('Measurements API Integration Tests', () => {
         weightLbs: 180,
         neckCm: 38,
         waistAtNavelCm: 92,
-        timestamp: new Date('2024-01-01T10:00:00Z'),
+        recordedDate: '2024-01-01',
         notes: 'First measurement',
       };
 
@@ -188,7 +188,7 @@ describe('Measurements API Integration Tests', () => {
         weightLbs: 178,
         neckCm: 37.5,
         waistAtNavelCm: 91,
-        timestamp: new Date('2024-01-02T10:00:00Z'),
+        recordedDate: '2024-01-02',
         notes: 'Second measurement',
       };
 
@@ -238,7 +238,7 @@ describe('Measurements API Integration Tests', () => {
     });
 
     it('should filter measurements by date range', async () => {
-      const res = await app.request('/api/measurements?startDate=2024-01-01T00:00:00Z&endDate=2024-01-01T23:59:59Z', {
+      const res = await app.request('/api/measurements?startDate=2024-01-01&endDate=2024-01-01', {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

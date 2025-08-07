@@ -5,7 +5,7 @@
   import { Ruler, Save, Calculator } from 'lucide-svelte';
 
   // Form state
-  let timestamp = $state(new Date().toISOString().slice(0, 16)); // YYYY-MM-DDTHH:MM format
+  let recordedDate = $state(new Date().toISOString().slice(0, 10)); // YYYY-MM-DD format
   let weightLbs = $state<number | undefined>(undefined);
   let neckCm = $state<number | undefined>(undefined);
   let waistAtNavelCm = $state<number | undefined>(undefined);
@@ -19,8 +19,8 @@
   let error = $state<string | null>(null);
 
   // Form validation
-  let timestampTouched = $state(false);
-  let isValid = $derived(timestamp.trim().length > 0);
+  let recordedDateTouched = $state(false);
+  let isValid = $derived(recordedDate.trim().length > 0);
 
   // Computed values
   let averageWaist = $derived(() => {
@@ -31,7 +31,7 @@
 
   // Form submission
   async function handleSubmit() {
-    timestampTouched = true;
+    recordedDateTouched = true;
 
     if (!isValid) {
       error = 'Please fix the validation errors before submitting.';
@@ -50,7 +50,7 @@
       error = null;
 
       const measurementData: CreateMeasurementRequest = {
-        timestamp: new Date(timestamp),
+        recordedDate,
         weightLbs,
         neckCm,
         waistAtNavelCm,
@@ -117,24 +117,24 @@
         <div class="card bg-base-100 border-base-300 border shadow-xl">
           <div class="card-body p-4 sm:p-6 lg:p-8">
             <form onsubmit={handleSubmit} class="space-y-6">
-              <!-- Date and Time Field -->
+              <!-- Date Field -->
               <div class="form-control">
-                <label class="label" for="timestamp">
-                  <span class="label-text text-base font-medium">Date & Time</span>
+                <label class="label" for="recordedDate">
+                  <span class="label-text text-base font-medium">Date</span>
                 </label>
                 <input
-                  id="timestamp"
-                  type="datetime-local"
-                  bind:value={timestamp}
-                  onblur={() => (timestampTouched = true)}
-                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {timestampTouched && !isValid
+                  id="recordedDate"
+                  type="date"
+                  bind:value={recordedDate}
+                  onblur={() => (recordedDateTouched = true)}
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {recordedDateTouched && !isValid
                     ? 'input-error'
                     : ''}"
                   required
                 />
-                {#if timestampTouched && !isValid}
+                {#if recordedDateTouched && !isValid}
                   <div class="label">
-                    <span class="label-text-alt text-error">Date and time is required</span>
+                    <span class="label-text-alt text-error">Date is required</span>
                   </div>
                 {/if}
               </div>

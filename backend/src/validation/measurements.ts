@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const measurementValidationSchema = z.object({
   id: z.string().uuid().optional(),
   userId: z.string().uuid(),
-  timestamp: z.date(),
+  recordedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
   weightLbs: z.number().positive().optional().nullable(),
   neckCm: z.number().positive().optional().nullable(),
   waistCm: z.number().positive().optional().nullable(),
@@ -18,7 +18,7 @@ export const measurementValidationSchema = z.object({
 
 // Create measurement request schema
 export const createMeasurementSchema = z.object({
-  timestamp: z.string().datetime().transform((val) => new Date(val)).optional(),
+  recordedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
   weightLbs: z.number().positive().optional(),
   neckCm: z.number().positive().optional(),
   // Raw waist inputs - will be averaged to calculate waistCm
@@ -32,7 +32,7 @@ export const createMeasurementSchema = z.object({
 
 // Update measurement request schema
 export const updateMeasurementSchema = z.object({
-  timestamp: z.string().datetime().transform((val) => new Date(val)).optional(),
+  recordedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
   weightLbs: z.number().positive().optional(),
   neckCm: z.number().positive().optional(),
   waistAtNavelCm: z.number().positive().optional(),
@@ -45,8 +45,8 @@ export const updateMeasurementSchema = z.object({
 
 // List measurements request schema
 export const listMeasurementsSchema = z.object({
-  startDate: z.string().datetime().transform((val) => new Date(val)).optional(),
-  endDate: z.string().datetime().transform((val) => new Date(val)).optional(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
   limit: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(1).max(100)).default('50').optional(),
   offset: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(0)).default('0').optional(),
 });

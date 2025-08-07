@@ -4,7 +4,7 @@ import { users } from './users';
 export const measurements = pgTable('measurements', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  timestamp: date('timestamp').notNull(),
+  recordedDate: date('recorded_date').notNull(),
   
   // Core measurements
   weightLbs: real('weight_lbs'), // stored in pounds

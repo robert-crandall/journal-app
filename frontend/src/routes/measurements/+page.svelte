@@ -7,7 +7,6 @@
   import { Plus, Ruler, Edit3, Trash2, Eye, TrendingUp } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
-  import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state for measurements data
   let measurements: MeasurementResponse[] = $state([]);
@@ -80,7 +79,7 @@
 
   // Measurement actions
   async function deleteMeasurement(measurement: MeasurementResponse) {
-    const date = formatDateTime(measurement.timestamp, 'date-only');
+    const date = measurement.recordedDate;
     if (!confirm(`Are you sure you want to delete the measurement from ${date}? This action cannot be undone.`)) {
       return;
     }
@@ -150,10 +149,10 @@
                           <div class="text-2xl">📏</div>
                           <div class="flex-1">
                             <h3 class="text-lg font-bold">
-                              {formatDateTime(measurement.timestamp, 'date-only')}
+                              {measurement.recordedDate}
                             </h3>
                             <p class="text-base-content/60 text-sm">
-                              Recorded at {formatDateTime(measurement.timestamp, 'time-only')}
+                              Recorded on {measurement.recordedDate}
                             </p>
                           </div>
                         </div>

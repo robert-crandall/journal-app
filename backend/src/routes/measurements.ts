@@ -83,7 +83,7 @@ measurementsRouter.post('/', async (c) => {
       .insert(measurements)
       .values({
         userId,
-        timestamp: validatedData.timestamp || new Date(),
+        recordedDate: validatedData.recordedDate || new Date().toISOString().split('T')[0],
         weightLbs: validatedData.weightLbs || null,
         neckCm: validatedData.neckCm || null,
         waistCm,
@@ -99,6 +99,8 @@ measurementsRouter.post('/', async (c) => {
     // Format response with raw waist measurements
     const response: MeasurementResponse = {
       ...measurement,
+      createdAt: measurement.createdAt.toISOString(),
+      updatedAt: measurement.updatedAt.toISOString(),
       extra: measurement.extra as Record<string, number> | null,
       waistAtNavelCm: validatedData.waistAtNavelCm,
       waistAboveNavelCm: validatedData.waistAboveNavelCm,
@@ -132,11 +134,11 @@ measurementsRouter.get('/', async (c) => {
     let whereConditions = [eq(measurements.userId, userId)];
 
     if (validatedQuery.startDate) {
-      whereConditions.push(gte(measurements.timestamp, validatedQuery.startDate));
+      whereConditions.push(gte(measurements.recordedDate, validatedQuery.startDate));
     }
 
     if (validatedQuery.endDate) {
-      whereConditions.push(lte(measurements.timestamp, validatedQuery.endDate));
+      whereConditions.push(lte(measurements.recordedDate, validatedQuery.endDate));
     }
 
     const whereClause = whereConditions.length > 1 ? and(...whereConditions) : whereConditions[0];
@@ -146,7 +148,7 @@ measurementsRouter.get('/', async (c) => {
       .select()
       .from(measurements)
       .where(whereClause)
-      .orderBy(desc(measurements.timestamp))
+      .orderBy(desc(measurements.recordedDate))
       .limit(validatedQuery.limit || 50)
       .offset(validatedQuery.offset || 0);
 
@@ -161,6 +163,8 @@ measurementsRouter.get('/', async (c) => {
       const extra = measurement.extra as Record<string, number> | null;
       return {
         ...measurement,
+        createdAt: measurement.createdAt.toISOString(),
+        updatedAt: measurement.updatedAt.toISOString(),
         extra: measurement.extra as Record<string, number> | null,
         waistAtNavelCm: extra?.waist_at_navel_cm,
         waistAboveNavelCm: extra?.waist_above_navel_cm,
@@ -206,6 +210,8 @@ measurementsRouter.get('/:id', async (c) => {
 
     const response: MeasurementResponse = {
       ...measurement,
+      createdAt: measurement.createdAt.toISOString(),
+      updatedAt: measurement.updatedAt.toISOString(),
       extra: measurement.extra as Record<string, number> | null,
       waistAtNavelCm: extra?.waist_at_navel_cm,
       waistAboveNavelCm: extra?.waist_above_navel_cm,
@@ -286,7 +292,7 @@ measurementsRouter.put('/:id', async (c) => {
     const updatedMeasurement = await db
       .update(measurements)
       .set({
-        timestamp: validatedData.timestamp,
+        recordedDate: validatedData.recordedDate,
         weightLbs: validatedData.weightLbs,
         neckCm: validatedData.neckCm,
         waistCm,
@@ -304,6 +310,8 @@ measurementsRouter.put('/:id', async (c) => {
     // Format response with raw waist measurements
     const response: MeasurementResponse = {
       ...measurement,
+      createdAt: measurement.createdAt.toISOString(),
+      updatedAt: measurement.updatedAt.toISOString(),
       extra: measurement.extra as Record<string, number> | null,
       waistAtNavelCm: validatedData.waistAtNavelCm,
       waistAboveNavelCm: validatedData.waistAboveNavelCm,

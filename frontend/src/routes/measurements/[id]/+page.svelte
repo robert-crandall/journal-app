@@ -7,7 +7,6 @@
   import { Ruler, Edit3, Trash2, ArrowLeft, Calculator, Calendar } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
-  import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state
   let measurement: MeasurementResponse | null = $state(null);
@@ -82,7 +81,7 @@
   async function deleteMeasurement() {
     if (!measurement) return;
 
-    const date = formatDateTime(measurement.timestamp, 'date-only');
+    const date = measurement.recordedDate;
     if (!confirm(`Are you sure you want to delete the measurement from ${date}? This action cannot be undone.`)) {
       return;
     }
@@ -98,7 +97,7 @@
 </script>
 
 <svelte:head>
-  <title>{measurement ? `Measurement - ${formatDateTime(measurement.timestamp, 'date-only')}` : 'Measurement'} - Gamified Life</title>
+  <title>{measurement ? `Measurement - ${measurement.recordedDate}` : 'Measurement'} - Gamified Life</title>
   <meta name="description" content="View detailed body measurement information" />
 </svelte:head>
 
@@ -166,11 +165,11 @@
                   </div>
                   <div>
                     <h1 class="text-3xl font-bold">
-                      Measurement - {formatDateTime(measurement.timestamp, 'date-only')}
+                      Measurement - {measurement.recordedDate}
                     </h1>
                     <p class="text-base-content/70 flex items-center gap-2">
                       <Calendar size={16} />
-                      Recorded at {formatDateTime(measurement.timestamp, 'medium')}
+                      Recorded on {measurement.recordedDate}
                     </p>
                   </div>
                 </div>
@@ -328,11 +327,7 @@
                   <div class="space-y-3 text-sm">
                     <div class="flex justify-between">
                       <span>Recorded:</span>
-                      <span class="font-medium">{formatDateTime(measurement.timestamp, 'date-only')}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span>Time:</span>
-                      <span class="font-medium">{formatDateTime(measurement.timestamp, 'time-only')}</span>
+                      <span class="font-medium">{measurement.recordedDate}</span>
                     </div>
                     <div class="flex justify-between">
                       <span>Created:</span>

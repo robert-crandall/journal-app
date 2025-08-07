@@ -4,7 +4,7 @@
 export interface Measurement {
   id: string;
   userId: string;
-  timestamp: Date;
+  recordedDate: string; // ISO date string (YYYY-MM-DD)
   
   // Core measurements
   weightLbs: number | null; // stored in pounds
@@ -18,14 +18,14 @@ export interface Measurement {
   // Extra measurements (optional and flexible)
   extra: Record<string, number> | null; // e.g. { "waist_at_navel_cm": 93, "waist_above_navel_cm": 91, ... }
   
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface NewMeasurement {
   id?: string;
   userId: string;
-  timestamp: Date;
+  recordedDate: string; // ISO date string (YYYY-MM-DD)
   weightLbs?: number | null;
   neckCm?: number | null;
   waistCm?: number | null;
@@ -33,15 +33,15 @@ export interface NewMeasurement {
   bodyFatPercentage?: number | null;
   notes?: string | null;
   extra?: Record<string, number> | null;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // ISO string
+  updatedAt?: string; // ISO string
 }
 
 export type MeasurementUpdate = Partial<Omit<NewMeasurement, 'id' | 'userId' | 'createdAt'>>;
 
 // API request types
 export interface CreateMeasurementRequest {
-  timestamp?: Date; // Defaults to now if not provided
+  recordedDate?: string; // ISO date string (YYYY-MM-DD), defaults to today if not provided
   weightLbs?: number;
   neckCm?: number;
   // Raw waist inputs - will be averaged to calculate waistCm
@@ -54,7 +54,7 @@ export interface CreateMeasurementRequest {
 }
 
 export interface UpdateMeasurementRequest {
-  timestamp?: Date;
+  recordedDate?: string; // ISO date string (YYYY-MM-DD)
   weightLbs?: number;
   neckCm?: number;
   waistAtNavelCm?: number;
@@ -74,8 +74,8 @@ export interface MeasurementResponse extends Measurement {
 }
 
 export interface ListMeasurementsRequest {
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: string; // ISO date string (YYYY-MM-DD)
+  endDate?: string; // ISO date string (YYYY-MM-DD)
   limit?: number;
   offset?: number;
 }

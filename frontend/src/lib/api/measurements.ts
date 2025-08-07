@@ -24,10 +24,7 @@ class MeasurementsApi {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch('/api/measurements', {
         method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          timestamp: data.timestamp?.toISOString(),
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -58,8 +55,8 @@ class MeasurementsApi {
       const authenticatedFetch = createAuthenticatedFetch();
       
       const queryParams = new URLSearchParams();
-      if (params?.startDate) queryParams.set('startDate', params.startDate.toISOString());
-      if (params?.endDate) queryParams.set('endDate', params.endDate.toISOString());
+      if (params?.startDate) queryParams.set('startDate', params.startDate);
+      if (params?.endDate) queryParams.set('endDate', params.endDate);
       if (params?.limit) queryParams.set('limit', params.limit.toString());
       if (params?.offset) queryParams.set('offset', params.offset.toString());
 
@@ -115,10 +112,7 @@ class MeasurementsApi {
       const authenticatedFetch = createAuthenticatedFetch();
       const response = await authenticatedFetch(`/api/measurements/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({
-          ...data,
-          timestamp: data.timestamp?.toISOString(),
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {

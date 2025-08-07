@@ -5,7 +5,6 @@
   import { measurementsApi } from '$lib/api/measurements';
   import type { MeasurementResponse, UpdateMeasurementRequest } from '$lib/types/measurements';
   import { Ruler, Save, Calculator, ArrowLeft } from 'lucide-svelte';
-  import { parseDateTime, formatDateTime } from '$lib/utils/date';
 
   // Reactive state
   let measurement: MeasurementResponse | null = $state(null);
@@ -13,7 +12,7 @@
   let error = $state<string | null>(null);
 
   // Form state - initialized when measurement is loaded
-  let timestamp = $state('');
+  let recordedDate = $state('');
   let weightLbs = $state<number | undefined>(undefined);
   let neckCm = $state<number | undefined>(undefined);
   let waistAtNavelCm = $state<number | undefined>(undefined);
@@ -29,8 +28,8 @@
   let measurementId = $derived($page.params.id);
 
   // Form validation
-  let timestampTouched = $state(false);
-  let isValid = $derived(timestamp.trim().length > 0);
+  let recordedDateTouched = $state(false);
+  let isValid = $derived(recordedDate.trim().length > 0);
 
   // Computed values
   let averageWaist = $derived(() => {
@@ -61,7 +60,7 @@
       } else {
         measurement = result;
         // Initialize form fields
-        timestamp = formatDateTime(result.updatedAt);
+        recordedDate = result.recordedDate;
         weightLbs = result.weightLbs ?? undefined;
         neckCm = result.neckCm ?? undefined;
         waistAtNavelCm = result.waistAtNavelCm ?? undefined;
@@ -84,7 +83,7 @@
 
   // Form submission
   async function handleSubmit() {
-    timestampTouched = true;
+    recordedDateTouched = true;
 
     if (!isValid) {
       error = 'Please fix the validation errors before submitting.';
@@ -108,7 +107,7 @@
       error = null;
 
       const updateData: UpdateMeasurementRequest = {
-        timestamp: new Date(timestamp),
+        recordedDate,
         weightLbs,
         neckCm,
         waistAtNavelCm,
@@ -149,7 +148,7 @@
 </script>
 
 <svelte:head>
-  <title>{measurement ? `Edit Measurement - ${formatDateTime(measurement.timestamp, 'date-only')}` : 'Edit Measurement'} - Gamified Life</title>
+  <title>{measurement ? `Edit Measurement - ${measurement.recordedDate}` : 'Edit Measurement'} - Gamified Life</title>
   <meta name="description" content="Edit body measurement information" />
 </svelte:head>
 
@@ -214,24 +213,24 @@
           <div class="card bg-base-100 border-base-300 border shadow-xl">
             <div class="card-body p-4 sm:p-6 lg:p-8">
               <form onsubmit={handleSubmit} class="space-y-6">
-                <!-- Date and Time Field -->
+                <!-- Date Field -->
                 <div class="form-control">
-                  <label class="label" for="timestamp">
-                    <span class="label-text text-base font-medium">Date & Time</span>
+                  <label class="label" for="recordedDate">
+                    <span class="label-text text-base font-medium">Date</span>
                   </label>
                   <input
-                    id="timestamp"
-                    type="datetime-local"
-                    bind:value={timestamp}
-                    onblur={() => (timestampTouched = true)}
-                    class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {timestampTouched && !isValid
+                    id="recordedDate"
+                    type="date"
+                    bind:value={recordedDate}
+                    onblur={() => (recordedDateTouched = true)}
+                    class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {recordedDateTouched && !isValid
                       ? 'input-error'
                       : ''}"
                     required
                   />
-                  {#if timestampTouched && !isValid}
+                  {#if recordedDateTouched && !isValid}
                     <div class="label">
-                      <span class="label-text-alt text-error">Date and time is required</span>
+                      <span class="label-text-alt text-error">Date is required</span>
                     </div>
                   {/if}
                 </div>
@@ -450,7 +449,7 @@
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
                     <span>Date:</span>
-                    <span class="font-mono">{formatDateTime(measurement.timestamp, 'date-only')}</span>
+                    <span class="font-mono">{measurement.recordedDate}</span>
                   </div>
                   {#if measurement.weightLbs}
                     <div class="flex justify-between">
