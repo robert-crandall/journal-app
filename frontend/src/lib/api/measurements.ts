@@ -1,10 +1,10 @@
 import { createAuthenticatedFetch } from '../api';
-import type { 
-  MeasurementResponse, 
-  CreateMeasurementRequest, 
+import type {
+  MeasurementResponse,
+  CreateMeasurementRequest,
   UpdateMeasurementRequest,
   ListMeasurementsRequest,
-  ListMeasurementsResponse 
+  ListMeasurementsResponse,
 } from '$lib/types/measurements';
 
 interface ApiResponse<T> {
@@ -53,7 +53,7 @@ class MeasurementsApi {
   async getMeasurements(params?: ListMeasurementsRequest): Promise<ListMeasurementsResponse> {
     try {
       const authenticatedFetch = createAuthenticatedFetch();
-      
+
       const queryParams = new URLSearchParams();
       if (params?.startDate) queryParams.set('startDate', params.startDate);
       if (params?.endDate) queryParams.set('endDate', params.endDate);

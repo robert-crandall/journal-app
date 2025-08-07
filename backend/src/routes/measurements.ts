@@ -13,12 +13,7 @@ import type {
   ListMeasurementsResponse,
 } from '../../../shared/types/measurements';
 import type { Sex } from '../../../shared/types/users';
-import {
-  createMeasurementSchema,
-  updateMeasurementSchema,
-  listMeasurementsSchema,
-  measurementIdSchema,
-} from '../validation/measurements';
+import { createMeasurementSchema, updateMeasurementSchema, listMeasurementsSchema, measurementIdSchema } from '../validation/measurements';
 
 const measurementsRouter = new Hono();
 
@@ -33,7 +28,7 @@ measurementsRouter.post('/', async (c) => {
   try {
     const userId = c.get('userId') as string;
     const body = await c.req.json();
-    
+
     // Validate the request body
     const validatedData = createMeasurementSchema.parse(body) as CreateMeasurementRequest;
 
@@ -54,22 +49,12 @@ measurementsRouter.post('/', async (c) => {
     const userData = user[0];
 
     // Calculate average waist measurement
-    const waistCm = calculateAverageWaist(
-      validatedData.waistAtNavelCm,
-      validatedData.waistAboveNavelCm,
-      validatedData.waistBelowNavelCm
-    );
+    const waistCm = calculateAverageWaist(validatedData.waistAtNavelCm, validatedData.waistAboveNavelCm, validatedData.waistBelowNavelCm);
 
     // Calculate body fat percentage if we have required data
     let bodyFatPercentage: number | null = null;
     if (userData.sex && userData.heightCm && (userData.sex === 'male' || userData.sex === 'female')) {
-      bodyFatPercentage = calculateBodyFatPercentage(
-        userData.sex as Sex,
-        waistCm,
-        validatedData.neckCm || null,
-        userData.heightCm,
-        validatedData.hipCm
-      );
+      bodyFatPercentage = calculateBodyFatPercentage(userData.sex as Sex, waistCm, validatedData.neckCm || null, userData.heightCm, validatedData.hipCm);
     }
 
     // Store raw waist measurements in extra field
@@ -126,7 +111,7 @@ measurementsRouter.get('/', async (c) => {
   try {
     const userId = c.get('userId') as string;
     const query = c.req.query();
-    
+
     // Validate query parameters
     const validatedQuery = listMeasurementsSchema.parse(query) as ListMeasurementsRequest;
 
@@ -153,10 +138,7 @@ measurementsRouter.get('/', async (c) => {
       .offset(validatedQuery.offset || 0);
 
     // Get total count for pagination
-    const countResult = await db
-      .select({ count: measurements.id })
-      .from(measurements)
-      .where(whereClause);
+    const countResult = await db.select({ count: measurements.id }).from(measurements).where(whereClause);
 
     // Format response with raw waist measurements
     const measurementResponses: MeasurementResponse[] = result.map((measurement) => {
@@ -236,7 +218,7 @@ measurementsRouter.put('/:id', async (c) => {
     const userId = c.get('userId') as string;
     const { id } = measurementIdSchema.parse({ id: c.req.param('id') });
     const body = await c.req.json();
-    
+
     // Validate the request body
     const validatedData = updateMeasurementSchema.parse(body) as UpdateMeasurementRequest;
 
@@ -264,22 +246,12 @@ measurementsRouter.put('/:id', async (c) => {
     const userData = user[0];
 
     // Calculate average waist measurement
-    const waistCm = calculateAverageWaist(
-      validatedData.waistAtNavelCm,
-      validatedData.waistAboveNavelCm,
-      validatedData.waistBelowNavelCm
-    );
+    const waistCm = calculateAverageWaist(validatedData.waistAtNavelCm, validatedData.waistAboveNavelCm, validatedData.waistBelowNavelCm);
 
     // Calculate body fat percentage if we have required data
     let bodyFatPercentage: number | null = null;
     if (userData.sex && userData.heightCm && (userData.sex === 'male' || userData.sex === 'female')) {
-      bodyFatPercentage = calculateBodyFatPercentage(
-        userData.sex as Sex,
-        waistCm,
-        validatedData.neckCm || null,
-        userData.heightCm,
-        validatedData.hipCm
-      );
+      bodyFatPercentage = calculateBodyFatPercentage(userData.sex as Sex, waistCm, validatedData.neckCm || null, userData.heightCm, validatedData.hipCm);
     }
 
     // Store raw waist measurements in extra field
@@ -350,9 +322,7 @@ measurementsRouter.delete('/:id', async (c) => {
     }
 
     // Delete the measurement
-    await db
-      .delete(measurements)
-      .where(eq(measurements.id, id));
+    await db.delete(measurements).where(eq(measurements.id, id));
 
     logger.info(`Deleted measurement ${id} for user ${userId}`);
 

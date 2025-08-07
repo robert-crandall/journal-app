@@ -3,12 +3,7 @@ import appExport from '../index';
 import { getTestDb, getUniqueEmail } from './setup';
 import { eq, desc } from 'drizzle-orm';
 import { users, measurements } from '../db/schema';
-import type {
-  CreateMeasurementRequest,
-  UpdateMeasurementRequest,
-  MeasurementResponse,
-  ListMeasurementsResponse,
-} from '../../../shared/types/measurements';
+import type { CreateMeasurementRequest, UpdateMeasurementRequest, MeasurementResponse, ListMeasurementsResponse } from '../../../shared/types/measurements';
 import type { User } from '../../../shared/types/users';
 
 // Create wrapper to maintain compatibility with test expectations
@@ -66,10 +61,10 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data).toBeDefined();
-      
+
       const measurement: MeasurementResponse = responseData.data;
       expect(measurement.id).toBeDefined();
       expect(measurement.userId).toBe(testUser.id);
@@ -100,21 +95,21 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       const measurement: MeasurementResponse = responseData.data;
-      
+
       // Check averaged waist calculation: (92 + 90 + 94) / 3 = 92
       expect(measurement.waistCm).toBe(92);
       expect(measurement.neckCm).toBe(38);
       expect(measurement.bodyFatPercentage).not.toBeNull();
       expect(typeof measurement.bodyFatPercentage).toBe('number');
-      
+
       // Check raw waist measurements are preserved
       expect(measurement.waistAtNavelCm).toBe(92);
       expect(measurement.waistAboveNavelCm).toBe(90);
       expect(measurement.waistBelowNavelCm).toBe(94);
-      
+
       // Verify extra field contains raw measurements
       expect(measurement.extra).toBeDefined();
       if (measurement.extra) {
@@ -144,7 +139,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const measurement: MeasurementResponse = responseData.data;
       expect(measurement.extra).toBeDefined();
       if (measurement.extra) {
@@ -224,14 +219,14 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data).toBeDefined();
-      
+
       const data: ListMeasurementsResponse = responseData.data;
       expect(data.measurements).toHaveLength(2);
       expect(data.total).toBe(2);
-      
+
       // Should be ordered by timestamp desc (most recent first)
       expect(data.measurements[0].notes).toBe('Second measurement');
       expect(data.measurements[1].notes).toBe('First measurement');
@@ -246,7 +241,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const data: ListMeasurementsResponse = responseData.data;
       expect(data.measurements).toHaveLength(1);
       expect(data.measurements[0].notes).toBe('First measurement');
@@ -261,7 +256,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const data: ListMeasurementsResponse = responseData.data;
       expect(data.measurements).toHaveLength(1);
       expect(data.total).toBe(2);
@@ -307,7 +302,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       const fetchedMeasurement: MeasurementResponse = responseData.data;
       expect(fetchedMeasurement.id).toBe(measurement.id);
@@ -375,7 +370,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       const updatedMeasurement: MeasurementResponse = responseData.data;
       expect(updatedMeasurement.id).toBe(measurement.id);
@@ -451,7 +446,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       expect(responseData.success).toBe(true);
       expect(responseData.data.id).toBe(measurement.id);
 
@@ -525,7 +520,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const measurement: MeasurementResponse = responseData.data;
       expect(measurement.bodyFatPercentage).not.toBeNull();
       expect(typeof measurement.bodyFatPercentage).toBe('number');
@@ -549,7 +544,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const measurement: MeasurementResponse = responseData.data;
       expect(measurement.bodyFatPercentage).toBeNull();
     });
@@ -589,7 +584,7 @@ describe('Measurements API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       const responseData = await res.json();
-      
+
       const measurement: MeasurementResponse = responseData.data;
       expect(measurement.bodyFatPercentage).toBeNull();
     });

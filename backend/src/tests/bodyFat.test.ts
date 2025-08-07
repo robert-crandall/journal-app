@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  calculateBodyFatMen, 
-  calculateBodyFatWomen, 
-  calculateAverageWaist, 
-  calculateBodyFatPercentage,
-  cmToIn 
-} from '../utils/bodyFat';
+import { calculateBodyFatMen, calculateBodyFatWomen, calculateAverageWaist, calculateBodyFatPercentage, cmToIn } from '../utils/bodyFat';
 
 describe('Body Fat Calculation Utilities', () => {
   describe('cmToIn', () => {

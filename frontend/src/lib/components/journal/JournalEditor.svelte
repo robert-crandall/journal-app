@@ -143,7 +143,7 @@
 
       const savedJournal = await ensureJournalSaved();
       if (savedJournal) {
-          // Update with day rating if provided
+        // Update with day rating if provided
         if (dayRating !== null) {
           await JournalService.updateJournal(date, { dayRating });
         }

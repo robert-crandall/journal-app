@@ -123,11 +123,11 @@
   // Check if profile data has changed
   $: hasChanges =
     $authStore.user &&
-    (profileData.name !== $authStore.user.name || 
-     profileData.email !== $authStore.user.email || 
-     profileData.gptTone !== $authStore.user.gptTone ||
-     profileData.heightCm !== $authStore.user.heightCm ||
-     profileData.sex !== $authStore.user.sex);
+    (profileData.name !== $authStore.user.name ||
+      profileData.email !== $authStore.user.email ||
+      profileData.gptTone !== $authStore.user.gptTone ||
+      profileData.heightCm !== $authStore.user.heightCm ||
+      profileData.sex !== $authStore.user.sex);
 </script>
 
 <svelte:head>

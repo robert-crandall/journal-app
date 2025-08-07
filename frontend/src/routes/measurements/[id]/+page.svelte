@@ -7,7 +7,7 @@
   import { Ruler, Edit3, Trash2, ArrowLeft, Calculator, Calendar } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
-  import { formatDateTime } from '$lib/utils/date'
+  import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state
   let measurement: MeasurementResponse | null = $state(null);
@@ -180,46 +180,44 @@
             <!-- Core Measurements Card -->
             <div class="card bg-base-100 border-base-300 border shadow-xl">
               <div class="card-body p-6">
-                <h2 class="card-title text-xl mb-6">Core Measurements</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h2 class="card-title mb-6 text-xl">Core Measurements</h2>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <!-- Weight -->
                   <div class="bg-base-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="mb-2 flex items-center gap-2">
                       <span class="text-2xl">⚖️</span>
                       <h3 class="font-semibold">Weight</h3>
                     </div>
-                    <p class="text-lg font-mono">{formatWeight(measurement.weightLbs)}</p>
+                    <p class="font-mono text-lg">{formatWeight(measurement.weightLbs)}</p>
                   </div>
 
                   <!-- Neck -->
                   <div class="bg-base-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="mb-2 flex items-center gap-2">
                       <span class="text-2xl">🦢</span>
                       <h3 class="font-semibold">Neck</h3>
                     </div>
-                    <p class="text-lg font-mono">{formatMeasurement(measurement.neckCm)}</p>
+                    <p class="font-mono text-lg">{formatMeasurement(measurement.neckCm)}</p>
                   </div>
 
                   <!-- Average Waist -->
                   <div class="bg-base-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="mb-2 flex items-center gap-2">
                       <Calculator size={20} />
                       <h3 class="font-semibold">Waist (Average)</h3>
                     </div>
-                    <p class="text-lg font-mono">{formatMeasurement(measurement.waistCm)}</p>
+                    <p class="font-mono text-lg">{formatMeasurement(measurement.waistCm)}</p>
                   </div>
 
                   <!-- Body Fat -->
                   <div class="bg-base-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="mb-2 flex items-center gap-2">
                       <span class="text-2xl">📊</span>
                       <h3 class="font-semibold">Body Fat %</h3>
                     </div>
-                    <p class="text-lg font-mono">{formatBodyFat(measurement.bodyFatPercentage)}</p>
+                    <p class="font-mono text-lg">{formatBodyFat(measurement.bodyFatPercentage)}</p>
                     {#if !measurement.bodyFatPercentage}
-                      <p class="text-xs text-base-content/60 mt-1">
-                        Update your profile with height and sex for calculation
-                      </p>
+                      <p class="text-base-content/60 mt-1 text-xs">Update your profile with height and sex for calculation</p>
                     {/if}
                   </div>
                 </div>
@@ -230,34 +228,34 @@
             {#if measurement.waistAtNavelCm || measurement.waistAboveNavelCm || measurement.waistBelowNavelCm || measurement.hipCm}
               <div class="card bg-base-100 border-base-300 border shadow-xl">
                 <div class="card-body p-6">
-                  <h2 class="card-title text-xl mb-6">Detailed Measurements</h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h2 class="card-title mb-6 text-xl">Detailed Measurements</h2>
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <!-- Individual Waist Measurements -->
                     {#if measurement.waistAtNavelCm}
                       <div class="bg-base-200 rounded-lg p-4">
-                        <h3 class="font-medium text-sm text-base-content/80 mb-1">Waist at Navel</h3>
-                        <p class="text-lg font-mono">{formatMeasurement(measurement.waistAtNavelCm)}</p>
+                        <h3 class="text-base-content/80 mb-1 text-sm font-medium">Waist at Navel</h3>
+                        <p class="font-mono text-lg">{formatMeasurement(measurement.waistAtNavelCm)}</p>
                       </div>
                     {/if}
-                    
+
                     {#if measurement.waistAboveNavelCm}
                       <div class="bg-base-200 rounded-lg p-4">
-                        <h3 class="font-medium text-sm text-base-content/80 mb-1">Waist Above Navel</h3>
-                        <p class="text-lg font-mono">{formatMeasurement(measurement.waistAboveNavelCm)}</p>
+                        <h3 class="text-base-content/80 mb-1 text-sm font-medium">Waist Above Navel</h3>
+                        <p class="font-mono text-lg">{formatMeasurement(measurement.waistAboveNavelCm)}</p>
                       </div>
                     {/if}
-                    
+
                     {#if measurement.waistBelowNavelCm}
                       <div class="bg-base-200 rounded-lg p-4">
-                        <h3 class="font-medium text-sm text-base-content/80 mb-1">Waist Below Navel</h3>
-                        <p class="text-lg font-mono">{formatMeasurement(measurement.waistBelowNavelCm)}</p>
+                        <h3 class="text-base-content/80 mb-1 text-sm font-medium">Waist Below Navel</h3>
+                        <p class="font-mono text-lg">{formatMeasurement(measurement.waistBelowNavelCm)}</p>
                       </div>
                     {/if}
-                    
+
                     {#if measurement.hipCm}
                       <div class="bg-base-200 rounded-lg p-4">
-                        <h3 class="font-medium text-sm text-base-content/80 mb-1">Hip</h3>
-                        <p class="text-lg font-mono">{formatMeasurement(measurement.hipCm)}</p>
+                        <h3 class="text-base-content/80 mb-1 text-sm font-medium">Hip</h3>
+                        <p class="font-mono text-lg">{formatMeasurement(measurement.hipCm)}</p>
                       </div>
                     {/if}
                   </div>
@@ -269,7 +267,7 @@
             {#if measurement.notes}
               <div class="card bg-base-100 border-base-300 border shadow-xl">
                 <div class="card-body p-6">
-                  <h2 class="card-title text-xl mb-4">Notes</h2>
+                  <h2 class="card-title mb-4 text-xl">Notes</h2>
                   <div class="bg-base-200 rounded-lg p-4">
                     <p class="whitespace-pre-wrap">{measurement.notes}</p>
                   </div>
@@ -281,14 +279,14 @@
             {#if measurement.extra && Object.keys(measurement.extra).length > 0}
               <div class="card bg-base-100 border-base-300 border shadow-xl">
                 <div class="card-body p-6">
-                  <h2 class="card-title text-xl mb-4">Additional Measurements</h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h2 class="card-title mb-4 text-xl">Additional Measurements</h2>
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {#each Object.entries(measurement.extra) as [key, value]}
                       <div class="bg-base-200 rounded-lg p-4">
-                        <h3 class="font-medium text-sm text-base-content/80 mb-1 capitalize">
+                        <h3 class="text-base-content/80 mb-1 text-sm font-medium capitalize">
                           {key.replace(/_/g, ' ')}
                         </h3>
-                        <p class="text-lg font-mono">{value.toFixed(1)} cm</p>
+                        <p class="font-mono text-lg">{value.toFixed(1)} cm</p>
                       </div>
                     {/each}
                   </div>
@@ -303,7 +301,7 @@
               <!-- Quick Actions Card -->
               <div class="card bg-base-100 border-base-300 border shadow-xl">
                 <div class="card-body p-6">
-                  <h3 class="card-title text-lg mb-4">Quick Actions</h3>
+                  <h3 class="card-title mb-4 text-lg">Quick Actions</h3>
                   <div class="space-y-3">
                     <button onclick={editMeasurement} class="btn btn-primary w-full gap-2">
                       <Edit3 size={16} />
@@ -351,15 +349,13 @@
                     <h3 class="text-accent mb-4 font-semibold">Body Fat Analysis</h3>
                     <div class="space-y-3 text-sm">
                       <div class="text-center">
-                        <div class="text-2xl font-bold text-accent">{formatBodyFat(measurement.bodyFatPercentage)}</div>
+                        <div class="text-accent text-2xl font-bold">{formatBodyFat(measurement.bodyFatPercentage)}</div>
                       </div>
                       <div class="text-center">
-                        <p class="text-xs text-base-content/60">
-                          Calculated using U.S. Navy method
-                        </p>
+                        <p class="text-base-content/60 text-xs">Calculated using U.S. Navy method</p>
                       </div>
                       <div class="bg-base-200 rounded-lg p-3">
-                        <p class="text-xs text-base-content/70">
+                        <p class="text-base-content/70 text-xs">
                           This calculation uses your weight, waist, neck, and height measurements along with your biological sex.
                         </p>
                       </div>

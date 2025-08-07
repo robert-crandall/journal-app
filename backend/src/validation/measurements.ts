@@ -18,7 +18,10 @@ export const measurementValidationSchema = z.object({
 
 // Create measurement request schema
 export const createMeasurementSchema = z.object({
-  recordedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
+  recordedDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(), // YYYY-MM-DD format
   weightLbs: z.number().positive().optional(),
   neckCm: z.number().positive().optional(),
   // Raw waist inputs - will be averaged to calculate waistCm
@@ -32,7 +35,10 @@ export const createMeasurementSchema = z.object({
 
 // Update measurement request schema
 export const updateMeasurementSchema = z.object({
-  recordedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
+  recordedDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(), // YYYY-MM-DD format
   weightLbs: z.number().positive().optional(),
   neckCm: z.number().positive().optional(),
   waistAtNavelCm: z.number().positive().optional(),
@@ -45,10 +51,26 @@ export const updateMeasurementSchema = z.object({
 
 // List measurements request schema
 export const listMeasurementsSchema = z.object({
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), // YYYY-MM-DD format
-  limit: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(1).max(100)).default('50').optional(),
-  offset: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(0)).default('0').optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(), // YYYY-MM-DD format
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(), // YYYY-MM-DD format
+  limit: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().min(1).max(100))
+    .default('50')
+    .optional(),
+  offset: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().min(0))
+    .default('0')
+    .optional(),
 });
 
 // Measurement ID schema

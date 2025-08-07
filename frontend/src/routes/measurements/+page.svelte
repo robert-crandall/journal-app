@@ -33,7 +33,7 @@
         limit: itemsPerPage,
         offset: currentPage * itemsPerPage,
       });
-      
+
       measurements = result.measurements;
       totalCount = result.total;
     } catch (err) {
@@ -137,9 +137,7 @@
           <!-- Measurements Section -->
           {#if measurements.length > 0}
             <section>
-              <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">
-                Recent Measurements
-              </h2>
+              <h2 class="text-primary border-primary/20 mb-6 border-b pb-2 text-2xl font-semibold">Recent Measurements</h2>
               <div class="space-y-4">
                 {#each measurements as measurement (measurement.id)}
                   <div class="card bg-base-100 border-base-300 border shadow-xl transition-all duration-200 hover:shadow-2xl">
@@ -159,28 +157,28 @@
                       </div>
 
                       <!-- Measurement Data Grid -->
-                      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div class="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                         <!-- Weight -->
-                        <div class="text-center p-3 bg-base-200 rounded-lg">
-                          <p class="text-xs text-base-content/60 mb-1">Weight</p>
+                        <div class="bg-base-200 rounded-lg p-3 text-center">
+                          <p class="text-base-content/60 mb-1 text-xs">Weight</p>
                           <p class="font-semibold">{formatWeight(measurement.weightLbs)}</p>
                         </div>
 
                         <!-- Waist -->
-                        <div class="text-center p-3 bg-base-200 rounded-lg">
-                          <p class="text-xs text-base-content/60 mb-1">Waist (Avg)</p>
+                        <div class="bg-base-200 rounded-lg p-3 text-center">
+                          <p class="text-base-content/60 mb-1 text-xs">Waist (Avg)</p>
                           <p class="font-semibold">{formatMeasurement(measurement.waistCm)}</p>
                         </div>
 
                         <!-- Neck -->
-                        <div class="text-center p-3 bg-base-200 rounded-lg">
-                          <p class="text-xs text-base-content/60 mb-1">Neck</p>
+                        <div class="bg-base-200 rounded-lg p-3 text-center">
+                          <p class="text-base-content/60 mb-1 text-xs">Neck</p>
                           <p class="font-semibold">{formatMeasurement(measurement.neckCm)}</p>
                         </div>
 
                         <!-- Body Fat -->
-                        <div class="text-center p-3 bg-base-200 rounded-lg">
-                          <p class="text-xs text-base-content/60 mb-1">Body Fat</p>
+                        <div class="bg-base-200 rounded-lg p-3 text-center">
+                          <p class="text-base-content/60 mb-1 text-xs">Body Fat</p>
                           <p class="font-semibold">{formatBodyFat(measurement.bodyFatPercentage)}</p>
                         </div>
                       </div>
@@ -188,26 +186,30 @@
                       <!-- Additional measurements if available -->
                       {#if measurement.hipCm || measurement.waistAtNavelCm || measurement.waistAboveNavelCm || measurement.waistBelowNavelCm}
                         <div class="mb-4">
-                          <p class="text-sm font-medium text-base-content/80 mb-2">Additional Measurements:</p>
-                          <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                          <p class="text-base-content/80 mb-2 text-sm font-medium">Additional Measurements:</p>
+                          <div class="grid grid-cols-2 gap-2 text-sm md:grid-cols-3">
                             {#if measurement.hipCm}
                               <div class="bg-base-200 rounded px-2 py-1">
-                                <span class="text-base-content/60">Hip:</span> {formatMeasurement(measurement.hipCm)}
+                                <span class="text-base-content/60">Hip:</span>
+                                {formatMeasurement(measurement.hipCm)}
                               </div>
                             {/if}
                             {#if measurement.waistAtNavelCm}
                               <div class="bg-base-200 rounded px-2 py-1">
-                                <span class="text-base-content/60">Waist @ Navel:</span> {formatMeasurement(measurement.waistAtNavelCm)}
+                                <span class="text-base-content/60">Waist @ Navel:</span>
+                                {formatMeasurement(measurement.waistAtNavelCm)}
                               </div>
                             {/if}
                             {#if measurement.waistAboveNavelCm}
                               <div class="bg-base-200 rounded px-2 py-1">
-                                <span class="text-base-content/60">Waist Above:</span> {formatMeasurement(measurement.waistAboveNavelCm)}
+                                <span class="text-base-content/60">Waist Above:</span>
+                                {formatMeasurement(measurement.waistAboveNavelCm)}
                               </div>
                             {/if}
                             {#if measurement.waistBelowNavelCm}
                               <div class="bg-base-200 rounded px-2 py-1">
-                                <span class="text-base-content/60">Waist Below:</span> {formatMeasurement(measurement.waistBelowNavelCm)}
+                                <span class="text-base-content/60">Waist Below:</span>
+                                {formatMeasurement(measurement.waistBelowNavelCm)}
                               </div>
                             {/if}
                           </div>
@@ -217,8 +219,8 @@
                       <!-- Notes -->
                       {#if measurement.notes}
                         <div class="mb-4">
-                          <p class="text-sm font-medium text-base-content/80 mb-1">Notes:</p>
-                          <p class="text-sm text-base-content/70 bg-base-200 rounded p-2">{measurement.notes}</p>
+                          <p class="text-base-content/80 mb-1 text-sm font-medium">Notes:</p>
+                          <p class="text-base-content/70 bg-base-200 rounded p-2 text-sm">{measurement.notes}</p>
                         </div>
                       {/if}
 
@@ -232,7 +234,10 @@
                           <Edit3 size={14} />
                           Edit
                         </button>
-                        <button class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content gap-1" onclick={() => deleteMeasurement(measurement)}>
+                        <button
+                          class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content gap-1"
+                          onclick={() => deleteMeasurement(measurement)}
+                        >
                           <Trash2 size={14} />
                           Delete
                         </button>
@@ -244,29 +249,15 @@
 
               <!-- Pagination -->
               {#if totalPages > 1}
-                <div class="flex justify-center mt-8">
+                <div class="mt-8 flex justify-center">
                   <div class="join">
-                    <button 
-                      class="join-item btn btn-sm" 
-                      class:btn-disabled={currentPage === 0}
-                      onclick={() => changePage(currentPage - 1)}
-                    >
-                      Previous
-                    </button>
+                    <button class="join-item btn btn-sm" class:btn-disabled={currentPage === 0} onclick={() => changePage(currentPage - 1)}> Previous </button>
                     {#each Array(totalPages).fill(0) as _, i}
-                      <button 
-                        class="join-item btn btn-sm"
-                        class:btn-active={i === currentPage}
-                        onclick={() => changePage(i)}
-                      >
+                      <button class="join-item btn btn-sm" class:btn-active={i === currentPage} onclick={() => changePage(i)}>
                         {i + 1}
                       </button>
                     {/each}
-                    <button 
-                      class="join-item btn btn-sm" 
-                      class:btn-disabled={currentPage === totalPages - 1}
-                      onclick={() => changePage(currentPage + 1)}
-                    >
+                    <button class="join-item btn btn-sm" class:btn-disabled={currentPage === totalPages - 1} onclick={() => changePage(currentPage + 1)}>
                       Next
                     </button>
                   </div>
@@ -284,9 +275,7 @@
                     </div>
                   </div>
                   <h3 class="mb-2 text-xl font-semibold">No Measurements Yet</h3>
-                  <p class="text-base-content/60 mb-6">
-                    Start tracking your body measurements to monitor your fitness progress over time.
-                  </p>
+                  <p class="text-base-content/60 mb-6">Start tracking your body measurements to monitor your fitness progress over time.</p>
                   <button onclick={createMeasurement} class="btn btn-primary btn-lg gap-2">
                     <Plus size={20} />
                     Record Your First Measurement

@@ -127,7 +127,8 @@
                   type="date"
                   bind:value={recordedDate}
                   onblur={() => (recordedDateTouched = true)}
-                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {recordedDateTouched && !isValid
+                  class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02] {recordedDateTouched &&
+                  !isValid
                     ? 'input-error'
                     : ''}"
                   required
@@ -185,8 +186,8 @@
 
               <!-- Waist Measurements Section -->
               <div class="space-y-4">
-                <h3 class="text-lg font-medium text-base-content">Waist Measurements (cm)</h3>
-                <div class="bg-base-200 rounded-lg p-4 space-y-4">
+                <h3 class="text-base-content text-lg font-medium">Waist Measurements (cm)</h3>
+                <div class="bg-base-200 space-y-4 rounded-lg p-4">
                   <!-- Waist at Navel -->
                   <div class="form-control">
                     <label class="label" for="waist-navel">
@@ -255,11 +256,11 @@
 
                   <!-- Average Display -->
                   {#if averageWaist()}
-                    <div class="bg-primary/10 border-primary/20 border rounded-lg p-3 mt-4">
+                    <div class="bg-primary/10 border-primary/20 mt-4 rounded-lg border p-3">
                       <div class="flex items-center gap-2">
                         <Calculator size={16} class="text-primary" />
-                        <span class="font-medium text-primary">Average Waist: {averageWaist()?.toFixed(1)} cm</span>
-                        <span class="text-sm text-base-content/60">(≈ {cmToInches(averageWaist()!)} inches)</span>
+                        <span class="text-primary font-medium">Average Waist: {averageWaist()?.toFixed(1)} cm</span>
+                        <span class="text-base-content/60 text-sm">(≈ {cmToInches(averageWaist()!)} inches)</span>
                       </div>
                     </div>
                   {/if}
@@ -373,10 +374,10 @@
               <h3 class="card-title text-secondary mb-4 flex items-center gap-2 text-xl">🧮 Body Fat Calculation</h3>
               <div class="space-y-3 text-sm">
                 <p class="text-base-content/70">Body fat percentage is calculated using the U.S. Navy method when sufficient data is available.</p>
-                
+
                 <div class="bg-base-200 rounded-lg p-3">
-                  <div class="font-medium mb-2">Required for calculation:</div>
-                  <ul class="text-xs space-y-1 text-base-content/60">
+                  <div class="mb-2 font-medium">Required for calculation:</div>
+                  <ul class="text-base-content/60 space-y-1 text-xs">
                     <li>• Weight (lbs)</li>
                     <li>• Waist measurement (cm)</li>
                     <li>• Neck measurement (cm)</li>
@@ -385,8 +386,8 @@
                     <li>• Hip (cm) - for females only</li>
                   </ul>
                 </div>
-                
-                <p class="text-xs text-base-content/60">Update your profile with height and sex for accurate body fat calculations.</p>
+
+                <p class="text-base-content/60 text-xs">Update your profile with height and sex for accurate body fat calculations.</p>
               </div>
             </div>
           </div>
@@ -397,12 +398,12 @@
               <h3 class="card-title text-accent mb-4 flex items-center gap-2 text-xl">📐 Unit Conversions</h3>
               <div class="space-y-3 text-sm">
                 <div class="bg-base-200 rounded-lg p-3">
-                  <div class="font-medium text-xs text-base-content/60 mb-1">Weight</div>
+                  <div class="text-base-content/60 mb-1 text-xs font-medium">Weight</div>
                   <div>1 lb = 0.45 kg</div>
                   <div>1 kg = 2.2 lbs</div>
                 </div>
                 <div class="bg-base-200 rounded-lg p-3">
-                  <div class="font-medium text-xs text-base-content/60 mb-1">Length</div>
+                  <div class="text-base-content/60 mb-1 text-xs font-medium">Length</div>
                   <div>1 cm = 0.39 inches</div>
                   <div>1 inch = 2.54 cm</div>
                 </div>

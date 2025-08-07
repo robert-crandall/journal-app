@@ -9,26 +9,16 @@ export const inToCm = (inches: number): number => inches * 2.54;
 /**
  * Calculate body fat percentage for men using U.S. Navy method
  * @param waistCm Waist measurement in centimeters
- * @param neckCm Neck measurement in centimeters  
+ * @param neckCm Neck measurement in centimeters
  * @param heightCm Height measurement in centimeters
  * @returns Body fat percentage (0-100)
  */
-export const calculateBodyFatMen = (
-  waistCm: number,
-  neckCm: number,
-  heightCm: number
-): number => {
+export const calculateBodyFatMen = (waistCm: number, neckCm: number, heightCm: number): number => {
   const waistIn = cmToIn(waistCm);
   const neckIn = cmToIn(neckCm);
   const heightIn = cmToIn(heightCm);
 
-  return (
-    495 /
-      (1.0324 -
-        0.19077 * Math.log10(waistIn - neckIn) +
-        0.15456 * Math.log10(heightIn)) -
-    450
-  );
+  return 495 / (1.0324 - 0.19077 * Math.log10(waistIn - neckIn) + 0.15456 * Math.log10(heightIn)) - 450;
 };
 
 /**
@@ -39,24 +29,13 @@ export const calculateBodyFatMen = (
  * @param heightCm Height measurement in centimeters
  * @returns Body fat percentage (0-100)
  */
-export const calculateBodyFatWomen = (
-  waistCm: number,
-  neckCm: number,
-  hipCm: number,
-  heightCm: number
-): number => {
+export const calculateBodyFatWomen = (waistCm: number, neckCm: number, hipCm: number, heightCm: number): number => {
   const waistIn = cmToIn(waistCm);
   const neckIn = cmToIn(neckCm);
   const hipIn = cmToIn(hipCm);
   const heightIn = cmToIn(heightCm);
 
-  return (
-    495 /
-      (1.29579 -
-        0.35004 * Math.log10(waistIn + hipIn - neckIn) +
-        0.22100 * Math.log10(heightIn)) -
-    450
-  );
+  return 495 / (1.29579 - 0.35004 * Math.log10(waistIn + hipIn - neckIn) + 0.221 * Math.log10(heightIn)) - 450;
 };
 
 /**
@@ -66,13 +45,9 @@ export const calculateBodyFatWomen = (
  * @param waistBelowNavelCm Waist below navel measurement
  * @returns Average waist measurement in centimeters
  */
-export const calculateAverageWaist = (
-  waistAtNavelCm?: number | null,
-  waistAboveNavelCm?: number | null,
-  waistBelowNavelCm?: number | null
-): number | null => {
+export const calculateAverageWaist = (waistAtNavelCm?: number | null, waistAboveNavelCm?: number | null, waistBelowNavelCm?: number | null): number | null => {
   const validMeasurements = [waistAtNavelCm, waistAboveNavelCm, waistBelowNavelCm].filter(
-    (measurement): measurement is number => measurement !== null && measurement !== undefined
+    (measurement): measurement is number => measurement !== null && measurement !== undefined,
   );
 
   if (validMeasurements.length === 0) {
@@ -96,7 +71,7 @@ export const calculateBodyFatPercentage = (
   waistCm: number | null,
   neckCm: number | null,
   heightCm: number | null,
-  hipCm?: number | null
+  hipCm?: number | null,
 ): number | null => {
   // Check if we have required measurements
   if (!waistCm || !neckCm || !heightCm) {

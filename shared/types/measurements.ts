@@ -5,19 +5,19 @@ export interface Measurement {
   id: string;
   userId: string;
   recordedDate: string; // ISO date string (YYYY-MM-DD)
-  
+
   // Core measurements
   weightLbs: number | null; // stored in pounds
   neckCm: number | null;
   waistCm: number | null; // averaged from other waist fields
   hipCm: number | null; // optional, needed for female formulas
-  
+
   bodyFatPercentage: number | null; // calculated at time of entry
   notes: string | null;
-  
+
   // Extra measurements (optional and flexible)
   extra: Record<string, number> | null; // e.g. { "waist_at_navel_cm": 93, "waist_above_navel_cm": 91, ... }
-  
+
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }
