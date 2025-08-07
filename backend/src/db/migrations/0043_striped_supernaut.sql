@@ -1,7 +1,7 @@
 CREATE TABLE "measurements" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"timestamp" date NOT NULL,
+	"recorded_date" date NOT NULL,
 	"weight_lbs" real,
 	"neck_cm" real,
 	"waist_cm" real,

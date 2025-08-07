@@ -1,5 +1,5 @@
 {
-  "id": "26dadc83-922c-4ecc-89e8-6ba40c98e0fc",
+  "id": "46382e5c-1fab-4d32-a0ca-afc008aca38f",
   "prevId": "b8771f84-6063-4d25-921f-c3bcb9f16cee",
   "version": "7",
   "dialect": "postgresql",
@@ -2488,8 +2488,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "timestamp": {
-          "name": "timestamp",
+        "recorded_date": {
+          "name": "recorded_date",
           "type": "date",
           "primaryKey": false,
           "notNull": true
