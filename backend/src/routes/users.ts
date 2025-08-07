@@ -150,6 +150,8 @@ const app = new Hono()
           email: users.email,
           avatar: users.avatar,
           gptTone: users.gptTone,
+          heightCm: users.heightCm,
+          sex: users.sex,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         })

@@ -1,10 +1,10 @@
-import { pgTable, uuid, varchar, timestamp, real, text, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, date, real, text, jsonb } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 export const measurements = pgTable('measurements', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  timestamp: timestamp('timestamp', { withTimezone: true }).notNull(),
+  timestamp: date('timestamp').notNull(),
   
   // Core measurements
   weightLbs: real('weight_lbs'), // stored in pounds

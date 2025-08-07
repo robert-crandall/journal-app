@@ -8,6 +8,8 @@ export interface ApiUser {
   email: string;
   avatar: string | null;
   gptTone: string;
+  heightCm: number | null;
+  sex: string | null;
   createdAt: string;
   updatedAt: string;
 }

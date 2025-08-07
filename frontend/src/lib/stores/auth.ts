@@ -8,7 +8,10 @@ export interface User {
   email: string;
   avatar: string | null;
   gptTone: string;
+  heightCm: number | null;
+  sex: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 // Authentication store state

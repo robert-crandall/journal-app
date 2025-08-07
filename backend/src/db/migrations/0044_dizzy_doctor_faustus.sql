@@ -1,0 +1,1 @@
+ALTER TABLE "measurements" ALTER COLUMN "timestamp" SET DATA TYPE date;

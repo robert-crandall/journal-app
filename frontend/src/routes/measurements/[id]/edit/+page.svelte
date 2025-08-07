@@ -5,7 +5,7 @@
   import { measurementsApi } from '$lib/api/measurements';
   import type { MeasurementResponse, UpdateMeasurementRequest } from '$lib/types/measurements';
   import { Ruler, Save, Calculator, ArrowLeft } from 'lucide-svelte';
-  import { formatDateTime } from '$lib/utils/date';
+  import { parseDateTime, formatDateTime } from '$lib/utils/date';
 
   // Reactive state
   let measurement: MeasurementResponse | null = $state(null);
@@ -61,7 +61,7 @@
       } else {
         measurement = result;
         // Initialize form fields
-        timestamp = result.timestamp.toISOString().slice(0, 16);
+        timestamp = formatDateTime(result.updatedAt);
         weightLbs = result.weightLbs ?? undefined;
         neckCm = result.neckCm ?? undefined;
         waistAtNavelCm = result.waistAtNavelCm ?? undefined;

@@ -338,7 +338,7 @@
                       <span>Created:</span>
                       <span class="font-medium">{formatDateTime(measurement.createdAt, 'date-only')}</span>
                     </div>
-                    {#if measurement.updatedAt.getTime() !== measurement.createdAt.getTime()}
+                    {#if measurement.updatedAt !== measurement.createdAt}
                       <div class="flex justify-between">
                         <span>Updated:</span>
                         <span class="font-medium">{formatDateTime(measurement.updatedAt, 'date-only')}</span>
