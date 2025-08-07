@@ -306,15 +306,8 @@
     {
       "idx": 43,
       "version": "7",
-      "when": 1754582182958,
-      "tag": "0043_luxuriant_captain_britain",
-      "breakpoints": true
-    },
-    {
-      "idx": 44,
-      "version": "7",
-      "when": 1754607122426,
-      "tag": "0044_dizzy_doctor_faustus",
+      "when": 1754607415269,
+      "tag": "0043_unknown_lionheart",
       "breakpoints": true
     }
   ]
