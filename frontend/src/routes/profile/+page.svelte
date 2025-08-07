@@ -3,13 +3,15 @@
   import { authStore } from '$lib/stores/auth';
   import { usersApi } from '$lib/api/users';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
-  import { GPT_TONES, type GptTone } from '../../../../shared/types/users';
+  import { GPT_TONES, SEX_VALUES, type GptTone, type Sex } from '../../../../shared/types/users';
 
   let profileData = {
     name: '',
     email: '',
     avatar: null as string | null,
     gptTone: 'friendly' as GptTone,
+    heightCm: null as number | null,
+    sex: null as Sex | null,
   };
 
   let loading = false;
@@ -26,6 +28,8 @@
         email: user.email,
         avatar: user.avatar,
         gptTone: (user.gptTone as GptTone) || 'friendly',
+        heightCm: user.heightCm,
+        sex: user.sex as Sex | null,
       };
     }
   });
@@ -43,6 +47,8 @@
         email: profileData.email,
         avatar: profileData.avatar || undefined,
         gptTone: profileData.gptTone,
+        heightCm: profileData.heightCm || undefined,
+        sex: profileData.sex || undefined,
       });
 
       // Update the auth store with new user data
@@ -117,7 +123,11 @@
   // Check if profile data has changed
   $: hasChanges =
     $authStore.user &&
-    (profileData.name !== $authStore.user.name || profileData.email !== $authStore.user.email || profileData.gptTone !== $authStore.user.gptTone);
+    (profileData.name !== $authStore.user.name || 
+     profileData.email !== $authStore.user.email || 
+     profileData.gptTone !== $authStore.user.gptTone ||
+     profileData.heightCm !== $authStore.user.heightCm ||
+     profileData.sex !== $authStore.user.sex);
 </script>
 
 <svelte:head>
@@ -178,6 +188,56 @@
             required
             disabled={saving}
           />
+        </div>
+
+        <!-- Physical Information Section -->
+        <div class="divider">
+          <span class="text-base-content/70 text-sm">Physical Information (for body fat calculations)</span>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Height Field -->
+          <div class="form-control">
+            <label class="label" for="height">
+              <span class="label-text font-medium">Height (cm)</span>
+            </label>
+            <input
+              id="height"
+              type="number"
+              bind:value={profileData.heightCm}
+              class="input input-bordered input-lg focus:input-primary w-full transition-all duration-200 focus:scale-[1.02]"
+              placeholder="e.g., 175"
+              min="100"
+              max="300"
+              disabled={saving}
+            />
+            <label class="label">
+              <span class="label-text-alt text-xs opacity-60">Optional - used for body fat calculations</span>
+            </label>
+          </div>
+
+          <!-- Sex Field -->
+          <div class="form-control">
+            <label class="label" for="sex">
+              <span class="label-text font-medium">Sex</span>
+            </label>
+            <select
+              id="sex"
+              bind:value={profileData.sex}
+              class="select select-bordered select-lg focus:select-primary w-full transition-all duration-200 focus:scale-[1.02]"
+              disabled={saving}
+            >
+              <option value={null}>Not specified</option>
+              {#each SEX_VALUES as sex}
+                <option value={sex}>
+                  {sex.charAt(0).toUpperCase() + sex.slice(1)}
+                </option>
+              {/each}
+            </select>
+            <label class="label">
+              <span class="label-text-alt text-xs opacity-60">Optional - used for body fat calculations</span>
+            </label>
+          </div>
         </div>
 
         <!-- GPT Tone Selection -->

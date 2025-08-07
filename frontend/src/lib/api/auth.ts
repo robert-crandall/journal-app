@@ -20,7 +20,10 @@ export const authApi = {
       email: string;
       avatar: string | null;
       gptTone: string;
+      heightCm: number | null;
+      sex: string | null;
       createdAt: string;
+      updatedAt: string;
     };
     token: string;
   }> {
@@ -44,7 +47,10 @@ export const authApi = {
         email: string;
         avatar: string | null;
         gptTone: string;
+        heightCm: number | null;
+        sex: string | null;
         createdAt: string;
+        updatedAt: string;
       };
       token: string;
     };
@@ -58,7 +64,10 @@ export const authApi = {
       email: string;
       avatar: string | null;
       gptTone: string;
+      heightCm: number | null;
+      sex: string | null;
       createdAt: string;
+      updatedAt: string;
     };
     token: string;
   }> {
@@ -82,7 +91,10 @@ export const authApi = {
         email: string;
         avatar: string | null;
         gptTone: string;
+        heightCm: number | null;
+        sex: string | null;
         createdAt: string;
+        updatedAt: string;
       };
       token: string;
     };

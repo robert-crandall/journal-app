@@ -80,7 +80,10 @@ export async function initializeAuth(): Promise<void> {
           email: result.data.email,
           avatar: result.data.avatar,
           gptTone: result.data.gptTone || 'friendly',
+          heightCm: result.data.heightCm || null,
+          sex: result.data.sex || null,
           createdAt: result.data.createdAt,
+          updatedAt: result.data.updatedAt,
         };
 
         // Set user in auth store with complete profile
@@ -97,7 +100,10 @@ export async function initializeAuth(): Promise<void> {
       email: payload.email,
       avatar: null,
       gptTone: 'friendly', // Default fallback
+      heightCm: null, // Default fallback
+      sex: null, // Default fallback
       createdAt: new Date(payload.iat * 1000).toISOString(),
+      updatedAt: new Date(payload.iat * 1000).toISOString(),
     };
 
     authStore.setAuth(user, token);
@@ -111,7 +117,10 @@ export async function initializeAuth(): Promise<void> {
       email: payload.email,
       avatar: null,
       gptTone: 'friendly', // Default fallback
+      heightCm: null, // Default fallback
+      sex: null, // Default fallback
       createdAt: new Date(payload.iat * 1000).toISOString(),
+      updatedAt: new Date(payload.iat * 1000).toISOString(),
     };
 
     authStore.setAuth(user, token);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createAvatarSchema } from '../utils/avatar';
-import { GPT_TONES } from '../../../shared/types/users';
+import { GPT_TONES, SEX_VALUES } from '../../../shared/types/users';
 
 // Base user validation schema
 export const userValidationSchema = z.object({
@@ -8,6 +8,8 @@ export const userValidationSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   gptTone: z.enum(GPT_TONES).optional().default('friendly'),
+  heightCm: z.number().positive().optional(),
+  sex: z.enum(SEX_VALUES).optional(),
   ...createAvatarSchema(),
 });
 
@@ -20,6 +22,10 @@ export const registerSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 
   gptTone: z.enum(GPT_TONES).optional().default('friendly'),
+
+  heightCm: z.number().positive().optional(),
+
+  sex: z.enum(SEX_VALUES).optional(),
 
   ...createAvatarSchema(),
 });

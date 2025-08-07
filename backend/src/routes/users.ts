@@ -48,6 +48,8 @@ const app = new Hono()
           password: hashedPassword,
           avatar: data.avatar || null,
           gptTone: data.gptTone || 'friendly',
+          heightCm: data.heightCm || null,
+          sex: data.sex || null,
         })
         .returning({
           id: users.id,
@@ -55,6 +57,8 @@ const app = new Hono()
           email: users.email,
           avatar: users.avatar,
           gptTone: users.gptTone,
+          heightCm: users.heightCm,
+          sex: users.sex,
           createdAt: users.createdAt,
         });
 
@@ -146,6 +150,8 @@ const app = new Hono()
           email: users.email,
           avatar: users.avatar,
           gptTone: users.gptTone,
+          heightCm: users.heightCm,
+          sex: users.sex,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         })
@@ -205,6 +211,8 @@ const app = new Hono()
           email: users.email,
           avatar: users.avatar,
           gptTone: users.gptTone,
+          heightCm: users.heightCm,
+          sex: users.sex,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         });

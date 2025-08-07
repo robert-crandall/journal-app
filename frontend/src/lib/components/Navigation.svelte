@@ -238,6 +238,22 @@
               </a>
             </li>
             <li>
+              <a href="/measurements" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg
+                >
+                Measurements
+              </a>
+            </li>
+            <li>
               <a href="/profile" class="text-base-content" on:click={closeDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,6 +327,22 @@
                   class="h-4 w-4"><circle cx="12" cy="12" r="3" /><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" /></svg
                 >
                 Focus
+              </a>
+            </li>
+            <li>
+              <a href="/measurements" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg
+                >
+                Measurements
               </a>
             </li>
             <div class="divider my-2"></div>
