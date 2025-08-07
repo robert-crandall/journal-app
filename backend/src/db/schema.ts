@@ -26,9 +26,16 @@ export {
 } from '../validation/quests';
 export { getWeatherSchema, weatherResponseSchema, openWeatherMapResponseSchema } from '../validation/weather';
 export { generateMetricsSchema, listMetricSummariesSchema, metricSummaryIdSchema } from '../validation/metric-summaries';
+export {
+  createMeasurementSchema,
+  updateMeasurementSchema,
+  listMeasurementsSchema,
+  measurementIdSchema,
+  updateUserWithMeasurementFieldsSchema,
+} from '../validation/measurements';
 
 // Re-export types for backward compatibility
-export type { User, NewUser, PublicUser } from '../../../shared/types/users';
+export type { User, NewUser, PublicUser, Sex } from '../../../shared/types/users';
 export type { Goal, CreateGoal, UpdateGoal, GoalWithParsedTags, GoalWithTags, CreateGoalWithTags, UpdateGoalWithTags } from '../../../shared/types/goals';
 export type { Tag, CreateTag, UpdateTag, GoalTag, CreateGoalTag, TagWithCount, CreateTagWithName } from '../../../shared/types/tags';
 export type {
@@ -118,3 +125,13 @@ export type {
   ListMetricSummariesResponse,
   GenerateMetricsRequest,
 } from '../../../shared/types/metric-summaries';
+export type {
+  Measurement,
+  NewMeasurement,
+  MeasurementUpdate,
+  CreateMeasurementRequest,
+  UpdateMeasurementRequest,
+  MeasurementResponse,
+  ListMeasurementsRequest,
+  ListMeasurementsResponse,
+} from '../../../shared/types/measurements';

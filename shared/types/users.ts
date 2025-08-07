@@ -5,6 +5,10 @@
 export const GPT_TONES = ['friendly', 'motivational', 'funny', 'serious', 'minimal', 'wholesome'] as const;
 export type GptTone = (typeof GPT_TONES)[number];
 
+// Allowed sex values for body fat calculations
+export const SEX_VALUES = ['male', 'female'] as const;
+export type Sex = (typeof SEX_VALUES)[number];
+
 export interface User {
   id: string;
   email: string;
@@ -12,6 +16,8 @@ export interface User {
   password: string;
   avatar: string | null;
   gptTone: GptTone;
+  heightCm: number | null; // Optional, used for body fat calculations only
+  sex: Sex | null; // Optional, used for body fat calculations only
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +29,8 @@ export interface NewUser {
   password: string;
   avatar?: string | null;
   gptTone?: GptTone;
+  heightCm?: number | null;
+  sex?: Sex | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -38,6 +46,8 @@ export interface UpdateUserRequest {
   email?: string;
   avatar?: string; // Base64 encoded image
   gptTone?: GptTone;
+  heightCm?: number;
+  sex?: Sex;
 }
 
 export interface UpdateUserAvatarRequest {

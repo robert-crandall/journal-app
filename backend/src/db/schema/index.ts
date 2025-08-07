@@ -18,6 +18,7 @@ export * from './metric-summaries';
 export * from './user-attributes';
 export * from './goal-alignment-summaries';
 export * from './weekly-analyses';
+export * from './measurements';
 // Future exports:
 // export * from './posts';
 // export * from './comments';
