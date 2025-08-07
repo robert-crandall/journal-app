@@ -9,4 +9,5 @@ export { generateTasksApi } from './generate-tasks';
 export { metricSummariesApi } from './metric-summaries';
 export { userAttributesApi } from './user-attributes';
 export { goalAlignmentSummariesApi } from './goal-alignment-summaries';
+export { measurementsApi } from './measurements';
 export * from './weekly-analyses';

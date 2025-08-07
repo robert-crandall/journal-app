@@ -107,9 +107,9 @@ const bodyFatWomen = (
 
 #### ✅ Acceptance Criteria
 
-* [ ] Create `measurements` table with schema above
-* [ ] Support writing new measurements with optional `extra` fields
-* [ ] Calculate and store `waist_cm` as average of up to 3 inputs
-* [ ] Calculate and store `body_fat_percentage` using Navy method if `waist_cm`, `neck_cm`, and `height_cm` are present
-* [ ] Allow retrieving historical data, displaying `waist_cm` average but preserving raw inputs
-* [ ] Support multiple entries per day
+* [x] Create `measurements` table with schema above
+* [x] Support writing new measurements with optional `extra` fields
+* [x] Calculate and store `waist_cm` as average of up to 3 inputs
+* [x] Calculate and store `body_fat_percentage` using Navy method if `waist_cm`, `neck_cm`, and `height_cm` are present
+* [x] Allow retrieving historical data, displaying `waist_cm` average but preserving raw inputs
+* [x] Support multiple entries per day
