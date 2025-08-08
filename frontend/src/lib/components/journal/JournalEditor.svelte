@@ -4,15 +4,18 @@
   import { PhotoService } from '$lib/api/photos';
   import type { JournalResponse } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon } from 'lucide-svelte';
+  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon, XIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoUpload from '$lib/components/PhotoUpload.svelte';
 
   export let journal: JournalResponse | null;
   export let date: string;
+  export let isEditingComplete: boolean = false; // Track if editing a previously complete journal
+  export let originalCompleteJournal: JournalResponse | null = null; // Original complete journal state
 
   const dispatch = createEventDispatcher<{
     update: JournalResponse;
+    cancelEdit: void;
   }>();
 
   let initialMessage = journal?.initialMessage || '';
@@ -31,6 +34,7 @@
   // Auto-save timeout
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
   let hasUnsavedChanges = false;
+  let needsXpCleanup = isEditingComplete; // Track if we need to clean up XP on first save
 
   // Character counter
   $: characterCount = initialMessage.length;
@@ -120,9 +124,18 @@
       if (journal) {
         // Update existing journal if there are unsaved changes
         if (hasUnsavedChanges) {
-          updatedJournal = await JournalService.updateJournal(date, {
-            initialMessage: initialMessage.trim(),
-          });
+          // If this is the first save of a previously complete journal, clean up XP first
+          if (needsXpCleanup) {
+            updatedJournal = await JournalService.editJournal(date, {
+              initialMessage: initialMessage.trim(),
+            });
+            needsXpCleanup = false; // XP cleanup done
+          } else {
+            // Regular update for ongoing edits
+            updatedJournal = await JournalService.updateJournal(date, {
+              initialMessage: initialMessage.trim(),
+            });
+          }
           hasUnsavedChanges = false;
         } else {
           // No unsaved changes, just return the existing journal
@@ -212,6 +225,11 @@
     // Photo deleted successfully, reload photos to reflect the change
     loadPhotos();
   }
+
+  function handleCancelEdit() {
+    // Dispatch event to cancel editing and return to complete view
+    dispatch('cancelEdit');
+  }
 </script>
 
 <div class="card bg-base-100 border-base-300 border shadow-xl">
@@ -223,13 +241,36 @@
         <PenIcon size={16} class="text-primary sm:hidden" />
         <div>
           <h2 class="text-lg font-semibold sm:text-xl">
-            {journal ? 'Continue Writing' : 'Write Journal'}
+            {#if isEditingComplete}
+              Edit Journal
+            {:else if journal}
+              Continue Writing
+            {:else}
+              Write Journal
+            {/if}
           </h2>
-          <p class="text-base-content/70 text-xs sm:text-sm">Share your thoughts, experiences, and reflections</p>
+          <p class="text-base-content/70 text-xs sm:text-sm">
+            {#if isEditingComplete}
+              {#if needsXpCleanup}
+                <span class="text-warning">⚠️ XP will be recalculated when you save changes</span>
+              {:else}
+                Editing your completed journal entry
+              {/if}
+            {:else}
+              Share your thoughts, experiences, and reflections
+            {/if}
+          </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 self-end sm:self-auto">
+        {#if isEditingComplete}
+          <button data-test-id="cancel-edit-button" on:click={handleCancelEdit} class="btn btn-ghost btn-sm gap-1 sm:gap-2">
+            <XIcon size={14} class="sm:hidden" />
+            <XIcon size={16} class="hidden sm:block" />
+            Cancel
+          </button>
+        {/if}
         {#if hasUnsavedChanges}
           <span class="text-warning text-xs">Unsaved changes</span>
         {/if}

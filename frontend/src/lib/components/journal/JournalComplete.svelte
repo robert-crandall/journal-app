@@ -83,14 +83,11 @@
 
     try {
       editingJournal = true;
-      const editedJournal = await JournalService.editJournal(journal.date, {
-        initialMessage: journal.initialMessage ?? undefined,
-        title: journal.title || '',
-        dayRating: journal.dayRating || 5,
-      });
-      dispatch('journalEdited', editedJournal);
+      // Instead of calling the backend edit endpoint, just dispatch an event
+      // to transition to edit mode with the current journal data
+      dispatch('journalEdited', journal);
     } catch (error) {
-      console.error('Failed to edit journal:', error);
+      console.error('Failed to enter edit mode:', error);
       // Could add error toast here
     } finally {
       editingJournal = false;

@@ -384,9 +384,32 @@ const app = new Hono()
         );
       }
 
+      const currentJournal = existingJournal[0];
+      const journalId = currentJournal.id;
+
+      // If this journal was previously complete and we're changing the initialMessage,
+      // we need to clean up XP grants and reset to draft mode
+      const isChangingContent = data.initialMessage !== undefined && data.initialMessage !== currentJournal.initialMessage;
+      const wasComplete = currentJournal.status === 'complete';
+
+      if (wasComplete && isChangingContent) {
+        // Clean up existing XP grants since content is changing
+        await deleteJournalXpGrants(userId, journalId);
+      }
+
       const updateData: any = {
         updatedAt: new Date(),
       };
+
+      // Reset status to draft if we cleaned up XP due to content changes
+      if (wasComplete && isChangingContent) {
+        updateData.status = 'draft';
+        // Clear AI-generated content since we'll regenerate it
+        updateData.summary = null;
+        updateData.title = null;
+        updateData.synopsis = null;
+        updateData.toneTags = null;
+      }
 
       // Only update provided fields
       if (data.initialMessage !== undefined) {
