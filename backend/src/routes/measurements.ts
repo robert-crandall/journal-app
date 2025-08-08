@@ -92,8 +92,6 @@ measurementsRouter.post('/', async (c) => {
       waistBelowNavelCm: validatedData.waistBelowNavelCm,
     };
 
-    logger.info(`Created measurement for user ${userId}`, { measurementId: measurement.id });
-
     return c.json({
       success: true,
       data: response,
@@ -290,8 +288,6 @@ measurementsRouter.put('/:id', async (c) => {
       waistBelowNavelCm: validatedData.waistBelowNavelCm,
     };
 
-    logger.info(`Updated measurement ${id} for user ${userId}`);
-
     return c.json({
       success: true,
       data: response,
@@ -323,8 +319,6 @@ measurementsRouter.delete('/:id', async (c) => {
 
     // Delete the measurement
     await db.delete(measurements).where(eq(measurements.id, id));
-
-    logger.info(`Deleted measurement ${id} for user ${userId}`);
 
     return c.json({
       success: true,

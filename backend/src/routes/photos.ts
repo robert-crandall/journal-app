@@ -127,13 +127,6 @@ photosRouter.post('/', async (c) => {
       updatedAt: photo.updatedAt.toISOString(),
     };
 
-    logger.info(`Uploaded photo for user ${userId}`, {
-      photoId: photo.id,
-      linkedType,
-      linkedId,
-      filename: uploadResult.originalFilename,
-    });
-
     const uploadResponse: PhotoUploadResponse = {
       success: true,
       photo: response,
@@ -273,13 +266,6 @@ photosRouter.post('/bulk', async (c) => {
         errors.push(`${file.name}: ${errorMessage}`);
       }
     }
-
-    logger.info(`Bulk uploaded ${uploadedPhotos.length}/${files.length} photos for user ${userId}`, {
-      linkedType,
-      linkedId,
-      successCount: uploadedPhotos.length,
-      totalCount: files.length,
-    });
 
     const bulkResponse: BulkPhotoUploadResponse = {
       success: uploadedPhotos.length > 0,
@@ -438,8 +424,6 @@ photosRouter.put('/:id', async (c) => {
       updatedAt: photo.updatedAt.toISOString(),
     };
 
-    logger.info(`Updated photo ${id} for user ${userId}`);
-
     return c.json({
       success: true,
       data: response,
@@ -481,8 +465,6 @@ photosRouter.delete('/:id', async (c) => {
 
     // Delete the photo record from database
     await db.delete(photos).where(eq(photos.id, id));
-
-    logger.info(`Deleted photo ${id} for user ${userId}`);
 
     return c.json({
       success: true,

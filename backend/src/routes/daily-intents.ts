@@ -27,8 +27,6 @@ app.post('/', zValidator('json', dailyIntentSchema), async (c) => {
     const { date, importanceStatement } = c.req.valid('json');
     const userId = c.var.userId;
 
-    logger.info(`Creating/updating daily intent for user ${userId} on ${date}`);
-
     // Check if an intent already exists for this date
     const existingIntent = await db
       .select()
@@ -45,8 +43,6 @@ app.post('/', zValidator('json', dailyIntentSchema), async (c) => {
           updatedAt: new Date(),
         })
         .where(and(eq(dailyIntents.userId, userId), eq(dailyIntents.date, date)));
-
-      logger.info(`Updated daily intent for user ${userId} on ${date}`);
     } else {
       // Create new intent
       await db.insert(dailyIntents).values({
@@ -54,8 +50,6 @@ app.post('/', zValidator('json', dailyIntentSchema), async (c) => {
         date,
         importanceStatement,
       });
-
-      logger.info(`Created daily intent for user ${userId} on ${date}`);
     }
 
     // Return the updated/created intent
@@ -96,9 +90,6 @@ app.get('/:date', async (c) => {
         400,
       );
     }
-
-    logger.info(`Getting daily intent for user ${userId} on ${date}`);
-
     const intent = await db
       .select()
       .from(dailyIntents)
@@ -122,9 +113,7 @@ app.get('/', async (c) => {
   try {
     const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50);
     const userId = c.var.userId;
-
-    logger.info(`Getting recent daily intents for user ${userId}, limit: ${limit}`);
-
+    
     const intents = await db.select().from(dailyIntents).where(eq(dailyIntents.userId, userId)).orderBy(dailyIntents.date).limit(limit);
 
     return c.json({

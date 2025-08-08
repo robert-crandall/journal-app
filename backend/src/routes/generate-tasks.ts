@@ -249,8 +249,6 @@ app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
     const [personalTodo] = await db.insert(simpleTodos).values(personalTodoData).returning();
     const [familyTodo] = await db.insert(simpleTodos).values(familyTodoData).returning();
 
-    logger.info(`Generated and saved daily tasks for user ${userId} on ${date}`);
-
     return c.json({
       success: true,
       data: {
