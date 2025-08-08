@@ -33,6 +33,7 @@ Photos should be stored server-side with thumbnails for fast calendar display an
   - Optional: drag-and-drop support (desktop)
 
 #### 3. Reusable Component
+
 Create a PhotoUpload component that:
 
 Accepts configuration for multiple vs single file upload.

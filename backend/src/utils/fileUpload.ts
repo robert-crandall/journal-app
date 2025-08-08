@@ -73,10 +73,7 @@ export function generateUniqueFilename(originalFilename: string): string {
 /**
  * Create thumbnail from image buffer
  */
-export async function createThumbnail(
-  imageBuffer: Buffer,
-  originalPath: string,
-): Promise<string> {
+export async function createThumbnail(imageBuffer: Buffer, originalPath: string): Promise<string> {
   const ext = extname(originalPath);
   const thumbnailFilename = `thumb_${basename(originalPath, ext)}.webp`; // Always use WebP for thumbnails
   const thumbnailPath = join(UPLOAD_DIR, thumbnailFilename);
@@ -167,8 +164,8 @@ export async function getFileStats(filePath: string): Promise<{ exists: boolean;
     if (!existsSync(fullPath)) {
       return { exists: false };
     }
-    
-    const stats = await import('fs').then(fs => fs.promises.stat(fullPath));
+
+    const stats = await import('fs').then((fs) => fs.promises.stat(fullPath));
     return { exists: true, size: stats.size };
   } catch {
     return { exists: false };

@@ -4,7 +4,8 @@
   import { page } from '$app/stores';
   import { measurementsApi } from '$lib/api/measurements';
   import type { MeasurementResponse, UpdateMeasurementRequest } from '$lib/types/measurements';
-  import { Ruler, Save, Calculator, ArrowLeft } from 'lucide-svelte';
+  import { Ruler, Save, Calculator, ArrowLeft, ImageIcon } from 'lucide-svelte';
+  import PhotoUpload from '$lib/components/PhotoUpload.svelte';
 
   // Reactive state
   let measurement: MeasurementResponse | null = $state(null);
@@ -23,6 +24,9 @@
 
   // UI state
   let saving = $state(false);
+
+  // Photo upload state
+  let showPhotoUpload = $state(false);
 
   // Get measurement ID from URL params
   let measurementId = $derived($page.params.id);
@@ -144,6 +148,15 @@
 
   function lbsToKg(lbs: number): string {
     return (lbs / 2.205).toFixed(1);
+  }
+
+  function togglePhotoUpload() {
+    showPhotoUpload = !showPhotoUpload;
+  }
+
+  function handlePhotoUploaded() {
+    // Photos were uploaded successfully
+    // The PhotoUpload component will handle the actual upload
   }
 </script>
 
@@ -402,6 +415,22 @@
                   {#if notes.length > 0}
                     <div class="label">
                       <span class="label-text-alt">{notes.length}/1000 characters</span>
+                    </div>
+                  {/if}
+                </div>
+
+                <!-- Photo Upload Section -->
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <button type="button" onclick={togglePhotoUpload} class="btn btn-ghost btn-sm gap-2" class:btn-active={showPhotoUpload}>
+                      <ImageIcon size={16} />
+                      {showPhotoUpload ? 'Hide Photos' : 'Add Progress Photos'}
+                    </button>
+                  </div>
+
+                  {#if showPhotoUpload && measurementId}
+                    <div class="border-base-300 rounded-lg border p-4">
+                      <PhotoUpload linkedType="measurement" linkedId={measurementId} on:uploaded={handlePhotoUploaded} />
                     </div>
                   {/if}
                 </div>

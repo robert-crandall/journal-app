@@ -2,8 +2,9 @@
   import { createEventDispatcher } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import type { JournalResponse } from '$lib/types/journal';
-  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon } from 'lucide-svelte';
+  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
+  import PhotoUpload from '$lib/components/PhotoUpload.svelte';
 
   export let journal: JournalResponse | null;
   export let date: string;
@@ -19,6 +20,9 @@
   let error: string | null = null;
   let textareaElement: HTMLTextAreaElement;
   let showFinishDialog = false;
+
+  // Photo upload state
+  let showPhotoUpload = false;
 
   // Auto-save timeout
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -169,6 +173,16 @@
       saveJournal();
     }
   }
+
+  function togglePhotoUpload() {
+    showPhotoUpload = !showPhotoUpload;
+  }
+
+  function handlePhotoUploaded() {
+    // Photos were uploaded successfully
+    // The PhotoUpload component will handle the actual upload
+    // We could add any additional logic here if needed
+  }
 </script>
 
 <div class="card bg-base-100 border-base-300 border shadow-xl">
@@ -224,6 +238,22 @@
           </span>
           <span class="label-text-alt text-2xs hidden opacity-60 sm:inline sm:text-xs"> Ctrl/Cmd + S to save </span>
         </div>
+      </div>
+
+      <!-- Photo Upload Section -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <button type="button" on:click={togglePhotoUpload} class="btn btn-ghost btn-sm gap-2" class:btn-active={showPhotoUpload}>
+            <ImageIcon size={16} />
+            {showPhotoUpload ? 'Hide Photos' : 'Add Photos'}
+          </button>
+        </div>
+
+        {#if showPhotoUpload}
+          <div class="border-base-300 rounded-lg border p-4">
+            <PhotoUpload linkedType="journal" linkedId={journal?.id || date} on:uploaded={handlePhotoUploaded} />
+          </div>
+        {/if}
       </div>
 
       <!-- Action Buttons -->

@@ -157,7 +157,7 @@ export function handleApiError(error: unknown | null | undefined, message: strin
 
   // Handle Zod validation errors as 400 Bad Request
   if (error instanceof ZodError) {
-    const validationMessage = `Validation failed: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`;
+    const validationMessage = `Validation failed: ${error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`;
     logger.warn(`${message} - ${validationMessage}`);
     throw new HTTPException(400, { message: validationMessage });
   }

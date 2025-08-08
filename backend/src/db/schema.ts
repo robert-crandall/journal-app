@@ -33,14 +33,7 @@ export {
   measurementIdSchema,
   updateUserWithMeasurementFieldsSchema,
 } from '../validation/measurements';
-export {
-  createPhotoSchema,
-  updatePhotoSchema,
-  listPhotosSchema,
-  photoIdSchema,
-  fileUploadSchema,
-  bulkPhotoUploadSchema,
-} from '../validation/photos';
+export { createPhotoSchema, updatePhotoSchema, listPhotosSchema, photoIdSchema, fileUploadSchema, bulkPhotoUploadSchema } from '../validation/photos';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser, Sex } from '../../../shared/types/users';

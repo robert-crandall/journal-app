@@ -15,12 +15,7 @@ import type {
   BulkPhotoUploadRequest,
   BulkPhotoUploadResponse,
 } from '../../../shared/types/photos';
-import {
-  createPhotoSchema,
-  updatePhotoSchema,
-  listPhotosSchema,
-  photoIdSchema,
-} from '../validation/photos';
+import { createPhotoSchema, updatePhotoSchema, listPhotosSchema, photoIdSchema } from '../validation/photos';
 
 const photosRouter = new Hono();
 
@@ -35,7 +30,7 @@ photosRouter.post('/', async (c) => {
   try {
     const userId = c.get('userId') as string;
     const formData = await c.req.formData();
-    
+
     const file = formData.get('file') as File;
     const linkedType = formData.get('linkedType') as string;
     const linkedId = formData.get('linkedId') as string;
@@ -64,7 +59,7 @@ photosRouter.post('/', async (c) => {
         .from(journals)
         .where(and(eq(journals.id, linkedId), eq(journals.userId, userId)))
         .limit(1);
-      
+
       if (!journal.length) {
         return c.json({ success: false, error: 'Journal not found' }, 404);
       }
@@ -74,7 +69,7 @@ photosRouter.post('/', async (c) => {
         .from(measurements)
         .where(and(eq(measurements.id, linkedId), eq(measurements.userId, userId)))
         .limit(1);
-      
+
       if (!measurement.length) {
         return c.json({ success: false, error: 'Measurement not found' }, 404);
       }
@@ -95,9 +90,11 @@ photosRouter.post('/', async (c) => {
       uploadResult = await processImageUpload(processedFile);
     } catch (error: any) {
       // Check if it's a file validation error (not a Sharp/system error)
-      if (error?.message?.includes('File too large') || 
-          error?.message?.includes('Unsupported file format') || 
-          error?.message?.includes('File must be an image')) {
+      if (
+        error?.message?.includes('File too large') ||
+        error?.message?.includes('Unsupported file format') ||
+        error?.message?.includes('File must be an image')
+      ) {
         return c.json({ success: false, error: error.message }, 400);
       }
       // Re-throw other errors to be handled by main catch block
@@ -130,11 +127,11 @@ photosRouter.post('/', async (c) => {
       updatedAt: photo.updatedAt.toISOString(),
     };
 
-    logger.info(`Uploaded photo for user ${userId}`, { 
-      photoId: photo.id, 
+    logger.info(`Uploaded photo for user ${userId}`, {
+      photoId: photo.id,
       linkedType,
       linkedId,
-      filename: uploadResult.originalFilename 
+      filename: uploadResult.originalFilename,
     });
 
     const uploadResponse: PhotoUploadResponse = {
@@ -156,11 +153,11 @@ photosRouter.post('/bulk', async (c) => {
   try {
     const userId = c.get('userId') as string;
     const formData = await c.req.formData();
-    
+
     const files = formData.getAll('files') as File[];
     const linkedType = formData.get('linkedType') as string;
     const linkedId = formData.get('linkedId') as string;
-    
+
     // Parse captions array if provided
     let captions: (string | undefined)[] = [];
     const captionsString = formData.get('captions') as string;
@@ -194,7 +191,7 @@ photosRouter.post('/bulk', async (c) => {
         .from(journals)
         .where(and(eq(journals.id, linkedId), eq(journals.userId, userId)))
         .limit(1);
-      
+
       if (!journal.length) {
         return c.json({ success: false, errors: ['Journal not found'] }, 404);
       }
@@ -204,7 +201,7 @@ photosRouter.post('/bulk', async (c) => {
         .from(measurements)
         .where(and(eq(measurements.id, linkedId), eq(measurements.userId, userId)))
         .limit(1);
-      
+
       if (!measurement.length) {
         return c.json({ success: false, errors: ['Measurement not found'] }, 404);
       }
@@ -234,9 +231,11 @@ photosRouter.post('/bulk', async (c) => {
           uploadResult = await processImageUpload(processedFile);
         } catch (error: any) {
           // Check if it's a file validation error
-          if (error?.message?.includes('File too large') || 
-              error?.message?.includes('Unsupported file format') || 
-              error?.message?.includes('File must be an image')) {
+          if (
+            error?.message?.includes('File too large') ||
+            error?.message?.includes('Unsupported file format') ||
+            error?.message?.includes('File must be an image')
+          ) {
             errors.push(`File ${file.name}: ${error.message}`);
             continue;
           }

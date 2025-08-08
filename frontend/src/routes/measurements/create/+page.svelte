@@ -2,7 +2,8 @@
   import { goto } from '$app/navigation';
   import { measurementsApi } from '$lib/api/measurements';
   import type { CreateMeasurementRequest } from '$lib/types/measurements';
-  import { Ruler, Save, Calculator } from 'lucide-svelte';
+  import { Ruler, Save, Calculator, ImageIcon } from 'lucide-svelte';
+  import PhotoUpload from '$lib/components/PhotoUpload.svelte';
 
   // Form state
   let recordedDate = $state(new Date().toISOString().slice(0, 10)); // YYYY-MM-DD format
@@ -17,6 +18,10 @@
   // UI state
   let loading = $state(false);
   let error = $state<string | null>(null);
+
+  // Photo upload state
+  let showPhotoUpload = $state(false);
+  let createdMeasurementId = $state<string | null>(null);
 
   // Form validation
   let recordedDateTouched = $state(false);
@@ -60,10 +65,13 @@
         notes: notes.trim() || undefined,
       };
 
-      await measurementsApi.createMeasurement(measurementData);
+      const newMeasurement = await measurementsApi.createMeasurement(measurementData);
+      createdMeasurementId = newMeasurement.id;
 
-      // Redirect to measurements page on success
-      goto('/measurements');
+      // If no photos to upload, redirect immediately
+      if (!showPhotoUpload) {
+        goto('/measurements');
+      }
     } catch (err) {
       console.error('Failed to create measurement:', err);
       error = err instanceof Error ? err.message : 'Failed to create measurement';
@@ -83,6 +91,20 @@
 
   function lbsToKg(lbs: number): string {
     return (lbs / 2.205).toFixed(1);
+  }
+
+  function togglePhotoUpload() {
+    showPhotoUpload = !showPhotoUpload;
+  }
+
+  function handlePhotoUploaded() {
+    // Photos were uploaded successfully
+    // The PhotoUpload component will handle the actual upload
+  }
+
+  function handleFinishWithPhotos() {
+    // Redirect to measurements page after photos are uploaded
+    goto('/measurements');
   }
 </script>
 
@@ -307,6 +329,37 @@
                   <div class="label">
                     <span class="label-text-alt">{notes.length}/1000 characters</span>
                   </div>
+                {/if}
+              </div>
+
+              <!-- Photo Upload Section -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <button type="button" onclick={togglePhotoUpload} class="btn btn-ghost btn-sm gap-2" class:btn-active={showPhotoUpload}>
+                    <ImageIcon size={16} />
+                    {showPhotoUpload ? 'Hide Photos' : 'Add Progress Photos'}
+                  </button>
+                </div>
+
+                {#if showPhotoUpload}
+                  {#if createdMeasurementId}
+                    <!-- Photos can only be uploaded after measurement is created -->
+                    <div class="border-base-300 rounded-lg border p-4">
+                      <PhotoUpload linkedType="measurement" linkedId={createdMeasurementId} on:uploaded={handlePhotoUploaded} />
+                      <div class="mt-4 flex justify-center">
+                        <button type="button" onclick={handleFinishWithPhotos} class="btn btn-primary btn-sm"> Finish & View Measurements </button>
+                      </div>
+                    </div>
+                  {:else}
+                    <!-- Show message to save measurement first -->
+                    <div class="alert alert-info">
+                      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <span>Save your measurement first, then you can add progress photos.</span>
+                    </div>
+                  {/if}
                 {/if}
               </div>
 

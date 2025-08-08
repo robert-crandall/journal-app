@@ -6,12 +6,7 @@ import appExport from '../index';
 import { getTestDb, getUniqueEmail } from './setup';
 import { eq, desc } from 'drizzle-orm';
 import { users, journals, measurements, photos } from '../db/schema';
-import type { 
-  PhotoResponse, 
-  ListPhotosResponse, 
-  PhotoUploadResponse, 
-  BulkPhotoUploadResponse 
-} from '../../../shared/types/photos';
+import type { PhotoResponse, ListPhotosResponse, PhotoUploadResponse, BulkPhotoUploadResponse } from '../../../shared/types/photos';
 import type { User } from '../../../shared/types/users';
 import type { JournalResponse } from '../../../shared/types/journals';
 import type { MeasurementResponse } from '../../../shared/types/measurements';
@@ -34,11 +29,11 @@ async function createTestImageBuffer(): Promise<Buffer> {
       width: 10,
       height: 10,
       channels: 4,
-      background: { r: 255, g: 0, b: 0, alpha: 1 }
-    }
+      background: { r: 255, g: 0, b: 0, alpha: 1 },
+    },
   })
-  .png()
-  .toBuffer();
+    .png()
+    .toBuffer();
 }
 
 // Helper function to create a test JPEG buffer (1x1 JPEG)
@@ -49,11 +44,11 @@ async function createTestJpegBuffer(): Promise<Buffer> {
       width: 10,
       height: 10,
       channels: 3,
-      background: { r: 0, g: 0, b: 255 }
-    }
+      background: { r: 0, g: 0, b: 255 },
+    },
   })
-  .jpeg()
-  .toBuffer();
+    .jpeg()
+    .toBuffer();
 }
 
 // Helper function to create FormData for file upload
@@ -63,20 +58,20 @@ function createFormDataWithFile(
   mimeType: string,
   linkedType: 'journal' | 'measurement',
   linkedId: string,
-  caption?: string
+  caption?: string,
 ): FormData {
   const formData = new FormData();
   const uint8Array = new Uint8Array(buffer);
   const file = new File([uint8Array], filename, { type: mimeType });
-  
+
   formData.append('file', file);
   formData.append('linkedType', linkedType);
   formData.append('linkedId', linkedId);
-  
+
   if (caption) {
     formData.append('caption', caption);
   }
-  
+
   return formData;
 }
 
@@ -85,23 +80,23 @@ function createBulkFormData(
   files: Array<{ filename: string; buffer: Buffer; mimeType: string }>,
   linkedType: 'journal' | 'measurement',
   linkedId: string,
-  captions?: (string | undefined)[]
+  captions?: (string | undefined)[],
 ): FormData {
   const formData = new FormData();
-  
+
   files.forEach(({ filename, buffer, mimeType }) => {
     const uint8Array = new Uint8Array(buffer);
     const file = new File([uint8Array], filename, { type: mimeType });
     formData.append('files', file);
   });
-  
+
   formData.append('linkedType', linkedType);
   formData.append('linkedId', linkedId);
-  
+
   if (captions) {
     formData.append('captions', JSON.stringify(captions));
   }
-  
+
   return formData;
 }
 
@@ -167,14 +162,7 @@ describe('Photos API Integration Tests', () => {
   describe('POST /api/photos', () => {
     it('should upload a photo for a journal entry', async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'test-image.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'Test journal photo'
-      );
+      const formData = createFormDataWithFile('test-image.png', imageBuffer, 'image/png', 'journal', testJournal.id, 'Test journal photo');
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -206,14 +194,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should upload a photo for a measurement', async () => {
       const imageBuffer = await createTestJpegBuffer();
-      const formData = createFormDataWithFile(
-        'measurement.jpg',
-        imageBuffer,
-        'image/jpeg',
-        'measurement',
-        testMeasurement.id,
-        'Body progress photo'
-      );
+      const formData = createFormDataWithFile('measurement.jpg', imageBuffer, 'image/jpeg', 'measurement', testMeasurement.id, 'Body progress photo');
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -238,13 +219,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should upload a photo without caption', async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'no-caption.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('no-caption.png', imageBuffer, 'image/png', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -282,13 +257,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should reject upload with invalid linkedType', async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'test.png',
-        imageBuffer,
-        'image/png',
-        'invalid' as any,
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('test.png', imageBuffer, 'image/png', 'invalid' as any, testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -304,13 +273,7 @@ describe('Photos API Integration Tests', () => {
     it('should reject upload for non-existent journal', async () => {
       const imageBuffer = await createTestImageBuffer();
       const fakeId = '123e4567-e89b-12d3-a456-426614174000';
-      const formData = createFormDataWithFile(
-        'test.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        fakeId
-      );
+      const formData = createFormDataWithFile('test.png', imageBuffer, 'image/png', 'journal', fakeId);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -329,13 +292,7 @@ describe('Photos API Integration Tests', () => {
     it('should reject upload for non-existent measurement', async () => {
       const imageBuffer = await createTestImageBuffer();
       const fakeId = '123e4567-e89b-12d3-a456-426614174000';
-      const formData = createFormDataWithFile(
-        'test.png',
-        imageBuffer,
-        'image/png',
-        'measurement',
-        fakeId
-      );
+      const formData = createFormDataWithFile('test.png', imageBuffer, 'image/png', 'measurement', fakeId);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -353,13 +310,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should require authentication', async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'test.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('test.png', imageBuffer, 'image/png', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -485,14 +436,7 @@ describe('Photos API Integration Tests', () => {
     beforeEach(async () => {
       // Create test photos
       const journalImageBuffer = await createTestImageBuffer();
-      const journalFormData = createFormDataWithFile(
-        'journal-photo.png',
-        journalImageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'Journal photo'
-      );
+      const journalFormData = createFormDataWithFile('journal-photo.png', journalImageBuffer, 'image/png', 'journal', testJournal.id, 'Journal photo');
 
       const journalRes = await app.request('/api/photos', {
         method: 'POST',
@@ -511,7 +455,7 @@ describe('Photos API Integration Tests', () => {
         'image/jpeg',
         'measurement',
         testMeasurement.id,
-        'Measurement photo'
+        'Measurement photo',
       );
 
       const measurementRes = await app.request('/api/photos', {
@@ -543,7 +487,7 @@ describe('Photos API Integration Tests', () => {
       expect(data.total).toBe(2);
 
       // Should be ordered by created date desc (most recent first)
-      const photoIds = data.photos.map(p => p.id);
+      const photoIds = data.photos.map((p) => p.id);
       expect(photoIds).toContain(journalPhoto.id);
       expect(photoIds).toContain(measurementPhoto.id);
     });
@@ -621,14 +565,7 @@ describe('Photos API Integration Tests', () => {
 
     beforeEach(async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'test-photo.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'Test photo'
-      );
+      const formData = createFormDataWithFile('test-photo.png', imageBuffer, 'image/png', 'journal', testJournal.id, 'Test photo');
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -681,14 +618,7 @@ describe('Photos API Integration Tests', () => {
 
     beforeEach(async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'test-photo.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'Original caption'
-      );
+      const formData = createFormDataWithFile('test-photo.png', imageBuffer, 'image/png', 'journal', testJournal.id, 'Original caption');
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -785,14 +715,7 @@ describe('Photos API Integration Tests', () => {
 
     beforeEach(async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'to-delete.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'To be deleted'
-      );
+      const formData = createFormDataWithFile('to-delete.png', imageBuffer, 'image/png', 'journal', testJournal.id, 'To be deleted');
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -854,13 +777,7 @@ describe('Photos API Integration Tests', () => {
     it('should reject files that are too large', async () => {
       // Create a buffer that's larger than the max size (simulating a 15MB file)
       const largeBuffer = Buffer.alloc(15 * 1024 * 1024, 'a');
-      const formData = createFormDataWithFile(
-        'large-file.png',
-        largeBuffer,
-        'image/png',
-        'journal',
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('large-file.png', largeBuffer, 'image/png', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -878,13 +795,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should reject non-image files', async () => {
       const textBuffer = Buffer.from('This is not an image', 'utf-8');
-      const formData = createFormDataWithFile(
-        'document.txt',
-        textBuffer,
-        'text/plain',
-        'journal',
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('document.txt', textBuffer, 'text/plain', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -903,13 +814,7 @@ describe('Photos API Integration Tests', () => {
 
     it('should reject unsupported image formats', async () => {
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'unsupported.xyz',
-        imageBuffer,
-        'image/xyz',
-        'journal',
-        testJournal.id
-      );
+      const formData = createFormDataWithFile('unsupported.xyz', imageBuffer, 'image/xyz', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {
         method: 'POST',
@@ -968,14 +873,7 @@ describe('Photos API Integration Tests', () => {
 
       // Create a photo for the other user
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'other-user-photo.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        otherJournal.id,
-        'Other user photo'
-      );
+      const formData = createFormDataWithFile('other-user-photo.png', imageBuffer, 'image/png', 'journal', otherJournal.id, 'Other user photo');
 
       const photoRes = await app.request('/api/photos', {
         method: 'POST',
@@ -1030,14 +928,7 @@ describe('Photos API Integration Tests', () => {
     it('should only return photos belonging to the authenticated user', async () => {
       // Create a photo for the current user
       const imageBuffer = await createTestImageBuffer();
-      const formData = createFormDataWithFile(
-        'my-photo.png',
-        imageBuffer,
-        'image/png',
-        'journal',
-        testJournal.id,
-        'My photo'
-      );
+      const formData = createFormDataWithFile('my-photo.png', imageBuffer, 'image/png', 'journal', testJournal.id, 'My photo');
 
       await app.request('/api/photos', {
         method: 'POST',
