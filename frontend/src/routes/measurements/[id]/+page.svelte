@@ -3,8 +3,10 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { measurementsApi } from '$lib/api/measurements';
+  import { PhotoService } from '$lib/api/photos';
   import type { MeasurementResponse } from '$lib/types/measurements';
-  import { Ruler, Edit3, Trash2, ArrowLeft, Calculator, Calendar } from 'lucide-svelte';
+  import type { PhotoResponse } from '$lib/types/photos';
+  import { Ruler, Edit3, Trash2, ArrowLeft, Calculator, Calendar, Camera } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
   import { formatDateTime } from '$lib/utils/date';
@@ -13,13 +15,15 @@
   let measurement: MeasurementResponse | null = $state(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let photos: PhotoResponse[] = $state([]);
+  let loadingPhotos = $state(true);
 
   // Get measurement ID from URL params
   let measurementId = $derived($page.params.id);
 
   // Load data on component mount
   onMount(async () => {
-    await loadMeasurement();
+    await Promise.all([loadMeasurement(), loadPhotos()]);
   });
 
   async function loadMeasurement() {
@@ -48,6 +52,22 @@
       error = err instanceof Error ? err.message : 'Failed to load measurement';
     } finally {
       loading = false;
+    }
+  }
+
+  async function loadPhotos() {
+    if (!measurementId) return;
+
+    try {
+      const response = await PhotoService.listPhotos({
+        linkedType: 'measurement',
+        measurementId: measurementId,
+      });
+      photos = response.photos || [];
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+    } finally {
+      loadingPhotos = false;
     }
   }
 
@@ -288,6 +308,29 @@
                         </h3>
                         <p class="font-mono text-lg">{value.toFixed(1)} cm</p>
                       </div>
+                    {/each}
+                  </div>
+                </div>
+              </div>
+            {/if}
+
+            <!-- Photos Section -->
+            {#if photos.length > 0}
+              <div class="card bg-base-100 border-base-300 border shadow-xl">
+                <div class="card-body p-6">
+                  <h2 class="card-title mb-4 flex items-center gap-2 text-xl">
+                    <Camera size={20} />
+                    Photos ({photos.length})
+                  </h2>
+                  <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                    {#each photos as photo}
+                      <a
+                        href={PhotoService.getPhotoUrl(photo.id)}
+                        target="_blank"
+                        class="block aspect-square overflow-hidden rounded-lg shadow-md transition-opacity hover:opacity-80"
+                      >
+                        <img src={PhotoService.getThumbnailUrl(photo.id)} alt="Measurement photo" class="h-full w-full object-cover" />
+                      </a>
                     {/each}
                   </div>
                 </div>

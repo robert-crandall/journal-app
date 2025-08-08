@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, afterUpdate } from 'svelte';
   import { JournalService } from '$lib/api/journal';
+  import { PhotoService } from '$lib/api/photos';
   import { formatDateTime } from '$lib/utils/date';
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
-  import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon } from 'lucide-svelte';
+  import type { PhotoResponse } from '$lib/types/photos';
+  import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon, ImageIcon } from 'lucide-svelte';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
 
@@ -20,6 +22,8 @@
   let error: string | null = null;
   let chatContainer: HTMLDivElement;
   let showFinishDialog = false;
+  let photos: PhotoResponse[] = [];
+  let loadingPhotos = true;
 
   // Scroll to bottom when new messages are added
   afterUpdate(() => {
@@ -28,12 +32,29 @@
     }
   });
 
-  onMount(() => {
+  onMount(async () => {
+    // Load photos and scroll to bottom
+    await loadPhotos();
+
     // Scroll to bottom on initial load
     if (chatContainer) {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   });
+
+  async function loadPhotos() {
+    try {
+      const response = await PhotoService.listPhotos({
+        linkedType: 'journal',
+        journalId: journal.id,
+      });
+      photos = response.photos || [];
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+    } finally {
+      loadingPhotos = false;
+    }
+  }
 
   async function sendMessage() {
     if (!newMessage.trim() || sending) return;
@@ -246,6 +267,26 @@
       <!-- Finish Dialog -->
       <JournalFinishDialog bind:open={showFinishDialog} on:finish={handleFinish} on:cancel={() => (showFinishDialog = false)} />
     </div>
+
+    <!-- Photos Display -->
+    {#if photos.length > 0}
+      <div class="bg-base-100 border-t p-4">
+        <h3 class="text-base-content/70 mb-3 text-sm font-semibold">
+          Photos ({photos.length})
+        </h3>
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {#each photos as photo}
+            <a
+              href={PhotoService.getPhotoUrl(photo.id)}
+              target="_blank"
+              class="block aspect-square overflow-hidden rounded-lg transition-opacity hover:opacity-80"
+            >
+              <img src={PhotoService.getThumbnailUrl(photo.id)} alt="Journal photo" class="h-full w-full object-cover" />
+            </a>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 

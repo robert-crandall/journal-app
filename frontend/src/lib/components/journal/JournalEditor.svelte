@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { JournalService } from '$lib/api/journal';
+  import { PhotoService } from '$lib/api/photos';
   import type { JournalResponse } from '$lib/types/journal';
+  import type { PhotoResponse } from '$lib/types/photos';
   import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoUpload from '$lib/components/PhotoUpload.svelte';
@@ -23,6 +25,8 @@
 
   // Photo upload state
   let showPhotoUpload = false;
+  let photos: PhotoResponse[] = [];
+  let loadingPhotos = false;
 
   // Auto-save timeout
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -31,6 +35,27 @@
   // Character counter
   $: characterCount = initialMessage.length;
   $: wordCount = initialMessage.trim() ? initialMessage.trim().split(/\s+/).length : 0;
+
+  onMount(() => {
+    loadPhotos();
+  });
+
+  async function loadPhotos() {
+    if (!journal?.id) return;
+
+    try {
+      loadingPhotos = true;
+      const response = await PhotoService.listPhotos({
+        linkedType: 'journal',
+        journalId: journal.id,
+      });
+      photos = response.photos || [];
+    } catch (err) {
+      console.error('Failed to load photos:', err);
+    } finally {
+      loadingPhotos = false;
+    }
+  }
 
   function handleInput() {
     hasUnsavedChanges = true;
@@ -178,10 +203,14 @@
     showPhotoUpload = !showPhotoUpload;
   }
 
-  function handlePhotoUploaded() {
-    // Photos were uploaded successfully
-    // The PhotoUpload component will handle the actual upload
-    // We could add any additional logic here if needed
+  function handlePhotoUploaded(event: CustomEvent) {
+    // Photo uploaded successfully, reload photos to show the new one
+    loadPhotos();
+  }
+
+  function handlePhotoDeleted(event: CustomEvent) {
+    // Photo deleted successfully, reload photos to reflect the change
+    loadPhotos();
   }
 </script>
 
@@ -245,13 +274,21 @@
         <div class="flex items-center justify-between">
           <button type="button" on:click={togglePhotoUpload} class="btn btn-ghost btn-sm gap-2" class:btn-active={showPhotoUpload}>
             <ImageIcon size={16} />
-            {showPhotoUpload ? 'Hide Photos' : 'Add Photos'}
+            {showPhotoUpload ? 'Hide Photos' : 'Photos'}
+            {photos.length > 0 ? `(${photos.length})` : ''}
           </button>
         </div>
 
-        {#if showPhotoUpload}
+        {#if showPhotoUpload || photos.length > 0}
           <div class="border-base-300 rounded-lg border p-4">
-            <PhotoUpload linkedType="journal" linkedId={journal?.id || date} on:uploaded={handlePhotoUploaded} />
+            {#if loadingPhotos}
+              <div class="flex items-center justify-center p-4">
+                <span class="loading loading-spinner loading-sm"></span>
+                <span class="ml-2 text-sm opacity-70">Loading photos...</span>
+              </div>
+            {:else}
+              <PhotoUpload linkedType="journal" linkedId={journal?.id || date} {photos} on:uploaded={handlePhotoUploaded} on:delete={handlePhotoDeleted} />
+            {/if}
           </div>
         {/if}
       </div>

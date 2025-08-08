@@ -3,8 +3,10 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth';
   import { measurementsApi } from '$lib/api/measurements';
+  import { PhotoService } from '$lib/api/photos';
   import type { MeasurementResponse } from '$lib/types/measurements';
-  import { Plus, Ruler, Edit3, Trash2, Eye, TrendingUp } from 'lucide-svelte';
+  import type { PhotoResponse } from '$lib/types/photos';
+  import { Plus, Ruler, Edit3, Trash2, Eye, TrendingUp, Camera } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
 
@@ -12,6 +14,7 @@
   let measurements: MeasurementResponse[] = $state([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let measurementPhotos: Record<string, PhotoResponse[]> = $state({});
 
   // Pagination state
   let currentPage = $state(0);
@@ -36,6 +39,9 @@
 
       measurements = result.measurements;
       totalCount = result.total;
+
+      // Load photos for each measurement
+      await loadPhotosForMeasurements(measurements);
     } catch (err) {
       console.error('Failed to load measurements:', err);
       if (err instanceof Error && err.message === 'Authentication required') {
@@ -46,6 +52,31 @@
     } finally {
       loading = false;
     }
+  }
+
+  // Load photos for multiple measurements
+  async function loadPhotosForMeasurements(measurementsList: MeasurementResponse[]) {
+    const photoPromises = measurementsList.map(async (measurement) => {
+      try {
+        const response = await PhotoService.listPhotos({
+          linkedType: 'measurement',
+          measurementId: measurement.id,
+        });
+        return { measurementId: measurement.id, photos: response.photos || [] };
+      } catch (error) {
+        console.error(`Failed to load photos for measurement ${measurement.id}:`, error);
+        return { measurementId: measurement.id, photos: [] };
+      }
+    });
+
+    const photoResults = await Promise.all(photoPromises);
+    const photosMap: Record<string, PhotoResponse[]> = {};
+
+    photoResults.forEach(({ measurementId, photos }) => {
+      photosMap[measurementId] = photos;
+    });
+
+    measurementPhotos = photosMap;
   }
 
   // Helper functions
@@ -221,6 +252,32 @@
                         <div class="mb-4">
                           <p class="text-base-content/80 mb-1 text-sm font-medium">Notes:</p>
                           <p class="text-base-content/70 bg-base-200 rounded p-2 text-sm">{measurement.notes}</p>
+                        </div>
+                      {/if}
+
+                      <!-- Photos Preview -->
+                      {#if measurementPhotos[measurement.id] && measurementPhotos[measurement.id].length > 0}
+                        <div class="mb-4">
+                          <p class="text-base-content/80 mb-2 flex items-center gap-1 text-sm font-medium">
+                            <Camera size={14} />
+                            Photos ({measurementPhotos[measurement.id].length})
+                          </p>
+                          <div class="flex gap-2 overflow-x-auto pb-2">
+                            {#each measurementPhotos[measurement.id].slice(0, 4) as photo}
+                              <a
+                                href={PhotoService.getPhotoUrl(photo.id)}
+                                target="_blank"
+                                class="block h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-opacity hover:opacity-80"
+                              >
+                                <img src={PhotoService.getThumbnailUrl(photo.id)} alt="Measurement photo" class="h-full w-full object-cover" />
+                              </a>
+                            {/each}
+                            {#if measurementPhotos[measurement.id].length > 4}
+                              <div class="bg-base-300 flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg">
+                                <span class="text-base-content/60 text-xs">+{measurementPhotos[measurement.id].length - 4}</span>
+                              </div>
+                            {/if}
+                          </div>
                         </div>
                       {/if}
 

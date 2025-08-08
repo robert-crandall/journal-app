@@ -69,9 +69,8 @@ export function createAuthenticatedFetch() {
     };
 
     // Only set Content-Type to application/json if not already set and body is not FormData
-    const hasContentType = options.headers && 
-      (('Content-Type' in options.headers) || ('content-type' in options.headers));
-    
+    const hasContentType = options.headers && ('Content-Type' in options.headers || 'content-type' in options.headers);
+
     if (!hasContentType && !(options.body instanceof FormData)) {
       defaultHeaders['Content-Type'] = 'application/json';
     }

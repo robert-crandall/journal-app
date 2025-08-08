@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { JournalResponse } from '$lib/types/journal';
+  import { PhotoService } from '$lib/api/photos';
+  import type { PhotoResponse } from '$lib/types/photos';
   import { formatDate, formatDateTime } from '$lib/utils/date';
-  import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon } from 'lucide-svelte';
+  import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon, ImageIcon } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithEntity } from '$lib/api/xpGrants';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalDayRating from './JournalDayRating.svelte';
@@ -12,8 +14,17 @@
 
   let xpGrants: XpGrantWithEntity[] = [];
   let loadingGrants = true;
+  let photos: PhotoResponse[] = [];
+  let loadingPhotos = true;
 
   onMount(async () => {
+    // Load XP grants and photos in parallel
+    const promises = [loadXpGrants(), loadPhotos()];
+
+    await Promise.all(promises);
+  });
+
+  async function loadXpGrants() {
     try {
       xpGrants = await XpGrantsService.getJournalXpGrants(journal.id);
     } catch (error) {
@@ -21,7 +32,21 @@
     } finally {
       loadingGrants = false;
     }
-  });
+  }
+
+  async function loadPhotos() {
+    try {
+      const response = await PhotoService.listPhotos({
+        linkedType: 'journal',
+        journalId: journal.id,
+      });
+      photos = response.photos || [];
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+    } finally {
+      loadingPhotos = false;
+    }
+  }
 
   $: chatSession = journal.chatSession || [];
   $: contentTagGrants = xpGrants.filter((grant) => grant.entityType === 'content_tag');
@@ -72,6 +97,48 @@
 
         <div class="max-w-none">
           <Markdown content={journal.summary} classes="text-base-content/90 leading-relaxed" />
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  {#if !loadingPhotos && photos.length > 0}
+    <div class="card bg-base-100 border-base-300 border shadow-xl">
+      <div class="card-body">
+        <div class="mb-4 flex items-center gap-3">
+          <ImageIcon size={24} class="text-info" />
+          <h3 class="text-lg font-semibold">Photos ({photos.length})</h3>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {#each photos as photo (photo.id)}
+            <div class="group border-base-300 relative aspect-square overflow-hidden rounded-lg border">
+              <img
+                src={PhotoService.getThumbnailUrl(photo.thumbnailPath)}
+                alt={photo.caption || photo.originalFilename}
+                class="h-full w-full object-cover transition-transform group-hover:scale-110"
+                loading="lazy"
+              />
+
+              <!-- Caption overlay -->
+              {#if photo.caption}
+                <div class="absolute right-0 bottom-0 left-0 bg-black/70 p-2">
+                  <p class="truncate text-xs text-white">{photo.caption}</p>
+                </div>
+              {/if}
+
+              <!-- Click to view full size -->
+              <a
+                href={PhotoService.getPhotoUrl(photo.filePath)}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/20"
+                title="View full size"
+              >
+                <ImageIcon size={24} class="text-white opacity-0 transition-opacity group-hover:opacity-100" />
+              </a>
+            </div>
+          {/each}
         </div>
       </div>
     </div>
