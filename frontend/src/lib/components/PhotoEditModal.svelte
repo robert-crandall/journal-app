@@ -4,9 +4,9 @@
   import type { PhotoResponse } from '$lib/types/photos';
   import { Trash2, X, SaveIcon } from 'lucide-svelte';
 
-  let { 
+  let {
     open = $bindable(false),
-    photo = null
+    photo = null,
   }: {
     open: boolean;
     photo: PhotoResponse | null;
@@ -133,16 +133,16 @@
       <div class="grid gap-6 md:grid-cols-2">
         <!-- Photo Display -->
         <div class="flex justify-center">
-          <div class="overflow-hidden rounded-lg bg-base-200">
-            <button 
+          <div class="bg-base-200 overflow-hidden rounded-lg">
+            <button
               type="button"
               onclick={handleImageClick}
-              class="transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+              class="focus:ring-primary rounded-lg transition-opacity hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
               aria-label="View full-size image"
             >
-              <img 
-                src={PhotoService.getPhotoUrl(photo.filePath)} 
-                alt={photo.caption || photo.originalFilename} 
+              <img
+                src={PhotoService.getPhotoUrl(photo.filePath)}
+                alt={photo.caption || photo.originalFilename}
                 class="max-h-96 max-w-full object-contain"
                 loading="lazy"
               />
@@ -179,12 +179,7 @@
             <!-- Action Buttons -->
             <div class="flex justify-between">
               <!-- Delete Button -->
-              <button
-                type="button"
-                class="btn btn-error btn-outline gap-2"
-                onclick={handleDelete}
-                disabled={loading || deleting}
-              >
+              <button type="button" class="btn btn-error btn-outline gap-2" onclick={handleDelete} disabled={loading || deleting}>
                 {#if deleting}
                   <span class="loading loading-spinner loading-sm"></span>
                   Deleting...
@@ -195,11 +190,7 @@
               </button>
 
               <!-- Save/Cancel Buttons -->
-              <button
-                type="submit"
-                class="btn btn-primary gap-2"
-                disabled={loading || deleting}
-              >
+              <button type="submit" class="btn btn-primary gap-2" disabled={loading || deleting}>
                 {#if loading}
                   <span class="loading loading-spinner loading-sm"></span>
                   Saving...
@@ -218,19 +209,9 @@
 
 <!-- Full-size image modal -->
 {#if showFullSizeModal && photo}
-  <div 
-    class="modal modal-open"
-    onclick={handleFullSizeModalClick}
-    onkeydown={(e) => e.key === 'Escape' && closeFullSizeModal()}
-    role="dialog"
-    tabindex="-1"
-  >
-    <div class="modal-box max-w-none w-screen h-screen bg-black bg-opacity-90 flex items-center justify-center">
-      <img 
-        src={PhotoService.getPhotoUrl(photo.filePath)} 
-        alt={photo.caption || photo.originalFilename}
-        class="max-w-full max-h-full object-contain"
-      />
+  <div class="modal modal-open" onclick={handleFullSizeModalClick} onkeydown={(e) => e.key === 'Escape' && closeFullSizeModal()} role="dialog" tabindex="-1">
+    <div class="modal-box bg-opacity-90 flex h-screen w-screen max-w-none items-center justify-center bg-black">
+      <img src={PhotoService.getPhotoUrl(photo.filePath)} alt={photo.caption || photo.originalFilename} class="max-h-full max-w-full object-contain" />
     </div>
   </div>
 {/if}

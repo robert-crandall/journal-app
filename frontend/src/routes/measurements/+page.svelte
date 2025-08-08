@@ -83,9 +83,7 @@
     const updatedPhoto = event.detail;
     // Find which measurement this photo belongs to and update it
     for (const measurementId in measurementPhotos) {
-      measurementPhotos[measurementId] = measurementPhotos[measurementId].map((p) =>
-        p.id === updatedPhoto.id ? updatedPhoto : p
-      );
+      measurementPhotos[measurementId] = measurementPhotos[measurementId].map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
     }
     measurementPhotos = { ...measurementPhotos };
   }

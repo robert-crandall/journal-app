@@ -123,14 +123,14 @@
 
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {#each photos as photo (photo.id)}
-            <PhotoThumbnail 
-              {photo} 
-              size="large" 
-              class="border-base-300 aspect-square border" 
-              showCaption={true} 
-              showHoverIcon={true} 
-              on:update={handlePhotoUpdate} 
-              on:delete={handlePhotoDelete} 
+            <PhotoThumbnail
+              {photo}
+              size="large"
+              class="border-base-300 aspect-square border"
+              showCaption={true}
+              showHoverIcon={true}
+              on:update={handlePhotoUpdate}
+              on:delete={handlePhotoDelete}
             />
           {/each}
         </div>

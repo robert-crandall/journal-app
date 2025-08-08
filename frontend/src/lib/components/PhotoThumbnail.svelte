@@ -77,9 +77,4 @@
 {/if}
 
 <!-- Photo Edit Modal -->
-<PhotoEditModal 
-  bind:open={showEditModal} 
-  photo={currentPhoto} 
-  on:update={handlePhotoUpdate} 
-  on:delete={handlePhotoDelete} 
-/>
+<PhotoEditModal bind:open={showEditModal} photo={currentPhoto} on:update={handlePhotoUpdate} on:delete={handlePhotoDelete} />
