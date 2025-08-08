@@ -57,6 +57,16 @@
     }
   }
 
+  function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
+    const updatedPhoto = event.detail;
+    photos = photos.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
+  }
+
+  function handlePhotoDelete(event: CustomEvent<string>) {
+    const deletedPhotoId = event.detail;
+    photos = photos.filter((p) => p.id !== deletedPhotoId);
+  }
+
   async function sendMessage() {
     if (!newMessage.trim() || sending) return;
 
@@ -277,7 +287,7 @@
         </h3>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {#each photos as photo}
-            <PhotoThumbnail {photo} class="aspect-square" />
+            <PhotoThumbnail {photo} class="aspect-square" on:update={handlePhotoUpdate} on:delete={handlePhotoDelete} />
           {/each}
         </div>
       </div>
