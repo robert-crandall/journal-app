@@ -67,9 +67,9 @@
         recordedDate = result.recordedDate;
         weightLbs = result.weightLbs ?? undefined;
         neckCm = result.neckCm ?? undefined;
-        waistAtNavelCm = result.waistAtNavelCm ?? undefined;
-        waistAboveNavelCm = result.waistAboveNavelCm ?? undefined;
-        waistBelowNavelCm = result.waistBelowNavelCm ?? undefined;
+        waistAtNavelCm = result.extra?.waistAtNavelCm ?? undefined;
+        waistAboveNavelCm = result.extra?.waistAboveNavelCm ?? undefined;
+        waistBelowNavelCm = result.extra?.waistBelowNavelCm ?? undefined;
         hipCm = result.hipCm ?? undefined;
         notes = result.notes ?? '';
       }
