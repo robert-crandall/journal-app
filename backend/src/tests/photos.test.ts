@@ -775,8 +775,8 @@ describe('Photos API Integration Tests', () => {
 
   describe('File validation', () => {
     it('should reject files that are too large', async () => {
-      // Create a buffer that's larger than the max size (simulating a 15MB file)
-      const largeBuffer = Buffer.alloc(15 * 1024 * 1024, 'a');
+      // Create a buffer that's larger than the max size (simulating a 25MB file)
+      const largeBuffer = Buffer.alloc(25 * 1024 * 1024, 'a');
       const formData = createFormDataWithFile('large-file.png', largeBuffer, 'image/png', 'journal', testJournal.id);
 
       const res = await app.request('/api/photos', {

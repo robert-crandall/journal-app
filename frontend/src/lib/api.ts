@@ -44,7 +44,7 @@ export function createAuthenticatedClient() {
   return hc<AppType>(baseUrl, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      // Don't set Content-Type here - let individual requests handle it
     },
   });
 }
@@ -64,11 +64,22 @@ export function createAuthenticatedFetch() {
 
   // Return a fetch function with auth headers pre-configured
   return async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+    const defaultHeaders: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    // Only set Content-Type to application/json if not already set and body is not FormData
+    const hasContentType = options.headers && 
+      (('Content-Type' in options.headers) || ('content-type' in options.headers));
+    
+    if (!hasContentType && !(options.body instanceof FormData)) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
     return fetch(`${baseUrl}${endpoint}`, {
       ...options,
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        ...defaultHeaders,
         ...options.headers,
       },
     });
