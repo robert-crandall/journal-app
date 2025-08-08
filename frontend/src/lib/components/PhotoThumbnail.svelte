@@ -43,7 +43,7 @@
     </a>
   </div>
 {:else}
-  <a href={PhotoService.getPhotoUrl(photo.filePath)} target="_blank" class={containerClasses}>
+  <a href={PhotoService.getPhotoUrl(photo.filePath)} class={containerClasses}>
     <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="" class="h-full w-full object-cover" />
   </a>
 {/if}
