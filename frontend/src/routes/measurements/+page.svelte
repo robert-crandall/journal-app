@@ -79,6 +79,24 @@
     measurementPhotos = photosMap;
   }
 
+  function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
+    const updatedPhoto = event.detail;
+    // Find which measurement this photo belongs to and update it
+    for (const measurementId in measurementPhotos) {
+      measurementPhotos[measurementId] = measurementPhotos[measurementId].map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
+    }
+    measurementPhotos = { ...measurementPhotos };
+  }
+
+  function handlePhotoDelete(event: CustomEvent<string>) {
+    const deletedPhotoId = event.detail;
+    // Find which measurement this photo belongs to and remove it
+    for (const measurementId in measurementPhotos) {
+      measurementPhotos[measurementId] = measurementPhotos[measurementId].filter((p) => p.id !== deletedPhotoId);
+    }
+    measurementPhotos = { ...measurementPhotos };
+  }
+
   // Helper functions
   function formatWeight(weightLbs: number | null): string {
     if (!weightLbs) return 'N/A';
@@ -264,7 +282,7 @@
                           </p>
                           <div class="flex gap-2 overflow-x-auto pb-2">
                             {#each measurementPhotos[measurement.id].slice(0, 4) as photo}
-                              <PhotoThumbnail {photo} />
+                              <PhotoThumbnail {photo} on:update={handlePhotoUpdate} on:delete={handlePhotoDelete} />
                             {/each}
                             {#if measurementPhotos[measurement.id].length > 4}
                               <div class="bg-base-300 flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg">

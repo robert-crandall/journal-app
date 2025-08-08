@@ -57,6 +57,16 @@
     }
   }
 
+  function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
+    const updatedPhoto = event.detail;
+    photos = photos.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
+  }
+
+  function handlePhotoDelete(event: CustomEvent<string>) {
+    const deletedPhotoId = event.detail;
+    photos = photos.filter((p) => p.id !== deletedPhotoId);
+  }
+
   async function sendMessage() {
     if (!newMessage.trim() || sending) return;
 
@@ -107,14 +117,6 @@
 
   function handleFinish(event: CustomEvent<{ dayRating: number | null }>) {
     finishJournal(event.detail.dayRating);
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    // Send on Enter (without Shift)
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
   }
 
   function formatMessageTime(timestamp: string): string {
@@ -222,15 +224,11 @@
           <textarea
             data-test-id="chat-input"
             bind:value={newMessage}
-            on:keydown={handleKeydown}
             placeholder="Share thoughts or ask questions..."
             class="textarea textarea-bordered focus:border-primary w-full resize-none text-sm focus:outline-none sm:text-base"
             rows="1"
             disabled={sending}
           ></textarea>
-          <div class="label hidden py-0 sm:block">
-            <span class="label-text-alt text-2xs opacity-60 sm:text-xs">Enter to send, Shift+Enter for new line</span>
-          </div>
         </div>
 
         <button
@@ -277,7 +275,7 @@
         </h3>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {#each photos as photo}
-            <PhotoThumbnail {photo} class="aspect-square" />
+            <PhotoThumbnail {photo} class="aspect-square" on:update={handlePhotoUpdate} on:delete={handlePhotoDelete} />
           {/each}
         </div>
       </div>

@@ -49,6 +49,16 @@
     }
   }
 
+  function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
+    const updatedPhoto = event.detail;
+    photos = photos.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
+  }
+
+  function handlePhotoDelete(event: CustomEvent<string>) {
+    const deletedPhotoId = event.detail;
+    photos = photos.filter((p) => p.id !== deletedPhotoId);
+  }
+
   $: chatSession = journal.chatSession || [];
   $: contentTagGrants = xpGrants.filter((grant) => grant.entityType === 'content_tag');
   $: statGrants = xpGrants.filter((grant) => grant.entityType === 'character_stat');
@@ -113,7 +123,15 @@
 
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {#each photos as photo (photo.id)}
-            <PhotoThumbnail {photo} size="large" class="border-base-300 aspect-square border" showCaption={true} showHoverIcon={true} />
+            <PhotoThumbnail
+              {photo}
+              size="large"
+              class="border-base-300 aspect-square border"
+              showCaption={true}
+              showHoverIcon={true}
+              on:update={handlePhotoUpdate}
+              on:delete={handlePhotoDelete}
+            />
           {/each}
         </div>
       </div>

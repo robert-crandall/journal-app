@@ -72,6 +72,16 @@
     }
   }
 
+  function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
+    const updatedPhoto = event.detail;
+    photos = photos.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
+  }
+
+  function handlePhotoDelete(event: CustomEvent<string>) {
+    const deletedPhotoId = event.detail;
+    photos = photos.filter((p) => p.id !== deletedPhotoId);
+  }
+
   // Helper functions
   function formatWeight(weightLbs: number | null): string {
     if (!weightLbs) return 'Not recorded';
@@ -325,7 +335,7 @@
                   </h2>
                   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                     {#each photos as photo}
-                      <PhotoThumbnail {photo} size="large" class="aspect-square shadow-md" />
+                      <PhotoThumbnail {photo} size="large" class="aspect-square shadow-md" on:update={handlePhotoUpdate} on:delete={handlePhotoDelete} />
                     {/each}
                   </div>
                 </div>
