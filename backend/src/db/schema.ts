@@ -33,6 +33,14 @@ export {
   measurementIdSchema,
   updateUserWithMeasurementFieldsSchema,
 } from '../validation/measurements';
+export {
+  createPhotoSchema,
+  updatePhotoSchema,
+  listPhotosSchema,
+  photoIdSchema,
+  fileUploadSchema,
+  bulkPhotoUploadSchema,
+} from '../validation/photos';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser, Sex } from '../../../shared/types/users';
@@ -135,3 +143,16 @@ export type {
   ListMeasurementsRequest,
   ListMeasurementsResponse,
 } from '../../../shared/types/measurements';
+export type {
+  Photo,
+  NewPhoto,
+  PhotoUpdate,
+  CreatePhotoRequest,
+  UpdatePhotoRequest,
+  BulkPhotoUploadRequest,
+  PhotoResponse,
+  ListPhotosRequest,
+  ListPhotosResponse,
+  PhotoUploadResponse,
+  BulkPhotoUploadResponse,
+} from '../../../shared/types/photos';

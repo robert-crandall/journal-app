@@ -32,6 +32,17 @@ Photos should be stored server-side with thumbnails for fast calendar display an
   - Upload photo(s) from gallery
   - Optional: drag-and-drop support (desktop)
 
+#### 3. Reusable Component
+Create a PhotoUpload component that:
+
+Accepts configuration for multiple vs single file upload.
+
+Supports both take photo and select from library options.
+
+Accepts a target folder/namespace (journal, measurements, etc.) for storage.
+
+Returns an array of uploaded file metadata (e.g., filename, URL, timestamp).
+
 #### 3. Storage & Infrastructure
 
 - **Dockerfile**:

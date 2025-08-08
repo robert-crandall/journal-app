@@ -309,6 +309,13 @@
       "when": 1754608980427,
       "tag": "0043_striped_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1754610237179,
+      "tag": "0044_windy_green_goblin",
+      "breakpoints": true
     }
   ]
 }

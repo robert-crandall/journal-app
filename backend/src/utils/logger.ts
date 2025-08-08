@@ -1,4 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
+import { ZodError } from 'zod';
 
 /**
  * Log levels in order of severity
@@ -152,6 +153,13 @@ export function handleApiError(error: unknown | null | undefined, message: strin
   if (!error) {
     logger.error(message);
     throw new HTTPException(status as any, { message });
+  }
+
+  // Handle Zod validation errors as 400 Bad Request
+  if (error instanceof ZodError) {
+    const validationMessage = `Validation failed: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`;
+    logger.warn(`${message} - ${validationMessage}`);
+    throw new HTTPException(400, { message: validationMessage });
   }
 
   // If error is already an HTTPException, log it and rethrow

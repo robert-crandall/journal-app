@@ -19,6 +19,7 @@ export * from './user-attributes';
 export * from './goal-alignment-summaries';
 export * from './weekly-analyses';
 export * from './measurements';
+export * from './photos';
 // Future exports:
 // export * from './posts';
 // export * from './comments';

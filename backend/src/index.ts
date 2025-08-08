@@ -20,6 +20,7 @@ import plansRoutes from './routes/plans';
 import weatherRoutes from './routes/weather';
 import metricSummariesRoutes from './routes/metric-summaries';
 import measurementsRoutes from './routes/measurements';
+import photosRoutes from './routes/photos';
 import xpGrantsRoutes from './routes/xpGrants';
 import dailyIntentsRoutes from './routes/daily-intents';
 import generateTasksRoutes from './routes/generate-tasks';
@@ -90,6 +91,8 @@ const routes = app
   .route('/api/metric-summaries', metricSummariesRoutes)
   // Mount measurements routes
   .route('/api/measurements', measurementsRoutes)
+  // Mount photos routes
+  .route('/api/photos', photosRoutes)
   // Mount XP grants routes
   .route('/api/xp-grants', xpGrantsRoutes)
   // Mount daily intents routes
@@ -98,6 +101,9 @@ const routes = app
   .route('/api/generate-tasks', generateTasksRoutes)
   // Mount user attributes routes
   .route('/api/user-attributes', userAttributesRoutes);
+
+// Serve uploaded files statically
+app.use('/uploads/*', serveStatic({ root: '.' }));
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {
