@@ -90,10 +90,11 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
 
   const tasksCompleted = experimentTaskComps.length + todoComps.length;
 
-  // 5. Get journal entries in the period for tone and content tag analysis
+  // 5. Get journal entries in the period for tone analysis and average day rating
   const journalEntries = await db
     .select({
       toneTags: journals.toneTags,
+      dayRating: journals.dayRating,
     })
     .from(journals)
     .where(
@@ -121,7 +122,15 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
     .map(([tone, count]) => ({ tone, count }))
     .sort((a, b) => b.count - a.count);
 
-  // 7. Calculate content tag frequency from XP grants to content tags
+  // 7. Calculate average day rating
+  const journalRatings = journalEntries.map((journal) => journal.dayRating).filter((rating): rating is number => rating !== null && rating !== undefined);
+
+  const avgDayRating =
+    journalRatings.length > 0
+      ? Math.round((journalRatings.reduce((sum, rating) => sum + rating, 0) / journalRatings.length) * 10) / 10 // Round to 1 decimal place
+      : null;
+
+  // 8. Calculate content tag frequency from XP grants to content tags
   const contentTagXpGrants = xpGrantsInPeriod.filter((grant) => grant.entityType === 'content_tag' && grant.entityId);
 
   // Get tag names for the content tag grants
@@ -153,6 +162,7 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
   return {
     totalXpGained,
     tasksCompleted,
+    avgDayRating,
     xpByStats,
     toneFrequency,
     contentTagFrequency,

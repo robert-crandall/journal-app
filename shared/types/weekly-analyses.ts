@@ -5,6 +5,7 @@ export type AnalysisType = 'weekly' | 'monthly' | 'quarterly';
 export interface WeeklyAnalysisMetrics {
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;
@@ -46,6 +47,7 @@ export interface WeeklyAnalysis {
   // Metrics Summary Section
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;
@@ -84,6 +86,7 @@ export interface NewWeeklyAnalysis {
   journalTags?: string[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -116,6 +119,7 @@ export interface CreateWeeklyAnalysisRequest {
   journalTags?: string[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -142,6 +146,7 @@ export interface UpdateWeeklyAnalysisRequest {
   journalTags?: string[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -179,6 +184,7 @@ export interface WeeklyAnalysisResponse {
   journalTags: string[];
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;

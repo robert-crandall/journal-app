@@ -25,6 +25,7 @@ export const weeklyAnalyses = pgTable('weekly_analyses', {
   // Metrics Summary Section
   totalXpGained: integer('total_xp_gained').default(0).notNull(),
   tasksCompleted: integer('tasks_completed').default(0).notNull(),
+  avgDayRating: integer('avg_day_rating'), // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: jsonb('xp_by_stats')
     .$type<
       Array<{

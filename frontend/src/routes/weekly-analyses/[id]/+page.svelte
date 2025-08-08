@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { getWeeklyAnalysis, formatWeekRange } from '$lib/api/weekly-analyses';
   import type { WeeklyAnalysisResponse } from '../../../../../shared/types/weekly-analyses';
-  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users, ImageIcon } from 'lucide-svelte';
+  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users, ImageIcon, Star } from 'lucide-svelte';
   import { formatDate as formatDateUtil } from '$lib/utils/date';
   import { PhotoService } from '$lib/api/photos';
 
@@ -133,7 +133,7 @@
 
           <div class="space-y-4">
             <!-- Key Metrics -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid gap-4" class:grid-cols-2={analysis.avgDayRating === null} class:grid-cols-3={analysis.avgDayRating !== null}>
               <div class="stat-item">
                 <div class="stat-value text-green-600">{analysis.totalXpGained}</div>
                 <div class="stat-label">XP Gained</div>
@@ -142,6 +142,15 @@
                 <div class="stat-value text-blue-600">{analysis.tasksCompleted}</div>
                 <div class="stat-label">Tasks Done</div>
               </div>
+              {#if analysis.avgDayRating !== null}
+                <div class="stat-item">
+                  <div class="stat-value flex items-center gap-1 text-yellow-600">
+                    <Star size={20} />
+                    {analysis.avgDayRating}
+                  </div>
+                  <div class="stat-label">Avg Rating</div>
+                </div>
+              {/if}
             </div>
 
             <!-- Additional Metrics -->

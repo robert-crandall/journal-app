@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { getWeeklyAnalyses, getCurrentWeekRange, formatWeekRange, formatAnalysisType, type GetWeeklyAnalysesOptions } from '$lib/api/weekly-analyses';
   import type { WeeklyAnalysisResponse, AnalysisType } from '../../../../shared/types/weekly-analyses';
-  import { ArrowRight, Calendar, TrendingUp, Target, Brain, Filter } from 'lucide-svelte';
+  import { ArrowRight, Calendar, TrendingUp, Target, Brain, Filter, Star } from 'lucide-svelte';
   import { formatDate as formatDateUtil } from '$lib/utils/date';
 
   let analyses: WeeklyAnalysisResponse[] = [];
@@ -235,6 +235,12 @@
                 <Target size={16} class="text-blue-600" />
                 <span>{analysis.tasksCompleted} tasks completed</span>
               </div>
+              {#if analysis.avgDayRating !== null}
+                <div class="flex items-center gap-1">
+                  <Star size={16} class="text-yellow-600" />
+                  <span>{analysis.avgDayRating}/5 avg rating</span>
+                </div>
+              {/if}
               {#if analysis.alignmentScore !== null}
                 <div class="flex items-center gap-1">
                   <Brain size={16} class="text-purple-600" />

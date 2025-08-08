@@ -47,6 +47,7 @@ const weeklyAnalysisBaseSchema = z.object({
   journalTags: z.array(z.string()).default([]),
   totalXpGained: z.number().int().min(0, 'Total XP gained must be non-negative').default(0),
   tasksCompleted: z.number().int().min(0, 'Tasks completed must be non-negative').default(0),
+  avgDayRating: z.number().min(1).max(5).nullable().optional(), // Average daily rating (1-5 scale, nullable if no ratings)
   xpByStats: xpByStatsSchema.default([]),
   toneFrequency: toneFrequencySchema.default([]),
   contentTagFrequency: contentTagFrequencySchema.default([]),
