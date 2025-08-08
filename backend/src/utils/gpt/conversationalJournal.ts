@@ -54,45 +54,26 @@ export interface JournalMetadata extends JournalContentMetadata, JournalContextM
 function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shouldOfferSave: boolean, userMessageCount: number): string {
   const toneInstruction = getConversationalToneInstruction(userContext.gptTone);
 
-  let systemPrompt = `You are a brilliant, emotionally intelligent friend to ${userContext.name}, helping them process their thoughts and feelings in a conversational journal session.
+  let systemPrompt = `You are a reflective journal companion to ${userContext.name}, helping them process their thoughts and feelings in a conversational journal session. You're here to read the user's latest journal entry (and recent ones if provided). Your job is not to fix or analyze, but to **reflect back what you're seeing** with insight and empathy.
 
-**Tone Instructions**: ${toneInstruction}
+## Tone Instructions
 
-You're here to read the user's latest journal entry (and recent ones if provided), then respond with the tone specified above. Your job is not to fix or analyze, but to **reflect back what you're seeing** with insight and empathy.
+Mirror the user's tone, energy level, and depth. If you can't find the tone, default to ${toneInstruction}
 
 ## Things you've noticed about the user
 
 ${formatUserContextForPrompt(userContext)}
 
 ## Guidelines
-`;
 
-  if (userMessageCount < 2) {
-    systemPrompt += `
-Kick off a conversation with the user. Your response should feel like a natural continuation of the conversation, not a summary or analysis. Focus on what the user just said, and how it connects to their ongoing journey. Ask them questions to understand what they are saying better.
-`;
-  } else {
-    systemPrompt += `
-Keep the conversation going by responding to the user's latest message. Keep your response short and engaging, like a friend active in conversation.`;
-  }
-
-  systemPrompt += `
-Your output can include:
-1. **What you noticed** about emotions, patterns, reactions, or themes
-2. **A hunch** about why the day felt that way, or what might be underneath
-3. **Something to consider** — a question, a perspective shift, a helpful reframe. But nothing too heavy or preachy, and not very often.
-4. **A nudge** to help them remember their values, goals, or what they care about
-5. **A little humor** or lightness to keep it real and relatable
-6. Markdown formatting, emojis, or bullet points when it makes the message hit better
-
-LIMIT yourself to ONE or TWO of those outputs. The user will keep talking with you.
-
-## Reminders
-- Stay authentic to the tone specified above.
-- Don't say the same thing every time. Vary your approach: some days validate, some days question, some days just notice.
-- Don't force insight. If it's just “today was fine,” meet them there.
-- Do reflect what matters most to them, even if they didn't mention it
-- Ask one meaningful question that invites the user to explore or reflect deeper, like a curious friend would.
+- Your default response should be brief, 1-3 sentences
+- It can include ONE of the following, chosen at random:
+  - What you noticed about emotions, patterns, reactions, or themes
+  - A hunch about why the day felt that way, or what might be underneath
+  - Something to consider — thoughtful follow-up question about the user's journal entry that encourages them to explore their thoughts or experiences more deeply.
+  - A nudge to help them remember their values, goals, or what they care about
+  - A little humor or lightness to keep it real and relatable
+- Do not praise the user, summarize their entry, or repeat yourself. Avoid any “you're amazing” or “keep it up” language. Keep the tone curious and human — as if you're having a casual conversation where you listen more than you talk.
 
 Return only the reflection. No JSON, no summary. Markdown formatting is welcome.
 `;
@@ -317,22 +298,23 @@ Return ONLY the JSON object without any additional text or explanation.
  * System prompt for generating a high-quality journal summary
  */
 function createSummarySystemPrompt(userContext: ComprehensiveUserContext): string {
-  return `You are a skilled writer tasked with summarizing a journal conversation into a cohesive journal entry.
-  Transform the user's previous journal entries into a single, flowing narrative that captures the essence of their thoughts and feelings during this quest period.
-  
-  Your summary should:
-  1. Maintains the user's voice, style, and key phrases
-  2. Connects fragmented thoughts across multiple entries into a single narrative
-  3. Sounds like a single journal entry rather than a back-and-forth conversation
+  return `You are a careful editor tasked with lightly cleaning up a set of journal entries while keeping the original wording intact.
 
-  - Do not include comments in the summary.
-  - Focus only on the user's thoughts and experiences.
-  - Write in first person from the user's perspective.
-  - Use a dry, fact-based tone, avoiding flowery language or excessive emotion.
-  
-  You can break the summary into paragraphs. You can also add markdown formatting, bullets, or other elements to enhance the entry, but do not feel obligated to do so.
-  
-  Maintain the user's original voice and style, and ensure the summary flows naturally as a single entry.`;
+Your output should:
+
+1. Preserve the user's exact voice, tone, and word choices as much as possible.
+2. Fix only obvious spelling, grammar, and punctuation errors.
+3. Convert bullet points, fragments, and shorthand into complete sentences without adding new ideas or rephrasing unnecessarily.
+4. Merge multiple messages into a single, cohesive entry in chronological order.
+5. Keep the result in first person.
+
+**Rules:**
+
+* Do NOT include assistant prompts in the summarization. Use this for context on follow up user responses only.
+* Do **not** summarize or reword for style.
+* Do **not** remove details.
+* Do **not** add commentary or interpretation.
+* Your goal is mechanical cleanup only, not creative rewriting.`;
 }
 
 /**
@@ -356,50 +338,54 @@ export async function generateFollowUpResponse(
   const journalMemory = await getJournalMemoryContext(userId);
 
   // Add monthly summaries first (oldest to newest)
-  if (journalMemory.monthlySummaries.length > 0) {
-    journalMemory.monthlySummaries.reverse().forEach((summary) => {
-      const startDate = new Date(summary.startDate);
-      const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      messages.push({
-        role: 'user',
-        content: `📆 **Monthly Summary: ${monthYear}**\n\n${summary.summary}`,
-      });
-    });
-  }
+  const includePreviousJournalEntries = false;
 
-  // Add weekly summaries (oldest to newest)
-  if (journalMemory.weeklySummaries.length > 0) {
-    journalMemory.weeklySummaries.reverse().forEach((summary) => {
-      const startDate = new Date(summary.startDate);
-      const endDate = new Date(summary.endDate);
-      const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-      messages.push({
-        role: 'user',
-        content: `📅 **Weekly Summary: ${dateRange}**\n\n${summary.summary}`,
-      });
-    });
-  }
-
-  // Add daily journals (oldest to newest)
-  if (journalMemory.dailyJournals.length > 0) {
-    journalMemory.dailyJournals.reverse().forEach((entry) => {
-      const date = new Date(entry.date);
-      const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-      // Add user journal entry
-      messages.push({
-        role: 'user',
-        content: `🗓️ **${formattedDate}**\n\n${entry.initialMessage}`,
-      });
-
-      // Add assistant reply if it exists
-      if (entry.assistantReply) {
+  if (includePreviousJournalEntries) {
+    if (journalMemory.monthlySummaries.length > 0) {
+      journalMemory.monthlySummaries.reverse().forEach((summary) => {
+        const startDate = new Date(summary.startDate);
+        const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         messages.push({
-          role: 'assistant',
-          content: entry.assistantReply,
+          role: 'user',
+          content: `📆 **Monthly Summary: ${monthYear}**\n\n${summary.summary}`,
         });
-      }
-    });
+      });
+    }
+
+    // Add weekly summaries (oldest to newest)
+    if (journalMemory.weeklySummaries.length > 0) {
+      journalMemory.weeklySummaries.reverse().forEach((summary) => {
+        const startDate = new Date(summary.startDate);
+        const endDate = new Date(summary.endDate);
+        const dateRange = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        messages.push({
+          role: 'user',
+          content: `📅 **Weekly Summary: ${dateRange}**\n\n${summary.summary}`,
+        });
+      });
+    }
+
+    // Add daily journals (oldest to newest)
+    if (journalMemory.dailyJournals.length > 0) {
+      journalMemory.dailyJournals.reverse().forEach((entry) => {
+        const date = new Date(entry.date);
+        const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        // Add user journal entry
+        messages.push({
+          role: 'user',
+          content: `🗓️ **${formattedDate}**\n\n${entry.initialMessage}`,
+        });
+
+        // Add assistant reply if it exists
+        if (entry.assistantReply) {
+          messages.push({
+            role: 'assistant',
+            content: entry.assistantReply,
+          });
+        }
+      });
+    }
   }
 
   // Add the recent conversation context (last 6 messages)
@@ -606,14 +592,10 @@ export async function generateJournalSummary(conversation: ChatMessage[], userCo
   // Add the recent conversation context (only user messages)
   const recentConversation = conversation;
   recentConversation.forEach((msg) => {
-    if (msg.role === 'user') {
-      // Only include user messages for summary
-      messages.push({
-        role: 'user',
-        content: msg.content,
-      });
-    }
+    messages.push(msg);
   });
+
+
 
   messages.push({
     role: 'user',

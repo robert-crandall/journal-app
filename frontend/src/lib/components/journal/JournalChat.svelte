@@ -229,9 +229,6 @@
             rows="1"
             disabled={sending}
           ></textarea>
-          <div class="label hidden py-0 sm:block">
-            <span class="label-text-alt text-2xs opacity-60 sm:text-xs">Enter to send, Shift+Enter for new line</span>
-          </div>
         </div>
 
         <button
