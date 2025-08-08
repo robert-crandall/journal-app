@@ -103,20 +103,13 @@ const routes = app
   .route('/api/user-attributes', userAttributesRoutes);
 
 // Serve uploaded files statically
-app.use('/uploads/*', async (c, next) => {
-  const requestedPath = c.req.path;
-  const rewrittenPath = requestedPath.replace(/^\/uploads/, '');
-  const resolvedPath = (process.env.UPLOAD_DIR || './uploads') + rewrittenPath;
-  console.log(`[uploads] Requested: ${requestedPath}, Rewritten: ${rewrittenPath}, Resolved: ${resolvedPath}`);
-  return serveStatic({
+app.use(
+  '/uploads/*',
+  serveStatic({
     root: process.env.UPLOAD_DIR || './uploads',
-    rewriteRequestPath: (path) => {
-      const rewritten = path.replace(/^\/uploads/, '');
-      console.log(`[uploads] rewriteRequestPath: ${path} => ${rewritten}`);
-      return rewritten;
-    },
-  })(c, next);
-});
+    rewriteRequestPath: (path) => path.replace(/^\/uploads/, ''),
+  }),
+);
 
 // Serve static files - but exclude API routes using a custom condition
 app.use('*', async (c, next) => {
