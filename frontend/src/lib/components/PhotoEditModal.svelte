@@ -16,6 +16,7 @@
   let loading = $state(false);
   let deleting = $state(false);
   let error = $state<string | null>(null);
+  let showFullSizeModal = $state(false);
 
   const dispatch = createEventDispatcher<{
     update: PhotoResponse;
@@ -94,6 +95,18 @@
       handleClose();
     }
   }
+
+  function handleImageClick() {
+    showFullSizeModal = true;
+  }
+
+  function closeFullSizeModal() {
+    showFullSizeModal = false;
+  }
+
+  function handleFullSizeModalClick(event: MouseEvent) {
+    closeFullSizeModal();
+  }
 </script>
 
 {#if open && photo}
@@ -121,12 +134,19 @@
         <!-- Photo Display -->
         <div class="flex justify-center">
           <div class="overflow-hidden rounded-lg bg-base-200">
-            <img 
-              src={PhotoService.getPhotoUrl(photo.filePath)} 
-              alt={photo.caption || photo.originalFilename} 
-              class="max-h-96 max-w-full object-contain"
-              loading="lazy"
-            />
+            <button 
+              type="button"
+              onclick={handleImageClick}
+              class="transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+              aria-label="View full-size image"
+            >
+              <img 
+                src={PhotoService.getPhotoUrl(photo.filePath)} 
+                alt={photo.caption || photo.originalFilename} 
+                class="max-h-96 max-w-full object-contain"
+                loading="lazy"
+              />
+            </button>
           </div>
         </div>
 
@@ -192,6 +212,25 @@
           </form>
         </div>
       </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Full-size image modal -->
+{#if showFullSizeModal && photo}
+  <div 
+    class="modal modal-open"
+    onclick={handleFullSizeModalClick}
+    onkeydown={(e) => e.key === 'Escape' && closeFullSizeModal()}
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-box max-w-none w-screen h-screen bg-black bg-opacity-90 flex items-center justify-center">
+      <img 
+        src={PhotoService.getPhotoUrl(photo.filePath)} 
+        alt={photo.caption || photo.originalFilename}
+        class="max-w-full max-h-full object-contain"
+      />
     </div>
   </div>
 {/if}
