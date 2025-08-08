@@ -17,6 +17,7 @@ import { handleApiError } from '../utils/logger';
 import { generateFollowUpResponse, generateJournalMetadata, generateJournalSummary, type ChatMessage } from '../utils/gpt/conversationalJournal';
 import { getUserContext } from '../utils/userContextService';
 import { UserAttributesService } from '../services/user-attributes';
+import { deleteJournalXpGrants } from '../utils/xpService';
 import type {
   CreateJournalRequest,
   UpdateJournalRequest,
@@ -426,6 +427,76 @@ const app = new Hono()
       });
     } catch (error) {
       handleApiError(error, 'Failed to update journal');
+      return; // This should never be reached, but added for completeness
+    }
+  })
+
+  // Edit journal entry (handles XP cleanup and re-finalization)
+  .post('/:date/edit', jwtAuth, zValidator('param', journalDateSchema), zValidator('json', updateJournalSchema), async (c) => {
+    try {
+      const userId = getUserId(c);
+      const { date } = c.req.valid('param');
+      const data = c.req.valid('json') as UpdateJournalRequest;
+
+      // Check if journal exists and belongs to the user
+      const existingJournal = await db
+        .select()
+        .from(journals)
+        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+        .limit(1);
+
+      if (existingJournal.length === 0) {
+        return c.json(
+          {
+            success: false,
+            error: 'Journal not found',
+          },
+          404,
+        );
+      }
+
+      const currentJournal = existingJournal[0];
+      const journalId = currentJournal.id;
+
+      // If this is a completed journal being edited, we need to clean up existing XP grants first
+      if (currentJournal.status === 'complete') {
+        await deleteJournalXpGrants(userId, journalId);
+      }
+
+      // Update the journal with the new data and reset to draft status
+      const updateData: any = {
+        updatedAt: new Date(),
+        status: 'draft', // Reset to draft when editing
+        // Clear AI-generated content since we'll regenerate it
+        summary: null,
+        title: null,
+        synopsis: null,
+        toneTags: null,
+      };
+
+      // Update provided fields
+      if (data.initialMessage !== undefined) {
+        updateData.initialMessage = data.initialMessage;
+      }
+      if (data.chatSession !== undefined) {
+        updateData.chatSession = data.chatSession;
+      }
+      if (data.dayRating !== undefined) {
+        updateData.dayRating = data.dayRating;
+      }
+
+      const updatedJournal = await db
+        .update(journals)
+        .set(updateData)
+        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+        .returning();
+
+      return c.json({
+        success: true,
+        data: serializeJournal(updatedJournal[0]),
+      });
+    } catch (error) {
+      handleApiError(error, 'Failed to edit journal');
       return; // This should never be reached, but added for completeness
     }
   })
@@ -855,7 +926,12 @@ const app = new Hono()
         );
       }
 
-      // Delete the journal
+      const journalId = journalToDelete[0].id;
+
+      // Delete all XP grants associated with this journal and recalculate entity totals
+      await deleteJournalXpGrants(userId, journalId);
+
+      // Delete the journal (this will cascade delete any associated records due to foreign key constraints)
       await db.delete(journals).where(and(eq(journals.userId, userId), eq(journals.date, date)));
 
       return c.json({

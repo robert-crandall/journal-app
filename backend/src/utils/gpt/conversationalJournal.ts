@@ -595,8 +595,6 @@ export async function generateJournalSummary(conversation: ChatMessage[], userCo
     messages.push(msg);
   });
 
-
-
   messages.push({
     role: 'user',
     content: `Please summarize the given messages into a cohesive journal entry:`,

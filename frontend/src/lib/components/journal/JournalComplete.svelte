@@ -1,22 +1,41 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import type { JournalResponse } from '$lib/types/journal';
   import { PhotoService } from '$lib/api/photos';
   import type { PhotoResponse } from '$lib/types/photos';
   import { formatDate, formatDateTime } from '$lib/utils/date';
-  import { CheckCircleIcon, TagIcon, BookOpenIcon, SparklesIcon, MessageSquareIcon, TrophyIcon, UsersIcon, ImageIcon } from 'lucide-svelte';
+  import {
+    CheckCircleIcon,
+    TagIcon,
+    BookOpenIcon,
+    SparklesIcon,
+    MessageSquareIcon,
+    TrophyIcon,
+    UsersIcon,
+    ImageIcon,
+    EditIcon,
+    TrashIcon,
+  } from 'lucide-svelte';
   import { XpGrantsService, type XpGrantWithEntity } from '$lib/api/xpGrants';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalDayRating from './JournalDayRating.svelte';
   import ToneTagsDisplay from './ToneTagsDisplay.svelte';
   import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
+  import { JournalService } from '$lib/api/journal';
 
   export let journal: JournalResponse;
+
+  const dispatch = createEventDispatcher<{
+    journalEdited: JournalResponse;
+    journalDeleted: string;
+  }>();
 
   let xpGrants: XpGrantWithEntity[] = [];
   let loadingGrants = true;
   let photos: PhotoResponse[] = [];
   let loadingPhotos = true;
+  let editingJournal = false;
+  let deletingJournal = false;
 
   onMount(async () => {
     // Load XP grants and photos in parallel
@@ -59,6 +78,43 @@
     photos = photos.filter((p) => p.id !== deletedPhotoId);
   }
 
+  async function handleEditClick() {
+    if (editingJournal) return;
+
+    try {
+      editingJournal = true;
+      const editedJournal = await JournalService.editJournal(journal.date, {
+        initialMessage: journal.initialMessage ?? undefined,
+        title: journal.title || '',
+        dayRating: journal.dayRating || 5,
+      });
+      dispatch('journalEdited', editedJournal);
+    } catch (error) {
+      console.error('Failed to edit journal:', error);
+      // Could add error toast here
+    } finally {
+      editingJournal = false;
+    }
+  }
+
+  async function handleDeleteClick() {
+    if (deletingJournal) return;
+
+    const confirmed = confirm('Are you sure you want to delete this journal entry? This action cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      deletingJournal = true;
+      await JournalService.deleteJournal(journal.date);
+      dispatch('journalDeleted', journal.date);
+    } catch (error) {
+      console.error('Failed to delete journal:', error);
+      // Could add error toast here
+    } finally {
+      deletingJournal = false;
+    }
+  }
+
   $: chatSession = journal.chatSession || [];
   $: contentTagGrants = xpGrants.filter((grant) => grant.entityType === 'content_tag');
   $: statGrants = xpGrants.filter((grant) => grant.entityType === 'character_stat');
@@ -69,11 +125,23 @@
   <!-- Header Card -->
   <div class="card bg-success/20 border-success/60 border">
     <div class="card-body">
-      <div class="mb-4 flex items-center gap-3">
-        <CheckCircleIcon size={32} class="text-success" />
-        <div>
-          <h2 class="text-gradient text-2xl font-bold">Journal Complete</h2>
-          <p class="text-base-content/70">{formatDate(journal.date)}</p>
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <CheckCircleIcon size={32} class="text-success" />
+          <div>
+            <h2 class="text-gradient text-2xl font-bold">Journal Complete</h2>
+            <p class="text-base-content/70">{formatDate(journal.date)}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-sm btn-outline btn-neutral" on:click={handleEditClick} disabled={editingJournal} data-test-id="edit-journal-button">
+            <EditIcon size={16} />
+            {editingJournal ? 'Editing...' : 'Edit'}
+          </button>
+          <button class="btn btn-sm btn-outline btn-error" on:click={handleDeleteClick} disabled={deletingJournal} data-test-id="delete-journal-button">
+            <TrashIcon size={16} />
+            {deletingJournal ? 'Deleting...' : 'Delete'}
+          </button>
         </div>
       </div>
 

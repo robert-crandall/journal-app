@@ -86,6 +86,17 @@ export class JournalService {
   }
 
   /**
+   * Edit a journal entry (handles XP cleanup and resets to draft)
+   */
+  static async editJournal(date: string, data: UpdateJournalRequest): Promise<JournalResponse> {
+    const response = await apiFetch(`/api/journals/${date}/edit`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.data;
+  }
+
+  /**
    * Start reflection process (draft -> in_review)
    */
   static async startReflection(date: string): Promise<JournalResponse> {
