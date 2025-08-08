@@ -7,7 +7,7 @@ import { env } from '../env';
 
 // Configuration
 const UPLOAD_DIR = env.UPLOAD_DIR;
-const THUMBNAIL_WIDTH = 200;
+const THUMBNAIL_WIDTH = 512;
 const THUMBNAIL_QUALITY = 85;
 
 // Supported image formats
@@ -79,6 +79,7 @@ export async function createThumbnail(imageBuffer: Buffer, originalPath: string)
   const thumbnailPath = join(UPLOAD_DIR, thumbnailFilename);
 
   await sharp(imageBuffer)
+    .rotate() // Auto-orient based on EXIF
     .resize(THUMBNAIL_WIDTH, THUMBNAIL_WIDTH, {
       fit: 'inside',
       withoutEnlargement: true,
