@@ -198,6 +198,16 @@ export interface WeeklyAnalysisResponse {
   suggestedNextSteps: string[];
   goalAlignmentSummary: string;
   combinedReflection?: string;
+  photos: Array<{
+    id: string;
+    journalId: string;
+    journalDate: string; // ISO date string of the journal entry
+    filePath: string;
+    thumbnailPath: string;
+    originalFilename: string;
+    caption: string | null;
+    createdAt: string; // ISO date string
+  }>;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }
