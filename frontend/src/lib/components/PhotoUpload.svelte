@@ -27,9 +27,9 @@
   let error: string | null = null;
   let isDragOver = false;
 
-  // Maximum file size (10MB to match backend)
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
-  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+  // Maximum file size (20MB to match backend)
+  const MAX_FILE_SIZE = 20 * 1024 * 1024;
+  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
 
   function handleFileSelect(event: Event) {
     const target = event.target as HTMLInputElement;
