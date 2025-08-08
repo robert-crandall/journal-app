@@ -15,6 +15,8 @@
   let journal: JournalResponse | null = null;
   let loading = true;
   let error: string | null = null;
+  let isEditingComplete = false; // Track if we're editing a previously complete journal
+  let originalCompleteJournal: JournalResponse | null = null; // Store original complete state
 
   onMount(async () => {
     if (!date) {
@@ -47,7 +49,17 @@
 
   function handleJournalEdited(event: CustomEvent<JournalResponse>) {
     const editedJournal = event.detail;
+    // Instead of calling the backend /edit endpoint, just transition to editing mode
+    originalCompleteJournal = journal; // Store the original complete state
     journal = editedJournal;
+    isEditingComplete = true;
+  }
+
+  function handleCancelEdit() {
+    // Restore the original complete journal state
+    journal = originalCompleteJournal;
+    isEditingComplete = false;
+    originalCompleteJournal = null;
   }
 
   function handleJournalDeleted(event: CustomEvent<string>) {
@@ -89,8 +101,15 @@
   {:else if journal}
     <!-- Existing journal - show appropriate view based on status -->
     <div class="flex flex-grow flex-col">
-      {#if journal.status === 'draft'}
-        <JournalEditor {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
+      {#if journal.status === 'draft' || isEditingComplete}
+        <JournalEditor
+          {journal}
+          {date}
+          {isEditingComplete}
+          {originalCompleteJournal}
+          on:update={(e) => handleJournalUpdate(e.detail)}
+          on:cancelEdit={handleCancelEdit}
+        />
       {:else if journal.status === 'in_review'}
         <div class="flex flex-grow flex-col">
           <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
@@ -101,7 +120,7 @@
     </div>
   {:else}
     <!-- No journal exists for this date - show creation form -->
-    <JournalEditor journal={null} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
+    <JournalEditor journal={null} {date} isEditingComplete={false} originalCompleteJournal={null} on:update={(e) => handleJournalUpdate(e.detail)} />
   {/if}
 </div>
 

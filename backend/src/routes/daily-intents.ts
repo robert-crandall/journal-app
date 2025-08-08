@@ -113,7 +113,7 @@ app.get('/', async (c) => {
   try {
     const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50);
     const userId = c.var.userId;
-    
+
     const intents = await db.select().from(dailyIntents).where(eq(dailyIntents.userId, userId)).orderBy(dailyIntents.date).limit(limit);
 
     return c.json({

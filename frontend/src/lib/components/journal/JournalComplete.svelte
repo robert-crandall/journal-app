@@ -21,6 +21,7 @@
   import JournalDayRating from './JournalDayRating.svelte';
   import ToneTagsDisplay from './ToneTagsDisplay.svelte';
   import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
+  import PhotoUpload from '$lib/components/PhotoUpload.svelte';
   import { JournalService } from '$lib/api/journal';
 
   export let journal: JournalResponse;
@@ -36,6 +37,7 @@
   let loadingPhotos = true;
   let editingJournal = false;
   let deletingJournal = false;
+  let showPhotoUpload = false;
 
   onMount(async () => {
     // Load XP grants and photos in parallel
@@ -78,19 +80,30 @@
     photos = photos.filter((p) => p.id !== deletedPhotoId);
   }
 
+  function togglePhotoUpload() {
+    showPhotoUpload = !showPhotoUpload;
+  }
+
+  function handlePhotoUploaded(event: CustomEvent) {
+    // Photo uploaded successfully, reload photos to show the new one
+    loadPhotos();
+  }
+
+  function handlePhotoDeleted(event: CustomEvent) {
+    // Photo deleted successfully, reload photos to reflect the change
+    loadPhotos();
+  }
+
   async function handleEditClick() {
     if (editingJournal) return;
 
     try {
       editingJournal = true;
-      const editedJournal = await JournalService.editJournal(journal.date, {
-        initialMessage: journal.initialMessage ?? undefined,
-        title: journal.title || '',
-        dayRating: journal.dayRating || 5,
-      });
-      dispatch('journalEdited', editedJournal);
+      // Instead of calling the backend edit endpoint, just dispatch an event
+      // to transition to edit mode with the current journal data
+      dispatch('journalEdited', journal);
     } catch (error) {
-      console.error('Failed to edit journal:', error);
+      console.error('Failed to enter edit mode:', error);
       // Could add error toast here
     } finally {
       editingJournal = false;
@@ -181,14 +194,34 @@
     </div>
   {/if}
 
-  {#if !loadingPhotos && photos.length > 0}
-    <div class="card bg-base-100 border-base-300 border shadow-xl">
-      <div class="card-body">
-        <div class="mb-4 flex items-center gap-3">
+  <!-- Photos Section -->
+  <div class="card bg-base-100 border-base-300 border shadow-xl">
+    <div class="card-body">
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
           <ImageIcon size={24} class="text-info" />
           <h3 class="text-lg font-semibold">Photos ({photos.length})</h3>
         </div>
+        <button type="button" on:click={togglePhotoUpload} class="btn btn-ghost btn-sm gap-2" class:btn-active={showPhotoUpload}>
+          <ImageIcon size={16} />
+          {showPhotoUpload ? 'Hide Upload' : 'Add Photos'}
+        </button>
+      </div>
 
+      {#if showPhotoUpload}
+        <div class="border-base-300 mb-4 rounded-lg border p-4">
+          {#if loadingPhotos}
+            <div class="flex items-center justify-center p-4">
+              <span class="loading loading-spinner loading-sm"></span>
+              <span class="ml-2 text-sm opacity-70">Loading photos...</span>
+            </div>
+          {:else}
+            <PhotoUpload linkedType="journal" linkedId={journal.id} {photos} on:uploaded={handlePhotoUploaded} on:delete={handlePhotoDeleted} />
+          {/if}
+        </div>
+      {/if}
+
+      {#if photos.length > 0}
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {#each photos as photo (photo.id)}
             <PhotoThumbnail
@@ -202,9 +235,11 @@
             />
           {/each}
         </div>
-      </div>
+      {:else if !showPhotoUpload}
+        <p class="text-base-content/60 text-sm italic">No photos attached to this journal entry.</p>
+      {/if}
     </div>
-  {/if}
+  </div>
 
   <!-- Tags Section -->
   {#if !loadingGrants && contentTagGrants.length > 0}
