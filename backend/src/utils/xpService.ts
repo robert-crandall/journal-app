@@ -168,6 +168,75 @@ export async function getXpGrantsWithEntityInfo(userId: string, filter: XpGrantF
 }
 
 /**
+ * Recalculate and update total XP for all stats for a user
+ * This should be called after deleting XP grants to ensure stat totals are accurate
+ */
+export async function recalculateStatTotals(userId: string): Promise<void> {
+  // Get all character stats for the user
+  const userStats = await db.select({ id: characterStats.id }).from(characterStats).where(eq(characterStats.userId, userId));
+
+  // For each stat, calculate the total XP from all grants and update the stat
+  for (const stat of userStats) {
+    const [xpResult] = await db
+      .select({ total: sql<number>`COALESCE(SUM(${xpGrants.xpAmount}), 0)` })
+      .from(xpGrants)
+      .where(and(eq(xpGrants.userId, userId), eq(xpGrants.entityType, 'character_stat'), eq(xpGrants.entityId, stat.id)));
+
+    const totalXp = xpResult?.total || 0;
+
+    // Update the stat's total XP
+    await db
+      .update(characterStats)
+      .set({
+        totalXp: totalXp,
+        updatedAt: new Date(),
+      })
+      .where(eq(characterStats.id, stat.id));
+  }
+}
+
+/**
+ * Recalculate and update total XP for all family members for a user
+ * This should be called after deleting XP grants to ensure family member totals are accurate
+ */
+export async function recalculateFamilyTotals(userId: string): Promise<void> {
+  // Get all family members for the user
+  const userFamilyMembers = await db.select({ id: familyMembers.id }).from(familyMembers).where(eq(familyMembers.userId, userId));
+
+  // For each family member, calculate the total XP from all grants and update
+  for (const member of userFamilyMembers) {
+    const [xpResult] = await db
+      .select({ total: sql<number>`COALESCE(SUM(${xpGrants.xpAmount}), 0)` })
+      .from(xpGrants)
+      .where(and(eq(xpGrants.userId, userId), eq(xpGrants.entityType, 'family_member'), eq(xpGrants.entityId, member.id)));
+
+    const totalXp = xpResult?.total || 0;
+    const newLevel = Math.floor(totalXp / 100) + 1;
+
+    // Update the family member's connection XP and level
+    await db
+      .update(familyMembers)
+      .set({
+        connectionXp: totalXp,
+        connectionLevel: newLevel,
+        updatedAt: new Date(),
+      })
+      .where(eq(familyMembers.id, member.id));
+  }
+}
+
+/**
+ * Delete all XP grants associated with a journal entry and recalculate entity totals
+ */
+export async function deleteJournalXpGrants(userId: string, journalId: string): Promise<void> {
+  // Delete all XP grants associated with this journal
+  await db.delete(xpGrants).where(and(eq(xpGrants.userId, userId), eq(xpGrants.sourceType, 'journal'), eq(xpGrants.sourceId, journalId)));
+
+  // Recalculate totals for all affected entities
+  await Promise.all([recalculateStatTotals(userId), recalculateFamilyTotals(userId)]);
+}
+
+/**
  * Get XP summary by entity type for a user
  */
 export async function getXpSummaryByEntityType(userId: string): Promise<Record<XpEntityType, number>> {

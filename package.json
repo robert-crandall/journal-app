@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun scripts/start-dev.js",
-    "dev:force": "bun scripts/start-dev.js --force",
+    "dev:force": "bun scripts/start-dev.js --force --background",
+    "dev:stop": "bun scripts/start-dev.js --stop",
     "backend": "bun scripts/start-dev.js --backend-only",
     "backend:force": "bun scripts/start-dev.js --backend-only --force",
     "frontend": "bun scripts/start-dev.js --frontend-only",

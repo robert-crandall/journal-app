@@ -25,7 +25,6 @@ questRoutes.post('/', zValidator('json', createQuestSchema), async (c) => {
     const data = c.req.valid('json');
 
     const quest = await QuestService.createQuest(userId, data);
-    logger.info('Quest created successfully', { userId, questId: quest.id });
 
     return c.json(
       {
@@ -158,8 +157,6 @@ questRoutes.put('/:id', zValidator('param', questIdSchema), zValidator('json', u
       );
     }
 
-    logger.info('Quest updated successfully', { userId, questId: id });
-
     return c.json({
       success: true,
       data: quest,
@@ -185,8 +182,6 @@ questRoutes.delete('/:id', zValidator('param', questIdSchema), async (c) => {
         404,
       );
     }
-
-    logger.info('Quest deleted successfully', { userId, questId: id });
 
     return c.json({
       success: true,
@@ -214,8 +209,6 @@ questRoutes.post('/:id/experiments', zValidator('param', questIdSchema), zValida
         404,
       );
     }
-
-    logger.info('Experiment linked to quest', { userId, questId: id, experimentId: data.experimentId });
 
     return c.json({
       success: true,
@@ -252,8 +245,6 @@ questRoutes.delete(
         );
       }
 
-      logger.info('Experiment unlinked from quest', { userId, questId: id, experimentId });
-
       return c.json({
         success: true,
         data: { questId: id, experimentId },
@@ -281,8 +272,6 @@ questRoutes.post('/:id/journals', zValidator('param', questIdSchema), zValidator
         404,
       );
     }
-
-    logger.info('Journal linked to quest', { userId, questId: id, journalId: data.journalId });
 
     return c.json({
       success: true,
@@ -319,8 +308,6 @@ questRoutes.delete(
         );
       }
 
-      logger.info('Journal unlinked from quest', { userId, questId: id, journalId });
-
       return c.json({
         success: true,
         data: { questId: id, journalId },
@@ -347,8 +334,6 @@ questRoutes.post('/:id/auto-link-journals', zValidator('param', questIdSchema), 
         404,
       );
     }
-
-    logger.info('Auto-linked journals to quest', { userId, questId: id });
 
     return c.json({
       success: true,

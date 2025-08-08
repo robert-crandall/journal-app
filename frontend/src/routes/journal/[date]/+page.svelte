@@ -45,6 +45,16 @@
     journal = updatedJournal;
   }
 
+  function handleJournalEdited(event: CustomEvent<JournalResponse>) {
+    const editedJournal = event.detail;
+    journal = editedJournal;
+  }
+
+  function handleJournalDeleted(event: CustomEvent<string>) {
+    // Redirect to journal dashboard after deletion
+    goto('/journal');
+  }
+
   function goBack() {
     goto('/journal');
   }
@@ -86,7 +96,7 @@
           <JournalChat {journal} {date} on:update={(e) => handleJournalUpdate(e.detail)} />
         </div>
       {:else if journal.status === 'complete'}
-        <JournalComplete {journal} />
+        <JournalComplete {journal} on:journalEdited={handleJournalEdited} on:journalDeleted={handleJournalDeleted} />
       {/if}
     </div>
   {:else}
