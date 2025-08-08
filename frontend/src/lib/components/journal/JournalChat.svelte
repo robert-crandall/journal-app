@@ -119,14 +119,6 @@
     finishJournal(event.detail.dayRating);
   }
 
-  function handleKeydown(event: KeyboardEvent) {
-    // Send on Enter (without Shift)
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
-  }
-
   function formatMessageTime(timestamp: string): string {
     try {
       return formatDateTime(timestamp, 'time-only');
@@ -232,7 +224,6 @@
           <textarea
             data-test-id="chat-input"
             bind:value={newMessage}
-            on:keydown={handleKeydown}
             placeholder="Share thoughts or ask questions..."
             class="textarea textarea-bordered focus:border-primary w-full resize-none text-sm focus:outline-none sm:text-base"
             rows="1"
