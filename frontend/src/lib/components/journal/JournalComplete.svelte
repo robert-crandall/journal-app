@@ -130,7 +130,6 @@
               <!-- Click to view full size -->
               <a
                 href={PhotoService.getPhotoUrl(photo.filePath)}
-                target="_blank"
                 rel="noopener noreferrer"
                 class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/20"
                 title="View full size"

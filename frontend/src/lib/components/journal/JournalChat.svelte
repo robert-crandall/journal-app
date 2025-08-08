@@ -277,11 +277,10 @@
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {#each photos as photo}
             <a
-              href={PhotoService.getPhotoUrl(photo.id)}
-              target="_blank"
+              href={PhotoService.getPhotoUrl(photo.filePath)}
               class="block aspect-square overflow-hidden rounded-lg transition-opacity hover:opacity-80"
             >
-              <img src={PhotoService.getThumbnailUrl(photo.id)} alt="Journal photo" class="h-full w-full object-cover" />
+              <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="Journal photo" class="h-full w-full object-cover" />
             </a>
           {/each}
         </div>

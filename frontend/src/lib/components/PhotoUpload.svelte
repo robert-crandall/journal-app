@@ -291,7 +291,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs text-white hover:bg-white/20"
-                on:click={() => window.open(PhotoService.getPhotoUrl(photo.filePath), '_blank')}
+                on:click={() => window.open(PhotoService.getPhotoUrl(photo.filePath))}
                 title="View full size"
               >
                 <Edit3 size={14} />

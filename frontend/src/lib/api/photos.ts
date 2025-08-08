@@ -118,7 +118,8 @@ export class PhotoService {
       throw new Error(errorData.error || `Failed to fetch photos: ${response.status}`);
     }
 
-    return response.json();
+    const parsedResponse = await response.json();
+    return parsedResponse.data;
   }
 
   /**

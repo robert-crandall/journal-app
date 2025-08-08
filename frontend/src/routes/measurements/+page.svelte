@@ -75,7 +75,6 @@
     photoResults.forEach(({ measurementId, photos }) => {
       photosMap[measurementId] = photos;
     });
-
     measurementPhotos = photosMap;
   }
 
@@ -265,11 +264,10 @@
                           <div class="flex gap-2 overflow-x-auto pb-2">
                             {#each measurementPhotos[measurement.id].slice(0, 4) as photo}
                               <a
-                                href={PhotoService.getPhotoUrl(photo.id)}
-                                target="_blank"
+                                href={PhotoService.getPhotoUrl(photo.filePath)}
                                 class="block h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-opacity hover:opacity-80"
                               >
-                                <img src={PhotoService.getThumbnailUrl(photo.id)} alt="Measurement photo" class="h-full w-full object-cover" />
+                                <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="Measurement photo" class="h-full w-full object-cover" />
                               </a>
                             {/each}
                             {#if measurementPhotos[measurement.id].length > 4}
