@@ -19,6 +19,8 @@ const args = process.argv.slice(2);
 const isForce = args.includes('--force');
 const isBackendOnly = args.includes('--backend-only');
 const isFrontendOnly = args.includes('--frontend-only');
+const isBackground = args.includes('--background');
+const isStop = args.includes('--stop');
 
 // Utility functions
 function log(message, type = 'info') {
@@ -165,11 +167,18 @@ async function startBackend() {
     log('Starting backend service...');
   }
 
-  const backend = spawn('bun', ['run', 'dev'], {
+  const spawnOptions = {
     cwd: './backend',
-    stdio: 'inherit',
     env: { ...process.env, PORT: BACKEND_PORT },
-  });
+    stdio: isBackground ? 'ignore' : 'inherit',
+    detached: isBackground,
+  };
+  const backend = spawn('bun', ['run', 'dev'], spawnOptions);
+
+  if (isBackground) {
+    log('Backend started in background mode', 'success');
+    return backend;
+  }
 
   // Wait for backend to be ready
   let attempts = 0;
@@ -200,10 +209,17 @@ async function startFrontend() {
     log('Starting frontend service...');
   }
 
-  const frontend = spawn('bun', ['run', 'dev'], {
+  const spawnOptions = {
     cwd: './frontend',
-    stdio: 'inherit',
-  });
+    stdio: isBackground ? 'ignore' : 'inherit',
+    detached: isBackground,
+  };
+  const frontend = spawn('bun', ['run', 'dev'], spawnOptions);
+
+  if (isBackground) {
+    log('Frontend started in background mode', 'success');
+    return frontend;
+  }
 
   // Wait for frontend to be ready
   let attempts = 0;
@@ -244,10 +260,10 @@ async function startDevelopment() {
     log('Starting Journal App Development Environment', 'start');
 
     // Handle force flag
-    if (isForce) {
+    if (isForce || isStop) {
       log('Force flag detected - killing existing processes', 'warning');
 
-      if (!isFrontendOnly) {
+      if (!isFrontendOnly || isStop) {
         // Kill backend processes and port
         const backendResult = spawnSync('pgrep', ['-f', 'bun.*run.*--hot.*src/index.ts'], { encoding: 'utf-8' });
         const backendPids = backendResult.stdout.split('\n').filter(Boolean);
@@ -258,7 +274,7 @@ async function startDevelopment() {
         killProcessesOnPorts([BACKEND_PORT]);
       }
 
-      if (!isBackendOnly) {
+      if (!isBackendOnly || isStop) {
         // Kill frontend processes and port
         const frontendResult = spawnSync('pgrep', ['-f', 'vite dev'], { encoding: 'utf-8' });
         const frontendPids = frontendResult.stdout.split('\n').filter(Boolean);
@@ -272,6 +288,11 @@ async function startDevelopment() {
       // Clean up PID file
       if (fs.existsSync(PID_FILE)) {
         fs.unlinkSync(PID_FILE);
+      }
+
+      if (isStop) {
+        log('All dev processes stopped. Exiting.', 'success');
+        process.exit(0);
       }
     }
 
@@ -354,32 +375,38 @@ async function startDevelopment() {
       }
 
       console.log('='.repeat(60));
-      log('Press Ctrl+C to stop all services');
 
-      // Handle graceful shutdown
-      const shutdown = () => {
-        log('Shutting down development environment...', 'warning');
-        processes.forEach((process) => {
-          try {
-            process.kill('SIGTERM');
-          } catch (e) {
-            // Process might already be dead
-          }
-        });
-
-        // Clean up PID file
-        if (fs.existsSync(PID_FILE)) {
-          fs.unlinkSync(PID_FILE);
-        }
-
+      if (isBackground) {
+        log('Services are running in background mode. Use "kill $(cat ' + PID_FILE + ')" to stop them.', 'info');
         process.exit(0);
-      };
+      } else {
+        log('Press Ctrl+C to stop all services');
 
-      process.on('SIGINT', shutdown);
-      process.on('SIGTERM', shutdown);
+        // Handle graceful shutdown
+        const shutdown = () => {
+          log('Shutting down development environment...', 'warning');
+          processes.forEach((process) => {
+            try {
+              process.kill('SIGTERM');
+            } catch (e) {
+              // Process might already be dead
+            }
+          });
 
-      // Wait for processes to exit
-      await Promise.all(processes.map((process) => new Promise((resolve) => process.on('exit', resolve))));
+          // Clean up PID file
+          if (fs.existsSync(PID_FILE)) {
+            fs.unlinkSync(PID_FILE);
+          }
+
+          process.exit(0);
+        };
+
+        process.on('SIGINT', shutdown);
+        process.on('SIGTERM', shutdown);
+
+        // Wait for processes to exit
+        await Promise.all(processes.map((process) => new Promise((resolve) => process.on('exit', resolve))));
+      }
     }
   } catch (error) {
     log(`Development startup failed: ${error.message}`, 'error');
@@ -396,13 +423,17 @@ Usage: bun run dev [options]
 
 Options:
   --force          Kill existing processes and restart
+  --stop           Stop all dev services and clean up (does not start anything)
   --backend-only   Start only the backend service
   --frontend-only  Start only the frontend service
+  --background     Run services in background (detached mode)
   --help           Show this help message
 
 Examples:
-  bun run dev                    # Start both services
+  bun run dev                    # Start both services in foreground
+  bun run dev --background       # Start both services in background
   bun run dev --force            # Kill existing and restart both
+  bun run dev --stop             # Stop all dev services and clean up
   bun run dev --backend-only     # Start only backend
   bun run dev --frontend-only    # Start only frontend
 
