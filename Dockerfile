@@ -64,6 +64,9 @@ COPY shared/ ./shared/
 # Copy the frontend build output (static files)
 COPY --from=frontend-builder /app/frontend/build ./frontend
 
+# Create uploads directory with proper permissions
+RUN mkdir -p ./uploads && chmod 755 ./uploads
+
 # Create a startup script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
@@ -71,10 +74,14 @@ RUN chmod +x /app/docker-entrypoint.sh
 # Environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV UPLOAD_DIR=/app/uploads
 # DATABASE_URL should be set via docker-compose or runtime environment
 
 # Expose only the backend port (which now serves the frontend too)
 EXPOSE 3000
+
+# Declare volume for uploaded files (for persistence)
+VOLUME ["/app/uploads"]
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

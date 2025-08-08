@@ -14,11 +14,19 @@ services:
       DATABASE_URL: postgres://test:test@test-db:5432/journal_app
       JWT_SECRET: your-super-secret-jwt-key-at-least-32-characters-long-for-testing
       ALLOW_REGISTRATION: true
-      PORT: 3001
-      FRONTEND_URL: http://localhost:3001
+      PORT: 3000
+      FRONTEND_URL: http://localhost:3000
+      BASE_URL: http://localhost:3000
     ports:
-      - '3001:3001'
+      - '3000:3000'
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       - test-db
+
+volumes:
+  uploads_data:
+    driver: local
+
 # docker-compose -f docker-compose.test.yml up -d --remove-orphans
 # docker-compose -f docker-compose.test.yml down
