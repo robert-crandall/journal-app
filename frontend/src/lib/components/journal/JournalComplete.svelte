@@ -9,6 +9,7 @@
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalDayRating from './JournalDayRating.svelte';
   import ToneTagsDisplay from './ToneTagsDisplay.svelte';
+  import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
 
   export let journal: JournalResponse;
 
@@ -112,31 +113,7 @@
 
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {#each photos as photo (photo.id)}
-            <div class="group border-base-300 relative aspect-square overflow-hidden rounded-lg border">
-              <img
-                src={PhotoService.getThumbnailUrl(photo.thumbnailPath)}
-                alt={photo.caption || photo.originalFilename}
-                class="h-full w-full object-cover transition-transform group-hover:scale-110"
-                loading="lazy"
-              />
-
-              <!-- Caption overlay -->
-              {#if photo.caption}
-                <div class="absolute right-0 bottom-0 left-0 bg-black/70 p-2">
-                  <p class="truncate text-xs text-white">{photo.caption}</p>
-                </div>
-              {/if}
-
-              <!-- Click to view full size -->
-              <a
-                href={PhotoService.getPhotoUrl(photo.filePath)}
-                rel="noopener noreferrer"
-                class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/20"
-                title="View full size"
-              >
-                <ImageIcon size={24} class="text-white opacity-0 transition-opacity group-hover:opacity-100" />
-              </a>
-            </div>
+            <PhotoThumbnail {photo} size="large" class="border-base-300 aspect-square border" showCaption={true} showHoverIcon={true} />
           {/each}
         </div>
       </div>

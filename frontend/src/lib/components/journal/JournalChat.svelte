@@ -8,6 +8,7 @@
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon, ImageIcon } from 'lucide-svelte';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
+  import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
 
   export let journal: JournalResponse;
   export let date: string;
@@ -276,12 +277,7 @@
         </h3>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {#each photos as photo}
-            <a
-              href={PhotoService.getPhotoUrl(photo.filePath)}
-              class="block aspect-square overflow-hidden rounded-lg transition-opacity hover:opacity-80"
-            >
-              <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="Journal photo" class="h-full w-full object-cover" />
-            </a>
+            <PhotoThumbnail {photo} class="aspect-square" />
           {/each}
         </div>
       </div>

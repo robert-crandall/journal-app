@@ -9,6 +9,7 @@
   import { Ruler, Edit3, Trash2, ArrowLeft, Calculator, Calendar, Camera } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
+  import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
   import { formatDateTime } from '$lib/utils/date';
 
   // Reactive state
@@ -324,12 +325,7 @@
                   </h2>
                   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                     {#each photos as photo}
-                      <a
-                        href={PhotoService.getPhotoUrl(photo.filePath)}
-                        class="block aspect-square overflow-hidden rounded-lg shadow-md transition-opacity hover:opacity-80"
-                      >
-                        <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="Measurement photo" class="h-full w-full object-cover" />
-                      </a>
+                      <PhotoThumbnail {photo} size="large" class="aspect-square shadow-md" />
                     {/each}
                   </div>
                 </div>

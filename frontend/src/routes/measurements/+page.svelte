@@ -9,6 +9,7 @@
   import { Plus, Ruler, Edit3, Trash2, Eye, TrendingUp, Camera } from 'lucide-svelte';
   import AppHeader from '$lib/components/common/AppHeader.svelte';
   import PageContainer from '$lib/components/common/PageContainer.svelte';
+  import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
 
   // Reactive state for measurements data
   let measurements: MeasurementResponse[] = $state([]);
@@ -263,12 +264,7 @@
                           </p>
                           <div class="flex gap-2 overflow-x-auto pb-2">
                             {#each measurementPhotos[measurement.id].slice(0, 4) as photo}
-                              <a
-                                href={PhotoService.getPhotoUrl(photo.filePath)}
-                                class="block h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-opacity hover:opacity-80"
-                              >
-                                <img src={PhotoService.getThumbnailUrl(photo.thumbnailPath)} alt="Measurement photo" class="h-full w-full object-cover" />
-                              </a>
+                              <PhotoThumbnail {photo} />
                             {/each}
                             {#if measurementPhotos[measurement.id].length > 4}
                               <div class="bg-base-300 flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg">
