@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, count, inArray } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
 import { weeklyAnalyses, journals, goals } from '../db/schema';
+import { photos } from '../db/schema/photos';
 import {
   createWeeklyAnalysisSchema,
   updateWeeklyAnalysisSchema,
@@ -37,6 +38,7 @@ const serializeWeeklyAnalysis = (analysis: typeof weeklyAnalyses.$inferSelect): 
     journalTags: analysis.journalTags || [],
     totalXpGained: analysis.totalXpGained,
     tasksCompleted: analysis.tasksCompleted,
+    avgDayRating: analysis.avgDayRating,
     xpByStats: analysis.xpByStats || [],
     toneFrequency: analysis.toneFrequency || [],
     contentTagFrequency: analysis.contentTagFrequency || [],
@@ -46,6 +48,60 @@ const serializeWeeklyAnalysis = (analysis: typeof weeklyAnalyses.$inferSelect): 
     suggestedNextSteps: analysis.suggestedNextSteps || [],
     goalAlignmentSummary: analysis.goalAlignmentSummary,
     combinedReflection: analysis.combinedReflection || undefined,
+    photos: [], // Will be populated by caller if needed
+    createdAt: analysis.createdAt.toISOString(),
+    updatedAt: analysis.updatedAt.toISOString(),
+  };
+};
+
+/**
+ * Helper function to serialize weekly analysis with photos
+ */
+const serializeWeeklyAnalysisWithPhotos = (
+  analysis: typeof weeklyAnalyses.$inferSelect,
+  analysisPhotos: Array<{
+    id: string;
+    journalId: string | null;
+    journalDate: string | null;
+    filePath: string;
+    thumbnailPath: string;
+    originalFilename: string;
+    caption: string | null;
+    createdAt: Date;
+  }>,
+): WeeklyAnalysisResponse => {
+  return {
+    id: analysis.id,
+    userId: analysis.userId,
+    analysisType: analysis.analysisType as any, // Cast from DB type
+    periodStartDate: analysis.periodStartDate,
+    periodEndDate: analysis.periodEndDate,
+    journalSummary: analysis.journalSummary,
+    journalTags: analysis.journalTags || [],
+    totalXpGained: analysis.totalXpGained,
+    tasksCompleted: analysis.tasksCompleted,
+    avgDayRating: analysis.avgDayRating,
+    xpByStats: analysis.xpByStats || [],
+    toneFrequency: analysis.toneFrequency || [],
+    contentTagFrequency: analysis.contentTagFrequency || [],
+    alignmentScore: analysis.alignmentScore,
+    alignedGoals: analysis.alignedGoals || [],
+    neglectedGoals: analysis.neglectedGoals || [],
+    suggestedNextSteps: analysis.suggestedNextSteps || [],
+    goalAlignmentSummary: analysis.goalAlignmentSummary,
+    combinedReflection: analysis.combinedReflection || undefined,
+    photos: analysisPhotos
+      .filter((photo) => photo.journalId && photo.journalDate) // Filter out invalid photos
+      .map((photo) => ({
+        id: photo.id,
+        journalId: photo.journalId!,
+        journalDate: photo.journalDate!,
+        filePath: photo.filePath,
+        thumbnailPath: photo.thumbnailPath,
+        originalFilename: photo.originalFilename,
+        caption: photo.caption,
+        createdAt: photo.createdAt.toISOString(),
+      })),
     createdAt: analysis.createdAt.toISOString(),
     updatedAt: analysis.updatedAt.toISOString(),
   };
@@ -128,9 +184,34 @@ const app = new Hono()
         );
       }
 
+      // Get photos for journal entries in this analysis period
+      const analysisData = analysis[0];
+      const photosInPeriod = await db
+        .select({
+          id: photos.id,
+          journalId: photos.journalId,
+          journalDate: journals.date,
+          filePath: photos.filePath,
+          thumbnailPath: photos.thumbnailPath,
+          originalFilename: photos.originalFilename,
+          caption: photos.caption,
+          createdAt: photos.createdAt,
+        })
+        .from(photos)
+        .leftJoin(journals, eq(photos.journalId, journals.id))
+        .where(
+          and(
+            eq(photos.userId, userId),
+            eq(photos.linkedType, 'journal'),
+            gte(journals.date, analysisData.periodStartDate),
+            lte(journals.date, analysisData.periodEndDate),
+          ),
+        )
+        .orderBy(photos.createdAt);
+
       return c.json({
         success: true,
-        data: serializeWeeklyAnalysis(analysis[0]),
+        data: serializeWeeklyAnalysisWithPhotos(analysisData, photosInPeriod),
       });
     } catch (error) {
       return handleApiError(error, 'Failed to get weekly analysis');
@@ -177,6 +258,7 @@ const app = new Hono()
           journalTags: data.journalTags || [],
           totalXpGained: data.totalXpGained || 0,
           tasksCompleted: data.tasksCompleted || 0,
+          avgDayRating: data.avgDayRating || null,
           xpByStats: data.xpByStats || [],
           toneFrequency: data.toneFrequency || [],
           contentTagFrequency: data.contentTagFrequency || [],
@@ -238,6 +320,27 @@ const app = new Hono()
         )
         .orderBy(journals.date);
 
+      // Get photos for all journal entries in this period
+      const journalIds = journalsInPeriod.map((j) => j.id);
+      const photosInPeriod =
+        journalIds.length > 0
+          ? await db
+              .select({
+                id: photos.id,
+                journalId: photos.journalId,
+                journalDate: journals.date,
+                filePath: photos.filePath,
+                thumbnailPath: photos.thumbnailPath,
+                originalFilename: photos.originalFilename,
+                caption: photos.caption,
+                createdAt: photos.createdAt,
+              })
+              .from(photos)
+              .leftJoin(journals, eq(photos.journalId, journals.id))
+              .where(and(eq(photos.userId, userId), eq(photos.linkedType, 'journal'), inArray(photos.journalId, journalIds)))
+              .orderBy(photos.createdAt)
+          : [];
+
       if (journalsInPeriod.length === 0) {
         return c.json(
           {
@@ -271,9 +374,17 @@ const app = new Hono()
         endDate: data.endDate,
       });
 
+      // Get completed experiments during the period
+      const { getCompletedExperiments } = await import('../services/weeklyAnalysisService');
+      const completedExperiments = await getCompletedExperiments({
+        userId,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      });
+
       // Generate combined weekly analysis using GPT
       const { journalSummary, journalTags, alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, goalAlignmentSummary, combinedReflection } =
-        await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, metrics, data.startDate, data.endDate, userId);
+        await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, completedExperiments, metrics, data.startDate, data.endDate, userId);
 
       // Create the analysis record
       const newAnalysis = await db
@@ -287,6 +398,7 @@ const app = new Hono()
           journalTags,
           totalXpGained: metrics.totalXpGained,
           tasksCompleted: metrics.tasksCompleted,
+          avgDayRating: metrics.avgDayRating,
           xpByStats: metrics.xpByStats,
           toneFrequency: metrics.toneFrequency,
           contentTagFrequency: metrics.contentTagFrequency,
@@ -302,7 +414,7 @@ const app = new Hono()
       return c.json(
         {
           success: true,
-          data: serializeWeeklyAnalysis(newAnalysis[0]),
+          data: serializeWeeklyAnalysisWithPhotos(newAnalysis[0], photosInPeriod),
         },
         201,
       );

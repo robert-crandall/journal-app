@@ -2,10 +2,10 @@ import { eq, and, gte, lte } from 'drizzle-orm';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
 import { xpGrants, characterStats } from '../db/schema/stats';
-import { experimentTaskCompletions } from '../db/schema/experiments';
+import { experiments, experimentTaskCompletions } from '../db/schema/experiments';
 import { simpleTodos } from '../db/schema/todos';
 import { tags } from '../db/schema/tags';
-import type { WeeklyAnalysisMetrics } from '../../../shared/types/weekly-analyses';
+import type { WeeklyAnalysisMetrics, WeeklyAnalysisExperiment } from '../../../shared/types/weekly-analyses';
 
 export interface CalculateWeeklyMetricsOptions {
   userId: string;
@@ -90,10 +90,11 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
 
   const tasksCompleted = experimentTaskComps.length + todoComps.length;
 
-  // 5. Get journal entries in the period for tone and content tag analysis
+  // 5. Get journal entries in the period for tone analysis and average day rating
   const journalEntries = await db
     .select({
       toneTags: journals.toneTags,
+      dayRating: journals.dayRating,
     })
     .from(journals)
     .where(
@@ -121,7 +122,15 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
     .map(([tone, count]) => ({ tone, count }))
     .sort((a, b) => b.count - a.count);
 
-  // 7. Calculate content tag frequency from XP grants to content tags
+  // 7. Calculate average day rating
+  const journalRatings = journalEntries.map((journal) => journal.dayRating).filter((rating): rating is number => rating !== null && rating !== undefined);
+
+  const avgDayRating =
+    journalRatings.length > 0
+      ? Math.round((journalRatings.reduce((sum, rating) => sum + rating, 0) / journalRatings.length) * 10) / 10 // Round to 1 decimal place
+      : null;
+
+  // 8. Calculate content tag frequency from XP grants to content tags
   const contentTagXpGrants = xpGrantsInPeriod.filter((grant) => grant.entityType === 'content_tag' && grant.entityId);
 
   // Get tag names for the content tag grants
@@ -153,8 +162,53 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
   return {
     totalXpGained,
     tasksCompleted,
+    avgDayRating,
     xpByStats,
     toneFrequency,
     contentTagFrequency,
   };
+}
+
+export interface GetCompletedExperimentsOptions {
+  userId: string;
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+}
+
+/**
+ * Get experiments that were completed during the specified period
+ * (experiments with endDate within the period and have a reflection)
+ */
+export async function getCompletedExperiments(options: GetCompletedExperimentsOptions): Promise<WeeklyAnalysisExperiment[]> {
+  const { userId, startDate, endDate } = options;
+
+  // Get experiments that ended during the period and have a reflection (indicating completion)
+  const completedExperiments = await db
+    .select({
+      id: experiments.id,
+      title: experiments.title,
+      description: experiments.description,
+      startDate: experiments.startDate,
+      endDate: experiments.endDate,
+      reflection: experiments.reflection,
+    })
+    .from(experiments)
+    .where(
+      and(
+        eq(experiments.userId, userId),
+        gte(experiments.endDate, startDate),
+        lte(experiments.endDate, endDate),
+        // Only include experiments that have been reflected upon (completed)
+        // Allow null/empty reflections as user might complete without reflection
+      ),
+    );
+
+  return completedExperiments.map((experiment) => ({
+    id: experiment.id,
+    title: experiment.title,
+    description: experiment.description,
+    startDate: experiment.startDate, // Already in YYYY-MM-DD format from date column
+    endDate: experiment.endDate, // Already in YYYY-MM-DD format from date column
+    reflection: experiment.reflection,
+  }));
 }

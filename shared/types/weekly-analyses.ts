@@ -5,6 +5,7 @@ export type AnalysisType = 'weekly' | 'monthly' | 'quarterly';
 export interface WeeklyAnalysisMetrics {
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;
@@ -32,6 +33,15 @@ export interface WeeklyAnalysisNeglectedGoal {
   reason?: string;
 }
 
+export interface WeeklyAnalysisExperiment {
+  id: string;
+  title: string;
+  description: string | null;
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+  reflection: string | null; // "How'd it go" section
+}
+
 export interface WeeklyAnalysis {
   id: string;
   userId: string;
@@ -46,6 +56,7 @@ export interface WeeklyAnalysis {
   // Metrics Summary Section
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;
@@ -82,8 +93,10 @@ export interface NewWeeklyAnalysis {
   periodEndDate: Date;
   journalSummary: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -114,8 +127,10 @@ export interface CreateWeeklyAnalysisRequest {
   periodEndDate: string; // ISO date string
   journalSummary: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -140,8 +155,10 @@ export interface CreateWeeklyAnalysisRequest {
 export interface UpdateWeeklyAnalysisRequest {
   journalSummary?: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
+  avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats?: Array<{
     statId: string;
     statName: string;
@@ -179,6 +196,7 @@ export interface WeeklyAnalysisResponse {
   journalTags: string[];
   totalXpGained: number;
   tasksCompleted: number;
+  avgDayRating: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
   xpByStats: Array<{
     statId: string;
     statName: string;
@@ -198,6 +216,16 @@ export interface WeeklyAnalysisResponse {
   suggestedNextSteps: string[];
   goalAlignmentSummary: string;
   combinedReflection?: string;
+  photos: Array<{
+    id: string;
+    journalId: string;
+    journalDate: string; // ISO date string of the journal entry
+    filePath: string;
+    thumbnailPath: string;
+    originalFilename: string;
+    caption: string | null;
+    createdAt: string; // ISO date string
+  }>;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }

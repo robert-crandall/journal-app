@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, date, timestamp, jsonb, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, date, timestamp, jsonb, integer, real } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 // Analysis type enum for different periods
@@ -25,6 +25,7 @@ export const weeklyAnalyses = pgTable('weekly_analyses', {
   // Metrics Summary Section
   totalXpGained: integer('total_xp_gained').default(0).notNull(),
   tasksCompleted: integer('tasks_completed').default(0).notNull(),
+  avgDayRating: real('avg_day_rating'),
   xpByStats: jsonb('xp_by_stats')
     .$type<
       Array<{

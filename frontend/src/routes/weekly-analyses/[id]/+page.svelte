@@ -4,8 +4,9 @@
   import { page } from '$app/stores';
   import { getWeeklyAnalysis, formatWeekRange } from '$lib/api/weekly-analyses';
   import type { WeeklyAnalysisResponse } from '../../../../../shared/types/weekly-analyses';
-  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users } from 'lucide-svelte';
+  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users, ImageIcon, Star } from 'lucide-svelte';
   import { formatDate as formatDateUtil } from '$lib/utils/date';
+  import { PhotoService } from '$lib/api/photos';
 
   let analysis: WeeklyAnalysisResponse | null = null;
   let loading = true;
@@ -132,7 +133,7 @@
 
           <div class="space-y-4">
             <!-- Key Metrics -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid gap-4" class:grid-cols-2={analysis.avgDayRating === null} class:grid-cols-3={analysis.avgDayRating !== null}>
               <div class="stat-item">
                 <div class="stat-value text-green-600">{analysis.totalXpGained}</div>
                 <div class="stat-label">XP Gained</div>
@@ -141,6 +142,15 @@
                 <div class="stat-value text-blue-600">{analysis.tasksCompleted}</div>
                 <div class="stat-label">Tasks Done</div>
               </div>
+              {#if analysis.avgDayRating !== null}
+                <div class="stat-item">
+                  <div class="stat-value flex items-center gap-1 text-yellow-600">
+                    <Star size={20} />
+                    {analysis.avgDayRating}
+                  </div>
+                  <div class="stat-label">Avg Rating</div>
+                </div>
+              {/if}
             </div>
 
             <!-- Additional Metrics -->
@@ -246,6 +256,58 @@
                 </li>
               {/each}
             </ul>
+          </div>
+        </div>
+      {/if}
+
+      <!-- Photos Section -->
+      {#if analysis.photos && analysis.photos.length > 0}
+        <div class="card bg-base-100 border-base-300 border shadow-lg">
+          <div class="card-body">
+            <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+              <ImageIcon class="text-info" size={20} />
+              Photos from this period ({analysis.photos.length})
+            </h3>
+
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {#each analysis.photos as photo}
+                <div class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
+                  <img
+                    src={PhotoService.getThumbnailUrl(photo.thumbnailPath)}
+                    alt={photo.caption || `Photo from ${photo.journalDate}`}
+                    class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    loading="lazy"
+                  />
+
+                  <!-- Photo overlay with date -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                  >
+                    <div class="absolute right-2 bottom-2 left-2">
+                      <div class="text-xs font-medium text-white">
+                        {formatDate(photo.journalDate)}
+                      </div>
+                      {#if photo.caption}
+                        <div class="truncate text-xs text-white/90">
+                          {photo.caption}
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+
+                  <!-- Click to view full size -->
+                  <button
+                    class="absolute inset-0 z-10 bg-transparent"
+                    on:click={() => window.open(PhotoService.getPhotoUrl(photo.filePath), '_blank')}
+                    title={photo.caption || `View photo from ${photo.journalDate}`}
+                  >
+                    <span class="sr-only">View full size photo</span>
+                  </button>
+                </div>
+              {/each}
+            </div>
+
+            <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">These photos were attached to journal entries during this analysis period.</p>
           </div>
         </div>
       {/if}

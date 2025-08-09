@@ -274,6 +274,67 @@ describe('Weekly Analyses API Integration Tests', () => {
       expect(result.data.goalAlignmentSummary).toBeTruthy();
       expect(result.data.totalXpGained).toBe(25);
       expect(result.data.tasksCompleted).toBe(2);
+      expect(result.data.photos).toBeDefined();
+      expect(Array.isArray(result.data.photos)).toBe(true);
+    });
+
+    test('includes photos from journal entries when generating analysis', async () => {
+      const db = testDb();
+
+      // Create journal entries with photos in the analysis period
+      const journal1 = await db
+        .insert(schema.journals)
+        .values({
+          userId,
+          date: '2024-01-22', // Different date from other tests
+          initialMessage: 'Journal with photo for generation',
+          status: 'complete',
+        })
+        .returning();
+
+      const photo1 = await db
+        .insert(schema.photos)
+        .values({
+          userId,
+          linkedType: 'journal',
+          journalId: journal1[0].id,
+          filePath: '/test/path/generated-photo.jpg',
+          thumbnailPath: '/test/path/generated-thumb.jpg',
+          originalFilename: 'generated-photo.jpg',
+          mimeType: 'image/jpeg',
+          fileSize: '1024',
+          caption: 'Generated test photo',
+        })
+        .returning();
+
+      const generateData: GenerateWeeklyAnalysisRequest = {
+        startDate: '2024-01-22',
+        endDate: '2024-01-28',
+      };
+
+      const res = await app.request('/api/weekly-analyses/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(generateData),
+      });
+
+      expect(res.status).toBe(201);
+      const result = await res.json();
+      expect(result.success).toBe(true);
+
+      // Check that photos are included
+      expect(result.data.photos).toBeDefined();
+      expect(result.data.photos).toHaveLength(1);
+
+      const returnedPhoto = result.data.photos[0];
+      expect(returnedPhoto.id).toBe(photo1[0].id);
+      expect(returnedPhoto.journalId).toBe(journal1[0].id);
+      expect(returnedPhoto.journalDate).toBe('2024-01-22');
+      expect(returnedPhoto.filePath).toBe('/test/path/generated-photo.jpg');
+      expect(returnedPhoto.caption).toBe('Generated test photo');
     });
 
     test('prevents duplicate generated analyses', async () => {
@@ -468,6 +529,95 @@ describe('Weekly Analyses API Integration Tests', () => {
       expect(result.success).toBe(true);
       expect(result.data.id).toBe(analysisId);
       expect(result.data.journalSummary).toBe('Test summary');
+      expect(result.data.photos).toBeDefined();
+      expect(Array.isArray(result.data.photos)).toBe(true);
+    });
+
+    test('includes photos from journal entries in the analysis period', async () => {
+      const db = testDb();
+
+      // Create journal entries in the analysis period
+      const journal1 = await db
+        .insert(schema.journals)
+        .values({
+          userId,
+          date: '2024-01-14',
+          initialMessage: 'Journal with photo',
+          status: 'complete',
+        })
+        .returning();
+
+      const journal2 = await db
+        .insert(schema.journals)
+        .values({
+          userId,
+          date: '2024-01-16',
+          initialMessage: 'Another journal with photo',
+          status: 'complete',
+        })
+        .returning();
+
+      // Create photos linked to the journals
+      const photo1 = await db
+        .insert(schema.photos)
+        .values({
+          userId,
+          linkedType: 'journal',
+          journalId: journal1[0].id,
+          filePath: '/test/path/photo1.jpg',
+          thumbnailPath: '/test/path/thumb1.jpg',
+          originalFilename: 'photo1.jpg',
+          mimeType: 'image/jpeg',
+          fileSize: '1024',
+          caption: 'Test photo 1',
+        })
+        .returning();
+
+      const photo2 = await db
+        .insert(schema.photos)
+        .values({
+          userId,
+          linkedType: 'journal',
+          journalId: journal2[0].id,
+          filePath: '/test/path/photo2.png',
+          thumbnailPath: '/test/path/thumb2.png',
+          originalFilename: 'photo2.png',
+          mimeType: 'image/png',
+          fileSize: '2048',
+          caption: null,
+        })
+        .returning();
+
+      const res = await app.request(`/api/weekly-analyses/${analysisId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      const result = await res.json();
+      expect(result.success).toBe(true);
+
+      // Check that photos are included
+      expect(result.data.photos).toBeDefined();
+      expect(result.data.photos).toHaveLength(2);
+
+      // Check photo data structure
+      const returnedPhoto1 = result.data.photos.find((p: any) => p.id === photo1[0].id);
+      const returnedPhoto2 = result.data.photos.find((p: any) => p.id === photo2[0].id);
+
+      expect(returnedPhoto1).toBeDefined();
+      expect(returnedPhoto1.journalId).toBe(journal1[0].id);
+      expect(returnedPhoto1.journalDate).toBe('2024-01-14');
+      expect(returnedPhoto1.filePath).toBe('/test/path/photo1.jpg');
+      expect(returnedPhoto1.thumbnailPath).toBe('/test/path/thumb1.jpg');
+      expect(returnedPhoto1.originalFilename).toBe('photo1.jpg');
+      expect(returnedPhoto1.caption).toBe('Test photo 1');
+
+      expect(returnedPhoto2).toBeDefined();
+      expect(returnedPhoto2.journalId).toBe(journal2[0].id);
+      expect(returnedPhoto2.journalDate).toBe('2024-01-16');
+      expect(returnedPhoto2.caption).toBe(null);
     });
 
     test('returns 404 for non-existent analysis', async () => {

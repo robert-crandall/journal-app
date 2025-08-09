@@ -316,6 +316,13 @@
       "when": 1754610237179,
       "tag": "0044_windy_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1754695117878,
+      "tag": "0045_broad_meteorite",
+      "breakpoints": true
     }
   ]
 }
