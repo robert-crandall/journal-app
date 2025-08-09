@@ -1,1 +1,1 @@
-ALTER TABLE "weekly_analyses" ADD COLUMN "avg_day_rating" integer;
+ALTER TABLE "weekly_analyses" ADD COLUMN "avg_day_rating" real;

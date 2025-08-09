@@ -2376,7 +2376,7 @@
         },
         "avg_day_rating": {
           "name": "avg_day_rating",
-          "type": "integer",
+          "type": "real",
           "primaryKey": false,
           "notNull": false
         },
