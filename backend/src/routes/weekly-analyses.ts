@@ -374,9 +374,17 @@ const app = new Hono()
         endDate: data.endDate,
       });
 
+      // Get completed experiments during the period
+      const { getCompletedExperiments } = await import('../services/weeklyAnalysisService');
+      const completedExperiments = await getCompletedExperiments({
+        userId,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      });
+
       // Generate combined weekly analysis using GPT
       const { journalSummary, journalTags, alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, goalAlignmentSummary, combinedReflection } =
-        await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, metrics, data.startDate, data.endDate, userId);
+        await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, completedExperiments, metrics, data.startDate, data.endDate, userId);
 
       // Create the analysis record
       const newAnalysis = await db

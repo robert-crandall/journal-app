@@ -33,6 +33,15 @@ export interface WeeklyAnalysisNeglectedGoal {
   reason?: string;
 }
 
+export interface WeeklyAnalysisExperiment {
+  id: string;
+  title: string;
+  description: string | null;
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+  reflection: string | null; // "How'd it go" section
+}
+
 export interface WeeklyAnalysis {
   id: string;
   userId: string;
@@ -84,6 +93,7 @@ export interface NewWeeklyAnalysis {
   periodEndDate: Date;
   journalSummary: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
   avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
@@ -117,6 +127,7 @@ export interface CreateWeeklyAnalysisRequest {
   periodEndDate: string; // ISO date string
   journalSummary: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
   avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)
@@ -144,6 +155,7 @@ export interface CreateWeeklyAnalysisRequest {
 export interface UpdateWeeklyAnalysisRequest {
   journalSummary?: string;
   journalTags?: string[];
+  experimentsSummary?: WeeklyAnalysisExperiment[];
   totalXpGained?: number;
   tasksCompleted?: number;
   avgDayRating?: number | null; // Average daily rating for the period (1-5 scale, nullable if no ratings)

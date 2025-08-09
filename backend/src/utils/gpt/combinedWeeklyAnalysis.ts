@@ -5,7 +5,7 @@ import { generatePeriodSummary } from './periodSummary';
 import { generateGoalAlignmentSummary, type GoalAlignmentSummaryResult } from './goalAlignmentSummary';
 import type { journals } from '../../db/schema/journals';
 import type { goals } from '../../db/schema/goals';
-import type { WeeklyAnalysisMetrics } from '../../../../shared/types/weekly-analyses';
+import type { WeeklyAnalysisMetrics, WeeklyAnalysisExperiment } from '../../../../shared/types/weekly-analyses';
 
 /**
  * Interface for combined weekly analysis result
@@ -38,6 +38,7 @@ function createCombinedReflectionSystemPrompt(
   userContext: ComprehensiveUserContext,
   journalSummary: string,
   goalAlignmentSummary: string,
+  completedExperiments: WeeklyAnalysisExperiment[],
   metrics: WeeklyAnalysisMetrics,
   startDate: string,
   endDate: string,
@@ -62,6 +63,20 @@ ${journalSummary}
 
 **Goal Alignment Summary:**
 ${goalAlignmentSummary}
+
+**Completed Experiments:**
+${
+  completedExperiments.length === 0
+    ? 'No experiments completed during this period.'
+    : completedExperiments
+        .map(
+          (exp, index) =>
+            `${index + 1}. **${exp.title}** (${exp.startDate} to ${exp.endDate})
+   Description: ${exp.description || 'No description provided'}
+   How it went: ${exp.reflection || 'No reflection provided yet'}`,
+        )
+        .join('\n\n')
+}
 
 **Key Metrics:**
 - Total XP Gained: ${metrics.totalXpGained}
@@ -99,6 +114,7 @@ Return only the reflection text, no JSON or formatting.`;
 export async function generateCombinedWeeklyAnalysis(
   journalEntries: (typeof journals.$inferSelect)[],
   userGoals: Goal[],
+  completedExperiments: WeeklyAnalysisExperiment[],
   metrics: WeeklyAnalysisMetrics,
   startDate: string,
   endDate: string,
@@ -123,7 +139,15 @@ export async function generateCombinedWeeklyAnalysis(
         includeExistingTags: false,
       });
 
-      const systemPrompt = createCombinedReflectionSystemPrompt(userContext, journalResult.summary, goalAlignmentResult.summary, metrics, startDate, endDate);
+      const systemPrompt = createCombinedReflectionSystemPrompt(
+        userContext,
+        journalResult.summary,
+        goalAlignmentResult.summary,
+        completedExperiments,
+        metrics,
+        startDate,
+        endDate,
+      );
 
       const messages: ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },

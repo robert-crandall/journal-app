@@ -2,10 +2,10 @@ import { eq, and, gte, lte } from 'drizzle-orm';
 import { db } from '../db';
 import { journals } from '../db/schema/journals';
 import { xpGrants, characterStats } from '../db/schema/stats';
-import { experimentTaskCompletions } from '../db/schema/experiments';
+import { experiments, experimentTaskCompletions } from '../db/schema/experiments';
 import { simpleTodos } from '../db/schema/todos';
 import { tags } from '../db/schema/tags';
-import type { WeeklyAnalysisMetrics } from '../../../shared/types/weekly-analyses';
+import type { WeeklyAnalysisMetrics, WeeklyAnalysisExperiment } from '../../../shared/types/weekly-analyses';
 
 export interface CalculateWeeklyMetricsOptions {
   userId: string;
@@ -167,4 +167,48 @@ export async function calculateWeeklyMetrics(options: CalculateWeeklyMetricsOpti
     toneFrequency,
     contentTagFrequency,
   };
+}
+
+export interface GetCompletedExperimentsOptions {
+  userId: string;
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+}
+
+/**
+ * Get experiments that were completed during the specified period
+ * (experiments with endDate within the period and have a reflection)
+ */
+export async function getCompletedExperiments(options: GetCompletedExperimentsOptions): Promise<WeeklyAnalysisExperiment[]> {
+  const { userId, startDate, endDate } = options;
+
+  // Get experiments that ended during the period and have a reflection (indicating completion)
+  const completedExperiments = await db
+    .select({
+      id: experiments.id,
+      title: experiments.title,
+      description: experiments.description,
+      startDate: experiments.startDate,
+      endDate: experiments.endDate,
+      reflection: experiments.reflection,
+    })
+    .from(experiments)
+    .where(
+      and(
+        eq(experiments.userId, userId),
+        gte(experiments.endDate, startDate),
+        lte(experiments.endDate, endDate),
+        // Only include experiments that have been reflected upon (completed)
+        // Allow null/empty reflections as user might complete without reflection
+      ),
+    );
+
+  return completedExperiments.map((experiment) => ({
+    id: experiment.id,
+    title: experiment.title,
+    description: experiment.description,
+    startDate: experiment.startDate, // Already in YYYY-MM-DD format from date column
+    endDate: experiment.endDate, // Already in YYYY-MM-DD format from date column
+    reflection: experiment.reflection,
+  }));
 }
