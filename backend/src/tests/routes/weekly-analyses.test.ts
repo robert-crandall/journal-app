@@ -190,6 +190,40 @@ describe('Weekly Analyses API Integration Tests', () => {
       expect(result.data.id).toBeTruthy();
     });
 
+    test('creates a weekly analysis with reflection field', async () => {
+      const analysisData: CreateWeeklyAnalysisRequest = {
+        periodStartDate: '2024-01-20',
+        periodEndDate: '2024-01-26',
+        journalSummary: 'This week was focused on reflection and mindfulness.',
+        goalAlignmentSummary: 'Good alignment with personal development goals.',
+        reflection:
+          'This was a challenging but rewarding week. I felt more present and focused on my goals. The daily journal practice really helped me stay grounded.',
+      };
+
+      const res = await app.request('/api/weekly-analyses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(analysisData),
+      });
+
+      expect(res.status).toBe(201);
+      const result = await res.json();
+      expect(result.success).toBe(true);
+      expect(result.data).toMatchObject({
+        userId,
+        periodStartDate: analysisData.periodStartDate,
+        periodEndDate: analysisData.periodEndDate,
+        journalSummary: analysisData.journalSummary,
+        goalAlignmentSummary: analysisData.goalAlignmentSummary,
+        reflection: analysisData.reflection,
+      });
+      expect(result.data.id).toBeTruthy();
+      expect(result.data.reflection).toBe(analysisData.reflection);
+    });
+
     test('prevents duplicate weekly analyses for the same period', async () => {
       const analysisData: CreateWeeklyAnalysisRequest = {
         periodStartDate: '2024-01-13',
@@ -678,6 +712,28 @@ describe('Weekly Analyses API Integration Tests', () => {
       expect(result.success).toBe(true);
       expect(result.data.journalSummary).toBe('Updated summary');
       expect(result.data.totalXpGained).toBe(30);
+      expect(result.data.goalAlignmentSummary).toBe('Original goal summary'); // Unchanged
+    });
+
+    test('updates weekly analysis reflection field', async () => {
+      const updateData = {
+        reflection: 'This was an amazing week of growth and self-discovery. I really pushed myself out of my comfort zone.',
+      };
+
+      const res = await app.request(`/api/weekly-analyses/${analysisId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      expect(res.status).toBe(200);
+      const result = await res.json();
+      expect(result.success).toBe(true);
+      expect(result.data.reflection).toBe(updateData.reflection);
+      expect(result.data.journalSummary).toBe('Original summary'); // Unchanged
       expect(result.data.goalAlignmentSummary).toBe('Original goal summary'); // Unchanged
     });
 

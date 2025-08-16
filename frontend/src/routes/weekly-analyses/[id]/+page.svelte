@@ -2,15 +2,21 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { getWeeklyAnalysis, formatWeekRange } from '$lib/api/weekly-analyses';
+  import { getWeeklyAnalysis, updateWeeklyAnalysis, formatWeekRange } from '$lib/api/weekly-analyses';
   import type { WeeklyAnalysisResponse } from '../../../../../shared/types/weekly-analyses';
-  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users, ImageIcon, Star } from 'lucide-svelte';
+  import { ArrowLeft, Calendar, TrendingUp, Target, Brain, BookOpen, BarChart3, Users, ImageIcon, Star, Edit3, Save, X } from 'lucide-svelte';
   import { formatDate as formatDateUtil } from '$lib/utils/date';
   import { PhotoService } from '$lib/api/photos';
 
   let analysis: WeeklyAnalysisResponse | null = null;
   let loading = true;
   let error = '';
+
+  // Reflection editing state
+  let editingReflection = false;
+  let reflectionText = '';
+  let savingReflection = false;
+  let reflectionError = '';
 
   $: analysisId = $page.params.id;
 
@@ -25,11 +31,45 @@
       loading = true;
       error = '';
       analysis = await getWeeklyAnalysis(analysisId);
+      // Initialize reflection text for editing
+      reflectionText = analysis.reflection || '';
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load weekly analysis';
       console.error('Error loading weekly analysis:', err);
     } finally {
       loading = false;
+    }
+  }
+
+  function handleEditReflection() {
+    editingReflection = true;
+    reflectionText = analysis?.reflection || '';
+  }
+
+  function handleCancelEdit() {
+    editingReflection = false;
+    reflectionText = analysis?.reflection || '';
+    reflectionError = '';
+  }
+
+  async function handleSaveReflection() {
+    if (!analysis) return;
+
+    try {
+      savingReflection = true;
+      reflectionError = '';
+
+      const updatedAnalysis = await updateWeeklyAnalysis(analysis.id, {
+        reflection: reflectionText.trim() || undefined,
+      });
+
+      analysis = updatedAnalysis;
+      editingReflection = false;
+    } catch (err) {
+      reflectionError = err instanceof Error ? err.message : 'Failed to save reflection';
+      console.error('Error saving reflection:', err);
+    } finally {
+      savingReflection = false;
     }
   }
 
@@ -102,6 +142,102 @@
         </p>
       </div>
 
+      <!-- User Reflection -->
+      <div
+        class="card border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg dark:border-blue-700 dark:from-blue-900/20 dark:to-indigo-900/20"
+      >
+        <div class="card-body">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white">
+              <Star class="text-blue-600" size={24} />
+              Personal Reflection
+            </h2>
+            {#if !editingReflection}
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                on:click={handleEditReflection}
+                title={analysis?.reflection ? 'Edit reflection' : 'Add reflection'}
+              >
+                <Edit3 size={16} />
+                {analysis?.reflection ? 'Edit' : 'Add Reflection'}
+              </button>
+            {/if}
+          </div>
+
+          {#if editingReflection}
+            <!-- Editing Mode -->
+            <div class="space-y-4">
+              {#if reflectionError}
+                <div class="alert alert-error text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>{reflectionError}</span>
+                </div>
+              {/if}
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-medium"
+                    >Your thoughts on this {analysis.analysisType === 'weekly' ? 'week' : analysis.analysisType === 'monthly' ? 'month' : 'quarter'}:</span
+                  >
+                </label>
+                <textarea
+                  class="textarea textarea-bordered min-h-32 w-full"
+                  placeholder="How did this period feel? What went well? What would you do differently? Any insights or takeaways?"
+                  bind:value={reflectionText}
+                  disabled={savingReflection}
+                  rows="6"
+                ></textarea>
+                <label class="label">
+                  <span class="label-text-alt text-gray-500">Markdown formatting is supported</span>
+                </label>
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-ghost btn-sm" on:click={handleCancelEdit} disabled={savingReflection}>
+                  <X size={16} />
+                  Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" on:click={handleSaveReflection} disabled={savingReflection}>
+                  {#if savingReflection}
+                    <div class="loading loading-spinner loading-sm"></div>
+                    Saving...
+                  {:else}
+                    <Save size={16} />
+                    Save Reflection
+                  {/if}
+                </button>
+              </div>
+            </div>
+          {:else if analysis?.reflection}
+            <!-- Display Mode -->
+            <div class="prose prose-gray dark:prose-invert max-w-none">
+              {#each analysis.reflection.split('\n\n') as paragraph}
+                <p class="mb-4 leading-relaxed text-gray-700 dark:text-gray-300">
+                  {paragraph}
+                </p>
+              {/each}
+            </div>
+          {:else}
+            <!-- Empty State -->
+            <div class="py-8 text-center">
+              <Star class="mx-auto mb-3 text-gray-400" size={48} />
+              <p class="mb-4 text-gray-600 dark:text-gray-400">
+                Add your personal reflection on this {analysis.analysisType === 'weekly' ? 'week' : analysis.analysisType === 'monthly' ? 'month' : 'quarter'}.
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-500">Share your thoughts, insights, and takeaways to complement the AI analysis.</p>
+            </div>
+          {/if}
+        </div>
+      </div>
+
       <!-- Combined Reflection (if available) -->
       {#if analysis.combinedReflection}
         <div
@@ -110,7 +246,7 @@
           <div class="card-body">
             <h2 class="mb-4 flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white">
               <Brain class="text-purple-600" size={24} />
-              Weekly Insights
+              AI Insights
             </h2>
             <div class="prose prose-gray dark:prose-invert max-w-none">
               {#each analysis.combinedReflection.split('\n\n') as paragraph}
@@ -393,6 +529,83 @@
     background-color: #fef2f2;
     color: #991b1b;
     border: 1px solid #fecaca;
+  }
+
+  .form-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .label-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .label-text-alt {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+
+  .textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .textarea-bordered {
+    border-color: #d1d5db;
+  }
+
+  .textarea:disabled {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+  }
+
+  .loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-sm {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .loading-spinner {
+    border-top-color: currentColor;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .prose {

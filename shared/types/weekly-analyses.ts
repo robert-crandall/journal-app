@@ -81,6 +81,9 @@ export interface WeeklyAnalysis {
   // Optional combined reflection
   combinedReflection?: string;
 
+  // Manual user reflection
+  reflection?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -116,6 +119,7 @@ export interface NewWeeklyAnalysis {
   suggestedNextSteps?: string[];
   goalAlignmentSummary: string;
   combinedReflection?: string;
+  reflection?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -150,6 +154,7 @@ export interface CreateWeeklyAnalysisRequest {
   suggestedNextSteps?: string[];
   goalAlignmentSummary: string;
   combinedReflection?: string;
+  reflection?: string;
 }
 
 export interface UpdateWeeklyAnalysisRequest {
@@ -178,6 +183,7 @@ export interface UpdateWeeklyAnalysisRequest {
   suggestedNextSteps?: string[];
   goalAlignmentSummary?: string;
   combinedReflection?: string;
+  reflection?: string;
 }
 
 export interface GenerateWeeklyAnalysisRequest {
@@ -216,6 +222,7 @@ export interface WeeklyAnalysisResponse {
   suggestedNextSteps: string[];
   goalAlignmentSummary: string;
   combinedReflection?: string;
+  reflection?: string;
   photos: Array<{
     id: string;
     journalId: string;

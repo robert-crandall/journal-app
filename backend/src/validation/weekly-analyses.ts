@@ -57,6 +57,7 @@ const weeklyAnalysisBaseSchema = z.object({
   suggestedNextSteps: z.array(z.string()).default([]),
   goalAlignmentSummary: z.string().min(1, 'Goal alignment summary is required').max(10000, 'Goal alignment summary is too long'),
   combinedReflection: z.string().max(10000, 'Combined reflection is too long').optional(),
+  reflection: z.string().max(10000, 'Reflection is too long').optional(),
 });
 
 // Create weekly analysis schema

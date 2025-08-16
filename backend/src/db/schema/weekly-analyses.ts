@@ -78,6 +78,9 @@ export const weeklyAnalyses = pgTable('weekly_analyses', {
   // Optional combined reflection
   combinedReflection: text('combined_reflection'), // GPT-generated combined insight (stretch goal)
 
+  // Manual user reflection
+  reflection: text('reflection'), // User's manual subjective reflection on the period
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

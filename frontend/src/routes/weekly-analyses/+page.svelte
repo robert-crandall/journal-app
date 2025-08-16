@@ -91,10 +91,14 @@
   }
 
   function getAnalysisPreview(analysis: WeeklyAnalysisResponse): string {
-    if (analysis.combinedReflection) {
-      return analysis.combinedReflection.substring(0, 150) + '...';
+    // Prioritize user reflection, then AI-generated content, then journal summary
+    if (analysis.reflection) {
+      return analysis.reflection;
     }
-    return analysis.journalSummary?.substring(0, 150) + '...' || '';
+    if (analysis.combinedReflection) {
+      return analysis.combinedReflection.substring(0, 250) + '...';
+    }
+    return analysis.journalSummary?.substring(0, 250) + '...' || '';
   }
 
   onMount(() => {
@@ -132,10 +136,10 @@
       </div>
 
       <div class="form-control">
-        <label class="label py-0">
+        <label class="label py-0" for="analysis-type-filter">
           <span class="label-text text-xs">Type</span>
         </label>
-        <select bind:value={analysisTypeFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
+        <select id="analysis-type-filter" bind:value={analysisTypeFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
           <option value="all">All Types</option>
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
@@ -144,10 +148,10 @@
       </div>
 
       <div class="form-control">
-        <label class="label py-0">
+        <label class="label py-0" for="year-filter">
           <span class="label-text text-xs">Year</span>
         </label>
-        <select bind:value={yearFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
+        <select id="year-filter" bind:value={yearFilter} on:change={handleFilterChange} class="select select-bordered select-sm">
           <option value="all">All Years</option>
           {#each getYearOptions() as year}
             <option value={year}>{year}</option>
@@ -201,8 +205,9 @@
     <!-- Analysis List -->
     <div class="space-y-4">
       {#each analyses as analysis}
-        <div
-          class="card bg-base-100 border-base-300 cursor-pointer border shadow-lg transition-shadow hover:shadow-xl"
+        <button
+          type="button"
+          class="card bg-base-100 border-base-300 w-full cursor-pointer border text-left shadow-lg transition-shadow hover:shadow-xl"
           on:click={() => handleViewAnalysis(analysis)}
         >
           <div class="card-body">
@@ -212,6 +217,9 @@
                   <Calendar size={18} class="text-purple-600" />
                   {formatWeekRange(analysis.periodStartDate, analysis.periodEndDate)}
                   <span class="badge badge-outline badge-sm ml-2">{formatAnalysisType(analysis.analysisType)}</span>
+                  {#if analysis.reflection}
+                    <Star size={14} class="text-blue-600" />
+                  {/if}
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                   Created {formatDate(analysis.createdAt)}
@@ -261,7 +269,7 @@
               </div>
             {/if}
           </div>
-        </div>
+        </button>
       {/each}
     </div>
 
