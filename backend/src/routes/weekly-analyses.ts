@@ -48,6 +48,7 @@ const serializeWeeklyAnalysis = (analysis: typeof weeklyAnalyses.$inferSelect): 
     suggestedNextSteps: analysis.suggestedNextSteps || [],
     goalAlignmentSummary: analysis.goalAlignmentSummary,
     combinedReflection: analysis.combinedReflection || undefined,
+    reflection: analysis.reflection || undefined,
     photos: [], // Will be populated by caller if needed
     createdAt: analysis.createdAt.toISOString(),
     updatedAt: analysis.updatedAt.toISOString(),
@@ -90,6 +91,7 @@ const serializeWeeklyAnalysisWithPhotos = (
     suggestedNextSteps: analysis.suggestedNextSteps || [],
     goalAlignmentSummary: analysis.goalAlignmentSummary,
     combinedReflection: analysis.combinedReflection || undefined,
+    reflection: analysis.reflection || undefined,
     photos: analysisPhotos
       .filter((photo) => photo.journalId && photo.journalDate) // Filter out invalid photos
       .map((photo) => ({
@@ -268,6 +270,7 @@ const app = new Hono()
           suggestedNextSteps: data.suggestedNextSteps || [],
           goalAlignmentSummary: data.goalAlignmentSummary,
           combinedReflection: data.combinedReflection,
+          reflection: data.reflection,
         })
         .returning();
 
@@ -408,6 +411,7 @@ const app = new Hono()
           suggestedNextSteps,
           goalAlignmentSummary,
           combinedReflection,
+          reflection: null, // Generated analyses don't have manual reflections
         })
         .returning();
 
