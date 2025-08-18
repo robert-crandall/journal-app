@@ -5,7 +5,7 @@ import type { TimeframeExportRequest, TimeframeExportResponse } from '../../../.
 export const timeframeExportApi = {
   // Generate timeframe export
   async generateExport(data: TimeframeExportRequest): Promise<TimeframeExportResponse> {
-    const response = await apiFetch('/api/timeframe-export/generate', {
+    const result = await apiFetch('/api/timeframe-export/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13,12 +13,6 @@ export const timeframeExportApi = {
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to generate timeframe export');
-    }
-
-    const result = await response.json();
     return result.data;
   },
 };
