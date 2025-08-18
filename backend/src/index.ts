@@ -25,6 +25,7 @@ import xpGrantsRoutes from './routes/xpGrants';
 import dailyIntentsRoutes from './routes/daily-intents';
 import generateTasksRoutes from './routes/generate-tasks';
 import userAttributesRoutes from './routes/user-attributes';
+import timeframeExportRoutes from './routes/timeframe-export';
 
 // Create main app instance
 const app = new Hono();
@@ -100,7 +101,9 @@ const routes = app
   // Mount generate tasks routes
   .route('/api/generate-tasks', generateTasksRoutes)
   // Mount user attributes routes
-  .route('/api/user-attributes', userAttributesRoutes);
+  .route('/api/user-attributes', userAttributesRoutes)
+  // Mount timeframe export routes
+  .route('/api/timeframe-export', timeframeExportRoutes);
 
 // Serve uploaded files statically
 app.use(
