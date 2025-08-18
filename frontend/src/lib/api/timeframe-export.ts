@@ -1,5 +1,5 @@
 import { apiFetch } from '../api';
-import type { TimeframeExportRequest, TimeframeExportResponse } from '../../../shared/types/timeframe-export';
+import type { TimeframeExportRequest, TimeframeExportResponse } from '../../../../shared/types/timeframe-export';
 
 // Type-safe timeframe export API using fetch wrapper
 export const timeframeExportApi = {

@@ -26,12 +26,7 @@ export class TimeframeExportService {
   /**
    * Generate a comprehensive timeframe export
    */
-  static async generateExport(
-    userId: string,
-    startDate: string,
-    endDate: string,
-    options: TimeframeExportOptions,
-  ): Promise<TimeframeExportResponse> {
+  static async generateExport(userId: string, startDate: string, endDate: string, options: TimeframeExportOptions): Promise<TimeframeExportResponse> {
     const data = await this.aggregateData(userId, startDate, endDate, options);
     const markdownContent = this.generateMarkdown(data, startDate, endDate, options);
     const sectionsIncluded = this.getSectionsIncluded(options);
@@ -50,12 +45,7 @@ export class TimeframeExportService {
   /**
    * Aggregate data from all relevant tables based on options
    */
-  private static async aggregateData(
-    userId: string,
-    startDate: string,
-    endDate: string,
-    options: TimeframeExportOptions,
-  ): Promise<TimeframeExportData> {
+  private static async aggregateData(userId: string, startDate: string, endDate: string, options: TimeframeExportOptions): Promise<TimeframeExportData> {
     const data: TimeframeExportData = {};
 
     // Daily Entries
@@ -110,14 +100,7 @@ export class TimeframeExportService {
         dayRating: journals.dayRating,
       })
       .from(journals)
-      .where(
-        and(
-          eq(journals.userId, userId),
-          gte(journals.date, startDate),
-          lte(journals.date, endDate),
-          eq(journals.status, 'complete'),
-        ),
-      )
+      .where(and(eq(journals.userId, userId), gte(journals.date, startDate), lte(journals.date, endDate), eq(journals.status, 'complete')))
       .orderBy(desc(journals.date));
 
     return entries.map((entry) => ({
@@ -427,12 +410,7 @@ export class TimeframeExportService {
   /**
    * Generate markdown content from aggregated data
    */
-  private static generateMarkdown(
-    data: TimeframeExportData,
-    startDate: string,
-    endDate: string,
-    options: TimeframeExportOptions,
-  ): string {
+  private static generateMarkdown(data: TimeframeExportData, startDate: string, endDate: string, options: TimeframeExportOptions): string {
     let markdown = `# Life Summary: ${startDate} to ${endDate}\n\n`;
     markdown += `*Generated on ${new Date().toLocaleDateString()}*\n\n`;
     markdown += `---\n\n`;
@@ -617,7 +595,9 @@ export class TimeframeExportService {
           markdown += `**Tasks & Results:**\n`;
           exp.tasks.forEach((task) => {
             markdown += `- **${task.description}**`;
-            markdown += ` (Success metric: ${task.successMetric}, XP: ${task.xpReward})\n`;
+            const successMetric = task.successMetric ?? 1;
+            const xpReward = task.xpReward ?? 0;
+            markdown += ` (Success metric: ${successMetric}, XP: ${xpReward})\n`;
             if (task.completions.length) {
               markdown += `  Completions: `;
               task.completions.forEach((completion, idx) => {

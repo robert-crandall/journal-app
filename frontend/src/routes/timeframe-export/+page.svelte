@@ -4,7 +4,7 @@
   import { formatDateTime } from '$lib/utils/date';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import { CalendarIcon, DownloadIcon, SettingsIcon, EyeIcon } from 'lucide-svelte';
-  import type { TimeframeExportOptions, TimeframeExportResponse } from '../../../shared/types/timeframe-export';
+  import type { TimeframeExportOptions, TimeframeExportResponse } from '../../../../shared/types/timeframe-export';
 
   // Form data
   let formData = {
@@ -147,14 +147,14 @@
   <div class="mb-8">
     <h1 class="mb-2 text-3xl font-bold">Timeframe Summary Export</h1>
     <p class="text-base-content/70">
-      Generate a comprehensive summary document of your journal entries, analyses, goals, plans, quests, and experiments for any date range.
-      Perfect for feeding into external LLMs for insights and recommendations.
+      Generate a comprehensive summary document of your journal entries, analyses, goals, plans, quests, and experiments for any date range. Perfect for feeding
+      into external LLMs for insights and recommendations.
     </p>
   </div>
 
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
     <!-- Configuration Panel -->
-    <div class="card border border-base-300 bg-base-100">
+    <div class="card border-base-300 bg-base-100 border">
       <div class="card-body">
         <h2 class="card-title mb-4">
           <SettingsIcon size={20} />
@@ -232,7 +232,7 @@
               <input type="checkbox" bind:checked={formData.options.includeDailyEntries} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Daily Entries</span>
-                <div class="text-sm text-base-content/70">Concatenated journal entries with summaries and ratings</div>
+                <div class="text-base-content/70 text-sm">Concatenated journal entries with summaries and ratings</div>
               </div>
             </label>
 
@@ -240,7 +240,7 @@
               <input type="checkbox" bind:checked={formData.options.includeWeeklyAnalyses} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Weekly Analyses</span>
-                <div class="text-sm text-base-content/70">Generated and manual weekly reflections</div>
+                <div class="text-base-content/70 text-sm">Generated and manual weekly reflections</div>
               </div>
             </label>
 
@@ -248,7 +248,7 @@
               <input type="checkbox" bind:checked={formData.options.includeMonthlyAnalyses} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Monthly Analyses</span>
-                <div class="text-sm text-base-content/70">Generated and manual monthly reflections</div>
+                <div class="text-base-content/70 text-sm">Generated and manual monthly reflections</div>
               </div>
             </label>
 
@@ -256,7 +256,7 @@
               <input type="checkbox" bind:checked={formData.options.includeGoals} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Goals</span>
-                <div class="text-sm text-base-content/70">Active, completed, and archived goals</div>
+                <div class="text-base-content/70 text-sm">Active, completed, and archived goals</div>
               </div>
             </label>
 
@@ -264,7 +264,7 @@
               <input type="checkbox" bind:checked={formData.options.includePlans} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Plans</span>
-                <div class="text-sm text-base-content/70">Current and past plans with subtasks</div>
+                <div class="text-base-content/70 text-sm">Current and past plans with subtasks</div>
               </div>
             </label>
 
@@ -272,7 +272,7 @@
               <input type="checkbox" bind:checked={formData.options.includeQuests} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Quests</span>
-                <div class="text-sm text-base-content/70">Start/end criteria, progress notes, and linked journal entries</div>
+                <div class="text-base-content/70 text-sm">Start/end criteria, progress notes, and linked journal entries</div>
               </div>
             </label>
 
@@ -280,7 +280,7 @@
               <input type="checkbox" bind:checked={formData.options.includeExperiments} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Experiments</span>
-                <div class="text-sm text-base-content/70">Setup, tasks, reflections, and results</div>
+                <div class="text-base-content/70 text-sm">Setup, tasks, reflections, and results</div>
               </div>
             </label>
           </div>
@@ -288,12 +288,7 @@
 
         <!-- Generate Button -->
         <div class="card-actions">
-          <button
-            type="button"
-            on:click={generateExport}
-            disabled={isGenerating || !formData.startDate || !formData.endDate}
-            class="btn btn-primary w-full"
-          >
+          <button type="button" on:click={generateExport} disabled={isGenerating || !formData.startDate || !formData.endDate} class="btn btn-primary w-full">
             {#if isGenerating}
               <span class="loading loading-spinner loading-sm"></span>
               Generating...
@@ -314,7 +309,7 @@
     </div>
 
     <!-- Preview Panel -->
-    <div class="card border border-base-300 bg-base-100">
+    <div class="card border-base-300 bg-base-100 border">
       <div class="card-body">
         <h2 class="card-title mb-4">
           <EyeIcon size={20} />
@@ -335,7 +330,7 @@
           </div>
 
           <!-- Export Info -->
-          <div class="mb-4 space-y-2 text-sm text-base-content/70">
+          <div class="text-base-content/70 mb-4 space-y-2 text-sm">
             <div>
               <strong>Generated:</strong>
               {new Date(exportResult.generatedAt).toLocaleDateString()}
@@ -351,11 +346,11 @@
           </div>
 
           <!-- Preview Content -->
-          <div class="max-h-96 overflow-y-auto border border-base-300 bg-base-50 p-4">
+          <div class="border-base-300 bg-base-50 max-h-96 overflow-y-auto border p-4">
             <Markdown content={exportResult.markdownContent} classes="prose-sm max-w-none" />
           </div>
         {:else}
-          <div class="flex h-64 flex-col items-center justify-center text-base-content/50">
+          <div class="text-base-content/50 flex h-64 flex-col items-center justify-center">
             <EyeIcon size={48} class="mb-4" />
             <p class="text-center">Configure your export settings and click "Generate Preview" to see your summary document.</p>
           </div>

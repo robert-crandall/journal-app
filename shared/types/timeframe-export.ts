@@ -137,8 +137,8 @@ export interface ExperimentEntry {
 export interface ExperimentTaskEntry {
   id: string;
   description: string;
-  successMetric: number;
-  xpReward: number;
+  successMetric: number | null;
+  xpReward: number | null;
   completions: ExperimentTaskCompletionEntry[];
 }
 
