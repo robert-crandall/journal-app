@@ -238,6 +238,22 @@
               </a>
             </li>
             <li>
+              <a href="/timeframe-export" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg
+                >
+                Timeframe Export
+              </a>
+            </li>
+            <li>
               <a href="/measurements" class="text-base-content" on:click={closeDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -291,6 +307,22 @@
                   class="h-4 w-4"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg
                 >
                 Weekly Analyses
+              </a>
+            </li>
+            <li>
+              <a href="/timeframe-export" class="text-base-content" on:click={closeDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg
+                >
+                Timeframe Export
               </a>
             </li>
             <li class="menu-title">
