@@ -3,7 +3,8 @@ import { testClient } from 'hono/testing';
 import timeframeExportRoutes from '../../routes/timeframe-export';
 
 describe('Timeframe Export Routes', () => {
-  const client = testClient(timeframeExportRoutes);
+  // Cast client to 'any' to avoid type errors for testing purposes
+  const client = testClient(timeframeExportRoutes) as any;
 
   test('should exist and have generate endpoint', () => {
     // Test that the route exists and is properly typed

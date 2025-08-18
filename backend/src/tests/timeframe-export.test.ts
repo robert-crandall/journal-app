@@ -33,7 +33,11 @@ describe('TimeframeExportService', () => {
     } catch (error) {
       // This might fail due to database connection issues in test environment
       // but at least it validates the service compiles and can be instantiated
-      console.log('Service test failed (expected in test environment):', error.message);
+      if (error instanceof Error) {
+        console.log('Service test failed (expected in test environment):', error.message);
+      } else {
+        console.log('Service test failed (expected in test environment):', error);
+      }
       expect(true).toBe(true); // Just validate it didn't crash due to compilation issues
     }
   });
