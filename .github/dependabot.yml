@@ -1,71 +1,70 @@
 version: 2
 updates:
   # Root dependencies (package.json / lockfile)
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'sunday'
+      time: '03:00'
     open-pull-requests-limit: 5
     labels:
-      - "dependencies"
-      - "automated-dependency-update"
+      - 'dependencies'
+      - 'automated-dependency-update'
     commit-message:
-      prefix: "chore(deps):"
+      prefix: 'chore(deps):'
 
   # Frontend (SvelteKit) - keeps frontend deps updated separately
-  - package-ecosystem: "npm"
-    directory: "/frontend"
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '03:00'
     open-pull-requests-limit: 5
     labels:
-      - "frontend"
-      - "dependencies"
+      - 'frontend'
+      - 'dependencies'
     commit-message:
-      prefix: "chore(frontend-deps):"
+      prefix: 'chore(frontend-deps):'
 
   # Backend - keeps backend deps updated separately
-  - package-ecosystem: "npm"
-    directory: "/backend"
+  - package-ecosystem: 'npm'
+    directory: '/backend'
     schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '03:00'
     open-pull-requests-limit: 5
     labels:
-      - "backend"
-      - "dependencies"
+      - 'backend'
+      - 'dependencies'
     commit-message:
-      prefix: "chore(backend-deps):"
+      prefix: 'chore(backend-deps):'
 
   # GitHub Actions workflow updates
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'wednesday'
+      time: '03:00'
     open-pull-requests-limit: 5
     labels:
-      - "ci"
-      - "dependencies"
+      - 'ci'
+      - 'dependencies'
 
   # Dockerfile / image updates (project root and backend)
-  - package-ecosystem: "docker"
-    directory: "/"
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'thursday'
+      time: '03:00'
     open-pull-requests-limit: 3
     labels:
-      - "docker"
-      - "dependencies"
-
+      - 'docker'
+      - 'dependencies'
 # Global options (applies to all update entries above)
 # Note: Dependabot merges the per-update keys above; global-level settings such as
 # "allow" or "ignore" can be further customized per-entry if needed.

@@ -9,6 +9,10 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write
+      pull-requests: write
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -28,12 +32,12 @@ jobs:
           if [ -f "package.json" ]; then
             bun install
           fi
-          
+
           # Update backend lockfile
           if [ -f "backend/package.json" ]; then
             cd backend && bun install && cd ..
           fi
-          
+
           # Update frontend lockfile  
           if [ -f "frontend/package.json" ]; then
             cd frontend && bun install && cd ..
@@ -44,13 +48,30 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
+          echo "=== Git status before changes ==="
+          git status
+          
+          echo "=== Checking for lockfile changes ==="
+          git diff --name-only
+          
           # Check if there are any changes to lockfiles
           if ! git diff --quiet -- bun.lock backend/bun.lock frontend/bun.lock 2>/dev/null; then
+            echo "=== Found lockfile changes, adding them ==="
             git add bun.lock backend/bun.lock frontend/bun.lock 2>/dev/null || true
+            
+            echo "=== Git status after adding ==="
+            git status
             
             # Only commit if there are staged changes
             if ! git diff --cached --quiet; then
+              echo "=== Committing changes ==="
               git commit -m "chore: update bun lockfiles for dependabot"
+              echo "=== Pushing to branch: ${{ github.head_ref }} ==="
               git push origin ${{ github.head_ref }}
+              echo "=== Push completed ==="
+            else
+              echo "=== No staged changes to commit ==="
             fi
+          else
+            echo "=== No lockfile changes detected ==="
           fi
