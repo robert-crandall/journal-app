@@ -1,0 +1,50 @@
+name: Update Bun lockfile for Dependabot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  update-lockfile:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 'latest'
+
+      - name: Update lockfiles
+        run: |
+          # Update root lockfile if it exists
+          if [ -f "package.json" ]; then
+            bun install
+          fi
+          
+          # Update backend lockfile
+          if [ -f "backend/package.json" ]; then
+            cd backend && bun install && cd ..
+          fi
+          
+          # Update frontend lockfile  
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && bun install && cd ..
+          fi
+
+      - name: Commit lockfile changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if ! git diff --quiet; then
+            git add bun.lock backend/bun.lock frontend/bun.lock 2>/dev/null || true
+            git commit -m "chore: update bun lockfiles for dependabot" || exit 0
+            git push
+          fi

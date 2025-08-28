@@ -51,7 +51,13 @@ jobs:
       # Backend setup and tests
       - name: Install backend dependencies
         working-directory: ./backend
-        run: bun install --frozen-lockfile
+        run: |
+          # Use flexible install for Dependabot PRs, strict for others
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            bun install
+          else
+            bun install --frozen-lockfile
+          fi
 
       - name: Run backend database migrations
         working-directory: ./
@@ -64,7 +70,13 @@ jobs:
       # Frontend setup and tests
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: bun install --frozen-lockfile
+        run: |
+          # Use flexible install for Dependabot PRs, strict for others
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            bun install
+          else
+            bun install --frozen-lockfile
+          fi
 
       - name: Run frontend type checking
         working-directory: ./frontend
