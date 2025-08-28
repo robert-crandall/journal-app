@@ -8,11 +8,11 @@ jobs:
   update-lockfile:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -47,13 +47,13 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           echo "=== Git status before changes ==="
           git status
-          
+
           echo "=== Checking for lockfile changes ==="
           git diff --name-only
-          
+
           # Check if there are any changes to lockfiles
           if ! git diff --quiet -- bun.lock backend/bun.lock frontend/bun.lock 2>/dev/null; then
             echo "=== Found lockfile changes, adding them ==="
