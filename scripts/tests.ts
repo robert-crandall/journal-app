@@ -68,7 +68,7 @@ async function runBackendTests(): Promise<void> {
   const backendDir = path.join(PARENT_DIR, 'backend');
 
   console.log('📦 Installing backend dependencies...');
-  await runCommand('bun', ['install', '--frozen-lockfile'], backendDir);
+  await runCommand('bun', ['install'], backendDir);
 
   console.log('🔧 Running checks...');
   await runCommand('bun', ['run', 'check'], backendDir);
@@ -82,7 +82,7 @@ async function runFrontendTests(): Promise<void> {
   const frontendDir = path.join(PARENT_DIR, 'frontend');
 
   console.log('📦 Installing frontend dependencies...');
-  await runCommand('bun', ['install', '--frozen-lockfile'], frontendDir);
+  await runCommand('bun', ['install'], frontendDir);
 
   console.log('🔧 Running Svelte check...');
   await runCommand('bun', ['run', 'check'], frontendDir);

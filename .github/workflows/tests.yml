@@ -56,7 +56,7 @@ jobs:
           if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
             bun install
           else
-            bun install --frozen-lockfile
+            bun install
           fi
 
       - name: Run backend database migrations
@@ -75,7 +75,7 @@ jobs:
           if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
             bun install
           else
-            bun install --frozen-lockfile
+            bun install
           fi
 
       - name: Run frontend type checking

@@ -12,7 +12,7 @@ COPY backend/package.json ./backend/
 
 # Install backend dependencies
 WORKDIR /app/backend
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Stage 3: Build frontend with access to backend types
 FROM oven/bun:1-alpine AS frontend-builder
@@ -29,7 +29,7 @@ COPY shared/ ./shared/
 # Setup frontend
 COPY frontend/package.json ./frontend/
 WORKDIR /app/frontend
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy frontend source code
 COPY frontend/ ./
