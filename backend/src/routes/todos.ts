@@ -46,7 +46,7 @@ const app = new Hono()
   })
 
   // Create a new simple todo
-  .post('/', jwtAuth, zValidator('json', createSimpleTodoSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createSimpleTodoSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -88,7 +88,7 @@ const app = new Hono()
   })
 
   // Update a simple todo
-  .put('/:id', jwtAuth, zValidator('json', updateSimpleTodoSchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('json', updateSimpleTodoSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const todoId = c.req.param('id');
@@ -154,7 +154,7 @@ const app = new Hono()
   })
 
   // Complete/uncomplete a simple todo (convenience endpoint)
-  .patch('/:id/complete', jwtAuth, zValidator('json', completeSimpleTodoSchema), async (c) => {
+  .patch('/:id/complete', jwtAuth, zValidator('json', completeSimpleTodoSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const todoId = c.req.param('id');

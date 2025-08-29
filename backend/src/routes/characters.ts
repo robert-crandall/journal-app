@@ -35,7 +35,7 @@ const app = new Hono()
   })
 
   // Create a new character
-  .post('/', jwtAuth, zValidator('json', createCharacterSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createCharacterSchema as any as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -79,7 +79,7 @@ const app = new Hono()
   })
 
   // Update user's character
-  .put('/', jwtAuth, zValidator('json', updateCharacterSchema), async (c) => {
+  .put('/', jwtAuth, zValidator('json', updateCharacterSchema as any as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');

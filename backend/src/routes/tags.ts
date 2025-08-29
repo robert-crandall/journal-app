@@ -59,7 +59,7 @@ const app = new Hono()
   })
 
   // Create a new tag
-  .post('/', jwtAuth, zValidator('json', createTagSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createTagSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateTag;
@@ -84,7 +84,7 @@ const app = new Hono()
   })
 
   // Batch create tags
-  .post('/batch', jwtAuth, zValidator('json', batchCreateTagsSchema), async (c) => {
+  .post('/batch', jwtAuth, zValidator('json', batchCreateTagsSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { tags: tagNames } = c.req.valid('json');
@@ -115,7 +115,7 @@ const app = new Hono()
   })
 
   // Update a tag
-  .put('/:id', jwtAuth, zValidator('json', updateTagSchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('json', updateTagSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const tagId = c.req.param('id');

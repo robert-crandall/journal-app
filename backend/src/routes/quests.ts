@@ -19,7 +19,7 @@ const questRoutes = new Hono();
 questRoutes.use('*', jwtAuth);
 
 // Create a new quest
-questRoutes.post('/', zValidator('json', createQuestSchema), async (c) => {
+questRoutes.post('/', zValidator('json', createQuestSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const data = c.req.valid('json');
@@ -56,7 +56,7 @@ questRoutes.get('/', async (c) => {
 });
 
 // Get a specific quest
-questRoutes.get('/:id', zValidator('param', questIdSchema), async (c) => {
+questRoutes.get('/:id', zValidator('param', questIdSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -84,7 +84,7 @@ questRoutes.get('/:id', zValidator('param', questIdSchema), async (c) => {
 });
 
 // Get quest with experiments and journals
-questRoutes.get('/:id/details', zValidator('param', questIdSchema), async (c) => {
+questRoutes.get('/:id/details', zValidator('param', questIdSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -112,7 +112,7 @@ questRoutes.get('/:id/details', zValidator('param', questIdSchema), async (c) =>
 });
 
 // Get quest dashboard
-questRoutes.get('/:id/dashboard', zValidator('param', questDashboardSchema), async (c) => {
+questRoutes.get('/:id/dashboard', zValidator('param', questDashboardSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -140,7 +140,7 @@ questRoutes.get('/:id/dashboard', zValidator('param', questDashboardSchema), asy
 });
 
 // Update a quest
-questRoutes.put('/:id', zValidator('param', questIdSchema), zValidator('json', updateQuestSchema), async (c) => {
+questRoutes.put('/:id', zValidator('param', questIdSchema as any), zValidator('json', updateQuestSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -167,7 +167,7 @@ questRoutes.put('/:id', zValidator('param', questIdSchema), zValidator('json', u
 });
 
 // Delete a quest
-questRoutes.delete('/:id', zValidator('param', questIdSchema), async (c) => {
+questRoutes.delete('/:id', zValidator('param', questIdSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -193,7 +193,7 @@ questRoutes.delete('/:id', zValidator('param', questIdSchema), async (c) => {
 });
 
 // Link an experiment to a quest
-questRoutes.post('/:id/experiments', zValidator('param', questIdSchema), zValidator('json', linkQuestExperimentSchema), async (c) => {
+questRoutes.post('/:id/experiments', zValidator('param', questIdSchema as any), zValidator('json', linkQuestExperimentSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -227,7 +227,7 @@ questRoutes.delete(
     z.object({
       id: z.string().uuid(),
       experimentId: z.string().uuid(),
-    }),
+    }) as any,
   ),
   async (c) => {
     try {
@@ -256,7 +256,7 @@ questRoutes.delete(
 );
 
 // Link a journal to a quest
-questRoutes.post('/:id/journals', zValidator('param', questIdSchema), zValidator('json', linkQuestJournalSchema), async (c) => {
+questRoutes.post('/:id/journals', zValidator('param', questIdSchema as any), zValidator('json', linkQuestJournalSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');
@@ -290,7 +290,7 @@ questRoutes.delete(
     z.object({
       id: z.string().uuid(),
       journalId: z.string().uuid(),
-    }),
+    }) as any,
   ),
   async (c) => {
     try {
@@ -319,7 +319,7 @@ questRoutes.delete(
 );
 
 // Auto-link journals based on date range
-questRoutes.post('/:id/auto-link-journals', zValidator('param', questIdSchema), async (c) => {
+questRoutes.post('/:id/auto-link-journals', zValidator('param', questIdSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { id } = c.req.valid('param');

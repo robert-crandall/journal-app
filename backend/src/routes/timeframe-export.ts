@@ -9,7 +9,7 @@ import type { TimeframeExportRequest, TimeframeExportResponse } from '../../../s
 const app = new Hono();
 
 // Generate timeframe export
-app.post('/generate', jwtAuth, zValidator('json', timeframeExportRequestSchema), async (c) => {
+app.post('/generate', jwtAuth, zValidator('json', timeframeExportRequestSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const { startDate, endDate, options } = c.req.valid('json') as TimeframeExportRequest;

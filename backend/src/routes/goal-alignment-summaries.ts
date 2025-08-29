@@ -44,7 +44,7 @@ const serializeGoalAlignmentSummary = (summary: typeof goalAlignmentSummaries.$i
 // Chain methods for RPC compatibility
 const app = new Hono()
   // Get user's goal alignment summaries with filtering
-  .get('/', jwtAuth, zValidator('query', listGoalAlignmentSummariesSchema), async (c) => {
+  .get('/', jwtAuth, zValidator('query', listGoalAlignmentSummariesSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const filters = c.req.valid('query') as ListGoalAlignmentSummariesRequest;
@@ -93,7 +93,7 @@ const app = new Hono()
   })
 
   // Get specific goal alignment summary by ID
-  .get('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema), async (c) => {
+  .get('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -124,7 +124,7 @@ const app = new Hono()
   })
 
   // Create a new goal alignment summary (manual creation)
-  .post('/', jwtAuth, zValidator('json', createGoalAlignmentSummarySchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createGoalAlignmentSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateGoalAlignmentSummaryRequest;
@@ -179,7 +179,7 @@ const app = new Hono()
   })
 
   // Generate a goal alignment summary using GPT
-  .post('/generate', jwtAuth, zValidator('json', generateGoalAlignmentSummarySchema), async (c) => {
+  .post('/generate', jwtAuth, zValidator('json', generateGoalAlignmentSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as GenerateGoalAlignmentSummaryRequest;
@@ -284,7 +284,7 @@ const app = new Hono()
   })
 
   // Update an existing goal alignment summary
-  .put('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema), zValidator('json', updateGoalAlignmentSummarySchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema as any), zValidator('json', updateGoalAlignmentSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -344,7 +344,7 @@ const app = new Hono()
   })
 
   // Delete a goal alignment summary
-  .delete('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema), async (c) => {
+  .delete('/:id', jwtAuth, zValidator('param', goalAlignmentSummaryIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');

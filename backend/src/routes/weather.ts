@@ -6,7 +6,7 @@ import { handleApiError } from '../utils/logger';
 
 const app = new Hono()
   // Get weather for a specific date (defaults to today)
-  .get('/', zValidator('query', getWeatherSchema), async (c) => {
+  .get('/', zValidator('query', getWeatherSchema as any), async (c) => {
     try {
       const { date } = c.req.valid('query');
 
@@ -56,7 +56,7 @@ const app = new Hono()
   })
 
   // Refresh weather data for a specific date (force fetch from API)
-  .post('/refresh', zValidator('json', getWeatherSchema), async (c) => {
+  .post('/refresh', zValidator('json', getWeatherSchema as any), async (c) => {
     try {
       const { date } = c.req.valid('json');
       const targetDate = date || new Date().toISOString().split('T')[0];
@@ -83,7 +83,7 @@ const app = new Hono()
   })
 
   // Check if outdoor tasks should be avoided today
-  .get('/outdoor-advice', zValidator('query', getWeatherSchema), async (c) => {
+  .get('/outdoor-advice', zValidator('query', getWeatherSchema as any), async (c) => {
     try {
       const { date } = c.req.valid('query');
 

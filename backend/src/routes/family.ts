@@ -23,7 +23,7 @@ import { createAvatarSchema } from '../utils/avatar';
 const app = new Hono();
 
 // GET /family - Get all family members for the authenticated user
-app.get('/', jwtAuth, zValidator('query', familyQuerySchema), async (c) => {
+app.get('/', jwtAuth, zValidator('query', familyQuerySchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { includeFeedback } = c.req.valid('query');
@@ -78,7 +78,7 @@ app.get('/', jwtAuth, zValidator('query', familyQuerySchema), async (c) => {
 });
 
 // POST /family - Create a new family member
-app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema), async (c) => {
+app.post('/', jwtAuth, zValidator('json', createFamilyMemberSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const data = c.req.valid('json') as CreateFamilyMemberRequest;
@@ -143,7 +143,7 @@ app.get('/:id', jwtAuth, async (c) => {
 });
 
 // PUT /family/:id - Update a family member
-app.put('/:id', jwtAuth, zValidator('json', updateFamilyMemberSchema), async (c) => {
+app.put('/:id', jwtAuth, zValidator('json', updateFamilyMemberSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const familyMemberId = c.req.param('id');
@@ -223,7 +223,7 @@ app.delete('/:id', jwtAuth, async (c) => {
 });
 
 // PATCH /family/:id/avatar - Update/remove family member avatar
-app.patch('/:id/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema())), async (c) => {
+app.patch('/:id/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema()) as any), async (c) => {
   try {
     const userId = c.get('userId');
     const familyMemberId = c.req.param('id');
@@ -265,7 +265,7 @@ app.patch('/:id/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema
 });
 
 // POST /family/:id/feedback - Add task feedback for a family member
-app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSchema), async (c) => {
+app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const familyMemberId = c.req.param('id');
@@ -339,7 +339,7 @@ app.post('/:id/feedback', jwtAuth, zValidator('json', createFamilyTaskFeedbackSc
 });
 
 // GET /family/:id/feedback - Get feedback history for a family member
-app.get('/:id/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema), async (c) => {
+app.get('/:id/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const familyMemberId = c.req.param('id');
@@ -379,7 +379,7 @@ app.get('/:id/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema)
 });
 
 // GET /family/feedback - Get all family task feedback
-app.get('/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema), async (c) => {
+app.get('/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const { familyMemberId, limit } = c.req.valid('query');
@@ -420,7 +420,7 @@ app.get('/feedback', jwtAuth, zValidator('query', familyFeedbackQuerySchema), as
 });
 
 // GET /family/:id/xp-history - Get XP history for a specific family member
-app.get('/:id/xp-history', jwtAuth, zValidator('query', xpHistoryQuerySchema), async (c) => {
+app.get('/:id/xp-history', jwtAuth, zValidator('query', xpHistoryQuerySchema as any), async (c) => {
   try {
     const userId = c.get('userId');
     const familyMemberId = c.req.param('id');

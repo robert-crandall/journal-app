@@ -108,7 +108,7 @@ const app = new Hono()
   })
 
   // Create a new experiment
-  .post('/', jwtAuth, zValidator('json', createExperimentSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createExperimentSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateExperimentRequest;
@@ -159,7 +159,7 @@ const app = new Hono()
   })
 
   // Update a specific experiment
-  .put('/:id', jwtAuth, zValidator('json', updateExperimentSchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('json', updateExperimentSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const experimentId = c.req.param('id');
@@ -314,7 +314,7 @@ const app = new Hono()
   })
 
   // Create a new task for an experiment
-  .post('/:id/tasks', jwtAuth, zValidator('json', createExperimentTaskSchema), async (c) => {
+  .post('/:id/tasks', jwtAuth, zValidator('json', createExperimentTaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const experimentId = c.req.param('id');
@@ -361,7 +361,7 @@ const app = new Hono()
   })
 
   // Update an experiment task
-  .put('/:id/tasks/:taskId', jwtAuth, zValidator('json', updateExperimentTaskSchema), async (c) => {
+  .put('/:id/tasks/:taskId', jwtAuth, zValidator('json', updateExperimentTaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const experimentId = c.req.param('id');
@@ -451,7 +451,7 @@ const app = new Hono()
   })
 
   // Complete an experiment task
-  .post('/:id/tasks/:taskId/complete', jwtAuth, zValidator('json', completeExperimentTaskSchema), async (c) => {
+  .post('/:id/tasks/:taskId/complete', jwtAuth, zValidator('json', completeExperimentTaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const experimentId = c.req.param('id');

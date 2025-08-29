@@ -21,7 +21,7 @@ import logger, { handleApiError } from '../utils/logger';
 
 const app = new Hono()
   // Get all stats for the authenticated user
-  .get('/', jwtAuth, zValidator('query', statsQuerySchema), async (c) => {
+  .get('/', jwtAuth, zValidator('query', statsQuerySchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const { includeXpHistory, includeLevelTitles } = c.req.valid('query');
@@ -78,7 +78,7 @@ const app = new Hono()
   })
 
   // Create a new custom stat
-  .post('/', jwtAuth, zValidator('json', createCharacterStatSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createCharacterStatSchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const statData = c.req.valid('json');
@@ -109,7 +109,7 @@ const app = new Hono()
   })
 
   // Create multiple predefined stats
-  .post('/predefined', jwtAuth, zValidator('json', createPredefinedStatsSchema), async (c) => {
+  .post('/predefined', jwtAuth, zValidator('json', createPredefinedStatsSchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const { statNames } = c.req.valid('json');
@@ -179,7 +179,7 @@ const app = new Hono()
   })
 
   // Update a stat
-  .put('/:id', jwtAuth, zValidator('json', updateCharacterStatSchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('json', updateCharacterStatSchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const statId = c.req.param('id');
@@ -247,7 +247,7 @@ const app = new Hono()
   })
 
   // Grant XP to a stat
-  .post('/:id/xp', jwtAuth, zValidator('json', grantXpSchema), async (c) => {
+  .post('/:id/xp', jwtAuth, zValidator('json', grantXpSchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const statId = c.req.param('id');
@@ -342,7 +342,7 @@ const app = new Hono()
   })
 
   // Get XP history for a stat
-  .get('/:id/xp-history', jwtAuth, zValidator('query', xpHistoryQuerySchema), async (c) => {
+  .get('/:id/xp-history', jwtAuth, zValidator('query', xpHistoryQuerySchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const statId = c.req.param('id');

@@ -37,7 +37,7 @@ const taskGenerationSchema = z.object({
  * Generate daily tasks using GPT
  * POST /generate-tasks
  */
-app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
+app.post('/', zValidator('json', taskGenerationSchema as any), async (c) => {
   try {
     const { date, includeIntent } = c.req.valid('json');
     const userId = c.var.userId;

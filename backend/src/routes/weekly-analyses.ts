@@ -112,7 +112,7 @@ const serializeWeeklyAnalysisWithPhotos = (
 // Chain methods for RPC compatibility
 const app = new Hono()
   // Get user's weekly analyses with filtering
-  .get('/', jwtAuth, zValidator('query', listWeeklyAnalysesSchema), async (c) => {
+  .get('/', jwtAuth, zValidator('query', listWeeklyAnalysesSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const filters = c.req.valid('query') as ListWeeklyAnalysesRequest;
@@ -165,7 +165,7 @@ const app = new Hono()
   })
 
   // Get specific weekly analysis by ID
-  .get('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema), async (c) => {
+  .get('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -221,7 +221,7 @@ const app = new Hono()
   })
 
   // Create a new weekly analysis (manual creation)
-  .post('/', jwtAuth, zValidator('json', createWeeklyAnalysisSchema), async (c) => {
+  .post('/', jwtAuth, zValidator('json', createWeeklyAnalysisSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateWeeklyAnalysisRequest;
@@ -287,7 +287,7 @@ const app = new Hono()
   })
 
   // Generate a weekly analysis using GPT
-  .post('/generate', jwtAuth, zValidator('json', generateWeeklyAnalysisSchema), async (c) => {
+  .post('/generate', jwtAuth, zValidator('json', generateWeeklyAnalysisSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as GenerateWeeklyAnalysisRequest;
@@ -428,7 +428,7 @@ const app = new Hono()
   })
 
   // Update an existing weekly analysis
-  .put('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema), zValidator('json', updateWeeklyAnalysisSchema), async (c) => {
+  .put('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema as any), zValidator('json', updateWeeklyAnalysisSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -471,7 +471,7 @@ const app = new Hono()
   })
 
   // Delete a weekly analysis
-  .delete('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema), async (c) => {
+  .delete('/:id', jwtAuth, zValidator('param', weeklyAnalysisIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
