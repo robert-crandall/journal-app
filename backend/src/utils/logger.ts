@@ -159,7 +159,7 @@ export function handleApiError(error: unknown | null | undefined, message: strin
   if (error instanceof ZodError) {
     const validationMessage = `Validation failed: ${error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`;
     logger.warn(`${message} - ${validationMessage}`);
-    throw new HTTPException(400, { message: error });
+    throw new HTTPException(400, { message: validationMessage });
   }
 
   // If error is already an HTTPException, log it and rethrow
