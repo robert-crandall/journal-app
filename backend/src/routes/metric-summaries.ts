@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, asc, gte, lte, sql } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -42,7 +42,7 @@ function serializeMetricSummary(summary: typeof metricSummaries.$inferSelect): M
 }
 
 // Generate and save metrics for a specific time period
-app.post('/generate', jwtAuth, zValidator('json', generateMetricsSchema), async (c) => {
+app.post('/generate', jwtAuth, zodValidatorWithErrorHandler('json', generateMetricsSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const { startDate, endDate } = c.req.valid('json') as GenerateMetricsRequest;
@@ -220,7 +220,7 @@ app.post('/experiment/:sourceId', jwtAuth, async (c) => {
 });
 
 // List all metric summaries with filtering and sorting
-app.get('/', jwtAuth, zValidator('query', listMetricSummariesSchema), async (c) => {
+app.get('/', jwtAuth, zodValidatorWithErrorHandler('query', listMetricSummariesSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const {
@@ -307,7 +307,7 @@ app.get('/', jwtAuth, zValidator('query', listMetricSummariesSchema), async (c) 
 });
 
 // Get a specific metric summary by ID
-app.get('/:id', jwtAuth, zValidator('param', metricSummaryIdSchema), async (c) => {
+app.get('/:id', jwtAuth, zodValidatorWithErrorHandler('param', metricSummaryIdSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const { id } = c.req.valid('param');
@@ -331,7 +331,7 @@ app.get('/:id', jwtAuth, zValidator('param', metricSummaryIdSchema), async (c) =
 });
 
 // Delete a metric summary
-app.delete('/:id', jwtAuth, zValidator('param', metricSummaryIdSchema), async (c) => {
+app.delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', metricSummaryIdSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const { id } = c.req.valid('param');

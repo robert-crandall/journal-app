@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -42,7 +42,7 @@ const serializeJournalSummary = (summary: typeof journalSummaries.$inferSelect):
 // Chain methods for RPC compatibility
 const app = new Hono()
   // Get user's journal summaries with filtering
-  .get('/', jwtAuth, zValidator('query', listJournalSummariesSchema), async (c) => {
+  .get('/', jwtAuth, zodValidatorWithErrorHandler('query', listJournalSummariesSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const filters = c.req.valid('query') as ListJournalSummariesRequest;
@@ -95,7 +95,7 @@ const app = new Hono()
   })
 
   // Get specific journal summary by ID
-  .get('/:id', jwtAuth, zValidator('param', journalSummaryIdSchema), async (c) => {
+  .get('/:id', jwtAuth, zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -126,7 +126,7 @@ const app = new Hono()
   })
 
   // Create a new journal summary (manual creation)
-  .post('/', jwtAuth, zValidator('json', createJournalSummarySchema), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createJournalSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateJournalSummaryRequest;
@@ -180,7 +180,7 @@ const app = new Hono()
   })
 
   // Generate a journal summary using GPT
-  .post('/generate', jwtAuth, zValidator('json', generateJournalSummarySchema), async (c) => {
+  .post('/generate', jwtAuth, zodValidatorWithErrorHandler('json', generateJournalSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as GenerateJournalSummaryRequest;
@@ -262,7 +262,7 @@ const app = new Hono()
   })
 
   // Update an existing journal summary
-  .put('/:id', jwtAuth, zValidator('param', journalSummaryIdSchema), zValidator('json', updateJournalSummarySchema), async (c) => {
+  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any), zodValidatorWithErrorHandler('json', updateJournalSummarySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');
@@ -313,7 +313,7 @@ const app = new Hono()
   })
 
   // Delete a journal summary
-  .delete('/:id', jwtAuth, zValidator('param', journalSummaryIdSchema), async (c) => {
+  .delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { id } = c.req.valid('param');

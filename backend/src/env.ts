@@ -7,8 +7,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   ALLOW_REGISTRATION: z
     .string()
-    .transform((val) => val === 'true')
-    .default('true'),
+    .default('true')
+    .transform((val) => val === 'true'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
 
   // File upload settings
@@ -20,8 +20,8 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default('gpt-4o'),
   GPT_DEBUG: z
     .string()
-    .transform((val) => val === 'true')
-    .default('false'),
+    .default('false')
+    .transform((val) => val === 'true'),
 
   // Weather API settings - Weather.gov (free, no API key required)
   WEATHER_LAT: z.string().optional(), // Latitude for Weather.gov API

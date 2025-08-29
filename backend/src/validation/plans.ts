@@ -3,8 +3,7 @@ import { z } from 'zod';
 export const createPlanSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or less'),
   type: z.enum(['project', 'adventure', 'theme', 'other'], {
-    required_error: 'Type is required',
-    invalid_type_error: 'Type must be one of: project, adventure, theme, other',
+    message: 'Type must be one of: project, adventure, theme, other',
   }),
   description: z.string().max(2000, 'Description must be 2000 characters or less').optional(),
   focusId: z.string().uuid('Focus ID must be a valid UUID').optional(),

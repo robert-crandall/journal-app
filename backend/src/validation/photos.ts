@@ -42,15 +42,15 @@ export const listPhotosSchema = z.object({
   measurementId: z.string().uuid().optional(),
   limit: z
     .string()
+    .default('50')
     .transform((val) => parseInt(val, 10))
     .pipe(z.number().min(1).max(100))
-    .default('50')
     .optional(),
   offset: z
     .string()
+    .default('0')
     .transform((val) => parseInt(val, 10))
     .pipe(z.number().min(0))
-    .default('0')
     .optional(),
 });
 

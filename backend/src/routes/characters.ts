@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -7,6 +6,7 @@ import { characters } from '../db/schema/characters';
 import { createCharacterSchema, updateCharacterSchema } from '../validation/characters';
 import { HTTPException } from 'hono/http-exception';
 import { handleApiError } from '../utils/logger';
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 
 // Chain methods for RPC compatibility
 const app = new Hono()
@@ -35,7 +35,7 @@ const app = new Hono()
   })
 
   // Create a new character
-  .post('/', jwtAuth, zValidator('json', createCharacterSchema), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createCharacterSchema), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -79,7 +79,7 @@ const app = new Hono()
   })
 
   // Update user's character
-  .put('/', jwtAuth, zValidator('json', updateCharacterSchema), async (c) => {
+  .put('/', jwtAuth, zodValidatorWithErrorHandler('json', updateCharacterSchema), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');

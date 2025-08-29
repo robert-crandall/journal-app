@@ -8,8 +8,8 @@ const gptEnvSchema = z.object({
   OPENAI_MODEL: z.string().default('gpt-4o'),
   GPT_DEBUG: z
     .string()
-    .transform((val) => val === 'true')
-    .default('false'),
+    .default('false')
+    .transform((val) => val === 'true'),
 });
 
 /**
