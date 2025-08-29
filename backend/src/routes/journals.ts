@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq, and, sql, desc, like, gte, lte, ilike, count } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -132,7 +132,7 @@ const app = new Hono()
   })
 
   // List all journals with filtering and pagination
-  .get('/', jwtAuth, zValidator('query', listJournalsSchema as any), async (c) => {
+  .get('/', jwtAuth, zodValidatorWithErrorHandler('query', listJournalsSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const filters = c.req.valid('query') as ListJournalsRequest;
@@ -282,7 +282,7 @@ const app = new Hono()
   })
 
   // Get journal by date
-  .get('/:date', jwtAuth, zValidator('param', journalDateSchema as any), async (c) => {
+  .get('/:date', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -314,7 +314,7 @@ const app = new Hono()
   })
 
   // Create or update journal entry
-  .post('/', jwtAuth, zValidator('json', createJournalSchema as any), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createJournalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateJournalRequest;
@@ -361,7 +361,7 @@ const app = new Hono()
   })
 
   // Update journal entry
-  .put('/:date', jwtAuth, zValidator('param', journalDateSchema as any), zValidator('json', updateJournalSchema as any), async (c) => {
+  .put('/:date', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', updateJournalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -455,7 +455,7 @@ const app = new Hono()
   })
 
   // Edit journal entry (handles XP cleanup and re-finalization)
-  .post('/:date/edit', jwtAuth, zValidator('param', journalDateSchema as any), zValidator('json', updateJournalSchema as any), async (c) => {
+  .post('/:date/edit', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', updateJournalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -525,7 +525,7 @@ const app = new Hono()
   })
 
   // Start reflection (transition from draft to in_review)
-  .post('/:date/start-reflection', jwtAuth, zValidator('param', journalDateSchema as any), async (c) => {
+  .post('/:date/start-reflection', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -609,7 +609,7 @@ const app = new Hono()
   })
 
   // Add message to chat session
-  .post('/:date/chat', jwtAuth, zValidator('param', journalDateSchema as any), zValidator('json', addChatMessageSchema as any), async (c) => {
+  .post('/:date/chat', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', addChatMessageSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -698,7 +698,7 @@ const app = new Hono()
   })
 
   // Finish journal (transition from draft or in_review to complete)
-  .post('/:date/finish', jwtAuth, zValidator('param', journalDateSchema as any), zValidator('json', finishJournalSchema as any), async (c) => {
+  .post('/:date/finish', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', finishJournalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');
@@ -927,7 +927,7 @@ const app = new Hono()
   })
 
   // Delete journal entry
-  .delete('/:date', jwtAuth, zValidator('param', journalDateSchema as any), async (c) => {
+  .delete('/:date', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const { date } = c.req.valid('param');

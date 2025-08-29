@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { TimeframeExportService } from '../services/timeframeExportService';
 import { timeframeExportRequestSchema } from '../validation/timeframe-export';
@@ -9,7 +9,7 @@ import type { TimeframeExportRequest, TimeframeExportResponse } from '../../../s
 const app = new Hono();
 
 // Generate timeframe export
-app.post('/generate', jwtAuth, zValidator('json', timeframeExportRequestSchema as any), async (c) => {
+app.post('/generate', jwtAuth, zodValidatorWithErrorHandler('json', timeframeExportRequestSchema as any), async (c) => {
   try {
     const userId = getUserId(c);
     const { startDate, endDate, options } = c.req.valid('json') as TimeframeExportRequest;

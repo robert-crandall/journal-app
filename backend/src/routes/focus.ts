@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { db } from '../db';
 import { focuses } from '../db/schema/focus';
 import { eq, and } from 'drizzle-orm';
@@ -62,7 +62,7 @@ const app = new Hono()
   })
 
   // Create or update focus for a specific day
-  .put('/:dayOfWeek', jwtAuth, zValidator('json', createFocusSchema as any), async (c) => {
+  .put('/:dayOfWeek', jwtAuth, zodValidatorWithErrorHandler('json', createFocusSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const dayOfWeek = parseInt(c.req.param('dayOfWeek'), 10);
@@ -118,7 +118,7 @@ const app = new Hono()
   })
 
   // Batch update multiple focuses at once
-  .post('/batch', jwtAuth, zValidator('json', batchUpdateFocusesSchema as any), async (c) => {
+  .post('/batch', jwtAuth, zodValidatorWithErrorHandler('json', batchUpdateFocusesSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const batchFocuses = c.req.valid('json');

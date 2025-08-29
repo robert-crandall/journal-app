@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { env } from '../env';
@@ -20,7 +20,7 @@ const app = new Hono()
     return c.json({ enabled: env.ALLOW_REGISTRATION });
   })
   // User registration endpoint
-  .post('/', zValidator('json', registerSchema as any), async (c) => {
+  .post('/', zodValidatorWithErrorHandler('json', registerSchema as any), async (c) => {
     // Check if registration is allowed
     if (!env.ALLOW_REGISTRATION) {
       return c.json({ error: 'Registration is currently disabled' }, 403);
@@ -87,7 +87,7 @@ const app = new Hono()
     }
   })
   // User login endpoint
-  .post('/login', zValidator('json', loginSchema as any), async (c) => {
+  .post('/login', zodValidatorWithErrorHandler('json', loginSchema as any), async (c) => {
     const data = c.req.valid('json');
     const { email, password, rememberMe } = data;
 
@@ -178,7 +178,7 @@ const app = new Hono()
     }
   })
   // Update user profile
-  .put('/profile', jwtAuth, zValidator('json', updateUserValidationSchema as any), async (c) => {
+  .put('/profile', jwtAuth, zodValidatorWithErrorHandler('json', updateUserValidationSchema as any), async (c) => {
     try {
       const userId = c.get('userId');
       const data = c.req.valid('json') as UpdateUserRequest;
@@ -236,7 +236,7 @@ const app = new Hono()
     }
   })
   // Update/remove user avatar
-  .patch('/avatar', jwtAuth, zValidator('json', z.object(createAvatarSchema()) as any), async (c) => {
+  .patch('/avatar', jwtAuth, zodValidatorWithErrorHandler('json', z.object(createAvatarSchema()) as any), async (c) => {
     try {
       const userId = c.get('userId');
       const data = c.req.valid('json') as UpdateUserAvatarRequest;
