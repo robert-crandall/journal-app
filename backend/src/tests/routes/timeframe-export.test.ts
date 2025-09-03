@@ -26,6 +26,7 @@ describe('Timeframe Export Routes', () => {
             includePlans: true,
             includeQuests: true,
             includeExperiments: true,
+            includeUserAttributes: false,
           },
         },
       });

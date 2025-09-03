@@ -6,6 +6,7 @@ import { goals } from '../db/schema/goals';
 import { plans, planSubtasks } from '../db/schema/plans';
 import { quests, questExperiments, questJournals } from '../db/schema/quests';
 import { experiments, experimentTasks, experimentTaskCompletions } from '../db/schema/experiments';
+import { UserAttributesService } from './user-attributes';
 import type {
   TimeframeExportOptions,
   TimeframeExportData,
@@ -17,6 +18,7 @@ import type {
   PlanEntry,
   QuestEntry,
   ExperimentEntry,
+  UserAttributeEntry,
 } from '../../../shared/types/timeframe-export';
 
 /**
@@ -96,6 +98,11 @@ export class TimeframeExportService {
     // Experiments
     if (options.includeExperiments) {
       data.experiments = await this.getExperiments(userId, startDate, endDate);
+    }
+
+    // User Attributes
+    if (options.includeUserAttributes) {
+      data.userAttributes = await this.getUserAttributes(userId);
     }
 
     return data;
@@ -646,6 +653,35 @@ export class TimeframeExportService {
       });
     }
 
+    // User Attributes
+    if (options.includeUserAttributes && data.userAttributes?.length) {
+      markdown += `## User Attributes\n\n`;
+      markdown += `These are characteristics and traits identified through journal analysis and user input:\n\n`;
+
+      // Group by source for better organization
+      const groupedBySource = data.userAttributes.reduce(
+        (acc, attr) => {
+          if (!acc[attr.source]) {
+            acc[attr.source] = [];
+          }
+          acc[attr.source].push(attr);
+          return acc;
+        },
+        {} as Record<string, UserAttributeEntry[]>,
+      );
+
+      Object.entries(groupedBySource).forEach(([source, attrs]) => {
+        const sourceLabel =
+          source === 'user_set' ? 'User Defined' : source === 'gpt_summary' ? 'AI Generated' : source === 'journal_analysis' ? 'Journal Analysis' : source;
+
+        markdown += `### ${sourceLabel}\n\n`;
+        attrs.forEach((attr) => {
+          markdown += `- ${attr.value}\n`;
+        });
+        markdown += `\n`;
+      });
+    }
+
     return markdown;
   }
 
@@ -662,7 +698,22 @@ export class TimeframeExportService {
     if (options.includePlans) sections.push('Plans');
     if (options.includeQuests) sections.push('Quests');
     if (options.includeExperiments) sections.push('Experiments');
+    if (options.includeUserAttributes) sections.push('User Attributes');
 
     return sections;
+  }
+
+  /**
+   * Get user attributes
+   */
+  private static async getUserAttributes(userId: string): Promise<UserAttributeEntry[]> {
+    const attributes = await UserAttributesService.getUserAttributes(userId);
+    return attributes.map((attr) => ({
+      id: attr.id,
+      value: attr.value,
+      source: attr.source,
+      lastUpdated: attr.lastUpdated!.toISOString(),
+      createdAt: attr.createdAt!.toISOString(),
+    }));
   }
 }

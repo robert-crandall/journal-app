@@ -9,6 +9,7 @@ export const timeframeExportOptionsSchema = z.object({
   includePlans: z.boolean().default(true),
   includeQuests: z.boolean().default(true),
   includeExperiments: z.boolean().default(true),
+  includeUserAttributes: z.boolean().default(false),
 });
 
 // Validation schema for timeframe export request

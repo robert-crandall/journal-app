@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq, and } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -79,7 +79,7 @@ const app = new Hono()
   })
 
   // Create a new goal
-  .post('/', jwtAuth, zValidator('json', createGoalSchema), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createGoalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json') as CreateGoalWithTags;
@@ -113,7 +113,7 @@ const app = new Hono()
   })
 
   // Update a specific goal
-  .put('/:id', jwtAuth, zValidator('json', updateGoalSchema), async (c) => {
+  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('json', updateGoalSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const goalId = c.req.param('id');

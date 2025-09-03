@@ -8,6 +8,7 @@ export interface TimeframeExportOptions {
   includePlans: boolean;
   includeQuests: boolean;
   includeExperiments: boolean;
+  includeUserAttributes: boolean;
 }
 
 export interface TimeframeExportRequest {
@@ -35,6 +36,7 @@ export interface TimeframeExportData {
   plans?: PlanEntry[];
   quests?: QuestEntry[];
   experiments?: ExperimentEntry[];
+  userAttributes?: UserAttributeEntry[];
 }
 
 export interface DailyEntry {
@@ -145,4 +147,12 @@ export interface ExperimentTaskEntry {
 export interface ExperimentTaskCompletionEntry {
   completedDate: string;
   notes?: string;
+}
+
+export interface UserAttributeEntry {
+  id: string;
+  value: string;
+  source: string;
+  lastUpdated: string;
+  createdAt: string;
 }

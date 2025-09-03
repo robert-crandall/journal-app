@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { eq, and, desc, asc } from 'drizzle-orm';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { db } from '../db';
@@ -59,7 +59,7 @@ const app = new Hono()
   })
 
   // Create a new plan
-  .post('/', jwtAuth, zValidator('json', createPlanSchema), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createPlanSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -197,7 +197,7 @@ const app = new Hono()
   })
 
   // Update a plan
-  .put('/:id', jwtAuth, zValidator('json', updatePlanSchema), async (c) => {
+  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('json', updatePlanSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const planId = c.req.param('id');
@@ -300,7 +300,7 @@ const app = new Hono()
   })
 
   // Create a subtask for a plan
-  .post('/:id/subtasks', jwtAuth, zValidator('json', createPlanSubtaskSchema), async (c) => {
+  .post('/:id/subtasks', jwtAuth, zodValidatorWithErrorHandler('json', createPlanSubtaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const planId = c.req.param('id');
@@ -369,7 +369,7 @@ const app = new Hono()
   })
 
   // Update a subtask
-  .put('/:planId/subtasks/:subtaskId', jwtAuth, zValidator('json', updatePlanSubtaskSchema), async (c) => {
+  .put('/:planId/subtasks/:subtaskId', jwtAuth, zodValidatorWithErrorHandler('json', updatePlanSubtaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const planId = c.req.param('planId');
@@ -446,7 +446,7 @@ const app = new Hono()
   })
 
   // Complete/uncomplete a subtask (convenience endpoint)
-  .patch('/:planId/subtasks/:subtaskId/complete', jwtAuth, zValidator('json', completePlanSubtaskSchema), async (c) => {
+  .patch('/:planId/subtasks/:subtaskId/complete', jwtAuth, zodValidatorWithErrorHandler('json', completePlanSubtaskSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const planId = c.req.param('planId');
@@ -552,7 +552,7 @@ const app = new Hono()
   })
 
   // Reorder subtasks (for ordered plans)
-  .patch('/:id/subtasks/reorder', jwtAuth, zValidator('json', reorderPlanSubtasksSchema), async (c) => {
+  .patch('/:id/subtasks/reorder', jwtAuth, zodValidatorWithErrorHandler('json', reorderPlanSubtasksSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const planId = c.req.param('id');
@@ -586,7 +586,7 @@ const app = new Hono()
       }
 
       // Update order indices for each subtask
-      const updatePromises = data.subtaskIds.map((subtaskId, index) =>
+      const updatePromises = data.subtaskIds.map((subtaskId: string, index: number) =>
         db
           .update(planSubtasks)
           .set({ orderIndex: index, updatedAt: new Date() })
