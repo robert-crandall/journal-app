@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '../db';
@@ -37,7 +37,7 @@ const taskGenerationSchema = z.object({
  * Generate daily tasks using GPT
  * POST /generate-tasks
  */
-app.post('/', zValidator('json', taskGenerationSchema), async (c) => {
+app.post('/', zodValidatorWithErrorHandler('json', taskGenerationSchema as any), async (c) => {
   try {
     const { date, includeIntent } = c.req.valid('json');
     const userId = c.var.userId;
