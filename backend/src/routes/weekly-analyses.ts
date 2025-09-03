@@ -428,47 +428,53 @@ const app = new Hono()
   })
 
   // Update an existing weekly analysis
-  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any), zodValidatorWithErrorHandler('json', updateWeeklyAnalysisSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { id } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateWeeklyAnalysisRequest;
+  .put(
+    '/:id',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any),
+    zodValidatorWithErrorHandler('json', updateWeeklyAnalysisSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateWeeklyAnalysisRequest;
 
-      // Check if analysis exists and belongs to the user
-      const existingAnalysis = await db
-        .select()
-        .from(weeklyAnalyses)
-        .where(and(eq(weeklyAnalyses.id, id), eq(weeklyAnalyses.userId, userId)))
-        .limit(1);
+        // Check if analysis exists and belongs to the user
+        const existingAnalysis = await db
+          .select()
+          .from(weeklyAnalyses)
+          .where(and(eq(weeklyAnalyses.id, id), eq(weeklyAnalyses.userId, userId)))
+          .limit(1);
 
-      if (existingAnalysis.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Weekly analysis not found',
-          },
-          404,
-        );
+        if (existingAnalysis.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Weekly analysis not found',
+            },
+            404,
+          );
+        }
+
+        // Update the analysis
+        const updatedAnalysis = await db
+          .update(weeklyAnalyses)
+          .set({
+            ...data,
+            updatedAt: new Date(),
+          })
+          .where(eq(weeklyAnalyses.id, id))
+          .returning();
+
+        return c.json({
+          success: true,
+          data: serializeWeeklyAnalysis(updatedAnalysis[0]),
+        });
+      } catch (error) {
+        return handleApiError(error, 'Failed to update weekly analysis');
       }
-
-      // Update the analysis
-      const updatedAnalysis = await db
-        .update(weeklyAnalyses)
-        .set({
-          ...data,
-          updatedAt: new Date(),
-        })
-        .where(eq(weeklyAnalyses.id, id))
-        .returning();
-
-      return c.json({
-        success: true,
-        data: serializeWeeklyAnalysis(updatedAnalysis[0]),
-      });
-    } catch (error) {
-      return handleApiError(error, 'Failed to update weekly analysis');
-    }
-  })
+    },
+  )
 
   // Delete a weekly analysis
   .delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any), async (c) => {

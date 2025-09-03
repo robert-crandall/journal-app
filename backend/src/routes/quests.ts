@@ -140,31 +140,36 @@ questRoutes.get('/:id/dashboard', zodValidatorWithErrorHandler('param', questDas
 });
 
 // Update a quest
-questRoutes.put('/:id', zodValidatorWithErrorHandler('param', questIdSchema as any), zodValidatorWithErrorHandler('json', updateQuestSchema as any), async (c) => {
-  try {
-    const userId = c.get('userId');
-    const { id } = c.req.valid('param');
-    const data = c.req.valid('json');
+questRoutes.put(
+  '/:id',
+  zodValidatorWithErrorHandler('param', questIdSchema as any),
+  zodValidatorWithErrorHandler('json', updateQuestSchema as any),
+  async (c) => {
+    try {
+      const userId = c.get('userId');
+      const { id } = c.req.valid('param');
+      const data = c.req.valid('json');
 
-    const quest = await QuestService.updateQuest(userId, id, data);
-    if (!quest) {
-      return c.json(
-        {
-          success: false,
-          error: 'Quest not found',
-        },
-        404,
-      );
+      const quest = await QuestService.updateQuest(userId, id, data);
+      if (!quest) {
+        return c.json(
+          {
+            success: false,
+            error: 'Quest not found',
+          },
+          404,
+        );
+      }
+
+      return c.json({
+        success: true,
+        data: quest,
+      });
+    } catch (error) {
+      return handleApiError(error, 'Failed to update quest');
     }
-
-    return c.json({
-      success: true,
-      data: quest,
-    });
-  } catch (error) {
-    return handleApiError(error, 'Failed to update quest');
-  }
-});
+  },
+);
 
 // Delete a quest
 questRoutes.delete('/:id', zodValidatorWithErrorHandler('param', questIdSchema as any), async (c) => {
@@ -193,31 +198,36 @@ questRoutes.delete('/:id', zodValidatorWithErrorHandler('param', questIdSchema a
 });
 
 // Link an experiment to a quest
-questRoutes.post('/:id/experiments', zodValidatorWithErrorHandler('param', questIdSchema as any), zodValidatorWithErrorHandler('json', linkQuestExperimentSchema as any), async (c) => {
-  try {
-    const userId = c.get('userId');
-    const { id } = c.req.valid('param');
-    const data = c.req.valid('json');
+questRoutes.post(
+  '/:id/experiments',
+  zodValidatorWithErrorHandler('param', questIdSchema as any),
+  zodValidatorWithErrorHandler('json', linkQuestExperimentSchema as any),
+  async (c) => {
+    try {
+      const userId = c.get('userId');
+      const { id } = c.req.valid('param');
+      const data = c.req.valid('json');
 
-    const success = await QuestService.linkExperiment(userId, id, data);
-    if (!success) {
-      return c.json(
-        {
-          success: false,
-          error: 'Failed to link experiment. Quest or experiment not found.',
-        },
-        404,
-      );
+      const success = await QuestService.linkExperiment(userId, id, data);
+      if (!success) {
+        return c.json(
+          {
+            success: false,
+            error: 'Failed to link experiment. Quest or experiment not found.',
+          },
+          404,
+        );
+      }
+
+      return c.json({
+        success: true,
+        data: { questId: id, experimentId: data.experimentId },
+      });
+    } catch (error) {
+      return handleApiError(error, 'Failed to link experiment to quest');
     }
-
-    return c.json({
-      success: true,
-      data: { questId: id, experimentId: data.experimentId },
-    });
-  } catch (error) {
-    return handleApiError(error, 'Failed to link experiment to quest');
-  }
-});
+  },
+);
 
 // Unlink an experiment from a quest
 questRoutes.delete(
@@ -256,31 +266,36 @@ questRoutes.delete(
 );
 
 // Link a journal to a quest
-questRoutes.post('/:id/journals', zodValidatorWithErrorHandler('param', questIdSchema as any), zodValidatorWithErrorHandler('json', linkQuestJournalSchema as any), async (c) => {
-  try {
-    const userId = c.get('userId');
-    const { id } = c.req.valid('param');
-    const data = c.req.valid('json');
+questRoutes.post(
+  '/:id/journals',
+  zodValidatorWithErrorHandler('param', questIdSchema as any),
+  zodValidatorWithErrorHandler('json', linkQuestJournalSchema as any),
+  async (c) => {
+    try {
+      const userId = c.get('userId');
+      const { id } = c.req.valid('param');
+      const data = c.req.valid('json');
 
-    const success = await QuestService.linkJournal(userId, id, data);
-    if (!success) {
-      return c.json(
-        {
-          success: false,
-          error: 'Failed to link journal. Quest or journal not found.',
-        },
-        404,
-      );
+      const success = await QuestService.linkJournal(userId, id, data);
+      if (!success) {
+        return c.json(
+          {
+            success: false,
+            error: 'Failed to link journal. Quest or journal not found.',
+          },
+          404,
+        );
+      }
+
+      return c.json({
+        success: true,
+        data: { questId: id, journalId: data.journalId, linkedType: data.linkedType },
+      });
+    } catch (error) {
+      return handleApiError(error, 'Failed to link journal to quest');
     }
-
-    return c.json({
-      success: true,
-      data: { questId: id, journalId: data.journalId, linkedType: data.linkedType },
-    });
-  } catch (error) {
-    return handleApiError(error, 'Failed to link journal to quest');
-  }
-});
+  },
+);
 
 // Unlink a journal from a quest
 questRoutes.delete(
