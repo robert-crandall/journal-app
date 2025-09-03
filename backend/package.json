@@ -28,7 +28,7 @@
     "@types/node": "^24.0.7",
     "@types/pg": "^8.15.4",
     "@types/sharp": "^0.32.0",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.2.2",
     "drizzle-kit": "^0.31.4",
     "pg": "^8.16.3",
     "vitest": "^3.2.4"
