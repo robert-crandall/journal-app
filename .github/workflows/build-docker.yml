@@ -73,6 +73,9 @@ jobs:
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v2.1.1
         with:
+          # v2 of slackapi/slack-github-action expects an explicit 'webhook-type' input
+          # Valid values: 'incoming-webhook' | 'webhook-trigger'
+          webhook-type: incoming-webhook
           payload: |
             {
               "text": "Journal App Build ${{ needs.build-and-push.result == 'success' && '✅ Success!' || '❌ Failure' }}",
