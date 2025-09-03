@@ -1,9 +1,30 @@
 // Timeframe Export types - shared between backend and frontend
 
+export interface DailyExportOptions {
+  includeSynopsis: boolean;
+  includeInitialMessage: boolean;
+  includeSummary: boolean;
+}
+
+export interface WeeklyExportOptions {
+  includeJournalSummary: boolean;
+  includeGoalAlignment: boolean;
+  includePersonalReflections: boolean;
+}
+
+export interface MonthlyExportOptions {
+  includeJournalSummary: boolean;
+  includeGoalAlignment: boolean;
+  includePersonalReflections: boolean;
+}
+
 export interface TimeframeExportOptions {
   includeDailyEntries: boolean;
+  dailyOptions: DailyExportOptions;
   includeWeeklyAnalyses: boolean;
+  weeklyOptions: WeeklyExportOptions;
   includeMonthlyAnalyses: boolean;
+  monthlyOptions: MonthlyExportOptions;
   includeGoals: boolean;
   includePlans: boolean;
   includeQuests: boolean;

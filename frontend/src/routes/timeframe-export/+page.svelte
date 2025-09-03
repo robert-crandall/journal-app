@@ -12,8 +12,23 @@
     endDate: '',
     options: {
       includeDailyEntries: true,
+      dailyOptions: {
+        includeSynopsis: true,
+        includeInitialMessage: false,
+        includeSummary: false,
+      },
       includeWeeklyAnalyses: true,
+      weeklyOptions: {
+        includeJournalSummary: true,
+        includeGoalAlignment: false,
+        includePersonalReflections: true,
+      },
       includeMonthlyAnalyses: true,
+      monthlyOptions: {
+        includeJournalSummary: true,
+        includeGoalAlignment: true,
+        includePersonalReflections: true,
+      },
       includeGoals: true,
       includePlans: true,
       includeQuests: true,
@@ -71,8 +86,23 @@
   function toggleAllOptions(enabled: boolean) {
     formData.options = {
       includeDailyEntries: enabled,
+      dailyOptions: {
+        includeSynopsis: enabled,
+        includeInitialMessage: enabled,
+        includeSummary: enabled,
+      },
       includeWeeklyAnalyses: enabled,
+      weeklyOptions: {
+        includeJournalSummary: enabled,
+        includeGoalAlignment: enabled,
+        includePersonalReflections: enabled,
+      },
       includeMonthlyAnalyses: enabled,
+      monthlyOptions: {
+        includeJournalSummary: enabled,
+        includeGoalAlignment: enabled,
+        includePersonalReflections: enabled,
+      },
       includeGoals: enabled,
       includePlans: enabled,
       includeQuests: enabled,
@@ -229,30 +259,81 @@
             <button type="button" on:click={() => toggleAllOptions(false)} class="btn btn-outline btn-sm"> Select None </button>
           </div>
 
-          <div class="space-y-3">
+          <div class="space-y-4">
             <label class="label cursor-pointer justify-start gap-3">
               <input type="checkbox" bind:checked={formData.options.includeDailyEntries} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Daily Entries</span>
-                <div class="text-base-content/70 text-sm">Concatenated journal entries with summaries and ratings</div>
+                <div class="text-base-content/70 text-sm">Concatenated journal entries with configurable content</div>
               </div>
             </label>
+
+            {#if formData.options.includeDailyEntries}
+              <div class="border-base-300 ml-8 space-y-2 border-l-2 pl-4">
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.dailyOptions.includeSynopsis} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Synopsis</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.dailyOptions.includeInitialMessage} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Initial Message</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.dailyOptions.includeSummary} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Summary</span>
+                </label>
+              </div>
+            {/if}
 
             <label class="label cursor-pointer justify-start gap-3">
               <input type="checkbox" bind:checked={formData.options.includeWeeklyAnalyses} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Weekly Analyses</span>
-                <div class="text-base-content/70 text-sm">Generated and manual weekly reflections</div>
+                <div class="text-base-content/70 text-sm">Generated and manual weekly reflections with configurable content</div>
               </div>
             </label>
+
+            {#if formData.options.includeWeeklyAnalyses}
+              <div class="border-base-300 ml-8 space-y-2 border-l-2 pl-4">
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.weeklyOptions.includeJournalSummary} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Journal Summary</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.weeklyOptions.includeGoalAlignment} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Goal Alignment</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.weeklyOptions.includePersonalReflections} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Personal Reflections</span>
+                </label>
+              </div>
+            {/if}
 
             <label class="label cursor-pointer justify-start gap-3">
               <input type="checkbox" bind:checked={formData.options.includeMonthlyAnalyses} class="checkbox" />
               <div>
                 <span class="label-text font-medium">Monthly Analyses</span>
-                <div class="text-base-content/70 text-sm">Generated and manual monthly reflections</div>
+                <div class="text-base-content/70 text-sm">Generated and manual monthly reflections with configurable content</div>
               </div>
             </label>
+
+            {#if formData.options.includeMonthlyAnalyses}
+              <div class="border-base-300 ml-8 space-y-2 border-l-2 pl-4">
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.monthlyOptions.includeJournalSummary} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Journal Summary</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.monthlyOptions.includeGoalAlignment} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Goal Alignment</span>
+                </label>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input type="checkbox" bind:checked={formData.options.monthlyOptions.includePersonalReflections} class="checkbox checkbox-sm" />
+                  <span class="label-text text-sm">Include Personal Reflections</span>
+                </label>
+              </div>
+            {/if}
 
             <label class="label cursor-pointer justify-start gap-3">
               <input type="checkbox" bind:checked={formData.options.includeGoals} class="checkbox" />

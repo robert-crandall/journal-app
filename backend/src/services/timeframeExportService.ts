@@ -451,16 +451,15 @@ export class TimeframeExportService {
       markdown += `## Daily Journal Entries\n\n`;
       data.dailyEntries.forEach((entry) => {
         markdown += `### ${entry.date}\n\n`;
-        // if (entry.title) {
-        //   markdown += `**${entry.title}**\n\n`;
-        // }
-        if (entry.synopsis) {
+        if (options.dailyOptions.includeSynopsis && entry.synopsis) {
           markdown += `*${entry.synopsis}*\n\n`;
         }
-        // markdown += `${entry.initialMessage}\n\n`;
-        // if (entry.summary) {
-        //   markdown += `**Summary:** ${entry.summary}\n\n`;
-        // }
+        if (options.dailyOptions.includeInitialMessage) {
+          markdown += `${entry.initialMessage}\n\n`;
+        }
+        if (options.dailyOptions.includeSummary && entry.summary) {
+          markdown += `**Summary:** ${entry.summary}\n\n`;
+        }
         if (entry.dayRating) {
           markdown += `**Day Rating:** ${entry.dayRating}/5\n\n`;
         }
@@ -473,12 +472,13 @@ export class TimeframeExportService {
       markdown += `## Weekly Analyses\n\n`;
       data.weeklyAnalyses.forEach((analysis) => {
         markdown += `### Week of ${analysis.periodStartDate} to ${analysis.periodEndDate}\n\n`;
-        markdown += `**Journal Summary:**\n${analysis.journalSummary}\n\n`;
-        // markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
-        // if (analysis.combinedReflection) {
-        //   markdown += `**Combined Reflection:**\n${analysis.combinedReflection}\n\n`;
-        // }
-        if (analysis.reflection) {
+        if (options.weeklyOptions.includeJournalSummary) {
+          markdown += `**Journal Summary:**\n${analysis.journalSummary}\n\n`;
+        }
+        if (options.weeklyOptions.includeGoalAlignment) {
+          markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
+        }
+        if (options.weeklyOptions.includePersonalReflections && analysis.reflection) {
           markdown += `**Personal Reflection:**\n${analysis.reflection}\n\n`;
         }
         markdown += `---\n\n`;
@@ -490,12 +490,13 @@ export class TimeframeExportService {
       markdown += `## Monthly Analyses\n\n`;
       data.monthlyAnalyses.forEach((analysis) => {
         markdown += `### Month of ${analysis.periodStartDate} to ${analysis.periodEndDate}\n\n`;
-        markdown += `**Journal Summary:**\n${analysis.journalSummary}\n\n`;
-        markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
-        if (analysis.combinedReflection) {
-          markdown += `**Combined Reflection:**\n${analysis.combinedReflection}\n\n`;
+        if (options.monthlyOptions.includeJournalSummary) {
+          markdown += `**Journal Summary:**\n${analysis.journalSummary}\n\n`;
         }
-        if (analysis.reflection) {
+        if (options.monthlyOptions.includeGoalAlignment) {
+          markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
+        }
+        if (options.monthlyOptions.includePersonalReflections && analysis.reflection) {
           markdown += `**Personal Reflection:**\n${analysis.reflection}\n\n`;
         }
         markdown += `---\n\n`;
