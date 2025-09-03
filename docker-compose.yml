@@ -1,6 +1,8 @@
 services:
   test-db:
     image: postgres:15
+    ports:
+      - '5432:5432'
     environment:
       POSTGRES_DB: journal_app_hono_test
       POSTGRES_USER: test

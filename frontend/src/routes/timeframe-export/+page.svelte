@@ -18,6 +18,7 @@
       includePlans: true,
       includeQuests: true,
       includeExperiments: true,
+      includeUserAttributes: false,
     } as TimeframeExportOptions,
   };
 
@@ -76,6 +77,7 @@
       includePlans: enabled,
       includeQuests: enabled,
       includeExperiments: enabled,
+      includeUserAttributes: enabled,
     };
   }
 
@@ -281,6 +283,14 @@
               <div>
                 <span class="label-text font-medium">Experiments</span>
                 <div class="text-base-content/70 text-sm">Setup, tasks, reflections, and results</div>
+              </div>
+            </label>
+
+            <label class="label cursor-pointer justify-start gap-3">
+              <input type="checkbox" bind:checked={formData.options.includeUserAttributes} class="checkbox" />
+              <div>
+                <span class="label-text font-medium">User Attributes</span>
+                <div class="text-base-content/70 text-sm">Personal characteristics and traits identified through analysis</div>
               </div>
             </label>
           </div>
