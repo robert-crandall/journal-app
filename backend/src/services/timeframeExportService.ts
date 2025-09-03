@@ -48,19 +48,34 @@ export class TimeframeExportService {
   private static async aggregateData(userId: string, startDate: string, endDate: string, options: TimeframeExportOptions): Promise<TimeframeExportData> {
     const data: TimeframeExportData = {};
 
-    // Daily Entries
-    if (options.includeDailyEntries) {
-      data.dailyEntries = await this.getDailyEntries(userId, startDate, endDate);
-    }
+    // First, get analyses to determine the latest analysis date
+    let latestAnalysisEndDate: string | null = null;
 
     // Weekly Analyses
     if (options.includeWeeklyAnalyses) {
       data.weeklyAnalyses = await this.getWeeklyAnalyses(userId, startDate, endDate, 'weekly');
+      if (data.weeklyAnalyses.length > 0) {
+        const latestWeekly = data.weeklyAnalyses[0]; // Already ordered by desc
+        latestAnalysisEndDate = latestWeekly.periodEndDate;
+      }
     }
 
     // Monthly Analyses
     if (options.includeMonthlyAnalyses) {
       data.monthlyAnalyses = await this.getWeeklyAnalyses(userId, startDate, endDate, 'monthly');
+      if (data.monthlyAnalyses.length > 0) {
+        const latestMonthly = data.monthlyAnalyses[0]; // Already ordered by desc
+        // Use the later date between weekly and monthly analyses
+        if (!latestAnalysisEndDate || latestMonthly.periodEndDate > latestAnalysisEndDate) {
+          latestAnalysisEndDate = latestMonthly.periodEndDate;
+        }
+      }
+    }
+
+    // Daily Entries - adjust start date based on latest analysis
+    if (options.includeDailyEntries) {
+      const dailyStartDate = latestAnalysisEndDate ? this.getNextDay(latestAnalysisEndDate) : startDate;
+      data.dailyEntries = await this.getDailyEntries(userId, dailyStartDate, endDate);
     }
 
     // Goals
@@ -84,6 +99,15 @@ export class TimeframeExportService {
     }
 
     return data;
+  }
+
+  /**
+   * Get the next day after a given date string
+   */
+  private static getNextDay(dateString: string): string {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split('T')[0];
   }
 
   /**
@@ -420,16 +444,16 @@ export class TimeframeExportService {
       markdown += `## Daily Journal Entries\n\n`;
       data.dailyEntries.forEach((entry) => {
         markdown += `### ${entry.date}\n\n`;
-        if (entry.title) {
-          markdown += `**${entry.title}**\n\n`;
-        }
+        // if (entry.title) {
+        //   markdown += `**${entry.title}**\n\n`;
+        // }
         if (entry.synopsis) {
           markdown += `*${entry.synopsis}*\n\n`;
         }
-        markdown += `${entry.initialMessage}\n\n`;
-        if (entry.summary) {
-          markdown += `**Summary:** ${entry.summary}\n\n`;
-        }
+        // markdown += `${entry.initialMessage}\n\n`;
+        // if (entry.summary) {
+        //   markdown += `**Summary:** ${entry.summary}\n\n`;
+        // }
         if (entry.dayRating) {
           markdown += `**Day Rating:** ${entry.dayRating}/5\n\n`;
         }
@@ -443,10 +467,10 @@ export class TimeframeExportService {
       data.weeklyAnalyses.forEach((analysis) => {
         markdown += `### Week of ${analysis.periodStartDate} to ${analysis.periodEndDate}\n\n`;
         markdown += `**Journal Summary:**\n${analysis.journalSummary}\n\n`;
-        markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
-        if (analysis.combinedReflection) {
-          markdown += `**Combined Reflection:**\n${analysis.combinedReflection}\n\n`;
-        }
+        // markdown += `**Goal Alignment Summary:**\n${analysis.goalAlignmentSummary}\n\n`;
+        // if (analysis.combinedReflection) {
+        //   markdown += `**Combined Reflection:**\n${analysis.combinedReflection}\n\n`;
+        // }
         if (analysis.reflection) {
           markdown += `**Personal Reflection:**\n${analysis.reflection}\n\n`;
         }
@@ -481,9 +505,8 @@ export class TimeframeExportService {
       if (activeGoals.length) {
         markdown += `### Active Goals\n\n`;
         activeGoals.forEach((goal) => {
-          markdown += `- **${goal.title}**`;
-          if (goal.description) markdown += `: ${goal.description}`;
-          markdown += `\n`;
+          markdown += `#### ${goal.title}\n\n`;
+          if (goal.description) markdown += `Description: ${goal.description}\n\n`;
         });
         markdown += `\n`;
       }
