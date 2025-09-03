@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
@@ -22,7 +22,7 @@ const dailyIntentSchema = z.object({
  * Create or update a daily intent
  * POST /daily-intents
  */
-app.post('/', zValidator('json', dailyIntentSchema), async (c) => {
+app.post('/', zodValidatorWithErrorHandler('json', dailyIntentSchema as any), async (c) => {
   try {
     const { date, importanceStatement } = c.req.valid('json');
     const userId = c.var.userId;

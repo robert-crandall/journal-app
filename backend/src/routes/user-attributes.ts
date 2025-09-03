@@ -1,5 +1,5 @@
+import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
 import { jwtAuth, getUserId } from '../middleware/auth';
 import { UserAttributesService } from '../services/user-attributes';
 import {
@@ -18,7 +18,7 @@ const deduplicationQuerySchema = z.object({
 
 const app = new Hono()
   // Get user's attributes
-  .get('/', jwtAuth, zValidator('query', getUserAttributesQuerySchema), async (c) => {
+  .get('/', jwtAuth, zodValidatorWithErrorHandler('query', getUserAttributesQuerySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const query = c.req.valid('query');
@@ -69,7 +69,7 @@ const app = new Hono()
     }
   })
   // Deduplicate user attributes with GPT or simple method
-  .post('/deduplicate', jwtAuth, zValidator('query', deduplicationQuerySchema), async (c) => {
+  .post('/deduplicate', jwtAuth, zodValidatorWithErrorHandler('query', deduplicationQuerySchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const query = c.req.valid('query');
@@ -124,7 +124,7 @@ const app = new Hono()
   })
 
   // Create a new user attribute
-  .post('/', jwtAuth, zValidator('json', createUserAttributeSchema), async (c) => {
+  .post('/', jwtAuth, zodValidatorWithErrorHandler('json', createUserAttributeSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -145,7 +145,7 @@ const app = new Hono()
   })
 
   // Bulk create user attributes (used for GPT inference)
-  .post('/bulk', jwtAuth, zValidator('json', bulkCreateUserAttributesSchema), async (c) => {
+  .post('/bulk', jwtAuth, zodValidatorWithErrorHandler('json', bulkCreateUserAttributesSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const data = c.req.valid('json');
@@ -166,7 +166,7 @@ const app = new Hono()
   })
 
   // Update a specific user attribute
-  .put('/:id', jwtAuth, zValidator('json', updateUserAttributeSchema), async (c) => {
+  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('json', updateUserAttributeSchema as any), async (c) => {
     try {
       const userId = getUserId(c);
       const attributeId = c.req.param('id');
