@@ -927,17 +927,7 @@ const app = new Hono()
           await db.insert(simpleTodos).values(todosToInsert);
         }
 
-        // Create user attributes from GPT suggestions
-        if (metadata.suggestedAttributes && metadata.suggestedAttributes.length > 0) {
-          const attributesToInsert = metadata.suggestedAttributes.map((attributeValue) => ({
-            value: attributeValue,
-            source: 'journal_analysis' as const,
-          }));
-
-          await UserAttributesService.bulkCreateUserAttributes(userId, {
-            attributes: attributesToInsert,
-          });
-        }
+        // Note: User attributes are now extracted during weekly analysis generation instead of daily journal completion
 
         return c.json({
           success: true,
