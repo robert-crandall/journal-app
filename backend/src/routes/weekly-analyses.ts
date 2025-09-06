@@ -136,7 +136,15 @@ async function extractUserAttributesFromWeeklyJournals(
     try {
       // Generate metadata for each journal to extract attributes
       const chatSession = journal.chatSession as Array<{ role: string; content: string; timestamp: string }>;
-      const metadata = await generateJournalMetadata(chatSession, userId);
+      
+      // Convert to proper ChatMessage format
+      const typedChatSession = chatSession.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+      
+      const metadata = await generateJournalMetadata(typedChatSession, userId);
 
       // Collect suggested attributes
       if (metadata.suggestedAttributes && metadata.suggestedAttributes.length > 0) {
