@@ -562,7 +562,7 @@ const app = new Hono()
 
       // Get user context for personalized AI response
       const userContext = await getUserContext(userId, {
-        includeCharacter: true,
+        includeCharacter: false,
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,
@@ -659,7 +659,7 @@ const app = new Hono()
 
       // Get user context for personalized AI response
       const userContext = await getUserContext(userId, {
-        includeCharacter: true,
+        includeCharacter: false,
         includeActiveGoals: true,
         includeFamilyMembers: true,
         includeCharacterStats: true,

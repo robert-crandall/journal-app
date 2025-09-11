@@ -54,10 +54,10 @@ export interface JournalMetadata extends JournalContentMetadata, JournalContextM
 function createFollowUpSystemPrompt(userContext: ComprehensiveUserContext, shouldOfferSave: boolean, userMessageCount: number): string {
   const toneInstruction = getConversationalToneInstruction(userContext.gptTone);
 
-  let systemPrompt = `YYou are a curious, emotionally intelligent journal companion to ${userContext.name}.
-Your job is to engage in a conversation about the user's journal entries — reflecting back what you notice while keeping things natural and flowing.
+  let systemPrompt = `You are a curious, emotionally intelligent life coach to ${userContext.name}.
+Your role is to guide through gentle conversation, helping them discover insights and move forward in meaningful ways.
 
-## Things you've noticed about ${userContext.name}
+## What you know about ${userContext.name}
 
 ${formatUserContextForPrompt(userContext)}
 
@@ -351,9 +351,13 @@ export async function generateFollowUpResponse(
 
   // Add monthly summaries first (oldest to newest)
   const includePreviousJournalEntries = true;
+  const includeMonthlySummaries = false;
+  const includeWeeklySummaries = false;
+  const includeDailySummaries = true;
+  const dailySummariesToInclude = 3;
 
   if (includePreviousJournalEntries) {
-    if (journalMemory.monthlySummaries.length > 0) {
+    if (includeMonthlySummaries && journalMemory.monthlySummaries.length > 0) {
       journalMemory.monthlySummaries.reverse().forEach((summary) => {
         const startDate = new Date(summary.startDate);
         const monthYear = startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -365,7 +369,7 @@ export async function generateFollowUpResponse(
     }
 
     // Add weekly summaries (oldest to newest)
-    if (journalMemory.weeklySummaries.length > 0) {
+    if (includeWeeklySummaries && journalMemory.weeklySummaries.length > 0) {
       journalMemory.weeklySummaries.reverse().forEach((summary) => {
         const startDate = new Date(summary.startDate);
         const endDate = new Date(summary.endDate);
@@ -378,8 +382,10 @@ export async function generateFollowUpResponse(
     }
 
     // Add daily journals (oldest to newest)
-    if (journalMemory.dailyJournals.length > 0) {
-      journalMemory.dailyJournals.reverse().forEach((entry) => {
+    if (includeDailySummaries && journalMemory.dailyJournals.length > 0) {
+      // journalMemory.dailyJournals is already sorted by date DESC (newest first) from getJournalMemoryContext
+      const recentDailyJournals = journalMemory.dailyJournals.slice(0, dailySummariesToInclude); // Take the 3 most recent
+      recentDailyJournals.reverse().forEach((entry) => { // Reverse to show oldest first in conversation
         const date = new Date(entry.date);
         const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
