@@ -9,8 +9,23 @@ describe('TimeframeExportService', () => {
   const endDate = '2024-01-31';
   const options: TimeframeExportOptions = {
     includeDailyEntries: true,
+    dailyOptions: {
+      includeSynopsis: true,
+      includeInitialMessage: true,
+      includeSummary: true,
+    },
     includeWeeklyAnalyses: true,
+    weeklyOptions: {
+      includeJournalSummary: true,
+      includeGoalAlignment: true,
+      includePersonalReflections: true,
+    },
     includeMonthlyAnalyses: true,
+    monthlyOptions: {
+      includeJournalSummary: true,
+      includeGoalAlignment: true,
+      includePersonalReflections: true,
+    },
     includeGoals: true,
     includePlans: true,
     includeQuests: true,
@@ -47,8 +62,23 @@ describe('TimeframeExportService', () => {
   test('should handle empty options', async () => {
     const emptyOptions: TimeframeExportOptions = {
       includeDailyEntries: false,
+      dailyOptions: {
+        includeSynopsis: false,
+        includeInitialMessage: false,
+        includeSummary: false,
+      },
       includeWeeklyAnalyses: false,
+      weeklyOptions: {
+        includeJournalSummary: false,
+        includeGoalAlignment: false,
+        includePersonalReflections: false,
+      },
       includeMonthlyAnalyses: false,
+      monthlyOptions: {
+        includeJournalSummary: false,
+        includeGoalAlignment: false,
+        includePersonalReflections: false,
+      },
       includeGoals: false,
       includePlans: false,
       includeQuests: false,
@@ -68,8 +98,23 @@ describe('TimeframeExportService', () => {
   test('should include user attributes in sections when enabled', async () => {
     const optionsWithUserAttributes: TimeframeExportOptions = {
       includeDailyEntries: false,
+      dailyOptions: {
+        includeSynopsis: false,
+        includeInitialMessage: false,
+        includeSummary: false,
+      },
       includeWeeklyAnalyses: false,
+      weeklyOptions: {
+        includeJournalSummary: false,
+        includeGoalAlignment: false,
+        includePersonalReflections: false,
+      },
       includeMonthlyAnalyses: false,
+      monthlyOptions: {
+        includeJournalSummary: false,
+        includeGoalAlignment: false,
+        includePersonalReflections: false,
+      },
       includeGoals: false,
       includePlans: false,
       includeQuests: false,

@@ -284,64 +284,70 @@ const app = new Hono()
   })
 
   // Update an existing goal alignment summary
-  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('param', goalAlignmentSummaryIdSchema as any), zodValidatorWithErrorHandler('json', updateGoalAlignmentSummarySchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { id } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateGoalAlignmentSummaryRequest;
+  .put(
+    '/:id',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', goalAlignmentSummaryIdSchema as any),
+    zodValidatorWithErrorHandler('json', updateGoalAlignmentSummarySchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateGoalAlignmentSummaryRequest;
 
-      // Check if summary exists and belongs to the user
-      const existingSummary = await db
-        .select()
-        .from(goalAlignmentSummaries)
-        .where(and(eq(goalAlignmentSummaries.id, id), eq(goalAlignmentSummaries.userId, userId)))
-        .limit(1);
+        // Check if summary exists and belongs to the user
+        const existingSummary = await db
+          .select()
+          .from(goalAlignmentSummaries)
+          .where(and(eq(goalAlignmentSummaries.id, id), eq(goalAlignmentSummaries.userId, userId)))
+          .limit(1);
 
-      if (existingSummary.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Goal alignment summary not found',
-          },
-          404,
-        );
-      }
+        if (existingSummary.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Goal alignment summary not found',
+            },
+            404,
+          );
+        }
 
-      const updateData: any = {
-        updatedAt: new Date(),
-      };
+        const updateData: any = {
+          updatedAt: new Date(),
+        };
 
-      // Only update provided fields
-      if (data.alignmentScore !== undefined) {
-        updateData.alignmentScore = data.alignmentScore;
-      }
-      if (data.alignedGoals !== undefined) {
-        updateData.alignedGoals = data.alignedGoals;
-      }
-      if (data.neglectedGoals !== undefined) {
-        updateData.neglectedGoals = data.neglectedGoals;
-      }
-      if (data.suggestedNextSteps !== undefined) {
-        updateData.suggestedNextSteps = data.suggestedNextSteps;
-      }
-      if (data.summary !== undefined) {
-        updateData.summary = data.summary;
-      }
+        // Only update provided fields
+        if (data.alignmentScore !== undefined) {
+          updateData.alignmentScore = data.alignmentScore;
+        }
+        if (data.alignedGoals !== undefined) {
+          updateData.alignedGoals = data.alignedGoals;
+        }
+        if (data.neglectedGoals !== undefined) {
+          updateData.neglectedGoals = data.neglectedGoals;
+        }
+        if (data.suggestedNextSteps !== undefined) {
+          updateData.suggestedNextSteps = data.suggestedNextSteps;
+        }
+        if (data.summary !== undefined) {
+          updateData.summary = data.summary;
+        }
 
-      const updatedSummary = await db
-        .update(goalAlignmentSummaries)
-        .set(updateData)
-        .where(and(eq(goalAlignmentSummaries.id, id), eq(goalAlignmentSummaries.userId, userId)))
-        .returning();
+        const updatedSummary = await db
+          .update(goalAlignmentSummaries)
+          .set(updateData)
+          .where(and(eq(goalAlignmentSummaries.id, id), eq(goalAlignmentSummaries.userId, userId)))
+          .returning();
 
-      return c.json({
-        success: true,
-        data: serializeGoalAlignmentSummary(updatedSummary[0]),
-      });
-    } catch (error) {
-      return handleApiError(error, 'Failed to update goal alignment summary');
-    }
-  })
+        return c.json({
+          success: true,
+          data: serializeGoalAlignmentSummary(updatedSummary[0]),
+        });
+      } catch (error) {
+        return handleApiError(error, 'Failed to update goal alignment summary');
+      }
+    },
+  )
 
   // Delete a goal alignment summary
   .delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', goalAlignmentSummaryIdSchema as any), async (c) => {

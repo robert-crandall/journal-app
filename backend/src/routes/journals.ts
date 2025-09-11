@@ -361,168 +361,180 @@ const app = new Hono()
   })
 
   // Update journal entry
-  .put('/:date', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', updateJournalSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { date } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateJournalRequest;
+  .put(
+    '/:date',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', journalDateSchema as any),
+    zodValidatorWithErrorHandler('json', updateJournalSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { date } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateJournalRequest;
 
-      // Check if journal exists and belongs to the user
-      const existingJournal = await db
-        .select()
-        .from(journals)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .limit(1);
+        // Check if journal exists and belongs to the user
+        const existingJournal = await db
+          .select()
+          .from(journals)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .limit(1);
 
-      if (existingJournal.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Journal not found',
-          },
-          404,
-        );
-      }
+        if (existingJournal.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Journal not found',
+            },
+            404,
+          );
+        }
 
-      const currentJournal = existingJournal[0];
-      const journalId = currentJournal.id;
+        const currentJournal = existingJournal[0];
+        const journalId = currentJournal.id;
 
-      // If this journal was previously complete and we're changing the initialMessage,
-      // we need to clean up XP grants and reset to draft mode
-      const isChangingContent = data.initialMessage !== undefined && data.initialMessage !== currentJournal.initialMessage;
-      const wasComplete = currentJournal.status === 'complete';
+        // If this journal was previously complete and we're changing the initialMessage,
+        // we need to clean up XP grants and reset to draft mode
+        const isChangingContent = data.initialMessage !== undefined && data.initialMessage !== currentJournal.initialMessage;
+        const wasComplete = currentJournal.status === 'complete';
 
-      if (wasComplete && isChangingContent) {
-        // Clean up existing XP grants since content is changing
-        await deleteJournalXpGrants(userId, journalId);
-      }
+        if (wasComplete && isChangingContent) {
+          // Clean up existing XP grants since content is changing
+          await deleteJournalXpGrants(userId, journalId);
+        }
 
-      const updateData: any = {
-        updatedAt: new Date(),
-      };
+        const updateData: any = {
+          updatedAt: new Date(),
+        };
 
-      // Reset status to draft if we cleaned up XP due to content changes
-      if (wasComplete && isChangingContent) {
-        updateData.status = 'draft';
-        // Clear AI-generated content since we'll regenerate it
-        updateData.summary = null;
-        updateData.title = null;
-        updateData.synopsis = null;
-        updateData.toneTags = null;
-      }
+        // Reset status to draft if we cleaned up XP due to content changes
+        if (wasComplete && isChangingContent) {
+          updateData.status = 'draft';
+          // Clear AI-generated content since we'll regenerate it
+          updateData.summary = null;
+          updateData.title = null;
+          updateData.synopsis = null;
+          updateData.toneTags = null;
+        }
 
-      // Only update provided fields
-      if (data.initialMessage !== undefined) {
-        updateData.initialMessage = data.initialMessage;
-      }
-      if (data.status !== undefined) {
-        updateData.status = data.status;
-      }
-      if (data.chatSession !== undefined) {
-        updateData.chatSession = data.chatSession;
-      }
-      if (data.summary !== undefined) {
-        updateData.summary = data.summary;
-      }
-      if (data.title !== undefined) {
-        updateData.title = data.title;
-      }
-      if (data.synopsis !== undefined) {
-        updateData.synopsis = data.synopsis;
-      }
-      if (data.toneTags !== undefined) {
-        updateData.toneTags = data.toneTags;
-      }
-      if (data.dayRating !== undefined) {
-        updateData.dayRating = data.dayRating;
-      }
-      // Note: toneTags are now supported as GPT-extracted emotional tags
+        // Only update provided fields
+        if (data.initialMessage !== undefined) {
+          updateData.initialMessage = data.initialMessage;
+        }
+        if (data.status !== undefined) {
+          updateData.status = data.status;
+        }
+        if (data.chatSession !== undefined) {
+          updateData.chatSession = data.chatSession;
+        }
+        if (data.summary !== undefined) {
+          updateData.summary = data.summary;
+        }
+        if (data.title !== undefined) {
+          updateData.title = data.title;
+        }
+        if (data.synopsis !== undefined) {
+          updateData.synopsis = data.synopsis;
+        }
+        if (data.toneTags !== undefined) {
+          updateData.toneTags = data.toneTags;
+        }
+        if (data.dayRating !== undefined) {
+          updateData.dayRating = data.dayRating;
+        }
+        // Note: toneTags are now supported as GPT-extracted emotional tags
 
-      const updatedJournal = await db
-        .update(journals)
-        .set(updateData)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .returning();
+        const updatedJournal = await db
+          .update(journals)
+          .set(updateData)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .returning();
 
-      return c.json({
-        success: true,
-        data: serializeJournal(updatedJournal[0]),
-      });
-    } catch (error) {
-      handleApiError(error, 'Failed to update journal');
-      return; // This should never be reached, but added for completeness
-    }
-  })
+        return c.json({
+          success: true,
+          data: serializeJournal(updatedJournal[0]),
+        });
+      } catch (error) {
+        handleApiError(error, 'Failed to update journal');
+        return; // This should never be reached, but added for completeness
+      }
+    },
+  )
 
   // Edit journal entry (handles XP cleanup and re-finalization)
-  .post('/:date/edit', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', updateJournalSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { date } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateJournalRequest;
+  .post(
+    '/:date/edit',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', journalDateSchema as any),
+    zodValidatorWithErrorHandler('json', updateJournalSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { date } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateJournalRequest;
 
-      // Check if journal exists and belongs to the user
-      const existingJournal = await db
-        .select()
-        .from(journals)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .limit(1);
+        // Check if journal exists and belongs to the user
+        const existingJournal = await db
+          .select()
+          .from(journals)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .limit(1);
 
-      if (existingJournal.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Journal not found',
-          },
-          404,
-        );
+        if (existingJournal.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Journal not found',
+            },
+            404,
+          );
+        }
+
+        const currentJournal = existingJournal[0];
+        const journalId = currentJournal.id;
+
+        // If this is a completed journal being edited, we need to clean up existing XP grants first
+        if (currentJournal.status === 'complete') {
+          await deleteJournalXpGrants(userId, journalId);
+        }
+
+        // Update the journal with the new data and reset to draft status
+        const updateData: any = {
+          updatedAt: new Date(),
+          status: 'draft', // Reset to draft when editing
+          // Clear AI-generated content since we'll regenerate it
+          summary: null,
+          title: null,
+          synopsis: null,
+          toneTags: null,
+        };
+
+        // Update provided fields
+        if (data.initialMessage !== undefined) {
+          updateData.initialMessage = data.initialMessage;
+        }
+        if (data.chatSession !== undefined) {
+          updateData.chatSession = data.chatSession;
+        }
+        if (data.dayRating !== undefined) {
+          updateData.dayRating = data.dayRating;
+        }
+
+        const updatedJournal = await db
+          .update(journals)
+          .set(updateData)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .returning();
+
+        return c.json({
+          success: true,
+          data: serializeJournal(updatedJournal[0]),
+        });
+      } catch (error) {
+        handleApiError(error, 'Failed to edit journal');
+        return; // This should never be reached, but added for completeness
       }
-
-      const currentJournal = existingJournal[0];
-      const journalId = currentJournal.id;
-
-      // If this is a completed journal being edited, we need to clean up existing XP grants first
-      if (currentJournal.status === 'complete') {
-        await deleteJournalXpGrants(userId, journalId);
-      }
-
-      // Update the journal with the new data and reset to draft status
-      const updateData: any = {
-        updatedAt: new Date(),
-        status: 'draft', // Reset to draft when editing
-        // Clear AI-generated content since we'll regenerate it
-        summary: null,
-        title: null,
-        synopsis: null,
-        toneTags: null,
-      };
-
-      // Update provided fields
-      if (data.initialMessage !== undefined) {
-        updateData.initialMessage = data.initialMessage;
-      }
-      if (data.chatSession !== undefined) {
-        updateData.chatSession = data.chatSession;
-      }
-      if (data.dayRating !== undefined) {
-        updateData.dayRating = data.dayRating;
-      }
-
-      const updatedJournal = await db
-        .update(journals)
-        .set(updateData)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .returning();
-
-      return c.json({
-        success: true,
-        data: serializeJournal(updatedJournal[0]),
-      });
-    } catch (error) {
-      handleApiError(error, 'Failed to edit journal');
-      return; // This should never be reached, but added for completeness
-    }
-  })
+    },
+  )
 
   // Start reflection (transition from draft to in_review)
   .post('/:date/start-reflection', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), async (c) => {
@@ -609,53 +621,58 @@ const app = new Hono()
   })
 
   // Add message to chat session
-  .post('/:date/chat', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', addChatMessageSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { date } = c.req.valid('param');
-      const data = c.req.valid('json') as AddChatMessageRequest;
+  .post(
+    '/:date/chat',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', journalDateSchema as any),
+    zodValidatorWithErrorHandler('json', addChatMessageSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { date } = c.req.valid('param');
+        const data = c.req.valid('json') as AddChatMessageRequest;
 
-      // Get the journal entry
-      const journal = await db
-        .select()
-        .from(journals)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .limit(1);
+        // Get the journal entry
+        const journal = await db
+          .select()
+          .from(journals)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .limit(1);
 
-      if (journal.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Journal not found',
-          },
-          404,
-        );
-      }
+        if (journal.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Journal not found',
+            },
+            404,
+          );
+        }
 
-      const currentJournal = journal[0];
+        const currentJournal = journal[0];
 
-      // Only allow chat when in_review status
-      if (currentJournal.status !== 'in_review') {
-        return c.json(
-          {
-            success: false,
-            error: 'Can only chat when journal is in review status',
-          },
-          400,
-        );
-      }
+        // Only allow chat when in_review status
+        if (currentJournal.status !== 'in_review') {
+          return c.json(
+            {
+              success: false,
+              error: 'Can only chat when journal is in review status',
+            },
+            400,
+          );
+        }
 
-      const existingChatSession = (currentJournal.chatSession as ChatMessage[]) || [];
+        const existingChatSession = (currentJournal.chatSession as ChatMessage[]) || [];
 
-      // Add user message
-      const userMessage: ChatMessage = {
-        role: 'user',
-        content: data.message,
-        timestamp: new Date().toISOString(),
-      };
+        // Add user message
+        const userMessage: ChatMessage = {
+          role: 'user',
+          content: data.message,
+          timestamp: new Date().toISOString(),
+        };
 
-      // Create updated conversation for context
-      const conversationWithNewMessage = [...existingChatSession, userMessage];
+        // Create updated conversation for context
+        const conversationWithNewMessage = [...existingChatSession, userMessage];
 
       // Get user context for personalized AI response
       const userContext = await getUserContext(userId, {
@@ -666,265 +683,262 @@ const app = new Hono()
         includeUserAttributes: true,
       });
 
-      // Generate AI response using the conversational journal utility
-      const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext, userId);
+        // Generate AI response using the conversational journal utility
+        const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext, userId);
 
-      // Add AI response
-      const aiMessage: ChatMessage = {
-        role: 'assistant',
-        content: aiResponse,
-        timestamp: new Date().toISOString(),
-      };
+        // Add AI response
+        const aiMessage: ChatMessage = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date().toISOString(),
+        };
 
-      const updatedChatSession = [...conversationWithNewMessage, aiMessage];
+        const updatedChatSession = [...conversationWithNewMessage, aiMessage];
 
-      const updatedJournal = await db
-        .update(journals)
-        .set({
-          chatSession: updatedChatSession,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .returning();
+        const updatedJournal = await db
+          .update(journals)
+          .set({
+            chatSession: updatedChatSession,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .returning();
 
-      return c.json({
-        success: true,
-        data: serializeJournal(updatedJournal[0]),
-      });
-    } catch (error) {
-      handleApiError(error, 'Failed to add chat message');
-      return; // This should never be reached, but added for completeness
-    }
-  })
+        return c.json({
+          success: true,
+          data: serializeJournal(updatedJournal[0]),
+        });
+      } catch (error) {
+        handleApiError(error, 'Failed to add chat message');
+        return; // This should never be reached, but added for completeness
+      }
+    },
+  )
 
   // Finish journal (transition from draft or in_review to complete)
-  .post('/:date/finish', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), zodValidatorWithErrorHandler('json', finishJournalSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { date } = c.req.valid('param');
+  .post(
+    '/:date/finish',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', journalDateSchema as any),
+    zodValidatorWithErrorHandler('json', finishJournalSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { date } = c.req.valid('param');
 
-      // Get the journal entry
-      const journal = await db
-        .select()
-        .from(journals)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .limit(1);
+        // Get the journal entry
+        const journal = await db
+          .select()
+          .from(journals)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .limit(1);
 
-      if (journal.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Journal not found',
-          },
-          404,
-        );
-      }
+        if (journal.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Journal not found',
+            },
+            404,
+          );
+        }
 
-      const currentJournal = journal[0];
+        const currentJournal = journal[0];
 
-      // Allow transition from draft or in_review to complete
-      if (currentJournal.status !== 'in_review' && currentJournal.status !== 'draft') {
-        return c.json(
-          {
-            success: false,
-            error: 'Can only finish journal from draft or in_review status',
-          },
-          400,
-        );
-      }
+        // Allow transition from draft or in_review to complete
+        if (currentJournal.status !== 'in_review' && currentJournal.status !== 'draft') {
+          return c.json(
+            {
+              success: false,
+              error: 'Can only finish journal from draft or in_review status',
+            },
+            400,
+          );
+        }
 
-      // Get user context for summary generation
-      const userContext = await getUserContext(userId, {
-        includeCharacter: true,
-        includeActiveGoals: true,
-        includeFamilyMembers: true,
-        includeCharacterStats: true,
-        includeExistingTags: true,
-      });
+        // Get user context for summary generation
+        const userContext = await getUserContext(userId, {
+          includeCharacter: true,
+          includeActiveGoals: true,
+          includeFamilyMembers: true,
+          includeCharacterStats: true,
+          includeExistingTags: true,
+        });
 
-      let metadata;
-      let summary;
-      let chatSession: ChatMessage[];
+        let metadata;
+        let summary;
+        let chatSession: ChatMessage[];
 
-      // If status is draft, we need to handle differently than in_review
-      if (currentJournal.status === 'draft') {
-        // For draft, create a simple chat session with just the initial message
-        chatSession = [
-          {
-            role: 'user',
-            content: currentJournal.initialMessage || '',
-            timestamp: new Date().toISOString(),
-          },
-        ];
+        // If status is draft, we need to handle differently than in_review
+        if (currentJournal.status === 'draft') {
+          // For draft, create a simple chat session with just the initial message
+          chatSession = [
+            {
+              role: 'user',
+              content: currentJournal.initialMessage || '',
+              timestamp: new Date().toISOString(),
+            },
+          ];
 
-        // Only generate metadata, use the initial message as summary
-        metadata = await generateJournalMetadata(chatSession, userId);
-        summary = currentJournal.initialMessage || '';
-      } else {
-        // For in_review, process normally with chat session
-        chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
+          // Only generate metadata, use the initial message as summary
+          metadata = await generateJournalMetadata(chatSession, userId);
+          summary = currentJournal.initialMessage || '';
+        } else {
+          // For in_review, process normally with chat session
+          chatSession = (currentJournal.chatSession as ChatMessage[]) || [];
 
-        // Generate journal metadata and summary in parallel
-        [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
-      }
+          // Generate journal metadata and summary in parallel
+          [metadata, summary] = await Promise.all([generateJournalMetadata(chatSession, userId), generateJournalSummary(chatSession, userContext, userId)]);
+        }
 
-      // Check if a day rating was provided in the request
-      const currentJournalData = await db
-        .select()
-        .from(journals)
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .limit(1);
+        // Check if a day rating was provided in the request
+        const currentJournalData = await db
+          .select()
+          .from(journals)
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .limit(1);
 
-      const currentDayRating = currentJournalData[0].dayRating;
+        const currentDayRating = currentJournalData[0].dayRating;
 
-      // Update journal with metadata and summary
-      // Validate and normalize tone tags
-      const VALID_TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'];
-      const validatedToneTags: string[] = [];
-      if (metadata.toneTags && Array.isArray(metadata.toneTags)) {
-        for (const tag of metadata.toneTags) {
-          if (typeof tag === 'string' && VALID_TONE_TAGS.includes(tag.toLowerCase())) {
-            validatedToneTags.push(tag.toLowerCase());
+        // Update journal with metadata and summary
+        // Validate and normalize tone tags
+        const VALID_TONE_TAGS = ['happy', 'calm', 'energized', 'overwhelmed', 'sad', 'angry', 'anxious'];
+        const validatedToneTags: string[] = [];
+        if (metadata.toneTags && Array.isArray(metadata.toneTags)) {
+          for (const tag of metadata.toneTags) {
+            if (typeof tag === 'string' && VALID_TONE_TAGS.includes(tag.toLowerCase())) {
+              validatedToneTags.push(tag.toLowerCase());
+            }
           }
         }
-      }
 
-      const updatedJournal = await db
-        .update(journals)
-        .set({
-          status: 'complete',
-          summary: summary,
-          title: metadata.title,
-          synopsis: metadata.synopsis,
-          toneTags: validatedToneTags,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(journals.userId, userId), eq(journals.date, date)))
-        .returning();
+        const updatedJournal = await db
+          .update(journals)
+          .set({
+            status: 'complete',
+            summary: summary,
+            title: metadata.title,
+            synopsis: metadata.synopsis,
+            toneTags: validatedToneTags,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(journals.userId, userId), eq(journals.date, date)))
+          .returning();
 
-      const journalId = updatedJournal[0].id;
+        const journalId = updatedJournal[0].id;
 
-      // Create XP grants for content tags (0 XP)
-      if (metadata.suggestedTags && metadata.suggestedTags.length > 0) {
-        const contentTagsGrants = metadata.suggestedTags.map((tagId) => ({
-          userId,
-          entityType: 'content_tag' as const,
-          entityId: tagId,
-          xpAmount: 0, // Content tags get 0 XP
-          sourceType: 'journal' as const,
-          sourceId: journalId,
-          reason: 'Content tag from journal analysis',
-        }));
+        // Create XP grants for content tags (0 XP)
+        if (metadata.suggestedTags && metadata.suggestedTags.length > 0) {
+          const contentTagsGrants = metadata.suggestedTags.map((tagId) => ({
+            userId,
+            entityType: 'content_tag' as const,
+            entityId: tagId,
+            xpAmount: 0, // Content tags get 0 XP
+            sourceType: 'journal' as const,
+            sourceId: journalId,
+            reason: 'Content tag from journal analysis',
+          }));
 
-        await db.insert(xpGrants).values(contentTagsGrants);
-      }
+          await db.insert(xpGrants).values(contentTagsGrants);
+        }
 
-      // Create XP grants for character stats
-      if (metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object') {
-        try {
-          const statGrantsToInsert = [];
+        // Create XP grants for character stats
+        if (metadata.suggestedStatTags && typeof metadata.suggestedStatTags === 'object') {
+          try {
+            const statGrantsToInsert = [];
 
-          for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
-            if (typeof data === 'object' && data !== null && 'xp' in data && typeof data.xp === 'number' && data.xp > 0) {
-              statGrantsToInsert.push({
+            for (const [statId, data] of Object.entries(metadata.suggestedStatTags)) {
+              if (typeof data === 'object' && data !== null && 'xp' in data && typeof data.xp === 'number' && data.xp > 0) {
+                statGrantsToInsert.push({
+                  userId,
+                  entityType: 'character_stat' as const,
+                  entityId: statId,
+                  xpAmount: data.xp,
+                  sourceType: 'journal' as const,
+                  sourceId: journalId,
+                  reason: data.reason || 'XP from journal stat analysis',
+                });
+
+                // Update the character stat's total XP
+                await db
+                  .update(characterStats)
+                  .set({
+                    totalXp: sql`total_xp + ${data.xp}`,
+                    updatedAt: new Date(),
+                  })
+                  .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+              }
+            }
+
+            if (statGrantsToInsert.length > 0) {
+              await db.insert(xpGrants).values(statGrantsToInsert);
+            }
+          } catch (error) {
+            console.error('Error processing stat tags:', error);
+            // Continue execution - don't fail the entire operation due to stat tag issues
+          }
+        }
+
+        // Create XP grants for family members
+        if (metadata.suggestedFamilyTags && typeof metadata.suggestedFamilyTags === 'object') {
+          const familyGrantsToInsert = [];
+
+          for (const [familyMemberId, data] of Object.entries(metadata.suggestedFamilyTags)) {
+            if (typeof data === 'object' && data !== null && data.xp > 0) {
+              familyGrantsToInsert.push({
                 userId,
-                entityType: 'character_stat' as const,
-                entityId: statId,
+                entityType: 'family_member' as const,
+                entityId: familyMemberId,
                 xpAmount: data.xp,
                 sourceType: 'journal' as const,
                 sourceId: journalId,
-                reason: data.reason || 'XP from journal stat analysis',
+                reason: data.reason || 'Connection XP from journal interaction',
               });
 
-              // Update the character stat's total XP
+              // Update the family member's connection XP
               await db
-                .update(characterStats)
+                .update(familyMembers)
                 .set({
-                  totalXp: sql`total_xp + ${data.xp}`,
+                  connectionXp: sql`connection_xp + ${data.xp}`,
+                  lastInteractionDate: new Date(),
                   updatedAt: new Date(),
                 })
-                .where(and(eq(characterStats.id, statId), eq(characterStats.userId, userId)));
+                .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
             }
           }
 
-          if (statGrantsToInsert.length > 0) {
-            await db.insert(xpGrants).values(statGrantsToInsert);
-          }
-        } catch (error) {
-          console.error('Error processing stat tags:', error);
-          // Continue execution - don't fail the entire operation due to stat tag issues
-        }
-      }
-
-      // Create XP grants for family members
-      if (metadata.suggestedFamilyTags && typeof metadata.suggestedFamilyTags === 'object') {
-        const familyGrantsToInsert = [];
-
-        for (const [familyMemberId, data] of Object.entries(metadata.suggestedFamilyTags)) {
-          if (typeof data === 'object' && data !== null && data.xp > 0) {
-            familyGrantsToInsert.push({
-              userId,
-              entityType: 'family_member' as const,
-              entityId: familyMemberId,
-              xpAmount: data.xp,
-              sourceType: 'journal' as const,
-              sourceId: journalId,
-              reason: data.reason || 'Connection XP from journal interaction',
-            });
-
-            // Update the family member's connection XP
-            await db
-              .update(familyMembers)
-              .set({
-                connectionXp: sql`connection_xp + ${data.xp}`,
-                lastInteractionDate: new Date(),
-                updatedAt: new Date(),
-              })
-              .where(and(eq(familyMembers.id, familyMemberId), eq(familyMembers.userId, userId)));
+          if (familyGrantsToInsert.length > 0) {
+            await db.insert(xpGrants).values(familyGrantsToInsert);
           }
         }
 
-        if (familyGrantsToInsert.length > 0) {
-          await db.insert(xpGrants).values(familyGrantsToInsert);
+        // Create simple todos that expire in 24 hours
+        if (metadata.suggestedTodos && metadata.suggestedTodos.length > 0) {
+          const expirationTime = new Date();
+          expirationTime.setHours(expirationTime.getHours() + 24);
+
+          const todosToInsert = metadata.suggestedTodos.map((todoDescription) => ({
+            userId,
+            description: todoDescription,
+            isCompleted: false,
+            expirationTime,
+          }));
+
+          await db.insert(simpleTodos).values(todosToInsert);
         }
-      }
 
-      // Create simple todos that expire in 24 hours
-      if (metadata.suggestedTodos && metadata.suggestedTodos.length > 0) {
-        const expirationTime = new Date();
-        expirationTime.setHours(expirationTime.getHours() + 24);
+        // Note: User attributes are now extracted during weekly analysis generation instead of daily journal completion
 
-        const todosToInsert = metadata.suggestedTodos.map((todoDescription) => ({
-          userId,
-          description: todoDescription,
-          isCompleted: false,
-          expirationTime,
-        }));
-
-        await db.insert(simpleTodos).values(todosToInsert);
-      }
-
-      // Create user attributes from GPT suggestions
-      if (metadata.suggestedAttributes && metadata.suggestedAttributes.length > 0) {
-        const attributesToInsert = metadata.suggestedAttributes.map((attributeValue) => ({
-          value: attributeValue,
-          source: 'journal_analysis' as const,
-        }));
-
-        await UserAttributesService.bulkCreateUserAttributes(userId, {
-          attributes: attributesToInsert,
+        return c.json({
+          success: true,
+          data: serializeJournal(updatedJournal[0]),
         });
+      } catch (error) {
+        handleApiError(error, 'Failed to finish journal');
+        return; // This should never be reached, but added for completeness
       }
-
-      return c.json({
-        success: true,
-        data: serializeJournal(updatedJournal[0]),
-      });
-    } catch (error) {
-      handleApiError(error, 'Failed to finish journal');
-      return; // This should never be reached, but added for completeness
-    }
-  })
+    },
+  )
 
   // Delete journal entry
   .delete('/:date', jwtAuth, zodValidatorWithErrorHandler('param', journalDateSchema as any), async (c) => {

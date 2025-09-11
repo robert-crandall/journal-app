@@ -15,6 +15,8 @@ import {
 import { handleApiError } from '../utils/logger';
 import { generateCombinedWeeklyAnalysis } from '../utils/gpt/combinedWeeklyAnalysis';
 import { calculateWeeklyMetrics } from '../services/weeklyAnalysisService';
+import { UserAttributesService } from '../services/user-attributes';
+import { generateJournalMetadata } from '../utils/gpt/conversationalJournal';
 import type {
   CreateWeeklyAnalysisRequest,
   UpdateWeeklyAnalysisRequest,
@@ -108,6 +110,67 @@ const serializeWeeklyAnalysisWithPhotos = (
     updatedAt: analysis.updatedAt.toISOString(),
   };
 };
+
+/**
+ * Extract user attributes from weekly journal entries
+ * This consolidates attribute extraction to happen weekly instead of daily
+ */
+async function extractUserAttributesFromWeeklyJournals(
+  journalEntries: (typeof journals.$inferSelect)[],
+  userId: string,
+): Promise<void> {
+  // Only extract attributes if there are journal entries
+  if (journalEntries.length === 0) {
+    return;
+  }
+
+  const allSuggestedAttributes: string[] = [];
+
+  // Process each journal entry to extract attributes
+  for (const journal of journalEntries) {
+    // Skip if no chat session (draft journals without conversation)
+    if (!journal.chatSession) {
+      continue;
+    }
+
+    try {
+      // Generate metadata for each journal to extract attributes
+      const chatSession = journal.chatSession as Array<{ role: string; content: string; timestamp: string }>;
+      
+      // Convert to proper ChatMessage format
+      const typedChatSession = chatSession.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+      
+      const metadata = await generateJournalMetadata(typedChatSession, userId);
+
+      // Collect suggested attributes
+      if (metadata.suggestedAttributes && metadata.suggestedAttributes.length > 0) {
+        allSuggestedAttributes.push(...metadata.suggestedAttributes);
+      }
+    } catch (error) {
+      // Log but don't fail the entire process for one journal
+      console.warn(`Failed to extract attributes from journal ${journal.id}:`, error);
+    }
+  }
+
+  // Create user attributes if any were found
+  if (allSuggestedAttributes.length > 0) {
+    // Remove duplicates
+    const uniqueAttributes = [...new Set(allSuggestedAttributes)];
+    
+    const attributesToInsert = uniqueAttributes.map((attributeValue) => ({
+      value: attributeValue,
+      source: 'journal_analysis' as const,
+    }));
+
+    await UserAttributesService.bulkCreateUserAttributes(userId, {
+      attributes: attributesToInsert,
+    });
+  }
+}
 
 // Chain methods for RPC compatibility
 const app = new Hono()
@@ -389,6 +452,9 @@ const app = new Hono()
       const { journalSummary, journalTags, alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, goalAlignmentSummary, combinedReflection } =
         await generateCombinedWeeklyAnalysis(journalsInPeriod, userGoals, completedExperiments, metrics, data.startDate, data.endDate, userId);
 
+      // Extract user attributes from journal entries during weekly analysis
+      await extractUserAttributesFromWeeklyJournals(journalsInPeriod, userId);
+
       // Create the analysis record
       const newAnalysis = await db
         .insert(weeklyAnalyses)
@@ -428,47 +494,53 @@ const app = new Hono()
   })
 
   // Update an existing weekly analysis
-  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any), zodValidatorWithErrorHandler('json', updateWeeklyAnalysisSchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { id } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateWeeklyAnalysisRequest;
+  .put(
+    '/:id',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any),
+    zodValidatorWithErrorHandler('json', updateWeeklyAnalysisSchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateWeeklyAnalysisRequest;
 
-      // Check if analysis exists and belongs to the user
-      const existingAnalysis = await db
-        .select()
-        .from(weeklyAnalyses)
-        .where(and(eq(weeklyAnalyses.id, id), eq(weeklyAnalyses.userId, userId)))
-        .limit(1);
+        // Check if analysis exists and belongs to the user
+        const existingAnalysis = await db
+          .select()
+          .from(weeklyAnalyses)
+          .where(and(eq(weeklyAnalyses.id, id), eq(weeklyAnalyses.userId, userId)))
+          .limit(1);
 
-      if (existingAnalysis.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Weekly analysis not found',
-          },
-          404,
-        );
+        if (existingAnalysis.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Weekly analysis not found',
+            },
+            404,
+          );
+        }
+
+        // Update the analysis
+        const updatedAnalysis = await db
+          .update(weeklyAnalyses)
+          .set({
+            ...data,
+            updatedAt: new Date(),
+          })
+          .where(eq(weeklyAnalyses.id, id))
+          .returning();
+
+        return c.json({
+          success: true,
+          data: serializeWeeklyAnalysis(updatedAnalysis[0]),
+        });
+      } catch (error) {
+        return handleApiError(error, 'Failed to update weekly analysis');
       }
-
-      // Update the analysis
-      const updatedAnalysis = await db
-        .update(weeklyAnalyses)
-        .set({
-          ...data,
-          updatedAt: new Date(),
-        })
-        .where(eq(weeklyAnalyses.id, id))
-        .returning();
-
-      return c.json({
-        success: true,
-        data: serializeWeeklyAnalysis(updatedAnalysis[0]),
-      });
-    } catch (error) {
-      return handleApiError(error, 'Failed to update weekly analysis');
-    }
-  })
+    },
+  )
 
   // Delete a weekly analysis
   .delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', weeklyAnalysisIdSchema as any), async (c) => {

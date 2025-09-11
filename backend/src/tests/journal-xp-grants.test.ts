@@ -342,7 +342,7 @@ describe('Journal XP Grants Integration', () => {
       }
     });
 
-    it('should create user attributes when journal is finished with GPT suggestions', async () => {
+    it('should NOT create user attributes when journal is finished (attributes are now extracted during weekly analysis)', async () => {
       // Mock the GPT response to return suggested attributes
       (mockGenerateJournalMetadata as any).mockResolvedValue({
         title: 'Daily Reflection',
@@ -383,12 +383,10 @@ describe('Journal XP Grants Integration', () => {
 
       expect(finishResponse.status).toBe(200);
 
-      // Verify user attributes were created
+      // Verify user attributes were NOT created during journal completion
       const createdAttributes = await testDb().select().from(schema.userAttributes).where(eq(schema.userAttributes.userId, userId));
 
-      expect(createdAttributes.length).toBe(3);
-      expect(createdAttributes.map((attr) => attr.value)).toEqual(expect.arrayContaining(['Goal-oriented', 'Reflective', 'Growth-minded']));
-      expect(createdAttributes.every((attr) => attr.source === 'journal_analysis')).toBe(true);
+      expect(createdAttributes.length).toBe(0); // No attributes should be created during daily journal completion
     });
   });
 });

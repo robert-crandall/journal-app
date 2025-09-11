@@ -262,55 +262,61 @@ const app = new Hono()
   })
 
   // Update an existing journal summary
-  .put('/:id', jwtAuth, zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any), zodValidatorWithErrorHandler('json', updateJournalSummarySchema as any), async (c) => {
-    try {
-      const userId = getUserId(c);
-      const { id } = c.req.valid('param');
-      const data = c.req.valid('json') as UpdateJournalSummaryRequest;
+  .put(
+    '/:id',
+    jwtAuth,
+    zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any),
+    zodValidatorWithErrorHandler('json', updateJournalSummarySchema as any),
+    async (c) => {
+      try {
+        const userId = getUserId(c);
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json') as UpdateJournalSummaryRequest;
 
-      // Check if summary exists and belongs to the user
-      const existingSummary = await db
-        .select()
-        .from(journalSummaries)
-        .where(and(eq(journalSummaries.id, id), eq(journalSummaries.userId, userId)))
-        .limit(1);
+        // Check if summary exists and belongs to the user
+        const existingSummary = await db
+          .select()
+          .from(journalSummaries)
+          .where(and(eq(journalSummaries.id, id), eq(journalSummaries.userId, userId)))
+          .limit(1);
 
-      if (existingSummary.length === 0) {
-        return c.json(
-          {
-            success: false,
-            error: 'Journal summary not found',
-          },
-          404,
-        );
+        if (existingSummary.length === 0) {
+          return c.json(
+            {
+              success: false,
+              error: 'Journal summary not found',
+            },
+            404,
+          );
+        }
+
+        const updateData: any = {
+          updatedAt: new Date(),
+        };
+
+        // Only update provided fields
+        if (data.summary !== undefined) {
+          updateData.summary = data.summary;
+        }
+        if (data.tags !== undefined) {
+          updateData.tags = data.tags;
+        }
+
+        const updatedSummary = await db
+          .update(journalSummaries)
+          .set(updateData)
+          .where(and(eq(journalSummaries.id, id), eq(journalSummaries.userId, userId)))
+          .returning();
+
+        return c.json({
+          success: true,
+          data: serializeJournalSummary(updatedSummary[0]),
+        });
+      } catch (error) {
+        return handleApiError(error, 'Failed to update journal summary');
       }
-
-      const updateData: any = {
-        updatedAt: new Date(),
-      };
-
-      // Only update provided fields
-      if (data.summary !== undefined) {
-        updateData.summary = data.summary;
-      }
-      if (data.tags !== undefined) {
-        updateData.tags = data.tags;
-      }
-
-      const updatedSummary = await db
-        .update(journalSummaries)
-        .set(updateData)
-        .where(and(eq(journalSummaries.id, id), eq(journalSummaries.userId, userId)))
-        .returning();
-
-      return c.json({
-        success: true,
-        data: serializeJournalSummary(updatedSummary[0]),
-      });
-    } catch (error) {
-      return handleApiError(error, 'Failed to update journal summary');
-    }
-  })
+    },
+  )
 
   // Delete a journal summary
   .delete('/:id', jwtAuth, zodValidatorWithErrorHandler('param', journalSummaryIdSchema as any), async (c) => {
