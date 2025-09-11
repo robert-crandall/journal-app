@@ -674,14 +674,14 @@ const app = new Hono()
         // Create updated conversation for context
         const conversationWithNewMessage = [...existingChatSession, userMessage];
 
-      // Get user context for personalized AI response
-      const userContext = await getUserContext(userId, {
-        includeCharacter: false,
-        includeActiveGoals: true,
-        includeFamilyMembers: true,
-        includeCharacterStats: true,
-        includeUserAttributes: true,
-      });
+        // Get user context for personalized AI response
+        const userContext = await getUserContext(userId, {
+          includeCharacter: false,
+          includeActiveGoals: true,
+          includeFamilyMembers: true,
+          includeCharacterStats: true,
+          includeUserAttributes: true,
+        });
 
         // Generate AI response using the conversational journal utility
         const { response: aiResponse } = await generateFollowUpResponse(conversationWithNewMessage, userContext, userId);

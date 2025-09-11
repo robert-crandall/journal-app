@@ -454,7 +454,7 @@ describe('Weekly Analyses API Integration Tests', () => {
     test('extracts user attributes from journal entries during weekly analysis generation', async () => {
       // Create journals with chat sessions that would generate attributes
       const db = testDb();
-      
+
       // Create journal entries with conversational content
       await db.insert(schema.journals).values([
         {
@@ -463,22 +463,22 @@ describe('Weekly Analyses API Integration Tests', () => {
           initialMessage: 'Today I practiced mindfulness and reflected deeply on my values.',
           status: 'complete',
           chatSession: [
-            { 
-              role: 'user', 
+            {
+              role: 'user',
               content: 'Today I practiced mindfulness and reflected deeply on my values. I realized I really value personal growth and connecting with nature.',
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             },
-            { 
-              role: 'assistant', 
+            {
+              role: 'assistant',
               content: 'That sounds like valuable self-reflection. What specific aspects of personal growth resonate with you?',
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             },
-            { 
-              role: 'user', 
+            {
+              role: 'user',
               content: 'I think I am someone who thrives on learning new things and challenging myself. I also noticed I am very empathetic toward others.',
-              timestamp: new Date().toISOString()
-            }
-          ]
+              timestamp: new Date().toISOString(),
+            },
+          ],
         },
         {
           userId,
@@ -486,18 +486,18 @@ describe('Weekly Analyses API Integration Tests', () => {
           initialMessage: 'Had another meaningful day of growth.',
           status: 'complete',
           chatSession: [
-            { 
-              role: 'user', 
+            {
+              role: 'user',
               content: 'I volunteered at the animal shelter today and really felt my compassionate side shine through.',
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             },
-            { 
-              role: 'assistant', 
-              content: 'That\'s wonderful! How did it make you feel?',
-              timestamp: new Date().toISOString()
-            }
-          ]
-        }
+            {
+              role: 'assistant',
+              content: "That's wonderful! How did it make you feel?",
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        },
       ]);
 
       const generateData: GenerateWeeklyAnalysisRequest = {
@@ -515,10 +515,10 @@ describe('Weekly Analyses API Integration Tests', () => {
       });
 
       expect(res.status).toBe(201);
-      
+
       // Check that user attributes were created during the weekly analysis generation
       const createdAttributes = await db.select().from(schema.userAttributes).where(eq(schema.userAttributes.userId, userId));
-      
+
       // Should have some attributes extracted from the journal conversations
       expect(createdAttributes.length).toBeGreaterThan(0);
       expect(createdAttributes.every((attr) => attr.source === 'journal_analysis')).toBe(true);

@@ -115,10 +115,7 @@ const serializeWeeklyAnalysisWithPhotos = (
  * Extract user attributes from weekly journal entries
  * This consolidates attribute extraction to happen weekly instead of daily
  */
-async function extractUserAttributesFromWeeklyJournals(
-  journalEntries: (typeof journals.$inferSelect)[],
-  userId: string,
-): Promise<void> {
+async function extractUserAttributesFromWeeklyJournals(journalEntries: (typeof journals.$inferSelect)[], userId: string): Promise<void> {
   // Only extract attributes if there are journal entries
   if (journalEntries.length === 0) {
     return;
@@ -136,14 +133,14 @@ async function extractUserAttributesFromWeeklyJournals(
     try {
       // Generate metadata for each journal to extract attributes
       const chatSession = journal.chatSession as Array<{ role: string; content: string; timestamp: string }>;
-      
+
       // Convert to proper ChatMessage format
-      const typedChatSession = chatSession.map(msg => ({
+      const typedChatSession = chatSession.map((msg) => ({
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
-        timestamp: msg.timestamp
+        timestamp: msg.timestamp,
       }));
-      
+
       const metadata = await generateJournalMetadata(typedChatSession, userId);
 
       // Collect suggested attributes
@@ -160,7 +157,7 @@ async function extractUserAttributesFromWeeklyJournals(
   if (allSuggestedAttributes.length > 0) {
     // Remove duplicates
     const uniqueAttributes = [...new Set(allSuggestedAttributes)];
-    
+
     const attributesToInsert = uniqueAttributes.map((attributeValue) => ({
       value: attributeValue,
       source: 'journal_analysis' as const,
