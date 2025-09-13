@@ -252,13 +252,8 @@ const app = new Hono()
       }
 
       // Generate goal alignment summary using GPT
-      const { alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, summary, totalPointsEarned, totalPossiblePoints } = await generateGoalAlignmentSummary(
-        journalsInPeriod,
-        userGoals,
-        data.startDate,
-        data.endDate,
-        userId,
-      );
+      const { alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, summary, totalPointsEarned, totalPossiblePoints } =
+        await generateGoalAlignmentSummary(journalsInPeriod, userGoals, data.startDate, data.endDate, userId);
 
       // Create the summary record
       const newSummary = await db

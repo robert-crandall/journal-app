@@ -180,23 +180,23 @@
 
   <!-- Per-Goal Breakdown -->
   <div class="mb-6">
-    <h2 class="text-2xl font-bold mb-6">Goal-by-Goal Breakdown</h2>
-    
+    <h2 class="mb-6 text-2xl font-bold">Goal-by-Goal Breakdown</h2>
+
     <div class="space-y-6">
       <!-- Aligned Goals -->
       {#each summary.alignedGoals as goal}
         <div class="card bg-base-100 border-base-300 border shadow-xl">
           <div class="card-body">
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="text-xl font-semibold text-success">{goal.goalTitle}</h3>
+            <div class="mb-4 flex items-start justify-between">
+              <h3 class="text-success text-xl font-semibold">{goal.goalTitle}</h3>
               <div class="badge badge-success">
                 {goal.points} point{goal.points !== 1 ? 's' : ''}
               </div>
             </div>
-            
+
             {#if goal.evidence && goal.evidence.length > 0}
               <div class="space-y-2">
-                <ul class="list-disc list-inside space-y-2">
+                <ul class="list-inside list-disc space-y-2">
                   {#each goal.evidence as evidence}
                     <li class="text-base-content/80">"{evidence}"</li>
                   {/each}
@@ -206,20 +206,19 @@
           </div>
         </div>
       {/each}
-      
+
       <!-- Neglected Goals -->
       {#each summary.neglectedGoals as goal}
         <div class="card bg-base-100 border-base-300 border shadow-xl">
           <div class="card-body">
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="text-xl font-semibold text-warning">{goal.goalTitle}</h3>
-              <div class="badge badge-ghost">
-                0 points
-              </div>
+            <div class="mb-4 flex items-start justify-between">
+              <h3 class="text-warning text-xl font-semibold">{goal.goalTitle}</h3>
+              <div class="badge badge-ghost">0 points</div>
             </div>
-            
+
             <p class="text-base-content/70 italic">
-              {goal.reason || "No activity noted this week. You might revisit whether this goal is still important, or if a small step could make it easier to engage."}
+              {goal.reason ||
+                'No activity noted this week. You might revisit whether this goal is still important, or if a small step could make it easier to engage.'}
             </p>
           </div>
         </div>
