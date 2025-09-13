@@ -136,7 +136,7 @@
         </span>
       </div>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
         <!-- Overall Score -->
         <div class="text-center">
           <div class="stat">
@@ -145,6 +145,15 @@
               {summary.alignmentScore !== null ? `${summary.alignmentScore}%` : 'N/A'}
             </div>
             <div class="stat-desc">{getAlignmentScoreText(summary.alignmentScore)}</div>
+          </div>
+        </div>
+
+        <!-- Points Earned -->
+        <div class="text-center">
+          <div class="stat">
+            <div class="stat-title">Points Earned</div>
+            <div class="stat-value text-primary">{summary.totalPointsEarned}</div>
+            <div class="stat-desc">out of {summary.totalPossiblePoints} possible</div>
           </div>
         </div>
 
@@ -169,6 +178,55 @@
     </div>
   </div>
 
+  <!-- Per-Goal Breakdown -->
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold mb-6">Goal-by-Goal Breakdown</h2>
+    
+    <div class="space-y-6">
+      <!-- Aligned Goals -->
+      {#each summary.alignedGoals as goal}
+        <div class="card bg-base-100 border-base-300 border shadow-xl">
+          <div class="card-body">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-success">{goal.goalTitle}</h3>
+              <div class="badge badge-success">
+                {goal.points} point{goal.points !== 1 ? 's' : ''}
+              </div>
+            </div>
+            
+            {#if goal.evidence && goal.evidence.length > 0}
+              <div class="space-y-2">
+                <ul class="list-disc list-inside space-y-2">
+                  {#each goal.evidence as evidence}
+                    <li class="text-base-content/80">"{evidence}"</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/each}
+      
+      <!-- Neglected Goals -->
+      {#each summary.neglectedGoals as goal}
+        <div class="card bg-base-100 border-base-300 border shadow-xl">
+          <div class="card-body">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-warning">{goal.goalTitle}</h3>
+              <div class="badge badge-ghost">
+                0 points
+              </div>
+            </div>
+            
+            <p class="text-base-content/70 italic">
+              {goal.reason || "No activity noted this week. You might revisit whether this goal is still important, or if a small step could make it easier to engage."}
+            </p>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </div>
+
   <!-- Analysis Summary -->
   <div class="card bg-base-100 border-base-300 mb-6 border shadow-xl">
     <div class="card-body">
@@ -182,83 +240,14 @@
     </div>
   </div>
 
-  <!-- Goals Breakdown -->
-  <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <!-- Aligned Goals -->
-    <div class="card bg-base-100 border-base-300 border shadow-xl">
-      <div class="card-body">
-        <h3 class="card-title text-success mb-4">
-          <CheckCircleIcon size={20} />
-          Goals Making Progress ({summary.alignedGoals.length})
-        </h3>
-
-        {#if summary.alignedGoals.length > 0}
-          <div class="space-y-4">
-            {#each summary.alignedGoals as goal}
-              <div class="bg-success/10 border-success/20 rounded-lg border p-4">
-                <h4 class="text-success mb-2 font-semibold">{goal.goalTitle}</h4>
-                {#if goal.evidence && goal.evidence.length > 0}
-                  <div class="space-y-2">
-                    <div class="text-base-content/70 text-sm font-medium">Evidence from your journals:</div>
-                    <ul class="list-inside list-disc space-y-1">
-                      {#each goal.evidence as evidence}
-                        <li class="text-base-content/80 text-sm">"{evidence}"</li>
-                      {/each}
-                    </ul>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {:else}
-          <div class="py-8 text-center">
-            <CheckCircleIcon size={48} class="text-base-content/30 mx-auto mb-2" />
-            <p class="text-base-content/60">No goals showing clear progress in this period</p>
-          </div>
-        {/if}
-      </div>
-    </div>
-
-    <!-- Neglected Goals -->
-    <div class="card bg-base-100 border-base-300 border shadow-xl">
-      <div class="card-body">
-        <h3 class="card-title text-warning mb-4">
-          <AlertCircleIcon size={20} />
-          Goals Needing Attention ({summary.neglectedGoals.length})
-        </h3>
-
-        {#if summary.neglectedGoals.length > 0}
-          <div class="space-y-4">
-            {#each summary.neglectedGoals as goal}
-              <div class="bg-warning/10 border-warning/20 rounded-lg border p-4">
-                <h4 class="text-warning mb-2 font-semibold">{goal.goalTitle}</h4>
-                {#if goal.reason}
-                  <p class="text-base-content/70 text-sm">
-                    <strong>Reason:</strong>
-                    {goal.reason}
-                  </p>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {:else}
-          <div class="py-8 text-center">
-            <CheckCircleIcon size={48} class="text-success/30 mx-auto mb-2" />
-            <p class="text-base-content/60">All goals received adequate attention!</p>
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
-
-  <!-- Suggested Next Steps -->
+  <!-- For Next Week -->
   {#if summary.suggestedNextSteps && summary.suggestedNextSteps.length > 0}
     <div class="card bg-base-100 border-base-300 mb-6 border shadow-xl">
       <div class="card-body">
-        <h3 class="card-title mb-4">
-          <ArrowRightIcon size={20} />
-          Suggested Next Steps
-        </h3>
+        <h2 class="card-title mb-4">
+          <ArrowRightIcon size={24} />
+          For Next Week
+        </h2>
         <div class="space-y-3">
           {#each summary.suggestedNextSteps as step, index}
             <div class="flex items-start gap-3">
