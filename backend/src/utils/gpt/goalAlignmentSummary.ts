@@ -14,6 +14,8 @@ export interface GoalAlignmentSummaryResult {
   neglectedGoals: NeglectedGoal[];
   suggestedNextSteps: string[];
   summary: string;
+  totalPointsEarned: number;
+  totalPossiblePoints: number;
 }
 
 type Goal = typeof goals.$inferSelect;
@@ -24,9 +26,9 @@ type Goal = typeof goals.$inferSelect;
 function createGoalAlignmentSystemPrompt(userContext: ComprehensiveUserContext, userGoals: Goal[], startDate: string, endDate: string): string {
   const goalsList = userGoals.map((goal: Goal) => `- **${goal.title}**: ${goal.description || 'No description'}`).join('\n');
 
-  return `You are an insightful life coach helping ${userContext.name} understand how well their activities aligned with their goals during the period from ${startDate} to ${endDate}.
+  return `You are a smart, compassionate life coach helping ${userContext.name} understand how their activities aligned with their goals during the period from ${startDate} to ${endDate}.
 
-Your task is to analyze their journal entries and evaluate how well they aligned with their active goals during this period.
+Your analysis will use a deterministic scoring system and provide actionable insights with a forward-thinking approach.
 
 ## User Context
 ${formatUserContextForPrompt(userContext)}
@@ -36,51 +38,44 @@ ${goalsList}
 
 ## Instructions
 
-1. **Calculate an overall alignment score (0-100 or null)** based on:
-   - Overall progress toward goals (40% weight)
-   - Time and energy investment in goal-related activities (30% weight)
-   - Mindset and commitment to goals (20% weight)
-   - Consistency and intentionality (10% weight)
-   - Return null if there's insufficient information to make an assessment
+Create a per-goal breakdown analysis with deterministic scoring and forward-looking suggestions.
 
-2. **Identify aligned goals** - For each goal that received attention:
-   - Provide specific evidence from journal entries
-   - Include quotes or excerpts that show progress/effort
-   - Focus on concrete actions and behaviors
+### Scoring System (CRITICAL):
+- Each goal can earn **maximum 2 points**:
+  - **1 point**: Any aligned action or evidence found in journals
+  - **2 points**: Two or more aligned actions or significant engagement
+  - **0 points**: No activity noted (goes to neglected goals)
 
-3. **Identify neglected goals** - For goals that received little/no attention:
-   - Provide a brief reason for the neglect (if discernible)
-   - Keep this constructive and non-judgmental
+### Response Format Requirements:
 
-4. **Suggest 3-5 next steps** that are:
-   - Specific and actionable
-   - Aligned with their goals and current life context
-   - Based on patterns observed in their journal entries
+1. **Summary Text**: Write as a life coach - honest but encouraging, focused on patterns and growth opportunities. Style should be:
+   - Forward-thinking, not just reflective
+   - Focused on alignment with values and identity, not just task completion
+   - Honest but motivational, specific and realistic
+   - 2-3 paragraphs analyzing overall alignment patterns
 
-5. **Create a cohesive narrative summary** that:
-   - Analyzes overall goal alignment patterns
-   - Highlights key insights about their goal pursuit
-   - Identifies obstacles and success factors
-   - Maintains an encouraging and constructive tone
-   - Length: 2-4 paragraphs
+2. **Per-Goal Analysis**:
+   - Every goal MUST appear in either alignedGoals OR neglectedGoals
+   - For aligned goals: Include specific evidence from journal entries and assign 1-2 points
+   - For neglected goals: Include brief reason and assign 0 points
 
-6. **Scoring guidelines:**
-   - 90-100: Exceptional alignment across multiple goals, consistent progress
-   - 80-89: Strong alignment, solid progress on most goals
-   - 70-79: Good alignment, moderate progress with some gaps
-   - 60-69: Fair alignment, some progress but inconsistent
-   - 50-59: Poor alignment, minimal progress on goals
-   - 0-49: Very poor alignment, little to no goal-directed activity
-   - null: Insufficient information to assess alignment
+3. **Next Steps**: 1-3 concrete, specific suggestions based on low-engagement or missed goals
 
-7. **Format your response as JSON:**
+### Calculation:
+- Total possible points = (number of goals) × 2
+- Alignment score = (total points earned / total possible points) × 100, rounded to nearest integer
+
+### JSON Response Format:
 \`\`\`json
 {
   "alignmentScore": 75,
+  "totalPointsEarned": 6,
+  "totalPossiblePoints": 8,
   "alignedGoals": [
     {
       "goalId": "goal-uuid",
       "goalTitle": "Goal Title",
+      "points": 2,
       "evidence": ["Specific evidence from journal", "Another piece of evidence"]
     }
   ],
@@ -88,18 +83,19 @@ ${goalsList}
     {
       "goalId": "goal-uuid", 
       "goalTitle": "Goal Title",
-      "reason": "Brief reason for neglect"
+      "points": 0,
+      "reason": "No activity noted this week. You might revisit whether this goal is still important, or if a small step could make it easier to engage."
     }
   ],
   "suggestedNextSteps": [
     "Specific actionable step 1",
     "Specific actionable step 2"
   ],
-  "summary": "Your comprehensive analysis here..."
+  "summary": "Your comprehensive life coach analysis here..."
 }
 \`\`\`
 
-Focus on patterns and themes rather than day-by-day analysis. Be honest but encouraging. Markdown is supported in the summary.`;
+Focus on helping ${userContext.name} see patterns, celebrate progress, and take concrete next steps. Be specific about what they accomplished and what small actions could help them move forward.`;
 }
 
 /**
@@ -179,21 +175,25 @@ export async function generateGoalAlignmentSummary(
       !result.summary ||
       !Array.isArray(result.alignedGoals) ||
       !Array.isArray(result.neglectedGoals) ||
-      !Array.isArray(result.suggestedNextSteps)
+      !Array.isArray(result.suggestedNextSteps) ||
+      typeof result.totalPointsEarned !== 'number' ||
+      typeof result.totalPossiblePoints !== 'number' ||
+      result.totalPointsEarned < 0 ||
+      result.totalPossiblePoints < 0
     ) {
       throw new Error('Invalid response format from GPT');
     }
 
     // Validate aligned goals structure
     for (const goal of result.alignedGoals) {
-      if (!goal.goalId || !goal.goalTitle || !Array.isArray(goal.evidence)) {
+      if (!goal.goalId || !goal.goalTitle || !Array.isArray(goal.evidence) || typeof goal.points !== 'number' || goal.points < 1 || goal.points > 2) {
         throw new Error('Invalid aligned goal structure from GPT');
       }
     }
 
     // Validate neglected goals structure
     for (const goal of result.neglectedGoals) {
-      if (!goal.goalId || !goal.goalTitle) {
+      if (!goal.goalId || !goal.goalTitle || typeof goal.points !== 'number' || goal.points !== 0) {
         throw new Error('Invalid neglected goal structure from GPT');
       }
     }
@@ -204,6 +204,8 @@ export async function generateGoalAlignmentSummary(
       neglectedGoals: result.neglectedGoals,
       suggestedNextSteps: result.suggestedNextSteps,
       summary: result.summary,
+      totalPointsEarned: result.totalPointsEarned,
+      totalPossiblePoints: result.totalPossiblePoints,
     };
   } catch (error) {
     throw new Error(`Failed to parse GPT goal alignment summary response: ${error instanceof Error ? error.message : String(error)}`);

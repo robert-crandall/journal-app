@@ -22,6 +22,7 @@ export const goalAlignmentSummaries = pgTable('goal_alignment_summaries', {
         goalId: string;
         goalTitle: string;
         evidence: string[]; // Evidence/excerpts from journals, tasks, etc.
+        points: number; // Points earned (1-2) for this goal
       }>
     >()
     .default([]),
@@ -32,11 +33,16 @@ export const goalAlignmentSummaries = pgTable('goal_alignment_summaries', {
         goalId: string;
         goalTitle: string;
         reason?: string; // Optional reason for neglect
+        points: number; // Points earned (always 0 for neglected goals)
       }>
     >()
     .default([]),
 
   suggestedNextSteps: jsonb('suggested_next_steps').$type<string[]>().default([]),
+
+  // Deterministic scoring fields
+  totalPointsEarned: integer('total_points_earned').notNull().default(0), // Total points earned across all goals
+  totalPossiblePoints: integer('total_possible_points').notNull().default(0), // Total possible points (goals * 2)
 
   // Generated summary text
   summary: text('summary').notNull(), // Natural language summary of the week's alignment

@@ -36,6 +36,8 @@ const serializeGoalAlignmentSummary = (summary: typeof goalAlignmentSummaries.$i
     neglectedGoals: summary.neglectedGoals || [],
     suggestedNextSteps: summary.suggestedNextSteps || [],
     summary: summary.summary,
+    totalPointsEarned: summary.totalPointsEarned,
+    totalPossiblePoints: summary.totalPossiblePoints,
     createdAt: summary.createdAt.toISOString(),
     updatedAt: summary.updatedAt.toISOString(),
   };
@@ -163,6 +165,8 @@ const app = new Hono()
           neglectedGoals: data.neglectedGoals || [],
           suggestedNextSteps: data.suggestedNextSteps || [],
           summary: data.summary,
+          totalPointsEarned: data.totalPointsEarned || 0,
+          totalPossiblePoints: data.totalPossiblePoints || 0,
         })
         .returning();
 
@@ -248,7 +252,7 @@ const app = new Hono()
       }
 
       // Generate goal alignment summary using GPT
-      const { alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, summary } = await generateGoalAlignmentSummary(
+      const { alignmentScore, alignedGoals, neglectedGoals, suggestedNextSteps, summary, totalPointsEarned, totalPossiblePoints } = await generateGoalAlignmentSummary(
         journalsInPeriod,
         userGoals,
         data.startDate,
@@ -268,6 +272,8 @@ const app = new Hono()
           neglectedGoals,
           suggestedNextSteps,
           summary,
+          totalPointsEarned,
+          totalPossiblePoints,
         })
         .returning();
 
@@ -331,6 +337,12 @@ const app = new Hono()
         }
         if (data.summary !== undefined) {
           updateData.summary = data.summary;
+        }
+        if (data.totalPointsEarned !== undefined) {
+          updateData.totalPointsEarned = data.totalPointsEarned;
+        }
+        if (data.totalPossiblePoints !== undefined) {
+          updateData.totalPossiblePoints = data.totalPossiblePoints;
         }
 
         const updatedSummary = await db
