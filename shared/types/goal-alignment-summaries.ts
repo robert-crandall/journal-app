@@ -5,12 +5,14 @@ export interface AlignedGoal {
   goalId: string;
   goalTitle: string;
   evidence: string[]; // Evidence/excerpts from journals, tasks, etc.
+  points: number; // Points earned (1-2) for this goal
 }
 
 export interface NeglectedGoal {
   goalId: string;
   goalTitle: string;
   reason?: string; // Optional reason for neglect
+  points: number; // Points earned (always 0 for neglected goals)
 }
 
 export interface GoalAlignmentSummary {
@@ -23,6 +25,8 @@ export interface GoalAlignmentSummary {
   neglectedGoals: NeglectedGoal[];
   suggestedNextSteps: string[];
   summary: string;
+  totalPointsEarned: number; // Total points earned across all goals
+  totalPossiblePoints: number; // Total possible points (goals * 2)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +41,8 @@ export interface NewGoalAlignmentSummary {
   neglectedGoals?: NeglectedGoal[];
   suggestedNextSteps?: string[];
   summary: string;
+  totalPointsEarned?: number;
+  totalPossiblePoints?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,6 +56,8 @@ export interface CreateGoalAlignmentSummaryRequest {
   neglectedGoals?: NeglectedGoal[];
   suggestedNextSteps?: string[];
   summary: string;
+  totalPointsEarned?: number;
+  totalPossiblePoints?: number;
 }
 
 export interface UpdateGoalAlignmentSummaryRequest {
@@ -58,6 +66,8 @@ export interface UpdateGoalAlignmentSummaryRequest {
   neglectedGoals?: NeglectedGoal[];
   suggestedNextSteps?: string[];
   summary?: string;
+  totalPointsEarned?: number;
+  totalPossiblePoints?: number;
 }
 
 export interface ListGoalAlignmentSummariesRequest {
@@ -84,6 +94,8 @@ export interface GoalAlignmentSummaryResponse {
   neglectedGoals: NeglectedGoal[];
   suggestedNextSteps: string[];
   summary: string;
+  totalPointsEarned: number; // Total points earned across all goals
+  totalPossiblePoints: number; // Total possible points (goals * 2)
   createdAt: string;
   updatedAt: string;
 }

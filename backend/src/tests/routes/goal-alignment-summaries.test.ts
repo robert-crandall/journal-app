@@ -74,11 +74,14 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
             goalId: testGoalId,
             goalTitle: 'Learn Spanish',
             evidence: ['Practiced Spanish for 30 minutes', 'Used new phrases in conversation'],
+            points: 2,
           },
         ],
         neglectedGoals: [],
         suggestedNextSteps: ['Continue daily practice', 'Focus on grammar'],
         summary: 'Great week for Spanish learning with consistent practice.',
+        totalPointsEarned: 2,
+        totalPossiblePoints: 2,
       };
 
       const res = await app.request('/api/goal-alignment-summaries', {
@@ -170,6 +173,8 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
           alignedGoals: [],
           neglectedGoals: [],
           suggestedNextSteps: [],
+          totalPointsEarned: 0,
+          totalPossiblePoints: 2,
         },
         {
           userId,
@@ -180,6 +185,8 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
           alignedGoals: [],
           neglectedGoals: [],
           suggestedNextSteps: [],
+          totalPointsEarned: 0,
+          totalPossiblePoints: 2,
         },
       ];
 
@@ -213,6 +220,8 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
           alignedGoals: [],
           neglectedGoals: [],
           suggestedNextSteps: [],
+          totalPointsEarned: 0,
+          totalPossiblePoints: 2,
         },
         {
           userId,
@@ -223,6 +232,8 @@ describe('Goal Alignment Summaries API Integration Tests', () => {
           alignedGoals: [],
           neglectedGoals: [],
           suggestedNextSteps: [],
+          totalPointsEarned: 0,
+          totalPossiblePoints: 2,
         },
       ];
 
