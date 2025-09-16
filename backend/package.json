@@ -16,7 +16,7 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.5",
     "drizzle-zod": "^0.8.3",
-    "hono": "^4.9.6",
+    "hono": "^4.9.7",
     "openai": "^5.20.3",
     "postgres": "^3.4.7",
     "sharp": "^0.34.3",
