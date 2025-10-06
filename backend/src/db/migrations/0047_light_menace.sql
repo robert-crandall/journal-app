@@ -1,0 +1,2 @@
+ALTER TABLE "goal_alignment_summaries" ADD COLUMN "total_points_earned" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "goal_alignment_summaries" ADD COLUMN "total_possible_points" integer DEFAULT 0 NOT NULL;
