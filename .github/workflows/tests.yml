@@ -71,6 +71,13 @@ jobs:
         working-directory: ./frontend
         run: bun install
 
+      - name: Generate backend types for frontend
+        working-directory: ./frontend
+        run: |
+          # Ensure backend types are generated
+          bun run prepare
+          tsc -p tsconfig.backend-types.json --emitDeclarationOnly
+
       - name: Run frontend type checking
         working-directory: ./frontend
         run: bun run check
