@@ -48,6 +48,17 @@ jobs:
           bun-version: 'latest'
 
       # Cheap checks first
+      # Root dependencies (needed for workspace setup)
+      - name: Install root dependencies
+        working-directory: ./
+        run: |
+          # Use flexible install for Dependabot PRs, strict for others
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            bun install
+          else
+            bun install
+          fi
+
       # Backend setup and tests
       - name: Install backend dependencies
         working-directory: ./backend
