@@ -1,7 +1,7 @@
 # 🧭 Epic: Reinstate Reflective Journal Mode (No Chat)
 
 **Goal:**
-Transform v2’s “finish journal” mode into the primary journaling experience — combining a *daily question*, *user-authored entry*, and *AI reflection* (based on previous entries, summaries, and personal synopsis data).
+Transform v2’s “finish journal” mode into the primary journaling experience — combining a _daily question_, _user-authored entry_, and _AI reflection_ (based on previous entries, summaries, and personal synopsis data).
 Remove conversational behavior entirely.
 
 ---
@@ -15,33 +15,30 @@ Remove conversational behavior entirely.
 **Tasks:**
 
 1. **Generate one question per day per user**
-
-   * Query the last few entries and `journals.synopsis` for recurring topics or tone trends.
-   * LLM prompt example:
+   - Query the last few entries and `journals.synopsis` for recurring topics or tone trends.
+   - LLM prompt example:
 
      > “Based on these entries and synopsis, generate one reflective question that invites introspection and continuity.
      > The tone should be warm and curious, not analytical.”
 
 2. **Persist the question** in a new table or existing journal metadata:
-
-   * Fields:
+   - Fields:
      `id`, `user_id`, `date`, `question_text`, `context_source` (e.g., "fatigue pattern"), `answered:boolean`.
 
 3. **Display flow:**
-
-   * When user opens the app, show today’s question prominently above the entry field.
-   * If a question already exists for today, reuse it.
-   * Once the user submits their entry, mark `answered=true`.
+   - When user opens the app, show today’s question prominently above the entry field.
+   - If a question already exists for today, reuse it.
+   - Once the user submits their entry, mark `answered=true`.
 
 **Definition of done:**
-Users see *exactly one personalized question per day*, tied to context and remembered for that date.
+Users see _exactly one personalized question per day_, tied to context and remembered for that date.
 
 ---
 
 ## 🗂️ Milestone 2 — Reflection Agent Integration (Post-Entry Summary)
 
 > **Purpose:**
-> Once a user writes their daily reflection, generate an *AI reflection paragraph* about the day — drawing from their entry, prior context, and `journals.synopsis`.
+> Once a user writes their daily reflection, generate an _AI reflection paragraph_ about the day — drawing from their entry, prior context, and `journals.synopsis`.
 
 **Tasks:**
 
@@ -49,17 +46,17 @@ Users see *exactly one personalized question per day*, tied to context and remem
 2. **Add a reflection agent** (new system prompt):
 
    ```
-   You are a reflective companion. 
+   You are a reflective companion.
    Read the user's daily journal entry, the last 3 entries, and the user's synopsis (personality, preferences).
    Write a short paragraph (3–5 sentences) that helps the user see meaning, progress, or connection in their day.
-   Do not summarize or quantify. 
+   Do not summarize or quantify.
    Sound thoughtful, observant, and human.
    ```
+
 3. **Store reflection output** in a new field (e.g., `journals.reflection_text`).
 4. **UI display:**
-
-   * Appears below the user’s entry after submission, like “AI Reflection for Today.”
-   * Never appears in real time (no chat UX).
+   - Appears below the user’s entry after submission, like “AI Reflection for Today.”
+   - Never appears in real time (no chat UX).
 
 **Definition of done:**
 After submitting an entry, the user receives one reflective paragraph that feels personal and meaningful — not analytical.
@@ -74,10 +71,10 @@ After submitting an entry, the user receives one reflective paragraph that feels
 **Tasks:**
 
 1. Reflection agent fetches:
+   - `journals.synopsis` (user profile summary)
+   - 3 most recent journal summaries
+   - Most recent question of the day
 
-   * `journals.synopsis` (user profile summary)
-   * 3 most recent journal summaries
-   * Most recent question of the day
 2. Include this in the LLM context for both daily question and reflection generation.
 3. Optionally, after each reflection, auto-update `journals.synopsis` using a summarization job that rolls in recent patterns.
 

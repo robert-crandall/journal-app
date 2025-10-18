@@ -345,7 +345,7 @@
                   <SparklesIcon size={18} />
                 </div>
               </div>
-              
+
               <!-- Question content -->
               <div class="flex-1">
                 <div class="text-accent mb-2 flex items-center gap-2 text-sm font-medium">

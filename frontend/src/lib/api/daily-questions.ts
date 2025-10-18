@@ -1,5 +1,10 @@
 import { apiFetch } from '../api';
-import type { DailyQuestionResponse, GetTodayQuestionResponse, CreateDailyQuestionRequest, UpdateDailyQuestionRequest } from '../../../../backend/src/db/schema';
+import type {
+  DailyQuestionResponse,
+  GetTodayQuestionResponse,
+  CreateDailyQuestionRequest,
+  UpdateDailyQuestionRequest,
+} from '../../../../backend/src/db/schema';
 
 export class DailyQuestionsService {
   /**
