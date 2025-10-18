@@ -59,7 +59,7 @@ jobs:
         run: bun install
 
       - name: Run backend database migrations
-        working-directory: ./
+        working-directory: ./backend
         run: bun run db:migrate
 
       - name: Run backend type checking
