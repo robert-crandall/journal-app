@@ -2,10 +2,12 @@
   import { createEventDispatcher, onMount, afterUpdate } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import { PhotoService } from '$lib/api/photos';
+  import { DailyQuestionsService } from '$lib/api/daily-questions';
   import { formatDateTime } from '$lib/utils/date';
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon, ImageIcon } from 'lucide-svelte';
+  import type { DailyQuestionResponse } from 'backend/src/db/schema';
+  import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon, ImageIcon, SparklesIcon } from 'lucide-svelte';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoThumbnail from '$lib/components/PhotoThumbnail.svelte';
@@ -26,6 +28,11 @@
   let photos: PhotoResponse[] = [];
   let loadingPhotos = true;
 
+  // Daily question state
+  let dailyQuestion: DailyQuestionResponse | null = null;
+  let loadingQuestion = true;
+  let questionAnswered = false;
+
   // Scroll to bottom when new messages are added
   afterUpdate(() => {
     if (chatContainer) {
@@ -34,8 +41,8 @@
   });
 
   onMount(async () => {
-    // Load photos and scroll to bottom
-    await loadPhotos();
+    // Load daily question and photos in parallel
+    await Promise.all([loadDailyQuestion(), loadPhotos()]);
 
     // Scroll to bottom on initial load
     if (chatContainer) {
@@ -57,6 +64,20 @@
     }
   }
 
+  async function loadDailyQuestion() {
+    try {
+      const response = await DailyQuestionsService.getTodaysQuestion(date);
+      if (response.question) {
+        dailyQuestion = response.question;
+        questionAnswered = response.question.answered;
+      }
+    } catch (error) {
+      console.error('Failed to load daily question:', error);
+    } finally {
+      loadingQuestion = false;
+    }
+  }
+
   function handlePhotoUpdate(event: CustomEvent<PhotoResponse>) {
     const updatedPhoto = event.detail;
     photos = photos.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
@@ -65,6 +86,37 @@
   function handlePhotoDelete(event: CustomEvent<string>) {
     const deletedPhotoId = event.detail;
     photos = photos.filter((p) => p.id !== deletedPhotoId);
+  }
+
+  async function answerDailyQuestion(questionText: string) {
+    if (!dailyQuestion || questionAnswered) return;
+
+    // Mark question as answered
+    try {
+      await DailyQuestionsService.markQuestionAsAnswered(dailyQuestion.id);
+      questionAnswered = true;
+    } catch (error) {
+      console.error('Failed to mark question as answered:', error);
+    }
+
+    // Send the question text as a message
+    const messageToSend = questionText;
+    newMessage = '';
+
+    try {
+      sending = true;
+      error = null;
+
+      const updatedJournal = await JournalService.addChatMessage(date, {
+        message: messageToSend,
+      });
+
+      dispatch('update', updatedJournal);
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Failed to send message';
+    } finally {
+      sending = false;
+    }
   }
 
   async function sendMessage() {
@@ -128,7 +180,8 @@
   }
 
   $: chatSession = journal.chatSession || [];
-  $: messageCount = chatSession.length;
+  $: showDailyQuestion = dailyQuestion && !questionAnswered && chatSession.length === 0;
+  $: messageCount = chatSession.length + (showDailyQuestion ? 1 : 0);
 </script>
 
 <div class="card bg-base-100 border-base-300 flex h-full flex-col border shadow-xl">
@@ -161,8 +214,50 @@
     <!-- Chat Messages -->
     <div bind:this={chatContainer} class="flex-grow overflow-y-auto scroll-smooth p-2 sm:p-4">
       <div class="space-y-2 sm:space-y-3">
+        <!-- Daily Question of the Day (shown first if no chat messages exist) -->
+        {#if showDailyQuestion}
+          <div class="flex items-start gap-2 sm:gap-3">
+            <!-- Avatar with special icon for daily question -->
+            <div class="flex-shrink-0">
+              <div class="bg-accent text-accent-content flex h-6 w-6 items-center justify-center rounded-full sm:h-8 sm:w-8">
+                <SparklesIcon size={12} class="sm:hidden" />
+                <SparklesIcon size={16} class="hidden sm:block" />
+              </div>
+            </div>
+
+            <!-- Daily Question Content -->
+            <div class="max-w-[75%] flex-1 sm:max-w-md lg:max-w-lg">
+              <div class="border-accent bg-accent/10 rounded-lg border px-3 py-2 sm:px-4 sm:py-3">
+                <div class="text-accent mb-2 flex items-center gap-1 text-xs font-medium sm:text-sm">
+                  <SparklesIcon size={12} class="sm:hidden" />
+                  <SparklesIcon size={14} class="hidden sm:block" />
+                  Question of the Day
+                </div>
+                <Markdown content={dailyQuestion?.questionText || ''} classes="leading-relaxed text-base-content" />
+              </div>
+              <div class="mt-2">
+                <button
+                  type="button"
+                  class="btn btn-accent btn-sm"
+                  on:click={() => dailyQuestion && answerDailyQuestion(dailyQuestion.questionText)}
+                  disabled={sending}
+                >
+                  {#if sending}
+                    <span class="loading loading-spinner loading-xs"></span>
+                    Answering...
+                  {:else}
+                    Answer this question
+                  {/if}
+                </button>
+              </div>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Regular Chat Messages -->
         {#each chatSession as message, i (message)}
-          <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}">
+          <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}" data-test-role="{message.role}-message">
+            >
             <!-- Avatar -->
             <div class="flex-shrink-0">
               <div

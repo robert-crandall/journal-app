@@ -5,6 +5,7 @@ export { default as tagsApi } from './tags';
 export { experimentsApi } from './experiments';
 export { plansApi } from './plans';
 export { dailyIntentsApi } from './daily-intents';
+export { DailyQuestionsService } from './daily-questions';
 export { generateTasksApi } from './generate-tasks';
 export { metricSummariesApi } from './metric-summaries';
 export { userAttributesApi } from './user-attributes';
