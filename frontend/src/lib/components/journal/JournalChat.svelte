@@ -6,7 +6,7 @@
   import { formatDateTime } from '$lib/utils/date';
   import type { JournalResponse, ChatMessage } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import type { DailyQuestionResponse } from 'backend/src/db/schema';
+  import type { DailyQuestionResponse } from '../../../../../backend/src/db/schema';
   import { MessageCircleIcon, SendIcon, CheckCircleIcon, UserIcon, BotIcon, ImageIcon, SparklesIcon } from 'lucide-svelte';
   import Markdown from '$lib/components/common/Markdown.svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
