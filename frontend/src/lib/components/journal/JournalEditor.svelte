@@ -5,7 +5,7 @@
   import { DailyQuestionsService } from '$lib/api/daily-questions';
   import type { JournalResponse } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import type { DailyQuestion } from '../../../shared/types/daily-questions';
+  import type { DailyQuestionResponse } from 'backend/src/db/schema';
   import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon, XIcon, SparklesIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoUpload from '$lib/components/PhotoUpload.svelte';
@@ -39,7 +39,7 @@
   let needsXpCleanup = isEditingComplete; // Track if we need to clean up XP on first save
 
   // Daily question state
-  let dailyQuestion: DailyQuestion | null = null;
+  let dailyQuestion: DailyQuestionResponse | null = null;
   let loadingQuestion = true;
 
   // Character counter
@@ -353,7 +353,7 @@
                   Question of the Day
                 </div>
                 <p class="text-base-content mb-4 leading-relaxed">
-                  {dailyQuestion.questionText}
+                  {dailyQuestion!.questionText}
                 </p>
               </div>
             </div>
