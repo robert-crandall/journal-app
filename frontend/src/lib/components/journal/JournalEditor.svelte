@@ -2,9 +2,11 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { JournalService } from '$lib/api/journal';
   import { PhotoService } from '$lib/api/photos';
+  import { DailyQuestionsService } from '$lib/api/daily-questions';
   import type { JournalResponse } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon, XIcon } from 'lucide-svelte';
+  import type { DailyQuestion } from '../../../shared/types/daily-questions';
+  import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon, XIcon, SparklesIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoUpload from '$lib/components/PhotoUpload.svelte';
 
@@ -36,12 +38,20 @@
   let hasUnsavedChanges = false;
   let needsXpCleanup = isEditingComplete; // Track if we need to clean up XP on first save
 
+  // Daily question state
+  let dailyQuestion: DailyQuestion | null = null;
+  let loadingQuestion = true;
+
   // Character counter
   $: characterCount = initialMessage.length;
   $: wordCount = initialMessage.trim() ? initialMessage.trim().split(/\s+/).length : 0;
 
+  // Show daily question if it exists and no initial content yet
+  $: showDailyQuestion = dailyQuestion && !initialMessage.trim() && !isEditingComplete;
+
   onMount(() => {
     loadPhotos();
+    loadDailyQuestion();
   });
 
   async function loadPhotos() {
@@ -58,6 +68,25 @@
       console.error('Failed to load photos:', err);
     } finally {
       loadingPhotos = false;
+    }
+  }
+
+  async function loadDailyQuestion() {
+    // Only show daily question for new journals (not when editing existing ones)
+    if (isEditingComplete || (journal && journal.initialMessage)) {
+      loadingQuestion = false;
+      return;
+    }
+
+    try {
+      const response = await DailyQuestionsService.getTodaysQuestion(date);
+      if (response.question) {
+        dailyQuestion = response.question;
+      }
+    } catch (error) {
+      console.error('Failed to load daily question:', error);
+    } finally {
+      loadingQuestion = false;
     }
   }
 
@@ -230,6 +259,21 @@
     // Dispatch event to cancel editing and return to complete view
     dispatch('cancelEdit');
   }
+
+  function answerDailyQuestion(questionText: string) {
+    if (!dailyQuestion) return;
+
+    // Pre-fill the textarea with the question
+    initialMessage = questionText;
+    hasUnsavedChanges = true;
+
+    // Focus the textarea for user to continue writing
+    if (textareaElement) {
+      textareaElement.focus();
+      // Position cursor at the end
+      textareaElement.setSelectionRange(questionText.length, questionText.length);
+    }
+  }
 </script>
 
 <div class="card bg-base-100 border-base-300 border shadow-xl">
@@ -256,6 +300,8 @@
               {:else}
                 Editing your completed journal entry
               {/if}
+            {:else if showDailyQuestion}
+              Start with today's question, or write freely about anything on your mind
             {:else}
               Share your thoughts, experiences, and reflections
             {/if}
@@ -284,6 +330,35 @@
     {#if error}
       <div class="alert alert-error mb-3 p-2 text-xs sm:mb-4 sm:p-4 sm:text-sm">
         <span>{error}</span>
+      </div>
+    {/if}
+
+    <!-- Daily Question of the Day -->
+    {#if showDailyQuestion}
+      <div class="mb-4 sm:mb-6">
+        <div class="card border-accent/20 bg-accent/5">
+          <div class="card-body p-4 sm:p-6">
+            <div class="flex items-start gap-3">
+              <!-- Sparkles icon -->
+              <div class="flex-shrink-0">
+                <div class="bg-accent text-accent-content flex h-8 w-8 items-center justify-center rounded-full">
+                  <SparklesIcon size={18} />
+                </div>
+              </div>
+              
+              <!-- Question content -->
+              <div class="flex-1">
+                <div class="text-accent mb-2 flex items-center gap-2 text-sm font-medium">
+                  <SparklesIcon size={16} />
+                  Question of the Day
+                </div>
+                <p class="text-base-content mb-4 leading-relaxed">
+                  {dailyQuestion.questionText}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     {/if}
 
