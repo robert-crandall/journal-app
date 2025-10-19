@@ -150,10 +150,7 @@ export type {
   PhotoUploadResponse,
   BulkPhotoUploadResponse,
 } from '../../../shared/types/photos';
-export type {
-  DailyQuestion,
-  NewDailyQuestion,
-} from './schema/daily-questions';
+export type { DailyQuestion, NewDailyQuestion } from './schema/daily-questions';
 export type {
   UpdateDailyQuestion,
   CreateDailyQuestionRequest,
