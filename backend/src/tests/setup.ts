@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { beforeEach, afterEach, afterAll } from 'vitest';
+import { afterAll } from 'vitest';
 import * as schema from '../db/schema';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,12 +11,10 @@ const testDbUrl = process.env.DATABASE_URL || 'postgresql://test:test@localhost:
 let testClient: ReturnType<typeof postgres> | null = null;
 let testDb: ReturnType<typeof drizzle> | null = null;
 
-// For isolation, we'll use savepoints instead of transactions for better compatibility
-let currentSavepoint: string | null = null;
-
 export function getUniqueEmail(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}@example.com`;
 }
+
 /**
  * Returns a test database instance
  * This will always return the same instance used by the test harness
@@ -38,27 +36,6 @@ export function getTestDb() {
   }
   return testDb;
 }
-
-// Setup that runs before each test - create a savepoint
-beforeEach(async () => {
-  if (!testClient) {
-    getTestDb();
-  }
-
-  // Create a unique savepoint name for this test
-  currentSavepoint = `sp_${uuidv4().replace(/-/g, '_')}`;
-
-  // Create a savepoint
-  await testClient!`SAVEPOINT ${testClient!.unsafe(currentSavepoint)}`;
-});
-
-// Cleanup after each test - rollback to the savepoint
-afterEach(async () => {
-  if (currentSavepoint && testClient) {
-    await testClient!`ROLLBACK TO SAVEPOINT ${testClient!.unsafe(currentSavepoint)}`;
-    currentSavepoint = null;
-  }
-});
 
 // Cleanup after all tests - only close connection once at the very end
 afterAll(async () => {

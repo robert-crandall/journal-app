@@ -34,6 +34,7 @@ export {
   updateUserWithMeasurementFieldsSchema,
 } from '../validation/measurements';
 export { createPhotoSchema, updatePhotoSchema, listPhotosSchema, photoIdSchema, fileUploadSchema, bulkPhotoUploadSchema } from '../validation/photos';
+export { createDailyQuestionSchema, updateDailyQuestionSchema, dailyQuestionIdSchema, getTodayQuestionSchema } from '../validation/daily-questions';
 
 // Re-export types for backward compatibility
 export type { User, NewUser, PublicUser, Sex } from '../../../shared/types/users';
@@ -149,3 +150,11 @@ export type {
   PhotoUploadResponse,
   BulkPhotoUploadResponse,
 } from '../../../shared/types/photos';
+export type { DailyQuestion, NewDailyQuestion } from './schema/daily-questions';
+export type {
+  UpdateDailyQuestion,
+  CreateDailyQuestionRequest,
+  UpdateDailyQuestionRequest,
+  DailyQuestionResponse,
+  GetTodayQuestionResponse,
+} from '../../../shared/types/daily-questions';

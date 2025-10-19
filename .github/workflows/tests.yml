@@ -48,19 +48,18 @@ jobs:
           bun-version: 'latest'
 
       # Cheap checks first
+      # Root dependencies (needed for workspace setup)
+      - name: Install root dependencies
+        working-directory: ./
+        run: bun install
+
       # Backend setup and tests
       - name: Install backend dependencies
         working-directory: ./backend
-        run: |
-          # Use flexible install for Dependabot PRs, strict for others
-          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
-            bun install
-          else
-            bun install
-          fi
+        run: bun install
 
       - name: Run backend database migrations
-        working-directory: ./
+        working-directory: ./backend
         run: bun run db:migrate
 
       - name: Run backend type checking
@@ -70,13 +69,14 @@ jobs:
       # Frontend setup and tests
       - name: Install frontend dependencies
         working-directory: ./frontend
+        run: bun install
+
+      - name: Generate backend types for frontend
+        working-directory: ./frontend
         run: |
-          # Use flexible install for Dependabot PRs, strict for others
-          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
-            bun install
-          else
-            bun install
-          fi
+          # Ensure backend types are generated
+          bun run prepare
+          tsc -p tsconfig.backend-types.json --emitDeclarationOnly
 
       - name: Run frontend type checking
         working-directory: ./frontend

@@ -23,6 +23,7 @@ import measurementsRoutes from './routes/measurements';
 import photosRoutes from './routes/photos';
 import xpGrantsRoutes from './routes/xpGrants';
 import dailyIntentsRoutes from './routes/daily-intents';
+import dailyQuestionsRoutes from './routes/daily-questions';
 import generateTasksRoutes from './routes/generate-tasks';
 import userAttributesRoutes from './routes/user-attributes';
 import timeframeExportRoutes from './routes/timeframe-export';
@@ -98,6 +99,8 @@ const routes = app
   .route('/api/xp-grants', xpGrantsRoutes)
   // Mount daily intents routes
   .route('/api/daily-intents', dailyIntentsRoutes)
+  // Mount daily questions routes
+  .route('/api/daily-questions', dailyQuestionsRoutes)
   // Mount generate tasks routes
   .route('/api/generate-tasks', generateTasksRoutes)
   // Mount user attributes routes
