@@ -59,7 +59,8 @@ test.describe('Daily Questions Feature', () => {
     const journalText = 'Today I worked on some interesting projects and learned new things.';
     await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
     await page.locator('[data-test-id="save-draft-button"]').click();
-    await page.waitForTimeout(1000);
+    // Wait for save confirmation or button to become enabled again
+    await expect(page.locator('[data-test-id="save-success-message"]')).toBeVisible();
 
     // Start reflection session
     await page.locator('[data-test-id="start-reflection-button"]').click();
@@ -92,7 +93,7 @@ test.describe('Daily Questions Feature', () => {
     // Fill and save journal content
     const journalText = 'Great day working on new features and solving interesting problems.';
     await page.locator('[data-test-id="journal-editor-textarea"]').fill(journalText);
-    await page.locator('[data-test-id="save-draft-button"]').click();
+    await expect(page.locator('[data-test-id="save-success-message"]')).toBeVisible();
     await page.waitForTimeout(1000);
 
     // Start reflection session
@@ -106,12 +107,10 @@ test.describe('Daily Questions Feature', () => {
     // Click the answer button
     await page.locator('button:has-text("Answer this question")').click();
 
-    // Wait for the question to be processed as a message
-    await page.waitForTimeout(2000);
-
-    // Should see user message with the question text
     await expect(page.locator('[data-test-role="user-message"]').first()).toBeVisible();
 
+    // Should see user message with the question text
+    // Already checked above
     // Should see AI response
     await expect(page.locator('[data-test-role="assistant-message"]').first()).toBeVisible();
 
@@ -146,7 +145,7 @@ test.describe('Daily Questions Feature', () => {
     await expect(page.locator('button:has-text("Answer this question")')).toBeVisible();
     await page.locator('button:has-text("Answer this question")').click();
     await page.waitForTimeout(2000);
-
+    await expect(page.locator('text=Question of the Day')).not.toBeVisible();
     // Now navigate back to journal page
     await page.goto(`/journal/${testDate}`);
     await page.waitForLoadState('networkidle');

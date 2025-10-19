@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
-import { testDb, getUniqueEmail, schema } from '../tests/setup';
+import { getTestDb, getUniqueEmail, schema } from '../tests/setup';
 import appExport from '../index';
 import { dailyQuestions } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
-import type { DailyQuestion } from '../../../shared/types/daily-questions';
+import type { DailyQuestion } from '../db/schema/daily-questions';
 
 // Create wrapper to maintain compatibility with test expectations
 const app = {
@@ -138,7 +138,7 @@ describe('Daily Questions API', () => {
       expect(data.data.answered).toBe(true);
 
       // Verify in database
-      const question = await testDb().select().from(dailyQuestions).where(eq(dailyQuestions.id, questionId)).limit(1);
+      const question = await getTestDb().select().from(dailyQuestions).where(eq(dailyQuestions.id, questionId)).limit(1);
 
       expect(question[0].answered).toBe(true);
     });

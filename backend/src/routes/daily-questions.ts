@@ -1,11 +1,11 @@
 import { zodValidatorWithErrorHandler } from '../utils/validation';
 import { Hono } from 'hono';
-import { z } from 'zod';
+
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
 import { dailyQuestions } from '../db/schema';
 import { jwtAuth } from '../middleware/auth';
-import logger, { handleApiError } from '../utils/logger';
+import { handleApiError } from '../utils/logger';
 import { getTodaysDailyQuestion, markQuestionAsAnswered, getDailyQuestionById, getRecentDailyQuestions } from '../utils/dailyQuestionsService';
 import { createDailyQuestionSchema, updateDailyQuestionSchema, dailyQuestionIdSchema, getTodayQuestionSchema } from '../validation/daily-questions';
 import type {
@@ -14,6 +14,7 @@ import type {
   CreateDailyQuestionRequest,
   UpdateDailyQuestionRequest,
 } from '../../../shared/types/daily-questions';
+import type { DailyQuestion, NewDailyQuestion } from '../db/schema/daily-questions';
 
 const app = new Hono();
 
@@ -131,7 +132,9 @@ app.get('/:id', zodValidatorWithErrorHandler('param', dailyQuestionIdSchema), as
  */
 app.get('/', async (c) => {
   try {
-    const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50);
+    const rawLimit = c.req.query('limit');
+    const parsedLimit = Number(rawLimit);
+    const limit = !Number.isFinite(parsedLimit) ? 10 : Math.min(parsedLimit, 50);
     const userId = c.var.userId;
 
     const questions = await getRecentDailyQuestions(userId, limit);

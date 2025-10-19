@@ -4,7 +4,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { callGptApi } from './gpt/client';
 import { getUserContext, formatUserContextForPrompt } from './userContextService';
 import { getJournalMemoryContext } from './journalMemoryService';
-import type { DailyQuestion, NewDailyQuestion } from '../../../shared/types/daily-questions';
+import type { DailyQuestion, NewDailyQuestion } from '../db/schema/daily-questions';
 
 /**
  * Service for managing daily questions that provide personalized, contextual check-ins
@@ -118,7 +118,7 @@ export async function getTodaysDailyQuestion(userId: string, date?: string): Pro
 
     return createdQuestions[0] || null;
   } catch (error) {
-    console.error('Error getting todays daily question:', error);
+    console.error("Error getting today's daily question:", error);
     return null;
   }
 }

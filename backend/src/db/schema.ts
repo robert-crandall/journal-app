@@ -153,6 +153,8 @@ export type {
 export type {
   DailyQuestion,
   NewDailyQuestion,
+} from './schema/daily-questions';
+export type {
   UpdateDailyQuestion,
   CreateDailyQuestionRequest,
   UpdateDailyQuestionRequest,

@@ -257,7 +257,6 @@
         <!-- Regular Chat Messages -->
         {#each chatSession as message, i (message)}
           <div class="flex items-start gap-2 sm:gap-3 {message.role === 'user' ? 'flex-row-reverse' : ''}" data-test-role="{message.role}-message">
-            >
             <!-- Avatar -->
             <div class="flex-shrink-0">
               <div

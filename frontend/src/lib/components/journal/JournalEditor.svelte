@@ -5,7 +5,7 @@
   import { DailyQuestionsService } from '$lib/api/daily-questions';
   import type { JournalResponse } from '$lib/types/journal';
   import type { PhotoResponse } from '$lib/types/photos';
-  import type { DailyQuestionResponse } from '../../../../../backend/src/db/schema';
+  import type { DailyQuestionResponse } from '$lib/types/daily-questions';
   import { PenIcon, MessageCircleIcon, SaveIcon, CheckCircleIcon, ImageIcon, XIcon, SparklesIcon } from 'lucide-svelte';
   import JournalFinishDialog from './JournalFinishDialog.svelte';
   import PhotoUpload from '$lib/components/PhotoUpload.svelte';

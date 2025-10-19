@@ -1,28 +1,11 @@
 // Daily questions types - shared between backend and frontend
-// Extracted from backend database schema to remove Drizzle dependencies
+// Import base types from backend schema as single source of truth
 
-export interface DailyQuestion {
-  id: string;
-  userId: string;
-  questionText: string;
-  dateAssigned: string; // Date in YYYY-MM-DD format
-  answered: boolean;
-  contextSource?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { DailyQuestion, NewDailyQuestion } from '../../backend/src/db/schema/daily-questions';
 
-export interface NewDailyQuestion {
-  id?: string;
-  userId: string;
-  questionText: string;
-  dateAssigned: string;
-  answered?: boolean;
-  contextSource?: string | null;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+export type { DailyQuestion, NewDailyQuestion };
 
+// Derived types for API operations
 export type UpdateDailyQuestion = Partial<Omit<NewDailyQuestion, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
 
 // Request/Response types for API
