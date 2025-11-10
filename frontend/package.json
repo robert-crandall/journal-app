@@ -46,7 +46,7 @@
   "dependencies": {
     "daisyui": "^5.3.10",
     "hono": "^4.8.3",
-    "lucide-svelte": "^0.544.0",
+    "lucide-svelte": "^0.553.0",
     "marked": "^16.3.0"
   }
 }
